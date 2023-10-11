@@ -202,6 +202,7 @@ no-</>
     \g @code{n} or @code{b} output (whichever was later).
     current-location?
     located-bottom @ dup located-top ! rows 2/ + located-bottom !
+    locate-lines# off
     set-bn-view l1 ;
 
 : b ( -- ) \ gforth
@@ -209,6 +210,7 @@ no-</>
     \g @code{n} or @code{b} output (whichever was later).
     current-location?
     located-top @ dup located-bottom ! rows 2/ - 0 max located-top !
+    locate-lines# off
     set-bn-view l1 ;
 
 : extern-g ( -- ) \ gforth-internal
