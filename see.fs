@@ -322,9 +322,10 @@ ACONSTANT MaxTable
     over u< ;
 
 : .word1 ( addr x -- addr )
-    \ print x as a word if possible
+    \ print x as a word if possible; for primitives, x must be fetched
+    \ with @decompile-prim
     dup look 0= IF
-	drop over @threaded>name dup 0= if
+        drop dup threaded>name dup 0= if
 	    drop over cell- @ dup body> look IF
 		nip nip dup ." <" name>string rot wordinfo .string ." > "
 	    ELSE
@@ -807,8 +808,8 @@ c-extender !
 
 : analyse ( a-addr1 -- a-addr2 )
     Branches @ IF BranchTo? THEN
-    dup cell+ swap dup @ >r
-    @decompile-prim DoTable IF rdrop EXIT THEN
+    dup cell+ swap @decompile-prim
+    dup >r DoTable IF rdrop EXIT THEN
     r> Display?
     IF
 	.word1 bl cemit

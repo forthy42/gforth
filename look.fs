@@ -41,14 +41,11 @@ decimal
     THEN  =
     r> first-throw ! ;
 
-: @threaded>xt ( a-addr -- xt|0 ) \ gforth-internal
-    \G Given a threaded-code address a-addr, xt is the xt of the
-    \G primitive there.  Return 0 if there is no primitive there.
-    [IFDEF] @decompile-prim
-        @decompile-prim
-    [ELSE]
-        @
-    [THEN]
+: threaded>xt ( ca -- xt|0 )
+    \ Given the static code address of a primitive (i.e., coming from
+    \ @decompile-prim), xt is the xt of the primitive there.  Return 0
+    \ if there is no primitive there.
+    \
     \ walk through the array of primitive CAs
     >r ['] image-header >link @ begin
 	dup while
@@ -58,6 +55,16 @@ decimal
 	    >link @
     repeat
     drop rdrop 0 ;
+
+: @threaded>xt ( a-addr -- xt|0 ) \ gforth-internal
+    \G Given a threaded-code address a-addr, xt is the xt of the
+    \G primitive there.  Return 0 if there is no primitive there.
+    [IFDEF] @decompile-prim
+        @decompile-prim
+    [ELSE]
+        @
+    [THEN]
+    threaded>xt ;
 
 \ !!! nicht optimal!
 [IFUNDEF] look
@@ -113,6 +120,10 @@ has? rom
     \G 1.0, every xt has a primary nt, but other named words may have
     \G the same interpretation sematics xt.
     look and ;
+
+: threaded>name ( ca -- nt|0 )
+    \ for static cas only
+    threaded>xt >name ;
 
 : @threaded>name ( a-addr -- nt|0 )
     @threaded>xt >name ;
