@@ -3400,7 +3400,7 @@ the code address of machine code of nlen bytes, corresponding to
 the primitive or primitive sequence with the name(s) c_addr u, with
 start state ustart and end state uend, and useqlen basic primitives in
 the sequence.  If a_tc does not point to a dynamically-compiled primitive,
-nseqlen is 0.  If there is no primitive for a_tc, nlen is negative.""
+useqlen is 0.  If there is no primitive for a_tc, nlen is negative.""
 DynamicInfo *di = decompile_prim3((Label *)a_tc);
 const char *s = prim_names[di->prim];
 useqlen = di->seqlen;
@@ -3412,9 +3412,9 @@ nlen = di->length;
 
 @decompile-prim ( a_addr -- w ) gforth-internal fetch_decompile_prim
 ""w is the cell stored at a_addr, except if the cell at a_addr points to
-dynamically generated native code; in that case w is the static code address
-of the primitive at a_addr, i.e, what you would get without dynamic native
-code generation.""
+dynamically generated native code or a static superinstruction; in that case
+w is the static code address of the primitive at a_addr, i.e, what you would
+get with neither dynamic native code generation nor static superinstructions.""
 w = (Cell)fetch_decompile_prim(a_addr);
 
 tag-offsets ( -- a_addr ) gforth-internal tag_offsets

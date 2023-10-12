@@ -1508,11 +1508,15 @@ Cell fetch_decompile_prim(Cell *a_addr)
 /* see documentation for @decompile-prim */
 {
   DynamicInfo *di = dynamic_info3((Label *)a_addr);
-  PrimNum p;
+  int p;
   struct cost *c;
-  if (di==NULL)
-    return *a_addr;
-  p = di->prim;
+  if (di==NULL) {
+    Cell x = *a_addr;
+    p = prim_index((Label)x);
+    if (p<0) /* not a primitive */
+      return x;
+  } else
+    p = di->prim;
   c = &super_costs[p];
   p = c->offset;
   if (c->length > 1)
