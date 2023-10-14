@@ -1785,11 +1785,11 @@ if test x$has_swig = xyes || test -f $srcdir/unix/pulse-fsi.c; then
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/pipewire-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
-   CPPFLAGS="$CPPFLAGS `pkg-config --cflags libpipewire-0.3`"
+   CPPFLAGS="$CPPFLAGS `pkg-config --cflags libspa-0.2 libpipewire-0.3`"
    AC_CHECK_LIB(pipewire-0.3,pw_main_loop_new,
    AC_CHECK_HEADER(pipewire/pipewire.h, SWIGMODULES="$SWIGMODULES pipewire.fs"
 		   SWIGLIBS="$SWIGLIBS pipewire.fs"
-		   SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags libpipewire-0.3`"
+		   SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags libspa-0.2 libpipewire-0.3 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`"
 		   SWIGDISTFSI="$SWIGDISTFSI pipewire.fs"
 		   , CPPFLAGS="$CPPFLAGS_1"), ,)
 fi

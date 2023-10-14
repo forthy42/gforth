@@ -3,6 +3,19 @@
 %insert("include")
 %{
 #include <pipewire/pipewire.h>
+#include <spa/pod/pod.h>
+#include <spa/pod/builder.h>
+#include <spa/pod/parser.h>
+#include <spa/param/format.h>
+#include <spa/param/audio/format.h>
+#include <spa/param/audio/raw-utils.h>
+#include <spa/param/audio/ape-utils.h>
+#include <spa/param/audio/format-utils.h>
+#include <spa/param/video/format.h>
+#include <spa/param/video/format-utils.h>
+#include <spa/utils/result.h>
+#include <spa/param/props.h>
+#include <spa/param/tag-utils.h>
 %}
 
 #define SPA_PRINTF_FUNC(x, y)
@@ -10,7 +23,9 @@
 #define SPA_DEPRECATED
 #define SPA_WARN_UNUSED_RESULT
 
-%apply long long { int64_t }
+%apply int { int32_t }
+%apply unsigned int { uint32_t }
+%apply long long { int64_t, size_t }
 %apply SWIGTYPE * { spa_invoke_func_t, va_list }
 
 // exec: sed -e 's/" pipewire" add-lib/" pipewire-0.3" add-lib/g' -e 's/^c-library/cs-vocabulary pipewire``get-current also pipewire definitions``c-library/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/add-lib/add-lib`s" ((struct pw_:x.spx[arg0]" ptr-declare $+[]!/g' | tr '`' '\n'
@@ -44,3 +59,31 @@
 %include <pipewire/type.h>
 %include <pipewire/utils.h>
 %include <pipewire/version.h>
+%include <spa/pod/parser.h>
+%include <spa/pod/builder.h>
+%include <spa/param/audio/format.h>
+%include <spa/param/format-utils.h>
+%include <spa/param/audio/raw-utils.h>
+%include <spa/param/audio/dsp-utils.h>
+%include <spa/param/audio/iec958-utils.h>
+%include <spa/param/audio/dsd-utils.h>
+%include <spa/param/audio/mp3-utils.h>
+%include <spa/param/audio/aac-utils.h>
+%include <spa/param/audio/vorbis-utils.h>
+%include <spa/param/audio/wma-utils.h>
+%include <spa/param/audio/ra-utils.h>
+%include <spa/param/audio/amr-utils.h>
+%include <spa/param/audio/alac-utils.h>
+%include <spa/param/audio/flac-utils.h>
+%include <spa/param/audio/ape-utils.h>
+%include <spa/param/audio/format-utils.h>
+%include <spa/utils/result.h>
+%include <spa/param/format-utils.h>
+%include <spa/param/video/format.h>
+%include <spa/param/video/raw-utils.h>
+%include <spa/param/video/dsp-utils.h>
+%include <spa/param/video/h264-utils.h>
+%include <spa/param/video/mjpg-utils.h>
+%include <spa/param/video/format-utils.h>
+%include <spa/param/tag-utils.h>
+%include <spa/param/props.h>
