@@ -1309,6 +1309,8 @@ static Cell append_ip_update(Cell n)
    optimization; returns the remaining difference (in the range [0,n]) */
 {
   Cell cellsdiff = ginstps[inst_index+1]-ip_at;
+  if (opt_ip_updates==0)
+    return 0;
   assert(cellsdiff>=0);
   if (cellsdiff>n) {
     Label *old_ip_at=ip_at;
