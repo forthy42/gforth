@@ -43,23 +43,23 @@ check-set-logging-syntax .enabled gdb-set-logging-syntax check-addr-sep-char
 #comma gdb-addr-sep-char (break") (break:) (debug) (_debug) D-KEY dbg-help 
 end-debug# Unnest Nesting nestXT nestXT-checkSpecial Body restore-bp set-bp DT 
 BP breaker breaker-size DebugLoop jump get-next disp-step Leave-D NoFine d.s 
-.n scanword restore-see-flags save-see-flags simple-see-word see-word.addr 
-xt-range c-extend1 c-lp+!# c-laddr# c-f@local# c-flit1 c-flit0 c-flit 
-c-@local# c-branch-lp+!# c-?branch-lp+!# c-loop#-lp+!# c-loop-lp+!# umethod? 
-seeumethod seefield seecol seedoes see-threaded seedefer seevalue seecon 
-seeuser seevar see;abicode seeabicode seecode makepass c-init analyse 
-BranchTo? DoTable c-extender C-Table c-user@ search-userval c-useraddr 
+.n scanword restore-see-flags save-see-flags simple-see-word simp.word 
+.transition see-word.addr xt-range c-extend1 c-lp+!# c-laddr# c-f@local# 
+c-flit1 c-flit0 c-flit c-@local# c-branch-lp+!# c-?branch-lp+!# c-loop#-lp+!# 
+c-loop-lp+!# umethod? seeumethod seefield seecol seedoes see-threaded seedefer 
+seevalue seecon seeuser seevar see;abicode seeabicode seecode makepass c-init 
+analyse BranchTo? DoTable c-extender C-Table c-user@ search-userval c-useraddr 
 c-searcharg search-uservar ?type-found c-call-c# c-u#+ c-u#exec c-u#gen 
 search-u#gen u#what c-abort" c-exit c-?do c-do c-loop# c-loop c-for 
 c-?dup-?branch c-?branch DebugBranch c-branch RepeatCheck Forward? c-string? 
-c-c" id.-without c-lit@ c-lit+ c-lit c>lit c-. c># c-callxt c-call .word back? 
-Branch! Type! ,Branch CheckWhile MyBranch CheckEnd MoreBranchAddr? BranchAddr? 
-(BranchAddr?) FirstBranch MaxTable BranchTable SearchPointer BranchPointer 
-Branches C-Stop LeaveCode Disable WhileCode2 AheadCode ElseCode LoopCode 
-UntilCode AgainCode RepeatCode .struc struct-pre c-lits ?.string Debug? 
-Display? Scan? DebugMode DisplayMode ScanMode C-Pass NoOutput c-\type c-\emit 
-(.string) .string next-prim next-head .defname xt-see-xt cemit ctype warp? 
-(nl) nl nlcount uppercase nlflag level- level+ Format Level YPos XPos 
+c-c" id.-without c-lit@ c-lit+ c-lit c>lit c-. c># c-callxt c-call .word1 
+back? Branch! Type! ,Branch CheckWhile MyBranch CheckEnd MoreBranchAddr? 
+BranchAddr? (BranchAddr?) FirstBranch MaxTable BranchTable SearchPointer 
+BranchPointer Branches C-Stop LeaveCode Disable WhileCode2 AheadCode ElseCode 
+LoopCode UntilCode AgainCode RepeatCode .struc struct-pre c-lits ?.string 
+Debug? Display? Scan? DebugMode DisplayMode ScanMode C-Pass NoOutput c-\type 
+c-\emit (.string) .string next-prim next-head .defname xt-see-xt cemit ctype 
+warp? (nl) nl nlcount uppercase nlflag level- level+ Format Level YPos XPos 
 C-Clearline C-Highlight C-Formated C-Output 
 X:xchar X:traverse-wordlist X:throw-iors X:text-substitution X:synonym 
 X:structures X:s-to-f X:s-escape-quote X:required X:parse-name 
@@ -1104,25 +1104,25 @@ xc-width+ xc-width -u8trailing-garbage u8addrlen u8!+? u8@ u8\string-
 UTF-8-err WordInfo InfoTable Com-color Str-color Ali-color Use-color Col-color 
 Def-color Doe-color Val-color Var-color Con-color Pri-color prim? xtprim? 
 colon? defered? does? user? value? con? var? .recognizers .recognizer-sequence 
-prim>name >head threaded>name >name look PrimStart threaded>xt xt= [f:h [d:h 
-[n:h [f:d [d:d [n:d [f:l [d:l [n:l [f: [d: [n: [*:: :d :h :l (;]*) (;]l) (;*]) 
-;> <{: [{: end-dclosure closure> free-closure closure-:-hook (closure-;]) 
-wrap-closure dummy-local, pop-locals push-locals extra-locals lp> >lp allocd 
-alloch >addr 1t-closure? endref, end-d locals-lists locals-sizes opt-u/mod 
-opt-/modf opt-umod opt-modf opt-u/ opt-/f lit/, /f-stage1m ctz pow2? 
-u/-stage1m staged/-size staged/-divisor staged/-inverse-hi staged/-shift 
-staged/-inverse dffield: sffield: ffield: 2field: field: xfield: lfield: 
-wfield: cfield: end-structure begin-structure extend-structure standard:field 
-+field sizeof [sizeof] (sizeof) standard+field .sections opt@ opt+- 
-(+loop)-optimizer replace-(+loop) fold4-4 fold4-2 fold4-1 fold3-3 fold3-2 
-fold3-1 fold2-3 fold2-2 fold2-1 fold2-0 fold1-2 fold1-1 fold1-0 folds 
-optimizes fold-constants >4lits 4lits> >3lits 3lits> >2lits 2lits> [WHILE] 
-[AGAIN] [REPEAT] [UNTIL] [BEGIN] [I] comp-[i] INT-[I] [NEXT] [FOR] [LOOP] 
-[+LOOP] [?DO] [DO] input< input-drop >input loop-indices input-stack (i) 
-$[]free $[]. $[]map $[]slurp-file $[]slurp $slurp-line $slurp-file 
-$+slurp-file $slurp $+slurp $tmp $. $exec $-out $form $cr $emit $type 
-$execstr-ptr tmp$ tmps# tmp$# tmp$[] $+[]! $[]@ $[]# $[]+! $[]! $off $over 
-open-warp time&date (xparse) string-parse [char] char append s+ 
+prim>name >head @threaded>name threaded>name >name look PrimStart @threaded>xt 
+threaded>xt xt= [f:h [d:h [n:h [f:d [d:d [n:d [f:l [d:l [n:l [f: [d: [n: [*:: 
+:d :h :l (;]*) (;]l) (;*]) ;> <{: [{: end-dclosure closure> free-closure 
+closure-:-hook (closure-;]) wrap-closure dummy-local, pop-locals push-locals 
+extra-locals lp> >lp allocd alloch >addr 1t-closure? endref, end-d 
+locals-lists locals-sizes opt-u/mod opt-/modf opt-umod opt-modf opt-u/ opt-/f 
+lit/, /f-stage1m ctz pow2? u/-stage1m staged/-size staged/-divisor 
+staged/-inverse-hi staged/-shift staged/-inverse dffield: sffield: ffield: 
+2field: field: xfield: lfield: wfield: cfield: end-structure begin-structure 
+extend-structure standard:field +field sizeof [sizeof] (sizeof) standard+field 
+.sections opt@ opt+- (+loop)-optimizer replace-(+loop) fold4-4 fold4-2 fold4-1 
+fold3-3 fold3-2 fold3-1 fold2-3 fold2-2 fold2-1 fold2-0 fold1-2 fold1-1 
+fold1-0 folds optimizes fold-constants >4lits 4lits> >3lits 3lits> >2lits 
+2lits> [WHILE] [AGAIN] [REPEAT] [UNTIL] [BEGIN] [I] comp-[i] INT-[I] [NEXT] 
+[FOR] [LOOP] [+LOOP] [?DO] [DO] input< input-drop >input loop-indices 
+input-stack (i) $[]free $[]. $[]map $[]slurp-file $[]slurp $slurp-line 
+$slurp-file $+slurp-file $slurp $+slurp $tmp $. $exec $-out $form $cr $emit 
+$type $execstr-ptr tmp$ tmps# tmp$# tmp$[] $+[]! $[]@ $[]# $[]+! $[]! $off 
+$over open-warp time&date (xparse) string-parse [char] char append s+ 
 traverse-matched-dir traverse-dir try-read-dir adjust-buffer init-buffer 
 buffer% buffer-maxlength buffer-address buffer-length buffer-descriptor 
 rectype-word translate-word basic-help 2Value dummy-2value 2value-to 
@@ -1303,7 +1303,7 @@ chars/block l/s c/l /line bl float false true 2Constant 2constant, UValue
 (UValue) u-compile, uvalue-to to:, to:exec >uvalue defer-table !-table [noop] 
 n/a cell */ */mod /mod mod / r@ forthstart image-header u#+ u#exec x#exec 
 o#exec o#+ o> >o lit-execute ;abi-code-exec abi-call finish-code| tag-offsets 
-decompile-prim2 decompile-prim forget-dyncode finish-code compile-prim1 
+@decompile-prim decompile-prim3 forget-dyncode3 finish-code compile-prim1 
 barrier ?!@ +!@ !@ u8@+? log2 >pow2 l>s w>s c>s xd>< x>< l>< w>< xd@ xd! x@ x! 
 close-lib2 close-lib lib-error l! l@ w! w@ wcall lib-sym2 lib-sym open-lib2 
 open-lib ffourth fthird fpick f>l >l lp! lp+2 lp+ lp- lp+!# laddr# f@local1 
