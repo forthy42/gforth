@@ -162,18 +162,18 @@ typedef struct {
 # ifdef HAVE___BUILTIN_BSWAP32
 #  define BSWAP16(x) __builtin_bswap32((x) << 16)
 # else
-#  define BSWAP16(x) ((((uint16_t)(x))>>8) | (((uint16_t)(x))<<8))
+#  define BSWAP16(x) (((x << 8)  & 0xff00U) | ((x >> 8)  & 0x00ffU))
 # endif
 #endif
 #ifdef HAVE___BUILTIN_BSWAP32
 # define BSWAP32(x) __builtin_bswap32(x)
 #else
-# define BSWAP32(x) ((((uint32_t)BSWAP16(x))<<16)|((uint32_t)BSWAP16((x)>>16)))
+# define BSWAP32(x) (((x << 24) & 0xff000000U) | ((x << 8)  & 0x00ff0000U) | ((x >> 8)  & 0x0000ff00U) | ((x >> 24) & 0x000000ffU))
 #endif
 #ifdef HAVE___BUILTIN_BSWAP64
 # define BSWAP64(x) __builtin_bswap64(x)
 #else
-# define BSWAP64(x) ((((uint64_t)BSWAP32(x))<<32)|((uint64_t)BSWAP32((x)>>32)))
+# define BSWAP64(x) (((x << 56) & 0xff00000000000000ULL) | ((x << 40) & 0x00ff000000000000ULL) | ((x << 24) & 0x0000ff0000000000ULL) | ((x << 8)  & 0x000000ff00000000ULL) | ((x >> 8)  & 0x00000000ff000000ULL) | ((x >> 24) & 0x0000000000ff0000ULL) | ((x >> 40) & 0x000000000000ff00ULL) | ((x >> 56) & 0x00000000000000ffULL))
 #endif
 
 #if defined(BUGGY_LONG_LONG)
