@@ -829,15 +829,24 @@ AC_SUBST(ENGINE_FLAGS)
 
 # Try if GCC understands -fno-gcse
 
-CHECKFLAGS="no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-strict-aliasing no-cse-follow-jumps no-reorder-blocks no-reorder-blocks-and-partition no-toplevel-reorder no-trigraphs align-labels=1 align-loops=1 align-jumps=1 no-delete-null-pointer-checks cf-protection=none no-tree-vectorize"
+CHECKFLAGS="no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-strict-aliasing no-cse-follow-jumps no-reorder-blocks no-reorder-blocks-and-partition no-toplevel-reorder no-trigraphs align-labels=1 align-loops=1 align-jumps=1 no-delete-null-pointer-checks cf-protection=none no-tree-vectorize no-unroll-loops llvm=--tail-dup-indirect-size=0"
 
 for i in $CHECKFLAGS
 do
-    AC_MSG_CHECKING([if $CC understands -f$i])
     ac_i=$(echo ac_$i | tr '=\-' '__')
+    case $i
+    in
+        llvm=*)
+	    i="-m$i"
+	    ;;
+	*)
+	    i="-f$i"
+	    ;;
+    esac
+    AC_MSG_CHECKING([if $CC understands $i])
     CFLAGS_1="$CFLAGS"
-    CFLAGS="$CFLAGS -f$i"
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[eval $ac_i=yes;ENGINE_FLAGS="$ENGINE_FLAGS -f$i"],[eval ac_$ibar=no])
+    CFLAGS="$CFLAGS $i"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[eval $ac_i=yes;ENGINE_FLAGS="$ENGINE_FLAGS $i"],[eval ac_$ibar=no])
     CFLAGS="$CFLAGS_1"
     ac_result=$(eval echo "\$$ac_i")
     AC_MSG_RESULT($ac_result)
