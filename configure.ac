@@ -21,13 +21,13 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20231012],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20231019],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ([2.69])
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1_YYYYMMDD must not exist before 0.4.1!
-UPDATED="October 12, 2023"
+UPDATED="October 19, 2023"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 AC_USE_SYSTEM_EXTENSIONS
@@ -829,7 +829,7 @@ AC_SUBST(ENGINE_FLAGS)
 
 # Try if GCC understands -fno-gcse
 
-CHECKFLAGS="no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-strict-aliasing no-cse-follow-jumps no-reorder-blocks no-reorder-blocks-and-partition no-toplevel-reorder no-trigraphs align-labels=1 align-loops=1 align-jumps=1 no-delete-null-pointer-checks cf-protection=none no-tree-vectorize no-unroll-loops llvm=--tail-dup-indirect-size=0"
+CHECKFLAGS="no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-strict-aliasing no-cse-follow-jumps no-reorder-blocks no-reorder-blocks-and-partition no-toplevel-reorder no-trigraphs align-labels=1 align-loops=1 align-jumps=1 no-delete-null-pointer-checks cf-protection=none no-tree-vectorize llvm=--tail-dup-indirect-size=0"
 
 for i in $CHECKFLAGS
 do
