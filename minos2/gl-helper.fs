@@ -1087,7 +1087,7 @@ previous
 	cur old !
     ELSE
 	cur old @ over old ! swap -
-	s>f dpy-h @ s>f rows fm/ f/ fdup f2/ motion f@ f2/ f+ motion f!
+	s>f dpy-h @ s>f rows fm/ 1e fmax f/ fdup f2/ motion f@ f2/ f+ motion f!
 	xt execute
     THEN ;
 

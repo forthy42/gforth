@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NDK=${NDK-17c}
+NDK=${NDK-21c}
 LIBT=${LIBT-2.4.6}
 CPU=$(uname -p)
 CCVER=${CCVER-4.9}

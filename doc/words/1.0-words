@@ -97,18 +97,18 @@ ffi-ret-ptr ffi-ret-long ffi-ret-dlong ffi-ret-longlong ffi-ret-int
 ffi-ret-void ffi-ret-double1 ffi-ret-float1 ffi-ret-ptr1 ffi-ret-long1 
 ffi-ret-dlong1 ffi-ret-longlong1 ffi-ret-int1 ffi-arg-double ffi-arg-float 
 ffi-arg-ptr ffi-arg-dlong ffi-arg-longlong ffi-arg-long ffi-arg-int ffi-2! 
-ffi-2@ ffi-prep-closure ffi-call ffi-prep-cif ffi-size ffi-type va opus pulse 
-av_cpb_properties_alloc avcodec_is_open av_xiphlacing av_fast_padded_mallocz 
-av_fast_padded_malloc av_get_audio_frame_duration2 av_get_audio_frame_duration 
-av_get_exact_bits_per_sample av_get_pcm_codec av_get_bits_per_sample 
-avcodec_flush_buffers avcodec_fill_audio_frame avcodec_default_execute2 
-avcodec_default_execute avcodec_profile_name av_get_profile_name 
-avcodec_string avcodec_default_get_format avcodec_find_best_pix_fmt_of_list 
-avcodec_pix_fmt_to_codec_tag avcodec_encode_subtitle av_parser_close 
-av_parser_parse2 av_parser_init av_parser_iterate 
-avcodec_get_hw_frames_parameters avcodec_receive_packet avcodec_send_frame 
-avcodec_receive_frame avcodec_send_packet avcodec_decode_subtitle2 
-avcodec_chroma_pos_to_enum avcodec_enum_to_chroma_pos 
+ffi-2@ ffi-prep-closure ffi-call ffi-prep-cif ffi-size ffi-type va opus 
+pipewire pulse av_cpb_properties_alloc avcodec_is_open av_xiphlacing 
+av_fast_padded_mallocz av_fast_padded_malloc av_get_audio_frame_duration2 
+av_get_audio_frame_duration av_get_exact_bits_per_sample av_get_pcm_codec 
+av_get_bits_per_sample avcodec_flush_buffers avcodec_fill_audio_frame 
+avcodec_default_execute2 avcodec_default_execute avcodec_profile_name 
+av_get_profile_name avcodec_string avcodec_default_get_format 
+avcodec_find_best_pix_fmt_of_list avcodec_pix_fmt_to_codec_tag 
+avcodec_encode_subtitle av_parser_close av_parser_parse2 av_parser_init 
+av_parser_iterate avcodec_get_hw_frames_parameters avcodec_receive_packet 
+avcodec_send_frame avcodec_receive_frame avcodec_send_packet 
+avcodec_decode_subtitle2 avcodec_chroma_pos_to_enum avcodec_enum_to_chroma_pos 
 avcodec_align_dimensions2 avcodec_align_dimensions avcodec_default_get_buffer2 
 avsubtitle_free avcodec_close avcodec_open2 avcodec_parameters_to_context 
 avcodec_parameters_from_context avcodec_get_subtitle_rect_class 

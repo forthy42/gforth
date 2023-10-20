@@ -195,11 +195,14 @@ Variable xy$
 \ ' noop x11-handler to DoGenericEvent
 
 x11-handler ' new static-a with-allocater Constant x11-keyboard
+forward widget-sync
 : enter-minos ( -- )
+    [: widget-sync ;] is screen-ops
     exposed @ 0= IF  set-sync-request map-win  THEN
     edit-widget edit-out !
     x11-keyboard event-handler ! ;
 : leave-minos ( -- )
+    preserve screen-ops
     edit-terminal edit-out !
     [ event-handler @ ]L event-handler !
     [IFDEF] term-textures

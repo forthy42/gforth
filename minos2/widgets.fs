@@ -1830,22 +1830,17 @@ Defer re-config ' noop is re-config
 
 also [IFDEF] android jni [THEN]
 : widget-sync ( -- ) rendering @ -2 > ?EXIT
-    level# @ 0> IF
-	?config-changer
-	?lang         IF  top-widget .widget-init +resize +resizeall  THEN
-	?textures     IF  1+config    THEN
-	anims[] $@len IF  animations  THEN
-	top-widget .widgets-redraw
-	[IFDEF] showkb
-	    ?keyboard IF  showkb      THEN
-	[THEN]
-	-textures -lang -keyboard
-    ELSE
-	defers screen-ops
-    THEN ;
-previous
+    ?config-changer
+    ?lang         IF  top-widget .widget-init +resize +resizeall  THEN
+    ?textures     IF  1+config    THEN
+    anims[] $@len IF  animations  THEN
+    top-widget .widgets-redraw
+    [IFDEF] showkb
+	?keyboard IF  showkb      THEN
+    [THEN]
+    -textures -lang -keyboard ;
 
-' widget-sync is screen-ops
+previous
 
 : widgets-looper ( -- )
     0 looper-to# anims[] $@len ?sync or select
