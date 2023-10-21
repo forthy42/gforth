@@ -54,14 +54,14 @@ debug: wayland(
 : set-cursor { serial -- }
     cursor wl_cursor-images @ @ { image }
     wl-pointer serial cursor-surface
-    image wl_cursor_image-hotspot_x sl@
-    image wl_cursor_image-hotspot_y sl@
+    image wl_cursor_image-hotspot_x l@ l>s
+    image wl_cursor_image-hotspot_y l@ l>s
     wl_pointer_set_cursor
     cursor-surface image wl_cursor_image_get_buffer
     0 0 wl_surface_attach
     cursor-surface 0 0
-    image wl_cursor_image-width sl@
-    image wl_cursor_image-height sl@
+    image wl_cursor_image-width l@ l>s
+    image wl_cursor_image-height l@ l>s
     wl_surface_damage
     cursor-surface wl_surface_commit ;
 
@@ -116,18 +116,18 @@ Defer b-motion ' 3drop is b-motion
 Defer b-enter  ' 2drop is b-enter
 Defer b-leave  ' noop  is b-leave
 
-up@ Value main-task
+up@ Value master-task
 
 : wl-scroll ( time axis val -- )
-    [{: time axis val :}h1 time axis val b-scroll ;] main-task send-event ;
+    [{: time axis val :}h1 time axis val b-scroll ;] master-task send-event ;
 : wl-button ( time b mask -- )
-    [{: time b mask :}h1 time b mask b-button ;] main-task send-event ;
+    [{: time b mask :}h1 time b mask b-button ;] master-task send-event ;
 : wl-motion ( time x y -- )
-    [{: time x y :}h1 time x y b-motion ;] main-task send-event ;
+    [{: time x y :}h1 time x y b-motion ;] master-task send-event ;
 : wl-enter  ( x y -- )
-    [{: x y :}h1 x y b-enter ;] main-task send-event ;
+    [{: x y :}h1 x y b-enter ;] master-task send-event ;
 : wl-leave  ( -- )
-    ['] b-leave main-task send-event ; 
+    ['] b-leave master-task send-event ; 
 
 \ pointer listener
 
@@ -208,7 +208,7 @@ set-current
     
 : registry+ { data registry name interface version -- }
     interface cstring>sstring wl-registry find-name-in ?dup-IF
-	registry name rot name?int execute
+	registry name rot name>interpret execute
     ELSE
 	wayland( interface cstring>sstring type cr )
     THEN ;
@@ -232,7 +232,7 @@ Create registry-listener , ,
 
 also opengl
 : getwh ( -- )
-    0 0 dpy-w @ dpy-h @ glViewport ;
+    0 0 dpy-wh 2@ glViewport ;
 previous
 
 \ looper

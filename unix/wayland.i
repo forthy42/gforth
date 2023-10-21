@@ -13,7 +13,7 @@
 %apply SWIGTYPE * { wl_dispatcher_func_t, wl_log_func_t }
 #define WL_HIDE_DEPRECATED
 
-// exec: sed -e 's/^c-library\( .*\)/cs-vocabulary wayland``get-current also wayland definitions``c-library\1`s" wayland" open-fpath-file 0= [IF] rot close-file throw add-incdir [THEN]`/g' -e 's|^end-c-library|include unix/wayland-interfaces.fs`end-c-library`previous set-current|g' -e 's/c-funptr \(.*\)() {.*} \(.*\)/c-callback \1: \2/g' -e 's:" wayland" add-lib:" wayland-egl -lwayland-client -lwayland-cursor -lwayland-textinput" add-lib:g' | tr '`' '\n'
+// exec: sed -e 's/^c-library\( .*\)/cs-vocabulary wayland``get-current also wayland definitions``c-library\1`s" wayland" open-fpath-file 0= [IF] rot close-file throw add-incdir [THEN]`/g' -e 's|^end-c-library|include unix/wayland-interfaces.fs`end-c-library`previous set-current|g' -e 's/c-funptr \(.*\)() {.*} \(.*\)/c-callback \1: \2/g' -e 's:" wayland" add-lib:" wayland-egl -lwayland-client -lwayland-cursor -lwayland-textinput" add-lib:g' -e 's/c-function zwp_text_input_manager_v3_get_text_input/\\ \0/g' | tr '`' '\n'
 
 %include <wayland-client.h>
 %include <wayland-client-core.h>
