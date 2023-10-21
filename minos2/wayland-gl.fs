@@ -19,7 +19,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 require unix/opengles.fs
-require unix/waylandlib.fs
+require unix/wayland.fs
 require mini-oof2.fs
 require struct-val.fs
 
@@ -47,6 +47,7 @@ debug: wayland(
 0 Value sh-surface
 0 Value wl-seat
 0 Value wl-shm
+0 Value text-input-manager
 
 \ set a cursor
 
@@ -200,7 +201,8 @@ wl-registry set-current
     wl_shm_interface 1 wl_registry_bind to wl-shm
     s" Breeze_Snow" 16 wl-shm wl_cursor_theme_load to cursor-theme
     cursor-theme s" left_ptr" wl_cursor_theme_get_cursor to cursor ;
-\ : zwp_text_input_manager_v2 ( registry name -- ) ;
+: zwp_text_input_manager_v3 ( registry name -- )
+    zwp_text_input_manager_v3_interface 1 wl_registry_bind to text-input-manager ;
 
 set-current
     

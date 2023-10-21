@@ -1739,10 +1739,23 @@ fi
 if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS `pkg-config --cflags wayland-client`"
+   CPPFLAGS_2="$CPPFLAGS"
+   case "$srcdir"
+   in
+      /*)
+	 CPPFLAGS="$CPPFLAGS -I$srcdir/wayland"
+      ;;
+      *)
+	 CPPFLAGS="$CPPFLAGS -I$ac_pwd/$srcdir/wayland"
+      ;;
+   esac
    AC_CHECK_LIB(wayland-egl,wl_egl_window_create,
    AC_CHECK_LIB(wayland-client,wl_display_get_fd,
    AC_CHECK_HEADER(wayland-egl-core.h, SWIGMODULES="$SWIGMODULES wayland.fs"
 		   SWIGLIBS="$SWIGLIBS wayland.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags wayland-client | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1", ,)))
+   if test x"$CPPFLAGS" != x"$CPPFLAGS_1"; then
+      CPPFLAGS="$CPPFLAGS_2"
+   fi
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gps-fsi.c; then
    AC_CHECK_LIB(gps,gps_open,
