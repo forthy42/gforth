@@ -42,5 +42,8 @@ c-value wl_subcompositor_interface &wl_subcompositor_interface -- a
 c-value wl_subsurface_interface &wl_subsurface_interface -- a
 c-value zwp_text_input_v3_interface &WAYLAND_DETAIL(zwp_text_input_v3_interface) -- a
 c-value zwp_text_input_manager_v3_interface &WAYLAND_DETAIL(zwp_text_input_manager_v3_interface) -- a
-
-
+c-value xdg_wm_base_interface &WAYLAND_DETAIL(xdg_wm_base_interface) -- a
+c-value xdg_positioner_interface &WAYLAND_DETAIL(xdg_positioner_interface) -- a
+c-value xdg_surface_interface &WAYLAND_DETAIL(xdg_surface_interface) -- a
+c-value xdg_toplevel_interface &WAYLAND_DETAIL(xdg_toplevel_interface) -- a
+c-value xdg_popup_interface &WAYLAND_DETAIL(xdg_popup_interface) -- a

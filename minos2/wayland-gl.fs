@@ -207,6 +207,7 @@ wl-registry set-current
 set-current
     
 : registry+ { data registry name d: interface version -- }
+    interface type cr
     interface wl-registry find-name-in ?dup-IF
 	registry name rot name>interpret execute
     ELSE
