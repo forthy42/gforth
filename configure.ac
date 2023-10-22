@@ -286,8 +286,6 @@ AC_PROG_CC
 
 test "$GCC" = "yes" || AC_MSG_ERROR(Gforth uses GNU C extensions and requires GCC 4.0 or higher)
 
-AC_PROG_CXX
-
 test "x$SH" = "x" && SH="/bin/sh"
 
 AC_MSG_CHECKING([whether to use two dispatches per conditional branch])
@@ -303,7 +301,6 @@ AC_SUBST(host_cpu)
 
 AC_SUBST(SH)
 AC_SUBST(CC)
-AC_SUBST(CXX)
 AC_SUBST(GCC_LD)
 AC_SUBST(DEBUGFLAG)
 AC_SUBST(EC)
@@ -866,16 +863,6 @@ test "$ac_pthread" == yes || CFLAGS="$CFLAGS_1"
 test "$ac_pthread" == yes || LDFLAGS="$LDFLAGS_1"
 AC_MSG_RESULT($ac_pthread)
 
-# Try if G++ understands -fpermissive
-AC_LANG([C++])
-AC_MSG_CHECKING([if $CXX understands -fpermissive])
-CXXFLAGS_1="$CXXFLAGS"
-CXXFLAGS="$CXXFLAGS -fpermissive"
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_fpermissive=yes],[ac_fpermissive=no])
-test "$ac_fpermissive" == yes || CXXFLAGS="$CXXFLAGS_1"
-AC_MSG_RESULT($ac_fpermissive)
-AC_LANG([C])
-
 if test -z "$LIBTOOL_CC"
 then
   LIBTOOL_CC="$CC"
@@ -891,9 +878,6 @@ fi
 LIBTOOL_CC=${LIBTOOL_CC#$CROSS_PREFIX}
 AC_SUBST(LIBTOOL_CC)
 AC_SUBST(CROSS_PREFIX)
-
-LIBTOOL_CXX=${CXX#$CROSS_PREFIX}
-AC_SUBST(LIBTOOL_CXX)
 
 # Try if GCC understands __attribute__((unused))
 AC_MSG_CHECKING([how to suppress 'unused variable' warnings])
@@ -1940,6 +1924,24 @@ esac
 
 AC_SUBST(UTF8LANG)
 AC_SUBST(NO_UTF8)
+
+# Check for G++ last
+
+AC_PROG_CXX
+AC_SUBST(CXX)
+
+# Try if G++ understands -fpermissive
+AC_LANG([C++])
+AC_MSG_CHECKING([if $CXX understands -fpermissive])
+CXXFLAGS_1="$CXXFLAGS"
+CXXFLAGS="$CXXFLAGS -fpermissive"
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_fpermissive=yes],[ac_fpermissive=no])
+test "$ac_fpermissive" == yes || CXXFLAGS="$CXXFLAGS_1"
+AC_MSG_RESULT($ac_fpermissive)
+AC_LANG([C])
+
+LIBTOOL_CXX=${CXX#$CROSS_PREFIX}
+AC_SUBST(LIBTOOL_CXX)
 
 # finally create config files
 
