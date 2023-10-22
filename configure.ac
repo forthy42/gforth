@@ -284,7 +284,9 @@ AC_SYS_LARGEFILE
 
 AC_PROG_CC
 
-test "$GCC" = "yes" || AC_MSG_ERROR(Gforth uses GNU C extensions and requires GCC 2.0 or higher)
+test "$GCC" = "yes" || AC_MSG_ERROR(Gforth uses GNU C extensions and requires GCC 4.0 or higher)
+
+AC_PROG_CXX
 
 test "x$SH" = "x" && SH="/bin/sh"
 
@@ -301,6 +303,7 @@ AC_SUBST(host_cpu)
 
 AC_SUBST(SH)
 AC_SUBST(CC)
+AC_SUBST(CXX)
 AC_SUBST(GCC_LD)
 AC_SUBST(DEBUGFLAG)
 AC_SUBST(EC)
@@ -827,7 +830,7 @@ AC_DEFINE_UNQUOTED(SMALL_OFF_T,$ac_small_off_t,[1 if off_t fits in a Cell])
 ENGINE_FLAGS=
 AC_SUBST(ENGINE_FLAGS)
 
-# Try if GCC understands -fno-gcse
+# Try a number of flags as workarounds
 
 CHECKFLAGS="no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-strict-aliasing no-cse-follow-jumps no-reorder-blocks no-reorder-blocks-and-partition no-toplevel-reorder no-trigraphs align-labels=1 align-loops=1 align-jumps=1 no-delete-null-pointer-checks cf-protection=none no-tree-vectorize llvm=--tail-dup-indirect-size=0"
 
@@ -863,6 +866,16 @@ test "$ac_pthread" == yes || CFLAGS="$CFLAGS_1"
 test "$ac_pthread" == yes || LDFLAGS="$LDFLAGS_1"
 AC_MSG_RESULT($ac_pthread)
 
+# Try if G++ understands -fpermissive
+AC_LANG_PUSH([C++])
+AC_MSG_CHECKING([if $CXX understands -fpermissive])
+CXXFLAGS_1="$CXXFLAGS"
+CXXFLAGS="$CXXFLAGS -fpermissive"
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_fpermissive=yes],[ac_fpermissive=no])
+test "$ac_fpermissive" == yes || CXXFLAGS="$CXXFLAGS_1"
+AC_MSG_RESULT($ac_fpermissive)
+AC_LANG_POP([C++])
+
 if test -z "$LIBTOOL_CC"
 then
   LIBTOOL_CC="$CC"
@@ -870,15 +883,17 @@ then
   AC_MSG_CHECKING([if $CC understands -Wimplicit-function-declaration])
   CFLAGS_1="$CFLAGS"
   CFLAGS="$CFLAGS -Wimplicit-function-declaration"
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[LIBTOOL_CC="$CC -Wimplicit-function-declaration"],[])
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_implicit_function_declaration=yes LIBTOOL_CC="$CC -Wimplicit-function-declaration"],[ac_implicit_function_declaration=no])
   CFLAGS="$CFLAGS_1"
-  AC_MSG_RESULT($ac_align_jumps)
+  AC_MSG_RESULT($ac_implicit_function_declaration)
 fi
 # remove prefix for cross compilation
 LIBTOOL_CC=${LIBTOOL_CC#$CROSS_PREFIX}
 AC_SUBST(LIBTOOL_CC)
 AC_SUBST(CROSS_PREFIX)
 
+LIBTOOL_CXX=${CXX#$CROSS_PREFIX}
+AC_SUBST(LIBTOOL_CXX)
 
 # Try if GCC understands __attribute__((unused))
 AC_MSG_CHECKING([how to suppress 'unused variable' warnings])

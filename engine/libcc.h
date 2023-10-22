@@ -19,6 +19,10 @@
   along with this program. If not, see http://www.gnu.org/licenses/.
 */
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
+
 #include "config.h"
 #include <stddef.h>
 #include <signal.h>
@@ -241,3 +245,7 @@ static wchar_t * gforth_str2wc(Char* addr, UCell u)
 typedef Char hash_128[16];
 
 #define GFSS 0x80 /* stack sizes */
+
+#ifdef  __cplusplus
+}
+#endif

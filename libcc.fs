@@ -234,6 +234,7 @@ defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 
 Variable c-flags \ include flags
 Variable c-libs \ library names in a string (without "lib")
+0 Value c++-mode
 
 : lib-prefix ( -- addr u )  s" libgf" ;
 
@@ -279,7 +280,9 @@ Variable c-libs \ library names in a string (without "lib")
     -1 parse write-c-prefix-line ;
 
 : libcc-include ( -- )
-    [: ." #include <libcc.h>" cr ;] c-source-file-execute ;
+    [: ." #include <libcc.h>" cr
+\      ." #include <stdio.h>" cr
+    ;] c-source-file-execute ;
 
 \ Types (for parsing)
 
@@ -618,6 +621,9 @@ create gen-wrapped-types
 	2>r 2dup 2r> ':' $split 2>r string-prefix?
 	IF  2nip 2r> 2swap  ELSE  2rdrop THEN ;] $[]map 2drop ;
 
+: .externc ( -- )
+    c++-mode IF .\" extern \"C\" " THEN ;
+
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
     dup { descriptor }
@@ -625,7 +631,7 @@ create gen-wrapped-types
     count 2dup { d: pars }
     + count 2dup to r-cast
     + count { d: c-name }
-    ." gforth_stackpointers " .prefix
+    .externc ." gforth_stackpointers " .prefix
     descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n{\n"
     pars c-name 2over count-stacks
@@ -669,7 +675,7 @@ create gen-types
 : callback-header ( descriptor -- )
     count { ret } count 2dup { d: pars } chars + count + count { d: c-name }
     ." #define CALLBACK_" c-name type ." (I) \" cr
-    ret print-type space .prefix ." gforth_cb_" c-name type ." _##I ("
+    .externc ret print-type space .prefix ." gforth_cb_" c-name type ." _##I ("
     0 pars bounds u+do
 	i 1+ count dup IF
 	    2dup s" *(" string-prefix? IF
@@ -699,6 +705,7 @@ Create callback-&style c-var c,
 
 : callback-call ( descriptor -- )
     1+ count + count + count \ callback C name
+\    .\"   fprintf(stderr, \"Calling IP=%p\\n\", " .prefix ." gforth_cbips_" 2dup type ." [I]); \" cr
     ."   gforth_engine(" .prefix ." gforth_cbips_" type
     ." [I], &x); \" cr ;
 
@@ -733,11 +740,11 @@ Create callback-&style c-var c,
     LOOP 2drop ;
 
 : callback-ip-array ( addr u -- )
-    ." Xt* " .prefix ." gforth_cbips_" 2dup type ." [" callback# .nb ." ] = {" cr
+    .externc ." Xt* " .prefix ." gforth_cbips_" 2dup type ." [" callback# .nb ." ] = {" cr
     space callback# 0 ?DO ."  0," LOOP ." };" cr 2drop ;
 
 : callback-c-array ( addr u -- )
-    ." const Address " .prefix ." gforth_callbacks_" 2dup type ." [" callback# .nb ." ] = {" cr
+    .externc ." const Address " .prefix ." gforth_callbacks_" 2dup type ." [" callback# .nb ." ] = {" cr
     callback# 0 ?DO
 	."   (Address)" .prefix ." gforth_cb_" 2dup type ." _" I .nb ." ," cr
     LOOP
@@ -780,7 +787,7 @@ Create callback-&style c-var c,
 : .xx ( n -- ) 0 [: <<# # # #> type #>> ;] $10 base-execute ;
 : .hashxx ( addr u -- ) bounds DO  I c@ .xx  LOOP ;
 : .bytes ( addr u -- )
-    bounds ?DO  ." \x" I c@ .xx  LOOP ;
+    false -rot bounds ?DO  IF ',' emit  THEN  ." 0x" I c@ .xx true  LOOP drop ;
 
 : check-c-hash ( -- flag )
     c-hash-ok?
@@ -828,7 +835,8 @@ Create callback-&style c-var c,
 
 : c-library-name-create ( -- )
     libcc-named-dir $1ff mkdir-parents drop
-    [: lib-filename $. ." .c" ;] $tmp r/w create-file throw
+    [: lib-filename $. ." .c" c++-mode IF ." pp" THEN ;] $tmp
+    r/w create-file throw
     c-source-file-id ! ;
 
 : c-named-library-name ( c-addr u -- )
@@ -867,7 +875,7 @@ Create callback-&style c-var c,
 	lib-modulename $@ replace-hash
     THEN
     ." hash_128 gflibcc_hash_" lib-modulename $.
-    .\"  = \"" c-source-hash 16 .bytes .\" \";" cr ;
+    .\"  = { " c-source-hash 16 .bytes .\"  };" cr ;
 
 : hash-c-source ( -- )
     c-source-hash 16 erase
@@ -895,7 +903,8 @@ DEFER compile-wrapper-function ( -- )
     0= if
 	lha,
     endif
-    free-libs ;
+    free-libs
+    0 to c++-mode ;
 : end-libs ( -- )
     ptr-declare $[]free
     vararg$ $free  c-flags $free  c-libs $free ;
@@ -907,17 +916,32 @@ end-libs
 tmp$ $execstr-ptr !
 
 : compile-cmd ( -- )
-    [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=compile " $type
-      s" CROSS_PREFIX" getenv $type
-      libtool-cc $type s"  '-I" $type
-      s" includedir" getenv tuck $type 0= [IF]
-	  pad $100 get-dir $type s" /" $type version-string $type
-	  s" /include" $type  [THEN]
-      s" '" $type s" extrastuff" getenv $type
-      tmp$ $@
-      \ cr ." Libcc command: " 2dup type cr
-      ] sliteral type c-flags $. c-flags $free
-    ."  -O -c " lib-filename $. ." .c -o "
+    c++-mode IF
+	[ libtool-command tmp$ $! s"  --silent --tag=CXX --mode=compile " $type
+	s" CROSS_PREFIX" getenv $type
+	libtool-cxx $type s"  '-I" $type
+	s" includedir" getenv tuck $type 0= [IF]
+	    pad $100 get-dir $type s" /" $type version-string $type
+	    s" /include" $type  [THEN]
+	s" '" $type s" extrastuff" getenv $type
+	tmp$ $@
+	\ cr ." Libcc command: " 2dup type cr
+	] sliteral
+    ELSE
+	[ libtool-command tmp$ $! s"  --silent --tag=CC --mode=compile " $type
+	s" CROSS_PREFIX" getenv $type
+	libtool-cc $type s"  '-I" $type
+	s" includedir" getenv tuck $type 0= [IF]
+	    pad $100 get-dir $type s" /" $type version-string $type
+	    s" /include" $type  [THEN]
+	s" '" $type s" extrastuff" getenv $type
+	tmp$ $@
+	\ cr ." Libcc command: " 2dup type cr
+	] sliteral
+    THEN
+    type c-flags $. c-flags $free
+    ."  -O -c " lib-filename $.
+    c++-mode IF  ." .cpp -o "  ELSE  ." .c -o "  THEN
     lib-filename $. ." .lo" ;
 
 : link-cmd ( -- )
@@ -1100,6 +1124,10 @@ latestnt to rt-vtable
     c-named-library-name
     also c-lib ; \ setup of a named c library also extends vocabulary stack
 
+: c++-library-name ( c-addr u -- ) \ gforth
+\G Start a C++ library interface with name @i{c-addr u}.
+    c-library-name true to c++-mode ;
+
 : libcc>named-path ( -- )
     libcc-path clear-path  libcc-named-dir
     [ lib-suffix s" .so" str= ] [IF]
@@ -1181,6 +1209,10 @@ is 'image
 : c-library ( "name" -- ) \ gforth
 \G Parsing version of @code{c-library-name}
     ?parse-name save-mem c-library-name ;
+
+: c++-library ( "name" -- ) \ gforth
+\G Parsing version of @code{c++-library-name}
+    ?parse-name save-mem c++-library-name ;
 
 : end-c-library ( -- ) \ gforth
     \G Finish and (if necessary) build the latest C library interface.

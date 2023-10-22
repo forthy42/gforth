@@ -40,10 +40,7 @@ c-value wl_output_interface &wl_output_interface -- a
 c-value wl_region_interface &wl_region_interface -- a
 c-value wl_subcompositor_interface &wl_subcompositor_interface -- a
 c-value wl_subsurface_interface &wl_subsurface_interface -- a
-\c void * get_zwp_text_input_v3_interface(void);
-c-function zwp_text_input_v3_interface get_zwp_text_input_v3_interface -- a
-\c void * get_zwp_text_input_manager_v3_interface(void);
-c-function zwp_text_input_manager_v3_interface get_zwp_text_input_manager_v3_interface -- a
-\c struct zwp_text_input_v3 *
-\c get_zwp_text_input_manager_v3_get_text_input(struct zwp_text_input_manager_v3 *zwp_text_input_manager_v3, struct wl_seat *seat);
-c-function zwp_text_input_manager_v3_get_text_input get_zwp_text_input_manager_v3_get_text_input a a -- a	( zwp_text_input_manager_v3 seat -- )
+c-value zwp_text_input_v3_interface &WAYLAND_DETAIL(zwp_text_input_v3_interface) -- a
+c-value zwp_text_input_manager_v3_interface &WAYLAND_DETAIL(zwp_text_input_manager_v3_interface) -- a
+
+

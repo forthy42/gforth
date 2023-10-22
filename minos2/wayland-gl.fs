@@ -92,7 +92,7 @@ Create wl-sh-surface-listener , , ,
 1 Value wl-scale
 0 Value screen-orientation
 
-: wl-out-geometry { data out x y pw ph subp make model transform -- }
+: wl-out-geometry { data out x y pw ph subp d: make d: model transform -- }
     pw ph wl-metrics 2! transform to screen-orientation ;
 : wl-out-mode { data out flags w h r -- }
     w h dpy-wh 2! ;
@@ -160,7 +160,7 @@ Create wl-keyboard-listener
 
 \ seat listener
 
-:noname { data seat name -- } ; wl_seat_listener-name:
+:noname { data seat d: name -- } ; wl_seat_listener-name:
 :noname { data seat caps -- }
     caps WL_SEAT_CAPABILITY_POINTER and IF
 	wl-seat wl_seat_get_pointer to wl-pointer
@@ -206,11 +206,11 @@ wl-registry set-current
 
 set-current
     
-: registry+ { data registry name interface version -- }
-    interface cstring>sstring wl-registry find-name-in ?dup-IF
+: registry+ { data registry name d: interface version -- }
+    interface wl-registry find-name-in ?dup-IF
 	registry name rot name>interpret execute
     ELSE
-	wayland( interface cstring>sstring type cr )
+	wayland( interface type cr )
     THEN ;
 : registry- { data registry name -- } ;
 
@@ -291,9 +291,14 @@ Variable rendering -2 rendering !
 
 : ?looper ;
 
-Defer window-init    ' noop is window-init
-Defer config-changed ' noop is config-changed
-Defer screen-ops     ' noop IS screen-ops
+Defer window-init     ' noop is window-init
+: window-init, ( xt -- )
+    >r :noname action-of window-init compile, r@ compile,
+    postpone ; is window-init
+    ctx IF  r@ execute  THEN  rdrop ;
+Defer config-changed  ' noop is config-changed
+Defer screen-ops      ' noop IS screen-ops
+Defer reload-textures ' noop is reload-textures
 
 begin-structure app_input_state
 field: action
