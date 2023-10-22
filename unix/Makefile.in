@@ -18,7 +18,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
-INCLUDES   = @SWIGINCLUDES@ -I@srcdir@/../freetype-gl -I@srcdir@/../wayland
+INCLUDES   = @SWIGINCLUDES@ -I@srcdir@/../freetype-gl -I../wayland
 SWIG       = @SWIG@
 TARGETS    = @SWIGMODULES@
 WRAPPERS   = $(patsubst %.fs, %.fsx, $(TARGETS))
