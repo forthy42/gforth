@@ -16,8 +16,8 @@ using namespace wayland;
 #endif
 #include <wayland-client-protocol.h>
 #include <wayland-cursor.h>
-#include <text-input-unstable-v3.h>
-#include <xdg-shell.h>
+#include <text-input-unstable-v3-client.h>
+#include <xdg-shell-client.h>
 %}
 
 %apply int { int32_t, wl_fixed_t }
@@ -35,5 +35,5 @@ using namespace wayland;
 %include <wayland-egl-core.h>
 %include <wayland-cursor.h>
 %include <wayland-util.h>
-%include <text-input-unstable-v3.h>
-%include <xdg-shell.h>
+%include <text-input-unstable-v3-client.h>
+%include <xdg-shell-client.h>

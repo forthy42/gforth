@@ -28,7 +28,9 @@ require except.fs \ included on command line
 [IFDEF] throw>error
     ' throw>error Alias rethrow
 [THEN]
--2 warnings !
+[IFUNDEF] no-warnings
+    -2 warnings !
+[THEN]
 require rec-sequence.fs
 require search.fs
 require options.fs

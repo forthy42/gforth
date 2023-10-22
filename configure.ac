@@ -1250,6 +1250,8 @@ else
 fi
 AC_SUBST(gforth_elc)
 
+AC_CHECK_PROGS(PKG_CONFIG, pkg-config)
+
 #MacOS X has a libtool that does something else
 AC_CHECK_PROGS(GNU_LIBTOOL,glibtool libtool)
 if test -z "$GNU_LIBTOOL"; then
@@ -1715,7 +1717,7 @@ fi
 #fi
 if test x$has_swig = xyes || test -f $srcdir/unix/freetype_gl-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
-   CPPFLAGS="$CPPFLAGS `pkg-config --cflags freetype2`"
+   CPPFLAGS="$CPPFLAGS `$PKG_CONFIG --cflags freetype2`"
    CPPFLAGS_2="$CPPFLAGS"
    case "$srcdir"
    in
@@ -1731,20 +1733,20 @@ if test x$has_swig = xyes || test -f $srcdir/unix/freetype_gl-fsi.c; then
    AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype_gl.fs"
 		    SWIGLIBS="$SWIGLIBS freetype_gl.fs"
 		    SWIGDISTFSI="$SWIGDISTFSI freetype_gl.fs"
-		    SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags freetype2 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", MINOSFLAG=false,), MINOSFLAG=false,), MINOSFLAG=false,)
+		    SWIGINCLUDES="$SWIGINCLUDES `$PKG_CONFIG --cflags freetype2 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", MINOSFLAG=false,), MINOSFLAG=false,), MINOSFLAG=false,)
    if test x"$CPPFLAGS" != x"$CPPFLAGS_1"; then
       CPPFLAGS="$CPPFLAGS_2"
    fi
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
-   CPPFLAGS="$CPPFLAGS `pkg-config --cflags wayland-client`"
+   CPPFLAGS="$CPPFLAGS `$PKG_CONFIG --cflags wayland-client`"
    CPPFLAGS_2="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS -I$ac_pwd/wayland"
    AC_CHECK_LIB(wayland-egl,wl_egl_window_create,
    AC_CHECK_LIB(wayland-client,wl_display_get_fd,
    AC_CHECK_HEADER(wayland-egl-core.h, SWIGMODULES="$SWIGMODULES wayland.fs"
-		   SWIGLIBS="$SWIGLIBS wayland.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags wayland-client | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1", ,)))
+		   SWIGLIBS="$SWIGLIBS wayland.fs" SWIGINCLUDES="$SWIGINCLUDES `$PKG_CONFIG --cflags wayland-client | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1", ,)))
    if test x"$CPPFLAGS" != x"$CPPFLAGS_1"; then
       CPPFLAGS="$CPPFLAGS_2"
    fi
@@ -1763,32 +1765,32 @@ if test x$has_swig = xyes || test -f $srcdir/unix/vulkan-fsi.c; then
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/harfbuzz-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
-   CPPFLAGS="$CPPFLAGS `pkg-config --cflags harfbuzz`"
+   CPPFLAGS="$CPPFLAGS `$PKG_CONFIG --cflags harfbuzz`"
    AC_CHECK_LIB(harfbuzz,hb_buffer_create,
    AC_CHECK_HEADER(harfbuzz/hb.h, SWIGMODULES="$SWIGMODULES harfbuzz.fs"
 		   SWIGLIBS="$SWIGLIBS harfbuzz.fs"
 		   SWIGDISTFSI="$SWIGDISTFSI harfbuzz.fs"
-		   SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags harfbuzz | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", ,),
+		   SWIGINCLUDES="$SWIGINCLUDES `$PKG_CONFIG --cflags harfbuzz | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", ,),
    AC_CHECK_LIB(harfbuzz,hb_buffer_get_direction,
    AC_CHECK_HEADER(harfbuzz/hb.h, SWIGMODULES="$SWIGMODULES harfbuzz.fs"
 		   SWIGLIBS="$SWIGLIBS harfbuzz.fs"
 		   SWIGDISTFSI="$SWIGDISTFSI harfbuzz.fs"
-		   SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags harfbuzz | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", ,), ,-lpng12 -lfreetype)
+		   SWIGINCLUDES="$SWIGINCLUDES `$PKG_CONFIG --cflags harfbuzz | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", ,), ,-lpng12 -lfreetype)
 		   ,-lpng16 -lfreetype)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gobject-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
-   CPPFLAGS="$CPPFLAGS `pkg-config --cflags gobject-2.0`"
+   CPPFLAGS="$CPPFLAGS `$PKG_CONFIG --cflags gobject-2.0`"
    AC_CHECK_LIB(gobject-2.0,g_signal_connect_data,
    AC_CHECK_HEADER(glib-object.h, SWIGMODULES="$SWIGMODULES gobject.fs"
-		   SWIGLIBS="$SWIGLIBS gobject.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags gobject-2.0 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
+		   SWIGLIBS="$SWIGLIBS gobject.fs" SWIGINCLUDES="$SWIGINCLUDES `$PKG_CONFIG --cflags gobject-2.0 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/avcodec-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
-   CPPFLAGS="$CPPFLAGS `pkg-config --cflags libavcodec`"
+   CPPFLAGS="$CPPFLAGS `$PKG_CONFIG --cflags libavcodec`"
    AC_CHECK_LIB(avcodec,avcodec_version,
    AC_CHECK_HEADER(libavcodec/avcodec.h,  SWIGMODULES="$SWIGMODULES avcodec.fs"
-		   SWIGLIBS="$SWIGLIBS avcodec.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags libavcodec | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
+		   SWIGLIBS="$SWIGLIBS avcodec.fs" SWIGINCLUDES="$SWIGINCLUDES `$PKG_CONFIG --cflags libavcodec | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/pulse-fsi.c; then
    AC_CHECK_LIB(pulse,pa_context_new,
@@ -1799,11 +1801,11 @@ if test x$has_swig = xyes || test -f $srcdir/unix/pulse-fsi.c; then
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/pipewire-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
-   CPPFLAGS="$CPPFLAGS `pkg-config --cflags libspa-0.2 libpipewire-0.3`"
+   CPPFLAGS="$CPPFLAGS `$PKG_CONFIG --cflags libspa-0.2 libpipewire-0.3`"
    AC_CHECK_LIB(pipewire-0.3,pw_main_loop_new,
    AC_CHECK_HEADER(pipewire/pipewire.h, SWIGMODULES="$SWIGMODULES pipewire.fs"
 		   SWIGLIBS="$SWIGLIBS pipewire.fs"
-		   SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags libspa-0.2 libpipewire-0.3 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`"
+		   SWIGINCLUDES="$SWIGINCLUDES `$PKG_CONFIG --cflags libspa-0.2 libpipewire-0.3 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`"
 		   SWIGDISTFSI="$SWIGDISTFSI pipewire.fs"
 		   , CPPFLAGS="$CPPFLAGS_1"), ,)
 fi
@@ -1836,14 +1838,15 @@ if test x$has_swig = xyes || test -f $srcdir/unix/va_drm-fsi.c; then
 fi
 #if test x$has_swig = xyes || test -f $srcdir/unix/gst-fsi.c; then
 #   CPPFLAGS_1="$CPPFLAGS"
-#   CPPFLAGS="$CPPFLAGS `pkg-config --cflags gstreamer-gl-1.0`"
+#   CPPFLAGS="$CPPFLAGS `$PKG_CONFIG --cflags gstreamer-gl-1.0`"
 #   AC_CHECK_LIB(gstreamer-1.0,gst_init,
 #   AC_CHECK_HEADER(gst/gst.h, SWIGMODULES="$SWIGMODULES gst.fs"
-#		   SWIGLIBS="$SWIGLIBS gst.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags gstreamer-gl-1.0 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
+#		   SWIGLIBS="$SWIGLIBS gst.fs" SWIGINCLUDES="$SWIGINCLUDES `$PKG_CONFIG --cflags gstreamer-gl-1.0 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
 #fi
 
 AC_PATH_PROGS(WAYLAND_SCANNER,wayland-scanner)
 AC_SUBST(WAYLAND_SCANNER)
+AC_SUBST(WAYLAND_PROTOCOLS_DATADIR, `$PKG_CONFIG --variable=pkgdatadir wayland-protocols`)
 
 if test x$GLESFLAG = xfalse -a x$GLXFLAG = xfalse
 then

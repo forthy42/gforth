@@ -26,7 +26,7 @@ if test -f "$ENGINE" -a -f "$KERNEL"; then
   path2="$2"
   shift; shift
 #  set -x -v
-  $ENGINE --die-on-signal -m64M -i @kernel_fi@ $path1 $path2 exboot.fs startup.fs "$@"
+  $ENGINE --die-on-signal -m64M -i @kernel_fi@ $path1 $path2 exboot.fs -e ': no-warnings ;' startup.fs "$@"
 else
-  @PREFORTH@ -m64M "$@"
+  @PREFORTH@ -m64M -e "warnings off" "$@"
 fi

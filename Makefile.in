@@ -388,7 +388,9 @@ FREETYPE_GL_SRC = freetype-gl/ftgl-utils.c freetype-gl/platform.c	\
 	freetype-gl/texture-atlas.c freetype-gl/texture-font.c		\
 	freetype-gl/utf8-utils.c freetype-gl/distance-field.c		\
 	freetype-gl/vector.c freetype-gl/edtaa3func.c $(FREETYPE_GL_INCLUDE)
-WAYLAND_INCLUDE = wayland/text-input-unstable-v3.h wayland/xdg-shell.h
+
+WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
+WAYLAND_INCLUDE = wayland/text-input-unstable-v3-client.h wayland/xdg-shell-client.h
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs csv.fs \
 	i18n.fs @NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_LIB_SRC)
@@ -1569,8 +1571,8 @@ ChangeLog.git: FORCE
 
 unix/wayland.fs: $(WAYLAND_INCLUDE)
 
-wayland/text-input-unstable-v3.h: /usr/share/wayland-protocols/unstable/text-input/text-input-unstable-v3.xml
-	wayland-scanner client-header <$< | sed -e 's/&\(zwp[a-z0-9_]*\)/\&WAYLAND_DETAIL(\1)/g' >$@
+wayland/text-input-unstable-v3-client.h: $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -name text-input-unstable-v3.xml)
+	wayland-scanner client-header <$< | sed -e 's/&\(zwp_[a-z0-9_]*\)/\&WAYLAND_DETAIL(\1)/g' >$@
 
-wayland/xdg-shell.h: /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml
-	wayland-scanner client-header <$< | sed -e 's/&\(xdg[a-z0-9_]*\)/\&WAYLAND_DETAIL(\1)/g' >$@
+wayland/xdg-shell-client.h: $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -name xdg-shell.xml)
+	wayland-scanner client-header <$< | sed -e 's/&\(xdg_[a-z0-9_]*\)/\&WAYLAND_DETAIL(\1)/g' >$@
