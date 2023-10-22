@@ -1740,15 +1740,7 @@ if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS `pkg-config --cflags wayland-client`"
    CPPFLAGS_2="$CPPFLAGS"
-   case "$srcdir"
-   in
-      /*)
-	 CPPFLAGS="$CPPFLAGS -I$srcdir/wayland"
-      ;;
-      *)
-	 CPPFLAGS="$CPPFLAGS -I$ac_pwd/$srcdir/wayland"
-      ;;
-   esac
+   CPPFLAGS="$CPPFLAGS -I$ac_pwd/wayland"
    AC_CHECK_LIB(wayland-egl,wl_egl_window_create,
    AC_CHECK_LIB(wayland-client,wl_display_get_fd,
    AC_CHECK_HEADER(wayland-egl-core.h, SWIGMODULES="$SWIGMODULES wayland.fs"
@@ -1849,6 +1841,9 @@ fi
 #   AC_CHECK_HEADER(gst/gst.h, SWIGMODULES="$SWIGMODULES gst.fs"
 #		   SWIGLIBS="$SWIGLIBS gst.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags gstreamer-gl-1.0 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
 #fi
+
+AC_PATH_PROGS(WAYLAND_SCANNER,wayland-scanner)
+AC_SUBST(WAYLAND_SCANNER)
 
 if test x$GLESFLAG = xfalse -a x$GLXFLAG = xfalse
 then
@@ -1977,6 +1972,7 @@ chmod +x gforthker
 chmod +x debian/rules
 test -d kernel||mkdir kernel
 test -d test||mkdir test
+test -d wayland||mkdir wayland
 if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi
 mkdir -p include/gforth/$PACKAGE_VERSION/$machine
 mkdir -p arch/$machine

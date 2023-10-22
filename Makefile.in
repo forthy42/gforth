@@ -113,6 +113,7 @@ LN_S	= @LN_S@ -f
 M4      = @M4@
 GCC	= @CC@
 EMACS   = @EMACS@
+WAYLAND_SCANNER = @WAYLAND_SCANNER@
 LIBTOOL = @GNU_LIBTOOL@
 PREFORTH	= ./preforth -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 CC	= $(GCC)
@@ -1565,3 +1566,8 @@ config.status: configure
 
 ChangeLog.git: FORCE
 	git log --name-only --date=short --pretty=format:'%cd -%d %s <%an> %h%n%b' --abbrev-commit >ChangeLog.git
+
+unix/wayland.fs: $(WAYLAND_INCLUDE)
+
+wayland/text-input-unstable-v3.h: /usr/share/wayland-protocols/unstable/text-input/text-input-unstable-v3.xml
+	wayland-scanner client-header <$< | sed -e 's/&\(zwp[a-z0-9_]*\)/\&WAYLAND_DETAIL(\1)/g' >$@

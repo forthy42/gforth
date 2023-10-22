@@ -39,6 +39,6 @@
     2 /string forth-recognize
     translate-nt? 0= IF  drop ['] notfound EXIT  THEN
     dup >namehm @ >hmto @ ['] no-to = IF  2drop ['] notfound EXIT  THEN
-    name?int ['] translate-to ;
+    name>interpret ['] translate-to ;
 
 ' rec-to forth-recognizer >back
