@@ -867,14 +867,14 @@ test "$ac_pthread" == yes || LDFLAGS="$LDFLAGS_1"
 AC_MSG_RESULT($ac_pthread)
 
 # Try if G++ understands -fpermissive
-AC_LANG_PUSH([C++])
+AC_LANG([C++])
 AC_MSG_CHECKING([if $CXX understands -fpermissive])
 CXXFLAGS_1="$CXXFLAGS"
 CXXFLAGS="$CXXFLAGS -fpermissive"
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_fpermissive=yes],[ac_fpermissive=no])
 test "$ac_fpermissive" == yes || CXXFLAGS="$CXXFLAGS_1"
 AC_MSG_RESULT($ac_fpermissive)
-AC_LANG_POP([C++])
+AC_LANG([C])
 
 if test -z "$LIBTOOL_CC"
 then
@@ -1572,6 +1572,7 @@ AC_SUBST(HAS_SWIG_FORTH)
 if test x$has_swig = xyes; then
    > conftest.$ac_ext
    SWIGINCLUDES=`eval $ac_compiler $CFLAGS $CPPFLAGS -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ \(.*\) (framework directory)$/-F\1/g' -e 's/^ /-I/g' | grep '^-./' | tr '\n' ' '`
+   echo "Default SWIG includes: $SWIGINCLUDES"
 fi
 
 if test x$has_swig = xyes || test -f $srcdir/unix/x-fsi.c; then
