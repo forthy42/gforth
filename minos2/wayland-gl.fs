@@ -48,6 +48,9 @@ debug: wayland(
 0 Value wl-seat
 0 Value wl-shm
 0 Value text-input-manager
+0 Value xdg-wm-base
+0 Value xdg-surface
+0 Value xdg-toplevel
 
 \ set a cursor
 
@@ -174,6 +177,13 @@ Create wl-keyboard-listener
     THEN ; wl_seat_listener-capabilities:
 Create wl-seat-listener  , ,
 
+\ xdg-wm-base-listener
+
+:noname ( data xdg_wm_base serial -- )
+    xdg_wm_base_pong drop ; xdg_wm_base_listener-ping:
+
+Create xdg-wm-base-listener ,
+
 \ registry listeners: the interface string is searched in a table
 
 table Constant wl-registry
@@ -203,15 +213,18 @@ wl-registry set-current
     cursor-theme s" left_ptr" wl_cursor_theme_get_cursor to cursor ;
 : zwp_text_input_manager_v3 ( registry name -- )
     zwp_text_input_manager_v3_interface 1 wl_registry_bind to text-input-manager ;
+: xdg_wm_base ( registry name -- )
+    xdg_wm_base_interface 1 wl_registry_bind dup to xdg-wm-base
+    xdg-wm-base xdg-wm-base-listener 0 xdg_wm_base_add_listener ;
 
 set-current
     
 : registry+ { data registry name d: interface version -- }
-    interface type cr
+    wayland( interface [: cr type ;] do-debug )
     interface wl-registry find-name-in ?dup-IF
 	registry name rot name>interpret execute
     ELSE
-	wayland( interface type cr )
+	wayland( [: ."  unhandled" ;] do-debug )
     THEN ;
 : registry- { data registry name -- } ;
 
@@ -228,8 +241,33 @@ Create registry-listener , ,
     registry registry-listener 0 wl_registry_add_listener drop
     get-events  get-events  dpy-wh 2@ ;
 
+\ xdg surface listener
+
+0 value mapped
+
+:noname { data xdg_surface serial -- }
+    wayland( [: cr ." configured" ;] do-debug )
+    true to mapped
+    xdg_surface serial xdg_surface_ack_configure
+; xdg_surface_listener-configure:
+Create xdg-surface-listener ,
+
+: map-win ( -- )
+    BEGIN  get-events mapped  UNTIL ;
+
 : wl-eglwin ( w h -- )
-    wl-surface -rot wl_egl_window_create to win ;
+    wayland( [: cr ." eglwin: " over . dup . ;] do-debug )
+    xdg-wm-base wl-surface xdg_wm_base_get_xdg_surface to xdg-surface
+    xdg-surface xdg-surface-listener 0 xdg_surface_add_listener drop
+    xdg-surface xdg_surface_get_toplevel to xdg-toplevel
+    xdg-toplevel s" ΜΙΝΟΣ2 OpenGL Window" xdg_toplevel_set_title
+    xdg-toplevel s" ΜΙΝΟΣ2" xdg_toplevel_set_app_id
+    compositor wl_compositor_create_region { region }
+    2dup 2>r region 0 0 2r> wl_region_add
+    wl-surface region wl_surface_set_opaque_region
+    wl-surface wl_surface_commit
+    wl-surface -rot wl_egl_window_create to win
+    wayland( [: cr ." wl-eglwin done" ;] do-debug ) ;
 
 also opengl
 : getwh ( -- )
