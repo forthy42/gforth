@@ -447,7 +447,7 @@ widget is resized
 Defer dispose-check ' noop is dispose-check
 : dispose-nodict ( o:object -- )
 \    o in-dictionary? 0= IF
-	dispose( o hex. name$ type ."  dispose" cr )
+	dispose( o h. name$ type ."  dispose" cr )
 	addr name$ $free
 	dispose dispose-check
 \    ELSE  dispose( ." in dictionary, don't dispose" cr )  THEN

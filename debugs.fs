@@ -345,7 +345,7 @@ Variable rec'[]
     dup >name if
 	.name
     else
-	hex.
+	h.
     then ;
 
 : .hm ( nt -- ) \ gforth dot-h-m

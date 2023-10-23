@@ -967,7 +967,7 @@ set-current
     ELSE
 	dup alias? IF
 	    dup >body @ name>string nip 0= IF
-		dup >body @ hex.
+		dup >body @ h.
 	    ELSE
 		." ' " dup >body @ id.
 	    THEN ." Alias " dup id.
