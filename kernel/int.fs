@@ -751,21 +751,10 @@ User error-stack  0 error-stack !
     input-lexeme 2@ >r + r> sourceline#
     [ has? file [IF] ] sourcefilename [ [THEN] ] ;
 
-: dec. ( n -- ) \ gforth
-    \G Display @i{n} as a signed decimal number, followed by a space.
-    \ !! not used...
-    base @ decimal swap . base ! ;
-
 : dec.r ( u n -- ) \ gforth
     \G Display @i{u} as a unsigned decimal number in a field @i{n}
     \G characters wide.
     base @ >r decimal .r r> base ! ;
-
-: hex. ( u -- ) \ gforth
-    \G Display @i{u} as an unsigned hex number, prefixed with a "$" and
-    \G followed by a space.
-    \ !! not used...
-    '$' emit base @ swap hex u. base ! ;
 
 : -trailing  ( c_addr u1 -- c_addr u2 ) \ string dash-trailing
 \G Adjust the string specified by @i{c-addr, u1} to remove all
