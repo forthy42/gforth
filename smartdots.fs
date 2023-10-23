@@ -59,10 +59,10 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
 		then
 	    [ 1 maxaligned ]L -LOOP
 	then
-	hex. ;] catch IF  drop r> hex. nothrow  ELSE  rdrop  THEN ;
+	h. ;] catch IF  drop r> h. nothrow  ELSE  rdrop  THEN ;
 
 : .var. ( addr -- )
-    dup body> >name dup IF  .name drop  ELSE  drop hex.  THEN ;
+    dup body> >name dup IF  .name drop  ELSE  drop h.  THEN ;
 
 : .cs. ( x1 addr -- )
     '<' emit

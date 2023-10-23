@@ -36,7 +36,7 @@ get-current also see-voc definitions
     then ;
 
 : see-word.addr ( addr -- )
-    xpos off hex. ;
+    xpos off h. ;
 
 : .transition ( ustart uend -- )
     swap 4 spaces 0 .r ." ->" . ;

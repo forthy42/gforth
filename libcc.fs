@@ -1154,7 +1154,7 @@ init-libcc
 : rebind-libcc ( -- )
     [: [: dup >does-code [ ' rt-does> >body ]L = IF
 		>body dup link-wrapper-function
-		\ ." relink: " over body> .name dup hex. cr
+		\ ." relink: " over body> .name dup h. cr
 		over !
 	    ELSE  dup >does-code [ ' callback-does> >body ]L = IF
 		    dup >body setup-callback
@@ -1164,7 +1164,7 @@ init-libcc
 : unbind-libcc ( -- )
     [: [: dup >does-code [ ' rt-does> >body ]L = IF
 		dup >body off
-		\ ." relink: " over body> .name dup hex. cr
+		\ ." relink: " over body> .name dup h. cr
 	    ELSE  dup >does-code [ ' callback-does> >body ]L = IF
 		    dup >body off
 		THEN
@@ -1190,7 +1190,7 @@ Defer prefetch-lib ( addr u -- )
 	libcc-named-dir 2dup  $1ff mkdir-parents drop
 	prepend-dirname lib-filename $!
 	open-wrappers dup IF
-	    \ ." link " r@ lha-name $. ."  to " dup hex. cr
+	    \ ." link " r@ lha-name $. ."  to " dup h. cr
 	    dup lib-handle!  init-lib  EXIT
 	THEN
 	.lib-error !!openlib!! throw

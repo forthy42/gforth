@@ -76,7 +76,7 @@ defer .backtrace-pos ( addr -- )
     2dup u< IF  cr ." Backtrace:"  THEN
     0 swap rot u+do
 	cr i @ dup .backtrace-pos over 2 .r space
-	dup hex. dup print-bt-entry
+	dup h. dup print-bt-entry
 	catch-frame = IF  ."  [catch frame]" 1+  7 cells  ELSE  1+ cell  THEN
     +loop
     drop ;
