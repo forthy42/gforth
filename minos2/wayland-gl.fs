@@ -51,6 +51,8 @@ debug: wayland(
 0 Value xdg-wm-base
 0 Value xdg-surface
 0 Value xdg-toplevel
+0 Value decoration-manager
+0 Value zxdg-decoration
 
 \ set a cursor
 
@@ -216,6 +218,8 @@ wl-registry set-current
 : xdg_wm_base ( registry name -- )
     xdg_wm_base_interface 1 wl_registry_bind dup to xdg-wm-base
     xdg-wm-base xdg-wm-base-listener 0 xdg_wm_base_add_listener ;
+: zxdg_decoration_manager_v1 ( registry name -- )
+    zxdg_decoration_manager_v1_interface 1 wl_registry_bind to decoration-manager ;
 
 set-current
     
@@ -243,7 +247,8 @@ Create registry-listener , ,
 
 \ xdg surface listener
 
-0 value mapped
+0 Value mapped
+0 Value configured
 
 :noname { data xdg_surface serial -- }
     wayland( [: cr ." configured" ;] do-debug )
@@ -255,18 +260,53 @@ Create xdg-surface-listener ,
 : map-win ( -- )
     BEGIN  get-events mapped  UNTIL ;
 
-: wl-eglwin ( w h -- )
-    wayland( [: cr ." eglwin: " over . dup . ;] do-debug )
-    xdg-wm-base wl-surface xdg_wm_base_get_xdg_surface to xdg-surface
-    xdg-surface xdg-surface-listener 0 xdg_surface_add_listener drop
+Variable level#
+
+:noname { data xdg_toplevel capabilities -- } ;
+xdg_toplevel_listener-wm_capabilities:
+:noname { data xdg_toplevel width height -- }
+    wayland( height width [: cr ." toplevel bounds: " . . ;] do-debug ) ;
+xdg_toplevel_listener-configure_bounds:
+:noname { data xdg_toplevel -- }
+    wayland( [: cr ." close" ;] do-debug )
+    -1 level# +! ;
+xdg_toplevel_listener-close:
+:noname { data xdg_toplevel width height states -- }
+    wayland( states wl_array-data @ states wl_array-size @
+    height width [: cr ." toplevel-config: " . .
+    dump ;] do-debug )
+;
+xdg_toplevel_listener-configure:
+Create xdg-toplevel-listener , , , ,
+
+forward sync
+forward clear
+:noname { data decoration mode -- }
+    wayland( [: cr ." decorated" ;] do-debug )
+    true to configured clear sync ;
+zxdg_toplevel_decoration_v1_listener-configure: Create xdg-decoration-listener ,
+
+: wl-eglwin { w h -- }
+    wayland( h w [: cr ." eglwin: " . . ;] do-debug )
+    xdg-wm-base wl-surface xdg_wm_base_get_xdg_surface dup to xdg-surface
+    xdg-surface-listener 0 xdg_surface_add_listener drop
     xdg-surface xdg_surface_get_toplevel to xdg-toplevel
+    xdg-surface 0 0 w h xdg_surface_set_window_geometry
+    xdg-toplevel xdg-toplevel-listener 0 xdg_toplevel_add_listener drop
     xdg-toplevel s" ΜΙΝΟΣ2 OpenGL Window" xdg_toplevel_set_title
     xdg-toplevel s" ΜΙΝΟΣ2" xdg_toplevel_set_app_id
+    xdg-toplevel xdg_toplevel_set_maximized
+    decoration-manager xdg-toplevel
+    zxdg_decoration_manager_v1_get_toplevel_decoration dup to zxdg-decoration
+    dup xdg-decoration-listener 0
+    zxdg_toplevel_decoration_v1_add_listener drop
+    ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE
+    zxdg_toplevel_decoration_v1_set_mode
     compositor wl_compositor_create_region { region }
-    2dup 2>r region 0 0 2r> wl_region_add
+    region 0 0 w h wl_region_add
     wl-surface region wl_surface_set_opaque_region
+    wl-surface w h wl_egl_window_create to win
     wl-surface wl_surface_commit
-    wl-surface -rot wl_egl_window_create to win
     wayland( [: cr ." wl-eglwin done" ;] do-debug ) ;
 
 also opengl

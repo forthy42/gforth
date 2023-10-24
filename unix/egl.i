@@ -2,6 +2,7 @@
 %module egl
 %insert("include")
 %{
+#define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>
 #ifdef __gnu_linux__
 #undef stderr

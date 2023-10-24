@@ -47,3 +47,5 @@ c-value xdg_positioner_interface &WAYLAND_DETAIL(xdg_positioner_interface) -- a
 c-value xdg_surface_interface &WAYLAND_DETAIL(xdg_surface_interface) -- a
 c-value xdg_toplevel_interface &WAYLAND_DETAIL(xdg_toplevel_interface) -- a
 c-value xdg_popup_interface &WAYLAND_DETAIL(xdg_popup_interface) -- a
+c-value zxdg_toplevel_decoration_v1_interface &WAYLAND_DETAIL(zxdg_toplevel_decoration_v1_interface) -- a
+c-value zxdg_decoration_manager_v1_interface &WAYLAND_DETAIL(zxdg_decoration_manager_v1_interface) -- a

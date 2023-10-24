@@ -187,10 +187,11 @@ Variable eglformat
 	: create-context ( -- )
 	    [IFDEF] use-wl
 		dpy-w @ dpy-h @ wl-eglwin
+		egldpy configs @ win 0 eglCreatePlatformWindowSurface to surface
 	    [ELSE]
 		default-events "EGL-Window" dpy-w @ dpy-h @ simple-win
+		egldpy configs @ win 0 eglCreateWindowSurface to surface
 	    [THEN]
-	    egldpy configs @ win 0 eglCreateWindowSurface to surface
 	    egldpy configs @ 0 eglattribs eglCreateContext to ctx
 	    egldpy surface dup ctx eglMakeCurrent drop ;
 
@@ -254,7 +255,7 @@ Variable eglformat
     [THEN]
 [THEN]
 : init-opengl ( -- )
-    choose-config create-context getwh ;
+    choose-config create-context sync getwh ;
 
 ?looper \ init-opengl ." Screen size: " dpy-w ? dpy-h ? cr
 

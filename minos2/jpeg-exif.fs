@@ -175,12 +175,12 @@ DOES> + c@ ;
 
 : .exif-tag ( -- )
     exw exw exl exl { cmd type len offset }
-    cmd hex. type hex. len hex.
+    cmd h. type h. len h.
     type exif-sizes len * { size }
     size 4 > IF
 	cr offset size exif-read-at $100 umin dump
     ELSE
-	offset hex. cr
+	offset h. cr
     THEN ;
 
 : .exif-tags ( -- )
@@ -194,7 +194,7 @@ DOES> + c@ ;
 : >thumb ( -- )
     exw 0 ?DO
 	exw exw exl exl { cmd typ len offset }
-	\ cmd hex. typ hex. len hex. offset hex. cr
+	\ cmd h. typ h. len h. offset h. cr
 	offset  case cmd \ len ~~ drop
 	    $100  of  img-w      !  endof
 	    $101  of  img-h      !  endof
