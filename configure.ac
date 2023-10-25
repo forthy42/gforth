@@ -1847,6 +1847,7 @@ fi
 AC_PATH_PROGS(WAYLAND_SCANNER,wayland-scanner)
 AC_SUBST(WAYLAND_SCANNER)
 AC_SUBST(WAYLAND_PROTOCOLS_DATADIR, `$PKG_CONFIG --variable=pkgdatadir wayland-protocols`)
+AC_SUBST(INCLUDE_WAYLAND, 'include $(srcdir)/Makefile.wayland')
 
 if test x$GLESFLAG = xfalse -a x$GLXFLAG = xfalse
 then

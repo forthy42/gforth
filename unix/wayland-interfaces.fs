@@ -40,12 +40,15 @@ c-value wl_output_interface &wl_output_interface -- a
 c-value wl_region_interface &wl_region_interface -- a
 c-value wl_subcompositor_interface &wl_subcompositor_interface -- a
 c-value wl_subsurface_interface &wl_subsurface_interface -- a
-c-value zwp_text_input_v3_interface &WAYLAND_DETAIL(zwp_text_input_v3_interface) -- a
-c-value zwp_text_input_manager_v3_interface &WAYLAND_DETAIL(zwp_text_input_manager_v3_interface) -- a
-c-value xdg_wm_base_interface &WAYLAND_DETAIL(xdg_wm_base_interface) -- a
-c-value xdg_positioner_interface &WAYLAND_DETAIL(xdg_positioner_interface) -- a
-c-value xdg_surface_interface &WAYLAND_DETAIL(xdg_surface_interface) -- a
-c-value xdg_toplevel_interface &WAYLAND_DETAIL(xdg_toplevel_interface) -- a
-c-value xdg_popup_interface &WAYLAND_DETAIL(xdg_popup_interface) -- a
-c-value zxdg_toplevel_decoration_v1_interface &WAYLAND_DETAIL(zxdg_toplevel_decoration_v1_interface) -- a
-c-value zxdg_decoration_manager_v1_interface &WAYLAND_DETAIL(zxdg_decoration_manager_v1_interface) -- a
+\c #include <text-input-unstable-v3.c>
+c-value zwp_text_input_v3_interface &zwp_text_input_v3_interface -- a
+c-value zwp_text_input_manager_v3_interface &zwp_text_input_manager_v3_interface -- a
+\c #include <xdg-shell.c>
+c-value xdg_wm_base_interface &xdg_wm_base_interface -- a
+c-value xdg_positioner_interface &xdg_positioner_interface -- a
+c-value xdg_surface_interface &xdg_surface_interface -- a
+c-value xdg_toplevel_interface &xdg_toplevel_interface -- a
+c-value xdg_popup_interface &xdg_popup_interface -- a
+\c #include <xdg-decoration-unstable-v1.c>
+c-value zxdg_toplevel_decoration_v1_interface &zxdg_toplevel_decoration_v1_interface -- a
+c-value zxdg_decoration_manager_v1_interface &zxdg_decoration_manager_v1_interface -- a

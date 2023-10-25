@@ -677,6 +677,7 @@ public class Gforth
 	    String filedirs[] = {
 		Environment.getExternalStorageDirectory().toString(),
 		getExternalFilesDir(null).toString(),
+		getExternalCacheDir().toString(),
 		getFilesDir().toString() };
 	    for(int i=0; i<filedirs.length; i++) {
 		Log.v(TAG, "filedirs["+i+"]="+filedirs[i]);
@@ -894,6 +895,7 @@ public class Gforth
     public static String[] REQUEST_STRING_NEW = {
 	Manifest.permission.READ_MEDIA_IMAGES,
 	Manifest.permission.READ_MEDIA_VIDEO,
+	Manifest.permission.READ_MEDIA_AUDIO,
     };
     public boolean verifyStoragePermissions(Activity activity) {
 	// Check if we have write permission
@@ -920,6 +922,28 @@ public class Gforth
 		return false;
 	    } else {
 		Log.v(TAG, "Has External Storage Permission");
+	    }
+	} else if(Build.VERSION.SDK_INT >= 33) {
+	    int permission = PackageManager.PERMISSION_GRANTED;
+	    for(int i=0; i < REQUEST_STRING_NEW.length; i++) {
+		int new_perm = checkSelfPermission(REQUEST_STRING_NEW[i]);
+		if (new_perm != PackageManager.PERMISSION_GRANTED) {
+		    permission = new_perm;
+		}
+	    }
+
+	    if (permission != PackageManager.PERMISSION_GRANTED) {
+		// We don't have permission so prompt the user
+		Log.v(TAG, "Request External Storage Permission");
+		for(int i=0; i < REQUEST_STRING_NEW.length; i++) {
+		    if(shouldShowRequestPermissionRationale(REQUEST_STRING_NEW[i])) {
+			Log.v(TAG, "Requires Permission Rationale for " + REQUEST_STRING_NEW[i]);
+		    }
+		}
+		requestPermissions(REQUEST_STRING_NEW, REQUEST_EXTERNAL_STORAGE);
+		return false;
+	    } else {
+		Log.v(TAG, "Has External Media Files Permission");
 	    }
 	}
 	return true;

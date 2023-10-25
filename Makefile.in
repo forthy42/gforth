@@ -390,8 +390,6 @@ FREETYPE_GL_SRC = freetype-gl/ftgl-utils.c freetype-gl/platform.c	\
 	freetype-gl/vector.c freetype-gl/edtaa3func.c $(FREETYPE_GL_INCLUDE)
 
 WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
-WAYLAND_INCLUDE = wayland/text-input-unstable-v3-client.h		\
-	wayland/xdg-shell-client.h wayland/xdg-decoration-unstable-v1.h
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs csv.fs \
 	i18n.fs @NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_LIB_SRC)
@@ -400,7 +398,7 @@ MINOS_DOC = minos2/widgets.fs
 
 LIBCC_DIST_SRC = $(SWIG_SRC) unix/stat-fsi.c unix/pthread-types-fsi.c	 \
 	unix/test.i unix/Makefile.in unix/doexec unix/doprep unix/trygcc \
-	$(patsubst %, unix/%, $(SWIGDIST) @HAS_SWIG_FORTH@)
+	$(patsubst %, unix/%, $(SWIGDIST) Makefile.wayland @HAS_SWIG_FORTH@)
 
 LIBCC_FORTH_SRC = unix/libffi.fs unix/fflib.fs $(UNIXLIBS_SRC) $(LIBCC_SRC1)
 LIBCC_GEN_SRC = unix/stat.fs unix/pthread-types.fs $(patsubst %, unix/%, \
@@ -1570,13 +1568,4 @@ config.status: configure
 ChangeLog.git: FORCE
 	git log --name-only --date=short --pretty=format:'%cd -%d %s <%an> %h%n%b' --abbrev-commit >ChangeLog.git
 
-unix/wayland.fs: $(WAYLAND_INCLUDE)
-
-wayland/text-input-unstable-v3-client.h: $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -name text-input-unstable-v3.xml)
-	wayland-scanner client-header <$< | sed -e 's/&\(zwp_[a-z0-9_]*\)/\&WAYLAND_DETAIL(\1)/g' >$@
-
-wayland/xdg-shell-client.h: $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -name xdg-shell.xml)
-	wayland-scanner client-header <$< | sed -e 's/&\(xdg_[a-z0-9_]*\)/\&WAYLAND_DETAIL(\1)/g' >$@
-
-wayland/xdg-decoration-unstable-v1.h: $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -name xdg-decoration-unstable-v1.xml)
-	wayland-scanner client-header <$< | sed -e 's/&\(zxdg_[a-z0-9_]*\)/\&WAYLAND_DETAIL(\1)/g' >$@
+@INCLUDE_WAYLAND@

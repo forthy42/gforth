@@ -30,6 +30,7 @@ cat <<EOF
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
@@ -103,7 +104,18 @@ $(extra_perms)
         </activity>
 $(extra_apps)
     </application>
-
+    <intent-filter
+	android:icon='@drawable/ic_launcher'
+        android:label='Forth File'
+	android:priority='1'>
+      <action android:name="android.intent.action.VIEW" />
+      <action android:name="android.intent.action.EDIT" /> 
+      <action android:name="android.intent.action.RUN" />
+      <category android:name="android.intent.category.DEFAULT" />
+      <category android:name="android.intent.category.BROWSABLE" />
+      <data android:scheme="file" />
+      <data android:host="*" />
+      <data android:pathPattern=".*\\.fs" />
 $(extra_features)
 </manifest> 
 <!-- END_INCLUDE(manifest) -->

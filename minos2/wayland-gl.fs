@@ -250,10 +250,14 @@ Create registry-listener , ,
 0 Value mapped
 0 Value configured
 
+forward sync
+forward clear
+
 :noname { data xdg_surface serial -- }
     wayland( [: cr ." configured" ;] do-debug )
     true to mapped
     xdg_surface serial xdg_surface_ack_configure
+    wl-surface wl_surface_commit
 ; xdg_surface_listener-configure:
 Create xdg-surface-listener ,
 
@@ -279,8 +283,6 @@ xdg_toplevel_listener-close:
 xdg_toplevel_listener-configure:
 Create xdg-toplevel-listener , , , ,
 
-forward sync
-forward clear
 :noname { data decoration mode -- }
     wayland( [: cr ." decorated" ;] do-debug )
     true to configured clear sync ;

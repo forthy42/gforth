@@ -1,0 +1,44 @@
+#Makefile for Wayland, included into main Makefile
+
+#Authors: Bernd Paysan, Anton Ertl, Jens Wilke, David Kühling, Neal Crook, Gerald Wodni, Darren Bane
+#Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+
+#This file is part of Gforth.
+
+#Gforth is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation, either version 3
+#of the License, or (at your option) any later version.
+
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+
+#You should have received a copy of the GNU General Public License
+#along with this program. If not, see http://www.gnu.org/licenses/.
+
+WAYLAND_PROTOCOLS = text-input-unstable-v3 xdg-shell	\
+	xdg-decoration-unstable-v1
+WAYLAND_INCLUDE = $(patsubst %, wayland/%-client.h, $(WAYLAND_PROTOCOLS)) \
+	$(patsubst %, wayland/%.c, $(WAYLAND_PROTOCOLS))
+
+unix/wayland.fs: $(WAYLAND_INCLUDE)
+
+wayland/text-input-unstable-v3-client.h: $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -name text-input-unstable-v3.xml)
+	wayland-scanner client-header <$< >$@
+
+wayland/text-input-unstable-v3.c: $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -name text-input-unstable-v3.xml)
+	wayland-scanner private-code <$< >$@
+
+wayland/xdg-shell-client.h: $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -name xdg-shell.xml)
+	wayland-scanner client-header <$< >$@
+
+wayland/xdg-shell.c: $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -name xdg-shell.xml)
+	wayland-scanner private-code <$< >$@
+
+wayland/xdg-decoration-unstable-v1-client.h: $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -name xdg-decoration-unstable-v1.xml)
+	wayland-scanner client-header <$< >$@
+
+wayland/xdg-decoration-unstable-v1.c: $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -name xdg-decoration-unstable-v1.xml)
+	wayland-scanner private-code <$< >$@
