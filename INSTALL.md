@@ -16,6 +16,11 @@ it's a tarball build, otherwise, everything for a git build will be installed).
 ## Build from git
 
     git clone https://git.savannah.gnu.org/git/gforth.git
+    #or
+    # look up the tagged .tar.gz file you are interested in on
+    #   https://git.savannah.gnu.org/cgit/gforth.git/refs/
+    # download it and unpack it with
+    # tar xfz gforth-....tar.gz
     cd gforth
     source ./install-deps.sh # install all known dependencies for a full build
     ./BUILD-FROM-SCRATCH
@@ -23,6 +28,10 @@ it's a tarball build, otherwise, everything for a git build will be installed).
 
 ## Build from tarball
 
+    wget https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/current/gforth.tar.xz
+    # note that for tarballs from savannah you have to use "Build from git"
+    tar xfJ gforth.tar.xz
+    cd gforth-*
     BUILD_FROM=tarball
     source ./install-deps.sh # install only the dependencies for a tarball build
     ./configure
