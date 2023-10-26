@@ -1844,10 +1844,17 @@ fi
 #		   SWIGLIBS="$SWIGLIBS gst.fs" SWIGINCLUDES="$SWIGINCLUDES `$PKG_CONFIG --cflags gstreamer-gl-1.0 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
 #fi
 
-AC_PATH_PROGS(WAYLAND_SCANNER,wayland-scanner)
+case "$SWIGMODULES"
+in
+    *wayland.fs*)
+	AC_PATH_PROGS(WAYLAND_SCANNER,wayland-scanner)
+	WAYLAND_PROTOCOLS_DATADIR=`$PKG_CONFIG --variable=pkgdatadir wayland-protocols`
+	INCLUDE_WAYLAND='include $(srcdir)/Makefile.wayland'
+	;;
+esac
 AC_SUBST(WAYLAND_SCANNER)
-AC_SUBST(WAYLAND_PROTOCOLS_DATADIR, `$PKG_CONFIG --variable=pkgdatadir wayland-protocols`)
-AC_SUBST(INCLUDE_WAYLAND, 'include $(srcdir)/Makefile.wayland')
+AC_SUBST(WAYLAND_PROTOCOLS_DATADIR)
+AC_SUBST(INCLUDE_WAYLAND)
 
 if test x$GLESFLAG = xfalse -a x$GLXFLAG = xfalse
 then

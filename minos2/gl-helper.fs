@@ -174,6 +174,7 @@ Variable eglformat
 	    get-display dpy-h ! dpy-w !
 	    0 eglGetDisplay to egldpy
 	    egldpy 0 0 eglInitialize drop
+	    EGL_OPENGL_ES_API eglBindAPI drop
 	    egldpy attribs3 configs 1 numconfigs eglChooseConfig drop
 	    numconfigs @ 0= IF
 		egldpy attribs2 configs 1 numconfigs eglChooseConfig drop
