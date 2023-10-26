@@ -218,18 +218,27 @@ glue-right @ >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 $10 stack: vp-tops
 
 also opengl also also [IFDEF] android previous android also jni [THEN]
+also [IFDEF] wayland wayland [THEN]
 
 : >fullscreen ( -- )
-    [IFDEF] set-fullscreen-hint
-	set-fullscreen-hint 1 set-compose-hint
+    [IFDEF] xdg_toplevel_set_fullscreen
+	xdg-toplevel wl-output xdg_toplevel_set_fullscreen
     [ELSE]
-	[IFDEF] hidestatus hidekb hidestatus [THEN]
+	[IFDEF] set-fullscreen-hint
+	    set-fullscreen-hint 1 set-compose-hint
+	[ELSE]
+	    [IFDEF] hidestatus hidekb hidestatus [THEN]
+	[THEN]
     [THEN] ;
 : >normalscreen
-    [IFDEF] reset-fullscreen-hint
-	reset-fullscreen-hint 0 set-compose-hint
+    [IFDEF] xdg_toplevel_unset_fullscreen
+	xdg-toplevel xdg_toplevel_unset_fullscreen
     [ELSE]
-	[IFDEF] showstatus showstatus [THEN]
+	[IFDEF] reset-fullscreen-hint
+	    reset-fullscreen-hint 0 set-compose-hint
+	[ELSE]
+	    [IFDEF] showstatus showstatus [THEN]
+	[THEN]
     [THEN] ;
 
 \ make screenshots of slides
@@ -278,4 +287,4 @@ synonym rgbas sfloats
 	    looper-keys $@len 0> ;] is key? ;
 [THEN]
 
-previous previous previous
+previous previous previous previous

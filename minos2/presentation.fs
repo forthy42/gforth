@@ -153,6 +153,8 @@ $004444FF $BFFFFFFF pres-frame
 }}z box[] /flip dup >slides
 
 \ page 17
+$FF7733FF text-color: redish
+
 {{
     $000000FF $FFFFFFFF pres-frame
     {{
@@ -163,6 +165,8 @@ $004444FF $BFFFFFFF pres-frame
 	    [: s" xdg-open https://net2o.de/" system ;] 0 click[]
 	}}vt
 	glue*l }}glue
+	l" close" redish x-color blackish }}button /center*ll
+	[: -1 level# +! ;] over click[]
     }}v box[] >bdr
 }}z box[] /flip dup >slides
 
