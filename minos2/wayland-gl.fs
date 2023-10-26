@@ -20,6 +20,7 @@
 
 require unix/opengles.fs
 require unix/wayland.fs
+require unix/mmap.fs
 require mini-oof2.fs
 require struct-val.fs
 
@@ -162,7 +163,23 @@ Create wl-pointer-listener  , , , , , , , , ,
 
 \ keyboard listener
 
-Create wl-keyboard-listener
+:noname { data wl_keyboard rate delay -- }
+; wl_keyboard_listener-repeat_info:
+:noname { data wl_keyboard serial mods_depressed mods_latched mods_locked group -- }
+; wl_keyboard_listener-modifiers:
+:noname { data wl_keyboard serial time wl-key state -- }
+    wl-key [: cr h. ;] do-debug
+; wl_keyboard_listener-key:
+:noname { data wl_keyboard serial surface -- }
+; wl_keyboard_listener-leave:
+:noname	{ data wl_keyboard serial surface keys -- }
+; wl_keyboard_listener-enter:
+:noname { data wl_keyboard format fd size -- }
+    0 size PROT_READ MAP_PRIVATE fd 0 mmap { addr }
+    addr size [: cr ." xkbd map:" cr type ;] do-debug
+    addr size munmap ?ior
+; wl_keyboard_listener-keymap:
+Create wl-keyboard-listener , , , , , ,
 
 \ seat listener
 
@@ -174,6 +191,7 @@ Create wl-keyboard-listener
     THEN
     caps WL_SEAT_CAPABILITY_KEYBOARD and IF
 	wl-seat wl_seat_get_keyboard to wl-keyboard
+	wl-keyboard wl-keyboard-listener 0 wl_keyboard_add_listener drop
     THEN
     caps WL_SEAT_CAPABILITY_TOUCH and IF
 	wl-seat wl_seat_get_touch to wl-touch
@@ -198,7 +216,8 @@ Defer wayland-keys
 :noname { data text-input before_length after_length -- }
 ; zwp_text_input_v3_listener-delete_surrounding_text:
 :noname { data text-input d: text -- }
-    text ~~ wayland-keys
+    wayland( text [: cr ." wayland keys: '" type ''' emit ;] do-debug )
+    text wayland-keys
     text-input zwp_text_input_v3_commit
 ; zwp_text_input_v3_listener-commit_string:
 :noname { data text-input d: text cursor_begin cursor_end -- }
@@ -206,8 +225,19 @@ Defer wayland-keys
 :noname { data text-input surface -- }
 ; zwp_text_input_v3_listener-leave:
 :noname { data text-input surface -- }
-    text-input zwp_text_input_v3_enable
-    text-input ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE zwp_text_input_v3_set_content_type
+    2 0 DO
+	text-input zwp_text_input_v3_enable
+	text-input zwp_text_input_v3_commit
+    LOOP
+    text-input
+    ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE
+    ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL
+    zwp_text_input_v3_set_content_type
+    text-input 20 30 10 10
+    zwp_text_input_v3_set_cursor_rectangle
+    text-input zwp_text_input_v3_commit
+    text-input s" " 0 0
+    zwp_text_input_v3_set_surrounding_text
     text-input zwp_text_input_v3_commit
 ; zwp_text_input_v3_listener-enter:
 Create text-input-listener , , , , , ,
@@ -245,14 +275,15 @@ wl-registry set-current
     text-input text-input-listener 0 zwp_text_input_v3_add_listener drop ;
 : xdg_wm_base ( registry name -- )
     xdg_wm_base_interface 1 wl_registry_bind dup to xdg-wm-base
-    xdg-wm-base xdg-wm-base-listener 0 xdg_wm_base_add_listener ;
+    xdg-wm-base xdg-wm-base-listener 0 xdg_wm_base_add_listener drop ;
 : zxdg_decoration_manager_v1 ( registry name -- )
     zxdg_decoration_manager_v1_interface 1 wl_registry_bind to decoration-manager ;
 
 set-current
     
 : registry+ { data registry name d: interface version -- }
-    sp@ sp0 ! wayland( interface [: cr type ;] do-debug )
+    sp@ sp0 ! rp@ cell+ rp0 !
+    wayland( interface [: cr type ;] do-debug )
     interface wl-registry find-name-in ?dup-IF
 	registry name rot name>interpret execute
     ELSE
