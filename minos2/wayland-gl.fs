@@ -48,6 +48,7 @@ debug: wayland(
 0 Value wl-seat
 0 Value wl-shm
 0 Value text-input-manager
+0 Value text-input
 0 Value xdg-wm-base
 0 Value xdg-surface
 0 Value xdg-toplevel
@@ -186,6 +187,31 @@ Create wl-seat-listener  , ,
 
 Create xdg-wm-base-listener ,
 
+\ input listener
+
+Defer wayland-keys
+
+:noname ( addr u -- ) inskeys ; is wayland-keys
+
+:noname { data text-input serial -- }
+; zwp_text_input_v3_listener-done:
+:noname { data text-input before_length after_length -- }
+; zwp_text_input_v3_listener-delete_surrounding_text:
+:noname { data text-input d: text -- }
+    text ~~ wayland-keys
+    text-input zwp_text_input_v3_commit
+; zwp_text_input_v3_listener-commit_string:
+:noname { data text-input d: text cursor_begin cursor_end -- }
+; zwp_text_input_v3_listener-preedit_string:
+:noname { data text-input surface -- }
+; zwp_text_input_v3_listener-leave:
+:noname { data text-input surface -- }
+    text-input zwp_text_input_v3_enable
+    text-input ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE zwp_text_input_v3_set_content_type
+    text-input zwp_text_input_v3_commit
+; zwp_text_input_v3_listener-enter:
+Create text-input-listener , , , , , ,
+
 \ registry listeners: the interface string is searched in a table
 
 table Constant wl-registry
@@ -214,7 +240,9 @@ wl-registry set-current
     s" Breeze_Snow" 16 wl-shm wl_cursor_theme_load to cursor-theme
     cursor-theme s" left_ptr" wl_cursor_theme_get_cursor to cursor ;
 : zwp_text_input_manager_v3 ( registry name -- )
-    zwp_text_input_manager_v3_interface 1 wl_registry_bind to text-input-manager ;
+    zwp_text_input_manager_v3_interface 1 wl_registry_bind to text-input-manager
+    text-input-manager wl-seat zwp_text_input_manager_v3_get_text_input to text-input
+    text-input text-input-listener 0 zwp_text_input_v3_add_listener drop ;
 : xdg_wm_base ( registry name -- )
     xdg_wm_base_interface 1 wl_registry_bind dup to xdg-wm-base
     xdg-wm-base xdg-wm-base-listener 0 xdg_wm_base_add_listener ;
@@ -224,7 +252,7 @@ wl-registry set-current
 set-current
     
 : registry+ { data registry name d: interface version -- }
-    wayland( interface [: cr type ;] do-debug )
+    sp@ sp0 ! wayland( interface [: cr type ;] do-debug )
     interface wl-registry find-name-in ?dup-IF
 	registry name rot name>interpret execute
     ELSE

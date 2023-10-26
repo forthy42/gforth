@@ -104,10 +104,34 @@ DOES> + c@ ;
     top-act IF  ev-xy 2@ 1 >xy$ buttonmask l@ lle top-act .touchmove  THEN
 ; is b-motion
 
+\ key handling
+
+4 buffer: xstring
+
+: >xstring ( xchar -- addr u )
+    xstring xc!+ xstring tuck - ;
+: ctrls? ( addr u -- flag )
+    false -rot bounds ?DO
+	I c@ bl < or \ all UTF-8 codepoints are > bl
+    LOOP ;
+: u/ekeyed ( ekey -- )
+    dup 0= IF  drop  EXIT  THEN
+    dup bl keycode-start within
+    IF    >xstring top-act .ukeyed
+    ELSE  ?dup-IF top-act .ekeyed THEN  THEN ;
+: keys-commit ( addr u -- )
+    2dup ctrls? IF
+	bounds ?DO  I xc@+ u/ekeyed  I -  +LOOP
+    ELSE
+	top-act .ukeyed
+    THEN ;
+
 \ enter and leave
 
 : enter-minos ( -- )
+    ['] keys-commit is wayland-keys
     edit-widget edit-out ! ;
 : leave-minos ( -- )
+    preserve wayland-keys
     edit-terminal edit-out !
     +sync  +show ;
