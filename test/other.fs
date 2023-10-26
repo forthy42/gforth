@@ -31,7 +31,7 @@ variable (hashkey2)-broken
     4100 0 do \ at least as many as given in the "pagesize" in hashkey2a()
         sa (hashkey2)-buffer i + tuck sl move ( addr )
         8 + u 8 cells (hashkey2) key <> if
-            cr ." wrong hash at " sa i + 8 + hex. u hex.
+            cr ." wrong hash at " sa i + 8 + h. u h.
             (hashkey2)-broken on then
     loop ;
 

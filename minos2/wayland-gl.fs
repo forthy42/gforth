@@ -380,6 +380,10 @@ Defer config-changed  ' noop is config-changed
 Defer screen-ops      ' noop IS screen-ops
 Defer reload-textures ' noop is reload-textures
 
+: gl-init ( -- ) \ minos2
+    \G if not already opened, open window and initialize OpenGL
+    ctx 0= IF window-init THEN ;
+
 begin-structure app_input_state
 field: action
 field: flags

@@ -53,13 +53,14 @@ $60000. 2Value samepos      \ position difference square-summed less than is sam
     ev-xy 2@
     2dup samepos? 0= IF   0 to clicks  THEN  lastpos 2! ;
 : send-clicks ( -- )
-    lastpos 2@ swap 1/256 fm* 1/256 fm* buttonmask le-ul@
+    lastpos 2@ swap 1/256 fm* 1/256 fm* buttonmask l@ lle
     clicks 2* flags #lastdown bit@ -
     flags #pending -bit
     grab-move? ?dup-IF  .clicked  EXIT  THEN
     top-act    ?dup-IF  .clicked  EXIT  THEN
     2drop fdrop fdrop ;
 
+Variable xy$
 : >xy$ ( x1 y1 .. xn yn n -- $rxy )
     2* sfloats xy$ $!len
     xy$ $@ bounds 1 sfloats - swap 1 sfloats - U-DO
@@ -83,7 +84,7 @@ DOES> + c@ ;
 :noname { time b mask -- }
     mask IF  \ button pressend
 	buttonmask b 7 and >button +bit
-	top-act IF  ev-xy 2@ 1 >xy$ buttonmask le-ul@ top-act .touchdown  THEN
+	top-act IF  ev-xy 2@ 1 >xy$ buttonmask l@ lle top-act .touchdown  THEN
 	time lasttime !  ?samepos
 	flags #lastdown +bit  flags #pending +bit
     ELSE \ button released
@@ -91,7 +92,7 @@ DOES> + c@ ;
 	flags #lastdown -bit@  IF
 	    1 +to clicks  send-clicks  flags #clearme +bit  THEN
 	buttonmask b 7 and >button -bit
-	top-act IF ev-xy 2@ 1 >xy$ buttonmask le-ul@ top-act .touchup  THEN
+	top-act IF ev-xy 2@ 1 >xy$ buttonmask l@ lle top-act .touchup  THEN
     THEN
 ; is b-button
 
@@ -100,7 +101,7 @@ DOES> + c@ ;
     flags #pending bit@  ev-xy 2@ samepos? 0= and IF
 	send-clicks  0 to clicks
     THEN
-    top-act IF  ev-xy 2@ 1 >xy$ buttonmask le-ul@ top-act .touchmove  THEN
+    top-act IF  ev-xy 2@ 1 >xy$ buttonmask l@ lle top-act .touchmove  THEN
 ; is b-motion
 
 \ enter and leave

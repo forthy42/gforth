@@ -226,7 +226,7 @@ Variable (float<>)
     2dup @float  f. cr ;
 : .utf8 ( addr u body -- addr u )  .mkvname tab '"' emit 2dup type '"' emit cr ;
 : .simpleblock ( addr u body -- addr u ) .mkvname tab
-    over track@+ . be-w@+ dup $8000 and negate or . count hex.
+    over track@+ . be-w@+ dup $8000 and negate or . count h.
     >r 2dup over r> swap - /string .dump8 cr ;
 
 ' .binary mkv-dump to do-binary
@@ -245,7 +245,7 @@ previous
     0= IF  !!ebml-id!! throw  THEN
     execute ;
 
-: dhex. ( d -- ) [: '$' emit d. ;] $10 base-execute ;
+: dh. ( d -- ) [: '$' emit d. ;] $10 base-execute ;
 
 : mkv-section ( addr u xt -- ) { xt } 1 mkvlevel +! over + >r
     BEGIN
@@ -260,8 +260,8 @@ previous
 : addr>pos ( addr -- pos ) mkvbuf - 0 mkvoff 2@ d+ ;
 
 : .mheader ( addr -- addr )
-    mkvlevel @ spaces dup addr>pos dhex. ." : "
-    dup id@+ hex. ds@+ dhex. drop ;
+    mkvlevel @ spaces dup addr>pos dh. ." : "
+    dup id@+ h. ds@+ dh. drop ;
 : .master ( addr u body -- addr u ) .mkvname cr
     2dup ['] .mheader mkv-section ;
 ' .master mkv-dump to do-master
@@ -470,14 +470,14 @@ Create aac-rates
 previous
 
 : .seekseg ( addr u -- ) bounds ?DO
-	." ID: " I @ hex.  ." Seek: " I cell+ 2@ dhex. cr
+	." ID: " I @ h.  ." Seek: " I cell+ 2@ dh. cr
     3 cells +LOOP ;
 
 : .seeks ( -- )
     seeks $[]# 0 ?DO  I seeks $[]@ .seekseg cr LOOP ;
 : .cues ( -- )
     cue-tags $@ bounds ?DO
-	." Time: " I @ . ." Track: " I cell+ @ . ." Pos: " I 2 cells + 2@ dhex. cr
+	." Time: " I @ . ." Track: " I cell+ @ . ." Pos: " I 2 cells + 2@ dh. cr
     4 cells +LOOP ;
 
 : .mkv-info ( -- )

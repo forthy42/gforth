@@ -332,7 +332,7 @@ Defer screen-ops ' noop IS screen-ops
 
 Defer config-changed
 Defer window-init
-:noname [: ." app window " app window @ hex. cr ;] $err ; IS window-init
+:noname [: ." app window " app window @ h. cr ;] $err ; IS window-init
 : window-init, ( xt -- )
     >r :noname action-of window-init compile, r@ compile,
     postpone ; is window-init

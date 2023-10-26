@@ -522,7 +522,7 @@ previous previous
 	dpy over XGetAtomName cstring>sstring type cr
     endcase ;
 : selection-request ( -- )
-\    ." Selection Request from: " e.requestor hex.
+\    ." Selection Request from: " e.requestor h.
 \    e.selection .atom space
 \    e.property .atom cr
     e.sr.time XTime0 - to timeoffset

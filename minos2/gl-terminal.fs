@@ -478,6 +478,8 @@ ${GFORTH_IGNLIB} s" true" str= 0= [IF]
 	    dpy-w @ rr-out0 XRROutputInfo-mm_width  l@ s>f fm*/ fswap ;
 	previous
     [ELSE]
+	: screen-pwh ( -- w h )
+	    dpy-wh 2@ ;
 	: screen-wh ( -- rw rh )
 	    wl-metrics 2@ swap s>f s>f ;
     [THEN]
