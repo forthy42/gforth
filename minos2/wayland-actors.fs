@@ -116,7 +116,7 @@ DOES> + c@ ;
     LOOP ;
 : u/ekeyed ( ekey -- )
     dup 0= IF  drop  EXIT  THEN
-    dup bl keycode-start within
+    dup bl keycode-start within over #del <> and
     IF    >xstring top-act .ukeyed
     ELSE  ?dup-IF top-act .ekeyed THEN  THEN ;
 : keys-commit ( addr u -- )
@@ -130,8 +130,10 @@ DOES> + c@ ;
 
 : enter-minos ( -- )
     ['] keys-commit is wayland-keys
+    ['] u/ekeyed is wl-ekeyed
     edit-widget edit-out ! ;
 : leave-minos ( -- )
     preserve wayland-keys
+    preserve wl-ekeyed
     edit-terminal edit-out !
     +sync  +show ;

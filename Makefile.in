@@ -794,7 +794,7 @@ distclean:	clean
 		engine/config.h engine/gforth.h Makefile Makedist	\
 		engine/Makefile stamp-h engine/stamp-h doc/version.texi	\
 		gforthmi vmgen preforth $(FORTH_GEN0) $(FORTH_GEN_FAST)	\
-		start-gforth.el
+		start-gforth.el wayland/*
 		-(cd libltdl && make distclean)
 
 #realclean is useless, but dangerous, so it's commented out

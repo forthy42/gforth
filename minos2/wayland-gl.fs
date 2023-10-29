@@ -163,12 +163,53 @@ Create wl-pointer-listener  , , , , , , , , ,
 
 \ keyboard listener
 
+256 Cells buffer: wl-key>ekey#
+: wl-key! ( keycode number -- )
+    cells wl-key>ekey# + ! ;
+#esc 1 wl-key!
+#del $E wl-key!
+#tab $F wl-key!
+k-enter $1C wl-key!
+k-enter $60 wl-key!
+\ k-home $47 wl-key!
+\ k-end $4F wl-key!
+k-left $69 wl-key!
+k-up $67 wl-key!
+k-right $6A wl-key!
+k-down $6C wl-key!
+k-insert $6E wl-key!
+k-delete $6F wl-key!
+\ k-prior $49 wl-key!
+\ k-next $51 wl-key!
+k-f1 $3B wl-key!
+k-f2 $3C wl-key!
+k-f3 $3D wl-key!
+k-f4 $3E wl-key!
+k-f5 $3F wl-key!
+k-f6 $40 wl-key!
+k-f7 $41 wl-key!
+k-f8 $42 wl-key!
+k-f9 $43 wl-key!
+k-f10 $44 wl-key!
+k-f11 $57 wl-key!
+k-f12 $58 wl-key!
+\ k-pause XK_Pause wl-key!
+\ k-mute XF86XK_AudioMute wl-key!
+\ k-volup XF86XK_AudioRaiseVolume wl-key!
+\ k-voldown XF86XK_AudioLowerVolume wl-key!
+
+Defer wl-ekeyed ' drop is wl-ekeyed
+
 :noname { data wl_keyboard rate delay -- }
 ; wl_keyboard_listener-repeat_info:
 :noname { data wl_keyboard serial mods_depressed mods_latched mods_locked group -- }
 ; wl_keyboard_listener-modifiers:
 :noname { data wl_keyboard serial time wl-key state -- }
-    wl-key [: cr h. ;] do-debug
+    wayland( state wl-key [: cr h. h. ;] do-debug )
+    state WL_KEYBOARD_KEY_STATE_PRESSED = IF
+	wl-key>ekey# wl-key cells + @
+	wayland( [: dup h. ;] do-debug ) wl-ekeyed
+    THEN
 ; wl_keyboard_listener-key:
 :noname { data wl_keyboard serial surface -- }
 ; wl_keyboard_listener-leave:
@@ -176,7 +217,7 @@ Create wl-pointer-listener  , , , , , , , , ,
 ; wl_keyboard_listener-enter:
 :noname { data wl_keyboard format fd size -- }
     0 size PROT_READ MAP_PRIVATE fd 0 mmap { addr }
-    addr size [: cr ." xkbd map:" cr type ;] do-debug
+    wayland( addr size [: cr ." xkbd map:" cr type ;] do-debug )
     addr size munmap ?ior
 ; wl_keyboard_listener-keymap:
 Create wl-keyboard-listener , , , , , ,
@@ -211,7 +252,21 @@ Defer wayland-keys
 
 :noname ( addr u -- ) inskeys ; is wayland-keys
 
+Create cursor-xywh #200 , #300 , #1 , #10 ,
+
+: send-status-update { text-input -- }
+    text-input
+    ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE
+    ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL
+    zwp_text_input_v3_set_content_type
+    text-input cursor-xywh 4 cells bounds DO  I @  cell  +LOOP
+    zwp_text_input_v3_set_cursor_rectangle
+    text-input s" " 0 0
+    zwp_text_input_v3_set_surrounding_text
+    text-input zwp_text_input_v3_commit ;
+
 :noname { data text-input serial -- }
+    text-input send-status-update
 ; zwp_text_input_v3_listener-done:
 :noname { data text-input before_length after_length -- }
 ; zwp_text_input_v3_listener-delete_surrounding_text:
@@ -225,20 +280,8 @@ Defer wayland-keys
 :noname { data text-input surface -- }
 ; zwp_text_input_v3_listener-leave:
 :noname { data text-input surface -- }
-    2 0 DO
-	text-input zwp_text_input_v3_enable
-	text-input zwp_text_input_v3_commit
-    LOOP
-    text-input
-    ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE
-    ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL
-    zwp_text_input_v3_set_content_type
-    text-input 20 30 10 10
-    zwp_text_input_v3_set_cursor_rectangle
-    text-input zwp_text_input_v3_commit
-    text-input s" " 0 0
-    zwp_text_input_v3_set_surrounding_text
-    text-input zwp_text_input_v3_commit
+    text-input zwp_text_input_v3_enable
+    text-input send-status-update
 ; zwp_text_input_v3_listener-enter:
 Create text-input-listener , , , , , ,
 
