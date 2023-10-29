@@ -21,6 +21,7 @@
 require unix/opengles.fs
 require unix/wayland.fs
 require unix/mmap.fs
+require unix/xkbcommon.fs
 require mini-oof2.fs
 require struct-val.fs
 
@@ -39,6 +40,9 @@ debug: wayland(
 0 Value wl-pointer
 0 Value wl-keyboard
 0 Value wl-touch
+0 Value xkb-ctx
+0 Value xkb-state
+0 Value keymap
 0 Value registry
 0 Value win
 0 Value cursor-theme
@@ -163,52 +167,167 @@ Create wl-pointer-listener  , , , , , , , , ,
 
 \ keyboard listener
 
+#65288	constant XK_BackSpace
+#65289	constant XK_Tab
+#65290	constant XK_Linefeed
+#65291	constant XK_Clear
+#65293	constant XK_Return
+#65299	constant XK_Pause
+#65300	constant XK_Scroll_Lock
+#65301	constant XK_Sys_Req
+#65307	constant XK_Escape
+#65535	constant XK_Delete
+#65312	constant XK_Multi_key
+#65335	constant XK_Codeinput
+#65340	constant XK_SingleCandidate
+#65341	constant XK_MultipleCandidate
+#65342	constant XK_PreviousCandidate
+#65313	constant XK_Kanji
+#65314	constant XK_Muhenkan
+#65315	constant XK_Henkan_Mode
+#65315	constant XK_Henkan
+#65316	constant XK_Romaji
+#65317	constant XK_Hiragana
+#65318	constant XK_Katakana
+#65319	constant XK_Hiragana_Katakana
+#65320	constant XK_Zenkaku
+#65321	constant XK_Hankaku
+#65322	constant XK_Zenkaku_Hankaku
+#65323	constant XK_Touroku
+#65324	constant XK_Massyo
+#65325	constant XK_Kana_Lock
+#65326	constant XK_Kana_Shift
+#65327	constant XK_Eisu_Shift
+#65328	constant XK_Eisu_toggle
+#65335	constant XK_Kanji_Bangou
+#65341	constant XK_Zen_Koho
+#65342	constant XK_Mae_Koho
+#65360	constant XK_Home
+#65361	constant XK_Left
+#65362	constant XK_Up
+#65363	constant XK_Right
+#65364	constant XK_Down
+#65365	constant XK_Prior
+#65365	constant XK_Page_Up
+#65366	constant XK_Next
+#65366	constant XK_Page_Down
+#65367	constant XK_End
+#65368	constant XK_Begin
+#65376	constant XK_Select
+#65377	constant XK_Print
+#65378	constant XK_Execute
+#65379	constant XK_Insert
+#65381	constant XK_Undo
+#65382	constant XK_Redo
+#65383	constant XK_Menu
+#65384	constant XK_Find
+#65385	constant XK_Cancel
+#65386	constant XK_Help
+#65387	constant XK_Break
+#65406	constant XK_Mode_switch
+#65406	constant XK_script_switch
+#65407	constant XK_Num_Lock
+#65408	constant XK_KP_Space
+#65417	constant XK_KP_Tab
+#65421	constant XK_KP_Enter
+#65425	constant XK_KP_F1
+#65426	constant XK_KP_F2
+#65427	constant XK_KP_F3
+#65428	constant XK_KP_F4
+#65429	constant XK_KP_Home
+#65430	constant XK_KP_Left
+#65431	constant XK_KP_Up
+#65432	constant XK_KP_Right
+#65433	constant XK_KP_Down
+#65434	constant XK_KP_Prior
+#65434	constant XK_KP_Page_Up
+#65435	constant XK_KP_Next
+#65435	constant XK_KP_Page_Down
+#65436	constant XK_KP_End
+#65437	constant XK_KP_Begin
+#65438	constant XK_KP_Insert
+#65439	constant XK_KP_Delete
+#65469	constant XK_KP_Equal
+#65450	constant XK_KP_Multiply
+#65451	constant XK_KP_Add
+#65452	constant XK_KP_Separator
+#65453	constant XK_KP_Subtract
+#65454	constant XK_KP_Decimal
+#65455	constant XK_KP_Divide
+#65456	constant XK_KP_0
+#65457	constant XK_KP_1
+#65458	constant XK_KP_2
+#65459	constant XK_KP_3
+#65460	constant XK_KP_4
+#65461	constant XK_KP_5
+#65462	constant XK_KP_6
+#65463	constant XK_KP_7
+#65464	constant XK_KP_8
+#65465	constant XK_KP_9
+#65470	constant XK_F1
+#65471	constant XK_F2
+#65472	constant XK_F3
+#65473	constant XK_F4
+#65474	constant XK_F5
+#65475	constant XK_F6
+#65476	constant XK_F7
+#65477	constant XK_F8
+#65478	constant XK_F9
+#65479	constant XK_F10
+#65480	constant XK_F11
+#65480	constant XK_L1
+#65481	constant XK_F12
+
 256 Cells buffer: wl-key>ekey#
 : wl-key! ( keycode number -- )
-    cells wl-key>ekey# + ! ;
-#esc 1 wl-key!
-#del $E wl-key!
-#tab $F wl-key!
-k-enter $1C wl-key!
-k-enter $60 wl-key!
-\ k-home $47 wl-key!
-\ k-end $4F wl-key!
-k-left $69 wl-key!
-k-up $67 wl-key!
-k-right $6A wl-key!
-k-down $6C wl-key!
-k-insert $6E wl-key!
-k-delete $6F wl-key!
-\ k-prior $49 wl-key!
-\ k-next $51 wl-key!
-k-f1 $3B wl-key!
-k-f2 $3C wl-key!
-k-f3 $3D wl-key!
-k-f4 $3E wl-key!
-k-f5 $3F wl-key!
-k-f6 $40 wl-key!
-k-f7 $41 wl-key!
-k-f8 $42 wl-key!
-k-f9 $43 wl-key!
-k-f10 $44 wl-key!
-k-f11 $57 wl-key!
-k-f12 $58 wl-key!
-\ k-pause XK_Pause wl-key!
-\ k-mute XF86XK_AudioMute wl-key!
-\ k-volup XF86XK_AudioRaiseVolume wl-key!
-\ k-voldown XF86XK_AudioLowerVolume wl-key!
+    $FF00 - cells wl-key>ekey# + ! ;
+#del 
+XK_BackSpace wl-key!
+#tab XK_Tab wl-key!
+#lf XK_Linefeed wl-key!
+#esc XK_Escape wl-key!
+k-enter XK_Return wl-key!
+k-home XK_Home wl-key!
+k-end XK_End wl-key!
+k-left XK_Left wl-key!
+k-up XK_Up wl-key!
+k-right XK_Right wl-key!
+k-down XK_Down wl-key!
+k-insert XK_Insert wl-key!
+k-delete XK_Delete wl-key!
+k-prior XK_Prior wl-key!
+k-next XK_Next wl-key!
+k-f1 XK_F1 wl-key!
+k-f2 XK_F2 wl-key!
+k-f3 XK_F3 wl-key!
+k-f4 XK_F4 wl-key!
+k-f5 XK_F5 wl-key!
+k-f6 XK_F6 wl-key!
+k-f7 XK_F7 wl-key!
+k-f8 XK_F8 wl-key!
+k-f9 XK_F9 wl-key!
+k-f10 XK_F10 wl-key!
+k-f11 XK_F12 wl-key!
+k-f12 XK_F12 wl-key!
+k-pause XK_Pause wl-key!
 
 Defer wl-ekeyed ' drop is wl-ekeyed
 
+also xkbcommon
 :noname { data wl_keyboard rate delay -- }
 ; wl_keyboard_listener-repeat_info:
 :noname { data wl_keyboard serial mods_depressed mods_latched mods_locked group -- }
+    xkb-state
+    mods_depressed mods_latched mods_locked 0 0 group xkb_state_update_mask
 ; wl_keyboard_listener-modifiers:
 :noname { data wl_keyboard serial time wl-key state -- }
     wayland( state wl-key [: cr h. h. ;] do-debug )
     state WL_KEYBOARD_KEY_STATE_PRESSED = IF
-	wl-key>ekey# wl-key cells + @
-	wayland( [: dup h. ;] do-debug ) wl-ekeyed
+	xkb-state wl-key 8 + xkb_state_key_get_one_sym
+	\ wayland( [: dup h. ;] do-debug ) wl-ekeyed
+	dup $FF00 and $FF00 = IF
+	    $FF00 - cells wl-key>ekey# + @
+	THEN  wl-ekeyed
     THEN
 ; wl_keyboard_listener-key:
 :noname { data wl_keyboard serial surface -- }
@@ -216,10 +335,16 @@ Defer wl-ekeyed ' drop is wl-ekeyed
 :noname	{ data wl_keyboard serial surface keys -- }
 ; wl_keyboard_listener-enter:
 :noname { data wl_keyboard format fd size -- }
-    0 size PROT_READ MAP_PRIVATE fd 0 mmap { addr }
-    wayland( addr size [: cr ." xkbd map:" cr type ;] do-debug )
-    addr size munmap ?ior
+    sp@ sp0 !
+    0 size PROT_READ MAP_PRIVATE fd 0 mmap { buf }
+    wayland( buf size [: cr ." xkbd map:" cr type ;] do-debug )
+    XKB_CONTEXT_NO_FLAGS xkb_context_new dup to xkb-ctx
+    buf size 1- XKB_KEYMAP_FORMAT_TEXT_V1 XKB_KEYMAP_COMPILE_NO_FLAGS
+    xkb_keymap_new_from_string to keymap
+    buf size munmap ?ior
+    keymap xkb_state_new to xkb-state
 ; wl_keyboard_listener-keymap:
+previous
 Create wl-keyboard-listener , , , , , ,
 
 \ seat listener
