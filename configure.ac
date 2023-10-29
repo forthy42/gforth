@@ -1809,6 +1809,16 @@ if test x$has_swig = xyes || test -f $srcdir/unix/pipewire-fsi.c; then
 		   SWIGDISTFSI="$SWIGDISTFSI pipewire.fs"
 		   , CPPFLAGS="$CPPFLAGS_1"), ,)
 fi
+if test x$has_swig = xyes || test -f $srcdir/unix/xkbcommon-fsi.c; then
+   CPPFLAGS_1="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS `$PKG_CONFIG --cflags xkbcommon`"
+   AC_CHECK_LIB(xkbcommon,xkb_keymap_new_from_buffer,
+   AC_CHECK_HEADER(xkbcommon/xkbcommon.h, SWIGMODULES="$SWIGMODULES xkbcommon.fs"
+		   SWIGLIBS="$SWIGLIBS xkbcommon.fs"
+		   SWIGINCLUDES="$SWIGINCLUDES `$PKG_CONFIG --cflags xkbcommon | tr ' ' '\n' | grep ^-I | tr '\n' ' '`"
+		   SWIGDISTFSI="$SWIGDISTFSI xkbcommon.fs"
+		   , CPPFLAGS="$CPPFLAGS_1"), ,)
+fi
 if test x$has_swig = xyes || test -f $srcdir/unix/opus-fsi.c; then
    AC_CHECK_LIB(opus,opus_encode,
    AC_CHECK_HEADER(opus/opus.h, SWIGMODULES="$SWIGMODULES opus.fs"
