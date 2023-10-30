@@ -11,6 +11,7 @@ install_debian() {
   sudo apt-get -y install libx11-dev
   sudo apt-get -y install libx11-xcb-dev
   sudo apt-get -y install libxrandr-dev
+  sudo apt-get -y install libxkbcommon-dev 
   sudo apt-get -y install libgles2-mesa-dev libglew-dev
   sudo apt-get -y install libgl1-mesa-dev
   sudo apt-get -y install libwayland-dev wayland-protocols
