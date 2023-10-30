@@ -169,37 +169,37 @@ Create wl-pointer-listener  , , , , , , , , ,
 
 also xkbcommon
 
-256 Cells buffer: wl-key>ekey#
-: wl-key! ( keycode number -- )
-    $FF00 - cells wl-key>ekey# + ! ;
-#del XKB_KEY_BackSpace wl-key!
-#tab XKB_KEY_Tab wl-key!
-#lf XKB_KEY_Linefeed wl-key!
-#esc XKB_KEY_Escape wl-key!
-k-enter XKB_KEY_Return wl-key!
-k-home XKB_KEY_Home wl-key!
-k-end XKB_KEY_End wl-key!
-k-left XKB_KEY_Left wl-key!
-k-up XKB_KEY_Up wl-key!
-k-right XKB_KEY_Right wl-key!
-k-down XKB_KEY_Down wl-key!
-k-insert XKB_KEY_Insert wl-key!
-k-delete XKB_KEY_Delete wl-key!
-k-prior XKB_KEY_Prior wl-key!
-k-next XKB_KEY_Next wl-key!
-k-f1 XKB_KEY_F1 wl-key!
-k-f2 XKB_KEY_F2 wl-key!
-k-f3 XKB_KEY_F3 wl-key!
-k-f4 XKB_KEY_F4 wl-key!
-k-f5 XKB_KEY_F5 wl-key!
-k-f6 XKB_KEY_F6 wl-key!
-k-f7 XKB_KEY_F7 wl-key!
-k-f8 XKB_KEY_F8 wl-key!
-k-f9 XKB_KEY_F9 wl-key!
-k-f10 XKB_KEY_F10 wl-key!
-k-f11 XKB_KEY_F12 wl-key!
-k-f12 XKB_KEY_F12 wl-key!
-k-pause XKB_KEY_Pause wl-key!
+256 Cells buffer: xkb-key>ekey#
+: >xkb-key ( keycode number -- )
+    $FF00 - cells xkb-key>ekey# + ;
+#del	XKB_KEY_BackSpace >xkb-key !
+#tab	XKB_KEY_Tab >xkb-key !
+#lf	XKB_KEY_Linefeed >xkb-key !
+#esc	XKB_KEY_Escape >xkb-key !
+k-enter	XKB_KEY_Return >xkb-key !
+k-home	XKB_KEY_Home >xkb-key !
+k-end	XKB_KEY_End >xkb-key !
+k-left	XKB_KEY_Left >xkb-key !
+k-up	XKB_KEY_Up >xkb-key !
+k-right	XKB_KEY_Right >xkb-key !
+k-down	XKB_KEY_Down >xkb-key !
+k-insert	XKB_KEY_Insert >xkb-key !
+k-delete	XKB_KEY_Delete >xkb-key !
+k-prior	XKB_KEY_Prior >xkb-key !
+k-next	XKB_KEY_Next >xkb-key !
+k-f1	XKB_KEY_F1 >xkb-key !
+k-f2	XKB_KEY_F2 >xkb-key !
+k-f3	XKB_KEY_F3 >xkb-key !
+k-f4	XKB_KEY_F4 >xkb-key !
+k-f5	XKB_KEY_F5 >xkb-key !
+k-f6	XKB_KEY_F6 >xkb-key !
+k-f7	XKB_KEY_F7 >xkb-key !
+k-f8	XKB_KEY_F8 >xkb-key !
+k-f9	XKB_KEY_F9 >xkb-key !
+k-f10	XKB_KEY_F10 >xkb-key !
+k-f11	XKB_KEY_F12 >xkb-key !
+k-f12	XKB_KEY_F12 >xkb-key !
+k-pause	XKB_KEY_Pause >xkb-key !
 
 Defer wl-ekeyed ' drop is wl-ekeyed
 
@@ -214,9 +214,7 @@ Defer wl-ekeyed ' drop is wl-ekeyed
     state WL_KEYBOARD_KEY_STATE_PRESSED = IF
 	xkb-state wl-key 8 + xkb_state_key_get_one_sym
 	\ wayland( [: dup h. ;] do-debug ) wl-ekeyed
-	dup $FF00 and $FF00 = IF
-	    $FF00 - cells wl-key>ekey# + @
-	THEN  wl-ekeyed
+	dup $FF00 $10000 within IF  >xkb-key @  THEN  wl-ekeyed
     THEN
 ; wl_keyboard_listener-key:
 :noname { data wl_keyboard serial surface -- }
