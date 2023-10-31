@@ -1032,14 +1032,19 @@ named-hm \ but is actually a named hm
 
 latestnt to rt-vtable
 
+cfalign 0 , 0 , noname Create
+named-hm
+' ft-does> set-does>
+' cfun, set-optimizer
+
+latestnt Constant ft-vtable
+
 : (c-function) ( xt-parse "forth-name" "c-name" "{stack effect}" -- )
     { xt-parse-types }
-    create 0 , lib-handle-addr @ ,
+    ft-vtable create-from reveal 0 , lib-handle-addr @ ,
     parse-c-name { d: c-name }
     xt-parse-types execute c-name string,
-    ['] gen-wrapper-function c-source-file-execute
-    ['] ft-does> set-does>
-    ['] cfun, set-optimizer ;
+    ['] gen-wrapper-function c-source-file-execute ;
 
 : c-function ( "forth-name" "c-name" "@{type@}" "---" "type" -- ) \ gforth
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
