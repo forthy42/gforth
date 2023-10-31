@@ -1015,13 +1015,13 @@ tmp$ $execstr-ptr !
 
 : cfun, ( xt -- )
     dup >does-code ['] call-c@ <>
-    IF  >body host? IF
+    IF  host? IF
 	    ?compile-wrapper ?link-wrapper
 	ELSE
 	    dup body> make-rt
 	    dup cff-lha @ lha-id on \ fake that the library is in use
 	THEN
-    ELSE  >body  THEN
+    THEN
     postpone call-c# , ;
 
 cfalign 0 , 0 , noname Create
