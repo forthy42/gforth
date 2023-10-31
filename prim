@@ -2241,7 +2241,8 @@ ptrpair x;
 IF_fpTOS(fp[0]=fpTOS);
 x.fpx=fp;
 x.spx=sp;
-x=((ptrpair (*)(ptrpair, void*))(w))(x, (void*)w);
+/* There's no descriptor here */
+x=((ptrpair (*)(ptrpair, void*))(w))(x, 0);
 sp=x.spx;
 fp=x.fpx;
 IF_fpTOS(fpTOS=fp[0]);
@@ -2250,6 +2251,19 @@ call-c#	( ... #a_addr -- ... )	gforth-internal	call_c_direct
 ""Call the C function pointed to by the inline argument @i{w}. The C function
 has to access the stack itself. The stack pointers are exported into a ptrpair
 structure passed to the C function, and returned in that form.""
+ptrpair x;
+IF_fpTOS(fp[0]=fpTOS);
+x.fpx=fp;
+x.spx=sp;
+x=((ptrpair (*)(ptrpair, void*))(*a_addr))(x, a_addr);
+sp=x.spx;
+fp=x.fpx;
+IF_fpTOS(fpTOS=fp[0]);
+
+call-c@	( ... a_addr -- ... )	gforth	call_c_fetch
+""Call the C function pointed to by the pointer stored at @i{a_addr}. The C
+function has to access the stack itself. The stack pointers are exported into
+a ptrpair structure passed to the C function, and returned in that form.""
 ptrpair x;
 IF_fpTOS(fp[0]=fpTOS);
 x.fpx=fp;

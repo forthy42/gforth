@@ -1006,16 +1006,15 @@ tmp$ $execstr-ptr !
 : make-rt ( addr -- )
     rt-vtable >namehm @ swap body> >namehm ! ;
 
-: rt-does> @ call-c ;
 : ?link-wrapper ( addr -- xf-cfr )
-    dup body> >does-code [ ' rt-does> >body ]L <> IF
+    dup body> >does-code ['] call-c@ <> IF
 	dup make-rt
 	dup link-wrapper-function over !  THEN ;
 
-: ft-does> ?compile-wrapper ?link-wrapper @ call-c ;
+: ft-does> ?compile-wrapper ?link-wrapper call-c@ ;
 
 : cfun, ( xt -- )
-    dup >does-code [ '  rt-does> >body ]L <>
+    dup >does-code ['] call-c@ <>
     IF  >body host? IF
 	    ?compile-wrapper ?link-wrapper
 	ELSE
@@ -1028,8 +1027,8 @@ tmp$ $execstr-ptr !
 cfalign 0 , 0 , noname Create
 \ can not be named due to rebind-libcc
 named-hm \ but is actually a named hm
+' call-c@ set-does>
 ' cfun, set-optimizer
-' rt-does> set-does>
 
 latestnt to rt-vtable
 
@@ -1152,7 +1151,7 @@ latestnt to rt-vtable
 init-libcc
 
 : rebind-libcc ( -- )
-    [: [: dup >does-code [ ' rt-does> >body ]L = IF
+    [: [: dup >does-code ['] call-c@ = IF
 		>body dup link-wrapper-function
 		\ ." relink: " over body> .name dup h. cr
 		over !
@@ -1162,7 +1161,7 @@ init-libcc
 	    THEN  drop
 	    true ;] swap traverse-wordlist ;] map-vocs ;
 : unbind-libcc ( -- )
-    [: [: dup >does-code [ ' rt-does> >body ]L = IF
+    [: [: dup >does-code ['] call-c@ = IF
 		dup >body off
 		\ ." relink: " over body> .name dup h. cr
 	    ELSE  dup >does-code [ ' callback-does> >body ]L = IF
