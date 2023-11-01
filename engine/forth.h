@@ -151,7 +151,16 @@ typedef unsigned OCTABYTE_TYPE UOctabyte;
 typedef struct {
   Cell* spx;
   Float* fpx;
-} ptrpair;
+} gforth_stackpointers;
+
+#define GFORTH_CALL_C(addr, sp, fp)					\
+  { gforth_stackpointers x;						\
+    x.fpx=fp;								\
+    x.spx=sp;								\
+    x=((gforth_stackpointers (*)(gforth_stackpointers))(*addr))(x);	\
+    sp=x.spx;								\
+    fp=x.fpx;								\
+  }
 
 // prior to 4.8, gcc did not provide __builtin_bswap16 on some platforms so we emulate it
 // see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
