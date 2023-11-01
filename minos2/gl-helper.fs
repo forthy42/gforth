@@ -21,8 +21,12 @@
 require ../unix/mmap.fs
 require ../mini-oof2.fs
 
-Variable dpy-w
-Variable dpy-h
+[IFUNDEF] dpy-wh
+    2Variable dpy-wh
+[THEN]
+dpy-wh Constant dpy-h
+dpy-wh cell+ Constant dpy-w
+
 [IFUNDEF] ctx
     0 Value ctx
 [THEN]

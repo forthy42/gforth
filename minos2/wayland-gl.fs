@@ -99,7 +99,9 @@ Create wl-sh-surface-listener , , ,
 \ geometry output listener
 
 2Variable wl-metrics
-2Variable dpy-wh
+[IFUNDEF] dpy-wh
+    2Variable dpy-wh
+[THEN]
 1 Value wl-scale
 0 Value screen-orientation
 
@@ -222,7 +224,7 @@ Defer wl-ekeyed ' drop is wl-ekeyed
 :noname	{ data wl_keyboard serial surface keys -- }
 ; wl_keyboard_listener-enter:
 :noname { data wl_keyboard format fd size -- }
-    sp@ sp0 !
+    \ sp@ sp0 !
     0 size PROT_READ MAP_PRIVATE fd 0 mmap { buf }
     wayland( buf size [: cr ." xkbd map:" cr type ;] do-debug )
     XKB_CONTEXT_NO_FLAGS xkb_context_new dup to xkb-ctx
@@ -337,7 +339,7 @@ wl-registry set-current
 set-current
     
 : registry+ { data registry name d: interface version -- }
-    sp@ sp0 ! rp@ cell+ rp0 !
+    \ sp@ sp0 ! rp@ cell+ rp0 !
     wayland( interface [: cr type ;] do-debug )
     interface wl-registry find-name-in ?dup-IF
 	registry name rot name>interpret execute
@@ -380,20 +382,36 @@ Create xdg-surface-listener ,
 
 Variable level#
 
+require need-x.fs
+
+Defer config-changed
+:noname ( -- ) +sync +config ( getwh ) ; is config-changed
+Defer screen-ops      ' noop IS screen-ops
+Defer reload-textures ' noop is reload-textures
+
+: resize-widgets ( w h -- )
+    dpy-wh 2!  config-changed ;
+
 :noname { data xdg_toplevel capabilities -- } ;
 xdg_toplevel_listener-wm_capabilities:
 :noname { data xdg_toplevel width height -- }
-    wayland( height width [: cr ." toplevel bounds: " . . ;] do-debug ) ;
+    wayland( height width [: cr ." toplevel bounds: " . . ;] do-debug )
+    xdg_toplevel &640 &400 xdg_toplevel_set_min_size
+    xdg_toplevel width height xdg_toplevel_set_max_size ;
 xdg_toplevel_listener-configure_bounds:
 :noname { data xdg_toplevel -- }
     wayland( [: cr ." close" ;] do-debug )
     -1 level# +! ;
 xdg_toplevel_listener-close:
+also opengl
 :noname { data xdg_toplevel width height states -- }
-    wayland( states wl_array-data @ states wl_array-size @
-    height width [: cr ." toplevel-config: " . .
-    dump ;] do-debug )
-;
+    height width d0= ?EXIT
+    wayland( height width [: cr ." toplevel-config: " . . ;] do-debug )
+    xdg-surface 0 0 width height xdg_surface_set_window_geometry
+    win width height 0 0 wl_egl_window_resize
+    wl-surface wl_surface_commit
+    width height resize-widgets ;
+previous
 xdg_toplevel_listener-configure:
 Create xdg-toplevel-listener , , , ,
 
@@ -418,9 +436,6 @@ zxdg_toplevel_decoration_v1_listener-configure: Create xdg-decoration-listener ,
     zxdg_toplevel_decoration_v1_add_listener drop
     ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE
     zxdg_toplevel_decoration_v1_set_mode
-    compositor wl_compositor_create_region { region }
-    region 0 0 w h wl_region_add
-    wl-surface region wl_surface_set_opaque_region
     wl-surface w h wl_egl_window_create to win
     wl-surface wl_surface_commit
     wayland( [: cr ." wl-eglwin done" ;] do-debug ) ;
@@ -490,9 +505,6 @@ Defer window-init     ' noop is window-init
     >r :noname action-of window-init compile, r@ compile,
     postpone ; is window-init
     ctx IF  r@ execute  THEN  rdrop ;
-Defer config-changed  ' noop is config-changed
-Defer screen-ops      ' noop IS screen-ops
-Defer reload-textures ' noop is reload-textures
 
 : gl-init ( -- ) \ minos2
     \G if not already opened, open window and initialize OpenGL

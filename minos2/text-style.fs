@@ -41,10 +41,11 @@ color-h 1 > [IF]
 blackish
 
 0e FValue x-border
+140% FValue skip-baseline*
 : cbl ( -- )
     current-baseline% to x-baseline ;
 : \skip ( -- )
-    x-baseline 140% f* to x-baseline ;
+    x-baseline skip-baseline* f* to x-baseline ;
 : >bl ( o -- o' )
     >o x-baseline to baseline
     x-baseline gap% f* font@gap fmax to gap o o> cbl ;
