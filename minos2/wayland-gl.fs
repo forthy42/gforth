@@ -144,13 +144,20 @@ up@ Value master-task
 
 \ pointer listener
 
-:noname { data p axis disc -- } ; wl_pointer_listener-axis_discrete:
-:noname { data p time axis -- }  time XTime!
+Variable wl-time
+
+:noname { data p axis disc -- }
+; wl_pointer_listener-axis_relative_direction:
+:noname { data p axis val -- }
+    wl-time @ axis val wl-scroll
+; wl_pointer_listener-axis_value120:
+:noname { data p axis disc -- }
+; wl_pointer_listener-axis_discrete:
+:noname { data p time axis -- }
 ; wl_pointer_listener-axis_stop:
 :noname { data p source -- } ; wl_pointer_listener-axis_source:
 :noname { data p -- } ; wl_pointer_listener-frame:
-:noname { data p time axis val -- }  time XTime!
-    time axis val wl-scroll
+:noname { data p time axis val -- } time wl-time !
 ; wl_pointer_listener-axis:
 :noname { data p ser time b mask -- }  time XTime!
     time b mask wl-button
@@ -165,7 +172,7 @@ up@ Value master-task
     s set-cursor \ on enter, we set the cursor
     x y wl-enter
 ; wl_pointer_listener-enter:
-Create wl-pointer-listener  , , , , , , , , ,
+Create wl-pointer-listener  , , , , , , , , , , ,
 
 \ keyboard listener
 
@@ -320,7 +327,7 @@ wl-registry set-current
     wl_output_interface 1 wl_registry_bind to wl-output
     wl-output wl-output-listener 0 wl_output_add_listener drop ;
 : wl_seat ( registry name -- )
-    wl_seat_interface 1 wl_registry_bind to wl-seat
+    wl_seat_interface 8 wl_registry_bind to wl-seat
     wl-seat wl-seat-listener 0 wl_seat_add_listener drop ;
 : wl_shm ( registry name -- )
     wl_shm_interface 1 wl_registry_bind to wl-shm

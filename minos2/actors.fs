@@ -205,6 +205,10 @@ end-class box-actor
     fover fover ?inside ?dup-IF  .clicked  EXIT  THEN
     2drop fdrop fdrop ;
 box-actor is clicked
+:noname ( axis dir x y -- )
+    fover fover ?inside ?dup-IF  .scrolled  EXIT  THEN
+    2drop fdrop fdrop ;
+box-actor is scrolled
 :noname ( addr u -- )
     active-w ?dup-IF  .act ?dup-IF .ukeyed  EXIT  THEN  THEN  2drop ; box-actor is ukeyed
 :noname ( ekey -- )
@@ -427,6 +431,18 @@ forward >animate
 	[: act >o [ box-actor ] defers clicked o> ;] vp-needed|
 	txy> o> ;] 1-?inside
 ; vp-actor is clicked
+:noname ( axis dir rx ry -- )
+    swap IF \ horizontal
+	drop
+    ELSE \ vertical
+	set-startxy
+	vmotion-dt vmotion-dy f*
+	to vmotion-dy  0e to vmotion-dt
+	o anim-del
+	caller-w .h 16 fm*/ +to vmotion-dy
+	0.333e o ['] vp-scroll >animate
+    THEN  fdrop fdrop
+; vp-actor is scrolled
 :noname ( $rxy*n bmask -- )
     [: caller-w >o  >txy  >r tx$ r>
 	[: act >o [ box-actor ] defers touchdown o> ;] vp-needed|

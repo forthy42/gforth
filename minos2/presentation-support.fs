@@ -159,7 +159,7 @@ end-class slide-actor
 
 0 Value scroll<<
 
-:noname ( axis dir -- ) nip
+:noname ( axis dir rx ry -- ) nip fdrop fdrop
     0< IF  prev-slide  ELSE  next-slide  THEN ; slide-actor is scrolled
 :noname ( rx ry b n -- )  dup 1 and 0= IF
 	over $180 and IF  4 to scroll<<  THEN
