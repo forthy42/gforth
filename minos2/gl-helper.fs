@@ -45,9 +45,9 @@ s" os-type" environment? [IF]
 	synonym use-egl noop
     [ELSE]
 	2dup s" darwin" str= >r s" linux-" string-prefix? r> or [IF]
-	    [IFDEF] use-wl
+	    [IFUNDEF] use-x11
 		${XDG_SESSION_TYPE} s" wayland" str=
-	    [ELSE] false [THEN] \ wayland is experimental, default to x11
+	    [ELSE] false [THEN] \ x11 is deprecated
 	    [IF]
 		require wayland-gl.fs
 		require ../unix/opengles.fs
