@@ -84,9 +84,11 @@ debug: wayland(
     win w h 0 0 wl_egl_window_resize ;
 : sh-surface-popup-done { data surface -- } ;
 
-' sh-surface-popup-done wl_shell_surface_listener-popup_done:
-' sh-surface-config wl_shell_surface_listener-configure:
-' sh-surface-ping wl_shell_surface_listener-ping:
+${GFORTH_IGNLIB} "true" str= 0= [IF]
+    ' sh-surface-popup-done wl_shell_surface_listener-popup_done:
+    ' sh-surface-config wl_shell_surface_listener-configure:
+    ' sh-surface-ping wl_shell_surface_listener-ping:
+[ELSE]                        0 0 0  [THEN]
 Create wl-sh-surface-listener , , ,
 
 \ time handling
@@ -113,10 +115,12 @@ Create wl-sh-surface-listener , , ,
 : wl-out-scale { data out scale -- }
     scale to wl-scale ;
 
-' wl-out-scale wl_output_listener-scale:
-' wl-out-done wl_output_listener-done:
-' wl-out-mode wl_output_listener-mode:
-' wl-out-geometry wl_output_listener-geometry:
+${GFORTH_IGNLIB} "true" str= 0= [IF]
+    ' wl-out-scale wl_output_listener-scale:
+    ' wl-out-done wl_output_listener-done:
+    ' wl-out-mode wl_output_listener-mode:
+    ' wl-out-geometry wl_output_listener-geometry:
+[ELSE]                    0 0 0 0  [THEN]
 Create wl-output-listener , , , ,
 
 \ As events come in callbacks, push them to an event queue
@@ -146,6 +150,7 @@ up@ Value master-task
 
 Variable wl-time
 
+${GFORTH_IGNLIB} "true" str= 0= [IF]
 :noname { data p axis disc -- }
 ; wl_pointer_listener-axis_relative_direction:
 :noname { data p axis val -- }
@@ -172,6 +177,7 @@ Variable wl-time
     s set-cursor \ on enter, we set the cursor
     x y wl-enter
 ; wl_pointer_listener-enter:
+[ELSE]                      0 0 0 0 0 0 0 0 0 0 0  [THEN]
 Create wl-pointer-listener  , , , , , , , , , , ,
 
 \ keyboard listener
@@ -212,6 +218,7 @@ k-pause	XKB_KEY_Pause >xkb-key !
 
 Defer wl-ekeyed ' drop is wl-ekeyed
 
+${GFORTH_IGNLIB} "true" str= 0= [IF]
 :noname { data wl_keyboard rate delay -- }
 ; wl_keyboard_listener-repeat_info:
 :noname { data wl_keyboard serial mods_depressed mods_latched mods_locked group -- }
@@ -241,10 +248,12 @@ Defer wl-ekeyed ' drop is wl-ekeyed
     keymap xkb_state_new to xkb-state
 ; wl_keyboard_listener-keymap:
 previous
+[ELSE]                      0 0 0 0 0 0  [THEN]
 Create wl-keyboard-listener , , , , , ,
 
 \ seat listener
 
+${GFORTH_IGNLIB} "true" str= 0= [IF]
 :noname { data seat d: name -- } ; wl_seat_listener-name:
 :noname { data seat caps -- }
     caps WL_SEAT_CAPABILITY_POINTER and IF
@@ -258,13 +267,15 @@ Create wl-keyboard-listener , , , , , ,
     caps WL_SEAT_CAPABILITY_TOUCH and IF
 	wl-seat wl_seat_get_touch to wl-touch
     THEN ; wl_seat_listener-capabilities:
+[ELSE]  0 0  [THEN]
 Create wl-seat-listener  , ,
 
 \ xdg-wm-base-listener
 
+${GFORTH_IGNLIB} "true" str= 0= [IF]
 :noname ( data xdg_wm_base serial -- )
     xdg_wm_base_pong drop ; xdg_wm_base_listener-ping:
-
+[ELSE]  0  [THEN]
 Create xdg-wm-base-listener ,
 
 \ input listener
@@ -286,6 +297,7 @@ Create cursor-xywh #200 , #300 , #1 , #10 ,
     zwp_text_input_v3_set_surrounding_text
     text-input zwp_text_input_v3_commit ;
 
+${GFORTH_IGNLIB} "true" str= 0= [IF]
 :noname { data text-input serial -- }
     text-input send-status-update
 ; zwp_text_input_v3_listener-done:
@@ -304,6 +316,7 @@ Create cursor-xywh #200 , #300 , #1 , #10 ,
     text-input zwp_text_input_v3_enable
     text-input send-status-update
 ; zwp_text_input_v3_listener-enter:
+[ELSE]                     0 0 0 0 0 0  [THEN]
 Create text-input-listener , , , , , ,
 
 \ registry listeners: the interface string is searched in a table
@@ -355,8 +368,10 @@ set-current
     THEN ;
 : registry- { data registry name -- } ;
 
+${GFORTH_IGNLIB} "true" str= 0= [IF]
 ' registry- wl_registry_listener-global_remove:
 ' registry+ wl_registry_listener-global:
+[ELSE]                   0 0  [THEN]
 Create registry-listener , ,
 
 : get-events ( -- )
@@ -376,12 +391,14 @@ Create registry-listener , ,
 forward sync
 forward clear
 
+${GFORTH_IGNLIB} "true" str= 0= [IF]
 :noname { data xdg_surface serial -- }
     wayland( [: cr ." configured" ;] do-debug )
     true to mapped
     xdg_surface serial xdg_surface_ack_configure
     wl-surface wl_surface_commit
 ; xdg_surface_listener-configure:
+[ELSE]                      0  [THEN]
 Create xdg-surface-listener ,
 
 : map-win ( -- )
@@ -399,6 +416,7 @@ Defer reload-textures ' noop is reload-textures
 : resize-widgets ( w h -- )
     dpy-wh 2!  config-changed ;
 
+${GFORTH_IGNLIB} "true" str= 0= [IF]
 :noname { data xdg_toplevel capabilities -- } ;
 xdg_toplevel_listener-wm_capabilities:
 :noname { data xdg_toplevel width height -- }
@@ -420,12 +438,16 @@ also opengl
     width height resize-widgets ;
 previous
 xdg_toplevel_listener-configure:
+[ELSE]                       0 0 0 0  [THEN]
 Create xdg-toplevel-listener , , , ,
 
+${GFORTH_IGNLIB} "true" str= 0= [IF]
 :noname { data decoration mode -- }
     wayland( [: cr ." decorated" ;] do-debug )
     true to configured clear sync ;
-zxdg_toplevel_decoration_v1_listener-configure: Create xdg-decoration-listener ,
+zxdg_toplevel_decoration_v1_listener-configure:
+[ELSE]                         0 [THEN]
+Create xdg-decoration-listener ,
 
 : wl-eglwin { w h -- }
     wayland( h w [: cr ." eglwin: " . . ;] do-debug )

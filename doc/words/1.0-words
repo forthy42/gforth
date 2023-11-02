@@ -5,7 +5,7 @@ C: D^ D: F^ F: W^ W:
 unbind-libcc rebind-libcc init-libcc libcc>named-path c++-library-name 
 c-library-name c-library-incomplete c-callback-thread c-callback (c-callback) 
 callback-does> setup-callback c-funptr c-variable c-value c-function 
-(c-function) cfun, ft-does> ?link-wrapper rt-does> make-rt rt-vtable 
+(c-function) ft-vtable cfun, ft-does> ?link-wrapper make-rt rt-vtable 
 ?compile-wrapper parse-c-name link-wrapper-function compile-wrapper-function1 
 init-lib link-cmd compile-cmd end-libs clear-libs free-libs lha, 
 compile-wrapper-function hash-c-source .c-hash replace-hash .lib-error 
@@ -99,7 +99,7 @@ ffi-ret-void ffi-ret-double1 ffi-ret-float1 ffi-ret-ptr1 ffi-ret-long1
 ffi-ret-dlong1 ffi-ret-longlong1 ffi-ret-int1 ffi-arg-double ffi-arg-float 
 ffi-arg-ptr ffi-arg-dlong ffi-arg-longlong ffi-arg-long ffi-arg-int ffi-2! 
 ffi-2@ ffi-prep-closure ffi-call ffi-prep-cif ffi-size ffi-type va opus 
-pipewire pulse av_cpb_properties_alloc avcodec_is_open av_xiphlacing 
+xkbcommon pipewire pulse av_cpb_properties_alloc avcodec_is_open av_xiphlacing 
 av_fast_padded_mallocz av_fast_padded_malloc av_get_audio_frame_duration2 
 av_get_audio_frame_duration av_get_exact_bits_per_sample av_get_pcm_codec 
 av_get_bits_per_sample avcodec_flush_buffers avcodec_fill_audio_frame 
@@ -574,8 +574,8 @@ G_IO_IN G_ONCE_STATUS_READY G_ONCE_STATUS_PROGRESS G_ONCE_STATUS_NOTCALLED
 G_THREAD_ERROR_AGAIN G_LOG_2_BASE_10 G_SQRT2 G_PI_4 G_PI_2 G_PI G_LN10 G_LN2 
 G_E G_SIGNAL_MATCH_MASK G_SIGNAL_FLAGS_MASK G_TYPE_RESERVED_USER_FIRST 
 G_TYPE_RESERVED_BSE_LAST G_TYPE_RESERVED_BSE_FIRST G_TYPE_RESERVED_GLIB_LAST 
-G_TYPE_RESERVED_GLIB_FIRST G_TYPE_FUNDAMENTAL_SHIFT G_PRIORITY_LOW 
-G_PRIORITY_DEFAULT_IDLE G_PRIORITY_HIGH_IDLE G_PRIORITY_DEFAULT 
+G_TYPE_RESERVED_GLIB_FIRST G_TYPE_FUNDAMENTAL_MAX G_TYPE_FUNDAMENTAL_SHIFT 
+G_PRIORITY_LOW G_PRIORITY_DEFAULT_IDLE G_PRIORITY_HIGH_IDLE G_PRIORITY_DEFAULT 
 G_PRIORITY_HIGH G_IEEE754_DOUBLE_BIAS G_IEEE754_FLOAT_BIAS G_PDP_ENDIAN 
 G_BIG_ENDIAN G_LITTLE_ENDIAN harfbuzz vulkan ubx2_to_prn datum_code_string 
 mag_var wgs84_separation earth_distance_and_bearings earth_distance 
@@ -1318,7 +1318,7 @@ s>f f0>= f0<= f0> f0< f0<> f0= f>= f<= f> f< f<> f= (ns) ntime cputime utime
 newline =mkdir get-dir set-dir filename-match close-dir read-dir open-dir 
 file-eof? file-status flush-file emit-file write-file (read-line) read-file 
 resize-file file-size reposition-file file-position rename-file delete-file 
-create-file open-file close-file winch? gforth-pointers call-c# call-c 
+create-file open-file close-file winch? gforth-pointers call-c@ call-c# call-c 
 strsignal strerror heap-resize heap-free heap-allocate (ms) >time&date&tz 
 close-pipe open-pipe getenv (system) (bye) flush-icache wcwidth isfg isatty 
 (form) term-prep? stderr stdout stdin key?-file (key-file) debugging-method 
