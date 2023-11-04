@@ -280,6 +280,20 @@ Defer wayland-keys
 :noname ( addr u -- ) inskeys ; is wayland-keys
 
 Create cursor-xywh #200 , #300 , #1 , #10 ,
+Create xy-offset 0e f, 0e f,
+
+: >cursor-xyxy { f: x0 f: y0 f: x1 f: y1 -- }
+    cursor-xywh
+    x0 xy-offset f@ f+ f>s over ! cell+
+    y0 xy-offset float+ f@ f+ f>s over ! cell+
+    x1 x0 f- f>s over ! cell+
+    y1 y0 f- f>s swap ! ;
+: +offset { f: x f: y -- }
+    xy-offset
+    dup f@ x f+ dup f! float+
+    dup f@ y f+ f! ;
+: 0offset ( -- )
+    0e fdup xy-offset f! xy-offset float+ f! ;
 
 : send-status-update { text-input -- }
     text-input
@@ -300,7 +314,7 @@ Create cursor-xywh #200 , #300 , #1 , #10 ,
 :noname { data text-input d: text -- }
     wayland( text [: cr ." wayland keys: '" type ''' emit ;] do-debug )
     text save-mem
-    [{: d: text :}h1 wayland-keys text drop free drop ;] master-task send-event
+    [{: d: text :}h1 text wayland-keys text drop free drop ;] master-task send-event
     text-input zwp_text_input_v3_commit
 ; ?cb zwp_text_input_v3_listener-commit_string:
 :noname { data text-input d: text cursor_begin cursor_end -- }

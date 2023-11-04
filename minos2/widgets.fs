@@ -35,9 +35,7 @@ debug: dispose( \ +db dispose( \ )
 
 require ../i18n.fs \ localization
 require gl-terminal.fs
-
 require ftgl-helper.fs
-
 require ../mini-oof2.fs
 require ../config.fs
 
@@ -792,7 +790,10 @@ $3F7FFF7F text-color, FValue selection-color
     x1 y0 >xy fdup i>c n> 3e 2e >st v+
     x0 y1 >xy fdup i>c n> 2e 3e >st v+
     x1 y1 >xy      i>c n> 3e 3e >st v+
-    v> 2 quad ;
+    v> 2 quad
+    [IFDEF] >cursor-xyxy
+	x0 y0 x1 y1 >cursor-xyxy
+    [THEN] ;
 
 : edit-text ( -- )
     edit-marking
@@ -1486,6 +1487,7 @@ $10 stack: box-depth \ this $10 here is no real limit
 \ draw everything
 
 : widget-init ( o:widget -- )
+    [IFDEF] 0offset  0offset [THEN]
     <draw-init      draw-init      draw-init>   time( ." init:  " .!time cr )
 ;
 
@@ -1603,7 +1605,9 @@ $10 stack: vp<>
 
 :noname
     [: ?sync ?config or ;] vp-needed ?vpsync or IF
+	[IFDEF] +offset  x vp-x f-  y vp-h vp-y f- f- +offset  [THEN]
 	draw-vpchilds
+	[IFDEF] +offset  vp-x x f-  vp-h vp-y f- y f- +offset  [THEN]
 	[: -sync -config ;] vp-needed
     THEN ; viewport is draw-init
 :noname ( -- )  render>
