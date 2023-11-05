@@ -171,6 +171,8 @@ end-class slide-actor
 	    ELSE  0.9e f> IF  2drop fdrop fdrop  next-slide  EXIT  THEN  THEN
 	THEN  THEN
     [ box-actor ] defers clicked +sync +resize ; slide-actor is clicked
+forward >fullscreen
+forward >normalscreen
 :noname ( ekey -- )
     case
 	k-up      of  prev-slide  endof
@@ -197,7 +199,9 @@ end-class slide-actor
 	k-f6 of  color-theme 0=  IF  anim-end 0.25e o
 		[:             fdup f>s to color-theme 1/2 f+ ColorMode! +sync +vpsync ;]
 		>animate  THEN   endof
-	k-f1      of  top-widget ..widget  endof
+	k-f1 of  top-widget ..widget  endof
+	k-f7 of  >normalscreen   endof
+	k-f8 of  >fullscreen     endof
 	[ box-actor ] defers ekeyed  EXIT
     endcase +sync +resize ; slide-actor to ekeyed
 :noname ( $xy b -- ) 2dup [ box-actor ] defers touchmove drop

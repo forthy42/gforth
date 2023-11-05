@@ -111,6 +111,8 @@ $3F7FFF7F #Variable selectioncolor#
 $FFFF7FFF #Variable setstring-color#
 $1010107F #Variable shadow-color#
 Variable curminchars#
+Variable twoclicks#
+Variable samepos#
 FVariable curminwidth%
 FVariable pwtime%
 FVariable scale%
@@ -119,10 +121,15 @@ $Variable translate$
 set-current
 
 0 curminchars# !
+#200 twoclicks# !  \ every edge further apart than 200ms into separate clicks
+#6 samepos# !      \ position difference square-summed less than is same pos
 1e curminwidth% f!
 0.5e pwtime% f!
 1e scale% f!
 0.3e animtime% f!
+
+: twoclicks  twoclicks# @ ;
+: samepos    samepos# @ ;
 
 previous
 

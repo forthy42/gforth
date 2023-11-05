@@ -34,25 +34,20 @@ Variable ev-button
 Variable ev-up/down
 2Variable lastpos
 Variable lasttime
-Variable clicks#
-
-#200 Value twoclicks  \ every edge further apart than 150ms into separate clicks
-$60000. 2Value samepos      \ position difference square-summed less than is same pos
 
 1e 256e f/ fconstant 1/256
 
 \ handle scrolling
 
 :noname ( time axis val -- )
-    rot ev-time !
-    ev-time @ lasttime @ - twoclicks u<  ev-time @ lasttime !
-    IF  1 clicks# +!  clicks# @ *  ELSE  clicks# off  THEN  #-60 /
+    rot dup lasttime !@ - twoclicks u<
+    IF  1 +to clicks  clicks *  ELSE  0 to clicks  THEN  #-60 /
     ev-xy 2@ swap 1/256 fm* 1/256 fm* top-act .scrolled ; IS b-scroll
 
 \ handle clicks
 
 : samepos? ( x y -- flag )
-    lastpos 2@ rot - dup m* 2swap - dup m* d+ samepos d< ;
+    lastpos 2@ rot - dup m* 2swap - dup m* d+ samepos $10000 m* d< ;
 : ?samepos ( -- )
     ev-xy 2@
     2dup samepos? 0= IF   0 to clicks  THEN  lastpos 2! ;
@@ -73,7 +68,7 @@ Variable xy$
     xy$ ;
 
 :noname ( -- )
-    ev-time @ lasttime @ - twoclicks >= IF
+    XTime lasttime @ - twoclicks >= IF
 	flags #pending -bit@ IF
 	    send-clicks
 	THEN

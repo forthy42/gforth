@@ -387,6 +387,20 @@ forward >animate
 ; vp-actor is ?inside
 : 1-?inside ( rx ry xt -- act )
     1 to ?inside-mode  catch  0 to ?inside-mode  throw ;
+
+Variable last-scrolldir
+: vp-scrolling ( dir -- )
+    set-startxy
+    s>d dup last-scrolldir !@ <> dup IF  0 to clicks  THEN
+    over abs 2 = or IF
+	0e fdup to vmotion-dx
+    ELSE
+	vmotion-dt vmotion-dy f*
+    THEN  to vmotion-dy  0e to vmotion-dt
+    o anim-del
+    caller-w .h 16 fm*/ +to vmotion-dy
+    0.333e o ['] vp-scroll >animate ;
+
 :noname ( rx ry bmask n -- ) 
     click( o h. caller-w .name$ type space ." vp click" cr )
     grab-move? o <> IF
@@ -414,18 +428,9 @@ forward >animate
 	THEN
     THEN
     over $18 and over 1 and 0= and IF
-	set-startxy
-	dup 2 = IF
-	    0e fdup to vmotion-dx
-	ELSE
-	    vmotion-dt vmotion-dy f*
-	THEN  to vmotion-dy  0e to vmotion-dt
-	o anim-del
-	caller-w .h 16 fm*/
-	dup
-	$08 and IF  fdup +to vmotion-dy  THEN  fnegate
-	$10 and IF  fdup +to vmotion-dy  THEN  fdrop fdrop fdrop
-	0.333e o ['] vp-scroll >animate
+	2 + swap  $10 and IF  negate  THEN
+	vp-scrolling
+	fdrop fdrop
 	EXIT  THEN
     [: caller-w >o  >txy  tx
 	[: act >o [ box-actor ] defers clicked o> ;] vp-needed|
@@ -435,12 +440,7 @@ forward >animate
     swap IF \ horizontal
 	drop
     ELSE \ vertical
-	set-startxy
-	vmotion-dt vmotion-dy f*
-	to vmotion-dy  0e to vmotion-dt
-	o anim-del
-	caller-w .h 16 fm*/ +to vmotion-dy
-	0.333e o ['] vp-scroll >animate
+	vp-scrolling
     THEN  fdrop fdrop
 ; vp-actor is scrolled
 :noname ( $rxy*n bmask -- )

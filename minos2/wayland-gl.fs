@@ -155,15 +155,15 @@ Variable wl-time
 :noname { data p axis disc -- }
 ; ?cb wl_pointer_listener-axis_relative_direction:
 :noname { data p axis val -- }
-    wl-time @ axis val wl-scroll
+    XTime axis val wl-scroll
 ; ?cb wl_pointer_listener-axis_value120:
 :noname { data p axis disc -- }
 ; ?cb wl_pointer_listener-axis_discrete:
-:noname { data p time axis -- }
+:noname { data p time axis -- } time XTime!
 ; ?cb wl_pointer_listener-axis_stop:
 :noname { data p source -- } ; ?cb wl_pointer_listener-axis_source:
 :noname { data p -- } ; ?cb wl_pointer_listener-frame:
-:noname { data p time axis val -- } time wl-time !
+:noname { data p time axis val -- } time XTime!
 ; ?cb wl_pointer_listener-axis:
 :noname { data p ser time b mask -- }  time XTime!
     time b mask wl-button
@@ -285,9 +285,9 @@ Create xy-offset 0e f, 0e f,
 : >cursor-xyxy { f: x0 f: y0 f: x1 f: y1 -- }
     cursor-xywh
     x0 xy-offset f@ f+ f>s over ! cell+
-    y0 xy-offset float+ f@ f+ f>s over ! cell+
+    y1 xy-offset float+ f@ f+ f>s over ! cell+
     x1 x0 f- f>s over ! cell+
-    y1 y0 f- f>s swap ! ;
+    y0 y1 f- f>s swap ! ;
 : +offset { f: x f: y -- }
     xy-offset
     dup f@ x f+ dup f! float+

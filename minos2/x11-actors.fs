@@ -36,9 +36,6 @@ end-class x11-handler
 
 also x11
 
-#200 Value twoclicks  \ every edge further apart than 150ms into separate clicks
-#6 Value samepos      \ position difference square-summed less than is same pos
-
 Create x-key>ekey#
 XK_BackSpace , #del ,
 XK_Tab       , #tab ,
