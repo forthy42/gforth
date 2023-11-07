@@ -391,8 +391,8 @@ forward >animate
 Variable last-scrolldir
 : vp-scrolling ( dir -- )
     set-startxy
-    s>d dup last-scrolldir !@ <> dup IF  0 to clicks  THEN
-    over abs 2 = or IF
+    s>d dup last-scrolldir !@ <> IF  0 to clicks dup abs 1 umax / 2*  THEN
+    dup abs 2 = IF
 	0e fdup to vmotion-dx
     ELSE
 	vmotion-dt vmotion-dy f*
