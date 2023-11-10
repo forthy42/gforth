@@ -64,6 +64,16 @@ install_fedora() {
     sudo mkdir /usr/include/stb && sudo cp stb/*.h /usr/include/stb && rm -rf stb)
 }
 
+install_opensuse() {
+    sudo zypper install -y libtool libltdl7 Mesa-libGL-devel \
+    Mesa-libglapi-devel glew-devel vulkan-devel gpsd-devel \
+    Mesa-libGLESv2-devel Mesa-libGLESv3-devel libpng16-devel stb-devel \
+    freetype2-devel harfbuzz-devel libpulse-devel libopus-devel \
+    libva-devel libva-gl-devel linux-glibc-devel libxkbcommon-devel \
+    makeinfo texinfo info wayland-devel wayland-protocols-devel m4 \
+    emacs-nox libffi-devel libX11-devel
+}
+
 install_linux() {
     install_debian
 }

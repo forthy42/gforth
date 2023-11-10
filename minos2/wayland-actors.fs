@@ -114,13 +114,22 @@ DOES> + c@ ;
     xstring xc!+ xstring tuck - ;
 : ctrls? ( addr u -- flag )
     false -rot bounds ?DO
-	I c@ bl < or \ all UTF-8 codepoints are > bl
+	I c@ bl < or \ all UTF-8 codepoints are >= bl
+	I c@ #del = or \ and <> del
     LOOP ;
 : u/ekeyed ( ekey -- )
+    wayland( [: cr ." ekey: " dup h. ;] do-debug )
     dup 0= IF  drop  EXIT  THEN
     dup bl keycode-start within over #del <> and
-    IF    >xstring top-act .ukeyed
+    IF    $1000000 invert and >xstring top-act .ukeyed
     ELSE  ?dup-IF top-act .ekeyed THEN  THEN ;
+: u/keyed ( addr u -- )
+    2dup ctrls? IF
+	bounds ?DO  I xc@+ u/ekeyed  I -  +LOOP
+    ELSE
+	wayland( [: cr ." ukey: " 2dup dump ;] do-debug )
+	top-act .ukeyed
+    THEN ;
 : keys-commit ( addr u -- )
     2dup ctrls? IF
 	bounds ?DO  I xc@+ u/ekeyed  I -  +LOOP
@@ -133,9 +142,11 @@ DOES> + c@ ;
 : enter-minos ( -- )
     ['] keys-commit is wayland-keys
     ['] u/ekeyed is wl-ekeyed
+    ['] u/keyed is wl-ukeyed
     edit-widget edit-out ! ;
 : leave-minos ( -- )
     preserve wayland-keys
     preserve wl-ekeyed
+    preserve wl-ukeyed
     edit-terminal edit-out !
     +sync  +show ;

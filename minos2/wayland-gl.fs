@@ -217,6 +217,7 @@ k-f12	XKB_KEY_F12 >xkb-key !
 k-pause	XKB_KEY_Pause >xkb-key !
 
 Defer wl-ekeyed ' drop is wl-ekeyed
+Defer wl-ukeyed ' 2drop is wl-ukeyed
 
 :noname { data wl_keyboard rate delay -- }
 ; ?cb wl_keyboard_listener-repeat_info:
@@ -227,6 +228,12 @@ Defer wl-ekeyed ' drop is wl-ekeyed
 :noname { data wl_keyboard serial time wl-key state -- }
     wayland( state wl-key [: cr h. h. ;] do-debug )
     state WL_KEYBOARD_KEY_STATE_PRESSED = IF
+	{: | keys[ $10 ] :}
+	xkb-state wl-key 8 + keys[ $10 xkb_state_key_get_utf8 ?dup-IF
+	    keys[ swap save-mem
+	    [{: d: wl-keys :}h1 wl-keys wl-ukeyed
+	    wl-keys drop free drop ;] master-task send-event
+	    EXIT  THEN
 	xkb-state wl-key 8 + xkb_state_key_get_one_sym
 	\ wayland( [: dup h. ;] do-debug ) wl-ekeyed
 	dup $FF00 $10000 within IF  >xkb-key @  THEN

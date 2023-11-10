@@ -187,7 +187,8 @@ previous
 
 : ctrls? ( addr u -- flag )
     false -rot bounds ?DO
-	I c@ bl < or \ all UTF-8 codepoints are > bl
+	I c@ bl < or \ all UTF-8 codepoints are >= bl
+	I c@ #del = or \ and <> del
     LOOP ;
 : u/ekeyed ( ekey -- )
     dup 0= IF  drop  EXIT  THEN
