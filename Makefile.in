@@ -961,11 +961,15 @@ install-arch:	installdeps installdirs-arch normal-install rm-install install-pro
 
 install-seq:	install-indep install-arch @INSTALLTXT@ @INSTALLINFO@
 
+ESC = `echo -e '\033'`
+RED = $(ESC)[0;31m
+RSTCOLOR = $(ESC)[0m
+
 post-inst:
 		$(RM) TAGS gforth.TAGS install.TAGS prim.TAGS gforth.fi.install start-gforth.el*
 		-$(RM) libgforth*
 		$(POST_INSTALL)
-		@test 0$$SUDO_UID -ne 0 && find . -user root | sed -e 's/^/failed to clean: /g' || true
+		@test 0$$SUDO_UID -ne 0 && find . -user root | sed -e "s/^.*$$/$(RED)failed to clean: \0$(RSTCOLOR)/g" || true
 		@echo
 		@echo
 		@echo "============= INSTALL SUCCEEDED ============="

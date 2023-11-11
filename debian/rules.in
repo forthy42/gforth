@@ -12,6 +12,7 @@ DLC = $(CURDIR)/debian/gforth-libcc
 DLGL = $(CURDIR)/debian/gforth-libcc-gl
 DLGLES = $(CURDIR)/debian/gforth-libcc-gles
 DLX11 = $(CURDIR)/debian/gforth-libcc-x11
+DLWL = $(CURDIR)/debian/gforth-libcc-wayland
 DLM2 = $(CURDIR)/debian/gforth-libcc-minos2
 DLA = $(CURDIR)/debian/gforth-libcc-audio
 DB = $(CURDIR)/debian/gforth-bin
@@ -69,8 +70,16 @@ override_dh_auto_install:
 	-mv $(DLC)$(LIB)/unix/gl*.fs $(DLGL)$(LIB)/unix
 	mkdir -p $(DLX11)$(LIBCC)
 	mv $(DLC)$(LIBCC)/libgfx.* $(DLX11)$(LIBCC)
+	mv $(DLC)$(LIBCC)/libgfxrandr.* $(DLX11)$(LIBCC)
 	mkdir -p $(DLX11)$(LIB)/unix
 	mv $(DLC)$(LIB)/unix/x.fs $(DLX11)$(LIB)/unix
+	mv $(DLC)$(LIB)/unix/xrandr.fs $(DLX11)$(LIB)/unix
+	mkdir -p $(DLWL)$(LIBCC)
+	mv $(DLC)$(LIBCC)/libgfwayland.* $(DLWL)$(LIBCC)
+	mv $(DLC)$(LIBCC)/libgfxkbcommon.* $(DLWL)$(LIBCC)
+	mkdir -p $(DLWL)$(LIB)/unix
+	mv $(DLC)$(LIB)/unix/wayland.fs $(DLWL)$(LIB)/unix
+	mv $(DLC)$(LIB)/unix/xkbcommon.fs $(DLWL)$(LIB)/unix
 	mkdir -p $(DLM2)$(SHARE)/unix
 	mkdir -p $(DLM2)$(LIB)/unix
 	mkdir -p $(DLM2)$(LIBCC)

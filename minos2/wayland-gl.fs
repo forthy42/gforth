@@ -59,6 +59,9 @@ debug: wayland(
 0 Value xdg-toplevel
 0 Value decoration-manager
 0 Value zxdg-decoration
+0 Value data-device-manager
+0 Value data-device
+0 Value data-source
 
 \ set a cursor
 
@@ -118,12 +121,20 @@ Create wl-sh-surface-listener , , ,
 : wl-out-done { data out -- } ;
 : wl-out-scale { data out scale -- }
     scale to wl-scale ;
+: wl-out-name { data out d: name -- }
+    wayland( name [: cr ." output name: " type ;] do-debug )
+;
+: wl-out-description { data out d: description -- }
+    wayland( description [: cr ." output description: " type ;] do-debug )
+;
 
+' wl-out-description ?cb wl_output_listener-description:
+' wl-out-name ?cb wl_output_listener-name:
 ' wl-out-scale ?cb wl_output_listener-scale:
 ' wl-out-done ?cb wl_output_listener-done:
 ' wl-out-mode ?cb wl_output_listener-mode:
 ' wl-out-geometry ?cb wl_output_listener-geometry:
-Create wl-output-listener , , , ,
+Create wl-output-listener , , , , , ,
 
 \ As events come in callbacks, push them to an event queue
 
@@ -247,10 +258,10 @@ Defer wl-ukeyed ' 2drop is wl-ukeyed
 :noname { data wl_keyboard format fd size -- }
     \ sp@ sp0 !
     0 size PROT_READ MAP_PRIVATE fd 0 mmap { buf }
-    wayland( buf size [: cr ." xkbd map:" cr type ;] do-debug )
+    \ wayland( buf size [: cr ." xkbd map:" cr type ;] do-debug )
     XKB_CONTEXT_NO_FLAGS xkb_context_new dup to xkb-ctx
     buf size 1- XKB_KEYMAP_FORMAT_TEXT_V1 XKB_KEYMAP_COMPILE_NO_FLAGS
-    xkb_keymap_new_from_string to keymap
+    xkb_keymap_new_from_buffer to keymap
     buf size munmap ?ior
     keymap xkb_state_new to xkb-state
 ; ?cb wl_keyboard_listener-keymap:
@@ -334,6 +345,21 @@ Create xy-offset 0e f, 0e f,
 ; ?cb zwp_text_input_v3_listener-enter:
 Create text-input-listener , , , , , ,
 
+\ data device listener
+:noname { data data-device id -- }
+; ?cb wl_data_device_listener-selection:
+:noname { data data-device -- }
+; ?cb wl_data_device_listener-drop:
+:noname { data data-device time x y -- }
+; ?cb wl_data_device_listener-motion:
+:noname { data data-device -- }
+; ?cb wl_data_device_listener-leave:
+:noname { data data-device serial surface x y id -- }
+; ?cb wl_data_device_listener-enter:
+:noname { data data-device id -- }
+; ?cb wl_data_device_listener-data_offer:
+Create data-device-listener , , , , , ,
+
 \ registry listeners: the interface string is searched in a table
 
 table Constant wl-registry
@@ -342,42 +368,48 @@ get-current
 
 wl-registry set-current
 
-: wl_compositor ( registry name -- )
-    wl_compositor_interface 1 wl_registry_bind to compositor
+: wl_compositor ( registry name version -- )
+    wl_compositor_interface swap wl_registry_bind to compositor
     compositor wl_compositor_create_surface to wl-surface
     compositor wl_compositor_create_surface to cursor-surface ;
-: wl_shell ( registry name -- )
-    wl_shell_interface 1 wl_registry_bind to wl-shell
+: wl_shell ( registry name version -- )
+    wl_shell_interface swap wl_registry_bind to wl-shell
     wl-shell wl-surface wl_shell_get_shell_surface to sh-surface
     sh-surface wl-sh-surface-listener 0 wl_shell_surface_add_listener drop
     sh-surface wl_shell_surface_set_toplevel ;
-: wl_output ( registry name -- )
-    wl_output_interface 1 wl_registry_bind to wl-output
-    wl-output wl-output-listener 0 wl_output_add_listener drop ;
-: wl_seat ( registry name -- )
-    wl_seat_interface 8 wl_registry_bind to wl-seat
-    wl-seat wl-seat-listener 0 wl_seat_add_listener drop ;
-: wl_shm ( registry name -- )
-    wl_shm_interface 1 wl_registry_bind to wl-shm
-    s" Breeze_Snow" 16 wl-shm wl_cursor_theme_load to cursor-theme
-    cursor-theme s" left_ptr" wl_cursor_theme_get_cursor to cursor ;
-: zwp_text_input_manager_v3 ( registry name -- )
-    zwp_text_input_manager_v3_interface 1 wl_registry_bind to text-input-manager
-    text-input-manager wl-seat zwp_text_input_manager_v3_get_text_input to text-input
-    text-input text-input-listener 0 zwp_text_input_v3_add_listener drop ;
-: xdg_wm_base ( registry name -- )
-    xdg_wm_base_interface 1 wl_registry_bind dup to xdg-wm-base
-    xdg-wm-base xdg-wm-base-listener 0 xdg_wm_base_add_listener drop ;
-: zxdg_decoration_manager_v1 ( registry name -- )
-    zxdg_decoration_manager_v1_interface 1 wl_registry_bind to decoration-manager ;
-
+: wl_output ( registry name version -- )
+    wl_output_interface swap wl_registry_bind dup to wl-output
+    wl-output-listener 0 wl_output_add_listener drop ;
+: wl_seat ( registry name version -- )
+    wl_seat_interface swap wl_registry_bind dup to wl-seat
+    wl-seat-listener 0 wl_seat_add_listener drop ;
+: wl_shm ( registry name version -- )
+    wl_shm_interface swap wl_registry_bind to wl-shm
+    s" Breeze_Snow" 16 wl-shm wl_cursor_theme_load dup to cursor-theme
+    s" left_ptr" wl_cursor_theme_get_cursor to cursor ;
+: zwp_text_input_manager_v3 ( registry name version -- )
+    zwp_text_input_manager_v3_interface swap wl_registry_bind dup to text-input-manager
+    wl-seat zwp_text_input_manager_v3_get_text_input dup to text-input
+    text-input-listener 0 zwp_text_input_v3_add_listener drop ;
+: xdg_wm_base ( registry name version -- )
+    xdg_wm_base_interface swap wl_registry_bind dup to xdg-wm-base
+    xdg-wm-base-listener 0 xdg_wm_base_add_listener drop ;
+: zxdg_decoration_manager_v1 ( registry name version -- )
+    zxdg_decoration_manager_v1_interface swap wl_registry_bind to decoration-manager ;
+: wl_data_device_manager ( registry name version -- )
+    wl_data_device_manager_interface swap wl_registry_bind
+    dup to data-device-manager
+    wl-seat wl_data_device_manager_get_data_device dup to data-device
+    data-device-listener 0 wl_data_device_add_listener drop
+    data-device-manager wl_data_device_manager_create_data_source to data-source
+;
 set-current
     
 : registry+ { data registry name d: interface version -- }
     \ sp@ sp0 ! rp@ cell+ rp0 !
-    wayland( interface [: cr type ;] do-debug )
+    wayland( version interface [: cr type space 0 .r ;] do-debug )
     interface wl-registry find-name-in ?dup-IF
-	registry name rot name>interpret execute
+	>r registry name version r> name>interpret execute
     ELSE
 	wayland( [: ."  unhandled" ;] do-debug )
     THEN ;

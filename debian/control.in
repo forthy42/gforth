@@ -140,6 +140,13 @@ Depends: libxrandr2, libx11-6
 Description: GNU Forth
  Gforth X11 bindings package
 
+Package: gforth-libcc-wayland
+Version: @DEBVERSION@
+Architecture: any
+Depends: libwayland-client0, libwayland-cursor0, libwayland-egl1, libxkbcommon0
+Description: GNU Forth
+ Gforth X11 bindings package
+
 Package: gforth-libcc-minos2
 Version: @DEBVERSION@
 Architecture: any
@@ -182,7 +189,7 @@ Package: gforth-minos2
 Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
-Depends: gforth (= @DEBVERSION@), gforth-opengl, gforth-libcc-x11, gforth-fonts, gforth-minos2tools, gforth-libcc-minos2
+Depends: gforth (= @DEBVERSION@), gforth-opengl, gforth-libcc-x11, gforth-libcc-wayland, gforth-fonts, gforth-minos2tools, gforth-libcc-minos2
 Recommends: fonts-emoji, fonts-awesome, gforth-libcc-gles
 Suggests: gforth-dejavu-fonts
 Description: GNU Forth Minos2 GUI
