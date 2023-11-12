@@ -15,7 +15,6 @@
 #include <spa/param/video/format-utils.h>
 #include <spa/utils/result.h>
 #include <spa/param/props.h>
-#include <spa/param/tag-utils.h>
 %}
 
 #define SPA_PRINTF_FUNC(x, y)
@@ -85,5 +84,4 @@
 %include <spa/param/video/h264-utils.h>
 %include <spa/param/video/mjpg-utils.h>
 %include <spa/param/video/format-utils.h>
-%include <spa/param/tag-utils.h>
 %include <spa/param/props.h>
