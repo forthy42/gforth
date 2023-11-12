@@ -10,7 +10,7 @@ RUN adduser -D gforth \
         build-base autoconf automake m4 libtool git \
         coreutils gcc libffi-dev mesa-dev glew-dev libx11-dev \
         libxrandr-dev glfw-dev harfbuzz-dev gstreamer-dev gst-plugins-base-dev \
-	opus-dev pulseaudio-dev unzip texinfo \
+	opus-dev pulseaudio-dev unzip texinfo wayland-protocols libxkbcommon-dev \
     && cd /tmp && git clone https://github.com/nothings/stb.git \
     && mkdir /usr/include/stb && cp stb/*.h /usr/include/stb && rm -rf stb \
     && wget https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/$VERSION/gforth-$VERSION.tar.xz -O /tmp/gforth.tar.xz \

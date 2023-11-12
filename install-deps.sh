@@ -47,7 +47,7 @@ install_alpine() {
     sudo apk add freetype-dev build-base autoconf automake m4 libtool git \
         coreutils gcc libffi-dev mesa-dev glew-dev libx11-dev \
         libxrandr-dev glfw-dev harfbuzz-dev gstreamer-dev gst-plugins-base-dev \
-	opus-dev pulseaudio-dev unzip texinfo
+	opus-dev pulseaudio-dev unzip texinfo wayland-protocols libxkbcommon-dev
     (cd /tmp && git clone https://github.com/nothings/stb.git && \
     sudo mkdir /usr/include/stb && sudo cp stb/*.h /usr/include/stb && rm -rf stb)
 }
@@ -58,7 +58,7 @@ install_fedora() {
 	@development-tools autoconf automake m4 \
 	libtool libtool-ltdl libtool-ltdl-devel git \
         coreutils gcc libffi-devel mesa-devel glew-devel libx11-devel \
-        libXrandr-devel glfw-devel harfbuzz-devel gstreamer-devel gst-plugins-base-devel \
+        libXrandr-devel glfw-devel harfbuzz-devel gstreamer-devel gst-plugins-base-devel wayland-protocols-devel libxkbcommon-devel \
 	opus-devel pulseaudio-devel unzip texinfo
     (cd /tmp && git clone https://github.com/nothings/stb.git && \
     sudo mkdir /usr/include/stb && sudo cp stb/*.h /usr/include/stb && rm -rf stb)
