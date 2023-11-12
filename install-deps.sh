@@ -47,7 +47,7 @@ install_alpine() {
     sudo apk add freetype-dev build-base autoconf automake m4 libtool git \
         coreutils gcc libffi-dev mesa-dev glew-dev libx11-dev \
         libxrandr-dev glfw-dev harfbuzz-dev gstreamer-dev gst-plugins-base-dev \
-	opus-dev pulseaudio-dev unzip texinfo wayland-protocols libxkbcommon-dev
+	opus-dev pulseaudio-dev pipewire-dev wayland-dev unzip texinfo wayland-protocols libxkbcommon-dev
     (cd /tmp && git clone https://github.com/nothings/stb.git && \
     sudo mkdir /usr/include/stb && sudo cp stb/*.h /usr/include/stb && rm -rf stb)
 }
