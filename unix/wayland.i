@@ -9,6 +9,7 @@
 #include <text-input-unstable-v3-client.h>
 #include <xdg-shell-client.h>
 #include <xdg-decoration-unstable-v1-client.h>
+#include <primary-selection-unstable-v1-client.h>
 %}
 
 %apply int { int32_t, wl_fixed_t }
@@ -29,3 +30,4 @@
 %include <text-input-unstable-v3-client.h>
 %include <xdg-shell-client.h>
 %include <xdg-decoration-unstable-v1-client.h>
+%include <primary-selection-unstable-v1-client.h>

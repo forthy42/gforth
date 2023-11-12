@@ -87,16 +87,21 @@ debug: wayland(
     win w h 0 0 wl_egl_window_resize ;
 : sh-surface-popup-done { data surface -- } ;
 
+: <cb ( -- ) depth r> swap >r >r ;
+: cb> ( xt1 .. xtn -- )
+    Create depth r> r> swap >r - 0 ?DO , LOOP ;
+
 ${GFORTH_IGNLIB} "true" str= [IF]
     : ?cb ( xt -- 0 ) drop parse-name 2drop 0 ;
 [ELSE]
     : ?cb ( xt "name" -- addr ) ;
 [THEN]
 
+<cb
 ' sh-surface-popup-done ?cb wl_shell_surface_listener-popup_done:
 ' sh-surface-config ?cb wl_shell_surface_listener-configure:
 ' sh-surface-ping ?cb wl_shell_surface_listener-ping:
-Create wl-sh-surface-listener , , ,
+cb> wl-sh-surface-listener
 
 \ time handling
 
@@ -128,13 +133,14 @@ Create wl-sh-surface-listener , , ,
     wayland( description [: cr ." output description: " type ;] do-debug )
 ;
 
+<cb
 ' wl-out-description ?cb wl_output_listener-description:
 ' wl-out-name ?cb wl_output_listener-name:
 ' wl-out-scale ?cb wl_output_listener-scale:
 ' wl-out-done ?cb wl_output_listener-done:
 ' wl-out-mode ?cb wl_output_listener-mode:
 ' wl-out-geometry ?cb wl_output_listener-geometry:
-Create wl-output-listener , , , , , ,
+cb> wl-output-listener
 
 \ As events come in callbacks, push them to an event queue
 
@@ -163,6 +169,7 @@ up@ Value master-task
 
 Variable wl-time
 
+<cb
 :noname { data p axis disc -- }
 ; ?cb wl_pointer_listener-axis_relative_direction:
 :noname { data p axis val -- }
@@ -189,7 +196,7 @@ Variable wl-time
     s set-cursor \ on enter, we set the cursor
     x y wl-enter
 ; ?cb wl_pointer_listener-enter:
-Create wl-pointer-listener  , , , , , , , , , , ,
+cb> wl-pointer-listener
 
 \ keyboard listener
 
@@ -230,6 +237,7 @@ k-pause	XKB_KEY_Pause >xkb-key !
 Defer wl-ekeyed ' drop is wl-ekeyed
 Defer wl-ukeyed ' 2drop is wl-ukeyed
 
+<cb
 :noname { data wl_keyboard rate delay -- }
 ; ?cb wl_keyboard_listener-repeat_info:
 :noname { data wl_keyboard serial mods_depressed mods_latched mods_locked group -- }
@@ -266,10 +274,11 @@ Defer wl-ukeyed ' 2drop is wl-ukeyed
     keymap xkb_state_new to xkb-state
 ; ?cb wl_keyboard_listener-keymap:
 previous
-Create wl-keyboard-listener , , , , , ,
+cb> wl-keyboard-listener
 
 \ seat listener
 
+<cb
 :noname { data seat d: name -- } ; ?cb wl_seat_listener-name:
 :noname { data seat caps -- }
     caps WL_SEAT_CAPABILITY_POINTER and IF
@@ -283,13 +292,14 @@ Create wl-keyboard-listener , , , , , ,
     caps WL_SEAT_CAPABILITY_TOUCH and IF
 	wl-seat wl_seat_get_touch to wl-touch
     THEN ; ?cb wl_seat_listener-capabilities:
-Create wl-seat-listener  , ,
+cb> wl-seat-listener
 
 \ xdg-wm-base-listener
 
+<cb
 :noname ( data xdg_wm_base serial -- )
     xdg_wm_base_pong drop ; ?cb xdg_wm_base_listener-ping:
-Create xdg-wm-base-listener ,
+cb> xdg-wm-base-listener
 
 \ input listener
 
@@ -324,6 +334,7 @@ Create xy-offset 0e f, 0e f,
     zwp_text_input_v3_set_surrounding_text
     text-input zwp_text_input_v3_commit ;
 
+<cb
 :noname { data text-input serial -- }
     text-input send-status-update
 ; ?cb zwp_text_input_v3_listener-done:
@@ -343,22 +354,73 @@ Create xy-offset 0e f, 0e f,
     text-input zwp_text_input_v3_enable
     text-input send-status-update
 ; ?cb zwp_text_input_v3_listener-enter:
-Create text-input-listener , , , , , ,
+cb> text-input-listener
+
+\ data offer listener
+
+0 Value current-serial
+$[]Variable mime-types[]
+$Variable clipboard$
+
+: ?mime-type ( addr u -- flag )
+    false -rot
+    mime-types[] [: 2over str= IF  rot drop true -rot  THEN ;] $[]map
+    2drop ;
+
+: accept+receive { offer d: mime-type | fds[ 2 cells ] -- }
+    offer current-serial mime-type wl_data_offer_accept
+    fds[ create_pipe
+    offer mime-type fds[ cell+ @ fileno wl_data_offer_receive
+    fds[ cell+ @ close-file throw
+    fds[ @ [{: fd :}h1 fd slurp-fid 2dup clipboard$ $! drop free throw ;]
+    master-task send-event ;
+
+<cb
+:noname { data offer dnd-actions -- }
+    wayland( dnd-actions [: cr ." dnd-actions: " h. ;] do-debug )
+; ?cb wl_data_offer_listener-action
+:noname { data offer source-actions -- }
+    wayland( source-actions [: cr ." source-actions: " h. ;] do-debug )
+    "text/plain;charset=utf-8" ?mime-type IF
+	cr ." accept: utf8"
+	offer "text/plain;charset=utf-8" accept+receive
+    THEN
+    "text/uri-list" ?mime-type IF
+	cr ." accept: uri-list"
+	offer "text/uri-list" accept+receive
+    THEN
+; ?cb wl_data_offer_listener-source_actions:
+:noname { data offer d: mime-type -- }
+    wayland( mime-type [: cr ." mime-type: " type ;] do-debug )
+    mime-type mime-types[] $+[]!
+; ?cb wl_data_offer_listener-offer:
+cb> data-offer-listener
 
 \ data device listener
+
+<cb
 :noname { data data-device id -- }
+    wayland( id [: cr ." selection id: " h. ;] do-debug )
 ; ?cb wl_data_device_listener-selection:
 :noname { data data-device -- }
+    wayland( [: cr ." drop" ;] do-debug )
 ; ?cb wl_data_device_listener-drop:
 :noname { data data-device time x y -- }
+    wayland( y x time [: cr ." motion [time,x,y] " . . . ;] do-debug )
 ; ?cb wl_data_device_listener-motion:
 :noname { data data-device -- }
+    wayland( [: cr ." leave" ;] do-debug )
 ; ?cb wl_data_device_listener-leave:
 :noname { data data-device serial surface x y id -- }
+    wayland( id y x surface [: cr ." enter [surface,x,y,id] " h. . . h. ;] do-debug )
+    serial to current-serial
 ; ?cb wl_data_device_listener-enter:
 :noname { data data-device id -- }
+    wayland( id [: cr ." offer: " h. ;] do-debug )
+    mime-types[] $[]free
+    id data-offer-listener 0 wl_data_offer_add_listener drop
 ; ?cb wl_data_device_listener-data_offer:
-Create data-device-listener , , , , , ,
+cb> data-device-listener
 
 \ registry listeners: the interface string is searched in a table
 
@@ -369,35 +431,37 @@ get-current
 wl-registry set-current
 
 : wl_compositor ( registry name version -- )
-    wl_compositor_interface swap wl_registry_bind to compositor
-    compositor wl_compositor_create_surface to wl-surface
-    compositor wl_compositor_create_surface to cursor-surface ;
+    wl_compositor_interface swap 5 umin wl_registry_bind dup to compositor
+    dup wl_compositor_create_surface to wl-surface
+    wl_compositor_create_surface to cursor-surface ;
 : wl_shell ( registry name version -- )
-    wl_shell_interface swap wl_registry_bind to wl-shell
-    wl-shell wl-surface wl_shell_get_shell_surface to sh-surface
+    wl_shell_interface swap 1 umin wl_registry_bind dup to wl-shell
+    wl-surface wl_shell_get_shell_surface to sh-surface
     sh-surface wl-sh-surface-listener 0 wl_shell_surface_add_listener drop
     sh-surface wl_shell_surface_set_toplevel ;
 : wl_output ( registry name version -- )
-    wl_output_interface swap wl_registry_bind dup to wl-output
+    wl_output_interface swap 4 umin wl_registry_bind dup to wl-output
     wl-output-listener 0 wl_output_add_listener drop ;
 : wl_seat ( registry name version -- )
-    wl_seat_interface swap wl_registry_bind dup to wl-seat
+    wl_seat_interface swap 8 umin wl_registry_bind dup to wl-seat
     wl-seat-listener 0 wl_seat_add_listener drop ;
 : wl_shm ( registry name version -- )
-    wl_shm_interface swap wl_registry_bind to wl-shm
+    wl_shm_interface swap 1 umin wl_registry_bind to wl-shm
     s" Breeze_Snow" 16 wl-shm wl_cursor_theme_load dup to cursor-theme
     s" left_ptr" wl_cursor_theme_get_cursor to cursor ;
 : zwp_text_input_manager_v3 ( registry name version -- )
-    zwp_text_input_manager_v3_interface swap wl_registry_bind dup to text-input-manager
+    zwp_text_input_manager_v3_interface swap 1 umin wl_registry_bind
+    dup to text-input-manager
     wl-seat zwp_text_input_manager_v3_get_text_input dup to text-input
     text-input-listener 0 zwp_text_input_v3_add_listener drop ;
 : xdg_wm_base ( registry name version -- )
-    xdg_wm_base_interface swap wl_registry_bind dup to xdg-wm-base
+    xdg_wm_base_interface swap 4 umin wl_registry_bind dup to xdg-wm-base
     xdg-wm-base-listener 0 xdg_wm_base_add_listener drop ;
 : zxdg_decoration_manager_v1 ( registry name version -- )
-    zxdg_decoration_manager_v1_interface swap wl_registry_bind to decoration-manager ;
+    zxdg_decoration_manager_v1_interface swap 1 umin wl_registry_bind
+    to decoration-manager ;
 : wl_data_device_manager ( registry name version -- )
-    wl_data_device_manager_interface swap wl_registry_bind
+    wl_data_device_manager_interface swap 3 umin wl_registry_bind
     dup to data-device-manager
     wl-seat wl_data_device_manager_get_data_device dup to data-device
     data-device-listener 0 wl_data_device_add_listener drop
@@ -415,9 +479,10 @@ set-current
     THEN ;
 : registry- { data registry name -- } ;
 
+<cb
 ' registry- ?cb wl_registry_listener-global_remove:
 ' registry+ ?cb wl_registry_listener-global:
-Create registry-listener , ,
+cb> registry-listener
 
 : get-events ( -- )
     dpy wl_display_roundtrip drop ;
@@ -436,13 +501,14 @@ Create registry-listener , ,
 forward sync
 forward clear
 
+<cb
 :noname { data xdg_surface serial -- }
     wayland( [: cr ." configured" ;] do-debug )
     true to mapped
     xdg_surface serial xdg_surface_ack_configure
     wl-surface wl_surface_commit
 ; ?cb xdg_surface_listener-configure:
-Create xdg-surface-listener ,
+cb> xdg-surface-listener
 
 : map-win ( -- )
     BEGIN  get-events mapped  UNTIL ;
@@ -459,6 +525,7 @@ Defer reload-textures ' noop is reload-textures
 : resize-widgets ( w h -- )
     dpy-wh 2!  config-changed ;
 
+<cb
 :noname { data xdg_toplevel capabilities -- } ;
 ?cb xdg_toplevel_listener-wm_capabilities:
 :noname { data xdg_toplevel width height -- }
@@ -480,13 +547,14 @@ also opengl
     width height resize-widgets ;
 previous
 ?cb xdg_toplevel_listener-configure:
-Create xdg-toplevel-listener , , , ,
+cb> xdg-toplevel-listener
 
+<cb
 :noname { data decoration mode -- }
     wayland( [: cr ." decorated" ;] do-debug )
     true to configured clear sync ;
 ?cb zxdg_toplevel_decoration_v1_listener-configure:
-Create xdg-decoration-listener ,
+cb> xdg-decoration-listener
 
 : wl-eglwin { w h -- }
     wayland( h w [: cr ." eglwin: " . . ;] do-debug )
@@ -614,6 +682,6 @@ end-structure
 app_input_state buffer: *input
 
 : clipboard! ( addr u -- ) 2drop ; \ stub
-: clipboard@ ( -- addr u ) s" " ;
+: clipboard@ ( -- addr u ) clipboard$ $@ ;
 
 also OpenGL

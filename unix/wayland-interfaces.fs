@@ -52,3 +52,8 @@ c-value xdg_popup_interface &xdg_popup_interface -- a
 \c #include <xdg-decoration-unstable-v1.c>
 c-value zxdg_toplevel_decoration_v1_interface &zxdg_toplevel_decoration_v1_interface -- a
 c-value zxdg_decoration_manager_v1_interface &zxdg_decoration_manager_v1_interface -- a
+\c #include <primary-selection-unstable-v1.c>
+c-value zwp_primary_selection_device_manager_v1_interface &zwp_primary_selection_device_manager_v1_interface -- a
+c-value zwp_primary_selection_device_v1_interface &zwp_primary_selection_device_v1_interface -- a
+c-value zwp_primary_selection_offer_v1_interface &zwp_primary_selection_offer_v1_interface -- a
+c-value zwp_primary_selection_source_v1_interface &zwp_primary_selection_source_v1_interface -- a

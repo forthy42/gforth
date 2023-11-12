@@ -19,7 +19,7 @@
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
 WAYLAND_PROTOCOLS = text-input-unstable-v3 xdg-shell	\
-	xdg-decoration-unstable-v1
+	xdg-decoration-unstable-v1 primary-selection-unstable-v1
 WAYLAND_INCLUDE = $(patsubst %, wayland/%-client.h, $(WAYLAND_PROTOCOLS)) \
 	$(patsubst %, wayland/%.c, $(WAYLAND_PROTOCOLS))
 
@@ -41,4 +41,10 @@ wayland/xdg-decoration-unstable-v1-client.h: $(shell find $(WAYLAND_PROTOCOLS_DA
 	wayland-scanner client-header <$< >$@
 
 wayland/xdg-decoration-unstable-v1.c: $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -name xdg-decoration-unstable-v1.xml)
+	wayland-scanner private-code <$< >$@
+
+wayland/primary-selection-unstable-v1-client.h: $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -name primary-selection-unstable-v1.xml)
+	wayland-scanner client-header <$< >$@
+
+wayland/primary-selection-unstable-v1.c: $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -name primary-selection-unstable-v1.xml)
 	wayland-scanner private-code <$< >$@
