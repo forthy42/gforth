@@ -5,7 +5,7 @@ ENV VERSION @GFORTH_VERSION@
 
 RUN adduser -D gforth \
     && apk add --no-cache libltdl libffi \
-    && apk add --no-cache --virtual .fetch-deps wget  file xz tar \
+    && apk add --no-cache --virtual .fetch-deps wget file xz tar \
     && apk add --no-cache --virtual .build-deps freetype-dev \
         build-base autoconf automake m4 libtool git \
         coreutils gcc libffi-dev mesa-dev glew-dev libx11-dev \

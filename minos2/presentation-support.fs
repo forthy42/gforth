@@ -159,9 +159,14 @@ end-class slide-actor
 
 0 Value scroll<<
 
-:noname ( axis dir rx ry -- ) nip fdrop fdrop
-    0< IF  prev-slide  ELSE  next-slide  THEN ; slide-actor is scrolled
-:noname ( rx ry b n -- )  dup 1 and 0= IF
+:noname ( axis dir rx ry -- )
+    scroll<< 4 = IF
+	[ box-actor ] defers scrolled
+    ELSE
+	nip fdrop fdrop
+	0> IF  prev-slide  ELSE  next-slide  THEN
+    THEN ; slide-actor is scrolled
+:noname ( rx ry b n -- ) dup 1 and 0= IF
 	over $180 and IF  4 to scroll<<  THEN
 	over $08 scroll<< lshift and IF  prev-slide  2drop fdrop fdrop  EXIT  THEN
 	over $10 scroll<< lshift and IF  next-slide  2drop fdrop fdrop  EXIT  THEN

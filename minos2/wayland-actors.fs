@@ -77,7 +77,7 @@ Variable xy$
 	THEN
     THEN ; is ?looper-timeouts
 
-Create >button 0 c, 2 c, 1 c, 3 c, 4 c, 6 c, 5 c, 7 c,
+Create >button 0 c, 2 c, 1 c, 7 c, 8 c, 3 c, 4 c, 5 c,
 DOES> + c@ ;
 
 :noname { time b mask -- }
