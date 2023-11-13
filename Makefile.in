@@ -58,6 +58,7 @@ HOST= @HOSTPREFIX@
 EXTRAPREFIX= @EXTRAPREFIX@
 FAST= @FAST@
 PACKAGE_TARNAME= @PACKAGE_TARNAME@
+transform = @program_transform_name@
 
 # ------------	Install Directories
 
@@ -858,8 +859,8 @@ rm-install:
 
 install-prog-bins:
 		for i in $(INSTEXES); do \
-		    $(INSTALL_PROGRAM) $$i$(EXT) $(bindir)/$$i-$(VERSION)-$(machine)$(EXT); \
-		    $(MASSAGE_EXE) $(bindir)/$$i-$(VERSION)-$(machine)$(EXT) || true; \
+		    $(INSTALL_PROGRAM) $$i$(EXT) $(bindir)/`echo $$i | sed '$(transform)'`-$(VERSION)-$(machine)$(EXT); \
+		    $(MASSAGE_EXE) $(bindir)/`echo $$i | sed '$(transform)'`-$(VERSION)-$(machine)$(EXT) || true; \
 		done
 		$(INSTALL_SCRIPT) gforthmi $(bindir)/gforthmi-$(VERSION)-$(machine)
 		$(INSTALL_SCRIPT) vmgen $(bindir)/vmgen-$(VERSION)
@@ -867,7 +868,7 @@ install-prog-bins:
 install-progs:
 		for i in $(INSTEXES) gforthmi; do \
 		    for j in "" -$(VERSION) -$(machine); do \
-		        (cd $(bindir) && $(LN_S) $$i-$(VERSION)-$(machine)$(EXT) $$i$$j$(EXT)); \
+		        (cd $(bindir) && $(LN_S) `echo $$i | sed '$(transform)'`-$(VERSION)-$(machine)$(EXT) `echo $$i | sed '$(transform)'`$$j$(EXT)); \
 		    done \
 		done
 		(cd $(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)

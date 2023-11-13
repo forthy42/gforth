@@ -21,13 +21,13 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20231112],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20231113],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ([2.69])
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1_YYYYMMDD must not exist before 0.4.1!
-UPDATED="November 12, 2023"
+UPDATED="November 13, 2023"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 AC_USE_SYSTEM_EXTENSIONS
@@ -1472,6 +1472,8 @@ include_fi=kernl${wordsize}${bytesex}${EC}.fi
 AC_SUBST(kernel_fi)
 AC_SUBST(include_fi)
 
+AC_ARG_PROGRAM
+
 # Find installed Gforth
 AC_MSG_CHECKING([for gforth])
 if test -z "$GFORTH"
@@ -1746,7 +1748,9 @@ if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
    AC_CHECK_LIB(wayland-egl,wl_egl_window_create,
    AC_CHECK_LIB(wayland-client,wl_display_get_fd,
    AC_CHECK_HEADER(wayland-egl-core.h, SWIGMODULES="$SWIGMODULES wayland.fs"
-		   SWIGLIBS="$SWIGLIBS wayland.fs" SWIGINCLUDES="$SWIGINCLUDES `$PKG_CONFIG --cflags wayland-client | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1", ,)))
+		   SWIGLIBS="$SWIGLIBS wayland.fs"
+		   SWIGDISTFSI="$SWIGDISTFSI wayland.fs"
+		   SWIGINCLUDES="$SWIGINCLUDES `$PKG_CONFIG --cflags wayland-client | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1", ,)))
    if test x"$CPPFLAGS" != x"$CPPFLAGS_1"; then
       CPPFLAGS="$CPPFLAGS_2"
    fi

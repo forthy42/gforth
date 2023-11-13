@@ -14,7 +14,7 @@ RUN cd /tmp/ \
     && git clone https://github.com/GeraldWodni/swig.git \
     && cd swig \
     && ./autogen.sh \
-    && ./configure --prefix=/usr --exec-prefix=/usr \
+    && ./configure --program-suffix=-forth --prefix=/usr --exec-prefix=/usr \
     && make \
     && make install \
     && cd .. \
