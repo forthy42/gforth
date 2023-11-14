@@ -30,7 +30,7 @@ require struct-val.fs
 also wayland
 
 debug: wayland(
-\ +db wayland( \ )
++db wayland( \ )
 
 0 Value dpy        \ wayland display
 0 Value compositor \ wayland compositor
@@ -365,12 +365,15 @@ cb> text-input-listener
 $[]Variable mime-types[]
 $Variable clipboard$
 $Variable primary$
-$Variable dnd$
+$Variable drop$
 
 : ?mime-type ( addr u -- flag )
     false -rot
     mime-types[] [: 2over str= IF  rot drop true -rot  THEN ;] $[]map
     2drop ;
+
+: queue-clipboard ( xt -- )
+    [IFDEF]  spawn  spawn  [ELSE]  master-task send-event  [THEN] ;
 
 : accept+receive { offer d: mime-type dest$ | fds[ 2 cells ] -- }
     offer current-serial mime-type wl_data_offer_accept
@@ -378,8 +381,23 @@ $Variable dnd$
     offer mime-type fds[ cell+ @ fileno wl_data_offer_receive
     fds[ cell+ @ close-file throw
     fds[ @ dest$ [{: fd dest$ :}h1
-	fd slurp-fid 2dup dest$ $! drop free throw ;]
-    master-task send-event ;
+	fd slurp-fid 2dup dest$ $! drop free throw
+        wayland( dest$ [: cr ." got " dup id. cr $.  ;] do-debug ) ;]
+    queue-clipboard ;
+
+$[]Variable liked-mime[]
+"text/plain;charset=utf-8" liked-mime[] $+[]!
+"UTF8_STRING"              liked-mime[] $+[]!
+"text/uri-list"            liked-mime[] $+[]!
+
+: >liked-mime { xt: xt -- }
+    liked-mime[] $[]# 0 ?DO
+	I liked-mime[] $[]@ ?mime-type IF
+	    I liked-mime[] $[]@
+	    wayland( [: cr ." accept: " 2dup type ;] do-debug )
+	    xt  LEAVE
+	THEN
+    LOOP ;
 
 <cb
 :noname { data offer dnd-actions -- }
@@ -387,18 +405,9 @@ $Variable dnd$
 ; ?cb wl_data_offer_listener-action
 :noname { data offer source-actions -- }
     wayland( source-actions [: cr ." source-actions: " h. ;] do-debug )
-    "text/plain;charset=utf-8" ?mime-type IF
-	wayland( [: cr ." accept: utf8" ;] do-debug )
-	offer "text/plain;charset=utf-8" clipboard$ accept+receive  EXIT
-    THEN
-    "UTF8_STRING" ?mime-type IF
-	wayland( [: cr ." accept: utf8" ;] do-debug )
-	offer "UTF8_STRING" clipboard$ accept+receive  EXIT
-    THEN
-    "text/uri-list" ?mime-type IF
-	wayland( [: cr ." accept: uri-list" ;] do-debug )
-	offer "text/uri-list" clipboard$ accept+receive
-    THEN
+    offer source-actions [{: offer actions :}l offer -rot
+	actions IF  drop$  ELSE  clipboard$  THEN
+	accept+receive ;] >liked-mime
 ; ?cb wl_data_offer_listener-source_actions:
 :noname { data offer d: mime-type -- }
     wayland( mime-type [: cr ." mime-type: " type ;] do-debug )
@@ -439,8 +448,9 @@ cb> data-device-listener
     offer mime-type fds[ cell+ @ fileno zwp_primary_selection_offer_v1_receive
     fds[ cell+ @ close-file throw
     fds[ @ dest$ [{: fd dest$ :}h1
-	fd slurp-fid 2dup dest$ $! drop free throw ;]
-    master-task send-event ;
+	fd slurp-fid 2dup dest$ $! drop free throw
+	wayland( dest$ [: cr ." got primary selection:" cr $.  ;] do-debug ) ;]
+    queue-clipboard ;
 
 <cb
 :noname { data offer d: mime-type -- }
@@ -454,14 +464,7 @@ cb> primary-selection-offer-listener
 <cb
 :noname { data data-device id -- }
     wayland( id [: cr ." primary selection id: " h. ;] do-debug )
-    "text/plain;charset=utf-8" ?mime-type IF
-	wayland( [: cr ." accept: utf8" ;] do-debug )
-	id "text/plain;charset=utf-8" primary$ ps-accept+receive  EXIT
-    THEN
-    "UTF8_STRING" ?mime-type IF
-	wayland( [: cr ." accept: utf8" ;] do-debug )
-	id "UTF8_STRING" primary$ ps-accept+receive  EXIT
-    THEN
+    id  [{: id :}l id -rot primary$ ps-accept+receive ;] >liked-mime
 ; ?cb zwp_primary_selection_device_v1_listener-selection:
 :noname { data data-device id -- }
     wayland( id [: cr ." primary offer: " h. ;] do-debug )
