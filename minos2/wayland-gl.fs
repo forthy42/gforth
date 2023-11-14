@@ -391,6 +391,10 @@ $Variable dnd$
 	wayland( [: cr ." accept: utf8" ;] do-debug )
 	offer "text/plain;charset=utf-8" clipboard$ accept+receive  EXIT
     THEN
+    "UTF8_STRING" ?mime-type IF
+	wayland( [: cr ." accept: utf8" ;] do-debug )
+	offer "UTF8_STRING" clipboard$ accept+receive  EXIT
+    THEN
     "text/uri-list" ?mime-type IF
 	wayland( [: cr ." accept: uri-list" ;] do-debug )
 	offer "text/uri-list" clipboard$ accept+receive
@@ -453,6 +457,10 @@ cb> primary-selection-offer-listener
     "text/plain;charset=utf-8" ?mime-type IF
 	wayland( [: cr ." accept: utf8" ;] do-debug )
 	id "text/plain;charset=utf-8" primary$ ps-accept+receive  EXIT
+    THEN
+    "UTF8_STRING" ?mime-type IF
+	wayland( [: cr ." accept: utf8" ;] do-debug )
+	id "UTF8_STRING" primary$ ps-accept+receive  EXIT
     THEN
 ; ?cb zwp_primary_selection_device_v1_listener-selection:
 :noname { data data-device id -- }
