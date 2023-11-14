@@ -62,6 +62,9 @@ debug: wayland(
 0 Value data-device-manager
 0 Value data-device
 0 Value data-source
+0 Value primary-selection-device-manager
+0 Value primary-selection-device
+0 Value primary-selection-source
 
 \ set a cursor
 
@@ -361,18 +364,21 @@ cb> text-input-listener
 0 Value current-serial
 $[]Variable mime-types[]
 $Variable clipboard$
+$Variable primary$
+$Variable dnd$
 
 : ?mime-type ( addr u -- flag )
     false -rot
     mime-types[] [: 2over str= IF  rot drop true -rot  THEN ;] $[]map
     2drop ;
 
-: accept+receive { offer d: mime-type | fds[ 2 cells ] -- }
+: accept+receive { offer d: mime-type dest$ | fds[ 2 cells ] -- }
     offer current-serial mime-type wl_data_offer_accept
     fds[ create_pipe
     offer mime-type fds[ cell+ @ fileno wl_data_offer_receive
     fds[ cell+ @ close-file throw
-    fds[ @ [{: fd :}h1 fd slurp-fid 2dup clipboard$ $! drop free throw ;]
+    fds[ @ dest$ [{: fd dest$ :}h1
+	fd slurp-fid 2dup dest$ $! drop free throw ;]
     master-task send-event ;
 
 <cb
@@ -382,12 +388,12 @@ $Variable clipboard$
 :noname { data offer source-actions -- }
     wayland( source-actions [: cr ." source-actions: " h. ;] do-debug )
     "text/plain;charset=utf-8" ?mime-type IF
-	cr ." accept: utf8"
-	offer "text/plain;charset=utf-8" accept+receive
+	wayland( [: cr ." accept: utf8" ;] do-debug )
+	offer "text/plain;charset=utf-8" clipboard$ accept+receive  EXIT
     THEN
     "text/uri-list" ?mime-type IF
-	cr ." accept: uri-list"
-	offer "text/uri-list" accept+receive
+	wayland( [: cr ." accept: uri-list" ;] do-debug )
+	offer "text/uri-list" clipboard$ accept+receive
     THEN
 ; ?cb wl_data_offer_listener-source_actions:
 :noname { data offer d: mime-type -- }
@@ -421,6 +427,40 @@ cb> data-offer-listener
     id data-offer-listener 0 wl_data_offer_add_listener drop
 ; ?cb wl_data_device_listener-data_offer:
 cb> data-device-listener
+
+\ primary selection offer listener
+
+: ps-accept+receive { offer d: mime-type dest$ | fds[ 2 cells ] -- }
+    fds[ create_pipe
+    offer mime-type fds[ cell+ @ fileno zwp_primary_selection_offer_v1_receive
+    fds[ cell+ @ close-file throw
+    fds[ @ dest$ [{: fd dest$ :}h1
+	fd slurp-fid 2dup dest$ $! drop free throw ;]
+    master-task send-event ;
+
+<cb
+:noname { data offer d: mime-type -- }
+    wayland( mime-type [: cr ." primary mime-type: " type ;] do-debug )
+    mime-type mime-types[] $+[]!
+; ?cb zwp_primary_selection_offer_v1_listener-offer:
+cb> primary-selection-offer-listener
+
+\ primary selection device listener
+
+<cb
+:noname { data data-device id -- }
+    wayland( id [: cr ." primary selection id: " h. ;] do-debug )
+    "text/plain;charset=utf-8" ?mime-type IF
+	wayland( [: cr ." accept: utf8" ;] do-debug )
+	id "text/plain;charset=utf-8" primary$ ps-accept+receive  EXIT
+    THEN
+; ?cb zwp_primary_selection_device_v1_listener-selection:
+:noname { data data-device id -- }
+    wayland( id [: cr ." primary offer: " h. ;] do-debug )
+    mime-types[] $[]free
+    id primary-selection-offer-listener 0 zwp_primary_selection_offer_v1_add_listener
+; ?cb zwp_primary_selection_device_v1_listener-data_offer:
+cb> primary-selection-listener
 
 \ registry listeners: the interface string is searched in a table
 
@@ -466,6 +506,13 @@ wl-registry set-current
     wl-seat wl_data_device_manager_get_data_device dup to data-device
     data-device-listener 0 wl_data_device_add_listener drop
     data-device-manager wl_data_device_manager_create_data_source to data-source
+;
+: zwp_primary_selection_device_manager_v1 ( registry name version -- )
+    zwp_primary_selection_device_manager_v1_interface swap 1 umin wl_registry_bind
+    dup to primary-selection-device-manager
+    wl-seat zwp_primary_selection_device_manager_v1_get_device dup to primary-selection-device
+    primary-selection-listener 0 zwp_primary_selection_device_v1_add_listener drop
+    primary-selection-device zwp_primary_selection_device_manager_v1_create_source to primary-selection-source
 ;
 set-current
     
@@ -683,5 +730,7 @@ app_input_state buffer: *input
 
 : clipboard! ( addr u -- ) 2drop ; \ stub
 : clipboard@ ( -- addr u ) clipboard$ $@ ;
+: primary! ( addr u -- ) 2drop ; \ stub
+: primary@ ( -- addr u ) primary$ $@ ;
 
 also OpenGL

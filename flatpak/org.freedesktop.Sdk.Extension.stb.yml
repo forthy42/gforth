@@ -13,5 +13,6 @@ modules:
       - type: git
         url: https://github.com/nothings/stb.git
     build-commands:
+      - echo install -d ${FLATPAK_DEST}/include/stb
       - install -d ${FLATPAK_DEST}/include/stb
       - cp -rpv *.h ${FLATPAK_DEST}/include/stb
