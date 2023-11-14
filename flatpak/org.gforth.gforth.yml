@@ -2,8 +2,8 @@ app-id: org.gforth.gforth
 runtime: org.freedesktop.Platform
 platform-extensions:
   - org.freedesktop.Platform.GL.default
-runtime-version: "22.08"
-branch: "22.08"
+runtime-version: "23.08"
+branch: "23.08"
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.stb
