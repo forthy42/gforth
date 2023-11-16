@@ -29,8 +29,8 @@ require struct-val.fs
 
 also wayland
 
-debug: wayland(
-+db wayland( \ )
+debug: wayland( \ )
+${MINOS2_DEBUG_WAYLAND} "1" str= [IF] +db wayland( \ ) [THEN]
 
 0 Value dpy        \ wayland display
 0 Value compositor \ wayland compositor
@@ -363,9 +363,23 @@ cb> text-input-listener
 
 0 Value current-serial
 $[]Variable mime-types[]
+$[]Variable ds-mime-types[]
+$[]Variable liked-mime[]
+
 $Variable clipboard$
 $Variable primary$
-$Variable drop$
+$Variable dnd$
+
+false Value my-clipboard
+false Value my-primary
+false Value my-dnd
+
+"text/plain;charset=utf-8" liked-mime[] $+[]!
+"UTF8_STRING"              liked-mime[] $+[]!
+"text/uri-list"            liked-mime[] $+[]!
+
+"text/plain;charset=utf-8" ds-mime-types[] $+[]!
+"UTF8_STRING"              ds-mime-types[] $+[]!
 
 : ?mime-type ( addr u -- flag )
     false -rot
@@ -385,11 +399,6 @@ $Variable drop$
         wayland( dest$ [: cr ." got " dup id. cr $.  ;] do-debug ) ;]
     queue-clipboard ;
 
-$[]Variable liked-mime[]
-"text/plain;charset=utf-8" liked-mime[] $+[]!
-"UTF8_STRING"              liked-mime[] $+[]!
-"text/uri-list"            liked-mime[] $+[]!
-
 : >liked-mime { xt: xt -- }
     liked-mime[] $[]# 0 ?DO
 	I liked-mime[] $[]@ ?mime-type IF
@@ -405,9 +414,11 @@ $[]Variable liked-mime[]
 ; ?cb wl_data_offer_listener-action
 :noname { data offer source-actions -- }
     wayland( source-actions [: cr ." source-actions: " h. ;] do-debug )
-    offer source-actions [{: offer actions :}l offer -rot
-	actions IF  drop$  ELSE  clipboard$  THEN
-	accept+receive ;] >liked-mime
+    my-clipboard 0= IF
+	offer source-actions [{: offer actions :}l offer -rot
+	    actions IF  dnd$  ELSE  clipboard$  THEN
+	    accept+receive ;] >liked-mime
+    THEN
 ; ?cb wl_data_offer_listener-source_actions:
 :noname { data offer d: mime-type -- }
     wayland( mime-type [: cr ." mime-type: " type ;] do-debug )
@@ -464,7 +475,9 @@ cb> primary-selection-offer-listener
 <cb
 :noname { data data-device id -- }
     wayland( id [: cr ." primary selection id: " h. ;] do-debug )
-    id  [{: id :}l id -rot primary$ ps-accept+receive ;] >liked-mime
+    my-primary 0= IF
+	id  [{: id :}l id -rot primary$ ps-accept+receive ;] >liked-mime
+    THEN
 ; ?cb zwp_primary_selection_device_v1_listener-selection:
 :noname { data data-device id -- }
     wayland( id [: cr ." primary offer: " h. ;] do-debug )
@@ -472,6 +485,42 @@ cb> primary-selection-offer-listener
     id primary-selection-offer-listener 0 zwp_primary_selection_offer_v1_add_listener
 ; ?cb zwp_primary_selection_device_v1_listener-data_offer:
 cb> primary-selection-listener
+
+\ data source listener
+
+<cb
+:noname { data source dnd-action -- }
+    wayland( dnd-action [: cr ." ds action: " h. ;] do-debug )
+; ?cb wl_data_source_listener-action:
+:noname { data source -- }
+; ?cb wl_data_source_listener-dnd_finished:
+:noname { data source -- }
+; ?cb wl_data_source_listener-dnd_drop_performed:
+:noname { data source -- }
+; ?cb wl_data_source_listener-cancelled:
+:noname { data source d: mime-type fd -- }
+    wayland( mime-type data [: cr ." send " id. ." type " type ;] do-debug )
+    data fd [{: data fd :}h1
+	fd data $@ write ?ior
+	fd close ?ior ;] queue-clipboard
+; ?cb wl_data_source_listener-send:
+:noname { data source d: mime-type -- }
+    wayland( data mime-type [: cr ." ds target: " type space id. ;] do-debug )
+; ?cb wl_data_source_listener-target:
+cb> data-source-listener
+
+\ primary selection source listener
+
+<cb
+:noname { data source -- }
+; ?cb zwp_primary_selection_source_v1_listener-cancelled:
+:noname { data source d: mime-type fd -- }
+    wayland( fd mime-type data [: cr ." ps send " id. ." type: " type ."  fd: " h. ;] do-debug )
+    data fd [{: data fd :}h1
+	fd data $@ write ?ior
+	fd close ?ior ;] queue-clipboard
+; ?cb zwp_primary_selection_source_v1_listener-send:
+cb> primary-selection-source-listener
 
 \ registry listeners: the interface string is searched in a table
 
@@ -516,17 +565,23 @@ wl-registry set-current
     dup to data-device-manager
     wl-seat wl_data_device_manager_get_data_device dup to data-device
     data-device-listener 0 wl_data_device_add_listener drop
-    data-device-manager wl_data_device_manager_create_data_source to data-source
+    data-device-manager wl_data_device_manager_create_data_source
+    dup to data-source
+    data-source-listener clipboard$ wl_data_source_add_listener drop
+    ds-mime-types[] [: data-source -rot wl_data_source_offer ;] $[]map
 ;
 : zwp_primary_selection_device_manager_v1 ( registry name version -- )
     zwp_primary_selection_device_manager_v1_interface swap 1 umin wl_registry_bind
     dup to primary-selection-device-manager
     wl-seat zwp_primary_selection_device_manager_v1_get_device dup to primary-selection-device
     primary-selection-listener 0 zwp_primary_selection_device_v1_add_listener drop
-    primary-selection-device zwp_primary_selection_device_manager_v1_create_source to primary-selection-source
+    primary-selection-device-manager zwp_primary_selection_device_manager_v1_create_source
+    dup to primary-selection-source
+    primary-selection-source-listener primary$ zwp_primary_selection_source_v1_add_listener drop
+    ds-mime-types[] [: primary-selection-source -rot wl_data_source_offer ;] $[]map
 ;
 set-current
-    
+
 : registry+ { data registry name d: interface version -- }
     \ sp@ sp0 ! rp@ cell+ rp0 !
     wayland( version interface [: cr type space 0 .r ;] do-debug )
@@ -739,9 +794,15 @@ end-structure
 
 app_input_state buffer: *input
 
-: clipboard! ( addr u -- ) 2drop ; \ stub
+: clipboard! ( addr u -- ) clipboard$ $!
+    true to my-clipboard
+    data-device data-source 0 wl_data_device_set_selection
+;
 : clipboard@ ( -- addr u ) clipboard$ $@ ;
-: primary! ( addr u -- ) 2drop ; \ stub
+: primary! ( addr u -- ) primary$ $!
+    true to my-primary
+    primary-selection-device primary-selection-source 0 zwp_primary_selection_device_v1_set_selection
+;
 : primary@ ( -- addr u ) primary$ $@ ;
 
 also OpenGL
