@@ -120,19 +120,23 @@ DOES> + c@ ;
 : u/ekeyed ( ekey -- )
     wayland( [: cr ." ekey: " dup h. ;] do-debug )
     dup 0= IF  drop  EXIT  THEN
+    dup $FE03 = IF  drop  EXIT  THEN \ ignore Variant 4
     dup bl keycode-start within over #del <> and
     IF    $1000000 invert and >xstring top-act .ukeyed
-    ELSE  ?dup-IF top-act .ekeyed THEN  THEN ;
+    ELSE  top-act .ekeyed  THEN ;
+: ctrl-keyed ( addr u -- )
+    bounds ?DO  I xc@+ swap >r u/ekeyed  r> I -  +LOOP ;
 : u/keyed ( addr u -- )
+    wayland( [: cr ." u/keys: " 2dup dump ;] do-debug )
     2dup ctrls? IF
-	bounds ?DO  I xc@+ u/ekeyed  I -  +LOOP
+	ctrl-keyed
     ELSE
-	wayland( [: cr ." ukey: " 2dup dump ;] do-debug )
 	top-act .ukeyed
     THEN ;
 : keys-commit ( addr u -- )
+    wayland( [: cr ." keys: " 2dup dump ;] do-debug )
     2dup ctrls? IF
-	bounds ?DO  I xc@+ u/ekeyed  I -  +LOOP
+	ctrl-keyed
     ELSE
 	top-act .ukeyed
     THEN ;

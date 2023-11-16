@@ -203,7 +203,7 @@ previous
 	?dup-IF  keycode>ekey u/ekeyed
 	ELSE  nostring getCharacters jstring>sstring
 	    2dup ctrls? IF
-		bounds ?DO  I xc@+ u/ekeyed  I -  +LOOP
+		bounds ?DO  I xc@+ swap >r u/ekeyed  r> I -  +LOOP
 	    ELSE
 		top-act .ukeyed
 	    THEN  jfree

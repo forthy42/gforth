@@ -387,7 +387,10 @@ false Value my-dnd
     2drop ;
 
 : queue-clipboard ( xt -- )
-    [IFDEF]  spawn  spawn  [ELSE]  master-task send-event  [THEN] ;
+\    [IFDEF]  spawn  spawn  [ELSE]
+	master-task send-event
+\    [THEN]
+;
 
 : accept+receive { offer d: mime-type dest$ | fds[ 2 cells ] -- }
     offer current-serial mime-type wl_data_offer_accept
