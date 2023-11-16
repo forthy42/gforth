@@ -120,7 +120,6 @@ DOES> + c@ ;
 : u/ekeyed ( ekey -- )
     wayland( [: cr ." ekey: " dup h. ;] do-debug )
     dup 0= IF  drop  EXIT  THEN
-    dup $FE03 = IF  drop  EXIT  THEN \ ignore Variant 4
     dup bl keycode-start within over #del <> and
     IF    $1000000 invert and >xstring top-act .ukeyed
     ELSE  top-act .ekeyed  THEN ;

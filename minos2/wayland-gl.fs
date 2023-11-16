@@ -205,9 +205,9 @@ cb> wl-pointer-listener
 
 also xkbcommon
 
-256 Cells buffer: xkb-key>ekey#
+$200 Cells buffer: xkb-key>ekey#
 : >xkb-key ( keycode number -- )
-    $FF00 - cells xkb-key>ekey# + ;
+    $FE00 - cells xkb-key>ekey# + ;
 #del	XKB_KEY_BackSpace >xkb-key !
 #tab	XKB_KEY_Tab >xkb-key !
 #lf	XKB_KEY_Linefeed >xkb-key !
@@ -258,7 +258,7 @@ Defer wl-ukeyed ' 2drop is wl-ukeyed
 	    EXIT  THEN
 	xkb-state wl-key 8 + xkb_state_key_get_one_sym
 	\ wayland( [: dup h. ;] do-debug ) wl-ekeyed
-	dup $FF00 $10000 within IF  >xkb-key @  THEN
+	dup $FE00 $10000 within IF  >xkb-key @  THEN
 	[{: wl-key :}h1 wl-key wl-ekeyed ;] master-task send-event
     THEN
 ; ?cb wl_keyboard_listener-key:
