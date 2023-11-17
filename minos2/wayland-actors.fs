@@ -106,6 +106,16 @@ DOES> + c@ ;
     top-act IF  ev-xy 2@ 1 >xy$ buttonmask l@ lle top-act .touchmove  THEN
 ; is b-motion
 
+:noname ( x y -- )
+    swap 1/256 fm* 1/256 fm*
+    top-act ?dup-IF  .dndmove  ELSE  fdrop fdrop  THEN
+; is dnd-move
+
+:noname ( x y addr u -- )
+    2swap swap 1/256 fm* 1/256 fm*
+    top-act ?dup-IF  .dnddrop  ELSE  2drop fdrop fdrop  THEN
+; is dnd-drop
+
 \ key handling
 
 4 buffer: xstring

@@ -205,6 +205,14 @@ end-class box-actor
     fover fover ?inside ?dup-IF  .clicked  EXIT  THEN
     2drop fdrop fdrop ;
 box-actor is clicked
+:noname ( rx ry -- )
+    fover fover ?inside ?dup-IF  .dndmove  EXIT  THEN
+    fdrop fdrop ;
+box-actor is dndmove
+:noname ( rx ry addr u -- )
+    fover fover ?inside ?dup-IF  .dnddrop  EXIT  THEN
+    2drop fdrop fdrop ;
+box-actor is dnddrop
 :noname ( axis dir x y -- )
     fover fover ?inside ?dup-IF  .scrolled  EXIT  THEN
     2drop fdrop fdrop ;
@@ -436,6 +444,16 @@ Variable last-scrolldir
 	[: act >o [ box-actor ] defers clicked o> ;] vp-needed|
 	txy> o> ;] 1-?inside
 ; vp-actor is clicked
+:noname ( rx ry addr u -- )
+    [: caller-w >o  >txy  tx
+	[: act >o [ box-actor ] defers dnddrop o> ;] vp-needed|
+	txy> o> ;] 1-?inside
+; vp-actor is dnddrop
+:noname ( rx ry -- )
+    [: caller-w >o  >txy  tx
+	[: act >o [ box-actor ] defers dndmove o> ;] vp-needed|
+	txy> o> ;] 1-?inside
+; vp-actor is dndmove
 :noname ( axis dir rx ry -- )
     swap IF \ horizontal
 	drop
@@ -864,15 +882,28 @@ edit-terminal edit-out !
 		0  to start-cursize
 		o>
 	    endof
-	    2 of  2 = IF fdrop edit>curpos
-		    [: setstring> primary@ edit-split-ins$ ;] edit-xt
+	    2 of  2 = IF
+		    ['] setstring> edit-xt
+		    fdrop edit>curpos
+		    [: primary@ edit-split-ins$ ;] edit-xt
 		ELSE  fdrop fdrop  THEN  endof
 	    4 of  ( menu   )  drop fdrop fdrop  endof
 	    nip fdrop fdrop
 	endcase
     THEN +sync +resize
 ; edit-actor is clicked
-
+[IFDEF] dnd@
+    :noname ( o:actor rx ry addr u -- )
+	['] setstring> edit-xt
+	fdrop edit>curpos
+	[: dnd@
+	    [: BEGIN #lf $split dup WHILE 2swap type space
+		REPEAT 2drop type ;] $tmp edit-ins$ ;] edit-xt
+    ; edit-actor is dnddrop
+    :noname ( o:actor rx ry -- )
+	fdrop fdrop
+    ; edit-actor is dndmove
+[THEN]
 : edit[] ( o widget xt -- o ) { xt }
     swap >o edit-actor new to act
     o act >o to caller-w to edit-w

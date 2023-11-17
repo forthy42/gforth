@@ -431,15 +431,24 @@ cb> data-offer-listener
 
 \ data device listener
 
+2Variable dnd-xy
+Defer dnd-move
+Defer dnd-drop
+
 <cb
 :noname { data data-device id -- }
     wayland( id [: cr ." selection id: " h. ;] do-debug )
 ; ?cb wl_data_device_listener-selection:
 :noname { data data-device -- }
     wayland( [: cr ." drop" ;] do-debug )
+    [: dnd-xy 2@ dnd$ $@ dnd-drop ;]
+    master-task send-event
 ; ?cb wl_data_device_listener-drop:
 :noname { data data-device time x y -- }
     wayland( y x time [: cr ." motion [time,x,y] " . . . ;] do-debug )
+    x y dnd-xy 2!
+    x y [{: x y :}h1 x y dnd-move ;]
+    master-task send-event
 ; ?cb wl_data_device_listener-motion:
 :noname { data data-device -- }
     wayland( [: cr ." leave" ;] do-debug )
@@ -807,5 +816,6 @@ app_input_state buffer: *input
     primary-selection-device primary-selection-source 0 zwp_primary_selection_device_v1_set_selection
 ;
 : primary@ ( -- addr u ) primary$ $@ ;
+: dnd@ ( -- addr u ) dnd$ $@ ;
 
 also OpenGL

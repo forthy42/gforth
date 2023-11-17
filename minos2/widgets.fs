@@ -277,6 +277,10 @@ object class
     \G raw click up
     method touchmove ( $rxy*n bmask -- ) \ minos2
     \G raw click, move. @var{bmask}=0 is hover
+    method dndmove ( rx ry -- ) \ minos2
+    \G drag&drop move, objects can show willingness to accept
+    method dnddrop ( rx ry addr u -- ) \ minos2
+    \G drag&drop drop, objects can insert data described by @var{addr u}
     method ukeyed ( addr u -- ) \ minos2
     \G key event, string of printable unicode characters
     method ekeyed ( ekey -- ) \ minos2
@@ -319,7 +323,10 @@ end-class helper-glue
 ' true helper-glue is aidglue= \ if equal, no need to rerun
 
 \ dummy methods for empty actor, used for inheritance
-:noname 2drop fdrop fdrop ; actor is clicked
+:noname 2drop fdrop fdrop ;
+dup actor is clicked
+actor is dnddrop
+:noname fdrop fdrop ; actor is dndmove
 ' 2drop actor is scrolled
 ' 2drop actor is touchdown
 ' 2drop actor is touchup
