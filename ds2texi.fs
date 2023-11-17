@@ -264,7 +264,7 @@ set-current
     >r
     ." @findex "
     r@ doc-name 2@ typetexi
-    ." ( @var{ " r@ doc-stack-effect 2@ type ."  } ) "
+    ."  ( @var{ " r@ doc-stack-effect 2@ type ."  } ) "
     r@ print-wordset
     cr
     ." @cindex "
