@@ -536,6 +536,37 @@ cb> primary-selection-source-listener
 
 \ registry listeners: the interface string is searched in a table
 
+$Variable cursor-theme$ "Breeze_Snow" cursor-theme$ $!
+Variable cursor-size #24 cursor-size !
+
+: read-kde-cursor-theme ( -- )
+    "~/.config/kcminputrc" r/o open-file IF  drop  EXIT  THEN
+    [: BEGIN  refill  WHILE
+		source "cursorTheme=" string-prefix? IF
+		    source #12 safe/string cursor-theme$ $!
+		THEN
+		source "cursorSize=" string-prefix? IF
+		    source #11 safe/string s>number drop $10 max cursor-size !
+		THEN
+	REPEAT ;] execute-parsing-file ;
+
+: read-gnome-cursor-theme ( -- )
+    "~/.config/gtk-4.0/settings.ini" r/o open-file IF  drop  EXIT  THEN
+    [: BEGIN  refill  WHILE
+		source "gtk-cursor-theme-name=" string-prefix? IF
+		    source #22 safe/string cursor-theme$ $!
+		THEN
+		source "gtk-cursor-theme-size=" string-prefix? IF
+		    source #22 safe/string s>number drop $10 max cursor-size !
+		THEN
+	REPEAT ;] execute-parsing-file ;
+
+: read-cursor-theme ( -- )
+    ${XDG_CURRENT_DESKTOP} "KDE" str= IF  read-kde-cursor-theme  EXIT  THEN
+    ${XDG_CURRENT_DESKTOP} "GNOME" str= IF  read-gnome-cursor-theme  EXIT  THEN ;
+
+read-cursor-theme
+
 table Constant wl-registry
 
 get-current
@@ -559,7 +590,8 @@ wl-registry set-current
     wl-seat-listener 0 wl_seat_add_listener drop ;
 : wl_shm ( registry name version -- )
     wl_shm_interface swap 1 umin wl_registry_bind to wl-shm
-    s" Breeze_Snow" 16 wl-shm wl_cursor_theme_load dup to cursor-theme
+    cursor-theme$ $@ cursor-size @
+    wl-shm wl_cursor_theme_load dup to cursor-theme
     s" left_ptr" wl_cursor_theme_get_cursor to cursor ;
 : zwp_text_input_manager_v3 ( registry name version -- )
     zwp_text_input_manager_v3_interface swap 1 umin wl_registry_bind
