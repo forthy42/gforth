@@ -834,8 +834,7 @@ CHECKFLAGS="no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-s
 for i in $CHECKFLAGS
 do
     ac_i=$(echo ac_$i | tr '=\-' '__')
-    case $i
-    in
+    case "$i" in
         llvm=*)
 	    i="-m$i"
 	    ;;
@@ -846,7 +845,7 @@ do
     AC_MSG_CHECKING([if $CC understands $i])
     CFLAGS_1="$CFLAGS"
     CFLAGS="$CFLAGS $i"
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[eval $ac_i=yes;ENGINE_FLAGS="$ENGINE_FLAGS $i"],[eval ac_$ibar=no])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[eval $ac_i=yes;ENGINE_FLAGS="$ENGINE_FLAGS $i"],[eval $ac_i=no])
     CFLAGS="$CFLAGS_1"
     ac_result=$(eval echo "\$$ac_i")
     AC_MSG_RESULT($ac_result)
