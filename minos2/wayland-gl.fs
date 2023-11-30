@@ -597,7 +597,8 @@ wl-registry set-current
     zwp_text_input_manager_v3_interface swap 1 umin wl_registry_bind
     dup to text-input-manager
     wl-seat zwp_text_input_manager_v3_get_text_input dup to text-input
-    text-input-listener 0 zwp_text_input_v3_add_listener drop ;
+    text-input-listener 0 zwp_text_input_v3_add_listener drop
+    text-input send-status-update ;
 : xdg_wm_base ( registry name version -- )
     xdg_wm_base_interface swap 4 umin wl_registry_bind dup to xdg-wm-base
     xdg-wm-base-listener 0 xdg_wm_base_add_listener drop ;
