@@ -413,7 +413,9 @@ $Variable clipout-xts
 	drop eof-clipin
     THEN ;
 
-0x5421 Constant FIONBIO
+[IFUNDEF] FIONBIO
+    0x5421 Constant FIONBIO \ works for Linux, which is good enough for Wayland
+[THEN]
 
 : set-noblock ( fd -- )
     { | w^ arg }  1 arg l!

@@ -36,6 +36,8 @@ c-library libc
     \c #define set_errno(n) (errno=n)
     \c extern char ** environ;
     c-value errno errno -- n ( -- value )
+    c-value FIONREAD FIONREAD -- n ( -- value )
+    c-value FIONBIO FIONBIO -- n ( -- value )
     c-function ->errno set_errno n -- void ( n -- )
     c-function getpagesize getpagesize -- n ( -- size )
     c-function fileno fileno a{(FILE*)} -- n ( file* -- fd )
