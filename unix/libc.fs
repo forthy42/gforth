@@ -101,6 +101,7 @@ end-structure
 $001 Constant POLLIN
 $002 Constant POLLPRI
 $004 Constant POLLOUT
+$010 Constant POLLHUP
 
 0 Constant LC_CTYPE
 1 Constant LC_NUMERIC
