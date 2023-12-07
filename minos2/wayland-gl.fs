@@ -423,8 +423,9 @@ $Variable clipout-xts
 
 : write-clipout ( -- )
     clipout$ $@ clipout-offset @ safe/string
-    clipout-fd -rot write dup ?ior clipout-offset +!
-    clipout$ $@len clipout-offset @ u> ?EXIT
+    clipout-fd -rot write dup -1 <> IF  clipout-offset +!
+	clipout$ $@len clipout-offset @ u> ?EXIT
+    THEN \ if we can't write, let's just abandon this operation
     wayland( [: cr ." wrote '" clipout$ $. ." ' to clipout" ;] do-debug )
     clipout-fd 0 to clipout-fd close ?ior
     clipout$ $free
