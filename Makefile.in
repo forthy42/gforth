@@ -1169,16 +1169,16 @@ all-bench allbench:	onebench.fs
 	./gforth-ditc$(EXT) $<
 	@libbench@./libgforth-ditc$(EXT) $<
 
-EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth.fi" "LIBCCNAMED=$(shell pwd)/$(buildccdir)" "libccdir=$(libccdir)" "package=$(package)" "PREFIX=$(EXTRAPREFIX)" "prefix=$(EXTRAPREFIX)" "datadir=$(datadir)/gforth/$(VERSION)" "ARCH=" "FAST=$(FAST)" "GFVER=$(VERSION)"
+EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth-light.fi" "LIBCCNAMED=$(shell pwd)/$(buildccdir)" "libccdir=$(libccdir)" "package=$(package)" "PREFIX=$(EXTRAPREFIX)" "prefix=$(EXTRAPREFIX)" "datadir=$(datadir)/gforth/$(VERSION)" "ARCH=" "FAST=$(FAST)" "GFVER=$(VERSION)"
 
-extras:	gforth.fi $(EXTRAS:%=%.extras)
+extras:	gforth-light.fi $(EXTRAS:%=%.extras)
 
 %.extras:
 	cd $(@:%.extras=%); \
 	$(MAKE) -f ./Makefile configs $(EXTRAVARS); \
 	$(MAKE) -f ./Makefile all $(EXTRAVARS);
 
-extra-install:	gforth.fi $(EXTRAS:%=%.extrasinst)
+extra-install:	gforth-light.fi $(EXTRAS:%=%.extrasinst)
 
 %.extrasinst:
 	cd $(@:%.extrasinst=%); $(MAKE) -f ./Makefile extra-install $(EXTRAVARS)
