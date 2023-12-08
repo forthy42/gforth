@@ -1,3 +1,4 @@
+cat <<EOF
 buildscript {
     repositories {
 	google()
@@ -30,7 +31,7 @@ android {
 //    ndkVersion "17.2.4988734"
 
 
-    namespace 'gnu.gforth'
+    namespace '${APP_PACKAGE}'
 
     packagingOptions {
         jniLibs {
@@ -40,6 +41,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 33
+        versionCode ${APP_VERSION}
+        versionName "${GFORTH_VERSION}"
     }
     signingConfigs {
         release {
@@ -65,3 +68,4 @@ android {
         }
     }
 }
+EOF

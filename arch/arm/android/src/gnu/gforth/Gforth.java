@@ -478,6 +478,9 @@ public class Gforth
     protected void onCreate(Bundle savedInstanceState) {
         ActivityInfo ai;
         String libname = "gforth";
+	Intent intent = getIntent();
+	String action = intent.getAction();
+	String data = intent.getDataString();
 
 	gforth=this;
 	
@@ -495,7 +498,7 @@ public class Gforth
         mView.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
 	try {
-            ai = getPackageManager().getActivityInfo(getIntent().getComponent(), PackageManager.GET_META_DATA);
+            ai = getPackageManager().getActivityInfo(intent.getComponent(), PackageManager.GET_META_DATA);
             if (ai.metaData != null) {
                 String ln = ai.metaData.getString(META_DATA_LIB_NAME);
                 if (ln != null) libname = ln;
