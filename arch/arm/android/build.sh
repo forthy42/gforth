@@ -117,6 +117,7 @@ do
 done
 
 . ./AndroidManifest.xml.in >AndroidManifest.xml
+. ./build.gradle.in >build.gradle
 
 if [ "$1" != "--no-gforthgz" ]
 then

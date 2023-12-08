@@ -21,13 +21,13 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20231116],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20231123],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ([2.69])
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1_YYYYMMDD must not exist before 0.4.1!
-UPDATED="November 16, 2023"
+UPDATED="November 23, 2023"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 AC_USE_SYSTEM_EXTENSIONS
@@ -834,8 +834,7 @@ CHECKFLAGS="no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-s
 for i in $CHECKFLAGS
 do
     ac_i=$(echo ac_$i | tr '=\-' '__')
-    case $i
-    in
+    case "$i" in
         llvm=*)
 	    i="-m$i"
 	    ;;
@@ -846,7 +845,7 @@ do
     AC_MSG_CHECKING([if $CC understands $i])
     CFLAGS_1="$CFLAGS"
     CFLAGS="$CFLAGS $i"
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[eval $ac_i=yes;ENGINE_FLAGS="$ENGINE_FLAGS $i"],[eval ac_$ibar=no])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[eval $ac_i=yes;ENGINE_FLAGS="$ENGINE_FLAGS $i"],[eval $ac_i=no])
     CFLAGS="$CFLAGS_1"
     ac_result=$(eval echo "\$$ac_i")
     AC_MSG_RESULT($ac_result)

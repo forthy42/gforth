@@ -386,11 +386,55 @@ false Value my-dnd
     mime-types[] [: 2over str= IF  rot drop true -rot  THEN ;] $[]map
     2drop ;
 
-: queue-clipboard ( xt -- )
-\    [IFDEF]  spawn  spawn  [ELSE]
-	master-task send-event
-\    [THEN]
-;
+0 Value clipin-fd
+0 Value clipout-fd
+
+0 Value clipin-dest$
+$Variable clipin$
+
+$Variable clipout$
+Variable clipout-offset
+
+$Variable clipin-xts
+$Variable clipout-xts
+
+: eof-clipin ( -- )
+    clipin-fd 0 to clipin-fd close-file throw
+    0 clipin$ !@ clipin-dest$ !@ ?dup-IF  free throw  THEN
+    wayland( [: cr ." read " clipin-dest$ id. ." with '" clipin-dest$ $@ type ." '" ;] do-debug )
+    clipin-xts stack# IF  clipin-xts stack> execute  THEN ;
+
+: read-clipin ( -- )
+    clipin-fd check_read dup 0> IF \ data available
+	dup clipin$ $+!len swap dup >r clipin-fd
+	read-file throw
+	    r> - dup 0< IF  clipin$ $+!len  THEN  drop
+    ELSE
+	drop eof-clipin
+    THEN ;
+
+[IFUNDEF] FIONBIO
+    0x5421 Constant FIONBIO \ works for Linux, which is good enough for Wayland
+[THEN]
+
+: set-noblock ( fd -- )
+    { | w^ arg }  1 arg l!
+    dup FIONBIO arg ioctl ?ior ;
+
+: write-clipout ( -- )
+    clipout$ $@ clipout-offset @ safe/string
+    clipout-fd -rot write dup -1 <> IF  clipout-offset +!
+	clipout$ $@len clipout-offset @ u> ?EXIT
+    THEN \ if we can't write, let's just abandon this operation
+    wayland( [: cr ." wrote '" clipout$ $. ." ' to clipout" ;] do-debug )
+    clipout-fd 0 to clipout-fd close ?ior
+    clipout$ $free
+    clipout-xts stack# IF  clipout-xts stack> execute  THEN ;
+
+: queue-clipin ( xt -- )
+    clipin-fd IF  clipin-xts >stack  ELSE  master-task send-event  THEN ;
+: queue-clipout ( xt -- )
+    clipout-fd IF  clipout-xts >stack  ELSE  master-task send-event  THEN ;
 
 : accept+receive { offer d: mime-type dest$ | fds[ 2 cells ] -- }
     offer current-serial mime-type wl_data_offer_accept
@@ -398,9 +442,8 @@ false Value my-dnd
     offer mime-type fds[ cell+ @ fileno wl_data_offer_receive
     fds[ cell+ @ close-file throw
     fds[ @ dest$ [{: fd dest$ :}h1
-	fd slurp-fid 2dup dest$ $! drop free throw
-        wayland( dest$ [: cr ." got " dup id. cr $.  ;] do-debug ) ;]
-    queue-clipboard ;
+	fd to clipin-fd dest$ to clipin-dest$ ;]
+    queue-clipin ;
 
 : >liked-mime { xt: xt -- }
     liked-mime[] $[]# 0 ?DO
@@ -471,9 +514,8 @@ cb> data-device-listener
     offer mime-type fds[ cell+ @ fileno zwp_primary_selection_offer_v1_receive
     fds[ cell+ @ close-file throw
     fds[ @ dest$ [{: fd dest$ :}h1
-	fd slurp-fid 2dup dest$ $! drop free throw
-	wayland( dest$ [: cr ." got primary selection:" cr $.  ;] do-debug ) ;]
-    queue-clipboard ;
+	fd to clipin-fd dest$ to clipin-dest$ ;]
+    queue-clipin ;
 
 <cb
 :noname { data offer d: mime-type -- }
@@ -513,8 +555,8 @@ cb> primary-selection-listener
 :noname { data source d: mime-type fd -- }
     wayland( mime-type data [: cr ." send " id. ." type " type ;] do-debug )
     data fd [{: data fd :}h1
-	fd data $@ write ?ior
-	fd close ?ior ;] queue-clipboard
+	fd to clipout-fd  data $@ clipout$ $!  clipout-offset off
+	write-clipout ;] queue-clipout
 ; ?cb wl_data_source_listener-send:
 :noname { data source d: mime-type -- }
     wayland( data mime-type [: cr ." ds target: " type space id. ;] do-debug )
@@ -529,12 +571,43 @@ cb> data-source-listener
 :noname { data source d: mime-type fd -- }
     wayland( fd mime-type data [: cr ." ps send " id. ." type: " type ."  fd: " h. ;] do-debug )
     data fd [{: data fd :}h1
-	fd data $@ write ?ior
-	fd close ?ior ;] queue-clipboard
+	fd to clipout-fd  data $@ clipout$ $!  clipout-offset off
+	write-clipout ;] queue-clipout
 ; ?cb zwp_primary_selection_source_v1_listener-send:
 cb> primary-selection-source-listener
 
 \ registry listeners: the interface string is searched in a table
+
+$Variable cursor-theme$ "Breeze_Snow" cursor-theme$ $!
+Variable cursor-size #24 cursor-size !
+
+: read-kde-cursor-theme ( -- )
+    "~/.config/kcminputrc" r/o open-file IF  drop  EXIT  THEN
+    [: BEGIN  refill  WHILE
+		source "cursorTheme=" string-prefix? IF
+		    source #12 safe/string cursor-theme$ $!
+		THEN
+		source "cursorSize=" string-prefix? IF
+		    source #11 safe/string s>number drop $10 max cursor-size !
+		THEN
+	REPEAT ;] execute-parsing-file ;
+
+: read-gnome-cursor-theme ( -- )
+    "~/.config/gtk-4.0/settings.ini" r/o open-file IF  drop  EXIT  THEN
+    [: BEGIN  refill  WHILE
+		source "gtk-cursor-theme-name=" string-prefix? IF
+		    source #22 safe/string cursor-theme$ $!
+		THEN
+		source "gtk-cursor-theme-size=" string-prefix? IF
+		    source #22 safe/string s>number drop $10 max cursor-size !
+		THEN
+	REPEAT ;] execute-parsing-file ;
+
+: read-cursor-theme ( -- )
+    ${XDG_CURRENT_DESKTOP} "KDE" str= IF  read-kde-cursor-theme  EXIT  THEN
+    ${XDG_CURRENT_DESKTOP} "GNOME" str= IF  read-gnome-cursor-theme  EXIT  THEN ;
+
+read-cursor-theme
 
 table Constant wl-registry
 
@@ -559,13 +632,15 @@ wl-registry set-current
     wl-seat-listener 0 wl_seat_add_listener drop ;
 : wl_shm ( registry name version -- )
     wl_shm_interface swap 1 umin wl_registry_bind to wl-shm
-    s" Breeze_Snow" 16 wl-shm wl_cursor_theme_load dup to cursor-theme
+    cursor-theme$ $@ cursor-size @
+    wl-shm wl_cursor_theme_load dup to cursor-theme
     s" left_ptr" wl_cursor_theme_get_cursor to cursor ;
 : zwp_text_input_manager_v3 ( registry name version -- )
     zwp_text_input_manager_v3_interface swap 1 umin wl_registry_bind
     dup to text-input-manager
     wl-seat zwp_text_input_manager_v3_get_text_input dup to text-input
-    text-input-listener 0 zwp_text_input_v3_add_listener drop ;
+    text-input-listener 0 zwp_text_input_v3_add_listener drop
+    text-input send-status-update ;
 : xdg_wm_base ( registry name version -- )
     xdg_wm_base_interface swap 4 umin wl_registry_bind dup to xdg-wm-base
     xdg-wm-base-listener 0 xdg_wm_base_add_listener drop ;
@@ -718,14 +793,17 @@ previous set-current
 User xptimeout  cell uallot drop
 #16 Value looper-to# \ 16ms, don't sleep too long
 looper-to# #1000000 um* xptimeout 2!
-3 Value xpollfd#
+5 Value xpollfd#
+\ events, wayland, infile, selection read, selection write
 User xpollfds
 xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
 : >poll-events ( delay -- n )
     0 xptimeout 2!
     epiper @ fileno POLLIN  xpollfds fds!+ >r
-    dpy IF  dpy wl_display_get_fd POLLIN  r> fds!+ >r  THEN
+    dpy ?dup-IF  wl_display_get_fd POLLIN  r> fds!+ >r  THEN
+    clipin-fd ?dup-IF  fileno POLLIN  r> fds!+ >r  THEN
+    clipout-fd ?dup-IF  POLLOUT  r> fds!+ >r  THEN
     infile-id fileno POLLIN  r> fds!+ >r
     r> xpollfds - pollfd / ;
 
@@ -742,10 +820,23 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
     ?looper-timeouts >poll-events >r
     xpollfds r> xpoll
     IF
-	xpollfds          revents w@ POLLIN and IF  ?events  THEN
+	xpollfds revents >r
+	r@ w@ POLLIN and IF  ?events  THEN
+	r> pollfd + >r
 	dpy IF
-	    xpollfds pollfd + revents w@ POLLIN and IF  get-events  THEN
+	    r@ w@ POLLIN and IF  get-events  THEN
+	    r> pollfd + >r
 	THEN
+	clipin-fd IF
+	    r@ w@ POLLIN and IF  read-clipin  THEN
+	    r@ w@ POLLHUP and IF  eof-clipin  THEN
+	    r> pollfd + >r
+	THEN
+	clipout-fd IF
+	    r@ w@ POLLOUT POLLHUP or and IF  write-clipout  THEN
+	    r> pollfd + >r
+	THEN
+	rdrop
     ELSE
 	dpy IF  get-events  THEN
     THEN ;
