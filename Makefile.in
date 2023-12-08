@@ -497,6 +497,7 @@ ARCHS =	\
 	arch/mips/check_prim.c \
 	arch/386/machine.h \
 	arch/386/android/AndroidManifest.xml.in \
+	arch/386/android/build.gradle.in \
 	arch/386/android/config.sh \
 	arch/386/android/build.sh \
 	arch/386/android/starta.fs \
@@ -512,6 +513,7 @@ ARCHS =	\
 	arch/arm/cacheflush0.c \
 	arch/arm/cacheflush-linux.c \
 	arch/arm/android/AndroidManifest.xml.in \
+	arch/arm/android/build.gradle.in \
 	arch/arm/android/config.sh \
 	arch/arm/android/build.sh \
 	arch/arm/android/starta.fs \
@@ -525,7 +527,15 @@ ARCHS =	\
 	arch/ia64/machine.h \
 	arch/ia64/flush_icache_block.c \
 	arch/amd64/machine.h \
+	arch/amd64/android/AndroidManifest.xml.in \
+	arch/amd64/android/build.gradle.in \
+	arch/amd64/android/config.sh \
+	arch/amd64/android/build.sh \
+	arch/amd64/android/starta.fs \
+	arch/amd64/android/res \
+	arch/amd64/android/src \
 	arch/arm64/android/AndroidManifest.xml.in \
+	arch/arm64/android/build.gradle.in \
 	arch/arm64/android/config.sh \
 	arch/arm64/android/build.sh \
 	arch/arm64/android/starta.fs \
