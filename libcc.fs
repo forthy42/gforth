@@ -817,6 +817,12 @@ Create callback-&style c-var c,
     ['] open-olib libcc-path execute-path-file
     IF  0  ELSE  2drop  THEN ;
 
+: preopen-path-lib ( addr u -- addr/0 )
+    \ This opens a library in the path and doesn't check for the hash
+    [: ofile $@ open-lib dup IF  0  EXIT  THEN  #-514 ;]
+    libcc-path execute-path-file
+    IF  0  ELSE  2drop  THEN ;
+
 : lib-name ( -- addr u )
     [: lib-filename $@ dirname type lib-prefix type
 	lib-filename $@ basename type lib-suffix type ;] $tmp ;
