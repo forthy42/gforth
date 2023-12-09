@@ -501,7 +501,14 @@ previous
 
 Defer scale-me ' terminal-scale-me is scale-me
 
+[IFDEF] screen-xywh@
+    2Variable screen-xy
+[THEN]
+
 : config-changer ( -- )
+[IFDEF] screen-xywh@
+    screen-xywh@ 2drop screen-xy 2!
+[THEN]
     getwh  >screen-orientation  scale-me
     form-chooser ;
 : ?config-changer ( -- )
