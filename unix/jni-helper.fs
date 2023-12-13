@@ -30,12 +30,14 @@ jni-field: audioManager audioManager Landroid/media/AudioManager;
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
 jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityManager;
 jni-field: notificationManager notificationManager Landroid/app/NotificationManager;
+jni-field: usbManager usbManager Landroid/hardware/usb/UsbManager;
 SDK_INT 26 >= [IF]
     jni-field: notificationChannel notificationChannel Landroid/app/NotificationChannel;
 [THEN]
 jni-field: inputMethodManager inputMethodManager Landroid/view/inputmethod/InputMethodManager;
 jni-field: mView mView Lgnu/gforth/Gforth$GforthView;
 jni-field: gforthintent gforthintent Landroid/app/PendingIntent;
+jni-field: intent intent Landroid/content/Intent;
 jni-field: hideprog hideprog Ljava/lang/Runnable;
 jni-field: gforth-handler handler Landroid/os/Handler;
 jni-field: rshowstatus rshowstatus Ljava/lang/Runnable;

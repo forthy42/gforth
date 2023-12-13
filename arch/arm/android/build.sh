@@ -36,7 +36,7 @@ function extra_perms {
 function extra_features {
     for i in $EXTRADIRS
     do
-	test -f $i/AndroidManifest/app && cat $i/AndroidManifest/features
+	test -f $i/AndroidManifest/features && cat $i/AndroidManifest/features
     done
 }
 
