@@ -11974,11 +11974,32 @@ about undefined locals.
 If the @code{BEGIN} is not reachable from above (e.g., after
 @code{AHEAD} or @code{EXIT}), the compiler cannot even make an
 optimistic guess, as the locals visible after the @code{BEGIN} may be
-defined later. Therefore, the compiler assumes that no locals are
-visible after the @code{BEGIN}. However, the user can use
-@code{ASSUME-LIVE} to make the compiler assume that the same locals are
-visible at the BEGIN as at the point where the top control-flow stack
-item was created.
+defined later.
+
+It pessimistically assumes that all locals are visible that were
+visible at the latest place outside any control structure (i.e., where
+nothing is on the control-flow stack).  This means that in:
+
+@example
+: foo
+  IF @{: z :@} THEN
+  @{: x :@}
+  AHEAD
+    BEGIN
+      ( * )
+    [ 1 CS-ROLL ] THEN
+    @{: y :@}
+    ...
+  UNTIL ;
+@end example
+
+At the place marked with @code{( * )}, @code{x} is visible, but
+@code{y} is not (although, according to the reachability rule it
+should); @code{z} is not and should not be visible there.
+
+However, you can use @code{ASSUME-LIVE} to make the compiler assume
+that the same locals are visible at the BEGIN as at the point where
+the top control-flow stack item was created.
 
 
 doc-assume-live
@@ -11987,15 +12008,22 @@ doc-assume-live
 @noindent
 E.g.,
 @example
-@{: x :@}
-AHEAD
-ASSUME-LIVE
-BEGIN
-  x
-[ 1 CS-ROLL ] THEN
-  ...
-UNTIL
+IF
+  @{: x :@}
+  AHEAD
+    ASSUME-LIVE
+    BEGIN
+      x
+    [ 1 CS-ROLL ] THEN
+    ...
+  UNTIL
+THEN
 @end example
+
+Here @code{x} would not be visible at the use of @code{x}, because its
+definition is inside a control structure, but by using ASSUME-LIVE the
+programmer tells the compiler that the locals visible at the
+@code{AHEAD} should be visible at the @code{BEGIN}.
 
 Other cases where the locals are defined before the @code{BEGIN} can be
 handled by inserting an appropriate @code{CS-ROLL} before the

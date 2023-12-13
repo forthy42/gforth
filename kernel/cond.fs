@@ -59,7 +59,7 @@ variable backedge-locals-default 0 backedge-locals-default !
 
 : update-backedge-locals-default ( -- )
     cs-depth 0= if
-        \ locals-list @ backedge-locals-default !
+        locals-list @ backedge-locals-default !
     then ;
 
 : cs-depth++ ( -- )

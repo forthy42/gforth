@@ -209,10 +209,14 @@ abort" ( does not work across lines"
 
 s" ( testing ( without being delimited by newline in non-files" evaluate
 
+\ constant folding must not produce a compile-time error
+: test 1 0 / ;
+
+\ the following standard program must work with automatic scoping
+: foo {: xxxxx :} ahead begin xxxxx again then ;
+
 \ last test!
 \ testing '(' without ')' at end-of-file
 ." expect ``warning: ')' missing''" cr
 (
 
-\ constant folding must not produce a compile-time error
-: test 1 0 / ;
