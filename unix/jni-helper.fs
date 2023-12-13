@@ -30,6 +30,7 @@ jni-field: audioManager audioManager Landroid/media/AudioManager;
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
 jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityManager;
 jni-field: notificationManager notificationManager Landroid/app/NotificationManager;
+jni-field: usbManger usbManager Landroid/hardware/usb/UsbManager;
 SDK_INT 26 >= [IF]
     jni-field: notificationChannel notificationChannel Landroid/app/NotificationChannel;
 [THEN]

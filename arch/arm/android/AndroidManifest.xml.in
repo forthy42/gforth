@@ -54,6 +54,8 @@ $(extra_perms)
 		  android:required="false" />
     <uses-feature android:name="android.hardware.audio.low_latency"
 		  android:required="false" />
+    <uses-feature android:name="android.hardware.usb.host"
+		  android:required="false" />
     <uses-feature android:glEsVersion="0x00020000" />
 
     <application android:icon="@drawable/ic_launcher"
@@ -79,7 +81,12 @@ $(extra_perms)
                 <action android:name="android.intent.action.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-	    <!-- intent-filter
+	    <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+	    <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/usb_serial" />
+	    <intent-filter
 		android:icon='@drawable/ic_launcher'
 		android:label='Forth File'
 		android:priority='1'>
@@ -91,7 +98,7 @@ $(extra_perms)
 	      <data android:scheme="file" />
 	      <data android:host="*" />
 	      <data android:pathPattern=".*\\.fs" />
-	    </intent-filter -->
+	    </intent-filter>
         </activity>
         <activity android:name="gnu.gforth.Gforth_itc"
                 android:label="@string/app_name_itc"

@@ -45,6 +45,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.hardware.usb.UsbManager;
 import android.content.Context;
 import android.view.View;
 import android.view.Window;
@@ -115,6 +116,7 @@ public class Gforth
     private PendingIntent pintent, gforthintent;
     private PowerManager powerManager;
     private NotificationManager notificationManager;
+    private UsbManager usbManager;
     private NotificationChannel notificationChannel;
     private WakeLock wl, wl_cpu;
     private GforthView mView;
@@ -526,6 +528,7 @@ public class Gforth
 	inputMethodManager=(InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 	powerManager=(PowerManager)getSystemService(Context.POWER_SERVICE);
 	notificationManager=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+	usbManager=(UsbManager) getSystemService(Context.USB_SERVICE);
 	if (Build.VERSION.SDK_INT >= 26) {
 	    notificationChannel=new NotificationChannel("gnu.gforth.notifications", "Messages", NotificationManager.IMPORTANCE_DEFAULT);
 	    notificationChannel.enableLights(true);
