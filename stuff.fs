@@ -232,6 +232,8 @@ opt: @ 3 swap (to), ;
 	r> >in ! 2r> fp! sp! 2drop false
     then ;
 
+:noname defers 'image   0 to try-free ; is 'image
+
 \ ]] ... [[
 
 ' noop ' noop
