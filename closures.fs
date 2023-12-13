@@ -129,6 +129,7 @@ forth definitions
 
 : closure-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
+    :-hook1
     ['] here locals-headers latest latestnt
     clear-leave-stack
     dead-code off
@@ -190,12 +191,13 @@ forth definitions
 \ stack-based closures without name
 
 : (;*]) ( xt -- hm )
-    >r ] ]] UNREACHABLE ENDSCOPE [[
+    >r ] ]] UNREACHABLE [[ cs-depth++ ]] ENDSCOPE [[
     r@ wrap-closure  r> >namehm @ ;
 
 : (;]l) ( xt1 n xt2 -- ) (;*]) >r dummy-local,
     compile, r> lit, ]] closure> [[ ;
-: (;]*) ( xt0 xt1 n xt2 -- )  (;*]) >r lit, swap compile,
+: (;]*) ( xt0 xt1 n xt2 -- )
+    (;*]) >r lit, swap compile,
     ]] >lp [[ compile, r> lit, ]] closure> lp> [[ ;
 
 : :l ( -- xt )                  ['] (;]l) ; immediate restrict

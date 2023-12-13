@@ -787,7 +787,7 @@ opt: ?fold-to 0 swap (to), ;
 
 defer :-hook ( sys1 -- sys2 )
 defer ;-hook ( sys2 -- sys1 )
-defer ;-hook2 ( sys2 -- sys1 )
+defer ;-hook2 ( -- )
 defer 0-adjust-locals-size ( -- )
 
 1 value colon-sys-xt-offset

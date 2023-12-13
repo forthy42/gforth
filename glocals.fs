@@ -536,23 +536,11 @@ forth definitions
 \   ...
 \ UNTIL
 
-\ In this case x is defined before the use, and the definition dominates
-\ the use, but the compiler does not know this until it processes the
-\ UNTIL. So what should the compiler assume does live at the BEGIN, if
-\ the BEGIN is not a control flow join? The safest assumption would be
-\ the intersection of all locals lists on the control flow
-\ stack. However, our compiler assumes that the same variables are live
-\ as on the top of the control flow stack. This covers the following case:
-
-\ { x }
-\ AHEAD
-\ BEGIN
-\   x
-\ [ 1 CS-ROLL ] THEN
-\   ...
-\ UNTIL
-
-\ If this assumption is too optimistic, the compiler will warn the user.
+\ In this case x is defined before the use, and the definition
+\ dominates the use, but the compiler does not know this until it
+\ processes the UNTIL. So what should the compiler assume does live at
+\ the BEGIN, if the BEGIN is not a control flow join?  See the
+\ documentation for our current approach.
 
 \ Implementation:
 
@@ -606,7 +594,7 @@ is adjust-locals-list
 : (then-like) ( orig -- )
     dead-orig =
     if
-	>resolve 2drop
+	>resolve 2drop after-cs-pop
     else
         dead-code @
         if

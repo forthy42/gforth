@@ -27,11 +27,28 @@ variable backedge-locals
     \ contains the locals list that BEGIN will assume to be live on
     \ the back edge if the BEGIN is unreachable from above. Set by
     \ ASSUME-LIVE, reset by UNREACHABLE.
+variable backedge-locals-default 0 backedge-locals-default !
+    \ contains the locals list that UNREACHABLE uses to reset
+    \ BACKEDGE-LOCALS.  Currently this is the locals list at the
+    \ latest place without anything on the control-flow stack.  A more
+    \ refined version could use the locals list on the latest place
+    \ that had only dests on the locals stack and an empty LEAVE
+    \ stack.
+0 value cs-depth ( -- u )
+    \ number of items on the control-flow stack
+
+: :-hook1 ( -- )
+    0 to cs-depth 0 to backedge-locals-default ;
+' :-hook1 is :-hook
+
+: ;-hook21 ( -- )
+    cs-depth 0<> -22 and throw ;
+' ;-hook21 is ;-hook2
 
 : UNREACHABLE ( -- ) \ gforth
     \ declares the current point of execution as unreachable
     dead-code on
-    0 backedge-locals ! ; immediate
+    backedge-locals-default @ backedge-locals ! ; immediate
 
 : ASSUME-LIVE ( orig -- orig ) \ gforth
     \ used immediatly before a BEGIN that is not reachable from
@@ -39,7 +56,24 @@ variable backedge-locals
     \ as at the orig point
     dup orig?
     third backedge-locals ! ; immediate
-    
+
+: update-backedge-locals-default ( -- )
+    cs-depth 0= if
+        \ locals-list @ backedge-locals-default !
+    then ;
+
+: cs-depth++ ( -- )
+    cs-depth 1+ to cs-depth ;
+
+: before-cs-push ( -- )
+    update-backedge-locals-default cs-depth++ ;
+
+defer negative-cs-depth-check
+
+: after-cs-pop ( -- )
+    cs-depth 1- to cs-depth
+    cs-depth 0< -22 and throw ;
+
 \ Control Flow Stack
 \ orig, etc. have the following structure:
 \ type ( defstart, live-orig, dead-orig, dest, do-dest, scopestart) ( TOS )
@@ -47,10 +81,23 @@ variable backedge-locals
 \ locals-list (valid at address) (third)
 \ stack state address for checking (fourth)
 
-defer push-stack-state ( -- addr ) ' false is push-stack-state
-\ push (a copy of) the current stack state
-defer pop-stack-state ( addr -- )  ' drop is pop-stack-state
-\ check if the stack state pointed to by addr matches the current stack state
+: push-stack-state1 ( -- addr )
+    before-cs-push 0 ;
+
+defer push-stack-state ( -- addr )
+\ Called by every cs-item-producing word.  addr is the data for a
+\ static checker.  If no checker is loaded, addr is 0.
+' push-stack-state1 is push-stack-state
+
+: pop-stack-state1 ( addr -- )
+    drop after-cs-pop ;
+
+defer pop-stack-state ( addr -- )
+\ Called by every cs-item-consuming word.  addr is the data for a
+\ static checker: check if the stack state pointed to by addr matches
+\ the current stack state.
+' pop-stack-state1 is pop-stack-state
+
 
 \ types
 [IFUNDEF] defstart 
@@ -83,6 +130,7 @@ Create scopestart
 4 constant cs-item-size
 
 : CS-PICK ( orig0/dest0 orig1/dest1 ... origu/destu u -- ... orig0/dest0 ) \ tools-ext c-s-pick
+    before-cs-push
     1+ cs-item-size * 1- dup
     >r pick  r@ pick  r@ pick  r@ pick
     rdrop
@@ -95,7 +143,7 @@ Create scopestart
     dup cs-item? ; 
 
 : CS-DROP ( dest -- ) \ gforth
-    cs-item? 2drop drop ; \ maximum depth information of propagated on pushing
+    cs-item? 2drop drop after-cs-pop ; \ maximum depth information of propagated on pushing
 
 : cs-push-part ( -- stack-state list addr )
     push-stack-state locals-list @ here ;
@@ -255,10 +303,12 @@ Variable leave-stack
 
 : >leave ( orig -- )
     \ push on leave-stack
-    cs-item-size 0 ?DO  leave-stack >stack  LOOP ;
+    cs-item-size 0 ?DO  leave-stack >stack  LOOP
+    after-cs-pop ;
 
 : leave> ( -- orig )
     \ pop from leave-stack
+    before-cs-push
     cs-item-size 0 ?DO  leave-stack stack>  LOOP ;
 
 : DONE ( compilation orig -- ; run-time -- ) \ gforth
@@ -272,7 +322,7 @@ Variable leave-stack
     while
 	POSTPONE then
     repeat  >leave  then
-    rdrop ; immediate restrict
+    rdrop after-cs-pop ; immediate restrict
 
 : LEAVE ( compilation -- ; run-time loop-sys -- ) \ core
     \G @xref{Counted Loops}.
@@ -388,13 +438,19 @@ defer adjust-locals-list ( wid -- )
 
 : endscope ( compilation scope -- ; run-time  -- ) \ gforth
     scope?
-    drop  adjust-locals-list drop ; immediate
+    drop  adjust-locals-list drop
+    after-cs-pop ; immediate
 
 \ quotations
 : wrap@-kernel ( -- wrap-sys )
-    hmsave latest latestnt 0 leave-stack !@ ( unlocal-state @ ) ;
+    hmsave latest latestnt 0 leave-stack !@
+    cs-depth backedge-locals-default @
+    ( unlocal-state @ ) ;
+
 : wrap!-kernel ( wrap-sys -- )
-    ( unlocal-state ! ) leave-stack ! lastnt ! last ! hmrestore ;
+    ( unlocal-state ! )
+    backedge-locals-default ! to cs-depth
+    leave-stack ! lastnt ! last ! hmrestore ;
 
 Defer wrap@ ( -- wrap-sys ) ' wrap@-kernel is wrap@
 Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
@@ -402,7 +458,7 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 : (int-;]) ( some-sys lastxt -- ) >r hm, wrap! r> ;
 : (;]) ( some-sys lastxt -- )
     >r
-    ] postpone UNREACHABLE postpone ENDSCOPE
+    ] postpone UNREACHABLE cs-depth++ postpone ENDSCOPE
     finish-code  hm,  previous-section  wrap!  dead-code off
     r> postpone Literal ;
 
