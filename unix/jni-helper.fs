@@ -37,6 +37,7 @@ SDK_INT 26 >= [IF]
 jni-field: inputMethodManager inputMethodManager Landroid/view/inputmethod/InputMethodManager;
 jni-field: mView mView Lgnu/gforth/Gforth$GforthView;
 jni-field: gforthintent gforthintent Landroid/app/PendingIntent;
+jni-field: intent intent Landroid/content/Intent;
 jni-field: hideprog hideprog Ljava/lang/Runnable;
 jni-field: gforth-handler handler Landroid/os/Handler;
 jni-field: rshowstatus rshowstatus Ljava/lang/Runnable;

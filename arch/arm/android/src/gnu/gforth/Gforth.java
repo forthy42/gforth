@@ -121,7 +121,7 @@ public class Gforth
     private WakeLock wl, wl_cpu;
     private GforthView mView;
     private InputStream gforthfd;
-
+    private Intent intent;
     private boolean started=false;
     private boolean libloaded=false;
     private boolean surfaced=false;
@@ -480,9 +480,7 @@ public class Gforth
     protected void onCreate(Bundle savedInstanceState) {
         ActivityInfo ai;
         String libname = "gforth";
-	Intent intent = getIntent();
-	String action = intent.getAction();
-	String data = intent.getDataString();
+	intent = getIntent();
 
 	gforth=this;
 	
