@@ -70,10 +70,10 @@ variable assert-level ( -- a-addr ) \ gforth
 
 \ conditionally executed debug code, not necessarily assertions
 
-: debug-does>  DOES>
+: debug-doer
     ]] Literal @ IF [[ [: postpone THEN ;] assert-canary ;
 : debug: ( -- )
-    Create false , immediate debug-does> ;
+    Create false , immediate ['] debug-doer set-does> ;
 : )else( ( -- ) 2>r postpone ELSE 2r> ; immediate compile-only
 
 : +db ( "word" -- ) (') >body on ;

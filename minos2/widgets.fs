@@ -28,13 +28,6 @@ debug: click-o( \ +db click-o( \ )
 debug: resize(  \ +db resize( \ )
 debug: dispose( \ +db dispose( \ )
 
-${MINOS2_DEBUG_TIME} "1" str= [IF] +db time( \ ) [THEN]
-${MINOS2_DEBUG_GUI} "1" str= [IF] +db gui( \ ) [THEN]
-${MINOS2_DEBUG_CLICK} "1" str= [IF] +db click( \ ) [THEN]
-${MINOS2_DEBUG_CLICK_O} "1" str= [IF] +db click-o( \ ) [THEN]
-${MINOS2_DEBUG_RESIZE} "1" str= [IF] +db resize( \ ) [THEN]
-${MINOS2_DEBUG_DISPOSE} "1" str= [IF] +db dispose( \ ) [THEN]
-
 [IFUNDEF] no-file#
     2 Constant ENOENT
     #-512 ENOENT - Constant no-file#
@@ -45,6 +38,16 @@ require gl-terminal.fs
 require ftgl-helper.fs
 require ../mini-oof2.fs
 require ../config.fs
+
+Variable minos2-debug$
+${MINOS2_DEBUGS} minos2-debug$ $!
+minos2-debug$ ','
+:noname ( addr u -- )
+    [: type '(' emit ;] $tmp find-name ?dup-IF
+	dup >does-code ['] debug-doer =
+	IF  >body on  ELSE  drop  THEN
+    THEN
+; $iter
 
 get-current
 also [IFDEF] android android [THEN]

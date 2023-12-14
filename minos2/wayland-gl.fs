@@ -30,7 +30,6 @@ require struct-val.fs
 also wayland
 
 debug: wayland( \ )
-${MINOS2_DEBUG_WAYLAND} "1" str= [IF] +db wayland( \ ) [THEN]
 
 0 Value dpy        \ wayland display
 0 Value compositor \ wayland compositor
@@ -240,10 +239,16 @@ k-pause	XKB_KEY_Pause >xkb-key !
 Defer wl-ekeyed ' drop is wl-ekeyed
 Defer wl-ukeyed ' 2drop is wl-ukeyed
 
+0 Value wl-meta
+
 <cb
 :noname { data wl_keyboard rate delay -- }
 ; ?cb wl_keyboard_listener-repeat_info:
 :noname { data wl_keyboard serial mods_depressed mods_latched mods_locked group -- }
+    mods_depressed 5 and mods_depressed 8 and sfloat/ or to wl-meta
+    wayland( mods_depressed mods_latched mods_locked
+    [: cr ." modes: locked " hex. ." latched " hex. ." depressed " hex. wl-meta hex. ;]
+    do-debug )
     xkb-state
     mods_depressed mods_latched mods_locked 0 0 group xkb_state_update_mask
 ; ?cb wl_keyboard_listener-modifiers:
@@ -258,8 +263,11 @@ Defer wl-ukeyed ' 2drop is wl-ukeyed
 	    EXIT  THEN
 	xkb-state wl-key 8 + xkb_state_key_get_one_sym
 	\ wayland( [: dup h. ;] do-debug ) wl-ekeyed
-	dup $FE00 $10000 within IF  >xkb-key @  THEN
-	[{: wl-key :}h1 wl-key wl-ekeyed ;] master-task send-event
+	dup $FE00 $10000 within IF
+	    >xkb-key @ ?dup-IF  wl-meta mask-shift# lshift or
+		[{: wl-key :}h1 wl-key wl-ekeyed ;] master-task send-event
+	    THEN
+	ELSE  drop  THEN
     THEN
 ; ?cb wl_keyboard_listener-key:
 :noname { data wl_keyboard serial surface -- }
