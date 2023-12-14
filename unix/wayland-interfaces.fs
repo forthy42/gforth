@@ -57,3 +57,12 @@ c-value zwp_primary_selection_device_manager_v1_interface &zwp_primary_selection
 c-value zwp_primary_selection_device_v1_interface &zwp_primary_selection_device_v1_interface -- a
 c-value zwp_primary_selection_offer_v1_interface &zwp_primary_selection_offer_v1_interface -- a
 c-value zwp_primary_selection_source_v1_interface &zwp_primary_selection_source_v1_interface -- a
+\c #include <tablet-unstable-v2.c>
+c-value zwp_tablet_manager_v2_interface &zwp_tablet_manager_v2_interface -- a
+c-value zwp_tablet_seat_v2_interface &zwp_tablet_seat_v2_interface -- a
+c-value zwp_tablet_tool_v2_interface &zwp_tablet_tool_v2_interface -- a
+c-value zwp_tablet_v2_interface &zwp_tablet_v2_interface -- a
+c-value zwp_tablet_pad_ring_v2_interface &zwp_tablet_pad_ring_v2_interface -- a
+c-value zwp_tablet_pad_strip_v2_interface &zwp_tablet_pad_strip_v2_interface -- a
+c-value zwp_tablet_pad_group_v2_interface &zwp_tablet_pad_group_v2_interface -- a
+c-value zwp_tablet_pad_v2_interface &zwp_tablet_pad_v2_interface -- a

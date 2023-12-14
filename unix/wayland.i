@@ -10,6 +10,7 @@
 #include <xdg-shell-client.h>
 #include <xdg-decoration-unstable-v1-client.h>
 #include <primary-selection-unstable-v1-client.h>
+#include <tablet-unstable-v2-client.h>
 %}
 
 %apply int { int32_t, wl_fixed_t }
@@ -31,3 +32,4 @@
 %include <xdg-shell-client.h>
 %include <xdg-decoration-unstable-v1-client.h>
 %include <primary-selection-unstable-v1-client.h>
+%include <tablet-unstable-v2-client.h>
