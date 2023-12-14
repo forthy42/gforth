@@ -10,9 +10,9 @@ callback-does> setup-callback c-funptr c-variable c-value c-function
 init-lib link-cmd compile-cmd end-libs clear-libs free-libs lha, 
 compile-wrapper-function hash-c-source .c-hash replace-hash .lib-error 
 c-source-file c-tmp-library-name c-named-library-name c-library-name-create 
-c-library-name-setup open-wrappers lib-name open-path-lib open-olib 
-check-c-hash .bytes .hashxx .xx c-hash-ok? prepend-dirname libcc-tmp-dir 
->libcc-named-dir libcc-named-dir lookup-c-array lookup-ip-array 
+c-library-name-setup open-wrappers lib-name preopen-path-lib open-path-lib 
+open-olib check-c-hash .bytes .hashxx .xx c-hash-ok? prepend-dirname 
+libcc-tmp-dir >libcc-named-dir libcc-named-dir lookup-c-array lookup-ip-array 
 callback-thread-gen callback-gen callback-c-array callback-ip-array 
 callback-instantiate callback# callback-define callback-thread-define 
 callback-wrapper callback-return callback-wrapup gen-par-callback 
@@ -977,15 +977,15 @@ newtask4 thread-init 's up@ user' wake# epipew epiper pthread-id compsem:
 intsem: set-compsem to-errno errno-table fork+exec fpid fork() getpid fd>file 
 int-errno-exec saved-errno ?ior ?errno-throw errno-throw fds[]! fds!+ 
 LC_IDENTIFICATION LC_MEASUREMENT LC_TELEPHONE LC_ADDRESS LC_NAME LC_PAPER 
-LC_ALL LC_MESSAGES LC_MONETARY LC_COLLATE LC_TIME LC_NUMERIC LC_CTYPE POLLOUT 
-POLLPRI POLLIN revents events fd pollfd pagesize environ unsetenv setenv 
-getrandom getentropy strlen getcwd mkstemp mknod rmdir readlink link symlink 
-exit() execvp (fork) (getpid) setlocale close write read open ioctl2 ioctl 
-fcntl freopen fdopen posix_spawnp epoll_wait epoll_ctl epoll_create ppoll poll 
-fileno getpagesize ->errno errno pthread-conds pthread-mutexes pthreads 
-pthread-cond+ pthread-mutex+ pthread+ pthread_cond_t pthread_mutex_t pthread_t 
-pthread_self stick-to-core wait_read check_read create_pipe 
-pthread_cond_timedwait pthread_cond_wait pthread_cond_broadcast 
+LC_ALL LC_MESSAGES LC_MONETARY LC_COLLATE LC_TIME LC_NUMERIC LC_CTYPE POLLHUP 
+POLLOUT POLLPRI POLLIN revents events fd pollfd pagesize environ unsetenv 
+setenv getrandom getentropy strlen getcwd mkstemp mknod rmdir readlink link 
+symlink exit() execvp (fork) (getpid) setlocale close write read open ioctl2 
+ioctl fcntl freopen fdopen posix_spawnp epoll_wait epoll_ctl epoll_create 
+ppoll poll fileno getpagesize ->errno FIONBIO FIONREAD errno pthread-conds 
+pthread-mutexes pthreads pthread-cond+ pthread-mutex+ pthread+ pthread_cond_t 
+pthread_mutex_t pthread_t pthread_self stick-to-core wait_read check_read 
+create_pipe pthread_cond_timedwait pthread_cond_wait pthread_cond_broadcast 
 pthread_cond_signal pthread_cond_destroy pthread_cond_init pthread_detach_attr 
 sched_yield pthread_mutex_unlock pthread_mutex_lock pthread_mutex_destroy 
 pthread_mutex_init pthread_cancel pthread_kill pthread_exit pthread_create 
@@ -1086,7 +1086,7 @@ buffer-struct next-buffer block-buffer buffer-dirty buffer-fid buffer-block
 .string.( smart. .cs. .var. .addr. cs? string? .var? addr? smart.s-skip 
 .elapsed timer-reset .!time !@time .time (.time) @time !time .times init-timer 
 map-timer timer: timer-list +t last-tick timer-tick profile( +debug set-debug 
-+-? debug-eval ~db -db +db )else( debug: debug-does> assert( assert3( assert2( 
++-? debug-eval ~db -db +db )else( debug: debug-doer assert( assert3( assert2( 
 assert1( assert0( ) assertn assert-canary assert) (end-assert) assert-level 
 level-check .hm .name? color-prompt prompt-text prompt-ok #loc edit-file-cmd 
 editor-cmd vi-l:c emacs-l:c kate-l:c view' (view') rec'@ rec'[] type-prefix 
@@ -1203,7 +1203,10 @@ then-like ?DUP-0=-IF ?DUP-IF IF AHEAD NOPE YET BUT <resolve >resolve >mark?
 >mark ?colon-sys ?struc if-like other-control-flow cs-push-orig cs-push-part 
 CS-DROP CS-ROLL CS-PICK cs-item-size cs-item? non-orig? scope? do-dest? dest? 
 orig? scopestart do-dest dest dead-orig live-orig pop-stack-state 
-push-stack-state ASSUME-LIVE UNREACHABLE backedge-locals dead-code locals-list 
+pop-stack-state1 push-stack-state push-stack-state1 after-cs-pop 
+negative-cs-depth-check before-cs-push cs-depth++ 
+update-backedge-locals-default ASSUME-LIVE UNREACHABLE ;-hook21 :-hook1 
+cs-depth backedge-locals-default backedge-locals dead-code locals-list 
 .included require include required included >include-auto-extension 
 include-auto-extension-filename >include >included included1 add-included-file 
 included? str>loadfilename# sourceline# included-filename[] sourcefilename 

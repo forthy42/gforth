@@ -130,6 +130,10 @@ DOES> + c@ ;
 : u/ekeyed ( ekey -- )
     wayland( [: cr ." ekey: " dup h. ;] do-debug )
     dup 0= IF  drop  EXIT  THEN
+    case
+	#del of  k-delete     wl-meta mask-shift# lshift or  endof
+	#bs  of  k-backspace  wl-meta mask-shift# lshift or  endof
+    dup endcase
     dup bl keycode-start within over #del <> and
     IF    $1000000 invert and >xstring top-act .ukeyed
     ELSE  top-act .ekeyed  THEN ;

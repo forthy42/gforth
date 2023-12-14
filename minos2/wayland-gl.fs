@@ -207,7 +207,7 @@ also xkbcommon
 $200 Cells buffer: xkb-key>ekey#
 : >xkb-key ( keycode number -- )
     $FE00 - cells xkb-key>ekey# + ;
-#del	XKB_KEY_BackSpace >xkb-key !
+k-backspace	XKB_KEY_BackSpace >xkb-key !
 #tab	XKB_KEY_Tab >xkb-key !
 #lf	XKB_KEY_Linefeed >xkb-key !
 #esc	XKB_KEY_Escape >xkb-key !
@@ -435,7 +435,7 @@ $Variable clipout-xts
 	clipout$ $@len clipout-offset @ u> ?EXIT
     THEN \ if we can't write, let's just abandon this operation
     wayland( [: cr ." wrote '" clipout$ $. ." ' to clipout" ;] do-debug )
-    clipout-fd 0 to clipout-fd close ?ior
+    clipout-fd 0 to clipout-fd close drop \ need to ignore error here, too
     clipout$ $free
     clipout-xts stack# IF  clipout-xts stack> execute  THEN ;
 
