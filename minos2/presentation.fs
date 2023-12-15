@@ -39,7 +39,7 @@ tex: minos2
 "net2o-minos2.png" 0.666e pixelsize# f* thumb: minos2-logo
 
 $FFFFFF9F (col,) FConstant white-transp#
-: logo-thumb ( xt -- o o-tile ) >r
+: logo-thumb ( xt -- o ) >r
     baseline# 0e to baseline#
     {{  r> execute dup >r /right
     glue*l }}glue
