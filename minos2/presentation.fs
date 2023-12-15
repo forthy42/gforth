@@ -38,12 +38,13 @@ tex: minos2
 
 "net2o-minos2.png" 0.666e pixelsize# f* thumb: minos2-logo
 
+$FFFFFF9F (col,) FConstant white-transp#
 : logo-thumb ( xt -- o o-tile ) >r
     baseline# 0e to baseline#
     {{  r> execute dup >r /right
     glue*l }}glue
     }}v >o font-size# f2/ to border o o>
-    to baseline# r> ;
+    to baseline# r> >o white-transp# to frame-color o> ;
 
 : logo-img ( xt xt -- o o-img ) 2>r
     baseline# 0e to baseline#
@@ -185,8 +186,7 @@ $FF7733FF text-color: redish
 glue-right @ }}glue
 }}h box[]
 {{
-    $FFFFFF9F (col,) FConstant white-transp#
-    ' minos2-logo logo-thumb >o white-transp# to frame-color o>
+    ' minos2-logo logo-thumb
 }}z
 }}z slide[]
 to top-widget
