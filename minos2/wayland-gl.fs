@@ -678,7 +678,7 @@ wl-registry set-current
     primary-selection-device-manager zwp_primary_selection_device_manager_v1_create_source
     dup to primary-selection-source
     primary-selection-source-listener primary$ zwp_primary_selection_source_v1_add_listener drop
-    ds-mime-types[] [: primary-selection-source -rot wl_data_source_offer ;] $[]map
+    ds-mime-types[] [: primary-selection-source -rot zwp_primary_selection_source_v1_offer ;] $[]map
 ;
 set-current
 
