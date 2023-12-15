@@ -36,6 +36,15 @@ m2c:animtime% f@ 3e f* m2c:animtime% f!
 tex: minos2
 ' minos2 "net2o-minos2.png" 0.666e }}image-file Constant minos2-glue drop
 
+"net2o-minos2.png" 0.666e pixelsize# f* thumb: minos2-logo
+
+: logo-thumb ( xt -- o o-tile ) >r
+    baseline# 0e to baseline#
+    {{ 0 0 }}thumb r> over .execute dup >r /right
+    glue*l }}glue
+    }}v >o font-size# f2/ to border o o>
+    to baseline# r> ;
+
 : logo-img ( xt xt -- o o-img ) 2>r
     baseline# 0e to baseline#
     {{ 2r> }}image-tex dup >r /right
@@ -176,7 +185,8 @@ $FF7733FF text-color: redish
 glue-right @ }}glue
 }}h box[]
 {{
-    ' minos2     minos2-glue logo-img solid-frame
+    $FFFFFF9F (col,) FConstant white-transp#
+    ' minos2-logo logo-thumb >o white-transp# to frame-color o>
 }}z
 }}z slide[]
 to top-widget

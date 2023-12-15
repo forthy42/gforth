@@ -1032,6 +1032,23 @@ previous
 
 ' button1 >body cell+ Value slider-frame# \ set the frame number to button2 style
 
+: thumb: ( addr u r -- ) \ minos2
+    file>fpath Create
+    here 0 , $! here atlas-region dup allot erase  0 , f,
+  DOES>
+    cell+ >r
+    r@ atlas-region 0 skip nip 0= IF
+	r@ cell- $@ open-fpath-file throw 2drop slurp-fid
+	over >r load-thumb r> free throw
+	r@ swap move
+	r@ atlas-region + cell+ f@ fdup
+	glue new >o
+	fm* vglue-c df!
+	fm* hglue-c df!  o o>
+	r@ atlas-region + !
+    THEN
+    r@ to frame#  r> atlas-region + @ to tile-glue  white# to frame-color ;
+
 : }}canvas ( glue color xt-lines xt-text -- o )
     canvas new >o
     to text-canvas to draw-canvas
