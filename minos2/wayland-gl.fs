@@ -433,9 +433,14 @@ $Variable clipout-xts
     clipout$ $@ clipout-offset @ safe/string
     clipout-fd -rot write dup -1 <> IF  clipout-offset +!
 	clipout$ $@len clipout-offset @ u> ?EXIT
+    ELSE
+	drop
+	-512 errno - [: cr ." Error writing clipboard pipe: " error$ type ;] do-debug
     THEN \ if we can't write, let's just abandon this operation
     wayland( [: cr ." wrote '" clipout$ $. ." ' to clipout" ;] do-debug )
-    clipout-fd 0 to clipout-fd close drop \ need to ignore error here, too
+    clipout-fd 0 to clipout-fd close -1 = IF
+	-512 errno - [: cr ." Error closing clipboard pipe: " error$ type ;] do-debug
+    THEN
     clipout$ $free
     clipout-xts stack# IF  clipout-xts stack> execute  THEN ;
 
