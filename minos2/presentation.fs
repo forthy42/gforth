@@ -40,7 +40,7 @@ tex: minos2
 
 : logo-thumb ( xt -- o o-tile ) >r
     baseline# 0e to baseline#
-    {{ 0 0 }}thumb r> over .execute dup >r /right
+    {{  r> execute dup >r /right
     glue*l }}glue
     }}v >o font-size# f2/ to border o o>
     to baseline# r> ;

@@ -1035,7 +1035,7 @@ previous
 : thumb: ( addr u r -- ) \ minos2
     file>fpath Create
     here 0 , $! here atlas-region dup allot erase  0 , f,
-  DOES>
+  DOES> ( -- o thumb-o )
     cell+ >r
     r@ atlas-region 0 skip nip 0= IF
 	r@ cell- $@ open-fpath-file throw 2drop slurp-fid
@@ -1047,7 +1047,7 @@ previous
 	fm* hglue-c df!  o o>
 	r@ atlas-region + !
     THEN
-    r@ to frame#  r> atlas-region + @ to tile-glue  white# to frame-color ;
+    r@ atlas-region + @ r> }}thumb >o white# to frame-color o o> ;
 
 : }}canvas ( glue color xt-lines xt-text -- o )
     canvas new >o
