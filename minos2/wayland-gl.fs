@@ -256,7 +256,7 @@ Defer wl-ukeyed ' 2drop is wl-ukeyed
     mods_depressed mods_latched mods_locked 0 0 group xkb_state_update_mask
 ; ?cb wl_keyboard_listener-modifiers:
 :noname { data wl_keyboard serial time wl-key state -- }
-    wayland( state wl-key [: cr h. h. ;] do-debug )
+    wayland( state wl-key [: cr ." wayland key: " h. h. ;] do-debug )
     state WL_KEYBOARD_KEY_STATE_PRESSED = IF
 	{: | keys[ $10 ] :}
 	xkb-state wl-key 8 + keys[ $10 xkb_state_key_get_utf8 ?dup-IF
@@ -362,7 +362,10 @@ Create xy-offset 0e f, 0e f,
     text-input zwp_text_input_v3_commit
 ; ?cb zwp_text_input_v3_listener-commit_string:
 :noname { data text-input d: text cursor_begin cursor_end -- }
-    text save-mem [{: d: text :}h1 text setstring$ $! "" wayland-keys
+    wayland( text [: cr ." preedit: '" type ''' emit ;] do-debug )
+    text save-mem [{: d: text :}h1
+	setstring$ $@ text str=
+	text setstring$ $! 0= IF  "" wayland-keys  THEN
 	text drop free throw ;]
     master-task send-event
 ; ?cb zwp_text_input_v3_listener-preedit_string:
@@ -841,7 +844,7 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
     xpollfds r> xpoll
     IF
 	xpollfds revents >r
-	r@ w@ POLLIN and IF  ?events  THEN
+	r@ w@ POLLIN and event? or  IF  ?events  THEN
 	r> pollfd + >r
 	dpy IF
 	    r@ w@ POLLIN and IF  get-events  THEN
