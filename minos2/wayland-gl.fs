@@ -348,6 +348,8 @@ Create xy-offset 0e f, 0e f,
     zwp_text_input_v3_set_surrounding_text
     text-input zwp_text_input_v3_commit ;
 
+Variable prev-preedit$
+
 <cb
 :noname { data text-input serial -- }
     text-input send-status-update
@@ -362,10 +364,11 @@ Create xy-offset 0e f, 0e f,
     text-input zwp_text_input_v3_commit
 ; ?cb zwp_text_input_v3_listener-commit_string:
 :noname { data text-input d: text cursor_begin cursor_end -- }
+    text prev-preedit$ $@ str= ?EXIT
+    text prev-preedit$ $!
     wayland( text [: cr ." preedit: '" type ''' emit ;] do-debug )
     text save-mem [{: d: text :}h1
-	setstring$ $@ text str=
-	text setstring$ $! 0= IF  "" wayland-keys  THEN
+	text setstring$ $! "" wayland-keys
 	text drop free throw ;]
     master-task send-event
 ; ?cb zwp_text_input_v3_listener-preedit_string:
@@ -822,9 +825,9 @@ User xpollfds
 xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
 : >poll-events ( delay -- n )
-    0 xptimeout 2!
-    epiper @ fileno POLLIN  xpollfds fds!+ >r
+    0 xptimeout 2!  xpollfds >r
     dpy ?dup-IF  wl_display_get_fd POLLIN  r> fds!+ >r  THEN
+    epiper @ fileno POLLIN  r> fds!+ >r
     clipin-fd ?dup-IF  fileno POLLIN  r> fds!+ >r  THEN
     clipout-fd ?dup-IF  POLLOUT  r> fds!+ >r  THEN
     infile-id fileno POLLIN  r> fds!+ >r
@@ -844,12 +847,12 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
     xpollfds r> xpoll
     IF
 	xpollfds revents >r
-	r@ w@ POLLIN and event? or  IF  ?events  THEN
-	r> pollfd + >r
 	dpy IF
 	    r@ w@ POLLIN and IF  get-events  THEN
 	    r> pollfd + >r
 	THEN
+	r@ w@ POLLIN and  IF  ?events  THEN
+	r> pollfd + >r
 	clipin-fd IF
 	    r@ w@ POLLIN and IF  read-clipin  THEN
 	    r@ w@ POLLHUP and IF  eof-clipin  THEN
@@ -861,9 +864,9 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 	THEN
 	rdrop
     ELSE
-	?events
 	dpy IF  get-events  THEN
-    THEN ;
+    THEN
+    ?events ;
 
 : >looper ( -- )  looper-to# #looper ;
 
