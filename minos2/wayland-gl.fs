@@ -858,6 +858,7 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 	THEN
 	rdrop
     ELSE
+	?events
 	dpy IF  get-events  THEN
     THEN ;
 

@@ -145,15 +145,14 @@ DOES> + c@ ;
 	ctrl-keyed
     ELSE
 	top-act .ukeyed
-    THEN
-    0.1e o [: drop fdrop +sync +config ;] >animate ;
+    THEN ;
 : keys-commit ( addr u -- )
     wayland( [: cr ." keys: " 2dup dump ;] do-debug )
     2dup ctrls? IF
 	ctrl-keyed
     ELSE
 	top-act .ukeyed
-    THEN  0.1e o [: drop fdrop +sync +config ;] >animate ;
+    THEN ;
 
 \ enter and leave
 
