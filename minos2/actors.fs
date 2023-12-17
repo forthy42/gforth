@@ -383,7 +383,6 @@ forward sin-t
     vp-deltaxy vp-setxy o> ;
 
 forward anim-del
-forward >animate
 
 :noname ( rx ry -- act )
     ?inside-mode

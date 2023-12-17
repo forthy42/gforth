@@ -241,6 +241,9 @@ Defer wl-ukeyed ' 2drop is wl-ukeyed
 
 0 Value wl-meta
 
+: ?setstring
+    setstring$ $@len IF  setstring$ $free  THEN ;
+
 <cb
 :noname { data wl_keyboard rate delay -- }
 ; ?cb wl_keyboard_listener-repeat_info:
@@ -258,14 +261,14 @@ Defer wl-ukeyed ' 2drop is wl-ukeyed
 	{: | keys[ $10 ] :}
 	xkb-state wl-key 8 + keys[ $10 xkb_state_key_get_utf8 ?dup-IF
 	    keys[ swap save-mem
-	    [{: d: wl-keys :}h1 wl-keys wl-ukeyed
+	    [{: d: wl-keys :}h1 ?setstring wl-keys wl-ukeyed
 	    wl-keys drop free drop ;] master-task send-event
 	    EXIT  THEN
 	xkb-state wl-key 8 + xkb_state_key_get_one_sym
 	\ wayland( [: dup h. ;] do-debug ) wl-ekeyed
 	dup $FE00 $10000 within IF
 	    >xkb-key @ ?dup-IF  wl-meta mask-shift# lshift or
-		[{: wl-key :}h1 wl-key wl-ekeyed ;] master-task send-event
+		[{: wl-key :}h1 ?setstring wl-key wl-ekeyed ;] master-task send-event
 	    THEN
 	ELSE  drop  THEN
     THEN
@@ -354,10 +357,14 @@ Create xy-offset 0e f, 0e f,
 :noname { data text-input d: text -- }
     wayland( text [: cr ." wayland keys: '" type ''' emit ;] do-debug )
     text save-mem
-    [{: d: text :}h1 text wayland-keys text drop free drop ;] master-task send-event
+    [{: d: text :}h1 ?setstring
+	text wayland-keys text drop free drop ;] master-task send-event
     text-input zwp_text_input_v3_commit
 ; ?cb zwp_text_input_v3_listener-commit_string:
 :noname { data text-input d: text cursor_begin cursor_end -- }
+    text save-mem [{: d: text :}h1 text setstring$ $! "" wayland-keys
+	text drop free throw ;]
+    master-task send-event
 ; ?cb zwp_text_input_v3_listener-preedit_string:
 :noname { data text-input surface -- }
 ; ?cb zwp_text_input_v3_listener-leave:
@@ -822,7 +829,7 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
 : xpoll ( -- flag )
     [IFDEF] ppoll
-	xptimeout 0 ppoll 0>
+	xptimeout dup @ 0< IF  drop 0  THEN  0 ppoll 0>
     [ELSE]
 	xptimeout 2@ #1000 * swap #1000000 / + poll 0>
     [THEN] ;

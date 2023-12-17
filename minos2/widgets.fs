@@ -1824,6 +1824,8 @@ $7F7F7FFF color, FValue slider-fgcolor
 0 Value top-widget
 : top-act ( -- o ) top-widget .act ;
 
+forward >animate
+
 require actors.fs
 require animation.fs
 
