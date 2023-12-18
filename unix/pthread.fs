@@ -47,6 +47,7 @@ c-library pthread
     \c   pipe(epipe);
     \c   addr[0]=fdopen(epipe[0], "r");
     \c   addr[1]=fdopen(epipe[1], "a");
+    \c   setvbuf(addr[0], NULL, _IONBF, 0);
     \c   setvbuf(addr[1], NULL, _IONBF, 0);
     \c }
     \c void *gforth_thread(user_area * t)

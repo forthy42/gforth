@@ -775,6 +775,10 @@ edit-terminal edit-out !
     text$ pos-string to curpos  prefix-off
     o>  +sync ;
 
+[IFDEF] sync+config
+    :noname +sync +resize ; is sync+config
+[THEN]
+
 [IFUNDEF] -scan
     : -scan ( addr u char -- addr' u' )
 	>r  BEGIN  dup  WHILE  1- 2dup + c@ r@ =  UNTIL  THEN

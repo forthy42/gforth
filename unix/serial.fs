@@ -142,7 +142,13 @@ pollfd buffer: port-poll
     dup fileno POLLIN port-poll fds!+ drop
     port-poll 1 -1 poll 0< ?ior ;
 
-11 Constant EAGAIN
+[IFUNDEF] EAGAIN
+    e? os-type s" darwin" string-prefix? [IF]
+	#35 Constant EAGAIN
+    [ELSE]
+	#11 Constant EAGAIN
+    [THEN]
+[THEN]
 -512 EAGAIN - Constant eagain-throw#
 
 : throw-serial ( throw-code -- )

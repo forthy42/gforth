@@ -241,6 +241,8 @@ Defer wl-ukeyed ' 2drop is wl-ukeyed
 
 0 Value wl-meta
 
+Variable prev-preedit$
+
 : ?setstring
     setstring$ $@len IF  setstring$ $free  THEN ;
 
@@ -258,6 +260,7 @@ Defer wl-ukeyed ' 2drop is wl-ukeyed
 :noname { data wl_keyboard serial time wl-key state -- }
     wayland( state wl-key [: cr ." wayland key: " h. h. ;] do-debug )
     state WL_KEYBOARD_KEY_STATE_PRESSED = IF
+	prev-preedit$ $free
 	{: | keys[ $10 ] :}
 	xkb-state wl-key 8 + keys[ $10 xkb_state_key_get_utf8 ?dup-IF
 	    keys[ swap save-mem
@@ -348,7 +351,7 @@ Create xy-offset 0e f, 0e f,
     zwp_text_input_v3_set_surrounding_text
     text-input zwp_text_input_v3_commit ;
 
-Variable prev-preedit$
+Defer sync+config ' noop is sync+config
 
 <cb
 :noname { data text-input serial -- }
@@ -358,21 +361,22 @@ Variable prev-preedit$
 ; ?cb zwp_text_input_v3_listener-delete_surrounding_text:
 :noname { data text-input d: text -- }
     wayland( text [: cr ." wayland keys: '" type ''' emit ;] do-debug )
-    text save-mem
+    prev-preedit$ $free  text save-mem
     [{: d: text :}h1 ?setstring
 	text wayland-keys text drop free drop ;] master-task send-event
-    text-input zwp_text_input_v3_commit
 ; ?cb zwp_text_input_v3_listener-commit_string:
 :noname { data text-input d: text cursor_begin cursor_end -- }
-    text prev-preedit$ $@ str= ?EXIT
-    text prev-preedit$ $!
-    wayland( text [: cr ." preedit: '" type ''' emit ;] do-debug )
-    text save-mem [{: d: text :}h1
-	text setstring$ $! "" wayland-keys
-	text drop free throw ;]
-    master-task send-event
+    text prev-preedit$ $@ str= 0= IF
+	text prev-preedit$ $!
+	wayland( text [: cr ." preedit: '" type ''' emit ;] do-debug )
+	text save-mem [{: d: text :}h1
+	    text setstring$ $! sync+config
+	    text drop free throw ;]
+	master-task send-event
+    THEN
 ; ?cb zwp_text_input_v3_listener-preedit_string:
 :noname { data text-input surface -- }
+    text-input zwp_text_input_v3_commit
 ; ?cb zwp_text_input_v3_listener-leave:
 :noname { data text-input surface -- }
     text-input zwp_text_input_v3_enable
@@ -442,13 +446,22 @@ $Variable clipout-xts
     { | w^ arg }  1 arg l!
     dup FIONBIO arg ioctl ?ior ;
 
+[IFUNDEF] EAGAIN
+    e? os-type s" darwin" string-prefix? [IF]
+	#35 Constant EAGAIN
+    [ELSE]
+	#11 Constant EAGAIN
+    [THEN]
+[THEN]
+
 : write-clipout ( -- )
     clipout$ $@ clipout-offset @ safe/string
     clipout-fd -rot write dup -1 <> IF  clipout-offset +!
 	clipout$ $@len clipout-offset @ u> ?EXIT
     ELSE
-	drop
-	-512 errno - [: cr ." Error writing clipboard pipe: " error$ type ;] do-debug
+	drop errno EAGAIN <> IF
+	    -512 errno - [: cr ." Error writing clipboard pipe: " error$ type ;] do-debug
+	THEN
     THEN \ if we can't write, let's just abandon this operation
     wayland( [: cr ." wrote '" clipout$ $. ." ' to clipout" ;] do-debug )
     clipout-fd 0 to clipout-fd close -1 = IF
@@ -826,8 +839,8 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
 : >poll-events ( delay -- n )
     0 xptimeout 2!  xpollfds >r
-    dpy ?dup-IF  wl_display_get_fd POLLIN  r> fds!+ >r  THEN
     epiper @ fileno POLLIN  r> fds!+ >r
+    dpy ?dup-IF  wl_display_get_fd POLLIN  r> fds!+ >r  THEN
     clipin-fd ?dup-IF  fileno POLLIN  r> fds!+ >r  THEN
     clipout-fd ?dup-IF  POLLOUT  r> fds!+ >r  THEN
     infile-id fileno POLLIN  r> fds!+ >r
@@ -847,12 +860,12 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
     xpollfds r> xpoll
     IF
 	xpollfds revents >r
+	r@ w@ POLLIN and  IF  ?events  THEN
+	r> pollfd + >r
 	dpy IF
 	    r@ w@ POLLIN and IF  get-events  THEN
 	    r> pollfd + >r
 	THEN
-	r@ w@ POLLIN and  IF  ?events  THEN
-	r> pollfd + >r
 	clipin-fd IF
 	    r@ w@ POLLIN and IF  read-clipin  THEN
 	    r@ w@ POLLHUP and IF  eof-clipin  THEN
