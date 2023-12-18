@@ -324,6 +324,7 @@ Defer wayland-keys
 
 :noname ( addr u -- ) inskeys ; is wayland-keys
 
+Create old-cursor-xywh #-4200 , #3800 , #-5 , #-100 ,
 Create cursor-xywh #200 , #300 , #1 , #10 ,
 Create xy-offset 0e f, 0e f,
 
@@ -345,8 +346,11 @@ Create xy-offset 0e f, 0e f,
     ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE
     ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL
     zwp_text_input_v3_set_content_type
-    text-input cursor-xywh 4 cells bounds DO  I @  cell  +LOOP
-    zwp_text_input_v3_set_cursor_rectangle
+    cursor-xywh 4 cells old-cursor-xywh over str= 0= IF
+	text-input cursor-xywh 4 cells bounds DO  I @  cell  +LOOP
+	zwp_text_input_v3_set_cursor_rectangle
+	cursor-xywh old-cursor-xywh 4 cells move
+    THEN
     text-input s" " 0 0
     zwp_text_input_v3_set_surrounding_text
     text-input zwp_text_input_v3_commit ;
