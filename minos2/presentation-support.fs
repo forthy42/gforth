@@ -220,7 +220,7 @@ forward >normalscreen
 glue-left  @ >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 glue-right @ >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 
-: pres-frame ( colorday colornight -- o1 o2 )
+: pres-frame ( colorday colornight -- o )
     light-gui new-color, dark-gui -1 +to color,# new-color, fdrop light-gui
     glue*wh slide-frame dup .button1 simple[] ;
 
