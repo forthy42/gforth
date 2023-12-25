@@ -213,7 +213,13 @@ s" ( testing ( without being delimited by newline in non-files" evaluate
 : test 1 0 / ;
 
 \ the following standard program must work with automatic scoping
-: foo {: xxxxx :} ahead begin xxxxx again then ;
+: foo0 {: xxxxx :} ahead begin xxxxx again then ;
+
+\ and the equivalent for quotations and closures
+: foo1 [: {: xxxxx :} ahead begin xxxxx again then ;] ;
+: foo2 [n:d {: xxxxx :} ahead begin xxxxx again then ;] ;
+: foo3 [{: xxxxx :}h1 {: yyyyy :} ahead begin xxxxx yyyyy again then ;
+
 
 \ last test!
 \ testing '(' without ')' at end-of-file
