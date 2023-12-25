@@ -34,20 +34,17 @@ variable backedge-locals-default 0 backedge-locals-default !
     \ refined version could use the locals list on the latest place
     \ that had only dests on the locals stack and an empty LEAVE
     \ stack.
-0 value cs-depth ( -- u )
-\ number of items on the control-flow stack
 0 value cs-depth1 ( -- u )
-\ number of items on the control-flow stack (also in surrounding definitions)
+\ number of items on the control-flow stack
 0 value cs-floor ( -- u )
-\ number of items on the control-flow stack at the start of the definition
+\ number of items on the control-flow stack at the start of the quotation etc.
 
 : :-hook1 ( -- )
-    0 to cs-depth 0 to backedge-locals-default ;
+    0 to backedge-locals-default ;
 ' :-hook1 is :-hook
 
 : ;-hook21 ( -- )
-    cs-depth1 cs-floor <> -22 and throw
-    cs-depth 0<> -22 and throw ;
+    cs-depth1 cs-floor <> -22 and throw ;
 ' ;-hook21 is ;-hook2
 
 : UNREACHABLE ( -- ) \ gforth
@@ -74,20 +71,11 @@ variable backedge-locals-default 0 backedge-locals-default !
     cs-depth1 1- to cs-depth1
     cs-depth1 cs-floor < -22 and throw ;
 
-: cs-depth++ ( -- )
-    cs-depth 1+ to cs-depth ;
-
 : before-cs-push ( -- )
-    update-backedge-locals-default cs-depth++ cs-depth1++ ;
-
-defer negative-cs-depth-check ( -- )
+    update-backedge-locals-default cs-depth1++ ;
 
 : after-cs-pop ( -- )
-    cs-depth 1- to cs-depth
-    cs-depth 0< -22 and throw
-    cs-depth1--
-    
-;
+    cs-depth1-- ;
 
 \ Control Flow Stack
 \ orig, etc. have the following structure:
@@ -459,13 +447,13 @@ defer adjust-locals-list ( wid -- )
 \ quotations
 : wrap@-kernel ( -- wrap-sys )
     hmsave latest latestnt 0 leave-stack !@
-    cs-depth cs-floor cs-depth1 to cs-floor
+    cs-floor cs-depth1 to cs-floor
     backedge-locals-default @
     ( unlocal-state @ ) ;
 
 : wrap!-kernel ( wrap-sys -- )
     ( unlocal-state ! )
-    backedge-locals-default ! to cs-floor to cs-depth
+    backedge-locals-default ! to cs-floor
     leave-stack ! lastnt ! last ! hmrestore ;
 
 Defer wrap@ ( -- wrap-sys ) ' wrap@-kernel is wrap@
@@ -474,7 +462,7 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 : (int-;]) ( some-sys lastxt -- ) >r hm, wrap! r> ;
 : (;]) ( some-sys lastxt -- )
     >r
-    ] postpone UNREACHABLE cs-depth++ cs-depth1++ postpone ENDSCOPE
+    ] postpone UNREACHABLE cs-depth1++ postpone ENDSCOPE
     finish-code  hm,  previous-section  wrap!  dead-code off
     r> postpone Literal ;
 
