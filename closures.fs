@@ -191,7 +191,7 @@ forth definitions
 \ stack-based closures without name
 
 : (;*]) ( xt -- hm )
-    >r ] ]] UNREACHABLE [[ cs-depth++ ]] ENDSCOPE [[
+    >r ] ]] UNREACHABLE [[ cs-depth1++ ]] ENDSCOPE [[
     r@ wrap-closure  r> >namehm @ ;
 
 : (;]l) ( xt1 n xt2 -- ) (;*]) >r dummy-local,

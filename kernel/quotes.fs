@@ -28,7 +28,7 @@ Defer next-section     \ put some data within a definition
 Defer previous-section \ end that part
 
 :noname  postpone ahead after-cs-pop ; is next-section
-:noname  cs-depth++ postpone then ; is previous-section
+:noname  cs-depth1++ postpone then ; is previous-section
 
 : CLiteral ( Compilation c-addr1 u ; run-time -- c-addr )
     2>r next-section here 2r> string, align >r  previous-section
