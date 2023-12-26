@@ -40,7 +40,7 @@ variable backedge-locals-default 0 backedge-locals-default !
 \ number of items on the control-flow stack at the start of the quotation etc.
 
 : :-hook1 ( -- )
-    0 to backedge-locals-default ;
+    0 backedge-locals-default ! ;
 ' :-hook1 is :-hook
 
 : ;-hook21 ( -- )
@@ -68,8 +68,7 @@ variable backedge-locals-default 0 backedge-locals-default !
     cs-depth1 1+ to cs-depth1 ;
 
 : cs-depth1-- ( -- )
-    cs-depth1 1- to cs-depth1
-    cs-depth1 cs-floor < -22 and throw ;
+    cs-depth1 1- to cs-depth1 ;
 
 : before-cs-push ( -- )
     update-backedge-locals-default cs-depth1++ ;
