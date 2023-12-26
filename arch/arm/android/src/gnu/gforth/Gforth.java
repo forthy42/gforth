@@ -481,6 +481,7 @@ public class Gforth
         ActivityInfo ai;
         String libname = "gforth";
 	intent = getIntent();
+	Log.v(TAG, "onCreate, intent.action="+intent.getAction()+" intent.data="+intent.getDataString());
 
 	gforth=this;
 	
