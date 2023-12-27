@@ -40,6 +40,7 @@ variable backedge-locals-default 0 backedge-locals-default !
 \ number of items on the control-flow stack at the start of the quotation etc.
 
 : :-hook1 ( -- )
+    cs-depth1 to cs-floor
     0 backedge-locals-default ! ;
 ' :-hook1 is :-hook
 
@@ -446,8 +447,7 @@ defer adjust-locals-list ( wid -- )
 \ quotations
 : wrap@-kernel ( -- wrap-sys )
     hmsave latest latestnt 0 leave-stack !@
-    cs-floor cs-depth1 to cs-floor
-    backedge-locals-default @
+    cs-floor backedge-locals-default @
     ( unlocal-state @ ) ;
 
 : wrap!-kernel ( wrap-sys -- )
@@ -461,7 +461,7 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 : (int-;]) ( some-sys lastxt -- ) >r hm, wrap! r> ;
 : (;]) ( some-sys lastxt -- )
     >r
-    ] postpone UNREACHABLE cs-depth1++ postpone ENDSCOPE
+    ] postpone UNREACHABLE postpone ENDSCOPE
     finish-code  hm,  previous-section  wrap!  dead-code off
     r> postpone Literal ;
 
@@ -469,7 +469,7 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
     wrap@ ['] (int-;]) :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
     wrap@  next-section  finish-code|
-    postpone SCOPE cs-depth1-- locals-list off
+    postpone SCOPE locals-list off
     ['] (;])  :noname  ;
 ' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon
 \G Starts a quotation
