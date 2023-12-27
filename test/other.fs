@@ -214,6 +214,8 @@ s" ( testing ( without being delimited by newline in non-files" evaluate
 
 \ the following standard program must work with automatic scoping
 : foo0 {: xxxxx :} ahead begin xxxxx again then ;
+:noname {: xxxxx :} ahead begin xxxxx again then ; drop
+
 
 \ and the equivalent for quotations and closures
 : foo1 [: {: xxxxx :} ahead begin xxxxx again then ;] ;
