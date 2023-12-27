@@ -431,7 +431,10 @@ $Variable clipout-xts
     clipin-fd 0 to clipin-fd close-file throw
     0 clipin$ !@ clipin-dest$ !@ ?dup-IF  free throw  THEN
     wayland( [: cr ." read " clipin-dest$ id. ." with '" clipin-dest$ $@ type ." '" ;] do-debug )
-    clipin-xts stack# IF  clipin-xts stack> execute  THEN ;
+    clipin-xts stack# IF
+	clipin-xts stack>
+	wayland( [: cr ." next clipin: " dup h. ;] do-debug )
+	execute  THEN ;
 
 : read-clipin ( -- )
     clipin-fd check_read dup 0> IF \ data available
@@ -475,9 +478,13 @@ $Variable clipout-xts
     clipout-xts stack# IF  clipout-xts stack> execute  THEN ;
 
 : queue-clipin ( xt -- )
-    clipin-fd IF  clipin-xts >stack  ELSE  master-task send-event  THEN ;
+    wayland( [: cr ." queue clipin: " dup h. ;] do-debug )
+    [{: xt :}h1 clipin-fd IF  xt clipin-xts >stack  ELSE  xt execute  THEN ;]
+    master-task send-event ;
 : queue-clipout ( xt -- )
-    clipout-fd IF  clipout-xts >stack  ELSE  master-task send-event  THEN ;
+    wayland( [: cr ." queue clipout: " dup h. ;] do-debug )
+    [{: xt :}h1 clipout-fd IF  xt clipout-xts >stack  ELSE  xt execute  THEN ;]
+    master-task send-event ;
 
 : accept+receive { offer d: mime-type dest$ | fds[ 2 cells ] -- }
     offer current-serial mime-type wl_data_offer_accept
@@ -578,7 +585,7 @@ cb> primary-selection-offer-listener
 ; ?cb zwp_primary_selection_device_v1_listener-selection:
 :noname { data data-device id -- }
     wayland( id [: cr ." primary offer: " h. ;] do-debug )
-    mime-types[] $[]free
+    mime-types[] $[]free  0 to my-primary
     id primary-selection-offer-listener 0 zwp_primary_selection_offer_v1_add_listener
 ; ?cb zwp_primary_selection_device_v1_listener-data_offer:
 cb> primary-selection-listener
@@ -845,7 +852,7 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
     0 xptimeout 2!  xpollfds >r
     epiper @ fileno POLLIN  r> fds!+ >r
     dpy ?dup-IF  wl_display_get_fd POLLIN  r> fds!+ >r  THEN
-    clipin-fd ?dup-IF  fileno POLLIN  r> fds!+ >r  THEN
+    clipin-fd ?dup-IF  fileno POLLIN POLLHUP or  r> fds!+ >r  THEN
     clipout-fd ?dup-IF  POLLOUT  r> fds!+ >r  THEN
     infile-id fileno POLLIN  r> fds!+ >r
     r> xpollfds - pollfd / ;
@@ -946,9 +953,14 @@ app_input_state buffer: *input
     data-device data-source 0 wl_data_device_set_selection
 ;
 : clipboard@ ( -- addr u ) clipboard$ $@ ;
+
+0 Value primary-serial#
+
 : primary! ( addr u -- ) primary$ $!
     true to my-primary
-    primary-selection-device primary-selection-source 0 zwp_primary_selection_device_v1_set_selection
+    primary-selection-device primary-selection-source
+    primary-serial# zwp_primary_selection_device_v1_set_selection
+    1 +to primary-serial#
 ;
 : primary@ ( -- addr u ) primary$ $@ ;
 : dnd@ ( -- addr u ) dnd$ $@ ;
