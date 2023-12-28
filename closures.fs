@@ -190,19 +190,23 @@ forth definitions
 
 \ stack-based closures without name
 
-: (;*]) ( xt -- hm )
+: (;]) ( xt -- hm )
     >r ] ]] UNREACHABLE ENDSCOPE [[
     r@ wrap-closure  r> >namehm @ ;
 
-: (;]l) ( xt1 n xt2 -- ) (;*]) >r dummy-local,
+: (;]l) ( xt1 n xt2 -- )
+    (;]) >r dummy-local,
     compile, r> lit, ]] closure> [[ ;
-: (;]*) ( xt0 xt1 n xt2 -- )
-    (;*]) >r lit, swap compile,
-    ]] >lp [[ compile, r> lit, ]] closure> lp> [[ ;
+
+: alloc-by-xt, ( xt n -- )
+    lit, swap compile, ]] >lp [[ ;
+: (;]xt) ( xt0 xt1 n xt2 -- )
+    (;]) >r alloc-by-xt,
+    compile, r> lit, ]] closure> lp> [[ ;
 
 : :l ( -- xt )                  ['] (;]l) ; immediate restrict
-: :h ( -- xt1 xt2 )  ['] alloch ['] (;]*) ; immediate restrict
-: :d ( -- xt1 xt2 )  ['] allocd ['] (;]*) ; immediate restrict
+: :h ( -- xt1 xt2 )  ['] alloch ['] (;]xt) ; immediate restrict
+: :d ( -- xt1 xt2 )  ['] allocd ['] (;]xt) ; immediate restrict
 
 : [*:: [{: xt@ xt>l size :}d
 	>r xt>l size [ 2 cells ]L + maxaligned postpone [: xt@ compile,
