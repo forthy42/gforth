@@ -957,11 +957,11 @@ app_input_state buffer: *input
 0 Value primary-serial#
 
 : primary! ( addr u -- ) primary$ $!
-    true to my-primary
-    primary-selection-device primary-selection-source
-    primary-serial# zwp_primary_selection_device_v1_set_selection
+    primary$ $@len 0<> to my-primary
     1 +to primary-serial#
-;
+    primary-selection-device
+    primary-selection-source primary$ $@len 0<> and
+    primary-serial# zwp_primary_selection_device_v1_set_selection ;
 : primary@ ( -- addr u ) primary$ $@ ;
 : dnd@ ( -- addr u ) dnd$ $@ ;
 
