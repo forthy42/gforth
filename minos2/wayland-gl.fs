@@ -528,6 +528,8 @@ cb> data-offer-listener
 Defer dnd-move
 Defer dnd-drop
 
+0 Value old-id
+
 <cb
 :noname { data data-device id -- }
     wayland( id [: cr ." selection id: " h. ;] do-debug )
@@ -552,6 +554,8 @@ Defer dnd-drop
 ; ?cb wl_data_device_listener-enter:
 :noname { data data-device id -- }
     wayland( id [: cr ." offer: " h. ;] do-debug )
+    old-id ?dup-IF  wl_data_offer_destroy  THEN
+    id to old-id
     mime-types[] $[]free
     id data-offer-listener 0 wl_data_offer_add_listener drop
 ; ?cb wl_data_device_listener-data_offer:
@@ -576,6 +580,8 @@ cb> primary-selection-offer-listener
 
 \ primary selection device listener
 
+0 Value old-ps-id
+
 <cb
 :noname { data data-device id -- }
     wayland( id [: cr ." primary selection id: " h. ;] do-debug )
@@ -585,6 +591,8 @@ cb> primary-selection-offer-listener
 ; ?cb zwp_primary_selection_device_v1_listener-selection:
 :noname { data data-device id -- }
     wayland( id [: cr ." primary offer: " h. ;] do-debug )
+    old-ps-id ?dup-IF  zwp_primary_selection_offer_v1_destroy  THEN
+    id to old-ps-id
     mime-types[] $[]free  0 to my-primary
     id primary-selection-offer-listener 0 zwp_primary_selection_offer_v1_add_listener
 ; ?cb zwp_primary_selection_device_v1_listener-data_offer:
