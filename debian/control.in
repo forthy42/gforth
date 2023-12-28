@@ -23,7 +23,7 @@ Package: gforth-common
 Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
-Recommends: gforth-minos2, gforth-doc
+Recommends: gforth-minos2 (= @DEBVERSION@), gforth-doc (= @DEBVERSION@)
 License: GPLv3
 Description: GNU Forth
  Gforth is the Forth implementation of the GNU project, providing all
@@ -191,9 +191,9 @@ Package: gforth-minos2
 Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
-Depends: gforth (= @DEBVERSION@), gforth-opengl, gforth-display, gforth-fonts, gforth-minos2tools, gforth-libcc-minos2
-Recommends: fonts-emoji, fonts-awesome, gforth-libcc-gles, gforth-libcc-x11, gforth-libcc-wayland
-Suggests: gforth-dejavu-fonts
+Depends: gforth (= @DEBVERSION@), gforth-opengl (= @DEBVERSION@), gforth-display (= @DEBVERSION@), gforth-fonts (= @DEBVERSION@), gforth-minos2tools (= @DEBVERSION@), gforth-libcc-minos2 (= @DEBVERSION@)
+Recommends: fonts-emoji, fonts-awesome, gforth-libcc-gles (= @DEBVERSION@), gforth-libcc-x11 (= @DEBVERSION@), gforth-libcc-wayland (= @DEBVERSION@)
+Suggests: gforth-dejavu-fonts (= @DEBVERSION@)
 Description: GNU Forth Minos2 GUI
  Gforth is the Forth implementation of the GNU project, providing all
  features of the ANS Forth (Forth-94) and the Forth-2012 standards.
@@ -204,7 +204,7 @@ Package: gforth-minos2audio
 Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
-Depends: gforth (= @DEBVERSION@), gforth-libcc-audio
+Depends: gforth (= @DEBVERSION@), gforth-libcc-audio (= @DEBVERSION@)
 Description: GNU Forth Minos2 GUI
  Gforth is the Forth implementation of the GNU project, providing all
  features of the ANS Forth (Forth-94) and the Forth-2012 standards.
