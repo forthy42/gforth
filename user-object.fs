@@ -1,7 +1,7 @@
 \ Mini-OOF extension: current object in user variable  08jan13py
 
 \ Authors: Bernd Paysan
-\ Copyright (C) 2014,2015,2019 Free Software Foundation, Inc.
+\ Copyright (C) 2014,2015,2019,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

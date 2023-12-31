@@ -1,7 +1,7 @@
 \ load a ~/.gforthrc on startup
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2014,2015,2016,2018,2019,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2014,2015,2016,2018,2019,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
