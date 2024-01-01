@@ -1,7 +1,7 @@
 \ test for Gforth primitives
 
 \ Author: Anton Ertl
-\ Copyright (C) 2003,2007,2019 Free Software Foundation, Inc.
+\ Copyright (C) 2003,2007,2019,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

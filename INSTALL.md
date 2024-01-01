@@ -245,6 +245,6 @@ Like Flatpak, you want aliases to run it with the necessary permissions
 # About
 
 Authors: Gerald Wodni, Anton Ertl, Bernd Paysan
-Copyright (C) 2016,2017,2019,2020,2021,2022 Free Software Foundation, Inc.
+Copyright (C) 2016,2017,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 This file is free documentation; the Free Software Foundation gives
 unlimited permission to copy, distribute and modify it.
