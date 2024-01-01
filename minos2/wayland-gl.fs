@@ -362,6 +362,7 @@ Defer sync+config ' noop is sync+config
     text-input send-status-update
 ; ?cb zwp_text_input_v3_listener-done:
 :noname { data text-input before_length after_length -- }
+    text-input send-status-update
 ; ?cb zwp_text_input_v3_listener-delete_surrounding_text:
 :noname { data text-input d: text -- }
     wayland( text [: cr ." wayland keys: '" type ''' emit ;] do-debug )
