@@ -1860,9 +1860,16 @@ fi
 case "$SWIGMODULES"
 in
     *wayland.fs*)
-	AC_PATH_PROGS(WAYLAND_SCANNER,wayland-scanner)
 	WAYLAND_PROTOCOLS_DATADIR=`$PKG_CONFIG --variable=pkgdatadir wayland-protocols`
-	INCLUDE_WAYLAND='include $(srcdir)/Makefile.wayland'
+	AC_PATH_PROGS(WAYLAND_SCANNER,wayland-scanner)
+	if test "x$WAYLAND_PROTOCOLS_DATADIR" = x -o "x$WAYLAND_SCANNER" = x
+	then
+	    AC_MSG_WARN([*** Could not find Wayland protocols.  Wayland build will fail])
+	    config_warns="$config_warns
+wayland protocols not found."
+	else
+	    INCLUDE_WAYLAND='include $(srcdir)/Makefile.wayland'
+	fi
 	;;
 esac
 AC_SUBST(WAYLAND_SCANNER)
