@@ -30,7 +30,7 @@ unix/wayland.fs: $(WAYLAND_INCLUDE)
 vpath %.xml $(shell find $(WAYLAND_PROTOCOLS_DATADIR) -type d)
 
 wayland/%-client.h: %.xml
-	wayland-scanner client-header <$< >$@
+	$(WAYLAND_SCANNER) client-header <$< >$@
 
 wayland/%.c: %.xml
-	wayland-scanner private-code <$< >$@
+	$(WAYLAND_SCANNER) private-code <$< >$@
