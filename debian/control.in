@@ -191,7 +191,7 @@ Package: gforth-minos2
 Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
-Depends: gforth (= @DEBVERSION@), gforth-opengl (= @DEBVERSION@), gforth-display (= @DEBVERSION@), gforth-fonts (= @DEBVERSION@), gforth-minos2tools (= @DEBVERSION@), gforth-libcc-minos2 (= @DEBVERSION@)
+Depends: gforth (= @DEBVERSION@), gforth-opengl, gforth-display, gforth-fonts, gforth-minos2tools (= @DEBVERSION@), gforth-libcc-minos2 (= @DEBVERSION@)
 Recommends: fonts-emoji, fonts-awesome, gforth-libcc-gles (= @DEBVERSION@), gforth-libcc-x11 (= @DEBVERSION@), gforth-libcc-wayland (= @DEBVERSION@)
 Suggests: gforth-dejavu-fonts (= @DEBVERSION@)
 Description: GNU Forth Minos2 GUI

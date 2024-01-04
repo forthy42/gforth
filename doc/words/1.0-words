@@ -1107,9 +1107,9 @@ Def-color Doe-color Val-color Var-color Con-color Pri-color prim? xtprim?
 colon? defered? does? user? value? con? var? .recognizers .recognizer-sequence 
 prim>name >head @threaded>name threaded>name >name look PrimStart @threaded>xt 
 threaded>xt xt= [f:h [d:h [n:h [f:d [d:d [n:d [f:l [d:l [n:l [f: [d: [n: [*:: 
-:d :h :l (;]*) (;]l) (;*]) ;> <{: [{: end-dclosure closure> free-closure 
-closure-:-hook (closure-;]) wrap-closure dummy-local, pop-locals push-locals 
-extra-locals lp> >lp allocd alloch >addr 1t-closure? endref, end-d 
+:d :h :l (;]xt) alloc-by-xt, (;]l) (;]*) ;> <{: [{: end-dclosure closure> 
+free-closure closure-:-hook (closure-;]) wrap-closure dummy-local, pop-locals 
+push-locals extra-locals lp> >lp allocd alloch >addr 1t-closure? endref, end-d 
 locals-lists locals-sizes opt-u/mod opt-/modf opt-umod opt-modf opt-u/ opt-/f 
 lit/, /f-stage1m ctz pow2? u/-stage1m staged/-size staged/-divisor 
 staged/-inverse-hi staged/-shift staged/-inverse dffield: sffield: ffield: 
@@ -1204,10 +1204,10 @@ then-like ?DUP-0=-IF ?DUP-IF IF AHEAD NOPE YET BUT <resolve >resolve >mark?
 CS-DROP CS-ROLL CS-PICK cs-item-size cs-item? non-orig? scope? do-dest? dest? 
 orig? scopestart do-dest dest dead-orig live-orig pop-stack-state 
 pop-stack-state1 push-stack-state push-stack-state1 after-cs-pop 
-negative-cs-depth-check before-cs-push cs-depth++ 
-update-backedge-locals-default ASSUME-LIVE UNREACHABLE ;-hook21 :-hook1 
-cs-depth backedge-locals-default backedge-locals dead-code locals-list 
-.included require include required included >include-auto-extension 
+before-cs-push cs-depth1-- cs-depth1++ update-backedge-locals-default 
+ASSUME-LIVE UNREACHABLE ;-hook21 :-hook1 cs-floor cs-depth1 
+backedge-locals-default backedge-locals dead-code locals-list .included 
+require include required included >include-auto-extension 
 include-auto-extension-filename >include >included included1 add-included-file 
 included? str>loadfilename# sourceline# included-filename[] sourcefilename 
 included-files open-fpath-file open-path-file execute-path-file open-ofile 
