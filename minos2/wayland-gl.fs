@@ -720,7 +720,7 @@ wl-registry set-current
     wl_shm_interface swap 1 umin wl_registry_bind to wl-shm
     cursor-theme$ $@ cursor-size @
     wl-shm wl_cursor_theme_load dup to cursor-theme
-    s" left_ptr" wl_cursor_theme_get_cursor to cursor ;
+    s" default" wl_cursor_theme_get_cursor to cursor ;
 : zwp_text_input_manager_v3 ( registry name version -- )
     zwp_text_input_manager_v3_interface swap 1 umin wl_registry_bind
     dup to text-input-manager
