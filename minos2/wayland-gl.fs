@@ -649,7 +649,9 @@ Variable cursor-size #24 cursor-size !
 		source "cursorSize=" string-prefix? IF
 		    source #11 safe/string s>number drop $10 max cursor-size !
 		THEN
-	REPEAT ;] execute-parsing-file ;
+	REPEAT ;] execute-parsing-file
+    wayland( [: cr ." cursor: " cursor-theme$ $. ."  size: " cursor-size ?
+    ;] do-debug ) ;
 
 : read-gnome-cursor-theme ( -- )
     "~/.config/gtk-4.0/settings.ini" r/o open-file IF  drop  EXIT  THEN
@@ -660,13 +662,34 @@ Variable cursor-size #24 cursor-size !
 		source "gtk-cursor-theme-size=" string-prefix? IF
 		    source #22 safe/string s>number drop $10 max cursor-size !
 		THEN
-	REPEAT ;] execute-parsing-file ;
+	REPEAT ;] execute-parsing-file
+    wayland( [: cr ." cursor: " cursor-theme$ $. ."  size: " cursor-size ?
+    ;] do-debug ) ;
 
 : read-cursor-theme ( -- )
+    wayland( [: cr ." Read " ${XDG_CURRENT_DESKTOP} type ."  Theme" ;] do-debug )
     ${XDG_CURRENT_DESKTOP} "KDE" str= IF  read-kde-cursor-theme  EXIT  THEN
     ${XDG_CURRENT_DESKTOP} "GNOME" str= IF  read-gnome-cursor-theme  EXIT  THEN ;
 
-read-cursor-theme
+: data-device-manager-rest ( -- )
+    data-device-manager
+    wl-seat wl_data_device_manager_get_data_device dup to data-device
+    data-device-listener 0 wl_data_device_add_listener drop
+    data-device-manager wl_data_device_manager_create_data_source
+    dup to data-source
+    data-source-listener clipboard$ wl_data_source_add_listener drop
+    ds-mime-types[] [: data-source -rot wl_data_source_offer ;] $[]map
+;
+
+: primary-selection-device-manager-rest ( -- )
+    primary-selection-device-manager
+    wl-seat zwp_primary_selection_device_manager_v1_get_device dup to primary-selection-device
+    primary-selection-listener 0 zwp_primary_selection_device_v1_add_listener drop
+    primary-selection-device-manager zwp_primary_selection_device_manager_v1_create_source
+    dup to primary-selection-source
+    primary-selection-source-listener primary$ zwp_primary_selection_source_v1_add_listener drop
+    ds-mime-types[] [: primary-selection-source -rot zwp_primary_selection_source_v1_offer ;] $[]map
+;
 
 table Constant wl-registry
 
@@ -688,7 +711,11 @@ wl-registry set-current
     wl-output-listener 0 wl_output_add_listener drop ;
 : wl_seat ( registry name version -- )
     wl_seat_interface swap 8 umin wl_registry_bind dup to wl-seat
-    wl-seat-listener 0 wl_seat_add_listener drop ;
+    wl-seat-listener 0 wl_seat_add_listener drop
+    data-device-manager IF
+	data-device-manager-rest THEN
+    primary-selection-device-manager IF
+	primary-selection-device-manager-rest THEN ;
 : wl_shm ( registry name version -- )
     wl_shm_interface swap 1 umin wl_registry_bind to wl-shm
     cursor-theme$ $@ cursor-size @
@@ -708,24 +735,14 @@ wl-registry set-current
     to decoration-manager ;
 : wl_data_device_manager ( registry name version -- )
     wl_data_device_manager_interface swap 3 umin wl_registry_bind
-    dup to data-device-manager
-    wl-seat wl_data_device_manager_get_data_device dup to data-device
-    data-device-listener 0 wl_data_device_add_listener drop
-    data-device-manager wl_data_device_manager_create_data_source
-    dup to data-source
-    data-source-listener clipboard$ wl_data_source_add_listener drop
-    ds-mime-types[] [: data-source -rot wl_data_source_offer ;] $[]map
-;
+    to data-device-manager
+    wl-seat 0= ?EXIT
+    data-device-manager-rest ;
 : zwp_primary_selection_device_manager_v1 ( registry name version -- )
     zwp_primary_selection_device_manager_v1_interface swap 1 umin wl_registry_bind
-    dup to primary-selection-device-manager
-    wl-seat zwp_primary_selection_device_manager_v1_get_device dup to primary-selection-device
-    primary-selection-listener 0 zwp_primary_selection_device_v1_add_listener drop
-    primary-selection-device-manager zwp_primary_selection_device_manager_v1_create_source
-    dup to primary-selection-source
-    primary-selection-source-listener primary$ zwp_primary_selection_source_v1_add_listener drop
-    ds-mime-types[] [: primary-selection-source -rot zwp_primary_selection_source_v1_offer ;] $[]map
-;
+    to primary-selection-device-manager
+    wl-seat 0= ?EXIT
+    primary-selection-device-manager-rest ;
 set-current
 
 : registry+ { data registry name d: interface version -- }
@@ -825,12 +842,12 @@ cb> xdg-decoration-listener
     xdg-toplevel s" ΜΙΝΟΣ2 OpenGL Window" xdg_toplevel_set_title
     xdg-toplevel s" ΜΙΝΟΣ2" xdg_toplevel_set_app_id
     xdg-toplevel xdg_toplevel_set_maximized
-    decoration-manager xdg-toplevel
-    zxdg_decoration_manager_v1_get_toplevel_decoration dup to zxdg-decoration
-    dup xdg-decoration-listener 0
-    zxdg_toplevel_decoration_v1_add_listener drop
-    ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE
-    zxdg_toplevel_decoration_v1_set_mode
+    decoration-manager ?dup-IF  xdg-toplevel
+	zxdg_decoration_manager_v1_get_toplevel_decoration dup to zxdg-decoration
+	dup xdg-decoration-listener 0
+	zxdg_toplevel_decoration_v1_add_listener drop
+	ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE
+	zxdg_toplevel_decoration_v1_set_mode  THEN
     wl-surface w h wl_egl_window_create to win
     wl-surface wl_surface_commit
     wayland( [: cr ." wl-eglwin done" ;] do-debug ) ;
@@ -920,7 +937,7 @@ Defer window-init     ' noop is window-init
 
 : gl-init ( -- ) \ minos2
     \G if not already opened, open window and initialize OpenGL
-    ctx 0= IF window-init THEN ;
+    ctx 0= IF  read-cursor-theme  window-init THEN ;
 
 begin-structure app_input_state
 field: action
