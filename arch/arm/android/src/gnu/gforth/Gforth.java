@@ -329,8 +329,9 @@ public class Gforth
 	@Override
 	public InputConnection onCreateInputConnection (EditorInfo outAttrs) {
 	    moutAttrs=outAttrs;
-	    outAttrs.inputType = (InputType.TYPE_CLASS_TEXT | /*
-				  InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE | */
+	    outAttrs.inputType = (InputType.TYPE_CLASS_TEXT |
+				  InputType.TYPE_TEXT_VARIATION_LONG_MESSAGE |
+				  InputType.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT |
 				  InputType.TYPE_TEXT_FLAG_AUTO_CORRECT |
 				  InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 	    outAttrs.initialSelStart = mcurpos;
