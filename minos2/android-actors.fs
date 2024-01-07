@@ -192,21 +192,30 @@ previous
     LOOP ;
 : u/ekeyed ( ekey -- )
     dup 0= IF  drop  EXIT  THEN
+    case
+	#del of  k-delete     wl-meta mask-shift# lshift or  endof
+	#bs  of  k-backspace  wl-meta mask-shift# lshift or  endof
+	#lf  of  k-enter      wl-meta mask-shift# lshift or  endof
+	#cr  of  k-enter      wl-meta mask-shift# lshift or  endof
+    dup endcase
     dup bl keycode-start within
     IF    >xstring top-act .ukeyed
     ELSE  ?dup-IF top-act .ekeyed THEN  THEN ;
+: string-u/ekeyed ( addr u -- )
+    2dup ctrls? IF
+	bounds ?DO  I xc@+ swap >r u/ekeyed  r> I -  +LOOP
+    ELSE
+	top-act .ukeyed
+    THEN ;
 : key>action ( event -- )
     dup to key-event >o
     ke_getMetaState meta-key# !
     getAction dup 2 = IF  drop
 	getKeyCode
 	?dup-IF  keycode>ekey u/ekeyed
-	ELSE  nostring getCharacters jstring>sstring
-	    2dup ctrls? IF
-		bounds ?DO  I xc@+ swap >r u/ekeyed  r> I -  +LOOP
-	    ELSE
-		top-act .ukeyed
-	    THEN  jfree
+	ELSE
+	    nostring getCharacters jstring>sstring
+	    string-u/ekeyed  jfree
 	THEN
     ELSE
 	0= IF
@@ -235,10 +244,10 @@ previous
     setstring$ @ { w^ s$ } setstring$ off
     s$ $@
     BEGIN  dup  WHILE  over c@ #del =  WHILE
-		2>r #bs top-act .ekeyed 2r> 1 /string  REPEAT  THEN
+		2>r k-backspace top-act .ekeyed 2r> 1 /string  REPEAT  THEN
     BEGIN  dup  WHILE  2dup "\e[3~" string-prefix?  WHILE
 		2>r k-delete top-act .ekeyed 2r> 4 /string  REPEAT  THEN
-    ?dup-IF  top-act .ukeyed  ELSE  drop  THEN
+    ?dup-IF  string-u/ekeyed  ELSE  drop  THEN
     s$ $free ;
 : edit-context-menu ( n -- )
     case

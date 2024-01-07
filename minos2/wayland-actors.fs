@@ -133,6 +133,8 @@ DOES> + c@ ;
     case
 	#del of  k-delete     wl-meta mask-shift# lshift or  endof
 	#bs  of  k-backspace  wl-meta mask-shift# lshift or  endof
+	#lf  of  k-enter      wl-meta mask-shift# lshift or  endof
+	#cr  of  k-enter      wl-meta mask-shift# lshift or  endof
     dup endcase
     dup bl keycode-start within over #del <> and
     IF    $1000000 invert and >xstring top-act .ukeyed
