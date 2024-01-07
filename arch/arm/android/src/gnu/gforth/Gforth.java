@@ -331,11 +331,14 @@ public class Gforth
 	    moutAttrs=outAttrs;
 	    outAttrs.inputType = (InputType.TYPE_CLASS_TEXT | /*
 				  InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE | */
-				  InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+				  InputType.TYPE_TEXT_FLAG_AUTO_CORRECT |
+				  InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 	    outAttrs.initialSelStart = mcurpos;
 	    outAttrs.initialSelEnd = mcurpos+mlen;
 	    outAttrs.packageName = "gnu.gforth";
-	    outAttrs.imeOptions = (EditorInfo.IME_FLAG_NO_FULLSCREEN);
+	    outAttrs.imeOptions = (EditorInfo.IME_FLAG_NO_FULLSCREEN |
+				   EditorInfo.IME_FLAG_NAVIGATE_NEXT |
+				   EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS);
 	    mInputConnection = new MyInputConnection(this, true);
 	    return mInputConnection;
 	}

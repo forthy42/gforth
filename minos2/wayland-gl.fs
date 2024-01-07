@@ -68,6 +68,7 @@ debug: wayland( \ )
 \ set a cursor
 
 : set-cursor { serial -- }
+    wayland( serial [: cr ." Set cursor, serial " h. ;] do-debug )
     cursor wl_cursor-images @ @ { image }
     wl-pointer serial cursor-surface
     image wl_cursor_image-hotspot_x l@ l>s
@@ -672,6 +673,7 @@ Variable cursor-size #24 cursor-size !
     ${XDG_CURRENT_DESKTOP} "GNOME" str= IF  read-gnome-cursor-theme  EXIT  THEN ;
 
 : data-device-manager-rest ( -- )
+    data-device ?EXIT
     data-device-manager
     wl-seat wl_data_device_manager_get_data_device dup to data-device
     data-device-listener 0 wl_data_device_add_listener drop
@@ -682,6 +684,7 @@ Variable cursor-size #24 cursor-size !
 ;
 
 : primary-selection-device-manager-rest ( -- )
+    primary-selection-device ?EXIT
     primary-selection-device-manager
     wl-seat zwp_primary_selection_device_manager_v1_get_device dup to primary-selection-device
     primary-selection-listener 0 zwp_primary_selection_device_v1_add_listener drop
@@ -712,10 +715,8 @@ wl-registry set-current
 : wl_seat ( registry name version -- )
     wl_seat_interface swap 8 umin wl_registry_bind dup to wl-seat
     wl-seat-listener 0 wl_seat_add_listener drop
-    data-device-manager IF
-	data-device-manager-rest THEN
-    primary-selection-device-manager IF
-	primary-selection-device-manager-rest THEN ;
+    data-device-manager IF  data-device-manager-rest THEN
+    primary-selection-device-manager IF  primary-selection-device-manager-rest THEN ;
 : wl_shm ( registry name version -- )
     wl_shm_interface swap 1 umin wl_registry_bind to wl-shm
     cursor-theme$ $@ cursor-size @
@@ -736,13 +737,11 @@ wl-registry set-current
 : wl_data_device_manager ( registry name version -- )
     wl_data_device_manager_interface swap 3 umin wl_registry_bind
     to data-device-manager
-    wl-seat 0= ?EXIT
-    data-device-manager-rest ;
+    wl-seat IF  data-device-manager-rest  THEN ;
 : zwp_primary_selection_device_manager_v1 ( registry name version -- )
     zwp_primary_selection_device_manager_v1_interface swap 1 umin wl_registry_bind
     to primary-selection-device-manager
-    wl-seat 0= ?EXIT
-    primary-selection-device-manager-rest ;
+    wl-seat IF  primary-selection-device-manager-rest  THEN ;
 set-current
 
 : registry+ { data registry name d: interface version -- }
