@@ -545,6 +545,10 @@ Dynamic Code generation disabled (relocation and delay slot issues).]"
                 #the skipcode that is normally selected below does not
                 #work with gcc-3.[34]
 		test "$skipcode" || skipcode="nop\nnop\nnop\nnop"
+                #Power 3.1 prefixed instructions must not cross 64-byte
+                #boundaries; we cannot guarantee that for --dynamic, so
+                #we disable prefixed instructions
+                CHECKFLAGS=$CHECKFLAGS" -mno-prefixed"
 		;;
 	riscv*)
 		machine=riscv
@@ -829,7 +833,7 @@ AC_SUBST(ENGINE_FLAGS)
 
 # Try a number of flags as workarounds
 
-CHECKFLAGS="no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-strict-aliasing no-cse-follow-jumps no-reorder-blocks no-reorder-blocks-and-partition no-toplevel-reorder no-trigraphs align-labels=1 align-loops=1 align-jumps=1 no-delete-null-pointer-checks cf-protection=none no-tree-vectorize llvm=--tail-dup-indirect-size=0"
+CHECKFLAGS=$CHECKFLAGS" no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-strict-aliasing no-cse-follow-jumps no-reorder-blocks no-reorder-blocks-and-partition no-toplevel-reorder no-trigraphs align-labels=1 align-loops=1 align-jumps=1 no-delete-null-pointer-checks cf-protection=none no-tree-vectorize llvm=--tail-dup-indirect-size=0"
 
 for i in $CHECKFLAGS
 do
@@ -838,6 +842,8 @@ do
         llvm=*)
 	    i="-m$i"
 	    ;;
+        -m*)
+            ;;
 	*)
 	    i="-f$i"
 	    ;;
