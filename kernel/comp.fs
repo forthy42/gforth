@@ -538,7 +538,7 @@ $BF000000. 1 cells 8 = [IF] #32 dlshift [THEN] dValue synonym-mask \ do not copy
     \G (this only makes a difference in the cross-compiler).
     (Value) A, ;
 
-4 Constant to-table-size#
+5 Constant to-table-size#
 
 : (Field)  ['] wordlist-map create-from reveal ;
 
@@ -752,9 +752,12 @@ Create hmtemplate
 
 : defer! ( xt xt-deferred -- ) \ core-ext  defer-store
     \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
+    4 swap (to) ;
+opt: ?fold-to 4 swap (to), ;
+: reveal! ( xt wid -- ) \ core-ext  reveal-store
+    \G add xt to a wordlist by using the TO access method
     0 swap (to) ;
 opt: ?fold-to 0 swap (to), ;
-' defer! Alias reveal! ( xt wid -- )
 ' >hmto Alias reveal-method ( wid -- addr )
 
 ' [noop] !-table to-method: value-to ( n value-xt -- ) \ gforth-internal
@@ -763,17 +766,27 @@ opt: ?fold-to 0 swap (to), ;
 ' [noop] defer-table to-method: defer-is ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for deferred words
 
+: <TO> ( "name" x -- ) \ gforth-internal angle-is
+    \g Changes the @code{value} word @var{name} to return @var{x}.
+    record-name 0 (') (to) ;
+
+: [TO] ( compilation "name" -- ; run-time x -- ) \ gforth-internal bracket-is
+    \g At run-time, changes the @code{value} word @var{name} to
+    \g return @var{x}.
+    record-name 0 (') (to), ; immediate restrict
+
+' <TO> ' [TO] interpret/compile: TO ( value "name" -- ) \ core-ext
+\g changes the value of @var{name} to @var{value}
+
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
-    record-name 0 (') (to) ;
+    record-name 4 (') (to) ;
 
 : [IS] ( compilation "name" -- ; run-time xt -- ) \ gforth-internal bracket-is
     \g At run-time, changes the @code{defer}red word @var{name} to
     \g execute @var{xt}.
-    record-name 0 (') (to), ; immediate restrict
+    record-name 4 (') (to), ; immediate restrict
 
-' <IS> ' [IS] interpret/compile: TO ( value "name" -- ) \ core-ext
-\g changes the value of @var{name} to @var{value}
 ' <IS> ' [IS] interpret/compile: IS ( value "name" -- ) \ core-ext
 \g changes the @code{defer}red word @var{name} to execute @var{value}
 

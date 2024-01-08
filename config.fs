@@ -41,14 +41,14 @@ s" Config error" exception Value config-throw
     ELSE rdrop r> execute .config-err THEN ;
 
 :noname '$' ['] $! [: drop free throw ;] exec-config ;
-' translate-string to >config
+' translate-string is >config
 :noname '#' ['] !  ['] drop exec-config ;
-' translate-num    to >config
+' translate-num    is >config
 :noname '&' ['] 2! ['] 2drop exec-config ;
-' translate-dnum   to >config
+' translate-dnum   is >config
 :noname '%' ['] f! ['] fdrop exec-config ;
-' translate-float  to >config
-' .config-err ' notfound to >config
+' translate-float  is >config
+' .config-err ' notfound is >config
 
 : config-line ( -- )
 \    current-sourceview .sourceview ." : config line='" source type ." '" cr

@@ -80,11 +80,11 @@ end-class storage
 storage class end-class static-alloc
 storage class end-class dynamic-alloc
 
-:noname  ( len -- addr )  here swap allot ; static-alloc to :allocate
-:noname  ( addr -- )      drop ;            static-alloc to :free
+:noname  ( len -- addr )  here swap allot ; static-alloc is :allocate
+:noname  ( addr -- )      drop ;            static-alloc is :free
 
-:noname  ( len -- addr )  allocate throw ; dynamic-alloc to :allocate
-:noname  ( addr -- )      free throw ;     dynamic-alloc to :free
+:noname  ( len -- addr )  allocate throw ; dynamic-alloc is :allocate
+:noname  ( addr -- )      free throw ;     dynamic-alloc is :free
 
 static-alloc dup >osize @ cell+ here swap allot swap over ! cell+ Constant static-a
 UValue allocater

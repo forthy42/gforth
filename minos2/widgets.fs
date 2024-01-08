@@ -1051,7 +1051,7 @@ previous
 
 : }}canvas ( glue color xt-lines xt-text -- o )
     canvas new >o
-    to text-canvas to draw-canvas
+    is text-canvas is draw-canvas
     to frame-color to tile-glue o
     white-tile o> ;
 

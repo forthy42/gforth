@@ -38,8 +38,14 @@ hex \ everything now hex!                               11may93jaw
 \G Word that neither does something on execute nor on compilation
 ' execute set-optimizer
 
-Create !-table ' ! A, ' +! A, ' n/a A, ' n/a A,
-Create defer-table ' ! A, ' n/a A, ' n/a A, ' @ A,
+: oam-warning ( -- )
+    true warning" obsolescent access method" ;
+: warn! ( x addr -- ) ! oam-warning ;
+opt: drop postpone ! oam-warning ;
+
+\                  to         +to      addr     defer@   defer!
+Create !-table     ' ! A,     ' +! A,  ' n/a A, ' n/a A, ' warn! A,
+Create defer-table ' warn! A, ' n/a A, ' n/a A, ' @ A,   ' ! A,
 
 : >uvalue ( xt -- addr )
     >body @ next-task + ;

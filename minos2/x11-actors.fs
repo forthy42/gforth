@@ -95,7 +95,7 @@ DOES> ( x-key [addr] -- ekey )
 	ELSE  top-act ?dup-IF  .ukeyed  ELSE  2drop  THEN  THEN
     ELSE   look_key l@ x-key>ekey# ?dup-IF
 	    top-act ?dup-IF  .ekeyed  ELSE  #esc = level# +!  THEN  THEN  THEN
-; x11-handler to DoKeyPress
+; x11-handler is DoKeyPress
 
 here
 ' (key) A,
@@ -106,7 +106,7 @@ A, here AConstant default-in'
     ekey>xchar IF  [: xemit ;] $tmp top-act .ukeyed  EXIT  THEN
     top-act .ekeyed
 ; is looper-ekey
-\ ' noop x11-handler to DoKeyRelease
+\ ' noop x11-handler is DoKeyRelease
 : samepos? ( x y -- flag )
     lastpos 2@ rot - dup * -rot - dup * + samepos < ;
 : ?samepos ( -- )
@@ -142,7 +142,7 @@ Variable xy$
     top-act IF  e.x e.y 1 >xy$ buttonmask l@ lle top-act .touchdown  THEN
     e.kbm.time lasttime !  ?samepos
     flags #lastdown +bit  flags #pending +bit
-; x11-handler to DoButtonPress
+; x11-handler is DoButtonPress
 :noname ( -- )
     ?samepos  e.kbm.time lasttime !
     flags #lastdown -bit@  IF
@@ -152,7 +152,7 @@ Variable xy$
 	send-clicks  THEN
     buttonmask e.button 1- -bit
     top-act IF  e.x e.y 1 >xy$ buttonmask l@ lle top-act .touchup  THEN
-; x11-handler to DoButtonRelease
+; x11-handler is DoButtonRelease
 :noname ( -- )
     flags #pending bit@  e.x e.y samepos? 0= and IF
 	buttonmask l@ lle send-clicks  0 to clicks
@@ -161,35 +161,35 @@ Variable xy$
 	[: grab-move? .touchmove ;] vp-needed<>|  EXIT
     THEN
     top-act    IF  e.x e.y 1 >xy$ buttonmask l@ lle top-act    .touchmove  THEN
-; x11-handler to DoMotionNotify
-:noname ; x11-handler to DoEnterNotify
-:noname ; x11-handler to DoLeaveNotify
-:noname e.window focus-ic ; x11-handler to DoFocusIn
-\ ' noop x11-handler to DoFocusOut
-\ ' noop x11-handler to DoKeymapNotify
-:noname top-widget .widget-draw ; x11-handler to DoExpose
-:noname top-widget .widget-draw ; x11-handler to DoGraphicsExpose
-\ ' noop x11-handler to DoNoExpose
-:noname gui( ~~ ) ; x11-handler to DoVisibilityNotify
-:noname e.w-width e.w-height resize-widgets ; x11-handler to DoCreateNotify
-\ ' noop x11-handler to DoDestroyNotify
-:noname gui( ~~ ) -1 rendering ! ; x11-handler to DoUnmapNotify
-:noname gui( ~~ ) -2 rendering ! ; x11-handler to DoMapNotify
-:noname gui( ~~ ) ; x11-handler to DoMapRequest
-\ ' noop x11-handler to DoReparentNotify
-:noname e.c-width  e.c-height resize-widgets ; x11-handler to DoConfigureNotify
-\ ' noop x11-handler to DoConfigureRequest
-\ ' noop x11-handler to DoGravityNotify
-:noname e.r-width  e.r-height resize-widgets ; x11-handler to DoResizeRequest
-\ ' noop x11-handler to DoCirculateNotify
-\ ' noop x11-handler to DoCirculateRequest
-\ ' noop x11-handler to DoPropertyNotify
-\ ' noop x11-handler to DoSelectionClear
-\ ' noop x11-handler to DoSelectionRequest
-\ ' noop x11-handler to DoSelectionNotify
-\ ' noop x11-handler to DoColormapNotify
-:noname gui( ~~ ) ; x11-handler to DoMappingNotify
-\ ' noop x11-handler to DoGenericEvent
+; x11-handler is DoMotionNotify
+:noname ; x11-handler is DoEnterNotify
+:noname ; x11-handler is DoLeaveNotify
+:noname e.window focus-ic ; x11-handler is DoFocusIn
+\ ' noop x11-handler is DoFocusOut
+\ ' noop x11-handler is DoKeymapNotify
+:noname top-widget .widget-draw ; x11-handler is DoExpose
+:noname top-widget .widget-draw ; x11-handler is DoGraphicsExpose
+\ ' noop x11-handler is DoNoExpose
+:noname gui( ~~ ) ; x11-handler is DoVisibilityNotify
+:noname e.w-width e.w-height resize-widgets ; x11-handler is DoCreateNotify
+\ ' noop x11-handler is DoDestroyNotify
+:noname gui( ~~ ) -1 rendering ! ; x11-handler is DoUnmapNotify
+:noname gui( ~~ ) -2 rendering ! ; x11-handler is DoMapNotify
+:noname gui( ~~ ) ; x11-handler is DoMapRequest
+\ ' noop x11-handler is DoReparentNotify
+:noname e.c-width  e.c-height resize-widgets ; x11-handler is DoConfigureNotify
+\ ' noop x11-handler is DoConfigureRequest
+\ ' noop x11-handler is DoGravityNotify
+:noname e.r-width  e.r-height resize-widgets ; x11-handler is DoResizeRequest
+\ ' noop x11-handler is DoCirculateNotify
+\ ' noop x11-handler is DoCirculateRequest
+\ ' noop x11-handler is DoPropertyNotify
+\ ' noop x11-handler is DoSelectionClear
+\ ' noop x11-handler is DoSelectionRequest
+\ ' noop x11-handler is DoSelectionNotify
+\ ' noop x11-handler is DoColormapNotify
+:noname gui( ~~ ) ; x11-handler is DoMappingNotify
+\ ' noop x11-handler is DoGenericEvent
 
 x11-handler ' new static-a with-allocater Constant x11-keyboard
 forward widget-sync

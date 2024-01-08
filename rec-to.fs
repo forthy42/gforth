@@ -25,8 +25,9 @@
 
 : rec-to ( addr u -- xt n r:to | rectype-null ) \ gforth-experimental
     \G words prefixed with @code{->} are treated as if preceeded by
-    \G @code{TO} or @code{IS}, with @code{+>} as @code{+TO}, with
-    \G @code{'>} as @code{ADDR}, and with @code{@@>} as @code{ACTION-OF}.
+    \G @code{TO}, with @code{+>} as @code{+TO}, with
+    \G @code{'>} as @code{ADDR}, with @code{@@>} as @code{ACTION-OF}, and
+    \G with @code{=>} as @code{IS}.
     dup 3 u< IF  2drop ['] notfound  EXIT  THEN
     over 1+ c@ '>' <> IF  2drop ['] notfound  EXIT  THEN
     case  over c@
@@ -34,6 +35,7 @@
 	'+' of  1  endof
 	''' of  2  endof
 	'@' of  3  endof
+	'=' of  4  endof
 	drop 2drop ['] notfound  EXIT
     endcase  -rot
     2 /string forth-recognize

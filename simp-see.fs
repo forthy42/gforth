@@ -82,7 +82,7 @@ set-current
                 nseqlen
             else
                 nseqlen 0= if
-                    codeblock discode 0 0 to codeblock ['] noop to cr? then
+                    codeblock discode 0 0 to codeblock ['] noop is cr? then
                 cr? addr see-word.addr type { nseqlen1 ustart uend } nseqlen1 if
                     ustart uend .transition
                     assert( codeblock nip 0= )
