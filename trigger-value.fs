@@ -16,17 +16,19 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: !trigger tuck ! cell+ perform ;
-opt: ?fold-to dup >lits postpone ! cell+ >lits postpone perform ;
-: +!trigger tuck +! cell+ perform ;
-opt: ?fold-to dup >lits postpone +! cell+ >lits postpone perform ;
-: trigger@ cell+ @ ;
-opt: ?fold-to cell+ >lits postpone @ ;
-: is-trigger cell+ ! ;
-opt: ?fold-to cell+ >lits postpone ! ;
+: !trigger ( w value-addr xt-addr -- ) >r ! r> perform ;
+opt: ?fold-to postpone ! >lits postpone perform ;
+: +!trigger ( n value-addr xt-addr -- ) >r +! r> perform ;
+opt: ?fold-to postpone +! >lits postpone perform ;
+: trigger@ ( value-addr xt-addr -- xt ) nip @ ;
+opt: ?fold-to postpone drop >lits postpone @ ;
+: is-trigger ( xt value-addr xt-addr -- ) nip ! ;
+opt: ?fold-to postpone drop >lits postpone ! ;
 
 to-table: trigger-table !trigger +!trigger n/a trigger@ is-trigger
-' >body trigger-table to-method: to-trigger
+:noname ( xt -- value-addr xt-addr ) >body dup cell+ ;
+opt: ?fold-to >body dup >lits cell+ >lits ;
+trigger-table to-method: to-trigger
 
 0 Value dummy-trigger ' noop ,
 ' to-trigger set-to
@@ -36,10 +38,10 @@ to-table: trigger-table !trigger +!trigger n/a trigger@ is-trigger
 
 \\\ potential optimization: early bound trigger:
 
-: !early-trigger tuck ! cell+ perform ;
-opt: ?fold-to dup >lits postpone ! cell+ @ compile, ;
-: +!early-trigger tuck +! cell+ perform ;
-opt: ?fold-to dup >lits postpone +! cell+ @ compile, ;
+: !early-trigger >r ! r> perform ;
+opt: ?fold-to postpone ! @ compile, ;
+: +!early-trigger >r +! r> perform ;
+opt: ?fold-to postpone +! @ compile, ;
 
 to-table: early-trigger-table !early-trigger +!early-trigger n/a trigger@ is-trigger
 ' >body early-trigger-table to-method: to-early-trigger
