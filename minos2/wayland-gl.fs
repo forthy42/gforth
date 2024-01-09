@@ -22,8 +22,11 @@ require unix/opengles.fs
 require unix/wayland.fs
 require unix/mmap.fs
 require unix/xkbcommon.fs
+require unix/socket.fs
+require unix/pthread.fs
 require mini-oof2.fs
 require struct-val.fs
+require trigger-value.fs
 
 [IFUNDEF] linux  : linux ;  [THEN]
 
@@ -32,7 +35,7 @@ also wayland
 debug: wayland( \ )
 
 0 Value dpy        \ wayland display
-0 Value compositor \ wayland compositor
+0 ' noop trigger-Value compositor \ wayland compositor
 0 Value wl-output
 0 Value wl-shell   \ wayland shell
 0 Value wl-egl-dpy \ egl display
@@ -48,20 +51,20 @@ debug: wayland( \ )
 0 Value cursor
 0 Value cursor-surface
 0 Value wl-surface
-0 Value sh-surface
-0 Value wl-seat
-0 Value wl-shm
+0 ' noop trigger-Value sh-surface
+0 ' noop trigger-Value wl-seat
+0 ' noop trigger-Value wl-shm
 0 Value text-input-manager
 0 Value text-input
 0 Value xdg-wm-base
 0 Value xdg-surface
-0 Value xdg-toplevel
-0 Value decoration-manager
+0 ' noop trigger-Value xdg-toplevel
+0 ' noop trigger-Value decoration-manager
 0 Value zxdg-decoration
-0 Value data-device-manager
+0 ' noop trigger-Value data-device-manager
 0 Value data-device
 0 Value data-source
-0 Value primary-selection-device-manager
+0 ' noop trigger-Value primary-selection-device-manager
 0 Value primary-selection-device
 0 Value primary-selection-source
 
@@ -69,6 +72,7 @@ debug: wayland( \ )
 
 : set-cursor { serial -- }
     wayland( serial [: cr ." Set cursor, serial " h. ;] do-debug )
+    cursor 0= cursor-surface 0= or wl-pointer 0= or ?EXIT
     cursor wl_cursor-images @ @ { image }
     wl-pointer serial cursor-surface
     image wl_cursor_image-hotspot_x l@ l>s
@@ -253,7 +257,7 @@ Variable prev-preedit$
 :noname { data wl_keyboard serial mods_depressed mods_latched mods_locked group -- }
     mods_depressed 5 and mods_depressed 8 and sfloat/ or to wl-meta
     wayland( mods_depressed mods_latched mods_locked
-    [: cr ." modes: locked " hex. ." latched " hex. ." depressed " hex. wl-meta hex. ;]
+    [: cr ." modes: locked " h. ." latched " h. ." depressed " h. wl-meta h. ;]
     do-debug )
     xkb-state
     mods_depressed mods_latched mods_locked 0 0 group xkb_state_update_mask
@@ -454,14 +458,6 @@ $Variable clipout-xts
 : set-noblock ( fd -- )
     { | w^ arg }  1 arg l!
     dup FIONBIO arg ioctl ?ior ;
-
-[IFUNDEF] EAGAIN
-    e? os-type s" darwin" string-prefix? [IF]
-	#35 Constant EAGAIN
-    [ELSE]
-	#11 Constant EAGAIN
-    [THEN]
-[THEN]
 
 : write-clipout ( -- )
     clipout$ $@ clipout-offset @ safe/string
@@ -674,6 +670,7 @@ Variable cursor-size #24 cursor-size !
 
 : data-device-manager-rest ( -- )
     data-device ?EXIT
+    data-device-manager 0= wl-seat 0= or ?EXIT
     data-device-manager
     wl-seat wl_data_device_manager_get_data_device dup to data-device
     data-device-listener 0 wl_data_device_add_listener drop
@@ -683,8 +680,11 @@ Variable cursor-size #24 cursor-size !
     ds-mime-types[] [: data-source -rot wl_data_source_offer ;] $[]map
 ;
 
+' data-device-manager-rest is data-device-manager
+
 : primary-selection-device-manager-rest ( -- )
     primary-selection-device ?EXIT
+    primary-selection-device-manager 0= wl-seat 0= or ?EXIT
     primary-selection-device-manager
     wl-seat zwp_primary_selection_device_manager_v1_get_device dup to primary-selection-device
     primary-selection-listener 0 zwp_primary_selection_device_v1_add_listener drop
@@ -694,6 +694,8 @@ Variable cursor-size #24 cursor-size !
     ds-mime-types[] [: primary-selection-source -rot zwp_primary_selection_source_v1_offer ;] $[]map
 ;
 
+' primary-selection-device-manager-rest is primary-selection-device-manager
+
 table Constant wl-registry
 
 get-current
@@ -701,27 +703,30 @@ get-current
 wl-registry set-current
 
 : wl_compositor ( registry name version -- )
-    wl_compositor_interface swap 5 umin wl_registry_bind dup to compositor
-    dup wl_compositor_create_surface to wl-surface
-    wl_compositor_create_surface to cursor-surface ;
+    wl_compositor_interface swap 5 umin wl_registry_bind to compositor ;
+:noname ( -- )
+    compositor wl_compositor_create_surface to wl-surface
+    compositor wl_compositor_create_surface to cursor-surface ; is compositor
 : wl_shell ( registry name version -- )
     wl_shell_interface swap 1 umin wl_registry_bind dup to wl-shell
-    wl-surface wl_shell_get_shell_surface to sh-surface
+    wl-surface wl_shell_get_shell_surface to sh-surface ;
+:noname ( -- )
     sh-surface wl-sh-surface-listener 0 wl_shell_surface_add_listener drop
-    sh-surface wl_shell_surface_set_toplevel ;
+    sh-surface wl_shell_surface_set_toplevel ; is sh-surface
 : wl_output ( registry name version -- )
     wl_output_interface swap 4 umin wl_registry_bind dup to wl-output
     wl-output-listener 0 wl_output_add_listener drop ;
 : wl_seat ( registry name version -- )
-    wl_seat_interface swap 8 umin wl_registry_bind dup to wl-seat
-    wl-seat-listener 0 wl_seat_add_listener drop
-    data-device-manager IF  data-device-manager-rest THEN
-    primary-selection-device-manager IF  primary-selection-device-manager-rest THEN ;
+    wl_seat_interface swap 8 umin wl_registry_bind to wl-seat ;
+:noname ( -- )
+    wl-seat wl-seat-listener 0 wl_seat_add_listener drop
+    data-device-manager-rest primary-selection-device-manager-rest ; is wl-seat
 : wl_shm ( registry name version -- )
-    wl_shm_interface swap 1 umin wl_registry_bind to wl-shm
+    wl_shm_interface swap 1 umin wl_registry_bind to wl-shm ;
+:noname ( -- )
     cursor-theme$ $@ cursor-size @
     wl-shm wl_cursor_theme_load dup to cursor-theme
-    s" default" wl_cursor_theme_get_cursor to cursor ;
+    s" default" wl_cursor_theme_get_cursor to cursor ; is wl-shm
 : zwp_text_input_manager_v3 ( registry name version -- )
     zwp_text_input_manager_v3_interface swap 1 umin wl_registry_bind
     dup to text-input-manager
@@ -736,12 +741,10 @@ wl-registry set-current
     to decoration-manager ;
 : wl_data_device_manager ( registry name version -- )
     wl_data_device_manager_interface swap 3 umin wl_registry_bind
-    to data-device-manager
-    wl-seat IF  data-device-manager-rest  THEN ;
+    to data-device-manager ;
 : zwp_primary_selection_device_manager_v1 ( registry name version -- )
     zwp_primary_selection_device_manager_v1_interface swap 1 umin wl_registry_bind
-    to primary-selection-device-manager
-    wl-seat IF  primary-selection-device-manager-rest  THEN ;
+    to primary-selection-device-manager ;
 set-current
 
 : registry+ { data registry name d: interface version -- }
@@ -782,6 +785,7 @@ forward clear
     true to mapped
     xdg_surface serial xdg_surface_ack_configure
     wl-surface wl_surface_commit
+    serial set-cursor
 ; ?cb xdg_surface_listener-configure:
 cb> xdg-surface-listener
 
@@ -841,15 +845,19 @@ cb> xdg-decoration-listener
     xdg-toplevel s" ΜΙΝΟΣ2 OpenGL Window" xdg_toplevel_set_title
     xdg-toplevel s" ΜΙΝΟΣ2" xdg_toplevel_set_app_id
     xdg-toplevel xdg_toplevel_set_maximized
-    decoration-manager ?dup-IF  xdg-toplevel
-	zxdg_decoration_manager_v1_get_toplevel_decoration dup to zxdg-decoration
-	dup xdg-decoration-listener 0
-	zxdg_toplevel_decoration_v1_add_listener drop
-	ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE
-	zxdg_toplevel_decoration_v1_set_mode  THEN
     wl-surface w h wl_egl_window_create to win
     wl-surface wl_surface_commit
     wayland( [: cr ." wl-eglwin done" ;] do-debug ) ;
+
+:noname ( -- )
+    decoration-manager 0= xdg-toplevel 0= or ?EXIT
+    decoration-manager xdg-toplevel
+    zxdg_decoration_manager_v1_get_toplevel_decoration dup to zxdg-decoration
+    dup xdg-decoration-listener 0
+    zxdg_toplevel_decoration_v1_add_listener drop
+    ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE
+    zxdg_toplevel_decoration_v1_set_mode ;
+dup is xdg-toplevel is decoration-manager
 
 also opengl
 : getwh ( -- )
@@ -859,9 +867,6 @@ previous
 \ looper
 
 get-current also forth definitions
-
-require unix/socket.fs
-require unix/pthread.fs
 
 previous set-current
 

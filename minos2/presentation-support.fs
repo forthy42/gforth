@@ -208,7 +208,7 @@ forward >normalscreen
 	k-f7 of  >normalscreen   endof
 	k-f8 of  >fullscreen     endof
 	[ box-actor ] defers ekeyed  EXIT
-    endcase +sync +resize ; slide-actor to ekeyed
+    endcase +sync +resize ; slide-actor is ekeyed
 :noname ( $xy b -- ) 2dup [ box-actor ] defers touchmove drop
     xy@ dpy-h @ s>f fswap f- dpy-h @ 2/ fm/ lightpos-xyz sfloat+ sf!
     dpy-w @ s>f f- dpy-w @ 2/ fm/ lightpos-xyz sf!
