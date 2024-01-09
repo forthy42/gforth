@@ -108,8 +108,8 @@ Defer hash-alloc ( addr -- addr )
 : table-reveal ( nfa wid -- )
     2dup (nocheck-reveal) (reveal ;
 
-Create hashvoc-table ' hash-reveal , ' drop , ' n/a , ' n/a ,
-Create tablevoc-table ' table-reveal , ' drop , ' n/a , ' n/a ,
+Create hashvoc-table ' hash-reveal , ' drop , ' n/a , ' n/a , ' hash-reveal ,
+Create tablevoc-table ' table-reveal , ' drop , ' n/a , ' n/a , ' table-reveal ,
 
 ' [noop] hashvoc-table to-method: hashvoc-to
 ' [noop] tablevoc-table to-method: tablevoc-to

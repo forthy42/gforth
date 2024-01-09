@@ -754,10 +754,9 @@ Create hmtemplate
     \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
     4 swap (to) ;
 opt: ?fold-to 4 swap (to), ;
-: reveal! ( xt wid -- ) \ core-ext  reveal-store
+
+' defer! Alias reveal! ( xt wid -- ) \ core-ext  reveal-store
     \G add xt to a wordlist by using the TO access method
-    0 swap (to) ;
-opt: ?fold-to 0 swap (to), ;
 ' >hmto Alias reveal-method ( wid -- addr )
 
 ' [noop] !-table to-method: value-to ( n value-xt -- ) \ gforth-internal
@@ -766,16 +765,16 @@ opt: ?fold-to 0 swap (to), ;
 ' [noop] defer-table to-method: defer-is ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for deferred words
 
-: <TO> ( "name" x -- ) \ gforth-internal angle-is
+:noname ( "name" x -- ) \ gforth-internal angle-is
     \g Changes the @code{value} word @var{name} to return @var{x}.
     record-name 0 (') (to) ;
 
-: [TO] ( compilation "name" -- ; run-time x -- ) \ gforth-internal bracket-is
+:noname ( compilation "name" -- ; run-time x -- ) \ gforth-internal bracket-is
     \g At run-time, changes the @code{value} word @var{name} to
     \g return @var{x}.
     record-name 0 (') (to), ; immediate restrict
 
-' <TO> ' [TO] interpret/compile: TO ( value "name" -- ) \ core-ext
+interpret/compile: TO ( value "name" -- ) \ core-ext
 \g changes the value of @var{name} to @var{value}
 
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
@@ -886,7 +885,7 @@ interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 ) \ core does
 	then
     then ;
 
-Create voc-table ' (reveal) A, ' drop A, ' n/a A, ' n/a A,
+Create voc-table ' (reveal) A, ' drop A, ' n/a A, ' n/a A, ' (reveal) A,
 
 ' [noop] voc-table to-method: voc-to ( n voc-xt -- ) \ gforth-internal
     \g this is the TO-method for wordlists
