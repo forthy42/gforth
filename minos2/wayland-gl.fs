@@ -40,7 +40,7 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 0 Value dpy        \ wayland display
 0 ' noop trigger-Value compositor \ wayland compositor
 0 Value wl-output
-0 Value wl-shell   \ wayland shell
+0 ' noop trigger-Value wl-shell   \ wayland shell
 0 Value wl-pointer
 0 Value wl-keyboard
 0 Value wl-touch
