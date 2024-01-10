@@ -36,18 +36,30 @@ trigger-table to-method: to-trigger
 : trigger-value ( x xt "name" -- )
     ['] dummy-trigger create-from reveal swap , , ;
 
-\\\ potential optimization: early bound trigger:
+\ high level triggers for things that are 0 when unset
 
-: !early-trigger >r ! r> perform ;
-opt: ?fold-to postpone ! @ compile, ;
-: +!early-trigger >r +! r> perform ;
-opt: ?fold-to postpone +! @ compile, ;
+10 stack: trigger-stack
 
-to-table: early-trigger-table !early-trigger +!early-trigger n/a trigger@ is-trigger
-' >body early-trigger-table to-method: to-early-trigger
-
-0 Value dummy-early-trigger ' noop ,
-' to-early-trigger set-to
-
-: early-trigger-value ( x xt "name" - )
-    ['] dummy-early-trigger create-from reveal swap , , ;
+: >trigger-stack ( "value1" .. "valuen" "<rparen>" -- )
+    trigger-stack $free
+    BEGIN  parse-name ")" 2over string-prefix? 0= WHILE
+	    forth-recognize '-error trigger-stack >stack
+    REPEAT  2drop ;
+: +trigger ( xt1 xt2 -- )
+    dup >r defer@ dup ['] noop <> IF
+	2>r :noname 2r> compile, compile, postpone ;
+    ELSE  drop  THEN  r> defer! ;
+: :trigger-on( ( "value1" .. "valuen" "<rparen>" -- )
+    >trigger-stack
+    :noname
+    trigger-stack get-stack ?dup-IF
+	swap compile, ]] 0= [[
+	1 U+DO
+	    compile, ]] 0= or [[
+	LOOP
+	postpone ?EXIT
+    THEN
+    [: {: xt :}
+      trigger-stack get-stack 0 ?DO
+	  xt swap +trigger
+      LOOP ;] colon-sys-xt-offset stick ;

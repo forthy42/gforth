@@ -191,6 +191,8 @@ PARSED-TYPE specifies what kind of text is parsed. It should be
 	 immediate (font-lock-keyword-face . 1))
 	(("does>") definition-starter (font-lock-keyword-face . 1))
 	((":noname" "comp:" "compsem:" "opt:" "defer:" "defer@-opt:" "to-opt:") definition-starter (font-lock-keyword-face . 1))
+	((":trigger-on(") definition-starter (font-lock-keyword-face . 1)
+	 "[)]" t comment (font-lock-function-name-face . 3))
 	((";" ";code" ";abi-code") definition-ender (font-lock-keyword-face . 1))
 	(("include" "require" "needs" "use") 
 	 non-immediate (font-lock-keyword-face . 1) 
@@ -317,7 +319,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be
 	("\".*\""
 	 immediate (font-lock-string-face . 3))
 	("[a-z\-0-9]+(" immediate (font-lock-comment-face . 1)
-	 ")" nil comment (font-lock-comment-face . 1))
+	 "[)]" nil comment (font-lock-comment-face . 1))
 	))
 
 (defvar forth-use-objects nil 
@@ -428,7 +430,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	 (0 . 2) (0 . 2))
 	((":" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" "uclass" 
 	  "interface" "c-library" "c-library-name" "comp:" "opt:" "post:"
-	  "begin-structure" "extend-structure" "event:" "to-opt:" "defer@-opt:" "to:" "defer@:")
+	  "begin-structure" "extend-structure" "event:" "to-opt:" "defer@-opt:" "to:" "defer@:" ":trigger-on(")
 	 (0 . 2) (0 . 2) non-immediate)
 	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
 	((";" ";m") (-2 . 0) (0 . -2))

@@ -62,11 +62,11 @@ debug: wayland( \ )
 0 ' noop trigger-Value decoration-manager
 0 Value zxdg-decoration
 0 ' noop trigger-Value data-device-manager
-0 Value data-device
-0 Value data-source
+0 ' noop trigger-Value data-device
+0 ' noop trigger-Value data-source
 0 ' noop trigger-Value primary-selection-device-manager
-0 Value primary-selection-device
-0 Value primary-selection-source
+0 ' noop trigger-Value primary-selection-device
+0 ' noop trigger-Value primary-selection-source
 
 \ set a cursor
 
@@ -668,33 +668,29 @@ Variable cursor-size #24 cursor-size !
     ${XDG_CURRENT_DESKTOP} "KDE" str= IF  read-kde-cursor-theme  EXIT  THEN
     ${XDG_CURRENT_DESKTOP} "GNOME" str= IF  read-gnome-cursor-theme  EXIT  THEN ;
 
-: data-device-manager-rest ( -- )
+:trigger-on( data-device-manager wl-seat )
     data-device ?EXIT
-    data-device-manager 0= wl-seat 0= or ?EXIT
     data-device-manager
-    wl-seat wl_data_device_manager_get_data_device dup to data-device
-    data-device-listener 0 wl_data_device_add_listener drop
+    wl-seat wl_data_device_manager_get_data_device to data-device ;
+:trigger-on( data-device )
+    data-device data-device-listener 0 wl_data_device_add_listener drop
     data-device-manager wl_data_device_manager_create_data_source
-    dup to data-source
-    data-source-listener clipboard$ wl_data_source_add_listener drop
-    ds-mime-types[] [: data-source -rot wl_data_source_offer ;] $[]map
-;
+    to data-source ;
+:trigger-on( data-source )
+    data-source data-source-listener clipboard$ wl_data_source_add_listener drop
+    ds-mime-types[] [: data-source -rot wl_data_source_offer ;] $[]map ;
 
-' data-device-manager-rest is data-device-manager
-
-: primary-selection-device-manager-rest ( -- )
+:trigger-on( primary-selection-device-manager wl-seat )
     primary-selection-device ?EXIT
-    primary-selection-device-manager 0= wl-seat 0= or ?EXIT
     primary-selection-device-manager
-    wl-seat zwp_primary_selection_device_manager_v1_get_device dup to primary-selection-device
-    primary-selection-listener 0 zwp_primary_selection_device_v1_add_listener drop
+    wl-seat zwp_primary_selection_device_manager_v1_get_device to primary-selection-device ;
+:trigger-on( primary-selection-device )
+    primary-selection-device primary-selection-listener 0 zwp_primary_selection_device_v1_add_listener drop
     primary-selection-device-manager zwp_primary_selection_device_manager_v1_create_source
-    dup to primary-selection-source
-    primary-selection-source-listener primary$ zwp_primary_selection_source_v1_add_listener drop
-    ds-mime-types[] [: primary-selection-source -rot zwp_primary_selection_source_v1_offer ;] $[]map
-;
-
-' primary-selection-device-manager-rest is primary-selection-device-manager
+    to primary-selection-source ;
+:trigger-on(  primary-selection-source )
+    primary-selection-source primary-selection-source-listener primary$ zwp_primary_selection_source_v1_add_listener drop
+    ds-mime-types[] [: primary-selection-source -rot zwp_primary_selection_source_v1_offer ;] $[]map ;
 
 table Constant wl-registry
 
@@ -704,29 +700,28 @@ wl-registry set-current
 
 : wl_compositor ( registry name version -- )
     wl_compositor_interface swap 5 umin wl_registry_bind to compositor ;
-:noname ( -- )
+:trigger-on( compositor )
     compositor wl_compositor_create_surface to wl-surface
-    compositor wl_compositor_create_surface to cursor-surface ; is compositor
+    compositor wl_compositor_create_surface to cursor-surface ;
 : wl_shell ( registry name version -- )
     wl_shell_interface swap 1 umin wl_registry_bind dup to wl-shell
     wl-surface wl_shell_get_shell_surface to sh-surface ;
-:noname ( -- )
+:trigger-on( sh-surface )
     sh-surface wl-sh-surface-listener 0 wl_shell_surface_add_listener drop
-    sh-surface wl_shell_surface_set_toplevel ; is sh-surface
+    sh-surface wl_shell_surface_set_toplevel ;
 : wl_output ( registry name version -- )
     wl_output_interface swap 4 umin wl_registry_bind dup to wl-output
     wl-output-listener 0 wl_output_add_listener drop ;
 : wl_seat ( registry name version -- )
     wl_seat_interface swap 8 umin wl_registry_bind to wl-seat ;
-:noname ( -- )
-    wl-seat wl-seat-listener 0 wl_seat_add_listener drop
-    data-device-manager-rest primary-selection-device-manager-rest ; is wl-seat
+:trigger-on( wl-seat )
+    wl-seat wl-seat-listener 0 wl_seat_add_listener drop ;
 : wl_shm ( registry name version -- )
     wl_shm_interface swap 1 umin wl_registry_bind to wl-shm ;
-:noname ( -- )
+:trigger-on( wl-shm )
     cursor-theme$ $@ cursor-size @
     wl-shm wl_cursor_theme_load dup to cursor-theme
-    s" default" wl_cursor_theme_get_cursor to cursor ; is wl-shm
+    s" default" wl_cursor_theme_get_cursor to cursor ;
 : zwp_text_input_manager_v3 ( registry name version -- )
     zwp_text_input_manager_v3_interface swap 1 umin wl_registry_bind
     dup to text-input-manager
@@ -835,6 +830,9 @@ cb> xdg-toplevel-listener
 ?cb zxdg_toplevel_decoration_v1_listener-configure:
 cb> xdg-decoration-listener
 
+$Variable window-title$ s" ΜΙΝΟΣ2 OpenGL Window" window-title$ $!
+$Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
+
 : wl-eglwin { w h -- }
     wayland( h w [: cr ." eglwin: " . . ;] do-debug )
     xdg-wm-base wl-surface xdg_wm_base_get_xdg_surface dup to xdg-surface
@@ -842,22 +840,20 @@ cb> xdg-decoration-listener
     xdg-surface xdg_surface_get_toplevel to xdg-toplevel
     xdg-surface 0 0 w h xdg_surface_set_window_geometry
     xdg-toplevel xdg-toplevel-listener 0 xdg_toplevel_add_listener drop
-    xdg-toplevel s" ΜΙΝΟΣ2 OpenGL Window" xdg_toplevel_set_title
-    xdg-toplevel s" ΜΙΝΟΣ2" xdg_toplevel_set_app_id
+    xdg-toplevel window-title$ $@ xdg_toplevel_set_title
+    xdg-toplevel window-app-id$ $@ xdg_toplevel_set_app_id
     xdg-toplevel xdg_toplevel_set_maximized
     wl-surface w h wl_egl_window_create to win
     wl-surface wl_surface_commit
     wayland( [: cr ." wl-eglwin done" ;] do-debug ) ;
 
-:noname ( -- )
-    decoration-manager 0= xdg-toplevel 0= or ?EXIT
+:trigger-on( decoration-manager xdg-toplevel )
     decoration-manager xdg-toplevel
     zxdg_decoration_manager_v1_get_toplevel_decoration dup to zxdg-decoration
     dup xdg-decoration-listener 0
     zxdg_toplevel_decoration_v1_add_listener drop
     ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE
     zxdg_toplevel_decoration_v1_set_mode ;
-dup is xdg-toplevel is decoration-manager
 
 also opengl
 : getwh ( -- )

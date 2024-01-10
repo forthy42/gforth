@@ -189,12 +189,16 @@ Variable eglformat
 		." simple config only" cr
 	    THEN ;
 
+	[IFUNDEF] window-title$
+	    $Variable window-title$ s" ΜΙΝΟΣ2 OpenGL Window" window-title$ $!
+	[THEN]
+	
 	: create-context ( -- )
 	    [IFDEF] use-wl
 		dpy-w @ dpy-h @ wl-eglwin
 		egldpy configs @ win 0 eglCreatePlatformWindowSurface to surface
 	    [ELSE]
-		default-events "EGL-Window" dpy-w @ dpy-h @ simple-win
+		default-events window-title$ $@ dpy-w @ dpy-h @ simple-win
 		egldpy configs @ win 0 eglCreateWindowSurface to surface
 	    [THEN]
 	    egldpy configs @ 0 eglattribs eglCreateContext to ctx
@@ -246,9 +250,10 @@ Variable eglformat
 		    THEN
 		THEN  to visual 2drop ;
 	[THEN]
+	$Variable window-title$ s" ΜΙΝΟΣ2 OpenGL Window" window-title$ $!
 
 	: create-context ( -- ) \ win ?EXIT
-	    default-events "GL-Window" dpy-w @ dpy-h @ simple-win
+	    default-events window-title$ $@ dpy-w @ dpy-h @ simple-win
 	    dpy visual 0 1 glXCreateContext to ctx
 	    dpy win ctx glXMakeCurrent drop
 	    visuals XFree drop 0 to visuals 0 to visual ;
