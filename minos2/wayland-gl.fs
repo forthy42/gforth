@@ -706,8 +706,9 @@ wl-registry set-current
     compositor wl_compositor_create_surface to wl-surface
     compositor wl_compositor_create_surface to cursor-surface ;
 : wl_shell ( registry name version -- )
-    wl_shell_interface swap 1 umin wl_registry_bind dup to wl-shell
-    wl-surface wl_shell_get_shell_surface to sh-surface ;
+    wl_shell_interface swap 1 umin wl_registry_bind to wl-shell ;
+:trigger-on( wl-shell wl-surface )
+    wl-shell wl-surface wl_shell_get_shell_surface to sh-surface ;
 :trigger-on( sh-surface )
     sh-surface wl-sh-surface-listener 0 wl_shell_surface_add_listener drop
     sh-surface wl_shell_surface_set_toplevel
