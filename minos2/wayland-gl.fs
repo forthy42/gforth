@@ -34,11 +34,13 @@ also wayland
 
 debug: wayland( \ )
 
+$Variable window-title$ s" ΜΙΝΟΣ2 OpenGL Window" window-title$ $!
+$Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
+
 0 Value dpy        \ wayland display
 0 ' noop trigger-Value compositor \ wayland compositor
 0 Value wl-output
 0 Value wl-shell   \ wayland shell
-0 Value wl-egl-dpy \ egl display
 0 Value wl-pointer
 0 Value wl-keyboard
 0 Value wl-touch
@@ -50,14 +52,14 @@ debug: wayland( \ )
 0 Value cursor-theme
 0 Value cursor
 0 Value cursor-surface
-0 Value wl-surface
+0 ' noop trigger-Value wl-surface
 0 ' noop trigger-Value sh-surface
 0 ' noop trigger-Value wl-seat
 0 ' noop trigger-Value wl-shm
 0 Value text-input-manager
 0 Value text-input
-0 Value xdg-wm-base
-0 Value xdg-surface
+0 ' noop trigger-Value xdg-wm-base
+0 ' noop trigger-Value xdg-surface
 0 ' noop trigger-Value xdg-toplevel
 0 ' noop trigger-Value decoration-manager
 0 Value zxdg-decoration
@@ -708,7 +710,9 @@ wl-registry set-current
     wl-surface wl_shell_get_shell_surface to sh-surface ;
 :trigger-on( sh-surface )
     sh-surface wl-sh-surface-listener 0 wl_shell_surface_add_listener drop
-    sh-surface wl_shell_surface_set_toplevel ;
+    sh-surface wl_shell_surface_set_toplevel
+    sh-surface window-title$ $@ wl_shell_surface_set_title
+    sh-surface window-app-id$ $@ wl_shell_surface_set_class ;
 : wl_output ( registry name version -- )
     wl_output_interface swap 4 umin wl_registry_bind dup to wl-output
     wl-output-listener 0 wl_output_add_listener drop ;
@@ -830,19 +834,19 @@ cb> xdg-toplevel-listener
 ?cb zxdg_toplevel_decoration_v1_listener-configure:
 cb> xdg-decoration-listener
 
-$Variable window-title$ s" ΜΙΝΟΣ2 OpenGL Window" window-title$ $!
-$Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
-
-: wl-eglwin { w h -- }
-    wayland( h w [: cr ." eglwin: " . . ;] do-debug )
-    xdg-wm-base wl-surface xdg_wm_base_get_xdg_surface dup to xdg-surface
-    xdg-surface-listener 0 xdg_surface_add_listener drop
-    xdg-surface xdg_surface_get_toplevel to xdg-toplevel
-    xdg-surface 0 0 w h xdg_surface_set_window_geometry
+:trigger-on( xdg-wm-base wl-surface )
+    xdg-wm-base wl-surface xdg_wm_base_get_xdg_surface to xdg-surface
+    xdg-surface xdg-surface-listener 0 xdg_surface_add_listener drop
+    xdg-surface xdg_surface_get_toplevel to xdg-toplevel ;
+:trigger-on( xdg-toplevel )
     xdg-toplevel xdg-toplevel-listener 0 xdg_toplevel_add_listener drop
     xdg-toplevel window-title$ $@ xdg_toplevel_set_title
     xdg-toplevel window-app-id$ $@ xdg_toplevel_set_app_id
-    xdg-toplevel xdg_toplevel_set_maximized
+    xdg-toplevel xdg_toplevel_set_maximized ;
+
+: wl-eglwin { w h -- }
+    wayland( h w [: cr ." eglwin: " . . ;] do-debug )
+    xdg-surface ?dup-IF  0 0 w h xdg_surface_set_window_geometry  THEN
     wl-surface w h wl_egl_window_create to win
     wl-surface wl_surface_commit
     wayland( [: cr ." wl-eglwin done" ;] do-debug ) ;
