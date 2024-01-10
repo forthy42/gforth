@@ -70,13 +70,13 @@ opt: drop ]] c@ c>s [[ ;
 : $[]-! ( n addr -- x ) $[] ! ;
 : $[]-+! ( n addr -- x ) $[] +! ;
 
-to-table: w!a-table  w! w+! >body n/a
-to-table: l!a-table  l! l+! >body n/a
-to-table: sf!a-table sf! sf+! >body n/a
-to-table: df!a-table df! df+! >body n/a
-to-table: $!a-table  $! $+! >body n/a
-to-table: $[]!a-table $[]! $[]+! >body n/a
-to-table: $[]-!a-table $[]-! $[]-+! >body n/a
+to-table: w!a-table  w! w+! [noop] n/a
+to-table: l!a-table  l! l+! [noop] n/a
+to-table: sf!a-table sf! sf+! [noop] n/a
+to-table: df!a-table df! df+! [noop] n/a
+to-table: $!a-table  $! $+! [noop] n/a
+to-table: $[]!a-table $[]! $[]+! [noop] n/a
+to-table: $[]-!a-table $[]-! $[]-+! [noop] n/a
 
 [IFUNDEF] !a-table
     !-table >to+addr-table: !a-table
