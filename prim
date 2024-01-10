@@ -432,7 +432,7 @@ nlimit=0;
 :
  r> swap 0 >r >r >r ;
 
-(do)    ( nlimit nstart -- R:nlimit R:nstart )  gforth-internal   paren_do_rstack
+(do)    ( nlimit nstart -- R:nlimit R:nstart )  gforth-internal   paren_do
 :
  r> swap rot >r >r >r ;
 
@@ -448,7 +448,7 @@ if (nstart == nlimit) {
        cell+ >r
   THEN ;				\ --> CORE-EXT
 
-(do)-rstack    ( nlimit nstart -- R:a_doaddr R:nlimit R:nstart )  gforth-internal   paren_do
+(do)-rstack    ( nlimit nstart -- R:a_doaddr R:nlimit R:nstart )  gforth-internal   paren_do_rstack
 a_doaddr = (Cell *)IP;
 
 (?do)-rstack ( #a_target nlimit nstart -- R:a_doaddr R:nlimit R:nstart ) gforth-internal paren_question_do_rstack
@@ -474,6 +474,12 @@ if (((olddiff^(olddiff+n))    /* the limit is not crossed */
   SET_IP((Xt *)a_doaddr);
 }
 
+(/loop)#-rstack ( #u R:a_doaddr R:nlimit R:n1 -- R:a_doaddr R:nlimit R:n2 ) gforth-internal paren_slash_loop_rstack
+n2=n1+u;
+if (n2-nlimit>=u) {
+  asm("");
+  SET_IP((Xt *)a_doaddr);
+}
 
 \+xconds
 
@@ -580,6 +586,8 @@ j	( R:n R:w1 R:w2 -- n R:n R:w1 R:w2 )	core
 \ rp@ cell+ cell+ cell+ @ ;
   r> r> r> r> dup itmp ! >r >r >r >r itmp @ ;
 [IFUNDEF] itmp variable itmp [THEN]
+
+j-rstack ( R:n R:w1 R:w2 R:w3 -- n R:n R:w1 R:w2 R:w3 )	core    j_rstack
 
 k	( R:n R:w1 R:w2 R:w3 R:w4 -- n R:n R:w1 R:w2 R:w3 R:w4 )	gforth
 ""@i{n} is the index of the third-innermost counted loop.""

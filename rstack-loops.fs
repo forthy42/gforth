@@ -2,6 +2,8 @@
 
 warnings off
 
+synonym j j-rstack
+
 : DO ( compilation -- do-sys ; run-time w1 w2 -- loop-sys ) \ core
     \G @xref{Counted Loops}.
     POSTPONE (do)-rstack
@@ -31,3 +33,21 @@ warnings off
 : +LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 ) \ core plus-loop
     \G @xref{Counted Loops}.
  ['] (+loop)-rstack ['] error! loop-like ; immediate restrict
+
+\ optimize +loop (not quite folding)
+: replace-(+loop)-rstack ( xt1 -- xt2 )
+    case
+	['] (+loop)-rstack       of ['] (/loop)#-rstack endof
+       \ ['] (+loop)-lp+!#        of error!  endof
+	-21 throw
+    endcase ;
+
+: (+loop)-rstack-optimizer ( xt -- )
+    lits# 1 u>= if
+	lits> dup 0> if
+	    swap replace-(+loop)-rstack peephole-compile, , exit then
+	>lits then
+    peephole-compile, ;
+
+' (+loop)-rstack-optimizer optimizes (+loop)-rstack
+\ ' (+loop)-optimizer optimizes (+loop)-lp+!#
