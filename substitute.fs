@@ -23,25 +23,40 @@ require string.fs
 cs-wordlist AConstant macros-wordlist ( -- wid ) \ gforth-experimental
 \G wordlist for string replacement macros
 
-: macro: ( addr u -- ) Create here 0 , $! ['] $@ set-does> ;
+[IFUNDEF] $Value
+    to-table: $!-table  $! $+!
+    ' >body $!-table to-method: $value-to
+    
+    : $Value ( addr u -- )
+	Create here 0 , $!
+	['] $@ set-does> ['] $value-to set-to ;
+[THEN]
+
+synonym macro: $value
 
 : replaces ( addr1 len1 addr2 len2 -- ) \ string-ext
     \G create a macro with name @var{addr2 len2} and content @var{addr1 len1}.
     \G If the macro already exists, just change the content.
     2dup macros-wordlist search-wordlist
     IF
-	nip nip dup >does-code ['] $@ = IF  >body $!
-	ELSE  true [: .name ." is a hard-coded macro" cr ;] ?warning  2drop
-	THEN
+	nip nip 0 swap [ ' (to) :, ]
     ELSE
 	get-current >r macros-wordlist set-current
 	['] macro: execute-parsing
 	r> set-current
     THEN ;
 
-get-current macros-wordlist set-current
-: rd ( -- addr u ) sourcefilename extractpath ;
-set-current
+: warn-hardcoded ( addr u xt1 xt2 -- )
+    true [: .name ." is a hard-coded macro" cr ;] ?warning  2drop drop ;
+
+: replacer: ( "name" -- ) \ gforth-experimental
+    \G create hardcoded macro, created word is in the macros wordlist
+    \G and must have the stack effect @var{( -- addr u )}.
+    get-current >r macros-wordlist set-current
+    : ['] warn-hardcoded set-to
+    r> set-current ;
+
+replacer: rd ( -- addr u ) sourcefilename extractpath ;
 
 : .% ( -- ) '%' emit ;
 : .substitute ( addr1 len1 -- n / ior ) \ gforth-experimental dot-substitute

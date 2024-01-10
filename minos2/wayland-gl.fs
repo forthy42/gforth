@@ -38,10 +38,10 @@ $Variable window-title$ s" ΜΙΝΟΣ2 OpenGL Window" window-title$ $!
 $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 
 0 Value dpy        \ wayland display
-0 ' noop trigger-Value compositor \ wayland compositor
+0 ' noop trigger-Value wl-compositor \ wayland compositor
 0 Value wl-output
 0 ' noop trigger-Value wl-shell   \ wayland shell
-0 Value wl-pointer
+0 ' noop trigger-Value wl-pointer
 0 Value wl-keyboard
 0 Value wl-touch
 0 Value xkb-ctx
@@ -49,34 +49,34 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 0 Value keymap
 0 Value registry
 0 Value win
-0 Value cursor-theme
-0 Value cursor
-0 Value cursor-surface
+0 ' noop trigger-Value cursor-theme
+0 ' noop trigger-Value cursor
+0 ' noop trigger-Value cursor-surface
+0 ' noop trigger-Value cursor-serial
 0 ' noop trigger-Value wl-surface
-0 ' noop trigger-Value sh-surface
+0 ' noop trigger-Value shell-surface
 0 ' noop trigger-Value wl-seat
 0 ' noop trigger-Value wl-shm
-0 Value text-input-manager
+0 ' noop trigger-Value zwp-text-input-manager-v3
 0 Value text-input
 0 ' noop trigger-Value xdg-wm-base
 0 ' noop trigger-Value xdg-surface
 0 ' noop trigger-Value xdg-toplevel
-0 ' noop trigger-Value decoration-manager
+0 ' noop trigger-Value zxdg-decoration-manager-v1
 0 Value zxdg-decoration
-0 ' noop trigger-Value data-device-manager
+0 ' noop trigger-Value wl-data-device-manager
 0 ' noop trigger-Value data-device
 0 ' noop trigger-Value data-source
-0 ' noop trigger-Value primary-selection-device-manager
+0 ' noop trigger-Value zwp-primary-selection-device-manager-v1
 0 ' noop trigger-Value primary-selection-device
 0 ' noop trigger-Value primary-selection-source
 
 \ set a cursor
 
-: set-cursor { serial -- }
-    wayland( serial [: cr ." Set cursor, serial " h. ;] do-debug )
-    cursor 0= cursor-surface 0= or wl-pointer 0= or ?EXIT
+:trigger-on( cursor-serial cursor-surface cursor wl-pointer )
+    wayland( cursor-serial [: cr ." Set cursor, serial " h. ;] do-debug )
     cursor wl_cursor-images @ @ { image }
-    wl-pointer serial cursor-surface
+    wl-pointer cursor-serial cursor-surface
     image wl_cursor_image-hotspot_x l@ l>s
     image wl_cursor_image-hotspot_y l@ l>s
     wl_pointer_set_cursor
@@ -90,11 +90,11 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 
 \ shell surface listener
 
-: sh-surface-ping ( data surface serial -- )
+: shell-surface-ping ( data surface serial -- )
     wl_shell_surface_pong drop ;
-: sh-surface-config { data surface edges w h -- }
+: shell-surface-config { data surface edges w h -- }
     win w h 0 0 wl_egl_window_resize ;
-: sh-surface-popup-done { data surface -- } ;
+: shell-surface-popup-done { data surface -- } ;
 
 : <cb ( -- ) depth r> swap >r >r ;
 : cb> ( xt1 .. xtn -- )
@@ -107,10 +107,10 @@ ${GFORTH_IGNLIB} "true" str= [IF]
 [THEN]
 
 <cb
-' sh-surface-popup-done ?cb wl_shell_surface_listener-popup_done:
-' sh-surface-config ?cb wl_shell_surface_listener-configure:
-' sh-surface-ping ?cb wl_shell_surface_listener-ping:
-cb> wl-sh-surface-listener
+' shell-surface-popup-done ?cb wl_shell_surface_listener-popup_done:
+' shell-surface-config ?cb wl_shell_surface_listener-configure:
+' shell-surface-ping ?cb wl_shell_surface_listener-ping:
+cb> wl-shell-surface-listener
 
 \ time handling
 
@@ -202,7 +202,8 @@ Variable wl-time
     wl-leave
 ; ?cb wl_pointer_listener-leave:
 :noname { data p s x y -- }
-    s set-cursor \ on enter, we set the cursor
+    wayland( s [: cr ." cursor serial " h. ;] do-debug )
+    s to cursor-serial \ on enter, we set the cursor
     x y wl-enter
 ; ?cb wl_pointer_listener-enter:
 cb> wl-pointer-listener
@@ -670,29 +671,45 @@ Variable cursor-size #24 cursor-size !
     ${XDG_CURRENT_DESKTOP} "KDE" str= IF  read-kde-cursor-theme  EXIT  THEN
     ${XDG_CURRENT_DESKTOP} "GNOME" str= IF  read-gnome-cursor-theme  EXIT  THEN ;
 
-:trigger-on( data-device-manager wl-seat )
+:trigger-on( wl-data-device-manager wl-seat )
     data-device ?EXIT
-    data-device-manager
+    wl-data-device-manager
     wl-seat wl_data_device_manager_get_data_device to data-device ;
 :trigger-on( data-device )
     data-device data-device-listener 0 wl_data_device_add_listener drop
-    data-device-manager wl_data_device_manager_create_data_source
+    wl-data-device-manager wl_data_device_manager_create_data_source
     to data-source ;
 :trigger-on( data-source )
     data-source data-source-listener clipboard$ wl_data_source_add_listener drop
     ds-mime-types[] [: data-source -rot wl_data_source_offer ;] $[]map ;
 
-:trigger-on( primary-selection-device-manager wl-seat )
+:trigger-on( zwp-primary-selection-device-manager-v1 wl-seat )
     primary-selection-device ?EXIT
-    primary-selection-device-manager
+    zwp-primary-selection-device-manager-v1
     wl-seat zwp_primary_selection_device_manager_v1_get_device to primary-selection-device ;
 :trigger-on( primary-selection-device )
     primary-selection-device primary-selection-listener 0 zwp_primary_selection_device_v1_add_listener drop
-    primary-selection-device-manager zwp_primary_selection_device_manager_v1_create_source
+    zwp-primary-selection-device-manager-v1 zwp_primary_selection_device_manager_v1_create_source
     to primary-selection-source ;
-:trigger-on(  primary-selection-source )
+:trigger-on( primary-selection-source )
     primary-selection-source primary-selection-source-listener primary$ zwp_primary_selection_source_v1_add_listener drop
     ds-mime-types[] [: primary-selection-source -rot zwp_primary_selection_source_v1_offer ;] $[]map ;
+
+: >wl-replaces ( version "name -- )
+    s>d <# #s #> "minver" replaces
+    parse-name 2dup "wl_name" replaces
+    2dup bounds ?DO  I c@ '_' = IF  '-' I c!  THEN  LOOP "wl-name" replaces ;
+
+: wl-macro1 ( -- )
+    ": %wl_name% %wl_name%_interface swap %minver% umin wl_registry_bind to %wl-name%"
+    $substitute drop evaluate ;
+: wl-macro2 ( -- )
+    "%wl-name% %wl-name%-listener 0 %wl_name%_add_listener drop"
+    $substitute drop evaluate ;
+: wl: ( version "name" -- )
+    >wl-replaces wl-macro1 postpone ; ;
+: wlal: ( version "name" -- )
+    >wl-replaces wl-macro1 wl-macro2 postpone ; ;
 
 table Constant wl-registry
 
@@ -700,51 +717,35 @@ get-current
 
 wl-registry set-current
 
-: wl_compositor ( registry name version -- )
-    wl_compositor_interface swap 5 umin wl_registry_bind to compositor ;
-:trigger-on( compositor )
-    compositor wl_compositor_create_surface to wl-surface
-    compositor wl_compositor_create_surface to cursor-surface ;
-: wl_shell ( registry name version -- )
-    wl_shell_interface swap 1 umin wl_registry_bind to wl-shell ;
+5 wl: wl_compositor
+:trigger-on( wl-compositor )
+    wl-compositor wl_compositor_create_surface to wl-surface
+    wl-compositor wl_compositor_create_surface to cursor-surface ;
+1 wl: wl_shell
 :trigger-on( wl-shell wl-surface )
-    wl-shell wl-surface wl_shell_get_shell_surface to sh-surface ;
-:trigger-on( sh-surface )
-    sh-surface wl-sh-surface-listener 0 wl_shell_surface_add_listener drop
-    sh-surface wl_shell_surface_set_toplevel
-    sh-surface window-title$ $@ wl_shell_surface_set_title
-    sh-surface window-app-id$ $@ wl_shell_surface_set_class ;
-: wl_output ( registry name version -- )
-    wl_output_interface swap 4 umin wl_registry_bind dup to wl-output
-    wl-output-listener 0 wl_output_add_listener drop ;
-: wl_seat ( registry name version -- )
-    wl_seat_interface swap 8 umin wl_registry_bind to wl-seat ;
-:trigger-on( wl-seat )
-    wl-seat wl-seat-listener 0 wl_seat_add_listener drop ;
-: wl_shm ( registry name version -- )
-    wl_shm_interface swap 1 umin wl_registry_bind to wl-shm ;
+    wl-shell wl-surface wl_shell_get_shell_surface to shell-surface ;
+:trigger-on( shell-surface )
+    shell-surface wl-shell-surface-listener 0 wl_shell_surface_add_listener drop
+    shell-surface wl_shell_surface_set_toplevel
+    shell-surface window-title$ $@ wl_shell_surface_set_title
+    shell-surface window-app-id$ $@ wl_shell_surface_set_class ;
+4 wlal: wl_output
+8 wlal: wl_seat
+1 wl: wl_shm
 :trigger-on( wl-shm )
     cursor-theme$ $@ cursor-size @
     wl-shm wl_cursor_theme_load dup to cursor-theme
     s" default" wl_cursor_theme_get_cursor to cursor ;
-: zwp_text_input_manager_v3 ( registry name version -- )
-    zwp_text_input_manager_v3_interface swap 1 umin wl_registry_bind
-    dup to text-input-manager
-    wl-seat zwp_text_input_manager_v3_get_text_input dup to text-input
+1 wl: zwp_text_input_manager_v3
+:trigger-on( zwp-text-input-manager-v3 wl-seat )
+    zwp-text-input-manager-v3 wl-seat zwp_text_input_manager_v3_get_text_input dup to text-input
     text-input-listener 0 zwp_text_input_v3_add_listener drop
     text-input send-status-update ;
-: xdg_wm_base ( registry name version -- )
-    xdg_wm_base_interface swap 4 umin wl_registry_bind dup to xdg-wm-base
-    xdg-wm-base-listener 0 xdg_wm_base_add_listener drop ;
-: zxdg_decoration_manager_v1 ( registry name version -- )
-    zxdg_decoration_manager_v1_interface swap 1 umin wl_registry_bind
-    to decoration-manager ;
-: wl_data_device_manager ( registry name version -- )
-    wl_data_device_manager_interface swap 3 umin wl_registry_bind
-    to data-device-manager ;
-: zwp_primary_selection_device_manager_v1 ( registry name version -- )
-    zwp_primary_selection_device_manager_v1_interface swap 1 umin wl_registry_bind
-    to primary-selection-device-manager ;
+4 wlal: xdg_wm_base
+1 wl: zxdg_decoration_manager_v1
+3 wl: wl_data_device_manager
+1 wl: zwp_primary_selection_device_manager_v1
+
 set-current
 
 : registry+ { data registry name d: interface version -- }
@@ -781,11 +782,10 @@ forward clear
 
 <cb
 :noname { data xdg_surface serial -- }
-    wayland( [: cr ." configured" ;] do-debug )
+    wayland( serial [: cr ." configured, serial " h. ;] do-debug )
     true to mapped
     xdg_surface serial xdg_surface_ack_configure
     wl-surface wl_surface_commit
-    serial set-cursor
 ; ?cb xdg_surface_listener-configure:
 cb> xdg-surface-listener
 
@@ -852,8 +852,8 @@ cb> xdg-decoration-listener
     wl-surface wl_surface_commit
     wayland( [: cr ." wl-eglwin done" ;] do-debug ) ;
 
-:trigger-on( decoration-manager xdg-toplevel )
-    decoration-manager xdg-toplevel
+:trigger-on( zxdg-decoration-manager-v1 xdg-toplevel )
+    zxdg-decoration-manager-v1 xdg-toplevel
     zxdg_decoration_manager_v1_get_toplevel_decoration dup to zxdg-decoration
     dup xdg-decoration-listener 0
     zxdg_toplevel_decoration_v1_add_listener drop
