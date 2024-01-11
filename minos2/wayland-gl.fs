@@ -626,6 +626,7 @@ cb> data-source-listener
 
 <cb
 :noname { data source -- }
+    wayland( [: cr ." ps cancelled" ;] do-debug )
 ; ?cb zwp_primary_selection_source_v1_listener-cancelled:
 :noname { data source d: mime-type fd -- }
     wayland( fd mime-type data [: cr ." ps send " id. ." type: " type ."  fd: " h. ;] do-debug )
@@ -752,7 +753,8 @@ set-current
     \ sp@ sp0 ! rp@ cell+ rp0 !
     wayland( version interface [: cr type space 0 .r ;] do-debug )
     interface wl-registry find-name-in ?dup-IF
-	>r registry name version r> name>interpret execute
+	>r registry name version r> name>interpret catch
+	?dup-IF [: cr ." Callback error: " h. ;] do-debug drop  THEN
     ELSE
 	wayland( [: ."  unhandled" ;] do-debug )
     THEN ;
@@ -804,12 +806,15 @@ Defer reload-textures ' noop is reload-textures
 : resize-widgets ( w h -- )
     dpy-wh 2!  config-changed ;
 
+2Variable wl-min-size &640 &400 wl-min-size 2!
+
 <cb
-:noname { data xdg_toplevel capabilities -- } ;
+:noname { data xdg_toplevel capabilities -- }
+wayland( capabilities [: cr ." wm capabilities: " h. ;] do-debug ) ;
 ?cb xdg_toplevel_listener-wm_capabilities:
 :noname { data xdg_toplevel width height -- }
     wayland( height width [: cr ." toplevel bounds: " . . ;] do-debug )
-    xdg_toplevel &640 &400 xdg_toplevel_set_min_size
+    xdg_toplevel wl-min-size 2@ xdg_toplevel_set_min_size
     xdg_toplevel width height xdg_toplevel_set_max_size ;
 ?cb xdg_toplevel_listener-configure_bounds:
 :noname { data xdg_toplevel -- }
@@ -818,11 +823,11 @@ Defer reload-textures ' noop is reload-textures
 ?cb xdg_toplevel_listener-close:
 also opengl
 :noname { data xdg_toplevel width height states -- }
-    height width d0= ?EXIT
     wayland( height width [: cr ." toplevel-config: " . . ;] do-debug )
+    height width d0= ?EXIT
     xdg-surface 0 0 width height xdg_surface_set_window_geometry
-    win width height 0 0 wl_egl_window_resize
-    wl-surface wl_surface_commit
+    win ?dup-IF  width height 0 0 wl_egl_window_resize  THEN
+    wl-surface ?dup-IF  wl_surface_commit  THEN
     width height resize-widgets ;
 previous
 ?cb xdg_toplevel_listener-configure:
