@@ -429,11 +429,21 @@ n2=n1+1;
 condbranch((+loop),n R:nlimit R:n1 -- R:nlimit R:n2,paren_plus_loop,
 /* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
 /* dependent upon two's complement arithmetic */
-Cell olddiff = n1-nlimit;
+Cell olddiff = (n1-nlimit)
+#ifdef HAVE___BUILTIN_ADD_OVERFLOW
+               ^(0x80UL<<((sizeof(Cell)-1)*8))
+#endif
+;
 n2=n1+n;	
-,if (((olddiff^(olddiff+n))    /* the limit is not crossed */
-     &(olddiff^n))	       /* OR it is a wrap-around effect */
-    >=0) { /* & is used to avoid having two branches for gforth-native */
+,if (
+#ifdef HAVE___BUILTIN_ADD_OVERFLOW
+!__builtin_add_overflow(olddiff,n,&olddiff)
+#else
+     ((olddiff^(olddiff+n))    /* the limit is not crossed */
+      &(olddiff^n))            /* OR it is a wrap-around effect */
+     >=0
+#endif
+) {
 ,:
  r> swap
  r> r> 2dup - >r
