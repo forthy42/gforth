@@ -62,7 +62,7 @@ Variable ,space ,space on
 : #.r ( n -- ) \ print decimal
     0 ['] .r #10 base-execute ;
 : 0x. ( n -- ) \ print hex
-    dup 0< IF  '-' emit negate  THEN  ." 0x" 0 .r ;
+    dup 0< IF  '-' emit negate  THEN  ." 0x" 0 u.r ;
 : #0x. ( n -- ) \ print hex
     ." #" 0x. ;
 : b>sign ( u m -- n ) over and negate or ;
