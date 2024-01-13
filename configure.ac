@@ -48,6 +48,13 @@ AC_SUBST(LTDLINCL)
 AC_SUBST(LIBLTDL)
 AC_SUBST(LTDL_LDLIBS)
 
+#suppress "-flto=auto"
+case "$CFLAGS" in
+     *-flto=auto*)
+        CFLAGS=`echo $CFLAGS | sed -e 's/-flto=auto//g' -e 's/-ffat-lto-objects//g' -e 's/   / /g' -e 's/  / /g'`
+	;;
+esac
+
 #suppress the "-g -O2" default
 case "$CFLAGS" in
      *-O*)
