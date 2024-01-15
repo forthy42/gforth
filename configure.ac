@@ -352,15 +352,23 @@ test $ac_export_dynamic = yes && AC_DEFINE(HAS_BACKLINK,,[Define if you have bac
 AC_MSG_RESULT($ac_export_dynamic)
 AX_GCC_BUILTIN(__builtin___clear_cache)
 
-#For whatever reason, AX_GCC_BUILTIN doesn't check for __builtin_add_overflow
 AS_VAR_PUSHDEF([ac_var], [ax_cv_have___builtin_add_overflow])
-AC_CACHE_CHECK([for __builtin_add_overflow], [ac_var], [
-    AC_LINK_IFELSE([AC_LANG_SOURCE([[
+case "$host_cpu" in
+    riscv*|mips*|alpha*)
+        # RISCV has no branch on overflow, so GCC's emulation is worse
+	# than what we do; the same is likely true for MIPS and Alpha
+        AS_VAR_SET([ac_var], [no])
+	;;
+    *)
+        #For whatever reason, AX_GCC_BUILTIN doesn't check for __builtin_add_overflow
+        AC_CACHE_CHECK([for __builtin_add_overflow], [ac_var], [
+            AC_LINK_IFELSE([AC_LANG_SOURCE([[
 int main(){long a=1, b=2; __builtin_add_overflow(a,b,&b); }
 ]])],
-    [AS_VAR_SET([ac_var], [yes])],
-    [AS_VAR_SET([ac_var], [no])])
-])
+            [AS_VAR_SET([ac_var], [yes])],
+            [AS_VAR_SET([ac_var], [no])])
+        ])
+esac
 AS_IF([test yes = AS_VAR_GET([ac_var])],
     [AC_DEFINE_UNQUOTED(AS_TR_CPP(HAVE___BUILTIN_ADD_OVERFLOW), 1,
         [Define to 1 if the system has the `__builtin_add_overflow' built-in function])], [])
