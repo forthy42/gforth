@@ -136,12 +136,14 @@ Defer in-dictionary? ( x -- f )
 
 \ bounds                                         13feb93py
 
-: bounds ( addr u -- addr+u addr ) \ gforth
-    \G Given a memory block represented by starting address @i{addr}
-    \G and length @i{u} in aus, produce the end address @i{addr+u} and
-    \G the start address in the right order for @code{u+do} or
-    \G @code{?do}.
-    over + swap ;
+[IFUNDEF] bounds
+    : bounds ( addr u -- addr+u addr ) \ gforth
+	\G Given a memory block represented by starting address @i{addr}
+	\G and length @i{u} in aus, produce the end address @i{addr+u} and
+	\G the start address in the right order for @code{u+do} or
+	\G @code{?do}.
+	over + swap ;
+[THEN]
 
 \ (word)                                               22feb93py
 

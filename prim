@@ -619,6 +619,12 @@ k	( R:n R:w1 R:w2 R:w3 R:w4 -- n R:n R:w1 R:w2 R:w3 R:w4 )	gforth
 
 \f[THEN]
 
+bounds	  ( u1 u2 -- u3 u1 )	gforth
+""Given a memory block represented by starting address @i{addr} and length @i{u} in aus, produce the end address @i{addr+u} and the start address in the right order for @code{u+do} or @code{?do}.""
+u3=u1+u2;
+:
+ over + swap ;
+
 \ digit is high-level: 0/0%
 
 \g strings

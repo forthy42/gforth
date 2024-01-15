@@ -7,7 +7,9 @@
 \ Johns Hopkins University/Applied Physics Laboratory.
 
 \ MM forth2c doesn't have it !
-: mybounds  over + swap ;
+[IFUNDEF] bounds
+    : bounds  over + swap ;
+[THEN]
 
 1 cells Constant cell
 
@@ -29,7 +31,7 @@ align create list elements cells allot
 ;
 
 : verify-list ( -- )
-  list elements 1- cells mybounds do
+  list elements 1- cells bounds do
     i 2@ > abort" bubble-sort: not sorted"
   cell +loop
 ;
@@ -37,7 +39,7 @@ align create list elements cells allot
 : bubble ( -- )
 \ ." bubbling..." cr
   elements 1 do
-    list elements i - cells mybounds do
+    list elements i - cells bounds do
       i 2@ > if i 2@ swap i 2! then
     cell +loop 
   loop
@@ -52,7 +54,7 @@ align create list elements cells allot
 
 : bubble-with-flag ( -- )
   1 elements 1 do
-    -1 list elements i - cells mybounds do
+    -1 list elements i - cells bounds do
       i 2@ > if i 2@ swap i 2! drop 0 then
     cell +loop 
     if leave then
