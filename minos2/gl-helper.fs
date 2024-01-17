@@ -302,10 +302,10 @@ Variable eglformat
     >body 2 cells + @ cstring>sstring ;
 
 : >word ( addr u -- addr' u' ) bounds ?DO
-	I c@ bl > IF  I I' over - unloop  EXIT  THEN
+	I c@ bl > IF  I delta-I unloop  EXIT  THEN
     LOOP  s" " ;
 : >wordend ( addr u -- addr' u' ) bounds ?DO
-	I c@ bl <= IF  I I' over - unloop  EXIT  THEN
+	I c@ bl <= IF  I delta-I unloop  EXIT  THEN
     LOOP  s" " ;
 
 : >attrib ( addr u search u1 -- addr' u' )  2>r

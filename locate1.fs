@@ -41,7 +41,7 @@ variable included-file-buffers
     dup *terminal*# = IF  drop 0 0  EXIT  THEN \ special files
     dup >r included-file-buffers $[] dup
     >r $@ dup IF  rdrop rdrop  EXIT  THEN  2drop
-    i' included-files $[]@ r@
+    r'@ included-files $[]@ r@
     [: >r open-fpath-file throw 2drop r> $slurp ;] catch IF
 	drop 2drop 0 0  r> $free rdrop  EXIT  THEN
     r> $@ rdrop ;

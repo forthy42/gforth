@@ -175,7 +175,7 @@ $[]Variable ranges>lang[]
     \G @var{end} to the list of ranges.
     U+DO
 	I 8 rshift ranges>lang[] $[] { range }
-	I $FF and 0= I' I $100 + u>= and IF
+	I $FF and 0= delta-i $100 u>= and IF
 	    range @ $100 u>= IF  range $free  THEN
 	    dup range !
 	ELSE
@@ -184,7 +184,7 @@ $[]Variable ranges>lang[]
 		zeros[ $100 2dup range @ fill
 		range off  range $!
 	    THEN
-	    range $@ I $FF and /string I' I - umin third fill
+	    range $@ I $FF and /string delta-i umin third fill
 	THEN
     $100 I $FF and - +LOOP  drop ;
 : range@ ( codepoint -- font# ) \ minos2
