@@ -73,7 +73,7 @@ Variable /dump
     \G an operating system you may get @file{Invalid memory address} errors
     \G if you attempt to access arbitrary locations.
     cr base @ >r hex        \ save base on return stack
-    0 ?DO  I' I - 10 min /dump !
+    0 ?DO  delta-I 10 min /dump !
 	dup 8 u.r ." : " dup .line cr  10 +
 	10 +LOOP
     drop r> base ! ;

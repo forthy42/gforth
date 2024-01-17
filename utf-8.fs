@@ -327,7 +327,7 @@ here wc-table - Constant #wc-table
     \G @var{cols}
     {: cols :} bounds U+DO
 	I xc@+ swap >r cols xc-hw+
-    r> I I' over - [ #cr pad c!  #lf pad 1+ c!  pad 2 ] SLiteral string-prefix? -
+    r> I delta-I [ #cr pad c!  #lf pad 1+ c!  pad 2 ] SLiteral string-prefix? -
     I - +LOOP ;
 : x-lines+rest ( c-addr u cols -- lines chars ) \ gforth-internal
     \G calculate how many lines an xchar string @var{c-addr u} needs with
@@ -345,7 +345,7 @@ here wc-table - Constant #wc-table
 	over 0>= IF
 	    rdrop 2drop  start I over - cols oldlen -  unloop  EXIT
 	THEN
-    r> I I' over - [ #cr pad c!  #lf pad 1+ c!  pad 2 ] SLiteral string-prefix? -
+    r> I delta-I [ #cr pad c!  #lf pad 1+ c!  pad 2 ] SLiteral string-prefix? -
     I - +LOOP
     >r drop start len cols r> - ;
 : x-maxlines ( c-addr u lines cols -- c-addr u' ) \ gforth-internal

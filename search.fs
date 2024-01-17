@@ -218,7 +218,7 @@ Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
     BEGIN
 	@ dup
     WHILE
-	dup >r 0 wordlist-link - i' execute r>
+	dup >r 0 wordlist-link - r'@ execute r>
     REPEAT
     drop rdrop ;
 

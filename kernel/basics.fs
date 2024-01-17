@@ -217,7 +217,7 @@ Defer in-dictionary? ( x -- f )
     LOOP
         0
     ELSE
-	1- I' I -
+	1- delta-I
 	UNLOOP
     THEN ;
 

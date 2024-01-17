@@ -117,7 +117,7 @@
     \G this you can take apart arguments -- separated with '&' -- at
     \G ease.
     >r >r
-    $@ BEGIN  dup  WHILE  r@ $split i' -rot >r >r execute r> r>
+    $@ BEGIN  dup  WHILE  r@ $split r'@ -rot >r >r execute r> r>
     REPEAT  2drop rdrop rdrop ;
 
 \ basics for string arrays

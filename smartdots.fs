@@ -113,7 +113,7 @@ debug: .string.( ( -- ) \ dot-string-dot-paren
 ' .s.skip ' .s.cs ' .s.string ' .s.smart 4 smart<> set-stack
 
 : smart.s. ( total n -- total )
-    over i' - { dpth }
+    over r> i swap >r - { dpth } \ i is the loop index of the calling .s
     smart<> $@ bounds U+DO
 	dpth I perform ?LEAVE
     cell +LOOP ;

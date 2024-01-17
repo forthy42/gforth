@@ -412,7 +412,7 @@ variable code-locations 0 code-locations !
     where-struct +loop ;
 
 : (where) ( "name" -- ) \ gforth-internal
-    parse-name find-name dup 0= #-13 and throw [: over = ;] forwheres
+    (') [: over = ;] forwheres
     drop -1 where-index ! ;
 
 Defer where-setup
@@ -586,7 +586,7 @@ included-files $[]# 1- constant doc-file#
 	then
     then
     info-color ." , LOCATEing source" default-color
-    c-addr u find-name dup 0= -13 and throw locate-name ;
+    c-addr u (view') locate-name ;
 
 : help-section {: c-addr u -- :}
     \ !! implement this!

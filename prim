@@ -596,8 +596,7 @@ i	( R:n -- R:n n )		core
   r> r> tuck >r >r ;
 
 i'	( R:w R:w2 -- R:w R:w2 w )		gforth		i_tick
-""The limit of the innermost counted loop; can also be used to access
-the second item on the return stack""
+""The limit of the innermost counted loop""
 :
 \ rp@ cell+ cell+ @ ;
   r> r> r> dup itmp ! >r >r >r itmp @ ;
@@ -617,13 +616,25 @@ k	( R:n R:w1 R:w2 R:w3 R:w4 -- n R:n R:w1 R:w2 R:w3 R:w4 )	gforth
   r> r> r> r> r> r> dup itmp ! >r >r >r >r >r >r itmp @ ;
 [IFUNDEF] itmp variable itmp [THEN]
 
-\f[THEN]
-
 bounds	  ( u1 u2 -- u3 u1 )	gforth
 ""Given a memory block represented by starting address @i{addr} and length @i{u} in aus, produce the end address @i{addr+u} and the start address in the right order for @code{u+do} or @code{?do}.""
 u3=u1+u2;
 :
  over + swap ;
+
+delta-i	( r:ulimit r:u -- r:ulimit r:u u2 )	gforth	delta_i
+""The difference between @i{i} and the loop limit @i{ilimit}""
+u2=ulimit-u;
+:
+ r> i' i - swap >r ;
+
+r'@   ( r:w r:w2 -- r:w r:w2 w )	gforth	r_tick_fetch
+""The second item on the return stack""
+:
+  r> r> r> dup itmp ! >r >r >r itmp @ ;
+[IFUNDEF] itmp variable itmp [THEN]
+
+\f[THEN]
 
 \ digit is high-level: 0/0%
 

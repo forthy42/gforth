@@ -263,6 +263,8 @@ csswaplstore = >r l>< r> l!
 \E prim-states aligned              \ 714
 \E prim-states u<=                  \ 684
 \E prim-states i'                   \ 684
+\E prim-states delta-i
+\E prim-states bounds
 \E prim-states >                    \ 411
 \ \E prim-states (hashlfind)          \ 397
 \E prim-states 2swap                \ 336

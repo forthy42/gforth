@@ -246,7 +246,7 @@ theme-color: status-color ( -- ) \ gforth
 
 decimal
 : spaces-loop ( n addr -- )
-    swap  0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
+    swap  0 max 0 ?DO  delta-I &80 min 2dup type  +LOOP  drop ;
 Create spaces ( u -- ) \ core
 \G Display @var{u} spaces. 
 bl 80 c,s \ c,s from target compiler! 11may93jaw
