@@ -455,9 +455,8 @@ n2=n1+n;
 \+xconds
 
 condbranch((-loop),u R:nlimit R:n1 -- R:nlimit R:n2,paren_minus_loop,
-UCell olddiff = n1-nlimit;
 n2=n1-u;
-,if (olddiff>u) {
+,if ((nlimit-n2)>=u) {
 ,)
 
 condbranch((/loop)`#',R:nlimit R:n1 -- R:nlimit R:n2,paren_slash_loop,

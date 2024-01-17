@@ -504,3 +504,12 @@ r> warnings !
     [I] .
 [LOOP]
 10 5 [DO] [I] . [LOOP] cr
+
+\ -loop
+
+t{ : test--loop do i swap dup -loop drop ; -> }t
+t{ 1 2 5 test--loop -> 5 4 3 }t
+t{ 2 2 5 test--loop -> 5 3 }t
+t{ -1 0 0 test--loop -> 0 1 }t
+t{ max-n 0 0 test--loop -> 0 max-n negate 2 }t
+t{ max-n 1+ 0 0 test--loop -> 0 max-n 1+ }t
