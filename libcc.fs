@@ -518,7 +518,7 @@ create gen-par-types
     c-name type ." ("
     fp-change1 sp-change1 pars over + swap u+do 
 	i 1+ count i c@ gen-par
-	i 1+ c@ 2 + dup i + i' u< if
+	i 1+ c@ 2 + dup delta-I u< if
 	    ." ,"
 	endif
     +loop
@@ -683,7 +683,7 @@ create gen-types
 	    THEN  type
 	ELSE  2drop i c@ print-type  THEN
 	."  x" dup 0 .r 1+
-	i 1+ c@ 2 + dup i + i' u< if
+	i 1+ c@ 2 + dup delta-I u< if
 	    ." , "
 	endif
     +loop  drop .\" ) \\\n{ \\" cr ;
