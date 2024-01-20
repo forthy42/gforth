@@ -795,3 +795,14 @@ end-struct buffer% ( u1 u2 -- ) \ gforth-experimental
     evaluate \ execute entry code
     drop \ drop handle used by loader
 ;
+
+\ rpick
+
+: rpick ( u -- w )
+    1+ cells rp@ + @ ;
+opt: ?fold-to
+    case
+	0 of  postpone r@  endof
+	1 of  postpone r'@  endof
+	postpone rpick# dup ,
+    endcase ;

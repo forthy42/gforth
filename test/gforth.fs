@@ -497,13 +497,6 @@ t{ ' drop compile, :noname 80 ; execute -> 80 }t
 t{ ' drop compile, [: 80 ;] execute -> 80 }t
 r> warnings !
 
-\ refill with&without newline at end of last line
-\ (do not add a newline to the end of this buffer!)
-
-5 0 [DO]
-    [I] .
-[LOOP]
-10 5 [DO] [I] . [LOOP] cr
 
 \ -loop
 
@@ -513,3 +506,21 @@ t{ 2 2 5 test--loop -> 5 3 }t
 t{ -1 0 0 test--loop -> 0 1 }t
 t{ max-n 0 0 test--loop -> 0 max-n negate 2 }t
 t{ max-n 1+ 0 0 test--loop -> 0 max-n 1+ }t
+
+\ rpick
+
+: t-rpick ( n1 n2 n3 n4 -- n4 n3 n2 n1 )
+    >r >r >r >r
+    3 rpick 2 rpick 1 rpick 0 rpick
+    rdrop rdrop rdrop rdrop ;
+t{ 1 2 3 4 t-rpick -> 4 3 2 1 }t
+
+\ refill with&without newline at end of last line
+\ (do not add a newline to the end of this buffer!)
+\ This test absolutely has to be the last one in this file, don't add
+\ further tests after this, don't add a newline to this file!
+
+5 0 [DO]
+    [I] .
+[LOOP]
+10 5 [DO] [I] . [LOOP] cr

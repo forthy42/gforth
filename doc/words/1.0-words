@@ -1293,8 +1293,8 @@ theme-to theme-table theme@ theme! space bell #lf #ff #cr #del #esc #tab #bs
 at-xy page form cr emit type op-vector (key?) (key) key-file EBADF EINTR EOK 
 (err-emit) (err-type) (emit) (type) out debug-fid outfile-id infile-id hex 
 decimal "lit clearstacks clearstack depth ?stack abort ?warning (abort") 
-c(abort") throw catch lp@ ud/mod s>d >number_ >number accumulate digit? bounds 
-stick roll dabs off on ->here here dpp in-dictionary1? in-dictionary? unused 
+c(abort") throw catch lp@ ud/mod s>d >number_ >number accumulate digit? stick 
+roll dabs off on ->here here dpp in-dictionary1? in-dictionary? unused 
 usable-dictionary-end usable-dictionary-end1 dictionary-end section-desc 
 locs[] section-name section-dp section-size section-start current-section A! 
 chars cfaligned maxaligned NIL str< string-suffix? string-prefix? str= no-to 
@@ -1339,10 +1339,11 @@ rshift invert xor or and d2/ d2* dnegate d- d+ m+ /modf-stage2m modf-stage2m
 /f-stage2m u/mod-stage2m umod-stage2m u/-stage2m um/mod um* m* sm/rem fm/mod 
 2/ 2* */s */mods /mods mods /s */f */modf /modf modf /f * abs min max 1- 1+ 
 negate - under+ lit+ + lit safe/string /string capscompare toupper compare 
-fill cmove> cmove move k j i' i fast-throw uncatch (try) (u-do) (-do) (u+do) 
-(+do) (?do) (do) (for) (s+loop)-lp+!# (s+loop) (/loop)#-lp+!# (/loop)# 
-(-loop)-lp+!# (-loop) (+loop)-lp+!# (+loop) (loop)-lp+!# (loop) (next)-lp+!# 
-(next) ?dup-0=-?branch ?dup-?branch ?branch-lp+!# ?branch branch branch-lp+!# 
-does-xt lit-perform unloop execute-;s ;s perform execute call noop23 noop22 
-noop21 noop20 noop19 noop18 noop17 noop16 noop15 noop14 noop13 noop12 noop11 
-noop10 noop9 noop8 noop7 noop6 noop5 noop4 noop3 noop2 noop 
+fill cmove> cmove move r'@ delta-i bounds k j i' i fast-throw uncatch (try) 
+(u-do) (-do) (u+do) (+do) (?do) (do) (for) (s+loop)-lp+!# (s+loop) 
+(/loop)#-lp+!# (/loop)# (-loop)-lp+!# (-loop) (+loop)-lp+!# (+loop) 
+(loop)-lp+!# (loop) (next)-lp+!# (next) ?dup-0=-?branch ?dup-?branch 
+?branch-lp+!# ?branch branch branch-lp+!# does-xt lit-perform unloop 
+execute-;s ;s perform execute call noop23 noop22 noop21 noop20 noop19 noop18 
+noop17 noop16 noop15 noop14 noop13 noop12 noop11 noop10 noop9 noop8 noop7 
+noop6 noop5 noop4 noop3 noop2 noop 

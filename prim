@@ -633,6 +633,9 @@ r'@   ( r:w r:w2 -- r:w r:w2 w )	gforth	r_tick_fetch
   r> r> r> dup itmp ! >r >r >r itmp @ ;
 [IFUNDEF] itmp variable itmp [THEN]
 
+rpick#	  ( #u -- w )	gforth	rpick_num
+w = rp[u];
+
 \f[THEN]
 
 \ digit is high-level: 0/0%
