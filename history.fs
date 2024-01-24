@@ -227,8 +227,8 @@ Create prefix-found  0 , 0 ,
 
 Defer search-prefix
 : simple-search-prefix  ( addr1 len1 -- addr2 len2 )
-    0 ['] search-order >body $@ bounds cell- swap cell-
-    -DO  I cell- 2@ <>
+    0 ['] search-order >body $@ bounds cell- swap cell- U-DO
+        I cell- 2@ <>
         IF  I @ wordlist-id @ swap  search-voc  THEN
     cell -LOOP
     prefix-string ;

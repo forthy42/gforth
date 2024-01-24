@@ -101,7 +101,7 @@ translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
 : set-stack ( x1 .. xn n stack -- )
     \G set the generic stack with values from the data stack
     >r cells r@ $!len
-    r> $@ bounds cell- swap cell- -DO  I !  cell -LOOP ;
+    r> $@ bounds cell- swap cell- U-DO  I !  cell -LOOP ;
 
 : stack: ( n "name" -- )
     \G create a named stack with at least @var{n} cells space
