@@ -114,9 +114,9 @@ debug: .string.( ( -- ) \ dot-string-dot-paren
 
 : smart.s. ( total n -- total )
     over r> i swap >r - { dpth } \ i is the loop index of the calling .s
-    smart<> $@ bounds U+DO
+    smart<> $@ cell MEM+DO
 	dpth I perform ?LEAVE
-    cell +LOOP ;
+    MEM+LOOP ;
 
 : wrap-xt {: xt1 xt2 xt: xt3 -- ... :} \ gforth
     \G Set deferred word xt2 to xt1 and execute xt3.

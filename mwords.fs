@@ -31,10 +31,10 @@ Defer mword-match
 : wid>words[] ( wid -- )
     [: words[] >stack true ;] swap traverse-wordlist ;
 : .mwords[] ( addr u -- ) 0 { n }
-    cr words[] $@ bounds cell- swap cell- U-DO
+    cr words[] $@ cell MEM-DO
 	I @ name>string 2over mword-match
 	IF  n I @ .word to n  THEN
-    cell -LOOP  2drop ;
+    MEM-LOOP  2drop ;
 
 : wordlist-mwords ( addr u wid -- )  wid>words[] .mwords[] words[] $free ;
 : mwords ( ["pattern"] -- ) \ gforth
