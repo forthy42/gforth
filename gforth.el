@@ -234,10 +234,10 @@ PARSED-TYPE specifies what kind of text is parsed. It should be
 	 immediate (font-lock-keyword-face . 2))
 	(("[ifdef]" "[ifundef]" "[defined]" "[undefined]") immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
-	(("if" "begin" "ahead" "do" "?do" "+do" "u+do" "-do" "u-do" "mem-do" "mem+do" "for" 
+	(("if" "begin" "ahead" "do" "?do" "+do" "u+do" "-do" "u-do" "for" 
 	  "case" "of" "?of" "?dup-if" "?dup-0=-if" "then" "endif" "until"
 	  "repeat" "again" "leave" "?leave"
-	  "loop" "+loop" "-loop" "mem+loop" "mem-loop" "next" "endcase" "next-case" "endof" "contof"
+	  "loop" "+loop" "-loop" "next" "endcase" "next-case" "endof" "contof"
 	  "else" "while" "try"
 	  "recover" "endtry" "iferror" "restore" "endtry-iferror"
 	  "assert(" "assert0(" "assert1(" "assert2("
@@ -424,7 +424,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 
 (setq forth-indent-words
       '((("if" "begin" "do" "?do" "+do" "-do" "u+do"
-	  "u-do" "mem-do" "mem+do" "?dup-if" "?dup-0=-if" "case" "of" "?of" "try" "iferror"
+	  "u-do" "?dup-if" "?dup-0=-if" "case" "of" "?of" "try" "iferror"
 	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]" "[:"
 	  "[n:l" "[n:h" "[n:d" "[d:l" "[d:h" "[d:d" "[f:l" "[f:h" "[f:d" "[{:")
 	 (0 . 2) (0 . 2))
@@ -442,7 +442,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	  "end-interface-noname" "end-struct" "class;" "end-c-library" "end-structure")
 	 (-2 . 0) (0 . -2) non-immediate)
 	(("protected" "public" "how:") (-1 . 1) (0 . 0) non-immediate)
-	(("+loop" "-loop" "mem+loop" "mem-loop" "until") (-2 . 0) (-2 . 0))
+	(("+loop" "-loop" "until") (-2 . 0) (-2 . 0))
 	(("else" "recover" "restore" "endtry-iferror" "[else]")
 	 (-2 . 2) (0 . 0))
 	(("does>" "compile>" "int>" ";code" ";abi-code") (-1 . 1) (0 . 0))

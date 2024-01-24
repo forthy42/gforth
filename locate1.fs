@@ -491,7 +491,7 @@ Variable browse-results
     context @ wid>words[]
     where-results $free browse-results $free
     parse-name 0 { d: match wno }
-    words[] $@ cell MEM-DO
+    words[] $@ bounds cell- swap cell- U-DO
 	i @ name>string match mword-match IF
 	    { | where[ where-struct ] }
 	    i @ where[ where-nt !
@@ -500,7 +500,7 @@ Variable browse-results
 	    where[ where-struct browse-results $+!
 	    1 +>wno
 	THEN
-    MEM-LOOP
+    cell -LOOP
     words[] $free
     browse-results $@ bounds U+DO
 	i where-results >stack
@@ -656,6 +656,7 @@ User sh$  cell uallot drop
 :noname '`' parse sh-get ;
 :noname '`' parse postpone SLiteral postpone sh-get ;
 interpret/compile: s` ( "eval-string" -- addr u )
+
 2variable whereg-filename 0 0 whereg-filename 2!
 
 : delete-whereg ( -- )

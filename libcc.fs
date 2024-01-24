@@ -138,10 +138,10 @@ require string.fs
 : scan-back { c-addr u1 c -- c-addr u2 } \ gforth
     \ the last occurence of c in c-addr u1 is at u2-1; if it does not
     \ occur, u2=0.
-    c-addr u1 1 mem-do
+    c-addr 1- c-addr u1 + 1- u-do
 	i c@ c = if
 	    c-addr i over - 1+ unloop exit endif
-    mem-loop
+    1 -loop
     c-addr 0 ;
 
 : dirname ( c-addr1 u1 -- c-addr1 u2 ) \ gforth
