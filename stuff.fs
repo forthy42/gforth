@@ -47,6 +47,28 @@ AUser CSP
 : dmax ( d1 d2 -- d ) \ double d-max
     2over 2over d< IF  2swap  THEN 2drop ;
 
+\ pow2? ctz
+
+[undefined] log2 [if]
+: log2 ( x -- n )
+    \ integer binary logarithm
+    -1 swap begin
+	dup while
+	    1 rshift 1 under+ repeat
+    drop ;
+[then]
+
+: pow2? ( u -- f ) \ gforth pow-two-query
+    \g @i{f} is true iff @i{u} is a power of two, i.e., there is
+    \g exactly one bit set in @i{u}.
+    dup dup 1- and 0= and 0<> ;
+
+: ctz ( x -- u ) \ gforth c-t-z
+    \g count trailing zeros in binary representation of x
+    dup if
+	dup negate and log2 exit then
+    drop 8 cells ;
+
 \ shell commands
 
 UValue $? ( -- n ) \ gforth dollar-question
@@ -251,6 +273,41 @@ translate: translate-[[
     \G Postpone state ends when @code{[[} is recognized.
     ['] rec-[[ forth-recognizer >stack
     ['] >postpone translate-state ; immediate restrict
+
+\ mem+do...mem+loop mem-do...mem-loop array>mem
+
+\ !! todo: check for matching MEM*LOOP; also support non-constants
+
+s" mem+do and mem-do currently require a constant stride" exception
+constant mem*do-noconstant
+
+: array>mem ( uelements uelemsize -- ubytes uelemsize )
+    tuck * swap ;
+
+: mem-do ( compilation -- do-sys ustride; run-time addr ubytes ustride -- ) \ gforth-experimental mem-minus-do
+    \g Starts a counted loop that starts with @code{I} as
+    \g @i{addr}+@i{ubytes}-@i{ustride} and then steps backwards
+    \g through memory with -@i{ustride} wide steps as long as
+    \g @code{I}>=@i{addr}.  Must be finished with @i{mem-loop}.
+    \g Currently works only with constant @i{ustride}.
+    lits# 0= mem*do-noconstant and throw
+    lits> dup >r ]] literal - over + -1 under+ u-do [[ r> ; immediate compile-only
+
+: mem-loop ( compilation do-sys ustride -- ; run-time -- ) \ gforth-experimental mem-minus-loop
+    \g Finishes a @code{mem-do} loop
+    ]] literal -loop [[ ; immediate compile-only
+
+: mem+do ( compilation -- do-sys ustride; run-time addr ubytes ustride -- ) \ gforth-experimental mem-plus-do
+    \g Starts a counted loop that starts with @code{I} as @i{addr} and
+    \g then steps upwards through memory with -@i{ustride} wide steps
+    \g as long as @code{I}<@i{addr}+@i{ubytes}.  Must be finished with
+    \g @i{mem+loop}.  Currently works only with constant @i{ustride}.
+    lits# 0= mem*do-noconstant and throw
+    lits> >r ]] bounds u+do [[ r> ; immediate compile-only
+
+: mem+loop ( compilation do-sys ustride -- ; run-time -- ) \ gforth-experimental mem-minus-loop
+    \g Finishes a @code{mem-do} loop
+    ]] literal +loop [[ ; immediate compile-only
 
 \ f.rdp
 

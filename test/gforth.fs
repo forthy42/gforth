@@ -507,6 +507,14 @@ t{ -1 0 0 test--loop -> 0 1 }t
 t{ max-n 0 0 test--loop -> 0 max-n negate 2 }t
 t{ max-n 1+ 0 0 test--loop -> 0 max-n 1+ }t
 
+\ mem+loop mem-loop
+
+\ t{ create test-mem*a 3 , 5 , 1 , -3 , -> }t
+\ t{ : test-mem+ test-mem*a 4 cell array>mem mem+do i @ mem+loop ; -> }
+\ t{ test-mem+ -> 3 5 1 -3 }t
+\ t{ : test-mem- test-mem*a 4 cell array>mem mem-do i @ mem-loop ; -> }
+\ t{ test-mem- -> -3 1 5 3 }t
+
 \ rpick
 
 : t-rpick ( n1 n2 n3 n4 -- n4 n3 n2 n1 )

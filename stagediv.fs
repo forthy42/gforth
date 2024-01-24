@@ -136,26 +136,6 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
 \   pagecount =	"9",
 \ }
 
-[undefined] log2 [if]
-: log2 ( x -- n )
-    \ integer binary logarithm
-    -1 swap begin
-	dup while
-	    1 rshift 1 under+ repeat
-    drop ;
-[then]
-
-: pow2? ( u -- f ) \ gforth pow-two-query
-    \g @i{f} is true iff @i{u} is a power of two, i.e., there is
-    \g exactly one bit set in @i{u}.
-    dup dup 1- and 0= and 0<> ;
-
-: ctz ( x -- u ) \ gforth c-t-z
-    \g count trailing zeros in binary representation of x
-    dup if
-	dup negate and log2 exit then
-    drop 8 cells ;
-
 0 [if]
     \ these are now primitives
 : /f-stage2m {: ndividend addr -- :}
