@@ -160,6 +160,9 @@ translate: translate-locals
 : alignlp-f ( n1 -- n2 )
     faligned dup adjust-locals-size ;
 
+: maxalign-lp ( -- )
+    locals-size @ alignlp-f locals-size ! ;
+
 \ a local declaration group (the braces stuff) is compiled by calling
 \ the appropriate compile-pushlocal for the locals, starting with the
 \ righmost local; the names are already created earlier, the
@@ -446,7 +449,7 @@ locals-types definitions
 	execute
     repeat
     drop hm,
-    locals-size @ alignlp-f locals-size ! \ the strictest alignment
+    maxalign-lp
     set-current lastnt ! last !
     hmrestore
     activate-locals ;
@@ -713,6 +716,12 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
     else
 	2drop
     endif ;
+
+also locals-types
+: noname-w: ( -- n )
+    \ generate local; its offset is n
+    POSTPONE { 0 0 nextname W: latestxt >r } r> @ ;
+previous
 
 [ifundef] >extra
     : >extra ( nt -- addr )

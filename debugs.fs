@@ -171,7 +171,8 @@ is ?warning
 ' check-shadow >code-address dodefer: = [if]
 :noname  ( addr count wid -- )
     \ prints a warning if the string is already present in the wordlist
-    warnings @ 0= IF  drop 2drop  EXIT  THEN
+    \ don't check 0-length names (as in noname-w:)
+    over 0= warnings @ 0= or IF  drop 2drop  EXIT  THEN
     >r 2dup r> find-name-in dup
     ['] shadow-warning ?warning IF  2drop  EXIT  THEN
     warnings @ >r warnings off
