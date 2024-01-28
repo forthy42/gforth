@@ -561,6 +561,21 @@ SET_IP((Xt *)a_target);
      cell+
  THEN  >r ;
 
+(u-[do) ( #a_target ulimit ustart -- R:ulimit R:ustart ) gforth-internal paren_u_minus_bracket_do
+if (ustart < ulimit) {
+SET_IP((Xt *)a_target);
+}
+:
+ swap 2dup
+ r> swap >r swap >r
+ u<
+ IF
+     @
+ ELSE
+     cell+
+ THEN  >r ;
+
+
 (try) ( ... #a_recovery -- R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler ) gforth-internal paren_try
 a_oldhandler = SPs->handler;
 a_sp = sp;

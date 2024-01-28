@@ -738,6 +738,7 @@ CREATE C-Table \ primitives map to code only
 [IFDEF] (u+do)	' (u+do) A,	    ' c-?do A, [THEN]
 [IFDEF] (-do)	' (-do) A,	    ' c-?do A, [THEN]
 [IFDEF] (u-do)	' (u-do) A,	    ' c-?do A, [THEN]
+[IFDEF] (u-[do) ' (u-[do) A,        ' c-?do A, [THEN]
         	' (?do) A,          ' c-?do A,
         	' (for) A,          ' c-for A,
         	' ?branch A,        ' c-?branch A,

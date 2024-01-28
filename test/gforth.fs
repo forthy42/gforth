@@ -526,6 +526,10 @@ t{ : test-mem-1 cell array>mem mem-do i @ loop ; -> }
 t{ test-mem*a 4 test-mem-1 -> -3 1 5 3 }t
 t{ : test-mem-0 array>mem mem-do i @ loop ; -> }
 t{ test-mem*a 4 cell test-mem-0 -> -3 1 5 3 }t
+t{ test-mem*a 1 cell test-mem-0 -> 3 }t
+t{ test-mem*a 0 cell test-mem-0 -> }t
+t{ : test-mem-l 1 {: a :} array>mem mem-do 2 {: b :} i @ loop a ; -> }
+t{ test-mem*a 4 cell test-mem-l -> -3 1 5 3 1 }t
 
 \ rpick
 

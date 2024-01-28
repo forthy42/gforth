@@ -284,13 +284,6 @@ constant mem*do-noconstant
 : array>mem ( uelements uelemsize -- ubytes uelemsize )
     tuck * swap ;
 
-: const-mem-loop ( +nstride xt do-sys -- )
-    cs-item-size 1+ pick ]] literal -loop [[ 2drop ;
-
-: general-mem-loop ( local-offset xt do-sys )
-    cs-item-size 1+ pick lp-offset compile-@local ]] -loop [[ 2drop
-    ]] endscope [[ ;
-
 : const-mem+loop ( +nstride xt do-sys -- )
     cs-item-size 1+ pick ]] literal +loop [[ 2drop ;
 
@@ -298,22 +291,28 @@ constant mem*do-noconstant
     cs-item-size 1+ pick lp-offset compile-@local ]] +loop [[ 2drop
     ]] endscope [[ ;
 
+: u-[do ( compilation -- do-sys ; run-time u1 u2 -- | loop-sys ) \ gforth-experimental u-minus-bracket-do
+    \G Start of a counted loop with negative stride; Skips the loop if
+    \G @i{u2}<@i{u1}; such a counted loop ends with @code{+loop} where
+    \G the increment is negative; it runs as long as @code{I}>=@i{u1}.
+    POSTPONE (u-[do) ?do-like ; immediate restrict    
+
 : mem-do ( compilation -- w xt do-sys; run-time addr ubytes +nstride -- ) \ gforth-experimental mem-minus-do
     \g Starts a counted loop that starts with @code{I} as
     \g @i{addr}+@i{ubytes}-@i{ustride} and then steps backwards
     \g through memory with -@i{nstride} wide steps as long as
     \g @code{I}>=@i{addr}.  Must be finished with @i{loop}.
     lits# if
-        lits> ['] const-mem-loop over ]] literal - over + -1 under+ u-do [[
+        lits> negate ['] const-mem+loop over ]] literal + over + u-[do [[
     else
-        ]] scope dup [[
-        noname-w: ['] general-mem-loop ]] - over + -1 under+ u-do [[
+        ]] scope dup negate [[
+        noname-w: ['] general-mem+loop ]] - over + u-[do [[
     then
     1 or ; immediate compile-only
 
 : mem+do ( compilation -- w xt do-sys; run-time addr ubytes +nstride -- ) \ gforth-experimental mem-plus-do
     \g Starts a counted loop that starts with @code{I} as @i{addr} and
-    \g then steps upwards through memory with -@i{ustride} wide steps
+    \g then steps upwards through memory with @i{nstride} wide steps
     \g as long as @code{I}<@i{addr}+@i{ubytes}.  Must be finished with
     \g @i{loop}.
     lits# if
