@@ -295,7 +295,7 @@ synonym c-section critical-section
     forthstart 5 cells + @ ;
 : stacksize4 ( -- u-data u-return u-fp u-locals ) \ gforth-experimental
     \G Pushes the data, return, FP, and locals stack sizes of the main task.
-    forthstart 5 cells + 4 cells bounds DO  I @  cell +LOOP
+    forthstart 5 cells + 4 cells cell MEM+DO  I @  LOOP
     2>r >r  sp0 @ >pagealign-stack r> fp0 @ >pagealign-stack 2r> ;
 
 : execute-task ( xt -- task ) \ gforth-experimental

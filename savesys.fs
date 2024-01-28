@@ -19,16 +19,17 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : del-included-files ( addr u -- )
-    included-files $@ bounds ?DO
+    included-files $@ cell MEM+DO
 	I $@ 2over string-prefix? IF  I 0 third $del  THEN
-    cell +LOOP  2drop ;
+    LOOP  2drop ;
 
 : repl-included-files ( addr1 u1 addr2 u2 -- )
-    included-files $@ bounds ?DO
+    included-files $@ cell MEM+DO
 	2over I $@ 2swap string-prefix? IF
 	    I 0 4 pick $del  2dup I 0 $ins
 	THEN
-    cell +LOOP  2drop 2drop ;
+    LOOP
+    2drop 2drop ;
 
 : update-image-included-files ( -- )
     s" GFORTHDESTDIR" getenv del-included-files ;

@@ -36,8 +36,9 @@ User smart.s-skip
 	IFERROR  2drop drop false nothrow ELSE  true  THEN  ENDTRY ;
 Create cs? ( addr -- flag )
 defstart , live-orig , dead-orig , dest , do-dest , scopestart ,
-does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
-  cell +LOOP  drop false ;
+does> 6 cell array>mem MEM+DO
+      dup I @ = if  drop true unloop  exit  then
+  LOOP  drop false ;
 
 : .addr. ( addr -- ) dup >r
     [:  dup xt? if
@@ -114,9 +115,9 @@ debug: .string.( ( -- ) \ dot-string-dot-paren
 
 : smart.s. ( total n -- total )
     over r> i swap >r - { dpth } \ i is the loop index of the calling .s
-    smart<> $@ bounds U+DO
+    smart<> $@ cell MEM+DO
 	dpth I perform ?LEAVE
-    cell +LOOP ;
+    LOOP ;
 
 : wrap-xt {: xt1 xt2 xt: xt3 -- ... :} \ gforth
     \G Set deferred word xt2 to xt1 and execute xt3.

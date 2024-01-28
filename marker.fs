@@ -34,9 +34,9 @@
     here drop
     current-section @ ,
     #extra-sections @ ,
-    sections $@ dup , bounds ?do
+    sections $@ dup , cell mem+do
 	['] section-dp i @ section-execute @ ,
-    cell +loop ;
+    loop ;
 
 : sections-marker! ( addr1 -- addr2 )
     dup @ current-section ! set-section
@@ -47,10 +47,10 @@
 	sections stack> free throw
     cell +loop
     assert( sections $@len over @ = )
-    cell+ sections $@ bounds ?do
+    cell+ sections $@ cell mem+do
 	dup @ ['] section-dp i @ section-execute !
 	cell+
-    cell +loop ;
+    loop ;
     
 \ hmm, most of the saving appears to be pretty unnecessary: we could
 \ derive the wordlists and the words that have to be kept from the
@@ -80,7 +80,7 @@
 
 : marker! ( mark -- )
     \ reset included files count; resize will happen on next add-included-file
-    dup @ dup >r included-files $@ r> /string bounds +DO  I $free  cell +LOOP
+    dup @ dup >r included-files $@ r> /string cell MEM+DO  I $free  LOOP
     included-files $!len cell+
     \ rest of marker!
     dup @ swap cell+ ( here rest-of-marker )
@@ -111,11 +111,10 @@
     drop
     ->here
     \ clean up vocabulary stack
-    0 ['] search-order >body $@ bounds
-    U+DO
+    0 ['] search-order >body $@ cell MEM+DO
 	I @ dup here u>
 	IF  drop  ELSE  swap 1+  THEN
-    cell +LOOP
+    LOOP
     dup 0= or set-order \ -1 set-order if order is empty
     get-current here > IF
 	forth-wordlist set-current

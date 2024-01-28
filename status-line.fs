@@ -55,7 +55,7 @@ blue >bg white >fg or bold or Value status-attr
 
 : .status-line ( -- ) { | w^ status$ }
     nothrow  cols #100 > to wide?
-    [: status-xts $@ bounds DO  I perform  cell +LOOP ;] status$ $exec
+    [: status-xts $@ cell MEM+DO  I perform  LOOP ;] status$ $exec
     #lf '|' status$ $@ replace-char
     cols status$ $@ x-width - dup 0> IF
 	['] spaces $tmp

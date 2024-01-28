@@ -403,13 +403,13 @@ variable code-locations 0 code-locations !
 
 : forwheres ( ... xt -- ... )
     where-results $free
-    0 { xt wno } wheres $@ bounds u+do
+    0 { xt wno } wheres $@ where-struct mem+do
 	i where-nt @ xt execute if
 	    i where-loc @ cr wno .whereview1
 	    i where-results >stack
 	    1 +>wno
 	then
-    where-struct +loop ;
+    loop ;
 
 : (where) ( "name" -- ) \ gforth-internal
     (') [: over = ;] forwheres
@@ -491,7 +491,7 @@ Variable browse-results
     context @ wid>words[]
     where-results $free browse-results $free
     parse-name 0 { d: match wno }
-    words[] $@ bounds cell- swap cell- U-DO
+    words[] $@ cell MEM-DO
 	i @ name>string match mword-match IF
 	    { | where[ where-struct ] }
 	    i @ where[ where-nt !
@@ -500,11 +500,11 @@ Variable browse-results
 	    where[ where-struct browse-results $+!
 	    1 +>wno
 	THEN
-    cell -LOOP
+    LOOP
     words[] $free
-    browse-results $@ bounds U+DO
+    browse-results $@ where-struct MEM+DO
 	i where-results >stack
-    where-struct +LOOP ;
+    LOOP ;
 
 : browse ( "subname" -- ) \ gforth
     \g Show all places where a word with a name that contains
@@ -520,9 +520,9 @@ Variable browse-results
 
 : usage# ( nt -- n ) \ gforth-internal
     \G count usage of the word @var{nt}
-    0 wheres $@ bounds U+DO
+    0 wheres $@ where-struct MEM+DO
 	over i where-nt @ = -
-    where-struct +LOOP  nip ;
+    LOOP  nip ;
 
 \ display unused words
 
@@ -536,10 +536,10 @@ lcount-mask 1+ Constant unused-mask
 : unused-all ( wid -- )
     [: +unused true ;] swap traverse-wordlist ;
 : unmark-used ( -- )
-    wheres $@ bounds U+DO
+    wheres $@ where-struct MEM+DO
 	i where-nt @ dup forthstart here within
 	IF  -unused  ELSE  drop  THEN
-    where-struct +LOOP ;
+    LOOP ;
 : unused@ ( wid -- nt1 .. ntn n )
     0 [: dup >f+c @ unused-mask and IF
 	    dup -unused swap 1+

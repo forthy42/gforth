@@ -69,8 +69,9 @@
 : .strings ( addr u -- ) \ gforth-obsolete
     \G list the strings from an array of string descriptors at addr
     \G with u entries, one per line.
-    2* cells bounds ?DO
-	cr I 2@ type 2 cells +LOOP ;
+    2 cells MEM+DO
+        cr I 2@ type
+    LOOP ;
 
 \ WORD SWORD
 
