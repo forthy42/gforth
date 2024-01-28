@@ -509,11 +509,23 @@ t{ max-n 1+ 0 0 test--loop -> 0 max-n 1+ }t
 
 \ mem+loop mem-loop
 
-\ t{ create test-mem*a 3 , 5 , 1 , -3 , -> }t
-\ t{ : test-mem+ test-mem*a 4 cell array>mem mem+do i @ mem+loop ; -> }
-\ t{ test-mem+ -> 3 5 1 -3 }t
-\ t{ : test-mem- test-mem*a 4 cell array>mem mem-do i @ mem-loop ; -> }
-\ t{ test-mem- -> -3 1 5 3 }t
+t{ create test-mem*a 3 , 5 , 1 , -3 , -> }t
+t{ : test-mem+3 test-mem*a 4 cell array>mem mem+do i @ loop ; -> }
+t{ test-mem+3 -> 3 5 1 -3 }t
+t{ : test-mem+2 4 cell array>mem mem+do i @ loop ; -> }
+t{ test-mem*a test-mem+2 -> 3 5 1 -3 }t
+t{ : test-mem+1 cell array>mem mem+do i @ loop ; -> }
+t{ test-mem*a 4 test-mem+1 -> 3 5 1 -3 }t
+t{ : test-mem+0 array>mem mem+do i @ loop ; -> }
+t{ test-mem*a 4 cell test-mem+0 -> 3 5 1 -3 }t
+t{ : test-mem-3 test-mem*a 4 cell array>mem mem-do i @ loop ; -> }
+t{ test-mem-3 -> -3 1 5 3 }t
+t{ : test-mem-2 4 cell array>mem mem-do i @ loop ; -> }
+t{ test-mem*a test-mem-2 -> -3 1 5 3 }t
+t{ : test-mem-1 cell array>mem mem-do i @ loop ; -> }
+t{ test-mem*a 4 test-mem-1 -> -3 1 5 3 }t
+t{ : test-mem-0 array>mem mem-do i @ loop ; -> }
+t{ test-mem*a 4 cell test-mem-0 -> -3 1 5 3 }t
 
 \ rpick
 

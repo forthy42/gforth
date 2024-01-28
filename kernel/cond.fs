@@ -378,7 +378,9 @@ Variable leave-stack
 
 : LOOP ( compilation do-sys -- ; run-time loop-sys1 -- | loop-sys2 )	\ core
     \G @xref{Counted Loops}.
- ['] (loop) ['] (loop)-lp+!# loop-like ; immediate restrict
+    dup -2 and tuck do-dest? 1 and if \ use matching LOOP for MEM-DO or the like
+        cs-item-size pick execute exit then
+    ['] (loop) ['] (loop)-lp+!# loop-like ; immediate restrict
 
 : +LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 )	\ core	plus-loop
     \G @xref{Counted Loops}.

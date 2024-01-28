@@ -284,37 +284,44 @@ constant mem*do-noconstant
 : array>mem ( uelements uelemsize -- ubytes uelemsize )
     tuck * swap ;
 
-: mem-do ( compilation -- do-sys ustride|local f; run-time addr ubytes ustride -- ) \ gforth-experimental mem-minus-do
+: const-mem-loop ( +nstride xt do-sys -- )
+    cs-item-size 1+ pick ]] literal -loop [[ 2drop ;
+
+: general-mem-loop ( local-offset xt do-sys )
+    cs-item-size 1+ pick lp-offset compile-@local ]] -loop [[ 2drop
+    ]] endscope [[ ;
+
+: const-mem+loop ( +nstride xt do-sys -- )
+    cs-item-size 1+ pick ]] literal +loop [[ 2drop ;
+
+: general-mem+loop ( local-offset xt do-sys )
+    cs-item-size 1+ pick lp-offset compile-@local ]] +loop [[ 2drop
+    ]] endscope [[ ;
+
+: mem-do ( compilation -- w xt do-sys; run-time addr ubytes +nstride -- ) \ gforth-experimental mem-minus-do
     \g Starts a counted loop that starts with @code{I} as
     \g @i{addr}+@i{ubytes}-@i{ustride} and then steps backwards
-    \g through memory with -@i{ustride} wide steps as long as
-    \g @code{I}>=@i{addr}.  Must be finished with @i{mem-loop}.
-    \g Currently works only with constant @i{ustride}.
+    \g through memory with -@i{nstride} wide steps as long as
+    \g @code{I}>=@i{addr}.  Must be finished with @i{loop}.
     lits# if
-        lits> dup >r ]] literal - over + -1 under+ u-do [[ r> true
+        lits> ['] const-mem-loop over ]] literal - over + -1 under+ u-do [[
     else
-        ]] scope dup [[ noname-w: >r ]] - over + -1 under+ u-do [[ r> false
-    then ; immediate compile-only
+        ]] scope dup [[
+        noname-w: ['] general-mem-loop ]] - over + -1 under+ u-do [[
+    then
+    1 or ; immediate compile-only
 
-: mem-loop ( compilation do-sys ustride|local f -- ; run-time -- ) \ gforth-experimental mem-minus-loop
-    \g Finishes a @code{mem-do} loop
-    if
-        ]] literal -loop [[
-    else
-        lp-offset compile-@local ]] -loop endscope [[
-    then ; immediate compile-only
-
-: mem+do ( compilation -- do-sys ustride; run-time addr ubytes ustride -- ) \ gforth-experimental mem-plus-do
+: mem+do ( compilation -- w xt do-sys; run-time addr ubytes +nstride -- ) \ gforth-experimental mem-plus-do
     \g Starts a counted loop that starts with @code{I} as @i{addr} and
     \g then steps upwards through memory with -@i{ustride} wide steps
     \g as long as @code{I}<@i{addr}+@i{ubytes}.  Must be finished with
-    \g @i{mem+loop}.  Currently works only with constant @i{ustride}.
-    lits# 0= mem*do-noconstant and throw
-    lits> >r ]] bounds u+do [[ r> ; immediate compile-only
-
-: mem+loop ( compilation do-sys ustride -- ; run-time -- ) \ gforth-experimental mem-minus-loop
-    \g Finishes a @code{mem-do} loop
-    ]] literal +loop [[ ; immediate compile-only
+    \g @i{loop}.
+    lits# if
+        lits> ['] const-mem+loop ]] bounds u+do [[
+    else
+        ]] scope [[ noname-w: ['] general-mem+loop ]] bounds u+do [[
+    then
+    1 or ; immediate compile-only
 
 \ f.rdp
 
