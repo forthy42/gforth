@@ -6056,7 +6056,6 @@ doc-blank
 doc-insert
 doc-delete
 doc-compare
-doc-bounds
 doc-pad
 
 @comment TODO examples
@@ -6498,8 +6497,7 @@ This is an endless loop.
 
 The basic counted loop is:
 @example
-@i{limit} @i{start}
-?DO
+@i{limit} @i{start} ?DO
   @i{body}
 LOOP
 @end example
@@ -6605,11 +6603,36 @@ prints @code{0 -1}
 @end example
 prints nothing.
 
-Therefore we recommend avoiding @code{@i{n} +LOOP} with negative
-@i{n}. One alternative is @code{@i{u} -LOOP}, which reduces the
-index by @i{u} each iteration. The loop is terminated when the border
-between @i{limit+1} and @i{limit} is crossed. Gforth also provides
-@code{-DO} and @code{U-DO} for down-counting loops. E.g.:
+We recommend not combining @code{?DO} with @code{+LOOP}.  Gforth offers
+several alternatives:
+
+If you want @code{-1 +LOOP}'s behaviour of including an iteration
+where @code{I}=limit, start the loop with @code{-[DO} or @code{U-[DO}
+(where the @code{[} is inspired by the mathematical notation for
+inclusive ranges, e.g., [1,n]):
+
+@example
+-1 0 -[DO  i .  -1 +LOOP
+@end example
+
+prints @code{0 -1}.
+
+@example
+0 0 -[DO  i .  -1 +LOOP
+@end example
+
+prints @code{0}.
+
+@example
+0 -1 -[DO  i .  -1 +LOOP
+@end example
+
+prints nothing.
+
+If you want to exclude the limit, you instead use @code{1 -LOOP} (or
+generally @code{@i{u} -LOOP}) and start the loop with @code{?DO},
+@code{-DO} or @code{U-DO}.  @code{-LOOP} terminates the loop when the
+border between @i{limit+1} and @i{limit} is crossed.  E.g.:
 
 @example
 -2 0 -DO  i .  1 -LOOP
@@ -6629,14 +6652,61 @@ prints @code{0}
 @noindent
 prints nothing.
 
-@end itemize
-
 Unfortunately, @code{+DO}, @code{U+DO}, @code{-DO}, @code{U-DO} and
 @code{-LOOP} are not defined in Standard Forth. However, an implementation
 for these words that uses only standard words is provided in
 @file{compat/loops.fs}.
 
+@item
+@cindex iterate over array
+@cindex array, iterating over
+A common task is to iterate over the elements of an array, forwards or
+backwards.  Iterating over the addresses of the elements has two
+benefits: It avoids the need to keep the start address of the array
+around, reducing the data stack load; and it avoids the need to
+perform address computations in every iteration.  The disadvantage is
+that, starting with the usual array representations @i{addr uelems} or
+@i{addr ubytes}, some processing is required to produce a start and
+limit address.  Gforth has @code{bounds} for getting there from the
+@i{addr ubytes} representation, so you can write a forward loop
+through a cell array @code{v} as:
 
+@example
+create v 1 , 3 , 7 ,
+: foo v 3 cells bounds U+DO i @ . cell +LOOP ;
+foo
+@end example
+
+which prints @code{1 3 7}.  Preprocessing the inputs for walking
+backwards is more involved, so Gforth provide a loop construct of the
+form @code{MEM-DO}...@code{LOOP} that does it for you: It takes an
+array in @i{addr ubytes} representation and the element size, and
+iterates over the addresses of the elements in backwards order:
+
+@example
+create v 1 , 3 , 7 ,
+: foo1 v 3 cell array>mem MEM-DO i @ . LOOP ;
+foo1
+@end example
+
+This prints @code{7 3 1}.  @code{ARRAY>MEM} converts the @i{addr
+uelems uelemsize} representation into the @i{addr ubytes uelemsize}
+representation expected by @code{MEM-DO}.  This loop is finished with
+@code{LOOP} which decrements by @i{uelemsize} when it finishes a
+@code{MEM-DO}.
+
+Gforth also adds @code{MEM+DO} for completeness.  It takes the same
+parameters as @code{MEM-DO}, but walks forwards through the array:
+
+@example
+create v 1 , 3 , 7 ,
+: foo2 v 3 cell array>mem MEM+DO i @ . LOOP ;
+foo2
+@end example
+
+prints @code{1 3 7}.
+
+@item
 @cindex @code{FOR} loops
 Another counted loop is:
 @example
@@ -6651,6 +6721,42 @@ defined in Standard Forth. In Gforth, this loop iterates @i{n+1} times;
 @code{i} produces values starting with @i{n} and ending with 0. Other
 Forth systems may behave differently, even if they support @code{FOR}
 loops. To avoid problems, don't use @code{FOR} loops.
+
+@end itemize
+
+The counted-loop words are:
+
+doc-?do
+doc-+do
+doc-u+do
+doc-bounds
+doc--[do
+doc-u-[do
+doc--do
+doc-u-do
+doc-array>mem
+doc-mem+do
+doc-mem-do
+doc-do
+doc-for
+doc-loop
+doc-+loop
+doc--loop
+doc-next
+doc-leave
+doc-?leave
+doc-unloop
+doc-done
+
+
+The standard does not allow using @code{CS-PICK} and @code{CS-ROLL} on
+@i{do-sys}. Gforth allows it, except for the do-sys produced by
+@code{MEM+DO} and @code{MEM-DO}, but it's your job to ensure that for
+every @code{?DO} etc. there is exactly one @code{UNLOOP} on any path
+through the definition (@code{LOOP} etc. compile an @code{UNLOOP} on
+the fall-through path). Also, you have to ensure that all
+@code{LEAVE}s are resolved (by using one of the loop-ending words or
+@code{DONE}).
 
 @node BEGIN loops with multiple exits, General control structures with CASE, Counted Loops, Control Structures
 @subsection @code{Begin} loops with multiple exits
@@ -6854,35 +6960,6 @@ Gforth adds some more control-structure words:
 doc-endif
 doc-?dup-if
 doc-?dup-0=-if
-
-
-@noindent
-Counted loop words constitute a separate group of words:
-
-
-doc-?do
-doc-+do
-doc-u+do
-doc--do
-doc-u-do
-doc-do
-doc-for
-doc-loop
-doc-+loop
-doc--loop
-doc-next
-doc-leave
-doc-?leave
-doc-unloop
-doc-done
-
-
-The standard does not allow using @code{CS-PICK} and @code{CS-ROLL} on
-@i{do-sys}. Gforth allows it, but it's your job to ensure that for
-every @code{?DO} etc. there is exactly one @code{UNLOOP} on any path
-through the definition (@code{LOOP} etc. compile an @code{UNLOOP} on the
-fall-through path). Also, you have to ensure that all @code{LEAVE}s are
-resolved (by using one of the loop-ending words or @code{DONE}).
 
 @noindent
 Another group of control structure words are:
