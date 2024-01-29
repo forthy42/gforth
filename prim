@@ -561,6 +561,20 @@ SET_IP((Xt *)a_target);
      cell+
  THEN  >r ;
 
+(-[do) ( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth-internal paren_minus_bracket_do
+if (nstart < nlimit) {
+SET_IP((Xt *)a_target);
+}
+:
+ swap 2dup
+ r> swap >r swap >r
+ <
+ IF
+     @
+ ELSE
+     cell+
+ THEN  >r ;
+
 (u-[do) ( #a_target ulimit ustart -- R:ulimit R:ustart ) gforth-internal paren_u_minus_bracket_do
 if (ustart < ulimit) {
 SET_IP((Xt *)a_target);

@@ -291,6 +291,12 @@ constant mem*do-noconstant
     cs-item-size 1+ pick lp-offset compile-@local ]] +loop [[ 2drop
     ]] endscope [[ ;
 
+: -[do ( compilation -- do-sys ; run-time n1 n2 -- | loop-sys ) \ gforth-experimental minus-bracket-do
+    \G Start of a counted loop with negative stride; Skips the loop if
+    \G @i{n2}<@i{n1}; such a counted loop ends with @code{+loop} where
+    \G the increment is negative; it runs as long as @code{I}>=@i{n1}.
+    POSTPONE (-[do) ?do-like ; immediate restrict    
+
 : u-[do ( compilation -- do-sys ; run-time u1 u2 -- | loop-sys ) \ gforth-experimental u-minus-bracket-do
     \G Start of a counted loop with negative stride; Skips the loop if
     \G @i{u2}<@i{u1}; such a counted loop ends with @code{+loop} where

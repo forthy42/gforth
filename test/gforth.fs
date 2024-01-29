@@ -531,6 +531,18 @@ t{ test-mem*a 0 cell test-mem-0 -> }t
 t{ : test-mem-l 1 {: a :} array>mem mem-do 2 {: b :} i @ loop a ; -> }
 t{ test-mem*a 4 cell test-mem-l -> -3 1 5 3 1 }t
 
+\ -[do u-[do
+
+t{ : -[do-test -[do i -1 +loop ; -> }t
+t{ -1 1 -[do-test -> 1 0 -1 }t
+t{ 0 0 -[do-test -> 0 }t
+t{ 0 -1 -[do-test -> }t
+
+t{ : u-[do-test u-[do i -1 +loop ; -> }t
+t{ max-n max-n 1+ u-[do-test -> max-n 1+ max-n }t
+t{ 0 0 u-[do-test -> 0 }t
+t{ max-n 1+ max-n u-[do-test -> }t
+
 \ rpick
 
 : t-rpick ( n1 n2 n3 n4 -- n4 n3 n2 n1 )
