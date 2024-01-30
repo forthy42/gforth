@@ -6517,10 +6517,19 @@ The index of the innermost loop can be accessed with @code{i}, the index
 of the next loop with @code{j}, and the index of the third loop with
 @code{k}.
 
-doc-i
-doc-j
-doc-k
-doc-i'
+You can access the limit of the innermost loop with @code{i'} and
+@code{i'}-@code{i} with @code{delta-i}.  E.g., running
+
+@example
+: foo 7 5 ?do cr i . i' . delta-i . loop ; 
+@end example
+
+prints
+
+@example
+5 7 2 
+6 7 1
+@end example
 
 The loop control data are kept on the return stack, so there are some
 restrictions on mixing return stack accesses and counted loop words. In
@@ -6743,6 +6752,11 @@ doc-loop
 doc-+loop
 doc--loop
 doc-next
+doc-i
+doc-j
+doc-k
+doc-i'
+doc-delta-i
 doc-leave
 doc-?leave
 doc-unloop

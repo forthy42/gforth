@@ -651,7 +651,7 @@ u3=u1+u2;
  over + swap ;
 
 delta-i	( r:ulimit r:u -- r:ulimit r:u u2 )	gforth	delta_i
-""The difference between @i{i} and the loop limit @i{ilimit}""
+""@i{u2}=@code{I'}-@code{I} (difference between limit and index).""
 u2=ulimit-u;
 :
  r> i' i - swap >r ;

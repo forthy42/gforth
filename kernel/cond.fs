@@ -314,8 +314,8 @@ Variable leave-stack
     before-cs-push
     cs-item-size 0 ?DO  leave-stack stack>  LOOP ;
 
-: DONE ( compilation orig -- ; run-time -- ) \ gforth
-    \g resolves all LEAVEs up to the compilaton orig (from a BEGIN)
+: DONE ( compilation do-sys -- ; run-time -- ) \ gforth
+    \g resolves all LEAVEs up to the do-sys
     drop >r 2drop
     begin
 	leave-empty? 0=
