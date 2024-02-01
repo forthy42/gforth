@@ -31,7 +31,7 @@
 \ super3 = lit @
 \ super4 = lit @ call
 \ super5 = @ call
-super6 = lit !
+\ super6 = lit !
 \ super7 = lit lit
 \ super8 = dup lit
 \ super9 = ! lit
@@ -39,30 +39,30 @@ super6 = lit !
 \ super11 = ! ;s
 \ super12 = lit + @
 \ super14 = dup call
-super15 = useraddr @
+\ super15 = useraddr @
 \ super16 = + @
 \ super17 = lit @ ?branch
 \ super18 = lit ! ;s
-super19 = lit@ and
+\ super19 = lit@ and
 \ super21 = lit lit !
 \ super22 = @ ?branch
-super23 = useraddr !
+\ super23 = useraddr !
 \ super24 = dup ?branch
 \ super25 = @ ;s
-super26 = lit@ +
+\ super26 = lit@ +
 \ super27 = dup @
 \ super28 = lit execute \ currently not supported
 super29 = o#+ @
 super30 = o#+ !
-super31 = lit f@
-super32 = lit f!
+\ super31 = lit f@
+\ super32 = lit f!
 \ super33 = noop flit
-super34 = lit+ @
+\ super34 = lit+ @
 super35 = f@ f*
 super36 = f@ f+
-super37 = lit and
-super38 = lit arshift
-super39 = dup lit and swap
+\ super37 = lit and
+\ super38 = lit arshift
+\ super39 = dup lit and swap
 super40 = >l >l
 super41 = dup >r
 
@@ -168,6 +168,8 @@ csswaplstore = >r l>< r> l!
 \E prim-states drop                 \ 173995
 \E S0 S0 state-prim drop
 \E prim-states lshift               \ 164671
+\E prim-states rshift
+\E prim-states arshift
 \ \E prim-states /modf                 \ 164670
 \ \E prim-states /mods
 \E prim-states >r                   \ 145247
