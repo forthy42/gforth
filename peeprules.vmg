@@ -52,8 +52,8 @@
 \ super26 = lit@ +
 \ super27 = dup @
 \ super28 = lit execute \ currently not supported
-super29 = o#+ @
-super30 = o#+ !
+\ super29 = o#+ @ \ not selectde when present
+\ super30 = o#+ ! \ not selected when present
 \ super31 = lit f@
 \ super32 = lit f!
 \ super33 = noop flit
@@ -326,6 +326,7 @@ csswaplstore = >r l>< r> l!
 \E prim-states w><
 \E prim-states l><
 \ \E prim-states x><
+\E prim-states o#+
 
 
 \E ' noop is ip-update
