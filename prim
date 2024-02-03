@@ -3555,6 +3555,9 @@ u#+	( #n #w -- c_addr )	new	u_lit_plus
 ""instance variable using a user address as current object""
 c_addr = (*(Address*)(((Address)up)+n))+w;
 
+o+ ( w -- c_addr )		new	o_plus
+c_addr = op + w;
+
 \+
 \g static_super
 
