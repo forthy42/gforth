@@ -1634,6 +1634,16 @@ defer reprocess-prim
 : prim-states ( "name" -- )
     parse-word lookup-prim gen-prim-states ;
 
+\ doesn't work yet: stack caching for super instructions
+\ : lookup-combinations ( c-addr u -- prim )
+\     combined-prims num-combined @ cells
+\     combinations search-wordlist 0= -13 and throw execute ;
+
+\ : super-states ( "name1" .. "name_n" -- )
+\     0 num-combined !
+\     BEGIN  parse-word dup  WHILE  add-prim  REPEAT  2drop
+\     lookup-combinations gen-prim-states ;
+
 : gen-prim-states-offsets { prim -- }
     ['] reprocess-prim defer@
     ['] gen-prim-offsets is reprocess-prim

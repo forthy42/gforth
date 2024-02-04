@@ -52,7 +52,7 @@
 \ super26 = lit@ +
 \ super27 = dup @
 \ super28 = lit execute \ currently not supported
-super29 = o+ @
+\ super29 = o+ @
 \ super30 = o+ ! \ doesn't get selected
 \ super31 = lit f@
 \ super32 = lit f!
@@ -327,9 +327,7 @@ csswaplstore = >r l>< r> l!
 \E prim-states w><
 \E prim-states l><
 \ \E prim-states x><
-\E prim-states o#+
-\E prim-states o+
-
+\E prim-states o
 
 \E ' noop is ip-update
 \E ' noop is output-nextp0

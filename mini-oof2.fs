@@ -24,28 +24,28 @@ Defer default-method ' noop IS default-method
 
 \ template for methods and ivars
 
-Create o 0 ,  DOES> @ o+ ;
-opt: ( xt -- ) >body @ lit, postpone o+ ;
+Create o# 0 ,  DOES> @ o + ;
+opt: ( xt -- ) >body @ postpone o lit, postpone + ;
 s" Invalid method for this class" exception Constant !!inv-method!!
 : ?valid-method ( offset class -- offset )
     cell- @ over u<= !!inv-method!! and throw ;
 : m>body ( xt class xtsel -- )
     >body @ over ?valid-method + ;
-to-opt: ( xt class xtsel -- ) >body @ postpone lit+ , ;
+to-opt: ( xt class xtsel -- ) >body @ lit, postpone + ;
 ' m>body defer-table to-method: m-to
 \ no validity check for compilation, normal usage is interpretative only
-Create m 0 ,  DOES> @ -1 cells o+ @ + perform ;
+Create m 0 ,  DOES> @ -1 cells o + @ + perform ;
 opt: ( xt -- ) >body @ cell/ postpone o#exec , ;
 ' m-to set-to
-' o Value var-xt
+' o# Value var-xt
 ' m Value method-xt
-: current-o  ['] o to var-xt  ['] m to method-xt ;
+: current-o  ['] o# to var-xt  ['] m to method-xt ;
 
 \ ivalues
 
 : o+field, ( addr body -- addr' )
     @ o + ;
-opt: drop @ lit, postpone o+ ;
+opt: drop @ postpone o lit, postpone + ;
 
 \ core system
 

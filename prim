@@ -3521,9 +3521,6 @@ o> ( r:c_addr -- )		new	o_restore
 ""Restore the previous current object from the return stack""
 op = c_addr;
 
-o#+ ( #w -- c_addr )		new	o_lit_plus
-c_addr = op + w;
-
 o#exec	( #w -- )		new	o_lit_exec
 ""method invocation, use index -1 of current op as vtable""
 ip=IP;
@@ -3549,8 +3546,8 @@ u#+	( #n #w -- c_addr )	new	u_lit_plus
 ""instance variable using a user address as current object""
 c_addr = (*(Address*)(((Address)up)+n))+w;
 
-o+ ( w -- c_addr )		new	o_plus
-c_addr = op + w;
+o  ( -- c_addr )	new	o
+c_addr = op;
 
 \+
 \g static_super
