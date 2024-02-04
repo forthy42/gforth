@@ -244,11 +244,6 @@ Defer in-dictionary? ( x -- f )
 
 \ catch throw                                          23feb93py
 
-has? glocals [IF]
-: lp@ ( -- addr ) \ gforth	lp-fetch
- laddr# [ 0 , ] ;
-[THEN]
-
 has? os 0= [IF]
     : catch  ( ... xt -- ... 0 )
 	handler @ >r sp@ >r

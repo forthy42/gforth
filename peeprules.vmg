@@ -274,7 +274,7 @@ csswaplstore = >r l>< r> l!
 \E S1 S3 state-prim 2swap
 \E S2 S4 state-prim 2swap
 \E S4 S2 state-prim 2swap
-\E prim-states laddr#               \ 335
+\E prim-states lp@                  \ 335
 \ \E prim-states faxpy                \ 286
 \ \E prim-states (next)               \ 272
 \ \E prim-states (-loop)-lp+!#        \ 248

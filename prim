@@ -3064,9 +3064,9 @@ r = ((Float *)lp)[1];
 
 \+
 
-laddr#	( #noffset -- c_addr )	gforth	laddr_number
-/* this can also be used to implement lp@ */
-c_addr = (Char *)(lp+noffset);
+lp@ ( -- c_addr ) gforth lp_fetch
+""@i{C_addr} is the current value of the locals stack pointer.""
+c_addr = lp;
 
 lp+!#	( #noffset -- )	gforth	lp_plus_store_number
 ""used with negative immediate values it allocates memory on the

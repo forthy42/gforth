@@ -44,7 +44,7 @@ drop
     dp +! dp @ ;
 
 : >lp ( addr -- r:oldlp ) r> lp@ >r >r lp! ;
-opt: drop ]] laddr# [[ 0 , ]] >r lp! [[ ;
+opt: drop ]] lp@ >r lp! [[ ;
 : lp> ( r:oldlp -- ) r> r> lp! >r ;
 opt: drop ]] r> lp! [[ ;
 
@@ -155,7 +155,7 @@ forth definitions
     case locals-size @ \ special optimizations for few locals
 	cell    of ]] @ >l   [[ endof
 	2 cells of ]] 2@ 2>l [[ endof
-	]] lp+!# [[ dup negate , ]] laddr# [[ 0 , dup ]] literal move [[
+	]] lp+!# [[ dup negate , ]] lp@ [[ dup ]] literal move [[
     endcase
     1t-closure? IF  ]] free-closure [[ THEN
     false to 1t-closure?
@@ -185,7 +185,7 @@ forth definitions
 
 : ;> ( -- ) \ gforth-experimental end-homelocation
     \G end using a home location
-    pop-locals ]] laddr# [[ 0 , ]] lp> [[
+    pop-locals ]] lp@ lp> [[
 ; immediate compile-only
 
 \ stack-based closures without name

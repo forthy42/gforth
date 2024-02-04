@@ -296,13 +296,17 @@ Defer locals-list!
 \ adds it as inline argument to a preceding locals primitive
   lp-offset , ;
 
+: laddr#, ( n -- )
+    \ for local with offset n from frame start, compile the address
+    postpone lp@ lp-offset postpone literal postpone + ;
+
 : c+! ( c addr -- ) dup >r c@ + r> c! ;
 : 2+! ( d addr -- ) dup >r 2@ d+ r> 2! ;
 
 to-table: 2!-table 2! 2+!
 to-table: c!-table c! c+!
 : laddr, ( lit:xt -- ) -14 throw ;
-opt: ( lit:xt xt -- ) ?fold-to postpone laddr# >body @ lp-offset, ;
+opt: ( lit:xt xt -- ) ?fold-to >body @ laddr#, ;
 
 ' laddr, !-table to-method: to-w:
 ' laddr, defer-table to-method: to-xt:
@@ -329,7 +333,7 @@ locals-types definitions
     create-local
     ['] compile-pushlocal-w
   does> ( Compilation: -- ) ( Run-time: -- w )
-    postpone laddr# @ lp-offset, ;
+    @ laddr#, ;
 
 : F: ( compilation "name" -- a-addr xt; run-time r -- ) \ gforth f-colon
     \G Define value-flavoured float local @i{name} @code{( -- r1 )}
@@ -347,7 +351,7 @@ locals-types definitions
     create-local ['] to-d: set-to
     ['] compile-pushlocal-d
   does> ( Compilation: -- ) ( Run-time: -- x3 x4 )
-    postpone laddr# @ lp-offset, postpone 2@ ;
+    @ laddr#, postpone 2@ ;
 
 : D^ ( compilation "name" -- a-addr xt; run-time x1 x2 -- ) \ gforth d-caret
     \G Define variable-flavoured double local @i{name} @code{( -- a-addr )}
@@ -358,7 +362,7 @@ locals-types definitions
     create-local ['] to-c: set-to
     ['] compile-pushlocal-c
   does> ( Compilation: -- ) ( Run-time: -- c1 )
-    postpone laddr# @ lp-offset, postpone c@ ;
+    @ laddr#, postpone c@ ;
 
 : C^ ( compilation "name" -- a-addr xt; run-time c -- ) \ gforth c-caret
     \G Define variable-flavoured char local @i{name} @code{( -- c-addr )}
