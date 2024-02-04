@@ -3062,9 +3062,9 @@ lp@ ( -- c_addr ) gforth lp_fetch
 ""@i{C_addr} is the current value of the locals stack pointer.""
 c_addr = lp;
 
-lp+!#	( #noffset -- )	gforth	lp_plus_store_number
-""used with negative immediate values it allocates memory on the
-local stack, a positive immediate argument drops memory from the local
+lp+!	( noffset -- )	gforth	lp_plus_store
+""When used with negative @i{noffset} allocates memory on the
+local stack; when used with a positive @i{noffset} drops memory from the local
 stack""
 lp += noffset;
 ALIVE_DEBUGGING(lp[-1]);

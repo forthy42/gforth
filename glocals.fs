@@ -110,7 +110,7 @@ User locals-size \ this is the current size of the locals stack
     else -1 cells  over = if postpone lp-
     else  1 floats over = if postpone lp+
     else  2 floats over = if postpone lp+2
-    else postpone lp+!# dup ,
+    else dup lit, postpone lp+!
     then then then then drop ;
 
 : adjust-locals-size ( n -- ) \ gforth-internal

@@ -45,18 +45,10 @@ get-current also see-voc definitions
 : c-flit1
     cell+ c-flit ;
 
-: c-lp+!#
-    Display? IF
-	S" lp+!# " ['] pri-color .string
-	dup @ dup abs 0 <# #S rot sign #> ['] default-color .string bl cemit
-    THEN
-    cell+ ;
-
 create c-extend1
 [ifdef] flit ' flit A,      ' c-flit A, [then]
 [ifdef] flit0 ' flit0 A,    ' c-flit0 A, [then]
 [ifdef] flit1 ' flit1 A,    ' c-flit1 A, [then]
-	' lp+!# A,          ' c-lp+!# A,
         ' ?branch-lp+!# A,  ' c-?branch-lp+!# A,
         ' branch-lp+!# A,   ' c-branch-lp+!# A,
         ' (loop)-lp+!# A,   ' c-loop-lp+!# A,

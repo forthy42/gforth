@@ -176,7 +176,7 @@ csswaplstore = >r l>< r> l!
 \E prim-states r>                   \ 133792
 \E S1 S1 state-offset-prim does-xt  \ 120944 
 \E prim-states cell+                \ 116183
-\E prim-states lp+!#                \ 106697 \ --
+\E prim-states lp+!                 \ 106697 \ --
 \E prim-states -                    \ 106245
 \E prim-states unloop               \ 98938 \ --
 \E prim-states lp+                  \ 87190 \ --

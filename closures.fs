@@ -155,7 +155,7 @@ forth definitions
     case locals-size @ \ special optimizations for few locals
 	cell    of ]] @ >l   [[ endof
 	2 cells of ]] 2@ 2>l [[ endof
-	]] lp+!# [[ dup negate , ]] lp@ [[ dup ]] literal move [[
+	dup negate ]] literal lp+! lp@ [[ dup ]] literal move [[
     endcase
     1t-closure? IF  ]] free-closure [[ THEN
     false to 1t-closure?

@@ -46,7 +46,7 @@ DOES> ( addr -- ) @ count type ;
 : c(warning") ( c-addr -- )
     [ cell 4 = [IF] ] false >l [ [THEN] ]
     >l [ ' .warning cell - @ ] ALiteral >l dodoes: >l
-    true lp@ 2 cells + ?warning lp+!# [ 3 cell 4 = - cells , ] ;
+    true lp@ 2 cells + ?warning [ 3 cell 4 = - cells ] literal lp+! ;
 
 has? OS [IF]
 : >exec  >r ;

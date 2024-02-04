@@ -116,6 +116,6 @@ s" os-type" environment? [IF] s" cygwin" str= [IF] \\\ [THEN] [THEN]
 { :noname drop drop drop fdrop fdrop fdrop ;                       catch dup    -4 = swap -9 = or -> true }
 { :noname 2drop 2drop 2drop fdrop fdrop fdrop ;                    catch dup    -4 = swap -9 = or -> true }
 { :noname fdrop fdrop fdrop 1 throw ;                              catch dup   -45 = swap -9 = or -> true }
-{ :noname 1000 begin lp+!# [ 16 , ] 1- dup 0= until drop 1 throw ; catch dup -2059 = swap -9 = or -> true }
+{ :noname 1000 begin 16 lp+! 1- dup 0= until drop 1 throw ; catch dup -2059 = swap -9 = or -> true }
 { :noname 1000 begin lp+            1- dup 0= until drop 1 throw ; catch dup -2059 = swap -9 = or -> true }
 { :noname 1000 begin lp+2           1- dup 0= until drop 1 throw ; catch dup -2059 = swap -9 = or -> true }
