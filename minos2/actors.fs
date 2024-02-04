@@ -72,7 +72,7 @@ $10 stack: vp'<>
 : >txy ( -- l:tx l:ty )
     tx-sum f>l  ty-sum f>l ;
 : txy> ( l:tx l:ty )
-    f@local0 to ty-sum  f@local1 to tx-sum  lp+ lp+ ;
+    0 f@localn to ty-sum  1 f@localn to tx-sum  lp+ lp+ ;
 : dxy$ ( rx ry adest addr u -- )
     { f: dx f: dy } bounds U+DO
 	I         sf@ dx f+ sf!+

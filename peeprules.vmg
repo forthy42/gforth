@@ -188,6 +188,11 @@ csswaplstore = >r l>< r> l!
 \E prim-states char+                \ 77542
 \E prim-states ?dup                 \ 76850
 \E prim-states @local0              \ 75322
+\E prim-states @local1              \ 75322
+\E prim-states @local2              \ 75322
+\E prim-states @local3              \ 75322
+\E prim-states @localn              \ 75322
+\E prim-states f@localn
 \E prim-states min                  \ 75264
 \ \E prim-states compare              \ 65603
 \E branch-states (u+do)               \ 63823
@@ -206,7 +211,6 @@ csswaplstore = >r l>< r> l!
 \E prim-states lp-                  \ 45385
 \E branch-states perform              \ 38756
 \E prim-states xor                  \ 35599
-\E prim-states @local#              \ 34586
 \ \E prim-states pick                 \ 32015
 \E prim-states u>                   \ 29373
 \E prim-states -rot                 \ 26211
@@ -220,7 +224,6 @@ csswaplstore = >r l>< r> l!
 \E S1 S0 state-prim 2drop
 \ \E prim-states (tablelfind)         \ 22243
 \E prim-states or                   \ 21587
-\E prim-states @local2              \ 20859
 \E branch-states (+loop)              \ 20006
 \E prim-states 1+                   \ 17944
 \E prim-states rdrop                \ 17902
@@ -243,14 +246,12 @@ csswaplstore = >r l>< r> l!
 \ \E prim-states rp@                  \ 8410
 \E prim-states 0<                   \ 8380
 \E prim-states <                    \ 7741
-\E prim-states @local1              \ 7458
 \ \E prim-states move                 \ 7050
 \E prim-states u>=                  \ 6138
 \E branch-states (+do)                \ 5863
 \ \E prim-states va-return-double     \ 5517
 \E prim-states um*                  \ 5342
 \ \E prim-states toupper              \ 3517
-\ \E prim-states f@local1             \ 2907
 \ \E prim-states rp!                  \ 2859
 \ \E prim-states ?dup-?branch         \ 2829
 \E prim-states d+                   \ 2671

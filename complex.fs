@@ -25,7 +25,7 @@
 
 \ simple operations                                    02mar05py
 
-: fl>      ( -- r ) f@local0 lp+ ;
+: fl>      ( -- r ) 0 f@localn lp+ ;
 
 : zdup     ( z -- z z ) fover fover ;
 : zdrop    ( z -- ) fdrop fdrop ;
@@ -55,11 +55,7 @@ z!-table >to+addr-table: z!a-table
     swap !
     ]] f>l f>l [[ ;
 : compile-z@local ( n -- )
-    case
-	0        of  ]] f@local0 f@local1 [[ endof
-	1 floats of  ]] f@local1 f@local# [[ 2 floats ,  endof
-	dup postpone f@local# dup , postpone f@local# float+ ,
-    endcase ;
+    dup ]] literal f@localn [[ float+ ]] literal f@localn [[ ;
 
 also locals-types definitions
 : z: ( compilation "name" -- a-addr xt; run-time z -- ) \ gforth w-colon

@@ -27,13 +27,6 @@ get-current also see-voc definitions
 : c-?branch-lp+!#  c-?branch cell+ ;
 : c-branch-lp+!#   c-branch  cell+ ;
 
-: c-@local#
-    Display? IF
-	S" @local" ['] pri-color .string
-	dup @ dup cell/ abs 0 <# #S rot sign #> ['] default-color .string bl cemit
-    THEN
-    cell+ ;
-
 : c-flit
     Display? IF
 	dup f@ scratch represent 0=
@@ -52,13 +45,6 @@ get-current also see-voc definitions
 : c-flit1
     cell+ c-flit ;
 
-: c-f@local#
-    Display? IF
-	S" f@local" ['] pri-color .string
-	dup @ dup float/ abs 0 <# #S rot sign #> ['] default-color .string bl cemit
-    THEN
-    cell+ ;
-
 : c-lp+!#
     Display? IF
 	S" lp+!# " ['] pri-color .string
@@ -67,11 +53,9 @@ get-current also see-voc definitions
     cell+ ;
 
 create c-extend1
-	' @local# A,        ' c-@local# A,
 [ifdef] flit ' flit A,      ' c-flit A, [then]
 [ifdef] flit0 ' flit0 A,    ' c-flit0 A, [then]
 [ifdef] flit1 ' flit1 A,    ' c-flit1 A, [then]
-	' f@local# A,       ' c-f@local# A,
 	' lp+!# A,          ' c-lp+!# A,
         ' ?branch-lp+!# A,  ' c-?branch-lp+!# A,
         ' branch-lp+!# A,   ' c-branch-lp+!# A,

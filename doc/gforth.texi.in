@@ -12236,9 +12236,9 @@ toward lower addresses. A few primitives allow an efficient
 implementation; you should not use them directly, but they appear in
 the output of @code{see}, so they are documented here:
 
-doc-@local#
-doc-f@local#
-doc-laddr#
+doc-@localn
+doc-f@localn
+doc-lp@
 doc-lp+!#
 doc-lp!
 doc->l
@@ -12247,10 +12247,9 @@ doc-f>l
 
 In addition to these primitives, some specializations of these
 primitives for commonly occurring inline arguments are provided for
-efficiency reasons, e.g., @code{@@local0} as specialization of
-@code{@@local#} for the inline argument 0. The following compiling words
-compile the right specialized version, or the general version, as
-appropriate:
+efficiency reasons, e.g., @code{@@local0} as specialization of @code{0
+@@localn}. The following compiling words compile the right specialized
+version, or the general version, as appropriate:
 
 
 @c doc-compile-@local

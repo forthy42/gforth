@@ -131,8 +131,8 @@ c-function va-return-double1 va_return_double1 r -- void
 end-c-library
 
 : av-int-r      2r> >r av-int ;
-: av-float-r    f@local0 lp+ av-float ;
-: av-double-r   f@local0 lp+ av-double ;
+: av-float-r    0 f@localn lp+ av-float ;
+: av-double-r   0 f@localn lp+ av-double ;
 : av-longlong-r r> 2r> rot >r av-longlong ;
 : av-ptr-r      2r> >r av-ptr ;
 : va-return-void      va-return-void1     0 (bye) ;

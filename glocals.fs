@@ -96,15 +96,11 @@ User locals-size \ this is the current size of the locals stack
     1 cells of postpone @local1 endof
     2 cells of postpone @local2 endof
     3 cells of postpone @local3 endof
-   ( otherwise ) dup postpone @local# ,
+   ( otherwise ) dup lit, postpone @localn
  endcase ;
 
 : compile-f@local ( n -- ) \ gforth-internal compile-f-fetch-local
- case
-    0        of postpone f@local0 endof
-    1 floats of postpone f@local1 endof
-   ( otherwise ) dup postpone f@local# ,
- endcase ;
+    lit, postpone f@localn ;
 
 \ locals stuff needed for control structures
 

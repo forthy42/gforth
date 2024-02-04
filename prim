@@ -3036,7 +3036,7 @@ r = cv.r;
 
 \g locals
 
-@local#	( #noffset -- w )	gforth	fetch_local_number
+@localn ( noffset -- w )	gforth	fetch_local_n
 w = *(Cell *)(lp+noffset);
 
 @local0	( -- w )	new	fetch_local_zero
@@ -3053,14 +3053,8 @@ w = ((Cell *)lp)[3];
 
 \+floating
 
-f@local#	( #noffset -- r )	gforth	f_fetch_local_number
+f@localn	( noffset -- r )	gforth	f_fetch_local_n
 r = *(Float *)(lp+noffset);
-
-f@local0	( -- r )	new	f_fetch_local_zero
-r = ((Float *)lp)[0];
-
-f@local1	( -- r )	new	f_fetch_local_eight
-r = ((Float *)lp)[1];
 
 \+
 
