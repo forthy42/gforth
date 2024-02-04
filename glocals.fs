@@ -291,11 +291,6 @@ Defer locals-list!
 \ i.e., the address of the local is lp+locals_size-offset
   locals-size @ swap - ;
 
-: lp-offset, ( n -- )
-\ converts the offset from the frame start to an offset from lp and
-\ adds it as inline argument to a preceding locals primitive
-  lp-offset , ;
-
 : laddr#, ( n -- )
     \ for local with offset n from frame start, compile the address
     postpone lp@ lp-offset postpone literal postpone + ;
