@@ -136,7 +136,7 @@ csswaplstore = >r l>< r> l!
 \E S1 S1 state-offset-prim (loop)   \ 379646
 \ \E prim-states lp!                  \ 326743
 \E prim-states and                  \ 309427
-\E prim-states useraddr             \ 303254
+\ \E prim-states useraddr             \ 303254
 \E prim-states over                 \ 283556
 \E S0 S1 state-prim over
 \E S1 S2 state-prim over

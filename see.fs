@@ -688,7 +688,7 @@ ACONSTANT MaxTable
 	THEN  cell+ ;
 [THEN]
 
-[IFDEF] useraddr
+[DEFINED] useraddr [DEFINED] up@ or [IF]
     : ?type-found ( offset nt flag -- offset flag' )
 	IF  2dup >body @ = IF  -rot nip false  EXIT
 	    THEN  THEN  drop true ;
@@ -708,6 +708,8 @@ ACONSTANT MaxTable
     : c-useraddr ( addr -- addr' )
 	[: ['] search-uservar swap traverse-wordlist ;]
 	s" useraddr " c-searcharg ;
+[THEN]
+[IFDEF] up@
     : c-up@ ( addr -- addr' )
 	dup @decompile-prim ['] lit+ xt= IF
 	    cell+ c-useraddr

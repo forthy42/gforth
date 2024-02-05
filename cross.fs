@@ -1211,8 +1211,7 @@ Ghost 2drop drop
 Ghost 2dup drop
 Ghost call drop
 Ghost @ drop
-Ghost useraddr drop
-Ghost user@ drop
+Ghost up@ drop
 Ghost execute drop
 Ghost + drop
 Ghost decimal drop
@@ -3703,7 +3702,7 @@ Builder Create
 compile: g>body alit, ;compile
 
 Builder User
-compile: g>body compile useraddr T @ V, H ;compile
+compile: g>body compile up@ compile lit+ T @ V, H ;compile
 
 Builder Defer
 compile: g>body compile lit-perform T A, H ;compile
@@ -3712,7 +3711,7 @@ Builder (Field)
 compile: g>body T @ H compile lit+ T V, H ;compile
 
 Builder (UValue)
-compile: g>body compile user@ T @ V, H ;compile
+compile: g>body compile up@ compile lit+ T @ V, H compile @ ;compile
 
 Builder 2Constant
 compile: g>body compile lit T dup cell+ @ V, H compile lit T @ V, H ;compile
@@ -3990,8 +3989,8 @@ Cond: IS        cross-record-name T ' >body H compile ALiteral compile ! ;Cond
 : IS            cross-record-name T >address ' >body ! H ;
 Cond: TO        T ' >body H compile ALiteral compile ! ;Cond
 : TO            T ' >body ! H ;
-Cond: UTO       compile useraddr T ' >body @ , H compile ! ;Cond
-Cond: UADDR     compile useraddr T ' >body @ , H ;Cond
+Cond: UTO       compile up@ compile lit+ T ' >body @ , H compile ! ;Cond
+Cond: UADDR     compile up@ compile lit+ T ' >body @ , H ;Cond
 : UADDR         T ' >body @ H tup@ + ;
 : UTO           UADDR X ! ;
 [THEN]

@@ -387,7 +387,7 @@ synonym sleep halt ( task -- ) \ gforth-experimental
 [IFUNDEF] >uvalue
     : >uvalue ( xt -- addr )
 	>body @ next-task + ;
-    to-opt: >body @ postpone useraddr , ;
+    to-opt: >body @ postpone up@ lit, postpone + ;
 [THEN]
 
 ' >uvalue defer-table to-method: udefer-to
@@ -398,7 +398,7 @@ synonym sleep halt ( task -- ) \ gforth-experimental
     Create cell uallot ,
     [: @ up@ + perform ;] set-does>
     ['] udefer-to set-to
-    [: >body @ postpone useraddr , postpone perform ;] set-optimizer ;
+    [: >body @ postpone up@ lit, postpone + postpone perform ;] set-optimizer ;
 
 \ key for pthreads
 

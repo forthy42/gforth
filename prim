@@ -1590,9 +1590,6 @@ f = FLAG(u1-u2 < u3-u2);
 
 \g stack
 
-useraddr	( #u -- a_addr )	gforth-internal
-a_addr = (Cell *)(((Address)up)+u);
-
 up!	( a_addr -- )	gforth-internal	up_store
 gforth_UP=up=(user_area*)a_addr;
 :
@@ -1739,9 +1736,6 @@ ALIVE_DEBUGGING(w1);
 2tuck	( w1 w2 w3 w4 -- w3 w4 w1 w2 w3 w4 )	gforth	two_tuck
 :
  2swap 2over ;
-
-user@	( #u -- w )	gforth-internal	user_fetch
-w = *(Cell *)(((Address)up)+u);
 
 sps@	( -- w )   gforth-internal sps_fetch
 w = (Cell)SPs;
