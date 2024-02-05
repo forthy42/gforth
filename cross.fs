@@ -730,7 +730,7 @@ Variable comp-state
   ['] pi-undefined , \ target plugin action
   8765 ,     \ plugin magic
 [IFDEF] set-to
-  ['] value-to set-to
+  ['] defer-is set-to
 [THEN]
   DOES> perform ;
 

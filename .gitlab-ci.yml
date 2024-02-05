@@ -22,7 +22,6 @@ build-amd64:
   # The files which are to be made available in GitLab
   artifacts:
     paths:
-      - build/*
       - debian/*.deb
 
 build-i386:
@@ -39,7 +38,6 @@ build-i386:
   # The files which are to be made available in GitLab
   artifacts:
     paths:
-      - build/*
       - debian/*.deb
 
 build-amd64-stable:
@@ -58,7 +56,6 @@ build-amd64-stable:
   # The files which are to be made available in GitLab
   artifacts:
     paths:
-      - build/*
       - debian/stable/*.deb
 
 build-i386-stable:
@@ -75,7 +72,6 @@ build-i386-stable:
   # The files which are to be made available in GitLab
   artifacts:
     paths:
-      - build/*
       - debian/stable/*.deb
 
 build-amd64-oldstable:
@@ -94,7 +90,6 @@ build-amd64-oldstable:
   # The files which are to be made available in GitLab
   artifacts:
     paths:
-      - build/*
       - debian/oldstable/*.deb
 
 build-i386-oldstable:
@@ -111,5 +106,4 @@ build-i386-oldstable:
   # The files which are to be made available in GitLab
   artifacts:
     paths:
-      - build/*
       - debian/oldstable/*.deb

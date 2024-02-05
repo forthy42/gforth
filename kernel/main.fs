@@ -41,7 +41,9 @@ parse-name vocabulary find-name 0= [IF]
 
 \ include etags.fs
 
+warnings @ warnings off
 include ./../cross.fs              \ cross-compiler
+warnings !
 
 decimal
 

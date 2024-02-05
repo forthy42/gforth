@@ -41,7 +41,7 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 top_builddir = @top_builddir@
 DESTDIR = $(PWD)
-LIBTOOL = @LIBTOOL@
+LIBTOOL = @GNU_LIBTOOL@ --silent
 GCC	= @CC@
 HOSTCC	= @HOSTCC@
 CC	= $(HOSTCC) $(INCLUDES) -I.
@@ -57,7 +57,7 @@ build-libcc-named: $(LIBRARY) $(TARGETS)
 
 libs: build-libcc-named $(LIBRARY)
 	for i in $(LIBRARY); do \
-	    $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf`basename $$i .fs`.la $(DESTDIR)$(libccdir)libgf`basename $$i .fs`.la; \
+	    $(LIBTOOL) --mode=install $(INSTALL) lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf`basename $$i .fs`.la $(DESTDIR)$(libccdir)libgf`basename $$i .fs`.la; \
 	done
 
 # execute compiled file
