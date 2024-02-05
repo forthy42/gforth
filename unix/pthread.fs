@@ -174,10 +174,12 @@ User wake#
     ' >body @ ;
 compsem: ' >body @ postpone Literal ;
 
+[IFUNDEF] up@
 ' next-task alias up@ ( -- addr ) \ gforth-experimental
-\G @i{Addr} is the start of the user area of the current task
-\G (@i{addr} also serves as the @i{task} identifier of the current
-\G task).
+    \G @i{Addr} is the start of the user area of the current task
+    \G (@i{addr} also serves as the @i{task} identifier of the current
+    \G task).
+[THEN]
 
 0 warnings !@
 : 's ( addr1 task -- addr2 ) \ gforth-experimental

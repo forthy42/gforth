@@ -708,6 +708,14 @@ ACONSTANT MaxTable
     : c-useraddr ( addr -- addr' )
 	[: ['] search-uservar swap traverse-wordlist ;]
 	s" useraddr " c-searcharg ;
+    : c-up@ ( addr -- addr' )
+	dup @decompile-prim ['] lit+ xt= IF
+	    cell+ c-useraddr
+	ELSE
+	    display? IF
+		s" up@ " ['] default-color .string
+	    THEN
+	THEN  ;
 [THEN]
 [IFDEF] user@
     : search-userval ( offset nt -- offset flag )
@@ -760,6 +768,7 @@ CREATE C-Table \ primitives map to code only
 [IFDEF] call-c# ' call-c# A,        ' c-call-c# A, [THEN]
 [IFDEF] useraddr ' useraddr A,      ' c-useraddr A, [THEN]
 [IFDEF] user@    ' user@ A,         ' c-user@ A, [THEN]
+[IFDEF] up@     ' up@ A,            ' c-up@ A, [THEN]
         	0 ,		here 0 ,
 
 avariable c-extender

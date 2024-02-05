@@ -538,7 +538,7 @@ const Create ???
 	dup >body dup maxaligned = IF
 	    dup >namehm @ hm? IF
 		dup >code-address tuck body> = swap
-		docol:  ['] u#+ >code-address 1+ within or  EXIT
+		docol:  ['] up@ >code-address 1+ within or  EXIT
 	    THEN
 	THEN
     THEN

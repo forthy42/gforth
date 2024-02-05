@@ -3546,8 +3546,13 @@ u#+	( #n #w -- c_addr )	new	u_lit_plus
 ""instance variable using a user address as current object""
 c_addr = (*(Address*)(((Address)up)+n))+w;
 
-o  ( -- c_addr )	new	o
-c_addr = op;
+o      ( -- a_addr )	new	o
+a_addr = (Cell*)op;
+
+up@    ( -- a_addr )	new	up_fetch
+""@i{Addr} is the start of the user area of the current task (@i{addr} also
+serves as the @i{task} identifier of the current task).""
+a_addr = (Cell*)up;
 
 \+
 \g static_super
