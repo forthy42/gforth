@@ -564,7 +564,7 @@ previous previous
 ' noop handler-class is DoGenericEvent
 ' noop handler-class is ?looper-timeouts
 
-: handle-event ( -- ) e.type cells o#+ [ -1 cells , ] @ + perform ;
+: handle-event ( -- ) e.type cells o -1 cells + @ + perform ;
 #16 Value looper-to# \ 16ms, don't sleep too long
 : get-events ( -- )
     \ looper-to# #1000000 um* ntime d+ { d: timeout }

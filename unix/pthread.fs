@@ -386,7 +386,7 @@ synonym sleep halt ( task -- ) \ gforth-experimental
 
 [IFUNDEF] >uvalue
     : >uvalue ( xt -- addr )
-	>body @ next-task + ;
+	>body @ up@ + ;
     to-opt: >body @ postpone up@ lit, postpone + ;
 [THEN]
 

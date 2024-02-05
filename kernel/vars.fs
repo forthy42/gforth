@@ -48,7 +48,7 @@ Create !-table     ' ! A,     ' +! A,  ' n/a A, ' n/a A, ' warn! A,
 Create defer-table ' warn! A, ' n/a A, ' n/a A, ' @ A,   ' ! A,
 
 : >uvalue ( xt -- addr )
-    >body @ next-task + ;
+    >body @ up@ + ;
 opt: ?fold-to >body @ postpone up@ postpone lit+ , ;
 
 : to:exec ( .. u xt1 xt2 -- .. ) rot >r 2@ r> cells + >r execute r> perform ;
@@ -61,7 +61,7 @@ opt: ?fold-to >body @ postpone up@ postpone lit+ , ;
 : (UValue) ( "name" -- )
     \G Define a per-thread value
     Create cell uallot ,
-  DOES> @ next-task + @ ;
+  DOES> @ up@ + @ ;
 
 : UValue ( "name" -- ) \ gforth
     \G @i{Name} is a user value.@*
