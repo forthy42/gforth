@@ -11,6 +11,7 @@ extern struct _IO_FILE *stderr;
 %}
 %apply float { GLfloat, GLclampf };
 %apply long { EGLNativePixmapType, GLintptr, GLsizeiptr };
+%apply int { GLfixed };
 %apply SWIGTYPE * { EGLBoolean };
 
 #define SWIG_FORTH_OPTIONS "no-callbacks"

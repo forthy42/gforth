@@ -17,6 +17,7 @@
 
 %apply long long { GLint64, GLint64EXT, GLuint64, GLuint64EXT };
 %apply long { GLsizeiptr, GLintptr, GLsizeiptrARB, GLintptrARB };
+%apply int { GLfixed };
 %apply char { GLchar };
 %apply SWIGTYPE * { GLhandleARB };
 
