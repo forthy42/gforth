@@ -28,6 +28,10 @@
 # DOS. If you want to use shell-specific things that must run with DOS make
 # an external batch file and call it with bash (see versions.bsh).
 
+ifndef VERBOSE
+.SILENT:
+endif
+
 # ------------- gforth version
 
 VERSION	= @PACKAGE_VERSION@
@@ -1036,12 +1040,12 @@ gforth.fi: $(buildccdir)/libgfpthread.la unix/pthread-types.fs
 
 $(buildccdir)/libgf%.la: unix/%.fs $(FORTH_GEN_LIGHT) $(GEN) $(LIBCC_LIB_SRC) libforth
 		@echo LIBFORTH $<
-		@@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
-		@-$(TOUCH) $@
+		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
+		-$(TOUCH) $@
 
 $(buildccdir)/libgflibcc.la: test/libcc.fs $(FORTH_GEN_LIGHT) $(GEN) $(LIBCC_LIB_SRC) libforth
-		@@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
-		@-$(TOUCH) $@
+		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
+		-$(TOUCH) $@
 
 build-libcc-named libcc: build-libcc-swig $(LIBCC_BUILD_LA) libccdir
 
@@ -1117,31 +1121,31 @@ checkgfd:
 
 checkone test: prim.b gforth-light.fi engine/prim-s.i
 		@echo TEST $(ENGINE) coretests
-		@$(TIMEOUT) $(FORTH) -i gforth-light.fi test/tester.fs -e 'warnings off' test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -r -u - $(srcdir)/test/coretest.out
+		$(TIMEOUT) $(FORTH) -i gforth-light.fi test/tester.fs -e 'warnings off' test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -r -u - $(srcdir)/test/coretest.out
 		@echo TEST $(ENGINE) others
-		@$(TIMEOUT) $(FORTH) -i gforth-light.fi test/other.fs -e bye
+		$(TIMEOUT) $(FORTH) -i gforth-light.fi test/other.fs -e bye
 		@echo TEST $(ENGINE) signals
-		@$(TIMEOUT) $(FORTHS) -i gforth-light.fi test/signals.fs -e bye
+		$(TIMEOUT) $(FORTHS) -i gforth-light.fi test/signals.fs -e bye
 		@echo TEST $(ENGINE) coremore
-		@$(TIMEOUT) $(FORTHS) -i gforth-light.fi test/coremore.fs test/gforth.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -u $(srcdir)/test/gforth.out -
+		$(TIMEOUT) $(FORTHS) -i gforth-light.fi test/coremore.fs test/gforth.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -u $(srcdir)/test/gforth.out -
 		@@NO_UTF8@echo TEST $(ENGINE) utf8
-		@@NO_UTF8@$(TIMEOUT) $(UTF8) $(FORTHS) -i gforth-light.fi test/xchar.fs -e bye
+		@NO_UTF8@$(TIMEOUT) $(UTF8) $(FORTHS) -i gforth-light.fi test/xchar.fs -e bye
 		@echo TEST $(ENGINE) checkans
-		@$(TIMEOUT) $(FORTH) -i gforth-light.fi code.fs test/checkans.fs -e bye | tr -d '\015' | diff -u $(srcdir)/test/checkans.out -
+		$(TIMEOUT) $(FORTH) -i gforth-light.fi code.fs test/checkans.fs -e bye | tr -d '\015' | diff -u $(srcdir)/test/checkans.out -
 		@echo TEST $(FORTHS) prims2x
-		@$(TIMEOUT) $(FORTH) -i gforth-light.fi prims2x.fs -e \
+		$(TIMEOUT) $(FORTH) -i gforth-light.fi prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $<\" ' output-c ' output-c-combined process-file bye"| \
 		  tr -d '\015' | grep -v '^#line '|diff -u engine/prim-s.i -
 		@echo TEST $(ENGINE) fptests
-		@-$(TIMEOUT) $(FORTH) -i gforth-light.fi test/fp/runfptests.fth -e bye | diff -u $(srcdir)/test/fp/fptest.out - || echo "Floating point test failed"
+		-$(TIMEOUT) $(FORTH) -i gforth-light.fi test/fp/runfptests.fth -e bye | diff -u $(srcdir)/test/fp/fptest.out - || echo "Floating point test failed"
 		@echo TEST $(ENGINE) read-line
-		@$(TIMEOUT) $(FORTHS) -i gforth-light.fi test/read-line.fs -e bye | diff -u - $(srcdir)/test/read-line.out
+		$(TIMEOUT) $(FORTHS) -i gforth-light.fi test/read-line.fs -e bye | diff -u - $(srcdir)/test/read-line.out
 		@echo TEST $(ENGINE) regexp
-		@$(TIMEOUT) $(FORTHS) -i gforth-light.fi regexp.fs test/regexp-test.fs | diff -u - $(srcdir)/test/regexp.out || echo "Regexp test failed"
+		$(TIMEOUT) $(FORTHS) -i gforth-light.fi regexp.fs test/regexp-test.fs | diff -u - $(srcdir)/test/regexp.out || echo "Regexp test failed"
 
 check-nofast: gforth-light.fi
 		@echo TEST $(ENGINE) nofast
-		@$(TIMEOUT) $(FORTHS) -i gforth-light.fi test/gforth-nofast.fs -e bye
+		$(TIMEOUT) $(FORTHS) -i gforth-light.fi test/gforth-nofast.fs -e bye
 
 # pattern to allow different filenames for different purposes
 test/prim%.fi: test/prim%.fs mach64l.fs cross.fs
@@ -1215,23 +1219,23 @@ kernel/authors.fs:	AUTHORS Makefile.in
 
 kernl32l$(EC).fi-:	$(KERN_DEPS) mach32l.fs preforth
 		@echo CROSS kernl32l$(EC).fi
-		@-$(CP) kernl32l$(EC).fi kernl32l$(EC).fi~
-		@$(PREFORTH) -e 's" mach32l.fs" include $(srcdir)/kernel/main.fs' -e "save-cross kernl32l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+		-$(CP) kernl32l$(EC).fi kernl32l$(EC).fi~
+		$(PREFORTH) -e 's" mach32l.fs" include $(srcdir)/kernel/main.fs' -e "save-cross kernl32l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32b$(EC).fi-:	$(KERN_DEPS) mach32b.fs preforth
 		@echo CROSS kernl32b$(EC).fi
-		@-$(CP) kernl32b$(EC).fi kernl32b$(EC).fi~
-		@$(PREFORTH) -e 's" mach32b.fs" include $(srcdir)/kernel/main.fs' -e "save-cross kernl32b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+		-$(CP) kernl32b$(EC).fi kernl32b$(EC).fi~
+		$(PREFORTH) -e 's" mach32b.fs" include $(srcdir)/kernel/main.fs' -e "save-cross kernl32b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64l$(EC).fi-:	$(KERN_DEPS) mach64l.fs preforth
 		@echo CROSS kernl64l$(EC).fi
-		@-$(CP) kernl64l$(EC).fi kernl64l$(EC).fi~
-		@$(PREFORTH) -e 's" mach64l.fs" include $(srcdir)/kernel/main.fs' -e "save-cross kernl64l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+		-$(CP) kernl64l$(EC).fi kernl64l$(EC).fi~
+		$(PREFORTH) -e 's" mach64l.fs" include $(srcdir)/kernel/main.fs' -e "save-cross kernl64l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64b$(EC).fi-:	$(KERN_DEPS) mach64b.fs preforth
 		@echo CROSS kernl32l$(EC).fi
-		@-$(CP) kernl64b$(EC).fi kernl64b$(EC).fi~
-		@$(PREFORTH) -e 's" mach64b.fs" include $(srcdir)/kernel/main.fs' -e "save-cross kernl64b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+		-$(CP) kernl64b$(EC).fi kernl64b$(EC).fi~
+		$(PREFORTH) -e 's" mach64b.fs" include $(srcdir)/kernel/main.fs' -e "save-cross kernl64b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 # Atomic copy, as kernel might be loaded concurrently
 kernl%$(EC).fi:	kernl%$(EC).fi-
@@ -1272,98 +1276,98 @@ prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CA
 
 engine/prim.i:	prim.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" prim.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
 
 # normal prim rules
 
 engine/prim_lab.i:	prim.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-label dup process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-label dup process-file bye" >$@
 
 engine/prim_grp.i:	prim.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' noop dup process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' noop dup process-file bye" >$@
 
 engine/prim_names.i:	prim.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-forthname ' output-forthname-combined process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-forthname ' output-forthname-combined process-file bye" >$@
 
 engine/prim_superend.i:	prim.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-superend dup process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-superend dup process-file bye" >$@
 
 engine/profile.i:	prim.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-profile ' output-profile-combined process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-profile ' output-profile-combined process-file bye" >$@
 
 engine/super2.i:	prim.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-super2-simple ' output-super2-combined process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-super2-simple ' output-super2-combined process-file bye" >$@
 
 engine/costs.i:	prim.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-costs-gforth-simple ' output-costs-gforth-combined process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-costs-gforth-simple ' output-costs-gforth-combined process-file bye" >$@
 
 engine/prim_num.i:	prim.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-c-prim-num ' noop process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-c-prim-num ' noop process-file bye" >$@
 
 prim_effects.fs: prim.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag off s\" "$<"\" ' output-stack-effects ' noop process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag off s\" "$<"\" ' output-stack-effects ' noop process-file bye" >$@
 
 # fast prim rules...
 
 engine/prim-fast.i:	prim-fast.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "get-current prim-killregs set-current" $(srcdir)/nonreloc-canon -e "set-current "$(STACK_CACHE_REGS)" is stack-cache-regs c-flag on s\" prim-fast.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "get-current prim-killregs set-current" $(srcdir)/nonreloc-canon -e "set-current "$(STACK_CACHE_REGS)" is stack-cache-regs c-flag on s\" prim-fast.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
 
 engine/prim_lab-fast.i:	prim-fast.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-label dup process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-label dup process-file bye" >$@
 
 engine/prim_grp-fast.i:	prim-fast.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' noop dup process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' noop dup process-file bye" >$@
 
 engine/prim_names-fast.i:	prim-fast.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-forthname  ' output-forthname-combined process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-forthname  ' output-forthname-combined process-file bye" >$@
 
 engine/prim_superend-fast.i:	prim-fast.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-superend dup process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-superend dup process-file bye" >$@
 
 engine/profile-fast.i:	prim-fast.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-profile ' output-profile-combined process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-profile ' output-profile-combined process-file bye" >$@
 
 engine/super2-fast.i:	prim-fast.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-super2-simple ' output-super2-combined process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-super2-simple ' output-super2-combined process-file bye" >$@
 
 engine/costs-fast.i:	prim-fast.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-costs-gforth-simple ' output-costs-gforth-combined process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-costs-gforth-simple ' output-costs-gforth-combined process-file bye" >$@
 
 engine/prim_num-fast.i:	prim-fast.b prims2x.fs
 	@echo PRIMGEN $@
-	@$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-c-prim-num ' noop process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-c-prim-num ' noop process-file bye" >$@
 
 engine/prim-s.i: engine/prim.i
 		grep -v '^#line ' $< >$@
 
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs preforth.in
-		@$(CP) $(srcdir)/kernel/aliases0.fs $@-
+		$(CP) $(srcdir)/kernel/aliases0.fs $@-
 		@echo PRIMGEN $@
-		@$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias ' noop process-file bye" >>$@-
-		@$(MV) $@- $@
+		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias ' noop process-file bye" >>$@-
+		$(MV) $@- $@
 
 kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs preforth.in
-		@$(CP) $(srcdir)/kernel/prim0.fs kernel/prim.fs-
+		$(CP) $(srcdir)/kernel/prim0.fs kernel/prim.fs-
 		@echo PRIMGEN $@
-		@$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
-		@$(MV) $@- $@
+		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
+		$(MV) $@- $@
 
 OPTS = @OPTS@
 

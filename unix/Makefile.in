@@ -18,6 +18,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
+ifndef VERBOSE
+.SILENT:
+endif
+
 INCLUDES   = @SWIGINCLUDES@ -I@srcdir@/../freetype-gl -I../wayland
 SWIG       = @SWIG@
 TARGETS    = @SWIGMODULES@
@@ -62,6 +66,7 @@ libs: build-libcc-named $(LIBRARY)
 
 # execute compiled file
 %.fs: %-fsi.c
+	@echo SWIG-GEN $@
 	$(srcdir)/trygcc "$(CC)" $@x $<
 	./$@x -gforth | $(srcdir)/doexec $@ $(srcdir) > $@
 
@@ -81,6 +86,7 @@ pthread-types.fs: pthread-types-fsi.c
 # if swig -forth is available, do this even when there's a fsi file older
 # than the configure run
 %-fsi.c: $(srcdir)/%.i @HAS_SWIG_FORTH@
+	@echo SWIG $(patsubst %-fsi.c,%.i,$@)
 	$(SWIG) $(OPTIONS) -o $@+ $(srcdir)/$(patsubst %-fsi.c,%.i,$@)
 	$(srcdir)/doprep $@+ $(srcdir) > $@
 
