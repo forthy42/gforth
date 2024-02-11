@@ -991,10 +991,16 @@ defer ip-update
     \ ip-update at the start of a prim (possibly not copied into a superinst)
     ip-update ;
 
+: ip-update-offset ( -- )
+    \ update by ip-offset
+    ip-offset 0<> if
+        ." ip += " ip-offset 0 .r ." ;" cr
+    then ;
+
 : ip-update-middle ( -- )
     \ ip update in the middle of a prim (by ip-offset)
-    prim prim-superend @ ip-offset 0<> and if
-        ." ip += " ip-offset 0 .r ." ;" cr
+    prim prim-superend @ if
+        ip-update-offset
     then ;
 
 : stack-pointer-updates ( -- )
@@ -1575,16 +1581,6 @@ defer reprocess-prim
 : lookup-prim ( c-addr u -- prim )
     primitives search-wordlist 0= -13 and throw execute ;
 
-: ip-offset-prim { noffset prim -- }
-    noffset to ip-offset
-    prim reprocess-simple
-    0 to ip-offset ;
-
-: gen-prim-offsets { prim -- }
-    max-ip-offset 0 ?do
-        i prim ip-offset-prim
-    loop ;
-
 : state-prim2 { in-state out-state prim -- }
     in-state state-enabled? out-state state-enabled? and 0= ?EXIT
     in-state  to state-in
@@ -1598,6 +1594,18 @@ defer reprocess-prim
 : state-prim ( in-state out-state "name" -- )
     parse-word lookup-prim state-prim1 ;
 
+\ state-offset-prim (for, e.g., ?BRANCH)
+
+: ip-offset-prim { noffset prim -- }
+    noffset to ip-offset
+    prim reprocess-simple
+    0 to ip-offset ;
+
+: gen-prim-offsets { prim -- }
+    max-ip-offset 0 ?do
+        i prim ip-offset-prim
+    loop ;
+
 : state-offset-prim { in-state out-state --  }
     \ also consumes "name"
     parse-word lookup-prim { prim }
@@ -1605,6 +1613,22 @@ defer reprocess-prim
     ['] gen-prim-offsets is reprocess-prim
     in-state out-state prim state-prim2
     ['] reprocess-prim defer! ;
+
+\ gen-ip-updates (using "noop" as prim)
+
+: gen-ip-update { n prim -- }
+    action-of ip-update
+    n to ip-offset
+    ['] ip-update-offset is ip-update
+    state-default dup prim state-prim2
+    0 to ip-offset
+    is ip-update ;
+
+: gen-ip-updates ( "prim" -- )
+    parse-word lookup-prim { prim }
+    max-ip-offset dup negate ?do
+        i prim gen-ip-update
+    loop ;
 
 \ reprocessing with default states
 

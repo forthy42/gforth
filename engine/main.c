@@ -193,7 +193,9 @@ Label *ip_at=0; /* during execution of the currently compiled code ip
                     points to ip_at, which may be somewhere behind
                     the position where it would be without ip_update
                     optimization */
-#define MAX_IP_UPDATE 23
+PrimNum ip_update0=0; /* base primitive for ip updates */
+int min_ip_update=0;
+int max_ip_update=0;
 Cell inst_index; /* current instruction */
 Label **ginstps; /* array of threaded code locations for
                            primitives being optimize_rewrite()d */
@@ -214,7 +216,7 @@ static int opt_ip_updates =  /* 0=disable, 1=simple, >=2=also optimize ;s */
 #ifdef GFORTH_DEBUGGING
   0
 #else
-  100
+  255
 #endif
   ;
 static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */
@@ -257,13 +259,14 @@ typedef struct {
   unsigned uses; /* number of uses */
   char superend; /* true if primitive ends superinstruction, i.e.,
                      unconditional branch, execute, etc. */
-  unsigned char max_ip_offset; /* this primitive has ip_offset=0, but
-                                  the following max_ip_offset
-                                  primitives are variants of the same
-                                  primitive+stack-caching with
-                                  consecutive ip_offsets, up to
-                                  max_ip_offset, and they are all
-                                  relocatable */
+  signed char max_ip_offset; /* this primitive has ip_offset=0, but
+                                the following max_ip_offset primitives
+                                are variants of the same
+                                primitive+stack-caching with
+                                consecutive ip_offsets, up to
+                                max_ip_offset, and they are all
+                                relocatable */
+  signed char min_ip_offset; /* as above */
   Cell nimmargs;
   struct immarg {
     Cell offset; /* offset of immarg within prim */
@@ -839,7 +842,7 @@ struct cost { /* super_info might be a more accurate name */
   unsigned char state_out;   /* state on exit */
   unsigned char imm_ops;     /* number of additional threaded-code slots
                                 (immediate arguments+number of components-1) */
-  unsigned char ip_offset;   /* 0 if ip points to the end of the instruction,
+  signed char ip_offset;   /* 0 if ip points to the end of the instruction,
                                 1 if it points 1 cell earlier ... */
   short offset;     /* offset into super2 table */
   unsigned char length;      /* number of components */
@@ -909,8 +912,16 @@ static void prepare_super_table()
         ss->super= i;
         if (c->offset==N_noop && i != N_noop) { /* stack caching transition */
           if (is_relocatable(i)) {
-            ss->next = state_transitions;
-            state_transitions = ss;
+            if (c->state_in==CANONICAL_STATE && c->state_out==CANONICAL_STATE) {
+              /* this is actually from the ip-update series */
+              assert(ip_update0 == 0); /* no second occurence */
+              ip_update0 = i;
+              min_ip_update = priminfos[i].min_ip_offset;
+              max_ip_update = priminfos[i].max_ip_offset;
+            } else { /* it's a state transition */
+              ss->next = state_transitions;
+              state_transitions = ss;
+            }
           }
         } else if (ss_listp != NULL) { /* already registered */
           if (c->state_in==CANONICAL_STATE && c->state_out==CANONICAL_STATE &&
@@ -950,6 +961,7 @@ static void prepare_super_table()
     }
   }
   debugp(stderr, "Using %d static superinsts\n", nsupers);
+  debugp(stderr, "ip-update0 = %d in %d..%d\n", ip_update0, min_ip_update, max_ip_update);
   if (nsupers>0 && !tpa_noautomaton && !tpa_noequiv) {
     /* Currently these two things don't work together; see Section 3.2
        of <http://www.complang.tuwien.ac.at/papers/ertl+06pldi.ps.gz>,
@@ -1093,6 +1105,7 @@ static void check_prims(Label symbols1[])
     int prim_len = ends1[i]-symbols1[i];
     PrimInfo *pi=&priminfos[i];
     struct cost *sc=&super_costs[i];
+    signed char o=sc->ip_offset;
     int j=0;
     char *s1 = (char *)symbols1[i];
     char *s2 = (char *)symbols2[i];
@@ -1105,6 +1118,7 @@ static void check_prims(Label symbols1[])
     pi->restlength = endlabel - symbols1[i] - pi->length;
     pi->uses = 0;
     pi->max_ip_offset = 0; /* initial value */
+    pi->min_ip_offset = 0; /* initial value */
     pi->nimmargs = 0;
     relocs++;
 #if defined(BURG_FORMAT)
@@ -1192,13 +1206,23 @@ static void check_prims(Label symbols1[])
       j++;
     }
     debugp(stderr,"\n");
-    if (opt_ip_updates>2 && sc->ip_offset>0) { /* ip-updates info */
-      unsigned char o=sc->ip_offset;
+    if (opt_ip_updates>2 && o>0) { /* ip-updates info */
       assert(strcmp(prim_names[i],prim_names[i-o])==0);
       /* add this primitive only if all the ip_update variants up to
          here are relocatable: */
       if (pi->start != NULL && priminfos[i-o].max_ip_offset == o-1)
         priminfos[i-o].max_ip_offset = o;
+    }
+    /* check for ip_update variants with negative ip_offset */
+    if (o==0) {
+      long k;
+      for (k=-1; i+k>=0; k--) {
+        // debugp(stderr,"  k=%d, priminfos[i+k].start=%p, super_costs[i+k].ip_offset=%d\n",k,priminfos[i+k].start,super_costs[i+k].ip_offset);
+        if (priminfos[i+k].start == NULL || super_costs[i+k].ip_offset != k)
+          break;
+        assert(strcmp(prim_names[i],prim_names[i+k])==0);
+        pi->min_ip_offset = k;
+      }
     }
   }
   decomp_prims = calloc(i,sizeof(PrimInfo *));
@@ -1317,10 +1341,10 @@ static Cell append_ip_update(Cell n)
     assert(opt_ip_updates > 0);
     do {
       Cell cellsdiff1 = cellsdiff;
-      if (cellsdiff1 > MAX_IP_UPDATE)
-        cellsdiff1 = MAX_IP_UPDATE;
+      if (cellsdiff1 > max_ip_update)
+        cellsdiff1 = max_ip_update;
       {
-        PrimNum p = N_noop-1+cellsdiff1;
+        PrimNum p = ip_update0+cellsdiff1;
         PrimInfo *pi = &priminfos[p];
         append_code(pi->start, pi->len1);
       }
