@@ -330,6 +330,8 @@ csswaplstore = >r l>< r> l!
 \E prim-states o
 \E prim-states up@
 
+\E gen-ip-updates noop
+
 \E ' noop is ip-update
 \E ' noop is output-nextp0
 \E ' noop is output-nextp1
