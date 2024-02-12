@@ -369,37 +369,9 @@ Cell groups[32] = {
 #define GROUPADD(n)
 };
 
-static unsigned char *branch_targets(Cell *image, const unsigned char *bitstring,
-				     int size, Cell base, int sect)
-     /* produce a bitmask marking all the branch targets */
-{
-  int i=0, j, k, steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
-  Cell token;
-  unsigned char bits;
-  unsigned char *result=malloc_l(steps);
-
-  memset(result, 0, steps);
-  for(k=0; k<steps; k++) {
-    for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
-      if(bits & (1U << (RELINFOBITS-1))) {
-	assert(i < steps*RELINFOBITS);
-        token=image[i];
-	if ((token>=base) &&
-	    (SECTION(token) == sect)) { /* relocatable address */
-	  UCell bitnum=(INSECTION(token)-INSECTION(base))/sizeof(Cell);
-	  if (bitnum/RELINFOBITS < (UCell)steps)
-	    result[bitnum/RELINFOBITS] |= 1U << ((~bitnum)&(RELINFOBITS-1));
-	}
-      }
-    }
-  }
-  return result;
-}
-
-void gforth_relocate_range(Address sections[], Cell bases[],
-			   Label symbols[], Cell max_symbols,
-			   Cell *image, UCell size, Cell base,
-			   Char *bitstring, Char *targets)
+void gforth_compile_range(Label symbols[], Cell max_symbols,
+			  Cell *image, UCell size, Cell base,
+			  Char *bitstring, Char *targets)
 {
   int i, k;
 
@@ -414,8 +386,8 @@ void gforth_relocate_range(Address sections[], Cell bases[],
 	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
 	assert(i < steps*RELINFOBITS);
 	token=image[i];
-	bitstring[k] &= ~bitmask;
 	if(SECTION(token)==0xFF) {
+	  bitstring[k] &= ~bitmask;
 	  int group = (-token & 0x3E00) >> 9;
 	  if(group == 0) {
 	    switch(token|0x4000) {
@@ -480,12 +452,42 @@ void gforth_relocate_range(Address sections[], Cell bases[],
 	      fprintf(stderr,"Primitive %lx, %d of group %d used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, &image[i],i,PACKAGE_VERSION);
 	    }
 	  }
-	} else {
+	}
+      }
+    }
+  }
+}
+
+static unsigned char *gforth_relocate_range(Address sections[], Cell bases[],
+					    Cell *image, UCell size, Cell base,
+					    Char *bitstring, int sect)
+{
+  int i, k;
+  int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
+  unsigned char *targets=malloc_l(steps);
+
+  for(i=k=0; k<steps; k++) {
+    Char bitmask;
+    for(bitmask=(1U<<(RELINFOBITS-1)); bitmask; i++, bitmask>>=1) {
+      Cell token;
+      /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
+      if(bitstring[k] & bitmask) {
+	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
+	assert(i < steps*RELINFOBITS);
+	token=image[i];
+	if(SECTION(token)!=0xFF) {
+	  bitstring[k] &= ~bitmask;
 	  /* if base is > 0: 0 is a null reference so don't adjust*/
 	  if (token>=base) {
 	    UCell sec = SECTION(token);
 	    UCell start = (Cell) (((void *) sections[sec]) - ((void *) bases[sec]));
 	    image[i]=start+INSECTION(token);
+	    /* mark branch targets */
+	    if(sec == sect) { /* address within the same section */
+	      UCell bitnum=(INSECTION(token)-INSECTION(base))/sizeof(Cell);
+	      if (bitnum/RELINFOBITS < (UCell)steps)
+		targets[bitnum/RELINFOBITS] |= 1U << ((~bitnum)&(RELINFOBITS-1));
+	    }
 	  } else if(token!=0) {
 	    fprintf(stderr, "tagged item image[%x]=%llx unrelocated\n", i, (long long)image[i]);
 	  }
@@ -493,6 +495,7 @@ void gforth_relocate_range(Address sections[], Cell bases[],
       }
     }
   }
+  return targets;
 }
 
 void gforth_relocate(Address sections[], Char *bitstrings[], 
@@ -530,12 +533,13 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
     
     if(!bitstring) break;
     
-    unsigned char *targets = branch_targets(image, bitstring, size, base, i);
+    unsigned char *targets = gforth_relocate_range(sections, bases,
+						   image, size, base,
+						   bitstring, i);
 
-    gforth_relocate_range(sections, bases,
-			  symbols, max_symbols,
-			  image, size, base,
-			  bitstring, targets);
+    gforth_compile_range(symbols, max_symbols,
+			 image, size, base,
+			 bitstring, targets);
     
     free(targets);
     if(i==0)
