@@ -396,110 +396,45 @@ static unsigned char *branch_targets(Cell *image, const unsigned char *bitstring
   return result;
 }
 
-void gforth_relocate(Address sections[], Char *bitstrings[], 
-		     UCell sizes[], Cell bases[], Label symbols[])
+void gforth_relocate_range(Address sections[], Cell bases[],
+			   Label symbols[], Cell max_symbols,
+			   Cell *image, UCell size, Cell base,
+			   Char *bitstring, Char *targets)
 {
-  int i=0, j, k;
-  Cell token;
-  char bits;
-  Cell max_symbols;
-  /* 
-   * A virtual start address that's the real start address minus 
-   * the one in the image 
-   */
-  int ii;
-  for (ii=0; ii<0x100; ii++) {
-    Char * bitstring=bitstrings[ii];
-    Cell * image=(Cell*)sections[ii];
-    UCell size=sizes[ii];
-    Cell base=bases[ii];
+  int i, j, k;
 
-    int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
+  int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
 
-    debugp(stderr, "relocate section %i, %p:%lx\n", ii, (void *)base, size);
-    
-    if(!bitstring) break;
-    
-    unsigned char *targets = branch_targets(image, bitstring, size, base, ii);
-    
-    /* group index into table */
-    if(groups[31]==0) {
-      int groupsum=0;
-      for(i=0; i<32; i++) {
-	groupsum += groups[i];
-	groups[i] = groupsum;
-	/* printf("group[%d]=%d\n",i,groupsum); */
-      }
-      i=0;
-    }
-    
-    /* printf("relocating to %x[%x] start=%x base=%x\n", image, size, start, base); */
-    
-    for (max_symbols=0; symbols[max_symbols]!=0; max_symbols++)
-      ;
-    max_symbols--;
-    
-    for(i=k=0; k<steps; k++) {
-      for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
-	/*      fprintf(stderr,"relocate: image[%d]\n", i);*/
-	if(bits & (1U << (RELINFOBITS-1))) {
-	  // debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
-	  assert(i < steps*RELINFOBITS);
-	  token=image[i];
-	  if(SECTION(token)==0xFF) {
-	    int group = (-token & 0x3E00) >> 9;
-	    if(group == 0) {
-	      switch(token|0x4000) {
-	      case CF_NIL      : image[i]=0; break;
+  for(i=k=0; k<steps; k++) {
+    Char bits;
+    for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
+      Cell token;
+      /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
+      if(bits & (1U << (RELINFOBITS-1))) {
+	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
+	assert(i < steps*RELINFOBITS);
+	token=image[i];
+	if(SECTION(token)==0xFF) {
+	  int group = (-token & 0x3E00) >> 9;
+	  if(group == 0) {
+	    switch(token|0x4000) {
+	    case CF_NIL      : image[i]=0; break;
 #if !defined(DOUBLY_INDIRECT)
-	      case CF(DOER_MAX) ... CF(DOCOL):
-		compile_prim1(0); /* flush primitive state whatever it is in */
-		MAKE_CF(image+i,symbols[CF(token)]);
-		break;
+	    case CF(DOER_MAX) ... CF(DOCOL):
+	      compile_prim1(0); /* flush primitive state whatever it is in */
+	      MAKE_CF(image+i,symbols[CF(token)]);
+	      break;
 #endif /* !defined(DOUBLY_INDIRECT) */
-	      default          : /* backward compatibility */
-		/*	      printf("Code field generation image[%x]:=CFA(%x)\n",
+	    default          : /* backward compatibility */
+	      /*	      printf("Code field generation image[%x]:=CFA(%x)\n",
 			      i, CF(image[i])); */
-		if (CF((token | 0x4000))<max_symbols) {
-		  image[i]=(Cell)CFA(CF(token));
-#ifdef DIRECT_THREADED
-		  if ((token & 0x4000) == 0) { /* threaded code, no CFA */
-		    if (targets[k] & (1U<<(RELINFOBITS-1-j)))
-		      compile_prim1(0);
-		    compile_prim1(&image[i]);
-		  }
-#endif
-		} else if(debug_prim) {
-		  Char * dumpa = (Char*)&image[i];
-		  for(; dumpa < (Char*)&image[i+8]; dumpa++) {
-		    fprintf(stderr, "%02x ", *dumpa);
-		  }
-		  fprintf(stderr, "\n");
-		  fprintf(stderr,"Primitive %ld used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token), &image[i], i, PACKAGE_VERSION);
-		}
-	      }
-	    } else {
-	      int tok = -token & 0x1FF;
-	      if (tok < (groups[group+1]-groups[group])) {
-#if defined(DOUBLY_INDIRECT)
-		image[i]=(Cell)CFA(((groups[group]+tok) | (CF(token) & 0x4000)));
-#else
-		image[i]=(Cell)CFA((groups[group]+tok));
-#endif
+	      if (CF((token | 0x4000))<max_symbols) {
+		image[i]=(Cell)CFA(CF(token));
 #ifdef DIRECT_THREADED
 		if ((token & 0x4000) == 0) { /* threaded code, no CFA */
 		  if (targets[k] & (1U<<(RELINFOBITS-1-j)))
 		    compile_prim1(0);
 		  compile_prim1(&image[i]);
-		} else if((token & 0x8000) == 0) { /* special CFA */
-		  /* debugp(stderr, "image[%x] = symbols[%x]\n", i, groups[group]+tok); */
-		  MAKE_CF(image+i,symbols[groups[group]+tok]);
-		}
-#endif
-#if defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)
-		if((token & 0x8000) == 0) { /* special CFA */
-		  /* debugp(stderr, "image[%x] = symbols[%x] = %p\n", i, groups[group]+tok, symbols[groups[group]+tok]); */
-		  MAKE_CF(image+i,symbols[groups[group]+tok]);
 		}
 #endif
 	      } else if(debug_prim) {
@@ -508,24 +443,101 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
 		  fprintf(stderr, "%02x ", *dumpa);
 		}
 		fprintf(stderr, "\n");
-		fprintf(stderr,"Primitive %lx, %d of group %d used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, &image[i],i,PACKAGE_VERSION);
+		fprintf(stderr,"Primitive %ld used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token), &image[i], i, PACKAGE_VERSION);
 	      }
 	    }
 	  } else {
-	    /* if base is > 0: 0 is a null reference so don't adjust*/
-	    if (token>=base) {
-	      UCell sec = SECTION(token);
-	      UCell start = (Cell) (((void *) sections[sec]) - ((void *) bases[sec]));
-	      image[i]=start+INSECTION(token);
-	    } else if(token!=0) {
-	      fprintf(stderr, "tagged item image[%x]=%llx unrelocated\n", i, (long long)image[i]);
+	    int tok = -token & 0x1FF;
+	    if (tok < (groups[group+1]-groups[group])) {
+#if defined(DOUBLY_INDIRECT)
+	      image[i]=(Cell)CFA(((groups[group]+tok) | (CF(token) & 0x4000)));
+#else
+	      image[i]=(Cell)CFA((groups[group]+tok));
+#endif
+#ifdef DIRECT_THREADED
+	      if ((token & 0x4000) == 0) { /* threaded code, no CFA */
+		if (targets[k] & (1U<<(RELINFOBITS-1-j)))
+		  compile_prim1(0);
+		compile_prim1(&image[i]);
+	      } else if((token & 0x8000) == 0) { /* special CFA */
+		/* debugp(stderr, "image[%x] = symbols[%x]\n", i, groups[group]+tok); */
+		MAKE_CF(image+i,symbols[groups[group]+tok]);
+	      }
+#endif
+#if defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)
+	      if((token & 0x8000) == 0) { /* special CFA */
+		/* debugp(stderr, "image[%x] = symbols[%x] = %p\n", i, groups[group]+tok, symbols[groups[group]+tok]); */
+		MAKE_CF(image+i,symbols[groups[group]+tok]);
+	      }
+#endif
+	    } else if(debug_prim) {
+	      Char * dumpa = (Char*)&image[i];
+	      for(; dumpa < (Char*)&image[i+8]; dumpa++) {
+		fprintf(stderr, "%02x ", *dumpa);
+	      }
+	      fprintf(stderr, "\n");
+	      fprintf(stderr,"Primitive %lx, %d of group %d used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, &image[i],i,PACKAGE_VERSION);
 	    }
+	  }
+	} else {
+	  /* if base is > 0: 0 is a null reference so don't adjust*/
+	  if (token>=base) {
+	    UCell sec = SECTION(token);
+	    UCell start = (Cell) (((void *) sections[sec]) - ((void *) bases[sec]));
+	    image[i]=start+INSECTION(token);
+	  } else if(token!=0) {
+	    fprintf(stderr, "tagged item image[%x]=%llx unrelocated\n", i, (long long)image[i]);
 	  }
 	}
       }
     }
+  }
+}
+
+void gforth_relocate(Address sections[], Char *bitstrings[], 
+		     UCell sizes[], Cell bases[], Label symbols[])
+{
+  /* 
+   * A virtual start address that's the real start address minus 
+   * the one in the image 
+   */
+  int i;
+
+  /* group index into table */
+  if(groups[31]==0) {
+    int groupsum=0;
+    for(i=0; i<32; i++) {
+      groupsum += groups[i];
+      groups[i] = groupsum;
+      /* printf("group[%d]=%d\n",i,groupsum); */
+    }
+    i=0;
+  }
+  
+  Cell max_symbols;
+  for (max_symbols=0; symbols[max_symbols]!=0; max_symbols++)
+    ;
+  max_symbols--;
+  
+  for (i=0; i<0x100; i++) {
+    Char * bitstring=bitstrings[i];
+    Cell * image=(Cell*)sections[i];
+    UCell size=sizes[i];
+    Cell base=bases[i];
+
+    debugp(stderr, "relocate section %i, %p:%lx\n", i, (void *)base, size);
+    
+    if(!bitstring) break;
+    
+    unsigned char *targets = branch_targets(image, bitstring, size, base, i);
+
+    gforth_relocate_range(sections, bases,
+			  symbols, max_symbols,
+			  image, size, base,
+			  bitstring, targets);
+    
     free(targets);
-    if(ii==0)
+    if(i==0)
       image[0] = (Cell)image;
     finish_code();
   }
