@@ -401,19 +401,20 @@ void gforth_relocate_range(Address sections[], Cell bases[],
 			   Cell *image, UCell size, Cell base,
 			   Char *bitstring, Char *targets)
 {
-  int i, j, k;
+  int i, k;
 
   int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
 
   for(i=k=0; k<steps; k++) {
-    Char bits;
-    for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
+    Char bitmask;
+    for(bitmask=(1U<<(RELINFOBITS-1)); bitmask; i++, bitmask>>=1) {
       Cell token;
       /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
-      if(bits & (1U << (RELINFOBITS-1))) {
+      if(bitstring[k] & bitmask) {
 	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
 	assert(i < steps*RELINFOBITS);
 	token=image[i];
+	bitstring[k] &= ~bitmask;
 	if(SECTION(token)==0xFF) {
 	  int group = (-token & 0x3E00) >> 9;
 	  if(group == 0) {
@@ -432,7 +433,7 @@ void gforth_relocate_range(Address sections[], Cell bases[],
 		image[i]=(Cell)CFA(CF(token));
 #ifdef DIRECT_THREADED
 		if ((token & 0x4000) == 0) { /* threaded code, no CFA */
-		  if (targets[k] & (1U<<(RELINFOBITS-1-j)))
+		  if (targets[k] & bitmask)
 		    compile_prim1(0);
 		  compile_prim1(&image[i]);
 		}
@@ -456,7 +457,7 @@ void gforth_relocate_range(Address sections[], Cell bases[],
 #endif
 #ifdef DIRECT_THREADED
 	      if ((token & 0x4000) == 0) { /* threaded code, no CFA */
-		if (targets[k] & (1U<<(RELINFOBITS-1-j)))
+		if (targets[k] & bitmask)
 		  compile_prim1(0);
 		compile_prim1(&image[i]);
 	      } else if((token & 0x8000) == 0) { /* special CFA */
