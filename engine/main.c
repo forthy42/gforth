@@ -134,9 +134,9 @@ jmp_buf throw_jmp_handler;
 #define CFA_BYTE_OFFSET         0
 #endif
 #if defined(DOUBLY_INDIRECT)
-#  define CFA(n)	({Cell _n = (n); (((Cell)(((_n & 0x4000) ? symbols : xts)+(_n&~0x4000UL)))+((_n & 0x4000) ? CFA_BYTE_OFFSET : 0));})
+#  define CFA(n)	({Cell _n = (n); (((Cell)(((_n & 0x4000) ? vm_prims : xts)+(_n&~0x4000UL)))+((_n & 0x4000) ? CFA_BYTE_OFFSET : 0));})
 #else
-#  define CFA(n)	(((Cell)(symbols+((n)&~0x4000UL)))+CFA_BYTE_OFFSET)
+#  define CFA(n)	(((Cell)(vm_prims+((n)&~0x4000UL)))+CFA_BYTE_OFFSET)
 #endif
 
 #define maxaligned(n)	(typeof(n))((((Cell)n)+sizeof(Float)-1)&-sizeof(Float))
@@ -369,8 +369,7 @@ Cell groups[32] = {
 #define GROUPADD(n)
 };
 
-void gforth_compile_range(Label symbols[], Cell max_symbols,
-			  Cell *image, UCell size, Cell base,
+void gforth_compile_range(Cell *image, UCell size,
 			  Char *bitstring, Char *targets)
 {
   int i, k;
@@ -395,13 +394,13 @@ void gforth_compile_range(Label symbols[], Cell max_symbols,
 #if !defined(DOUBLY_INDIRECT)
 	    case CF(DOER_MAX) ... CF(DOCOL):
 	      compile_prim1(0); /* flush primitive state whatever it is in */
-	      MAKE_CF(image+i,symbols[CF(token)]);
+	      MAKE_CF(image+i,vm_prims[CF(token)]);
 	      break;
 #endif /* !defined(DOUBLY_INDIRECT) */
 	    default          : /* backward compatibility */
 	      /*	      printf("Code field generation image[%x]:=CFA(%x)\n",
 			      i, CF(image[i])); */
-	      if (CF((token | 0x4000))<max_symbols) {
+	      if (CF((token | 0x4000))<npriminfos) {
 		image[i]=(Cell)CFA(CF(token));
 #ifdef DIRECT_THREADED
 		if ((token & 0x4000) == 0) { /* threaded code, no CFA */
@@ -434,13 +433,13 @@ void gforth_compile_range(Label symbols[], Cell max_symbols,
 		compile_prim1(&image[i]);
 	      } else if((token & 0x8000) == 0) { /* special CFA */
 		/* debugp(stderr, "image[%x] = symbols[%x]\n", i, groups[group]+tok); */
-		MAKE_CF(image+i,symbols[groups[group]+tok]);
+		MAKE_CF(image+i,vm_prims[groups[group]+tok]);
 	      }
 #endif
 #if defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)
 	      if((token & 0x8000) == 0) { /* special CFA */
 		/* debugp(stderr, "image[%x] = symbols[%x] = %p\n", i, groups[group]+tok, symbols[groups[group]+tok]); */
-		MAKE_CF(image+i,symbols[groups[group]+tok]);
+		MAKE_CF(image+i,vm_prims[groups[group]+tok]);
 	      }
 #endif
 	    } else if(debug_prim) {
@@ -499,7 +498,7 @@ static unsigned char *gforth_relocate_range(Address sections[], Cell bases[],
 }
 
 void gforth_relocate(Address sections[], Char *bitstrings[], 
-		     UCell sizes[], Cell bases[], Label symbols[])
+		     UCell sizes[], Cell bases[])
 {
   /* 
    * A virtual start address that's the real start address minus 
@@ -518,11 +517,6 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
     i=0;
   }
   
-  Cell max_symbols;
-  for (max_symbols=0; symbols[max_symbols]!=0; max_symbols++)
-    ;
-  max_symbols--;
-  
   for (i=0; i<0x100; i++) {
     Char * bitstring=bitstrings[i];
     Cell * image=(Cell*)sections[i];
@@ -537,9 +531,7 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
 						   image, size, base,
 						   bitstring, i);
 
-    gforth_compile_range(symbols, max_symbols,
-			 image, size, base,
-			 bitstring, targets);
+    gforth_compile_range(image, size, bitstring, targets);
     
     free(targets);
     if(i==0)
@@ -2359,7 +2351,7 @@ ImageHeader* gforth_loader(char* imagename, char* path)
     if(fread(sections[i], 1, sizes[i], imagefile) != sizes[i]) break;
   }
   no_dynamic |= no_dynamic_image;
-  gforth_relocate(sections, reloc_bits, sizes, bases, vm_prims);
+  gforth_relocate(sections, reloc_bits, sizes, bases);
   no_dynamic = no_dynamic_orig;
 #if 0
   { /* let's see what the relocator did */
