@@ -386,7 +386,7 @@ void gforth_compile_range(Label symbols[], Cell max_symbols,
 	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
 	assert(i < steps*RELINFOBITS);
 	token=image[i];
-	if(SECTION(token)==0xFF) {
+	if(SECTION(token)==PRIMSECTION) {
 	  bitstring[k] &= ~bitmask;
 	  int group = (-token & 0x3E00) >> 9;
 	  if(group == 0) {
@@ -475,7 +475,7 @@ static unsigned char *gforth_relocate_range(Address sections[], Cell bases[],
 	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
 	assert(i < steps*RELINFOBITS);
 	token=image[i];
-	if(SECTION(token)!=0xFF) {
+	if(SECTION(token)!=PRIMSECTION) {
 	  bitstring[k] &= ~bitmask;
 	  /* if base is > 0: 0 is a null reference so don't adjust*/
 	  if (token>=base) {
