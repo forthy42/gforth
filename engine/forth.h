@@ -135,6 +135,7 @@ typedef unsigned OCTABYTE_TYPE UOctabyte;
 /* Cell and UCell must be the same size as a pointer */
 #define CELL_BITS	(sizeof(Cell) * CHAR_BIT)
 #define CELL_MIN (((Cell)1)<<(sizeof(Cell)*CHAR_BIT-1))
+#define SECTION_BITS 8
 
 #define HALFCELL_BITS	(CELL_BITS/2)
 #define HALFCELL_MASK   ((~(UCell)0)>>HALFCELL_BITS)
@@ -142,8 +143,9 @@ typedef unsigned OCTABYTE_TYPE UOctabyte;
 #define LH(x)		((x)&HALFCELL_MASK)
 #define L2U(x)		(((UCell)(x))<<HALFCELL_BITS)
 #define HIGHBIT(x)	(((UCell)(x))>>(CELL_BITS-1))
-#define SECTION(x)      (((UCell)(x))>>(CELL_BITS-8))
-#define INSECTION(x)    (((UCell)(x))&((~(UCell)0)>>8))
+#define SECTION(x)      (((UCell)(x))>>(CELL_BITS-SECTION_BITS))
+#define INSECTION(x)    (((UCell)(x))&((~(UCell)0)>>SECTION_BITS))
+#define PRIMSECTION     ((1U<<SECTION_BITS)-1)
 
 #define F_TRUE (FLAG(0==0))
 #define F_FALSE (FLAG(0!=0))
