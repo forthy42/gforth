@@ -517,7 +517,7 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
     i=0;
   }
   
-  for (i=0; i<0x100; i++) {
+  for (i=0; i<=PRIMSECTION; i++) {
     Char * bitstring=bitstrings[i];
     Cell * image=(Cell*)sections[i];
     UCell size=sizes[i];
