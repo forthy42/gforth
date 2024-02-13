@@ -19658,6 +19658,9 @@ dup
 ;s
 @end example
 
+Use @code{simple-see} (@pxref{Examining compiled code}) to see the
+threaded code of a colon definition.
+
 In normal direct threaded code there is a code address occupying one
 cell for each of these primitives.  Each code address points to a
 machine code routine, and the interpreter jumps to this machine code in
@@ -19723,6 +19726,25 @@ primitive  code address
 
 Thus there can be threaded-code jumps to any place in this piece of
 code.  This also simplifies decompilation quite a bit.
+
+@code{See-code} (@pxref{Examining compiled code}) shows the threaded
+code intermingled with the native code of dynamic superinstructions.
+These days some additional optimizations are applied for the
+dynamically-generated native code, so the output of @code{see-code
+squared} on @code{gforth-fast} on one particular AMD64 installation
+looks like this:
+
+@example
+$7FB689C678C8 dup    1->2 
+7FB68990C1B2:   mov     r15,r8
+$7FB689C678D0 *    2->1 
+7FB68990C1B5:   imul    r8,r15
+$7FB689C678D8 ;s    1->1 
+7FB68990C1B9:   mov     rbx,[r14]
+7FB68990C1BC:   add     r14,$08
+7FB68990C1C0:   mov     rax,[rbx]
+7FB68990C1C3:   jmp     eax
+@end example
 
 @cindex --no-dynamic command-line option
 @cindex --no-super command-line option
