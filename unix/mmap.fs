@@ -31,8 +31,11 @@ c-library mmap
     c-function mlock mlock a n -- n ( addr len -- r )
     c-function munlock munlock a n -- n ( addr len -- r )
     c-function msync msync a n n -- n ( vaddr len flags -- res )
+    c-function getrlimit getrlimit n a -- n ( resource rlim -- r )
 e? os-type s" linux" string-prefix? [IF]
     c-function mremap mremap a n n n -- a ( addr len newlen flags -- addr' )
+    \c #include <sys/sysinfo.h>
+    c-function sysinfo sysinfo a -- n ( addr -- r )
     e? os-type s" linux-gnu" string-prefix?
     e? os-type s" linux-musl" string-prefix? or [IF]
 	c-function mremapf mremap a n n n a -- a ( addr len newlen flags newaddr -- addr' )
@@ -52,7 +55,6 @@ $01000000 Constant PROT_GROWSDOWN	\ Extend change to start of
 					\  growsdown vma (mprotect only). 
 $02000000 Constant PROT_GROWSUP	\ Extend change to start of
 					\ growsup vma (mprotect only). 
-
 $01 Constant MAP_SHARED		\ Share changes. 
 $02 Constant MAP_PRIVATE		\ Changes are private. 
 $10 Constant MAP_FIXED		\ Interpret addr exactly.
@@ -61,6 +63,17 @@ $10 Constant MAP_FIXED		\ Interpret addr exactly.
 1 Constant MS_ASYNC
 2 Constant MS_INVALIDATE
 4 Constant MS_SYNC
+
+s" os-type" environment? [IF]
+    s" linux" string-prefix? [IF]
+	8 Constant RLIMIT_MEMLOCK
+    [THEN]
+[THEN]
+
+begin-structure rlimit
+    8 +field rlim_cur
+    8 +field rlim_max
+end-structure
 
 s" os-type" environment? [IF]
     s" linux" string-prefix? [IF]
@@ -93,6 +106,23 @@ s" os-type" environment? [IF]
 	$40 Constant MAP_32BIT		\ Only give out 32-bit addresses.
 
 	MAP_ANONYMOUS Constant MAP_ANON
+
+	begin-structure __info
+	    field: uptime     \ Seconds since boot
+	    field: loads      \ 1, 5, and 15 minute load averages
+	    2 cells +
+	    field: totalram   \ Total usable main memory size
+	    field: freeram    \ Available memory size
+	    field: sharedram  \ Amount of shared memory
+	    field: bufferram  \ Memory used by buffers
+	    field: totalswap  \ Total swap space size
+	    field: freeswap   \ Swap space still available
+	    field: procs     \ Number of current processes
+	    field: totalhigh  \ Total high memory size
+	    field: freehigh   \ Available high memory size
+	    field: mem_unit    \ Memory unit size in bytes
+	    $3F + -$40 and \ pad to 64 Bytes
+	end-structure
     [THEN]
 [THEN]
 
