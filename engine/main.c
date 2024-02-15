@@ -1301,22 +1301,21 @@ static void record_ip_update(Cell n)
   ip_update_metrics[n]++;
 }
 
-static Cell append_ip_update(Cell n)
-/* compile an ip update for updating the ip from ip_at to [0,n] cells
-   before ginstps[inst_index+1] (where it points without ip-update
-   optimization; returns the remaining difference (in the range [0,n]) */
+static Cell append_ip_update1(Label *target, Cell l, Cell u)
+/* compile an ip update for updating the ip from ip_at to [l,u] cells
+   before target; returns the remaining difference (in the range
+   [l,u]) */
 {
-  Cell cellsdiff = ginstps[inst_index+1]-ip_at;
-  if (opt_ip_updates==0)
-    return 0;
-  assert(cellsdiff>=0);
-  if (cellsdiff>n) {
-    Label *old_ip_at=ip_at;
-    assert(opt_ip_updates > 0);
+  Cell cellsdiff = target-ip_at;
+  Label *old_ip_at=ip_at;
+  assert(opt_ip_updates > 0 || cellsdiff == 0);
+  if (cellsdiff < l || cellsdiff > u) {
     do {
       Cell cellsdiff1 = cellsdiff;
       if (cellsdiff1 > max_ip_update)
         cellsdiff1 = max_ip_update;
+      else if (cellsdiff < min_ip_update)
+        cellsdiff1 = min_ip_update;
       {
         PrimNum p = ip_update0+cellsdiff1;
         PrimInfo *pi = &priminfos[p];
@@ -1324,11 +1323,21 @@ static Cell append_ip_update(Cell n)
       }
       cellsdiff -= cellsdiff1;
       ip_at += cellsdiff1;
-    } while (cellsdiff>n);
+    } while (cellsdiff < l || cellsdiff > u);
     if (print_metrics)
       record_ip_update(ip_at-old_ip_at);
   }
   return cellsdiff;
+}
+
+static Cell append_ip_update(Cell n)
+/* compile an ip update for updating the ip from ip_at to [0,n] cells
+   before ginstps[inst_index+1] (where it points without ip-update
+   optimization; returns the remaining difference (in the range [0,n]) */
+{
+  if (opt_ip_updates==0)
+    return 0;
+  return append_ip_update1(ginstps[inst_index+1],0,n);
 }
 
 static void append_jump(void)
