@@ -216,7 +216,14 @@ static int opt_ip_updates =  /* 0=disable, 1=simple, >=2=also optimize ;s */
 #ifdef GFORTH_DEBUGGING
   0
 #else
-  255
+  7
+#endif
+  ;
+static int opt_ip_updates_branch =  /* 0=disable, n>0: branch can use n */
+#ifdef GFORTH_DEBUGGING
+  0
+#else
+  3
 #endif
   ;
 static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */
@@ -1447,6 +1454,17 @@ static Address append_prim(PrimNum p)
     int has_imm = ci->imm_ops+1>ci->length;
     int superend = pi->superend;
     int dead = 0;
+    if (opt_ip_updates_branch>0 && ci->length==1 && super2[ci->offset]==N_branch) {
+      Label *target = ((Label **)(ginstps[inst_index]))[1];
+      // fprintf(stderr, "target = %p\n", target);
+      if (ip_at+opt_ip_updates_branch*min_ip_update <= target &&
+          target <= ip_at+opt_ip_updates_branch*max_ip_update) {
+        append_ip_update1(target,0,0);
+        /* append_jump();*/
+        ip_at = ginstps[inst_index+1];
+        goto append_prim_done;
+      }
+    }
     if (opt_ip_updates>1 && superend && !has_imm) {
       long i;
       for (i=0; i<sizeof(ip_dead)/sizeof(ip_dead[0]); i++)
@@ -1476,6 +1494,7 @@ static Address append_prim(PrimNum p)
     append_code(pi->start, pi->length);
     ip_at = ginstps[inst_index + ci->length];
   }
+ append_prim_done:
   last_jump = (pi->restlength == 0) ? 0 : p;
   return old_code_here;
 }
@@ -2657,7 +2676,11 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 'D': print_diag(); break;
     case 'v': fputs(PACKAGE_STRING" "ARCH"\n", stderr); exit(0);
     case opt_code_block_size: if((code_area_size = convsize(optarg,sizeof(Char)))==-1L) return 1; break;
-    case opt_opt_ip_updates: opt_ip_updates = atoi(optarg); break;
+    case opt_opt_ip_updates:
+      opt_ip_updates = atoi(optarg);
+      opt_ip_updates_branch = opt_ip_updates>>3;
+      opt_ip_updates &= 7;
+      break;
     case ss_number: static_super_number = atoi(optarg); break;
     case ss_states: maxstates = max(min(atoi(optarg),MAX_STATE),1); break;
 #ifndef NO_DYNAMIC
@@ -2694,6 +2717,7 @@ Engine Options:\n\
   --no-0rc			    do not load ~/.config/gforthrc0\n\
   --offset-image		    Load image at a different position\n\
   --opt-ip-updates=n                ip-update optimization (0=disabled)\n\
+  --opt-ip-updates-branch=n         ip-update branch optimization (0=disabled)\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   --print-metrics		    Print some code generation metrics on exit\n\
   --print-nonreloc		    Print non-relocatable primitives at start\n\
