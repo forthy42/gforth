@@ -615,6 +615,8 @@ void vm_count_block(Xt *ip);
 
 /* dynamic superinstruction stuff */
 void compile_prim1(Cell *start);
+void gforth_compile_range(Cell *image, UCell size,
+			  Char *bitstring, Char *targets);
 void finish_code(void);
 void finish_code_barrier(void);
 int forget_dyncode(Address code);

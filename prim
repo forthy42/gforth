@@ -3309,6 +3309,9 @@ guaranteed to end the native code with a jump to the next primitive.""
    to save spTOS (gforth-fast --enable-force-reg) */
 finish_code_barrier();
 
+compile-prims ( a_addr_code u c_addr_abits c_addr_tbits -- ) gforth-internal compile_prims
+gforth_compile_range(a_addr_code, u, c_addr_abits, c_addr_tbits);
+
 \+
 
 \g primitive_centric
