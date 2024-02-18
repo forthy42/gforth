@@ -1295,10 +1295,13 @@ static void MAYBE_UNUSED align_code(void)
 
 static Cell *ip_update_metrics = NULL;
 static Cell nip_update_metrics=0;
+static Cell ip_update_metrics_base=-1; /* lower bound for ip_update_metrics */
 
 #ifndef NO_DYNAMIC
 static void record_ip_update(Cell n)
 {
+  n -= ip_update_metrics_base;
+  assert(n>=0);
   if (n>=nip_update_metrics) {
     ip_update_metrics = realloc(ip_update_metrics, (n+1)*sizeof(Cell));
     memset(ip_update_metrics+nip_update_metrics,0,
@@ -2346,6 +2349,7 @@ ImageHeader* gforth_loader(char* imagename, char* path)
   vm_prims = gforth_engine(0 sr_call);
   check_prims(vm_prims);
   prepare_super_table();
+  ip_update_metrics_base = opt_ip_updates_branch*min_ip_update;
 #ifndef DOUBLY_INDIRECT
 #ifdef PRINT_SUPER_LENGTHS
   print_super_lengths();
@@ -2758,7 +2762,7 @@ Cell const * gforth_pointers(Cell n)
 void gforth_printmetrics()
 {
   if (print_metrics) {
-    int i;
+    long i;
     fprintf(stderr, "code size = %8ld\n", dyncodesize());
 #ifndef STANDALONE
     for (i=0; i<sizeof(cost_sums)/sizeof(cost_sums[0]); i++)
@@ -2776,8 +2780,10 @@ void gforth_printmetrics()
     if (ip_update_metrics==NULL)
       fprintf(stderr, "no ip update metrics recorded\n");
     else
-      for (i=1; i<nip_update_metrics; i++)
-        fprintf(stderr,"%5ld ip update by %2d cells\n",ip_update_metrics[i],i);
+      for (i=0; i<nip_update_metrics; i++)
+        if (ip_update_metrics[i] > 0)
+          fprintf(stderr,"%5ld ip update by %2ld cells\n",
+                  ip_update_metrics[i],i+ip_update_metrics_base);
   }
   if (tpa_trace) {
     fprintf(stderr, "%ld %ld lb_states\n", lb_labeler_steps, lb_newstate_new);
