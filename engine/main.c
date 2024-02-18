@@ -383,10 +383,35 @@ void gforth_compile_range(Cell *image, UCell size,
       /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
       if(bitstring[k] & bitmask) {
 	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
+	if (targets[k] & bitmask)
+	  compile_prim1(0);
+	compile_prim1(&image[i]);
+      }
+    }
+  }
+
+  finish_code();
+}
+
+static unsigned char *gforth_relocate_range(Address sections[], Cell bases[],
+					    Cell *image, UCell size, Cell base,
+					    Char *bitstring, int sect)
+{
+  int i, k;
+  int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
+  unsigned char *targets=malloc_l(steps);
+
+  for(i=k=0; k<steps; k++) {
+    Char bitmask;
+    for(bitmask=(1U<<(RELINFOBITS-1)); bitmask; i++, bitmask>>=1) {
+      Cell token;
+      /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
+      if(bitstring[k] & bitmask) {
+	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
 	assert(i < steps*RELINFOBITS);
 	token=image[i];
+	bitstring[k] &= ~bitmask;
 	if(SECTION(token)==PRIMSECTION) {
-	  bitstring[k] &= ~bitmask;
 	  int group = (-token & 0x3E00) >> 9;
 	  if(group == 0) {
 	    switch(token|0x4000) {
@@ -404,9 +429,7 @@ void gforth_compile_range(Cell *image, UCell size,
 		image[i]=(Cell)CFA(CF(token));
 #ifdef DIRECT_THREADED
 		if ((token & 0x4000) == 0) { /* threaded code, no CFA */
-		  if (targets[k] & bitmask)
-		    compile_prim1(0);
-		  compile_prim1(&image[i]);
+		  bitstring[k] |= bitmask;
 		}
 #endif
 	      } else if(debug_prim) {
@@ -428,9 +451,7 @@ void gforth_compile_range(Cell *image, UCell size,
 #endif
 #ifdef DIRECT_THREADED
 	      if ((token & 0x4000) == 0) { /* threaded code, no CFA */
-		if (targets[k] & bitmask)
-		  compile_prim1(0);
-		compile_prim1(&image[i]);
+		bitstring[k] |= bitmask;
 	      } else if((token & 0x8000) == 0) { /* special CFA */
 		/* debugp(stderr, "image[%x] = symbols[%x]\n", i, groups[group]+tok); */
 		MAKE_CF(image+i,vm_prims[groups[group]+tok]);
@@ -451,31 +472,7 @@ void gforth_compile_range(Cell *image, UCell size,
 	      fprintf(stderr,"Primitive %lx, %d of group %d used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, &image[i],i,PACKAGE_VERSION);
 	    }
 	  }
-	}
-      }
-    }
-  }
-}
-
-static unsigned char *gforth_relocate_range(Address sections[], Cell bases[],
-					    Cell *image, UCell size, Cell base,
-					    Char *bitstring, int sect)
-{
-  int i, k;
-  int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
-  unsigned char *targets=malloc_l(steps);
-
-  for(i=k=0; k<steps; k++) {
-    Char bitmask;
-    for(bitmask=(1U<<(RELINFOBITS-1)); bitmask; i++, bitmask>>=1) {
-      Cell token;
-      /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
-      if(bitstring[k] & bitmask) {
-	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
-	assert(i < steps*RELINFOBITS);
-	token=image[i];
-	if(SECTION(token)!=PRIMSECTION) {
-	  bitstring[k] &= ~bitmask;
+	} else {
 	  /* if base is > 0: 0 is a null reference so don't adjust*/
 	  if (token>=base) {
 	    UCell sec = SECTION(token);
@@ -536,7 +533,6 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
     free(targets);
     if(i==0)
       image[0] = (Cell)image;
-    finish_code();
   }
 }
 
