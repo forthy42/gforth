@@ -56,6 +56,8 @@ here 1802 over
     0 A,                \ image dp (without tags)
     0 A,                \ section name
     0 A,                \ locs[]
+    0 A,                \ primbits
+    0 A,                \ targets
     has? stack-size ,   \ data stack size
     has? fstack-size ,  \ FP stack size
     has? rstack-size ,  \ return stack size
@@ -134,10 +136,10 @@ has? header [IF]
     \ set image size
     here image-header + image-header #02 cells + !
     .( set image entry point) cr
-    ' boot       >body  image-header #09 cells + !
-    ' quit       >body  image-header #11 cells + !
-    ' do-execute >body  image-header #12 cells + !
-    ' do-find    >body  image-header #13 cells + !
+    ' boot       >body  image-header #11 cells + !
+    ' quit       >body  image-header #13 cells + !
+    ' do-execute >body  image-header #14 cells + !
+    ' do-find    >body  image-header #15 cells + !
 [ELSE]
     >boot
 [THEN]

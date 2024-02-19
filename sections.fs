@@ -73,6 +73,7 @@ is addr>view
     section-size !
     ['] noname section-name !
     locs[] dup off $saved
+    primbits off  targets off
     current-section @ r> current-section ! ;
 
 : new-section ( -- )

@@ -123,7 +123,7 @@
 \ basics for string arrays
 
 : $room ( u $addr -- )
-    \G generate room for at least u bytes, erase when expanding
+    \G generate room for at least @i{u} bytes, erase when expanding
     >r dup r@ $@len tuck u<= IF  rdrop 2drop EXIT  THEN
     - dup r> $+!len swap 0 fill ;
 
@@ -131,6 +131,23 @@
     \G @i{Addr'} is the address of the @i{u}th element of the string
     \G array @i{$[]addr}.  The array is resized if needed.
     >r cells dup cell+ r@ $room r> $@ drop + ;
+
+\ bitstring access, used for compile-prims
+
+: $bit ( u $addr -- c-addr mask )
+    over 8 + 3 rshift over $room
+    swap >r $@ drop r@ 3 rshift +
+    $80 r> 7 and rshift ;
+
+: $+bit ( u $addr -- )
+    \G set bit @i{u} in the string
+    $bit over c@ or swap c! ;
+: $-bit ( u $addr -- )
+    \G clear bit @i{u} in the string
+    $bit invert over c@ and swap c! ;
+: $bit@ ( u $addr -- flag )
+    \G check bit @i{u} in the string
+    $bit swap c@ and 0<> ;
 
 \ auto-save and restore strings in images
 

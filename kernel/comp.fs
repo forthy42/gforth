@@ -310,8 +310,16 @@ has? new-cfa [IF]
 
 defer basic-block-end ( -- )
 
+0 Value lump-compile
+
 :noname ( -- )
-    lits, 0 compile-prim1 ;
+    lits,
+    lump-compile IF
+	here latestnt - cell/
+	dup 0>= IF  targets $+bit  ELSE  drop  THEN
+    ELSE
+	0 compile-prim1
+    THEN ;
 is basic-block-end
 
 \ record locations
@@ -340,13 +348,28 @@ has? primcentric [IF]
     has? peephole [IF]
 	defer prim-check ( xt -- xt ) ' noop is prim-check
 	\ hook for stack depth (and maybe later type) checker
-	
+
 	: peephole-compile, ( xt -- )
 	    \ compile xt, appending its code to the current dynamic superinstruction
-	    lits, prim-check here swap , xt-location compile-prim1 ;
+	    lits, prim-check here swap , xt-location
+	    lump-compile IF
+		latestnt - cell/ primbits $+bit
+	    ELSE
+		compile-prim1
+	    THEN ;
+	: flush-code ( -- )
+	    lump-compile IF
+		latestnt here over -
+		primbits $@ drop targets $@ drop
+		compile-prims
+		primbits $free targets $free
+	    ELSE
+		finish-code
+	    THEN ;
     [ELSE]
 	: peephole-compile, ( xt -- addr )
 	    lits, here xt-location drop , ;
+	: flush-code ( -- ) ;
     [THEN]
 [ELSE]
     ' xt, is compile,
@@ -571,8 +594,7 @@ defer defer-default ( -- )
     exit-like
     here [ has? peephole [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] cells +
     postpone literal r> compile, [compile] exit
-    ?colon-sys [ has? peephole [IF] ] finish-code [ [THEN] ]
-    colon-sys ;
+    ?colon-sys basic-block-end colon-sys ;
 
 \ call with locals - unused
 
@@ -825,7 +847,7 @@ Create defstart
 
 : ; ( compilation colon-sys -- ; run-time nest-sys -- ) \ core	semicolon
     ;-hook [compile] exit ;-hook2 ?colon-sys
-    [ has? peephole [IF] ] finish-code [ [THEN] ]
+    flush-code
     reveal postpone [ ; immediate restrict
 
 : concat ( xt1 xt2 -- xt )
