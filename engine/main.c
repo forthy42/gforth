@@ -389,12 +389,13 @@ void gforth_compile_range(Cell *image, UCell size,
   for(i=k=0; k<steps; k++) {
     Char bitmask;
     for(bitmask=(1U<<(RELINFOBITS-1)); bitmask; i++, bitmask>>=1) {
-      Cell token;
       /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
       if(bitstring[k] & bitmask) {
-	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
-	if (targets[k] & bitmask)
+	if(targets[k] & bitmask) {
+	  // debugp(stderr,"target: image[%d]\n", i);
 	  compile_prim1(0);
+	}
+	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
 	compile_prim1(&image[i]);
       }
     }
