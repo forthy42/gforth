@@ -464,13 +464,14 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 : (;]) ( some-sys lastxt -- )
     >r
     ] postpone UNREACHABLE postpone ENDSCOPE
-    finish-code  hm,  previous-section  wrap!  dead-code off
+    flush-code
+    hm,  previous-section  wrap!  dead-code off
     r> postpone Literal ;
 
 : int-[: ( -- flag colon-sys )
     wrap@ ['] (int-;]) :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
-    wrap@  next-section  finish-code|
+    wrap@  next-section  lump-compile 0= IF  finish-code|  THEN
     postpone SCOPE locals-list off
     ['] (;])  :noname  ;
 ' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon

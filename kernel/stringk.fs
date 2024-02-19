@@ -135,7 +135,7 @@
 \ bitstring access, used for compile-prims
 
 : $bit ( u $addr -- c-addr mask )
-    over 7 + 3 rshift over $room
+    over 8 + 3 rshift over $room
     swap >r $@ drop r@ 3 rshift +
     $80 r> 7 and rshift ;
 
