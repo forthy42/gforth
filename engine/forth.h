@@ -408,6 +408,8 @@ typedef struct {
   Address image_dp;	/* all sizes in bytes */
   Address sect_name;
   Address sect_locs;
+  Address sect_primbits;
+  Address sect_targets;
   UCell data_stack_size;
   UCell fp_stack_size;
   UCell return_stack_size;

@@ -66,6 +66,8 @@ cell uvar section-size
 cell uvar section-dp
 cell uvar section-name
 cell uvar locs[]
+cell uvar primbits
+cell uvar targets
 
 Constant section-desc
 drop
