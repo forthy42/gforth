@@ -134,7 +134,7 @@
 
 \ bitstring access, used for compile-prims
 
-: $bit ( u $addr -- addr mask )
+: $bit ( u $addr -- c-addr mask )
     over 7 + 3 rshift over $room
     swap >r $@ drop r@ 3 rshift +
     $80 r> 7 and rshift ;
@@ -143,10 +143,10 @@
     \G set bit @i{u} in the string
     $bit over c@ or swap c! ;
 : $-bit ( u $addr -- )
-    \G set bit @i{u} in the string
+    \G clear bit @i{u} in the string
     $bit invert over c@ and swap c! ;
 : $bit@ ( u $addr -- flag )
-    \G set bit @i{u} in the string
+    \G check bit @i{u} in the string
     $bit swap c@ and 0<> ;
 
 \ auto-save and restore strings in images
