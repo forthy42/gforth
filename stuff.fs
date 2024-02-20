@@ -131,7 +131,7 @@ UValue $? ( -- n ) \ gforth dollar-question
     ['] on create-from \ start colon def without stack junk
     true to in-colon-def?
     ur compile-fliterals uw compile-literals
-    target compile, POSTPONE exit reveal
+    target compile, POSTPONE exit flush-code reveal
     false to in-colon-def? ;
 
 : const-does> ( run-time: w*uw r*ur uw ur "name" -- ) \ gforth-obsolete const-does

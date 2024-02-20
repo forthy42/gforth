@@ -360,6 +360,7 @@ has? primcentric [IF]
 	: flush-code ( -- )
 	    lump-compile IF
 		latestnt here over -
+		dup cell/ dup primbits $bit 2drop targets $bit 2drop
 		primbits $@ drop targets $@ drop
 		compile-prims
 		primbits $free targets $free
@@ -837,17 +838,21 @@ Create defstart
     \ by ;-hook before this stuff here is processed).
     ['] noop defstart ;
 
+: cleanup: ( -- )
+    lump-compile IF  lits, primbits $free targets $free
+    ELSE  basic-block-end  THEN ;
+
 : : ( "name" -- colon-sys ) \ core	colon
-    basic-block-end ['] on create-from colon-sys ] :-hook ;
+    cleanup: ['] on create-from colon-sys ] :-hook ;
 
 :noname ; aconstant dummy-noname
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
-    basic-block-end dummy-noname noname-from
+    cleanup: dummy-noname noname-from
     latestnt colon-sys ] :-hook ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys -- ) \ core	semicolon
-    ;-hook [compile] exit ;-hook2 ?colon-sys
-    flush-code
+    ;-hook [compile] exit flush-code
+    ;-hook2 ?colon-sys
     reveal postpone [ ; immediate restrict
 
 : concat ( xt1 xt2 -- xt )
