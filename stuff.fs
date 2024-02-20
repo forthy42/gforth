@@ -104,7 +104,8 @@ UValue $? ( -- n ) \ gforth dollar-question
     { uw ur target }
     ['] on create-from \ start colon def without stack junk
     ur compile-fliterals uw compile-literals
-    target compile, POSTPONE exit reveal ;
+    target compile, POSTPONE exit flush-code reveal
+    false to in-colon-def? ;
 
 : const-does> ( run-time: w*uw r*ur uw ur "name" -- ) \ gforth-obsolete const-does
     \G Defines @var{name} and returns.

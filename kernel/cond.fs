@@ -418,8 +418,7 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 : (;]) ( some-sys lastxt -- )
     >r
     ] postpone UNREACHABLE postpone ENDSCOPE
-    flush-code
-    hm,  previous-section  wrap!  dead-code off
+    flush-code hm,  previous-section  wrap!  dead-code off
     r> postpone Literal ;
 
 : int-[: ( -- flag colon-sys )

@@ -420,14 +420,16 @@ previous
 
 ' new-locals-rec  ' locals-types >wordlist 2 recognizer-sequence: new-locals
 
+Variable {lastnt}
+
 \ and now, finally, the user interface words
 : { ( -- hmaddr u latest latestnt wid 0 ) \ gforth open-brace
     \G Start locals definitions.  The Forth-2012 standard name for this
     \G word is @code{@{:}.
     ( >docolloc ) hmsave \ as locals will mess with their own hmtemplate
-    latest latestnt get-current
-    ['] new-locals forth-recognizer >stack
-    ['] locals >wordlist set-current
+    latest latestnt dup {lastnt} ! get-current
+    ['] new-locals ['] forth-recognize defer@ >stack
+   ['] locals >wordlist set-current
     val-part off
     0 postpone [ ; immediate
 
@@ -439,8 +441,8 @@ locals-types definitions
 : } ( hmaddr u latest latestnt wid 0 xt1 ... xtn -- ) \ gforth close-brace
     \G Ends locals definitions.  The Forth-2012 standard name for this
     \G word is @code{:@}}.
-    ]
-    forth-recognizer stack> drop
+    ] {lastnt} @ lastnt !
+    ['] forth-recognize defer@ stack> drop
     begin
 	dup
     while

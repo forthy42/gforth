@@ -52,6 +52,7 @@ Variable extra-locals ( additional hidden locals size )
 locals-types definitions
 
 : :}* ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... xt -- ) \ gforth-internal colon-close-brace-star
+    {lastnt} @ lastnt !
     0 lit, lits, here cell- >r
     compile, ]] >lp [[
     :}
@@ -89,9 +90,11 @@ forth definitions
 
 : dummy-local, ( n -- )
     locals-size +!
-    get-current >r  0 warnings !@ >r  [ ' locals >wordlist ]l set-current
+    latest latestnt 2>r get-current >r
+    0 warnings !@ >r  [ ' locals >wordlist ]l set-current
     s" " nextname create-local locals-size @ locals,
-    r> warnings !  r> set-current ;
+    r> warnings !
+    r> set-current 2r> lastnt ! last ! ;
 
 locals-types definitions
 
@@ -109,7 +112,7 @@ forth definitions
 
 : wrap-closure ( xt -- )
     dup >extra !  ['] does, set-optimizer
-    finish-code  hm,  wrap!  hmtemplate off \ dead hmtemplate link
+    flush-code  hm,  wrap!  hmtemplate off \ dead hmtemplate link
     previous-section  dead-code off ;
 
 : (closure-;]) ( closure-sys lastxt -- )
@@ -119,7 +122,7 @@ forth definitions
 
 : closure-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
-    ['] here locals-headers latest latestnt
+    ['] here locals-headers latest latestnt dup {lastnt} !
     clear-leave-stack
     dead-code off
     defstart ;
@@ -129,10 +132,10 @@ forth definitions
     [ 0 >body ] [IF] dodoes: >l >l lp@ cell+
     [ELSE] >l dodoes: >l lp@ cell+ cell+ [THEN] ;
 : end-dclosure ( unravel-xt -- closure-sys )
-    >r
+    >r {lastnt} @ lastnt !
     postpone lit here 0 ,
     ]] closure> [[ r> execute
-    wrap@ next-section finish-code|
+    wrap@ next-section lump-compile 0= IF  finish-code|  THEN
     action-of :-hook >r  ['] closure-:-hook is :-hook
     :noname
     r> is :-hook
@@ -186,7 +189,8 @@ forth definitions
 : :d ( -- xt1 xt2 )  ['] allocd ['] (;]*) ; immediate restrict
 
 : [*:: [{: xt@ xt>l size :}d
-	>r xt>l size [ 2 cells ]L + maxaligned postpone [: xt@ compile,
+	>r xt>l size [ 2 cells ]L + maxaligned
+	postpone [: xt@ compile,
 	r> [ colon-sys-xt-offset 2 + ]L stick ;]
     alias immediate restrict ;
 
