@@ -44,9 +44,12 @@ s" forward must be resolved with :" exception constant forward-needs-:
     \g colon definition with the same name in the same wordlist
     \g resolves the forward references.  Use @code{.unresolved} to
     \g check whether any forwards are unresolved.
-    defer ['] unresolved-forward-error lastxt defer!
-    ['] branch peephole-compile, ['] unfixed-forward >body ,
-    [: ['] call peephole-compile, >body cell+ , ;] set-optimizer ;
+    cleanup:
+    defer ['] unresolved-forward-error latestxt defer!
+    true to in-colon-def?
+    ['] branch peephole-compile, ['] unfixed-forward >body , flush-code
+    [: ['] call peephole-compile, >body cell+ , ;] set-optimizer
+    false to in-colon-def? ;
 
 : is-forward? ( xt -- f )
     \ f is true if xt is an unresolved forward definition
