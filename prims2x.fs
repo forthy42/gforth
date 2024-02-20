@@ -224,6 +224,7 @@ variable next-state-number 0 next-state-number ! \ next state number
                   \ current primitive, for primitive variants that
                   \ are to be compiled with a lagging ip.
 24 value max-ip-offset
+0 value branch-to-ip \ 1 when generating branch variants that branch to ip
 
 : stack-in-index ( in-size item -- in-index )
     item-offset @ - 1- ;
@@ -1845,7 +1846,7 @@ defer reprocess-prim
 
 variable offset-super2  0 offset-super2 ! \ offset into the super2 table
 
-: output-costs-prefix ( -- )
+: output-costs1 { d: super2indexstring nlength -- }
     ." {" prim compute-costs
     rot 2 .r ." ," swap 2 .r ." ," 2 .r ." , "
     prim prim-branch? negate . ." ,"
@@ -1853,21 +1854,20 @@ variable offset-super2  0 offset-super2 ! \ offset into the super2 table
     state-out state-number @ 2 .r ." ,"
     inst-stream stack-in @ 1 .r ." ,"
     ip-offset 2 .r ." ,"
-;
+    super2indexstring type ." ,"
+    nlength 2 .r ." ,"
+    branch-to-ip 2 .r
+    ." },"
+    output-name-comment
+    cr ;
 
 : output-costs-gforth-simple ( -- )
-    output-costs-prefix
-    prim output-num-part
-    1 2 .r ." },"
-    output-name-comment
-    cr ;
+    s" N_" prim prim-c-name-orig 2@ s+ 1 output-costs1 ;
 
 : output-costs-gforth-combined ( -- )
-    output-costs-prefix
-    ." N_START_SUPER+" offset-super2 @ 5 .r ." ,"
-    super2-length dup 2 .r ." }," offset-super2 +!
-    output-name-comment
-    cr ;
+    offset-super2 @ 0
+    <<# #s s" N_START_SUPER+" holds #> super2-length output-costs1 #>>
+    super2-length offset-super2 +! ;
 
 \  : output-costs ( -- )
 \      \ description of superinstructions and simple instructions

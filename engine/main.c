@@ -853,6 +853,7 @@ struct cost { /* super_info might be a more accurate name */
                                 1 if it points 1 cell earlier ... */
   short offset;     /* offset into super2 table */
   unsigned char length;      /* number of components */
+  char branch_to_ip; /* 1 if the prim is a conditional branch to ip, 0 otherwise */
 };
 
 PrimNum super2[] = {
