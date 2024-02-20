@@ -838,14 +838,16 @@ Create defstart
     \ by ;-hook before this stuff here is processed).
     ['] noop defstart ;
 
+: cleanup: ( -- )
+    lump-compile IF  lits, primbits $free targets $free
+    ELSE  basic-block-end  THEN ;
+
 : : ( "name" -- colon-sys ) \ core	colon
-    basic-block-end primbits $free targets $free
-    ['] on create-from colon-sys ] :-hook ;
+    cleanup: ['] on create-from colon-sys ] :-hook ;
 
 :noname ; aconstant dummy-noname
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
-    lump-compile IF  primbits $free targets $free  ELSE  basic-block-end  THEN
-    dummy-noname noname-from
+    cleanup: dummy-noname noname-from
     latestnt colon-sys ] :-hook ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys -- ) \ core	semicolon
