@@ -331,4 +331,14 @@ csswaplstore = >r l>< r> l!
 
 \E gen-transitions noop
 
+\ now the branch-to-ip conditional branches; keep this last
+\E 1 to branch-to-ip
+\E cr ." #undef SET_IP"
+\E cr ." #define SET_IP(x)" cr
+
+\E S2 S1 state-prim ?branch
+
+\E cr ." #undef SET_IP"
+\E cr ." #  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)" cr
+
 \F [ENDIF]

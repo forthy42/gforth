@@ -912,6 +912,8 @@ static void prepare_super_table()
 
   for (i=0; i<sizeof(super_costs)/sizeof(super_costs[0]); i++) {
     struct cost *c = &super_costs[i];
+    if (c->branch_to_ip)
+      continue;
     if ((c->length < 2 || nsupers < static_super_number) &&
 	c->state_in < maxstates && c->state_out < maxstates) {
       struct super_state **ss_listp= lookup_super(super2+c->offset, c->length);
