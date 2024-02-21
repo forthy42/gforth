@@ -41,7 +41,8 @@ variable backedge-locals-default 0 backedge-locals-default !
 
 : :-hook1 ( -- )
     cs-depth1 to cs-floor
-    0 backedge-locals-default ! ;
+    0 backedge-locals-default !
+    here codestart ! ;
 ' :-hook1 is :-hook
 
 : ;-hook21 ( -- )

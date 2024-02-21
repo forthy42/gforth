@@ -65,18 +65,17 @@ is addr>view
 :noname which-section? 0<> ; is in-dictionary?
 
 : create-section ( size -- section )
-    latestnt latest 2>r
     current-section @ >r
     image-offset >r
     dup r@ + allocate throw r> + dup current-section !
     dup section-start !
+    dup codestart !
     section-desc + section-dp !
     section-size !
     ['] noname section-name !
     locs[] dup off $saved
     primbits off  targets off
-    current-section @ r> current-section !
-    2r> last ! lastnt ! ;
+    current-section @ r> current-section ! ;
 
 : new-section ( -- )
     section-size @ 2/ 2/ create-section sections >stack ;

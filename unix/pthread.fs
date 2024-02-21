@@ -294,10 +294,10 @@ synonym c-section critical-section
     -1 under+ 1- pagesize negate mux 1+ ;
 : stacksize ( -- u ) \ gforth-experimental
     \G @i{u} is the data stack size of the main task.
-    forthstart 5 cells + @ ;
+    forthstart 8 cells + @ ;
 : stacksize4 ( -- u-data u-return u-fp u-locals ) \ gforth-experimental
     \G Pushes the data, return, FP, and locals stack sizes of the main task.
-    forthstart 5 cells + 4 cells cell MEM+DO  I @  LOOP
+    forthstart 8 cells + 4 cells cell MEM+DO  I @  LOOP
     2>r >r  sp0 @ >pagealign-stack r> fp0 @ >pagealign-stack 2r> ;
 
 : execute-task ( xt -- task ) \ gforth-experimental

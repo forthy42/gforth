@@ -53,7 +53,6 @@ Variable extra-locals ( additional hidden locals size )
 locals-types definitions
 
 : :}* ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... xt -- ) \ gforth-internal colon-close-brace-star
-    {lastnt} @ lastnt !
     0 lit, lits, here cell- >r
     compile, ]] >lp [[
     :}
@@ -96,11 +95,9 @@ forth definitions
 
 : dummy-local, ( n -- )
     locals-size +!
-    latest latestnt 2>r get-current >r
-    0 warnings !@ >r  [ ' locals >wordlist ]l set-current
+    get-current >r  0 warnings !@ >r  [ ' locals >wordlist ]l set-current
     s" " nextname create-local locals-size @ locals,
-    r> warnings !
-    r> set-current 2r> lastnt ! last ! ;
+    r> warnings !  r> set-current ;
 
 locals-types definitions
 
@@ -133,7 +130,7 @@ forth definitions
 : closure-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
     :-hook1
-    ['] here locals-headers latest latestnt dup {lastnt} !
+    ['] here locals-headers latest latestnt
     clear-leave-stack
     dead-code off
     defstart
@@ -147,7 +144,7 @@ forth definitions
     [ 0 >body ] [IF] dodoes: >l >l lp@ cell+
     [ELSE] >l dodoes: >l lp@ cell+ cell+ [THEN] ;
 : end-dclosure ( unravel-xt -- closure-sys )
-    >r {lastnt} @ lastnt !
+    >r
     postpone lit here 0 ,
     ]] closure> [[ r> execute
     wrap@ next-section lump-compile 0= IF  finish-code|  THEN
