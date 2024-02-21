@@ -402,6 +402,7 @@ typedef struct {
   Address sect_locs;
   Address sect_primbits;
   Address sect_targets;
+  Address sect_codestart;
   UCell data_stack_size;
   UCell fp_stack_size;
   UCell return_stack_size;

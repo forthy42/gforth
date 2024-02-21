@@ -68,6 +68,7 @@ cell uvar section-name
 cell uvar locs[]
 cell uvar primbits
 cell uvar targets
+cell uvar codestart
 
 Constant section-desc
 drop
