@@ -887,6 +887,7 @@ struct super_table_entry {
 int max_super=2;
 
 struct super_state *state_transitions=NULL;
+PrimNum *branches_to_ip = NULL;
 
 static int hash_super(PrimNum *start, int length)
 {
@@ -912,13 +913,34 @@ static struct super_state **lookup_super(PrimNum *start, int length)
   return NULL;
 }
 
+static PrimNum lookup_ss(PrimNum *start, int length,
+                              unsigned state_in, unsigned state_out)
+{
+  struct super_state *ss = *lookup_super(start, length);
+  for (; ss!=NULL; ss = ss->next) {
+    struct cost *c = &super_costs[ss->super];
+    if (c->state_in == state_in && c->state_out == state_out)
+      return ss->super;
+  }
+  assert(0);
+  return -1;
+}
+
 static void prepare_super_table()
 {
-  int i;
-  int nsupers = 0;
+  long i;
+  long nsupers = 0;
+  long nprims = sizeof(super_costs)/sizeof(super_costs[0]);
 
-  for (i=0; i<sizeof(super_costs)/sizeof(super_costs[0]); i++) {
+  branches_to_ip = calloc(nprims,sizeof(PrimNum));
+  for (i=0; i<nprims; i++) {
     struct cost *c = &super_costs[i];
+    if (c->branch_to_ip) {
+      branches_to_ip[lookup_ss(super2+c->offset, c->length,
+                               c->state_in, c->state_out)
+                     ]=i;
+      continue;
+    }
     if ((c->length < 2 || nsupers < static_super_number) &&
 	c->state_in < maxstates && c->state_out < maxstates) {
       struct super_state **ss_listp= lookup_super(super2+c->offset, c->length);
@@ -975,7 +997,7 @@ static void prepare_super_table()
       }
     }
   }
-  debugp(stderr, "Using %d static superinsts\n", nsupers);
+  debugp(stderr, "Using %ld static superinsts\n", nsupers);
   debugp(stderr, "ip-update0 = %d in %d..%d\n", ip_update0, min_ip_update, max_ip_update);
   if (nsupers>0 && !tpa_noautomaton && !tpa_noequiv) {
     /* Currently these two things don't work together; see Section 3.2
@@ -1041,9 +1063,9 @@ static void gforth_printprims()
   for (i=0; i<npriminfos; i++) {
     PrimInfo *pi=&priminfos[i];
     struct cost *sc=&super_costs[i];
-    fprintf(stderr,"%-17s %d-%d %2d %4d %4d %14p len=%2ld+%3ld+%2ld send=%1d\n",
+    fprintf(stderr,"%-17s %d-%d %2d %4d %4d %4d %14p len=%2ld+%3ld+%2ld send=%1d\n",
 	    prim_names[i], state_map(sc->state_in), state_map(sc->state_out),
-	    sc->ip_offset, i, pi->uses, pi->start, (long)(pi->len1),
+	    sc->ip_offset, i, branches_to_ip[i], pi->uses, pi->start, (long)(pi->len1),
             (long)(pi->length - pi->len1), (long)(pi->restlength), pi->superend);
   }
 }
