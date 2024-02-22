@@ -404,10 +404,10 @@ n2=n1-u;
 ,if (olddiff>u) {
 ,)
 
-condbranch((/loop)`#',R:nlimit R:n1 -- R:nlimit R:n2,paren_slash_loop,
+condbranch((/loop),u R:nlimit R:n1 -- R:nlimit R:n2,paren_slash_loop,
 n2=n1+u;
 ,if (n2-nlimit>=u) {
-,,`#'u)
+,)
 
 condbranch((s+loop),n R:nlimit R:n1 -- R:nlimit R:n2,paren_symmetric_plus_loop,
 ""The run-time procedure compiled by S+LOOP. It loops until the index

@@ -418,7 +418,7 @@ ACONSTANT MaxTable
     \ !! the stack effect cannot be correct
     \ prints a name without () and without -LP+!#, e.g. a (+LOOP) or (s")
     dup cell- @ threaded>name dup IF
-	dup ``(/loop)# = over ``(/loop)#-lp+!# = or if drop ``+loop then
+	dup ``(/loop) = over ``(/loop)-lp+!# = or if drop ``+loop then
 	name>string over c@ '( = IF
 	    1 /string
 	THEN
@@ -602,11 +602,6 @@ ACONSTANT MaxTable
     THEN ( addr1 ) \ perverse stack effect of MoreBranchAddr?
     cell+ ;
 
-: c-loop# ( addr -- addr1 )
-    Display? if
-	dup @ c-. then
-    c-loop cell+ ;
-
 : c-do ( addr -- addr )
     Display? IF
 	dup BranchAddr? IF ( addr addr1 )
@@ -746,7 +741,7 @@ CREATE C-Table \ primitives map to code only
         	' (+loop) A,        ' c-loop A,
 [IFDEF] (s+loop) ' (s+loop) A,      ' c-loop A, [THEN]
 [IFDEF] (-loop) ' (-loop) A,        ' c-loop A, [THEN]
-[IFDEF] (/loop)# ' (/loop)# A,      ' c-loop# A, [THEN]
+[IFDEF] (/loop) ' (/loop) A,        ' c-loop A, [THEN]
         	' (next) A,         ' c-loop A,
         	' ;s A,             ' c-exit A,
 \ [IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
