@@ -224,7 +224,9 @@ csswaplstore = >r l>< r> l!
 \E S1 S0 state-prim 2drop
 \ \E prim-states (tablelfind)         \ 22243
 \E prim-states or                   \ 21587
-\E branch-states (+loop)              \ 20006
+\E prim-states @local2              \ 20859
+\E S2 S1 state-prim (+loop)              \ 20006
+\E S2 S1 state-prim (/loop)              \ 20006
 \E prim-states 1+                   \ 17944
 \E prim-states rdrop                \ 17902
 \E branch-states (?do)                \ 17348
@@ -337,5 +339,24 @@ csswaplstore = >r l>< r> l!
 \E ' noop is output-nextp1
 
 \E gen-transitions noop
+
+\ now the branch-to-ip conditional branches; keep this last
+\E 1 to branch-to-ip
+\E cr ." #undef SET_IP"
+\E cr ." #define SET_IP(x)" cr
+
+\E S1 S1 s" ?branch" lookup-prim state-prim2
+\E S2 S1 state-prim ?branch
+\E S1 S1 s" (next)" lookup-prim state-prim2
+\E S1 S1 s" (loop)" lookup-prim state-prim2 \ 379646
+\E S1 S1 s" (+loop)" lookup-prim state-prim2
+\E S2 S1 state-prim (+loop)              \ 20006
+\ \E S2 S1 state-prim (-loop)
+\E S1 S1 s" (/loop)" lookup-prim state-prim2
+\E S2 S1 state-prim (/loop)
+\ \E S2 S1 state-prim (s+loop)
+
+\E cr ." #undef SET_IP"
+\E cr ." #  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)" cr
 
 \F [ENDIF]
