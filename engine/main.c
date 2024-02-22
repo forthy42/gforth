@@ -1462,6 +1462,19 @@ static Address append_prim(PrimNum p)
         goto append_prim_done;
       }
     }
+    if (opt_ip_updates_branch>0 && branches_to_ip[p]!=0) {
+      Label *target = ((Label **)(ginstps[inst_index]))[1];
+      if (ip_at+opt_ip_updates_branch*min_ip_update <= target &&
+          target <= ip_at+(opt_ip_updates_branch/2)*max_ip_update) {
+        append_ip_update1(target,0,0);
+        // fprintf(stderr, "%d -> %d\n",p, branches_to_ip[p]);
+        p = branches_to_ip[p];
+        pi = &priminfos[p];
+        ci = &super_costs[p];
+        has_imm = 0; /* necessary to suppress append_ip_update() below */
+        assert(superend == pi->superend);
+      } 
+    }
     if (opt_ip_updates>1 && superend && !has_imm) {
       long i;
       for (i=0; i<sizeof(ip_dead)/sizeof(ip_dead[0]); i++)
@@ -1642,7 +1655,8 @@ static Cell compile_prim_dyn(PrimNum p)
   if (p>=npriminfos || !is_relocatable(p)) {
     append_jump_previous();
     ip_at = ginstps[inst_index+1]; /* advance to behind the non-relocatable inst */
-    priminfos[p].uses++;
+    if (!is_relocatable(p))
+      priminfos[p].uses++;
     return static_prim;
   }
   old_code_here = append_prim(p);
