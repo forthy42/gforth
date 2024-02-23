@@ -90,6 +90,39 @@ cb20 = u> ?branch
 cb21 = u>= ?branch
 cb22 = within ?branch
 
+\ branch-to-ip variants of compare-and-branch
+\E 1 to branch-to-ip
+\E cr ." #undef SET_IP"
+\E cr ." #define SET_IP(x)" cr
+
+cb1a = 0< ?branch
+cb2a = 0<= ?branch
+cb3a = 0<> ?branch
+cb4a = 0= ?branch
+cb5a = 0> ?branch
+cb6a = 0>= ?branch
+cb7a = < ?branch
+cb8a = <= ?branch
+cb9a = <> ?branch
+cb10a = = ?branch
+cb11a = > ?branch
+cb12a = >= ?branch
+cb13a = d0= ?branch
+cb14a = d< ?branch
+cb15a = d= ?branch
+cb16a = f< ?branch
+cb17a = f= ?branch
+cb18a = u< ?branch
+cb19a = u<= ?branch
+cb20a = u> ?branch
+cb21a = u>= ?branch
+cb22a = within ?branch
+
+
+\E cr ." #undef SET_IP"
+\E cr ." #  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)" cr
+\E 0 to branch-to-ip
+
 \ memory access combinations
 cscfetch = c@ c>s
 cswfetch = w@ w>s
@@ -340,7 +373,7 @@ csswaplstore = >r l>< r> l!
 
 \E gen-transitions noop
 
-\ now the branch-to-ip conditional branches; keep this last
+\ now the branch-to-ip conditional branches;
 \E 1 to branch-to-ip
 \E cr ." #undef SET_IP"
 \E cr ." #define SET_IP(x)" cr
@@ -358,5 +391,6 @@ csswaplstore = >r l>< r> l!
 
 \E cr ." #undef SET_IP"
 \E cr ." #  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)" cr
+\E 0 to branch-to-ip
 
 \F [ENDIF]
