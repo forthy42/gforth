@@ -1492,7 +1492,7 @@ static Address append_prim(PrimNum p)
       }
     }
     if (opt_ip_updates_branch>0 && branches_to_ip[p]!=0) {
-      Label *target = ((Label **)(ginstps[inst_index]))[1];
+      Label *target = ((Label **)(ginstps[inst_index+ci->length-1]))[1];
       if (ip_at+opt_ip_updates_branch*min_ip_update <= target &&
           target <= ip_at+(opt_ip_updates_branch/2)*max_ip_update) {
         append_ip_update1(target,0,0);
