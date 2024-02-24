@@ -312,11 +312,12 @@ defer basic-block-end ( -- )
 
 -1 Value lump-compile
 
+: +target ( addr -- )
+    codestart @ - cell/ targets $+bit ;
+
 :noname ( -- )
     lits,
-    lump-compile IF
-	here codestart @ - cell/ targets $+bit
-    ELSE
+    lump-compile 0= IF
 	0 compile-prim1
     THEN ;
 is basic-block-end

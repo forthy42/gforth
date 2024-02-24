@@ -178,8 +178,9 @@ defer if-like
     >mark if-like ;
 : >resolve    ( addr -- )
     basic-block-end
-    here swap ! ;
-: <resolve    ( addr -- )        , ;
+    here dup +target swap ! ;
+: <resolve    ( addr -- )
+    dup +target , ;
 
 : BUT
     1 cs-roll ;                      immediate restrict
