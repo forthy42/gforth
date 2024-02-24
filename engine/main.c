@@ -390,11 +390,11 @@ void gforth_compile_range(Cell *image, UCell size,
     Char bitmask;
     for(bitmask=(1U<<(RELINFOBITS-1)); bitmask; i++, bitmask>>=1) {
       /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
+      if(targets[k] & bitmask) {
+	// debugp(stderr,"target: image[%d]\n", i);
+	compile_prim1(0);
+      }
       if(bitstring[k] & bitmask) {
-	if(targets[k] & bitmask) {
-	  // debugp(stderr,"target: image[%d]\n", i);
-	  compile_prim1(0);
-	}
 	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
 	compile_prim1(&image[i]);
       }
