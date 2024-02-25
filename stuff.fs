@@ -98,6 +98,10 @@ UValue $? ( -- n ) \ gforth dollar-question
 	r POSTPONE fliteral
     endif ;
 
+[IFUNDEF] in-colon-def?
+    0 Value in-colon-def?
+[THEN]
+
 : (const-does>) ( w*uw r*ur uw ur target "name" -- )
     \ define a colon definition "name" containing w*uw r*ur as
     \ literals and a call to target.

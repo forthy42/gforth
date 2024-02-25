@@ -32,11 +32,6 @@ variable backedge-locals
     here codestart ! ;
 ' :-hook1 is :-hook
 
-: ;-hook21 ( -- )
-    cs-depth1 cs-floor <> -22 and throw ;
-' ;-hook21 is ;-hook2
->>>>>>> 450689b1 (compile-prims (lump-compile mode) now works)
-
 : UNREACHABLE ( -- ) \ gforth
     \ declares the current point of execution as unreachable
     dead-code on

@@ -119,6 +119,7 @@ forth definitions
 
 : closure-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
+    :-hook1
     ['] here locals-headers latest latestnt
     clear-leave-stack
     dead-code off
