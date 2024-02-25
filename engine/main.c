@@ -946,7 +946,7 @@ static void prepare_super_table()
       if (c->ip_offset == 0) { /* don't enter ip_offset variants */
         struct super_state *ss = malloc_l(sizeof(struct super_state));
         ss->super= i;
-        if (c->offset==N_noop && i != N_noop) { /* stack caching transition */
+        if (c->offset==N_noop && i != N_noop) { /* transition or ip update */
           if (is_relocatable(i)) {
             if (c->state_in==CANONICAL_STATE && c->state_out==CANONICAL_STATE) {
               /* this is actually from the ip-update series */
@@ -959,40 +959,46 @@ static void prepare_super_table()
               state_transitions = ss;
             }
           }
-        } else if (ss_listp != NULL) { /* already registered */
-          if (c->state_in==CANONICAL_STATE && c->state_out==CANONICAL_STATE &&
-              priminfos != NULL && priminfos[i].max_ip_offset>0) {
-            /* ip-update variation header for prim that has its
-               original already in the table: replace the original
-               with this one so that ip-update variants can be used */
-            free(ss);
-            ss = *ss_listp;
-            assert(c->length == 1);
-            for (; ss != NULL; ss = ss->next)
-              if (ss->super == c->offset) {
-                ss->super = i;
-                break;
-              }
-            assert(ss != NULL);
-          } else { /* just add another state combination for the primitive */
-            ss->next = *ss_listp;
-            *ss_listp = ss;
+        } else {
+          if (opt_ip_updates < 3 && priminfos != NULL) {
+            priminfos[i].min_ip_offset = 0;
+            priminfos[i].max_ip_offset = 0;
           }
-        } else { /* new entry */
-          int hash = hash_super(super2+c->offset, c->length);
-          struct super_table_entry **p = &super_table[hash];
-          struct super_table_entry *e = malloc_l(sizeof(struct super_table_entry));
-          ss->next = NULL;
-          e->next = *p;
-          e->start = super2 + c->offset;
-          e->length = c->length;
-          e->ss_list = ss;
-          *p = e;
+          if (ss_listp != NULL) { /* already registered */
+            if (c->state_in==CANONICAL_STATE && c->state_out==CANONICAL_STATE &&
+                priminfos != NULL && priminfos[i].max_ip_offset>0) {
+              /* ip-update variation header for prim that has its
+                 original already in the table: replace the original
+                 with this one so that ip-update variants can be used */
+              free(ss);
+              ss = *ss_listp;
+              assert(c->length == 1);
+              for (; ss != NULL; ss = ss->next)
+                if (ss->super == c->offset) {
+                  ss->super = i;
+                  break;
+                }
+              assert(ss != NULL);
+            } else { /* just add another state combination for the primitive */
+              ss->next = *ss_listp;
+              *ss_listp = ss;
+            }
+          } else { /* new entry */
+            int hash = hash_super(super2+c->offset, c->length);
+            struct super_table_entry **p = &super_table[hash];
+            struct super_table_entry *e = malloc_l(sizeof(struct super_table_entry));
+            ss->next = NULL;
+            e->next = *p;
+            e->start = super2 + c->offset;
+            e->length = c->length;
+            e->ss_list = ss;
+            *p = e;
+          }
+          if (c->length > max_super)
+            max_super = c->length;
+          if (c->length >= 2)
+            nsupers++;
         }
-        if (c->length > max_super)
-          max_super = c->length;
-        if (c->length >= 2)
-          nsupers++;
       }
     }
   }
@@ -1242,7 +1248,7 @@ static void check_prims(Label symbols1[])
       j++;
     }
     debugp(stderr,"\n");
-    if (opt_ip_updates>2 && o>0) { /* ip-updates info */
+    if (o>0) { /* ip-updates info */
       assert(strcmp(prim_names[i],prim_names[i-o])==0);
       /* add this primitive only if all the ip_update variants up to
          here are relocatable: */
