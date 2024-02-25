@@ -383,8 +383,10 @@ void gforth_compile_range(Cell *image, UCell size,
 			  Char *bitstring, Char *targets)
 {
   int i, k;
-
   int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
+
+  if(size==0)
+    return;
 
   for(i=k=0; k<steps; k++) {
     Char bitmask;

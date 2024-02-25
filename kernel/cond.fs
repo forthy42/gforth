@@ -472,7 +472,7 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 : int-[: ( -- flag colon-sys )
     wrap@ ['] (int-;]) :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
-    wrap@  next-section  lump-compile 0= IF  finish-code|  THEN
+    wrap@  next-section
     postpone SCOPE locals-list off
     ['] (;])  :noname  ;
 ' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon

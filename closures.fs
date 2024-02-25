@@ -147,7 +147,7 @@ forth definitions
     >r
     postpone lit here 0 ,
     ]] closure> [[ r> execute
-    wrap@ next-section lump-compile 0= IF  finish-code|  THEN
+    wrap@ next-section
     action-of :-hook >r  ['] closure-:-hook is :-hook
     :noname
     r> is :-hook

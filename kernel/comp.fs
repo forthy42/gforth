@@ -310,16 +310,13 @@ has? new-cfa [IF]
 
 defer basic-block-end ( -- )
 
--1 Value lump-compile
-
 : +target ( addr -- )
-    codestart @ - cell/ targets $+bit ;
+    dup codestart @ here cell+ within IF
+	codestart @ - cell/ targets $+bit
+    ELSE  drop  THEN ;
 
 :noname ( -- )
-    lits,
-    lump-compile 0= IF
-	0 compile-prim1
-    THEN ;
+    lits, ;
 is basic-block-end
 
 \ record locations
@@ -352,22 +349,14 @@ has? primcentric [IF]
 	: peephole-compile, ( xt -- )
 	    \ compile xt, appending its code to the current dynamic superinstruction
 	    lits, prim-check here swap , xt-location
-	    lump-compile IF
-		codestart @ - cell/ primbits $+bit
-	    ELSE
-		compile-prim1
-	    THEN ;
+	    codestart @ - cell/ primbits $+bit ;
 	: flush-code ( -- )
-	    lump-compile IF
-		codestart @ here aligned over -
-		dup cell/ dup primbits $bit 2drop targets $bit 2drop
-		primbits $@ drop targets $@ drop
-		compile-prims
-		primbits $free targets $free
-		here aligned codestart !
-	    ELSE
-		finish-code
-	    THEN ;
+	    codestart @ here aligned over -
+	    dup cell/ dup primbits $bit 2drop targets $bit 2drop
+	    primbits $@ drop targets $@ drop
+	    compile-prims
+	    primbits $free targets $free
+	    here aligned codestart ! ;
     [ELSE]
 	: peephole-compile, ( xt -- addr )
 	    lits, here xt-location drop , ;
@@ -840,12 +829,8 @@ Create defstart
     ['] noop defstart ;
 
 : :start ( -- )
-    lump-compile IF
-	lits, primbits $@len
-	IF  flush-code  ELSE  primbits $free targets $free  THEN
-    ELSE
-	basic-block-end
-    THEN ;
+    lits, primbits $@len
+    IF  flush-code  ELSE  primbits $free targets $free  THEN ;
 
 : : ( "name" -- colon-sys ) \ core	colon
     :start ['] on create-from colon-sys ] :-hook ;
