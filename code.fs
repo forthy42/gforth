@@ -93,7 +93,7 @@ vocabulary assembler ( -- ) \ tools-ext
 :noname ( colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
     ( create the [;code] part of a low level defining word )
     [ifdef] 0-adjust-locals-size 0-adjust-locals-size [then]
-    ;-hook postpone (;code) basic-block-end ;-hook2 finish-code
+    ;-hook postpone (;code) basic-block-end ;-hook2 flush-code
     ?colon-sys postpone [ defstart init-asm ;
 interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
 \g The code after @code{;code} becomes the behaviour of the last
