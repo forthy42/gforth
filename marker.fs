@@ -74,7 +74,7 @@
     \ remember hm-list
     hm-list @ ,
     \ remember dyncode-ptr
-    here ['] noop , compile-prim1 finish-code
+    here ['] noop , cell "\x80" drop "\x00" drop compile-prims
     sections-marker, \ here is stored and restored separately
 ;
 

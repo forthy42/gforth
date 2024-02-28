@@ -310,16 +310,13 @@ has? new-cfa [IF]
 
 defer basic-block-end ( -- )
 
-0 Value lump-compile
+: +target ( addr -- )
+    dup codestart @ here cell+ within IF
+	codestart @ - cell/ targets $+bit
+    ELSE  drop  THEN ;
 
 :noname ( -- )
-    lits,
-    lump-compile IF
-	here latestnt - cell/
-	dup 0>= IF  targets $+bit  ELSE  drop  THEN
-    ELSE
-	0 compile-prim1
-    THEN ;
+    lits, ;
 is basic-block-end
 
 \ record locations
@@ -352,21 +349,14 @@ has? primcentric [IF]
 	: peephole-compile, ( xt -- )
 	    \ compile xt, appending its code to the current dynamic superinstruction
 	    lits, prim-check here swap , xt-location
-	    lump-compile IF
-		latestnt - cell/ primbits $+bit
-	    ELSE
-		compile-prim1
-	    THEN ;
+	    codestart @ - cell/ primbits $+bit ;
 	: flush-code ( -- )
-	    lump-compile IF
-		latestnt here over -
-		dup cell/ dup primbits $bit 2drop targets $bit 2drop
-		primbits $@ drop targets $@ drop
-		compile-prims
-		primbits $free targets $free
-	    ELSE
-		finish-code
-	    THEN ;
+	    codestart @ here aligned over -
+	    dup cell/ dup primbits $bit 2drop targets $bit 2drop
+	    primbits $@ drop targets $@ drop
+	    compile-prims
+	    primbits $free targets $free
+	    here aligned codestart ! ;
     [ELSE]
 	: peephole-compile, ( xt -- addr )
 	    lits, here xt-location drop , ;
@@ -838,16 +828,16 @@ Create defstart
     \ by ;-hook before this stuff here is processed).
     ['] noop defstart ;
 
-: cleanup: ( -- )
-    lump-compile IF  lits, primbits $free targets $free
-    ELSE  basic-block-end  THEN ;
+: :start ( -- )
+    lits, primbits $@len
+    IF  flush-code  ELSE  primbits $free targets $free  THEN ;
 
 : : ( "name" -- colon-sys ) \ core	colon
-    cleanup: ['] on create-from colon-sys ] :-hook ;
+    :start ['] on create-from colon-sys ] :-hook ;
 
 :noname ; aconstant dummy-noname
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
-    cleanup: dummy-noname noname-from
+    :start dummy-noname noname-from
     latestnt colon-sys ] :-hook ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys -- ) \ core	semicolon

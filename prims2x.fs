@@ -224,6 +224,7 @@ variable next-state-number 0 next-state-number ! \ next state number
                   \ current primitive, for primitive variants that
                   \ are to be compiled with a lagging ip.
 24 value max-ip-offset
+0 value branch-to-ip \ 1 when generating branch variants that branch to ip
 
 : stack-in-index ( in-size item -- in-index )
     item-offset @ - 1- ;
@@ -991,10 +992,16 @@ defer ip-update
     \ ip-update at the start of a prim (possibly not copied into a superinst)
     ip-update ;
 
+: ip-update-offset ( -- )
+    \ update by ip-offset
+    ip-offset 0<> if
+        ." ip += " ip-offset 0 .r ." ;" cr
+    then ;
+
 : ip-update-middle ( -- )
     \ ip update in the middle of a prim (by ip-offset)
-    prim prim-superend @ ip-offset 0<> and if
-        ." ip += " ip-offset 0 .r ." ;" cr
+    prim prim-superend @ if
+        ip-update-offset
     then ;
 
 : stack-pointer-updates ( -- )
@@ -1575,16 +1582,6 @@ defer reprocess-prim
 : lookup-prim ( c-addr u -- prim )
     primitives search-wordlist 0= -13 and throw execute ;
 
-: ip-offset-prim { noffset prim -- }
-    noffset to ip-offset
-    prim reprocess-simple
-    0 to ip-offset ;
-
-: gen-prim-offsets { prim -- }
-    max-ip-offset 0 ?do
-        i prim ip-offset-prim
-    loop ;
-
 : state-prim2 { in-state out-state prim -- }
     in-state state-enabled? out-state state-enabled? and 0= ?EXIT
     in-state  to state-in
@@ -1598,6 +1595,18 @@ defer reprocess-prim
 : state-prim ( in-state out-state "name" -- )
     parse-word lookup-prim state-prim1 ;
 
+\ state-offset-prim (for, e.g., ?BRANCH)
+
+: ip-offset-prim { noffset prim -- }
+    noffset to ip-offset
+    prim reprocess-simple
+    0 to ip-offset ;
+
+: gen-prim-offsets { prim -- }
+    max-ip-offset 0 ?do
+        i prim ip-offset-prim
+    loop ;
+
 : state-offset-prim { in-state out-state --  }
     \ also consumes "name"
     parse-word lookup-prim { prim }
@@ -1605,6 +1614,22 @@ defer reprocess-prim
     ['] gen-prim-offsets is reprocess-prim
     in-state out-state prim state-prim2
     ['] reprocess-prim defer! ;
+
+\ gen-ip-updates (using "noop" as prim)
+
+: gen-ip-update { n prim -- }
+    action-of ip-update
+    n to ip-offset
+    ['] ip-update-offset is ip-update
+    state-default dup prim state-prim2
+    0 to ip-offset
+    is ip-update ;
+
+: gen-ip-updates ( "prim" -- )
+    parse-word lookup-prim { prim }
+    max-ip-offset dup negate ?do
+        i prim gen-ip-update
+    loop ;
 
 \ reprocessing with default states
 
@@ -1831,7 +1856,7 @@ defer reprocess-prim
 
 variable offset-super2  0 offset-super2 ! \ offset into the super2 table
 
-: output-costs-prefix ( -- )
+: output-costs1 { d: super2indexstring nlength -- }
     ." {" prim compute-costs
     rot 2 .r ." ," swap 2 .r ." ," 2 .r ." , "
     prim prim-branch? negate . ." ,"
@@ -1839,21 +1864,20 @@ variable offset-super2  0 offset-super2 ! \ offset into the super2 table
     state-out state-number @ 2 .r ." ,"
     inst-stream stack-in @ 1 .r ." ,"
     ip-offset 2 .r ." ,"
-;
+    super2indexstring type ." ,"
+    nlength 2 .r ." ,"
+    branch-to-ip 2 .r
+    ." },"
+    output-name-comment
+    cr ;
 
 : output-costs-gforth-simple ( -- )
-    output-costs-prefix
-    prim output-num-part
-    1 2 .r ." },"
-    output-name-comment
-    cr ;
+    s" N_" prim prim-c-name-orig 2@ s+ 1 output-costs1 ;
 
 : output-costs-gforth-combined ( -- )
-    output-costs-prefix
-    ." N_START_SUPER+" offset-super2 @ 5 .r ." ,"
-    super2-length dup 2 .r ." }," offset-super2 +!
-    output-name-comment
-    cr ;
+    offset-super2 @ 0
+    <<# #s s" N_START_SUPER+" holds #> super2-length output-costs1 #>>
+    super2-length offset-super2 +! ;
 
 \  : output-costs ( -- )
 \      \ description of superinstructions and simple instructions

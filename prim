@@ -226,52 +226,6 @@ noop	( -- )		gforth
 :
  ;
 
-\ the following words are used for their ip updates
-
-noop2  ( #w2 -- ) gforth-internal
-
-noop3  ( #w2 #w3 -- ) gforth-internal
-
-noop4  ( #w2 #w3 #w4 -- ) gforth-internal
-
-noop5  ( #w2 #w3 #w4 #w5 -- ) gforth-internal
-
-noop6  ( #w2 #w3 #w4 #w5 #w6 -- ) gforth-internal
-
-noop7  ( #w2 #w3 #w4 #w5 #w6 #w7 -- ) gforth-internal
-
-noop8  ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 -- ) gforth-internal
-
-noop9  ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 -- ) gforth-internal
-
-noop10 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa -- ) gforth-internal
-
-noop11 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb -- ) gforth-internal
-
-noop12 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc -- ) gforth-internal
-
-noop13 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd -- ) gforth-internal
-
-noop14 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we -- ) gforth-internal
-
-noop15 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf -- ) gforth-internal
-
-noop16 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg -- ) gforth-internal
-
-noop17 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg #wh -- ) gforth-internal
-
-noop18 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg #wh #wi -- ) gforth-internal
-
-noop19 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg #wh #wi #wj -- ) gforth-internal
-
-noop20 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg #wh #wi #wj #wk -- ) gforth-internal
-
-noop21 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg #wh #wi #wj #wk #wl -- ) gforth-internal
-
-noop22 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg #wh #wi #wj #wk #wl #wm -- ) gforth-internal
-
-noop23 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg #wh #wi #wj #wk #wl #wm #wn -- ) gforth-internal
-
 call	( #a_callee -- R:a_retaddr )	new
 ""Call callee (a variant of docol with inline argument).""
 #ifdef DEBUG
@@ -459,10 +413,10 @@ n2=n1-u;
 ,if ((nlimit-n2)>=u) {
 ,)
 
-condbranch((/loop)`#',R:nlimit R:n1 -- R:nlimit R:n2,paren_slash_loop,
+condbranch((/loop),u R:nlimit R:n1 -- R:nlimit R:n2,paren_slash_loop,
 n2=n1+u;
 ,if (n2-nlimit>=u) {
-,,`#'u)
+,)
 
 condbranch((s+loop),n R:nlimit R:n1 -- R:nlimit R:n2,paren_symmetric_plus_loop,
 ""The run-time procedure compiled by S+LOOP. It loops until the index
@@ -3424,17 +3378,6 @@ __sync_synchronize();
 
 \+peephole
 
-compile-prim1 ( a_prim -- ) gforth-internal compile_prim1
-""compile prim (incl. immargs) at @var{a_prim}""
-compile_prim1(a_prim);
-
-finish-code ( ... -- ... ) gforth-internal finish_code
-""Perform delayed steps in code generation (branch resolution, I-cache
-flushing).""
-/* The ... above are a workaround for a bug in gcc-2.95, which fails
-   to save spTOS (gforth-fast --enable-force-reg) */
-finish_code();
-
 forget-dyncode3 ( a_tc -- f ) gforth-internal forget_dyncode3
 f = forget_dyncode3((Label *)a_tc);
 
@@ -3464,14 +3407,6 @@ w = (Cell)fetch_decompile_prim(a_addr);
 tag-offsets ( -- a_addr ) gforth-internal tag_offsets
 extern Cell groups[32];
 a_addr = groups;
-
-finish-code| ( ... -- ... ) gforth-internal finish_code_barrier
-""Perform delayed steps in code generation (branch resolution, I-cache
-flushing).  Unlike @code{finish-code}, @code{finish-code|} is
-guaranteed to end the native code with a jump to the next primitive.""
-/* The ... above are a workaround for a bug in gcc-2.95, which fails
-   to save spTOS (gforth-fast --enable-force-reg) */
-finish_code_barrier();
 
 compile-prims ( a_addr_code u c_addr_abits c_addr_tbits -- ) gforth-internal compile_prims
 gforth_compile_range(a_addr_code, u, c_addr_abits, c_addr_tbits);

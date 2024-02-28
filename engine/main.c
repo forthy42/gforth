@@ -193,7 +193,9 @@ Label *ip_at=0; /* during execution of the currently compiled code ip
                     points to ip_at, which may be somewhere behind
                     the position where it would be without ip_update
                     optimization */
-#define MAX_IP_UPDATE 23
+PrimNum ip_update0=0; /* base primitive for ip updates */
+int min_ip_update=0;
+int max_ip_update=0;
 Cell inst_index; /* current instruction */
 Label **ginstps; /* array of threaded code locations for
                            primitives being optimize_rewrite()d */
@@ -214,7 +216,14 @@ static int opt_ip_updates =  /* 0=disable, 1=simple, >=2=also optimize ;s */
 #ifdef GFORTH_DEBUGGING
   0
 #else
-  100
+  7
+#endif
+  ;
+static int opt_ip_updates_branch =  /* 0=disable, n>0: branch can use n */
+#ifdef GFORTH_DEBUGGING
+  0
+#else
+  3
 #endif
   ;
 static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */
@@ -257,13 +266,14 @@ typedef struct {
   unsigned uses; /* number of uses */
   char superend; /* true if primitive ends superinstruction, i.e.,
                      unconditional branch, execute, etc. */
-  unsigned char max_ip_offset; /* this primitive has ip_offset=0, but
-                                  the following max_ip_offset
-                                  primitives are variants of the same
-                                  primitive+stack-caching with
-                                  consecutive ip_offsets, up to
-                                  max_ip_offset, and they are all
-                                  relocatable */
+  signed char max_ip_offset; /* this primitive has ip_offset=0, but
+                                the following max_ip_offset primitives
+                                are variants of the same
+                                primitive+stack-caching with
+                                consecutive ip_offsets, up to
+                                max_ip_offset, and they are all
+                                relocatable */
+  signed char min_ip_offset; /* as above */
   Cell nimmargs;
   struct immarg {
     Cell offset; /* offset of immarg within prim */
@@ -373,18 +383,20 @@ void gforth_compile_range(Cell *image, UCell size,
 			  Char *bitstring, Char *targets)
 {
   int i, k;
-
   int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
+
+  if(size==0)
+    return;
 
   for(i=k=0; k<steps; k++) {
     Char bitmask;
     for(bitmask=(1U<<(RELINFOBITS-1)); bitmask; i++, bitmask>>=1) {
       /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
+      if(targets[k] & bitmask) {
+	// debugp(stderr,"target: image[%d]\n", i);
+	compile_prim1(0);
+      }
       if(bitstring[k] & bitmask) {
-	if(targets[k] & bitmask) {
-	  // debugp(stderr,"target: image[%d]\n", i);
-	  compile_prim1(0);
-	}
 	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
 	compile_prim1(&image[i]);
       }
@@ -846,10 +858,11 @@ struct cost { /* super_info might be a more accurate name */
   unsigned char state_out;   /* state on exit */
   unsigned char imm_ops;     /* number of additional threaded-code slots
                                 (immediate arguments+number of components-1) */
-  unsigned char ip_offset;   /* 0 if ip points to the end of the instruction,
+  signed char ip_offset;   /* 0 if ip points to the end of the instruction,
                                 1 if it points 1 cell earlier ... */
   short offset;     /* offset into super2 table */
   unsigned char length;      /* number of components */
+  char branch_to_ip; /* 1 if the prim is a conditional branch to ip, 0 otherwise */
 };
 
 PrimNum super2[] = {
@@ -876,6 +889,7 @@ struct super_table_entry {
 int max_super=2;
 
 struct super_state *state_transitions=NULL;
+PrimNum *branches_to_ip = NULL;
 
 static int hash_super(PrimNum *start, int length)
 {
@@ -901,13 +915,34 @@ static struct super_state **lookup_super(PrimNum *start, int length)
   return NULL;
 }
 
+static PrimNum lookup_ss(PrimNum *start, int length,
+                              unsigned state_in, unsigned state_out)
+{
+  struct super_state *ss = *lookup_super(start, length);
+  for (; ss!=NULL; ss = ss->next) {
+    struct cost *c = &super_costs[ss->super];
+    if (c->state_in == state_in && c->state_out == state_out)
+      return ss->super;
+  }
+  assert(0);
+  return -1;
+}
+
 static void prepare_super_table()
 {
-  int i;
-  int nsupers = 0;
+  long i;
+  long nsupers = 0;
+  long nprims = sizeof(super_costs)/sizeof(super_costs[0]);
 
-  for (i=0; i<sizeof(super_costs)/sizeof(super_costs[0]); i++) {
+  branches_to_ip = calloc(nprims,sizeof(PrimNum));
+  for (i=0; i<nprims; i++) {
     struct cost *c = &super_costs[i];
+    if (c->branch_to_ip) {
+      branches_to_ip[lookup_ss(super2+c->offset, c->length,
+                               c->state_in, c->state_out)
+                     ]=i;
+      continue;
+    }
     if ((c->length < 2 || nsupers < static_super_number) &&
 	c->state_in < maxstates && c->state_out < maxstates) {
       struct super_state **ss_listp= lookup_super(super2+c->offset, c->length);
@@ -916,8 +951,16 @@ static void prepare_super_table()
         ss->super= i;
         if (c->offset==N_noop && i != N_noop) { /* stack caching transition */
           if (is_relocatable(i)) {
-            ss->next = state_transitions;
-            state_transitions = ss;
+            if (c->state_in==CANONICAL_STATE && c->state_out==CANONICAL_STATE) {
+              /* this is actually from the ip-update series */
+              assert(ip_update0 == 0); /* no second occurence */
+              ip_update0 = i;
+              min_ip_update = priminfos[i].min_ip_offset;
+              max_ip_update = priminfos[i].max_ip_offset;
+            } else { /* it's a state transition */
+              ss->next = state_transitions;
+              state_transitions = ss;
+            }
           }
         } else if (ss_listp != NULL) { /* already registered */
           if (c->state_in==CANONICAL_STATE && c->state_out==CANONICAL_STATE &&
@@ -956,7 +999,8 @@ static void prepare_super_table()
       }
     }
   }
-  debugp(stderr, "Using %d static superinsts\n", nsupers);
+  debugp(stderr, "Using %ld static superinsts\n", nsupers);
+  debugp(stderr, "ip-update0 = %d in %d..%d\n", ip_update0, min_ip_update, max_ip_update);
   if (nsupers>0 && !tpa_noautomaton && !tpa_noequiv) {
     /* Currently these two things don't work together; see Section 3.2
        of <http://www.complang.tuwien.ac.at/papers/ertl+06pldi.ps.gz>,
@@ -1021,9 +1065,9 @@ static void gforth_printprims()
   for (i=0; i<npriminfos; i++) {
     PrimInfo *pi=&priminfos[i];
     struct cost *sc=&super_costs[i];
-    fprintf(stderr,"%-17s %d-%d %2d %4d %4d %14p len=%2ld+%3ld+%2ld send=%1d\n",
+    fprintf(stderr,"%-17s %d-%d %2d %4d %4d %4d %14p len=%2ld+%3ld+%2ld send=%1d\n",
 	    prim_names[i], state_map(sc->state_in), state_map(sc->state_out),
-	    sc->ip_offset, i, pi->uses, pi->start, (long)(pi->len1),
+	    sc->ip_offset, i, branches_to_ip[i], pi->uses, pi->start, (long)(pi->len1),
             (long)(pi->length - pi->len1), (long)(pi->restlength), pi->superend);
   }
 }
@@ -1084,6 +1128,7 @@ static void check_prims(Label symbols1[])
     int prim_len = ends1[i]-symbols1[i];
     PrimInfo *pi=&priminfos[i];
     struct cost *sc=&super_costs[i];
+    signed char o=sc->ip_offset;
     int j=0;
     char *s1 = (char *)symbols1[i];
     char *s2 = (char *)symbols2[i];
@@ -1096,6 +1141,7 @@ static void check_prims(Label symbols1[])
     pi->restlength = endlabel - symbols1[i] - pi->length;
     pi->uses = 0;
     pi->max_ip_offset = 0; /* initial value */
+    pi->min_ip_offset = 0; /* initial value */
     pi->nimmargs = 0;
     relocs++;
 #if defined(BURG_FORMAT)
@@ -1183,13 +1229,23 @@ static void check_prims(Label symbols1[])
       j++;
     }
     debugp(stderr,"\n");
-    if (opt_ip_updates>2 && sc->ip_offset>0) { /* ip-updates info */
-      unsigned char o=sc->ip_offset;
+    if (opt_ip_updates>2 && o>0) { /* ip-updates info */
       assert(strcmp(prim_names[i],prim_names[i-o])==0);
       /* add this primitive only if all the ip_update variants up to
          here are relocatable: */
       if (pi->start != NULL && priminfos[i-o].max_ip_offset == o-1)
         priminfos[i-o].max_ip_offset = o;
+    }
+    /* check for ip_update variants with negative ip_offset */
+    if (o==0) {
+      long k;
+      for (k=-1; i+k>=0; k--) {
+        // debugp(stderr,"  k=%d, priminfos[i+k].start=%p, super_costs[i+k].ip_offset=%d\n",k,priminfos[i+k].start,super_costs[i+k].ip_offset);
+        if (priminfos[i+k].start == NULL || super_costs[i+k].ip_offset != k)
+          break;
+        assert(strcmp(prim_names[i],prim_names[i+k])==0);
+        pi->min_ip_offset = k;
+      }
     }
   }
 #endif
@@ -1264,10 +1320,13 @@ static void MAYBE_UNUSED align_code(void)
 
 static Cell *ip_update_metrics = NULL;
 static Cell nip_update_metrics=0;
+static Cell ip_update_metrics_base=-1; /* lower bound for ip_update_metrics */
 
 #ifndef NO_DYNAMIC
 static void record_ip_update(Cell n)
 {
+  n -= ip_update_metrics_base;
+  assert(n>=0);
   if (n>=nip_update_metrics) {
     ip_update_metrics = realloc(ip_update_metrics, (n+1)*sizeof(Cell));
     memset(ip_update_metrics+nip_update_metrics,0,
@@ -1277,34 +1336,43 @@ static void record_ip_update(Cell n)
   ip_update_metrics[n]++;
 }
 
-static Cell append_ip_update(Cell n)
-/* compile an ip update for updating the ip from ip_at to [0,n] cells
-   before ginstps[inst_index+1] (where it points without ip-update
-   optimization; returns the remaining difference (in the range [0,n]) */
+static Cell append_ip_update1(Label *target, Cell l, Cell u)
+/* compile an ip update for updating the ip from ip_at to [l,u] cells
+   before target; returns the remaining difference (in the range
+   [l,u]) */
 {
-  Cell cellsdiff = ginstps[inst_index+1]-ip_at;
-  if (opt_ip_updates==0)
-    return 0;
-  assert(cellsdiff>=0);
-  if (cellsdiff>n) {
-    Label *old_ip_at=ip_at;
-    assert(opt_ip_updates > 0);
+  Cell cellsdiff = target-ip_at;
+  Label *old_ip_at=ip_at;
+  assert(opt_ip_updates > 0 || cellsdiff == 0);
+  if (cellsdiff < l || cellsdiff > u) {
     do {
       Cell cellsdiff1 = cellsdiff;
-      if (cellsdiff1 > MAX_IP_UPDATE)
-        cellsdiff1 = MAX_IP_UPDATE;
+      if (cellsdiff1 > max_ip_update)
+        cellsdiff1 = max_ip_update;
+      else if (cellsdiff < min_ip_update)
+        cellsdiff1 = min_ip_update;
       {
-        PrimNum p = N_noop-1+cellsdiff1;
+        PrimNum p = ip_update0+cellsdiff1;
         PrimInfo *pi = &priminfos[p];
         append_code(pi->start, pi->len1);
       }
       cellsdiff -= cellsdiff1;
       ip_at += cellsdiff1;
-    } while (cellsdiff>n);
+    } while (cellsdiff < l || cellsdiff > u);
     if (print_metrics)
       record_ip_update(ip_at-old_ip_at);
   }
   return cellsdiff;
+}
+
+static Cell append_ip_update(Cell n)
+/* compile an ip update for updating the ip from ip_at to [0,n] cells
+   before ginstps[inst_index+1] (where it points without ip-update
+   optimization; returns the remaining difference (in the range [0,n]) */
+{
+  if (opt_ip_updates==0)
+    return 0;
+  return append_ip_update1(ginstps[inst_index+1],0,n);
 }
 
 static void append_jump(void)
@@ -1385,6 +1453,30 @@ static Address append_prim(PrimNum p)
     int has_imm = ci->imm_ops+1>ci->length;
     int superend = pi->superend;
     int dead = 0;
+    if (opt_ip_updates_branch>0 && ci->length==1 && super2[ci->offset]==N_branch) {
+      Label *target = ((Label **)(ginstps[inst_index]))[1];
+      // fprintf(stderr, "target = %p\n", target);
+      if (ip_at+opt_ip_updates_branch*min_ip_update <= target &&
+          target <= ip_at+opt_ip_updates_branch*max_ip_update) {
+        append_ip_update1(target,0,0);
+        /* append_jump();*/
+        ip_at = ginstps[inst_index+1];
+        goto append_prim_done;
+      }
+    }
+    if (opt_ip_updates_branch>0 && branches_to_ip[p]!=0) {
+      Label *target = ((Label **)(ginstps[inst_index+ci->length-1]))[1];
+      if (ip_at+opt_ip_updates_branch*min_ip_update <= target &&
+          target <= ip_at+(opt_ip_updates_branch/2)*max_ip_update) {
+        append_ip_update1(target,0,0);
+        // fprintf(stderr, "%d -> %d\n",p, branches_to_ip[p]);
+        p = branches_to_ip[p];
+        pi = &priminfos[p];
+        ci = &super_costs[p];
+        has_imm = 0; /* necessary to suppress append_ip_update() below */
+        assert(superend == pi->superend);
+      } 
+    }
     if (opt_ip_updates>1 && superend && !has_imm) {
       long i;
       for (i=0; i<sizeof(ip_dead)/sizeof(ip_dead[0]); i++)
@@ -1414,6 +1506,7 @@ static Address append_prim(PrimNum p)
     append_code(pi->start, pi->length);
     ip_at = ginstps[inst_index + ci->length];
   }
+ append_prim_done:
   last_jump = (pi->restlength == 0) ? 0 : p;
   return old_code_here;
 }
@@ -1564,7 +1657,8 @@ static Cell compile_prim_dyn(PrimNum p)
   if (p>=npriminfos || !is_relocatable(p)) {
     append_jump_previous();
     ip_at = ginstps[inst_index+1]; /* advance to behind the non-relocatable inst */
-    priminfos[p].uses++;
+    if (!is_relocatable(p))
+      priminfos[p].uses++;
     return static_prim;
   }
   old_code_here = append_prim(p);
@@ -2294,6 +2388,7 @@ ImageHeader* gforth_loader(char* imagename, char* path)
   vm_prims = gforth_engine(0 sr_call);
   check_prims(vm_prims);
   prepare_super_table();
+  ip_update_metrics_base = opt_ip_updates_branch*min_ip_update;
 #ifndef DOUBLY_INDIRECT
 #ifdef PRINT_SUPER_LENGTHS
   print_super_lengths();
@@ -2602,7 +2697,11 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 'D': print_diag(); break;
     case 'v': fputs(PACKAGE_STRING" "ARCH"\n", stderr); exit(0);
     case opt_code_block_size: if((code_area_size = convsize(optarg,sizeof(Char)))==-1L) return 1; break;
-    case opt_opt_ip_updates: opt_ip_updates = atoi(optarg); break;
+    case opt_opt_ip_updates:
+      opt_ip_updates = atoi(optarg);
+      opt_ip_updates_branch = opt_ip_updates>>3;
+      opt_ip_updates &= 7;
+      break;
     case ss_number: static_super_number = atoi(optarg); break;
     case ss_states: maxstates = max(min(atoi(optarg),MAX_STATE),1); break;
 #ifndef NO_DYNAMIC
@@ -2639,6 +2738,7 @@ Engine Options:\n\
   --no-0rc			    do not load ~/.config/gforthrc0\n\
   --offset-image		    Load image at a different position\n\
   --opt-ip-updates=n                ip-update optimization (0=disabled)\n\
+  --opt-ip-updates-branch=n         ip-update branch optimization (0=disabled)\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   --print-metrics		    Print some code generation metrics on exit\n\
   --print-nonreloc		    Print non-relocatable primitives at start\n\
@@ -2701,7 +2801,7 @@ Cell const * gforth_pointers(Cell n)
 void gforth_printmetrics()
 {
   if (print_metrics) {
-    int i;
+    long i;
     fprintf(stderr, "code size = %8ld\n", dyncodesize());
 #ifndef STANDALONE
     for (i=0; i<sizeof(cost_sums)/sizeof(cost_sums[0]); i++)
@@ -2719,8 +2819,10 @@ void gforth_printmetrics()
     if (ip_update_metrics==NULL)
       fprintf(stderr, "no ip update metrics recorded\n");
     else
-      for (i=1; i<nip_update_metrics; i++)
-        fprintf(stderr,"%5ld ip update by %2d cells\n",ip_update_metrics[i],i);
+      for (i=0; i<nip_update_metrics; i++)
+        if (ip_update_metrics[i] > 0)
+          fprintf(stderr,"%5ld ip update by %2ld cells\n",
+                  ip_update_metrics[i],i+ip_update_metrics_base);
   }
   if (tpa_trace) {
     fprintf(stderr, "%ld %ld lb_states\n", lb_labeler_steps, lb_newstate_new);

@@ -41,7 +41,8 @@ variable backedge-locals-default 0 backedge-locals-default !
 
 : :-hook1 ( -- )
     cs-depth1 to cs-floor
-    0 backedge-locals-default ! ;
+    0 backedge-locals-default !
+    here codestart ! ;
 ' :-hook1 is :-hook
 
 : ;-hook21 ( -- )
@@ -177,8 +178,9 @@ defer if-like
     >mark if-like ;
 : >resolve    ( addr -- )
     basic-block-end
-    here swap ! ;
-: <resolve    ( addr -- )        , ;
+    here dup +target swap ! ;
+: <resolve    ( addr -- )
+    dup +target , ;
 
 : BUT
     1 cs-roll ;                      immediate restrict
@@ -470,7 +472,7 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 : int-[: ( -- flag colon-sys )
     wrap@ ['] (int-;]) :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
-    wrap@  next-section  lump-compile 0= IF  finish-code|  THEN
+    wrap@  next-section
     postpone SCOPE locals-list off
     ['] (;])  :noname  ;
 ' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon

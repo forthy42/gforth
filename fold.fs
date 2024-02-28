@@ -104,16 +104,16 @@
 \ optimize +loop (not quite folding)
 : replace-(+loop) ( xt1 -- xt2 )
     case
-	['] (+loop)       of ['] (/loop)# endof
-	['] (+loop)-lp+!# of ['] (/loop)#-lp+!# endof
+	['] (+loop)       of ['] (/loop) endof
+	['] (+loop)-lp+!# of ['] (/loop)-lp+!# endof
 	-21 throw
     endcase ;
 
 : (+loop)-optimizer ( xt -- )
     lits# 1 u>= if
-	lits> dup 0> if
-	    swap replace-(+loop) peephole-compile, , exit then
-	>lits then
+	lits> dup >lits 0> if
+	    replace-(+loop) then
+    then
     peephole-compile, ;
 
 ' (+loop)-optimizer optimizes (+loop)
