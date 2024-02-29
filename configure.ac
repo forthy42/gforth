@@ -1116,9 +1116,13 @@ elif test -z "$skipcode"; then
     for i in ".skip 16" ".block 16" ".org .+16" ".=.+16" ".space 16"
     do
 	AC_RUN_IFELSE([AC_LANG_SOURCE([[int foo(int,int,int);
+#include <stdio.h>
 int main()
 {
-  return foo(0,0,0)<16;
+  int skip=foo(0,0,0);
+  if(skip<16)
+    printf("skip with \"$i\"=%d\n", skip);
+  return skip<16;
 }
 int foo(int x, int y, int z)
 {
