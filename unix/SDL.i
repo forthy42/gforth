@@ -16,7 +16,7 @@ extern struct _IO_FILE *stderr;
 %apply unsigned long long { Uint64 };
 %apply long long { Sint64 };
 %apply int { SDL_SensorID, Sint32, Sint16 };
-%apply SWIGTYPE * { SDL_JoystickGUID };
+%apply SWIGTYPE * { SDL_JoystickGUID, va_list };
 
 #define DECLSPEC
 #define SDLCALL

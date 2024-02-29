@@ -31,6 +31,7 @@ c-library mmap
     c-function mlock mlock a n -- n ( addr len -- r )
     c-function munlock munlock a n -- n ( addr len -- r )
     c-function msync msync a n n -- n ( vaddr len flags -- res )
+    \c #include <sys/resource.h>
     c-function getrlimit getrlimit n a -- n ( resource rlim -- r )
 e? os-type s" linux" string-prefix? [IF]
     c-function mremap mremap a n n n -- a ( addr len newlen flags -- addr' )

@@ -33,7 +33,7 @@ c-library fflib
     \c static long long llrv;
     \c static void * prv;
     \c 
-    \c void gforth_callback_ffcall(Xt* fcall, void * alist)
+    \c void gforth_callback_ffcall(void * fcall, va_alist alist)
     \c {
     \c   {
     \c     /* save global variables */
