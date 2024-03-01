@@ -1117,9 +1117,11 @@ elif test -z "$skipcode"; then
     do
     AC_MSG_CHECKING([if and how we can waste code space])
 	AC_RUN_IFELSE([AC_LANG_SOURCE([[int foo(int,int,int);
+#include <stdio.h>
 int main()
 {
   int skip=foo(0,0,0);
+  fprintf(stdout, " skip=%d ", skip);
   return skip<16;
 }
 int foo(int x, int y, int z)
