@@ -21,13 +21,13 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20240229],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20240301],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ([2.69])
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1_YYYYMMDD must not exist before 0.4.1!
-UPDATED="February 29, 2024"
+UPDATED="March 01, 2024"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 AC_USE_SYSTEM_EXTENSIONS
@@ -1104,9 +1104,9 @@ then
 fi
 #echo "CFLAGS=$CFLAGS"
 #echo "ac_link=$ac_link"
-AC_MSG_CHECKING([if and how we can waste code space])
 if test -z "$skipcode" && test x$cross_compiling = xyes; then
    # we cannot perform the AC_RUN_IFELSE check when cross-compiling.  
+   AC_MSG_CHECKING([if and how we can waste code space])
    skipcode=no
    AC_MSG_RESULT([$skipcode, can't run checks since cross-compiling])
 elif test -z "$skipcode"; then
@@ -1115,13 +1115,11 @@ elif test -z "$skipcode"; then
     CFLAGS="$CFLAGS $ENGINE_FLAGS"
     for i in ".skip 16" ".block 16" ".org .+16" ".=.+16" ".space 16"
     do
+    AC_MSG_CHECKING([if and how we can waste code space])
 	AC_RUN_IFELSE([AC_LANG_SOURCE([[int foo(int,int,int);
-#include <stdio.h>
 int main()
 {
   int skip=foo(0,0,0);
-  if(skip<16)
-    printf("skip with \"$i\"=%d\n", skip);
   return skip<16;
 }
 int foo(int x, int y, int z)
@@ -1139,9 +1137,11 @@ int foo(int x, int y, int z)
   }
 }
 	]])],[skipcode=$i; break
-	],[],[])
+	],[AC_MSG_RESULT([no, $i, doesn't work])],[])
     done
     CFLAGS=$CFLAGS_1
+else
+  AC_MSG_CHECKING([if and how we can waste code space])
 fi
 AC_MSG_RESULT($skipcode)
 if test "$skipcode" = no
