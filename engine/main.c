@@ -379,13 +379,13 @@ Cell groups[32] = {
 #define GROUPADD(n)
 };
 
-void gforth_compile_range(Cell *image, UCell size,
+void gforth_compile_range(Cell *image, Cell size,
 			  Char *bitstring, Char *targets)
 {
   int i, k;
   int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
 
-  if(size==0)
+  if(size<=0)
     return;
 
   for(i=k=0; k<steps; k++) {
@@ -407,12 +407,13 @@ void gforth_compile_range(Cell *image, UCell size,
 }
 
 static unsigned char *gforth_relocate_range(Address sections[], Cell bases[],
-					    Cell *image, UCell size, Cell base,
+					    Cell *image, Cell size, Cell base,
 					    Char *bitstring, int sect)
 {
   int i, k;
   int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
   unsigned char *targets=malloc_l(steps);
+  bzero(targets, steps);
 
   for(i=k=0; k<steps; k++) {
     Char bitmask;
