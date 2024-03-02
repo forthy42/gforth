@@ -300,7 +300,7 @@ struct%
 end-struct prim%
 
 : make-prim ( -- prim )
-    prim% %alloc { p }
+    prim% %alloc { p } p prim% nip erase
     s" " p prim-doc 2! s" " p prim-forth-code 2! s" " p prim-wordset 2!
     p ;
 
