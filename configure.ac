@@ -21,13 +21,13 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20240302],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20240306],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ([2.69])
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1_YYYYMMDD must not exist before 0.4.1!
-UPDATED="March 02, 2024"
+UPDATED="March 06, 2024"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 AC_USE_SYSTEM_EXTENSIONS
@@ -494,7 +494,7 @@ Dynamic NC generation disabled."
 		in
 		    *-m32*|*-mx32*)
 		    	machine=386
-			test "$skipcode" || skipcode="nopl (%eax,%eax,1)\nnopl (%eax,%eax,1)\nnopl (%eax,%eax,1)\nnopl (%eax,%eax,1)"
+			test "$skipcode_arch" || skipcode_arch="nopl (%eax,%eax,1)\nnopl (%eax,%eax,1)\nnopl (%eax,%eax,1)\nnopl (%eax,%eax,1)"
 			CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 			CFLAGS_1="$CFLAGS"
 			CFLAGS="$CFLAGS -march=athlon64"
@@ -504,14 +504,14 @@ Dynamic NC generation disabled."
 			in
 			    *gnux32)
 			    	machine=386
-				test "$skipcode" || skipcode="nopl (%eax,%eax,1)\nnopl (%eax,%eax,1)\nnopl (%eax,%eax,1)\nnopl (%eax,%eax,1)"
+				test "$skipcode_arch" || skipcode_arch="nopl (%eax,%eax,1)\nnopl (%eax,%eax,1)\nnopl (%eax,%eax,1)\nnopl (%eax,%eax,1)"
 				CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 				CFLAGS_1="$CFLAGS"
 				CFLAGS="$CFLAGS -march=athlon64"
 			        ;;
 			    *)
 		    		machine=amd64
-				test "$skipcode" || skipcode="nopl (%rax,%rax,1)\nnopl (%rax,%rax,1)\nnopl (%rax,%rax,1)\nnopl (%rax,%rax,1)"
+				test "$skipcode_arch" || skipcode_arch="nopl (%rax,%rax,1)\nnopl (%rax,%rax,1)\nnopl (%rax,%rax,1)\nnopl (%rax,%rax,1)"
 				CFLAGS="$CFLAGS -fomit-frame-pointer"
 				CCVER=`$CC -v 2>&1 | grep ' version ' | cut -f3 -d' '`
 				test ${CCVER%.*.*} -ge 7 && test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=3
@@ -1117,7 +1117,7 @@ elif test -z "$skipcode"; then
     skipcode=no
     CFLAGS_1="$CFLAGS"
     CFLAGS="$CFLAGS $ENGINE_FLAGS"
-    for i in ".skip 16" ".block 16" ".org .+16" ".=.+16" ".space 16"
+    for i in ".skip 16" ".block 16" ".org .+16" ".=.+16" ".space 16" "$skipcode_arch"
     do
     AC_MSG_CHECKING([if and how we can waste code space])
 	AC_RUN_IFELSE([AC_LANG_SOURCE([[int foo(int,int,int);
@@ -1143,7 +1143,8 @@ int foo(int x, int y, int z)
   }
 }
 	]])],[skipcode=$i; break
-	],[AC_MSG_RESULT([no, $i, doesn't work])],[])
+	],[AC_MSG_RESULT([no, $i doesn't work])
+	objdump -z --disassemble=foo ./conftest],[])
     done
     CFLAGS=$CFLAGS_1
 else
