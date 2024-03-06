@@ -1122,10 +1122,16 @@ elif test -z "$skipcode"; then
     AC_MSG_CHECKING([if and how we can waste code space])
 	AC_RUN_IFELSE([AC_LANG_SOURCE([[int foo(int,int,int);
 #include <stdio.h>
-int main()
+#include <stdlib.h>
+int main(int argc, char ** argv, char ** env)
 {
   int skip=foo(0,0,0);
-  fprintf(stdout, " skip=%d ", skip);
+  int pid;
+  if(skip<16) {
+    char cmd[80];
+    snprintf(cmd, sizeof(cmd), "objdump -zl --disassemble=foo %s", argv[0]);
+    system(cmd);
+  }
   return skip<16;
 }
 int foo(int x, int y, int z)
@@ -1143,8 +1149,7 @@ int foo(int x, int y, int z)
   }
 }
 	]])],[skipcode=$i; break
-	],[AC_MSG_RESULT([no, $i doesn't work])
-	objdump -z --disassemble=foo ./conftest],[])
+	],[AC_MSG_RESULT([no, $i doesn't work])],[])
     done
     CFLAGS=$CFLAGS_1
 else
