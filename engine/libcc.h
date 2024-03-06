@@ -191,19 +191,19 @@ static void * gforth_strs[0x10] = { 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,
   if(gforth_strs[gforth_strs_i]) free(gforth_strs[gforth_strs_i]); \
   gforth_strs[gforth_strs_i]=(void*)str;
 
-static Char * gforth_str2c(Char* addr, UCell u)
+static __attribute__((unused)) char * gforth_str2c(Char* addr, UCell u)
 {
   if(addr == NULL) {
-    return (Char*)u; // pass direct values
+    return (char*)u; // pass direct values
   } else {
-    ROLLSTR(Char, u+1);
+    ROLLSTR(char, u+1);
     memmove(str, addr, u);
     str[u]='\0'; // add zero terminator
     return str;
   }
 }
 
-static wchar_t * gforth_str2wc(Char* addr, UCell u)
+static __attribute__((unused)) wchar_t * gforth_str2wc(Char* addr, UCell u)
 {
   if(addr == NULL) {
     return (wchar_t*)u;

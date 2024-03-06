@@ -44,7 +44,7 @@ c-library pthread
     \c void create_pipe(FILE ** addr)
     \c {
     \c   int epipe[2];
-    \c   pipe(epipe);
+    \c   int __attribute__((unused)) perr=pipe(epipe);
     \c   addr[0]=fdopen(epipe[0], "r");
     \c   addr[1]=fdopen(epipe[1], "a");
     \c   setvbuf(addr[0], NULL, _IONBF, 0);
@@ -53,7 +53,6 @@ c-library pthread
     \c void *gforth_thread(user_area * t)
     \c {
     \c   Cell x;
-    \c   int throw_code;
     \c   void *ip0=(void*)(t->save_task);
     \c   sigset_t set;
     \c   gforth_UP=t;

@@ -55,6 +55,13 @@ case "$CFLAGS" in
 	;;
 esac
 
+#suppress "-flto=auto"
+case "$LDFLAGS" in
+     *-flto=auto*)
+        LDFLAGS=`echo $LDFLAGS | sed -e 's/-flto=auto//g' -e 's/-ffat-lto-objects//g' -e 's/   / /g' -e 's/  / /g'`
+	;;
+esac
+
 #suppress the "-g -O2" default
 case "$CFLAGS" in
      *-O*)
@@ -1120,20 +1127,8 @@ elif test -z "$skipcode"; then
     for i in ".skip 16" ".block 16" ".org .+16" ".=.+16" ".space 16" "$skipcode_arch"
     do
     AC_MSG_CHECKING([if and how we can waste code space])
-	AC_RUN_IFELSE([AC_LANG_SOURCE([[int foo(int,int,int);
-#include <stdio.h>
+	AC_RUN_IFELSE([AC_LANG_SOURCE([[#include <stdio.h>
 #include <stdlib.h>
-int main(int argc, char ** argv, char ** env)
-{
-  int skip=foo(0,0,0);
-  int pid;
-  if(skip<16) {
-    char cmd[80];
-    snprintf(cmd, sizeof(cmd), "objdump -zl --disassemble=foo %s", argv[0]);
-    system(cmd);
-  }
-  return skip<16;
-}
 int foo(int x, int y, int z)
 {
   static void *labels[]={&&label1, &&label2, &&label3};
@@ -1147,6 +1142,16 @@ int foo(int x, int y, int z)
   if (y) goto *labels[z]; /* workaround for gcc PR12108 */
   return labels[1]-labels[0];
   }
+}
+int main(int argc, char ** argv, char ** env)
+{
+  int skip=foo(0,0,0);
+  if(skip<16) {
+    char cmd[80];
+    snprintf(cmd, sizeof(cmd), "objdump -zl --disassemble=foo %s", argv[0]);
+    system(cmd);
+  }
+  return skip<16;
 }
 	]])],[skipcode=$i; break
 	],[AC_MSG_RESULT([no, $i doesn't work])],[])
