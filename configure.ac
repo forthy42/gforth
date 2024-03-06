@@ -890,8 +890,10 @@ do
     esac
     AC_MSG_CHECKING([if $CC understands $i])
     CFLAGS_1="$CFLAGS"
-    CFLAGS="$CFLAGS $i"
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[eval $ac_i=yes;ENGINE_FLAGS="$ENGINE_FLAGS $i"],[eval $ac_i=no])
+    ENGINE_FLAGS_old="$ENGINE_FLAGS"
+    ENGINE_FLAGS="$ENGINE_FLAGS $i"
+    CFLAGS="$CFLAGS $ENGINE_FLAGS"
+    AC_RUN_IFELSE([AC_LANG_SOURCE([[int main(){ return 0; }]])],[eval $ac_i=yes;],[eval $ac_i=no; ENGINE_FLAGS="$ENGINE_FLAGS_old"])
     CFLAGS="$CFLAGS_1"
     ac_result=$(eval echo "\$$ac_i")
     AC_MSG_RESULT($ac_result)
