@@ -206,19 +206,3 @@ script? [IF]
 [ELSE]
     presentation
 [THEN]
-
-\\\
-Local Variables:
-forth-local-words:
-    (
-     ("[a-z0-9]+(" immediate (font-lock-comment-face . 1)
-      ")" nil comment (font-lock-comment-face . 1))
-     (("x\"" "l\"") immediate (font-lock-string-face . 1)
-      "[\"\n]" nil string (font-lock-string-face . 1))
-    )
-forth-local-indent-words:
-    (
-     (("{{" "vt{{") (0 . 2) (0 . 2) immediate)
-     (("}}h" "}}v" "}}z" "}}vp" "}}p" "}}vt") (-2 . 0) (-2 . 0) immediate)
-    )
-End:
