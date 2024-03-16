@@ -418,7 +418,7 @@ ACONSTANT MaxTable
 : id.-without ( addr -- addr )
     \ !! the stack effect cannot be correct
     \ prints a name without () and without -LP+!#, e.g. a (+LOOP) or (s")
-    dup cell- @ threaded>name dup IF
+    dup cell- @threaded>name dup IF
 	dup ``(/loop) = over ``(/loop)-lp+!# = or if drop ``+loop then
 	name>string over c@ '( = IF
 	    1 /string
