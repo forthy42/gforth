@@ -50,15 +50,10 @@ IS store-backtrace
 	dup @ swap @threaded>name dup if
 	    nip EXIT
 	else
-	    drop dup look if
-		nip EXIT
+	    drop look if
+		EXIT
 	    else
-		drop body> look \ !! check for "call" in cell before?
-		if
-		    EXIT
-		else
-		    drop
-		then
+		drop
 	    then
 	then
     else
