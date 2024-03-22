@@ -17,6 +17,9 @@
 #include "opengl.h"
 #include "vertex-buffer.h"
 #endif
+#ifdef HAVE_LIBRSVG
+#include "rsvg-port.h"
+#endif
 
 #ifdef IMPLEMENT_FREETYPE_GL
 #include "platform.c"
@@ -30,6 +33,9 @@
 #ifdef VERTEX_BUFFER
 #include "vertex-attribute.c"
 #include "vertex-buffer.c"
+#endif
+#ifdef HAVE_LIBRSVG
+#include "rsvg-port.c"
 #endif
 #endif
 

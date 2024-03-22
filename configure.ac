@@ -1796,6 +1796,10 @@ if test x$has_swig = xyes || test -f $srcdir/unix/freetype_gl-fsi.c; then
    if test x"$CPPFLAGS" != x"$CPPFLAGS_1"; then
       CPPFLAGS="$CPPFLAGS_2"
    fi
+   CPPFLAGS_1="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS `$PKG_CONFIG --cflags librsvg-2.0`"
+   AC_CHECK_HEADER(librsvg/rsvg.h,
+   AC_CHECK_LIB(rsvg-2,rsvg_handle_new_from_data, , CPPFLAGS="$CPPFLAGS_1",), CPPFLAGS="$CPPFLAGS_1",)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"

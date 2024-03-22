@@ -4,6 +4,9 @@
  * file `LICENSE` for more details.
  */
 #include <ft2build.h>
+#ifdef HAVE_LIBRSVG
+#include <freetype/ftmodapi.h>
+#endif
 #include FT_FREETYPE_H
 #include FT_SIZES_H
 #include FT_STROKER_H
@@ -513,7 +516,7 @@ int
 texture_font_load_face( texture_font_t *self, float size )
 {
     FT_Error error;
-
+    
     if ( !self->library ) {
         if ( !freetype_gl_library ) {
             freetype_gl_library = texture_library_new();
@@ -527,6 +530,9 @@ texture_font_load_face( texture_font_t *self, float size )
             freetype_error( error );
             goto cleanup;
         }
+#ifdef HAVE_LIBRSVG
+	FT_Property_Set( self->library->library, "ot-svg", "svg-hooks", &rsvg_hooks );
+#endif
     }
     
     if( !self->face ) {
