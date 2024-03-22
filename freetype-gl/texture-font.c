@@ -10,6 +10,7 @@
 // #include FT_ADVANCES_H
 #include FT_LCD_FILTER_H
 #include FT_TRUETYPE_TABLES_H
+#include FT_MULTIPLE_MASTERS_H
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -64,6 +65,33 @@ static inline __builtin_bswap32(uint32_t in)
 static inline uint32_t rol(uint32_t in, uint32_t x)
 {
     return (in >> (32-x)) | (in << x);
+}
+
+// ------------------------------------------------------ texture_glyph_clone ---
+texture_glyph_t*
+texture_glyph_clone(texture_glyph_t* self)
+{
+    int i;
+    texture_glyph_t* new_glyph;
+    float* source;
+    float** target;
+    assert(self);
+
+    new_glyph = (texture_glyph_t *) malloc( sizeof(texture_glyph_t) );
+    if(new_glyph == NULL) {
+        freetype_gl_error( Out_Of_Memory );
+        return NULL;
+    }
+    memcpy(new_glyph, self, sizeof(texture_glyph_t));
+    new_glyph->kerning = vector_new(sizeof(float**));
+    vector_resize(new_glyph->kerning, self->kerning->size);
+    for (i = 0; i < self->kerning->size; i++) {
+        source = *(float**)vector_get(self->kerning, i);
+        target = (float**)vector_get(new_glyph->kerning, i);
+        *target = calloc(0x100, sizeof(float));
+        memcpy(*target, source, 0x100);
+    }
+    return new_glyph;
 }
 
 // ------------------------------------------------------ texture_glyph_new ---
@@ -225,6 +253,11 @@ int
 texture_font_set_size ( texture_font_t *self, float size )
 {
     FT_Error error=0;
+    FT_Matrix matrix = {
+        (int)((1.0)      * 0x10000L),
+        (int)((0.0)      * 0x10000L),
+        (int)((0.0)      * 0x10000L),
+        (int)((1.0)      * 0x10000L)};
 
     if( FT_HAS_FIXED_SIZES( self->face ) ) {
         /* Select best size */
@@ -259,7 +292,7 @@ texture_font_set_size ( texture_font_t *self, float size )
         self->scale = self->size / convert_F26Dot6_to_float(self->face->available_sizes[best_match].size);
     } else {
         /* Set char size */
-      error = FT_Set_Char_Size(self->face, convert_float_to_F26Dot6(size), 0, DPI, DPI);
+        error = FT_Set_Char_Size(self->face, convert_float_to_F26Dot6(size), 0, DPI, DPI);
         
         if(error) {
             freetype_error( error );
@@ -267,7 +300,7 @@ texture_font_set_size ( texture_font_t *self, float size )
         }
     }
     /* Set transform matrix */
-    FT_Set_Transform(self->face, NULL, NULL);
+    FT_Set_Transform(self->face, &matrix, NULL);
 
     return 1;
 }
@@ -548,6 +581,106 @@ texture_font_load_face( texture_font_t *self, float size )
     texture_font_close( self, MODE_ALWAYS_OPEN, MODE_ALWAYS_OPEN );
   cleanup:
     return 0;
+}
+
+// ----------------------------------------------- texture_font_is_variable ---
+int
+texture_font_is_variable( texture_font_t *self )
+{
+    int result = 0;
+
+    if( self && self->face )
+        result = self->face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS;
+
+    return result == FT_FACE_FLAG_MULTIPLE_MASTERS;
+}
+
+// ------------------------------------------------ texture_font_get_weight ---
+int
+texture_font_get_weight( texture_font_t *self, FT_Fixed *def, FT_Fixed *min, FT_Fixed *max )
+{
+    int result = 0;
+
+    if( def && min && max ) {
+        *def = 0; *min = 0; *max = 0;
+
+        if( self && self->library->library && self->face ) {
+            FT_MM_Var *master;
+
+            if( FT_Get_MM_Var( self->face, &master ) == 0 ) {
+                const FT_Tag tag = FT_MAKE_TAG ('w', 'g', 'h', 't');
+                const char* name = "Weight";
+
+                for( unsigned int i = 0; i < 16 && i < master->num_axis; i++ ) {
+
+                    if( tag == master->axis[i].tag
+                        || strcmp( name, master->axis[i].name ) == 0 )
+                    {
+                        *def = master->axis[i].def;
+                        *min = master->axis[i].minimum;
+                        *max = master->axis[i].maximum;
+                        result = 1;
+                        break;
+                    }
+                }
+                FT_Done_MM_Var (self->library->library, master);
+            }
+        }
+    }
+
+    return result;
+}
+
+// ------------------------------------------------ texture_font_set_weight ---
+int
+texture_font_set_weight( texture_font_t *self, FT_Fixed wght )
+{
+    int result = 0;
+
+    if( self && self->library->library && self->face ) {
+        FT_MM_Var *master;
+
+        if( FT_Get_MM_Var( self->face, &master ) == 0 ) {
+            const FT_Tag tag = FT_MAKE_TAG ('w', 'g', 'h', 't');
+            const char* name = "Weight";
+
+            for( unsigned int i = 0; i < 16 && i < master->num_axis; i++ ) {
+
+                if( tag == master->axis[i].tag
+                    || strcmp( name, master->axis[i].name ) == 0 )
+                {
+                    const FT_Fixed min = master->axis[i].minimum;
+                    const FT_Fixed max = master->axis[i].maximum;
+
+                    if( wght >= min && wght <= max )
+                    {
+                        const int n = i + 1;
+                        FT_Fixed coords[16];
+
+                        if( FT_Get_Var_Design_Coordinates( self->face, n, coords ) == 0 )
+                        {
+                            coords[i] = wght;
+
+                            if( FT_Set_Var_Design_Coordinates( self->face, n, coords ) == 0 )
+                                result = 1;
+                        }
+                    }
+                    else result = -1;
+
+                    break;
+                }
+            }
+            FT_Done_MM_Var (self->library->library, master);
+        }
+    }
+
+    if( result < 0 ) {
+        freetype_gl_warning( Variable_Font_Weight_Out_Of_Range );
+    } else if ( result == 0 ) {
+        freetype_gl_warning( Variable_Font_Weight_Not_Available );
+    }
+
+    return result == 1;
 }
 
 // ---------------------------------------------------- texture_font_delete ---
@@ -913,14 +1046,16 @@ cleanup_stroker:
     x = region.x;
     y = region.y;
 
+    // Copy pixel data over
     unsigned char *buffer = calloc( tgt_w * tgt_h * self->atlas->depth, sizeof(unsigned char) );
 
     unsigned char *dst_ptr = buffer + (padding.top * tgt_w + padding.left) * self->atlas->depth;
     unsigned char *src_ptr = ft_bitmap.buffer;
-    if( self->atlas->depth == 4 ) {
+    if( ft_bitmap.pixel_mode == FT_PIXEL_MODE_BGRA && self->atlas->depth == 4 )
+    {
+        // BGRA in, RGBA out
         for( i = 0; i < src_h; i++ ) {
             int j;
-            // flip bgra to rgba, because that's better for OpenGL
             for( j = 0; j < ft_bitmap.width; j++ ) {
                 uint32_t bgra, rgba;
                 bgra = ((uint32_t*)src_ptr)[j];
@@ -934,7 +1069,29 @@ cleanup_stroker:
             dst_ptr += tgt_w * self->atlas->depth;
             src_ptr += ft_bitmap.pitch;
         }
-    } else {
+    }
+    else if( ft_bitmap.pixel_mode == FT_PIXEL_MODE_BGRA && self->atlas->depth == 1 )
+    {
+        // BGRA in, grey out: Use weighted sum for luminosity, and multiply by alpha
+        struct src_pixel_t { uint8_t b; uint8_t g; uint8_t r; uint8_t a; } * src = (struct src_pixel_t *)ft_bitmap.buffer;
+        for( int row = 0; row < src_h; row++, dst_ptr += tgt_w * self->atlas->depth ) {
+            for( int col = 0; col < src_w; col++, src++ ) {
+                dst_ptr[col] = (0.3*src->r + 0.59*src->g + 0.11*src->b) * (src->a/255.0);
+            }
+        }
+    }
+    else if( ft_bitmap.pixel_mode == FT_PIXEL_MODE_GRAY && self->atlas->depth == 4 ) {
+        // Grey in, RGBA out: Use grey level for alpha channel, with white color
+        struct dst_pixel_t { uint8_t r; uint8_t g; uint8_t b; uint8_t a; } * dst = (struct dst_pixel_t *)dst_ptr;
+        for( int row = 0; row < src_h; row++, dst += tgt_w ) {
+            for( int col = 0; col < src_w; col++, src_ptr++ ) {
+                dst[col] = (struct dst_pixel_t){ 255, 255, 255, *src_ptr };
+            }
+        }
+    }
+    else
+    {
+        // Straight copy, per row
         for( i = 0; i < src_h; i++ ) {
             //difference between width and pitch: https://www.freetype.org/freetype2/docs/reference/ft2-basic_types.html#FT_Bitmap
             memcpy( dst_ptr, src_ptr, ft_bitmap.width);
@@ -991,9 +1148,7 @@ cleanup_stroker:
     int free_glyph = texture_font_index_glyph(self, glyph, ucodepoint);
     if(!glyph_index) {
         if(!free_glyph) {
-            texture_glyph_t *new_glyph = malloc(sizeof(texture_glyph_t));
-            memcpy(new_glyph, glyph, sizeof(texture_glyph_t));
-            glyph=new_glyph;
+            glyph = texture_glyph_clone(glyph);
         }
         free_glyph = texture_font_index_glyph(self, glyph, 0);
     }

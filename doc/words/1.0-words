@@ -930,47 +930,48 @@ PNG_LIBPNG_BUILD_SPECIAL PNG_LIBPNG_BUILD_PRIVATE PNG_LIBPNG_BUILD_PATCH
 PNG_LIBPNG_BUILD_RELEASE_STATUS_MASK PNG_LIBPNG_BUILD_STABLE 
 PNG_LIBPNG_BUILD_RC PNG_LIBPNG_BUILD_BETA PNG_LIBPNG_BUILD_ALPHA 
 PNG_LIBPNG_VER_BUILD PNG_LIBPNG_VER_RELEASE PNG_LIBPNG_VER_MINOR 
-PNG_LIBPNG_VER_MAJOR PNG_LIBPNG_VER_DLLNUM PNG_LIBPNG_VER_SONUM UINT_MAX 
-INT_MAX INT_MIN USHRT_MAX UCHAR_MAX CHAR_BIT opengl opengl SDL2 Xrandr X11 
-load-cov save-cov cover-filename hash-cover cover-hash annotate-cov .coverage 
-covered? .cover-file ?del-cover bw-cover color-cover .paren-cov# .ansi-cov# 
-.cov# .cover-raw cov% ?cov+ cov+ cov+, dead-cov? cover-end! cover, cover-start 
-cover-end coverage cilk-bye spawn2 spawn1 spawn cilk-init start-workers 
-cilk-sync worker-thread +worker worker@ workers-sema invoker workers sync# 
-cores forth-lx x" locale-csv-out .locale-csv locale-csv insert-locale csv-lsid 
-define-locale lang[] lang include-locale included-locale locale-file locale! 
-locale@ Country Language locale default-locale .lsids LU" L" LLiteral 
-?new-lsid new-lsid $l, search-lsid native@ lsid# lsids .quoted-csv read-csv 
-csv-read-loop csv-line next-csv $csv-item next-field un-dquote unquote 
-unquote-end unquote-start quote-state csv-quote csv-separator hamming rfft fft 
-normalize fftscale (fft fft-step butterflies butterfly z2dup+ .rvalues .expix 
-.values points realloc #points reverse r+ expix values Carray //g //o //s >> 
-s// >>rest >>next >>string0 >>string@ <<" << s>> >>string <<ptr >>ptr \9 \8 \7 
-\6 \5 \4 \3 \2 \1 \:s \: \0 \) \( }} || {{ THENs // +} *} {* {+ ++} **} {++ 
-{** drops )) (( =" ,=" str=? (str=?) \$ \^ >last rest$ ?end start-rex? 
-end-rex? !end start$ last$ end$ greed' greed-counts var> >var varsmax varstack 
-vars DONE, BEGIN, >loops loops> loops -` `? ` -\s -\d .? \s \d any letter 
-blanks digit -c? c? char? -class +class and! +chars ..char -char +char 
-charclass cur-class @+ -bit +bit JOIN FORK object :: new defines end-class 
-class var method interface interface-does> object bind static dynamic o[] o> 
->o o@ ^ ostack Objects 8aligned define? heap-new dict-new xt-new init-object 
-object equal print construct [parent] [current] current' [bind] bind bind' 
-<bind> [to-inst] <to-inst> inst-value do-inst-value inst-var do-inst-var 
-inst-something catch ;m exitm :m m: enterm to-this this implementation 
-front-extend-mem end-class end-class-noname end-methods drop-order 
-class-previous remove-class-order class methods push-order class>order 
-add-class-order public protected public-wordlist end-interface 
-end-interface-noname interface last-interface-offset overrides class-override! 
-unique-interface-map class->map interface-override! selector method 
-do-interface-method do-class-method no-method current-interface selector% 
-selector-interface selector-offset class% class-inst-size class-wordlist 
-class-parent interface% interface-offset interface-map-offset interface-map 
-object% object-map heap>dict thread-key prep-key keypollfds UDefer udefer-to 
-kill event-block sleep halt wake restart (restart) thread-deadline pause 
-event-loop stop-dns stop-ns stop ?events event? send-event (stop) execute-task 
-stacksize4 stacksize >pagealign-stack c-section critical-section unlock lock 
-cond sema semaphore initiate pass (pass) activate (activate) task newtask 
-newtask4 thread-init 's user' wake# epipew epiper pthread-id compsem: intsem: 
+PNG_LIBPNG_VER_MAJOR PNG_LIBPNG_VER_DLLNUM PNG_LIBPNG_VER_SONUM 
+PNG_LIBPNG_VER_SHAREDLIB UINT_MAX INT_MAX INT_MIN USHRT_MAX UCHAR_MAX CHAR_BIT 
+opengl opengl SDL2 Xrandr X11 load-cov save-cov cover-filename hash-cover 
+cover-hash annotate-cov .coverage covered? .cover-file ?del-cover bw-cover 
+color-cover .paren-cov# .ansi-cov# .cov# .cover-raw cov% ?cov+ cov+ cov+, 
+dead-cov? cover-end! cover, cover-start cover-end coverage cilk-bye spawn2 
+spawn1 spawn cilk-init start-workers cilk-sync worker-thread +worker worker@ 
+workers-sema invoker workers sync# cores forth-lx x" locale-csv-out 
+.locale-csv locale-csv insert-locale csv-lsid define-locale lang[] lang 
+include-locale included-locale locale-file locale! locale@ Country Language 
+locale default-locale .lsids LU" L" LLiteral ?new-lsid new-lsid $l, 
+search-lsid native@ lsid# lsids .quoted-csv read-csv csv-read-loop csv-line 
+next-csv $csv-item next-field un-dquote unquote unquote-end unquote-start 
+quote-state csv-quote csv-separator hamming rfft fft normalize fftscale (fft 
+fft-step butterflies butterfly z2dup+ .rvalues .expix .values points realloc 
+#points reverse r+ expix values Carray //g //o //s >> s// >>rest >>next 
+>>string0 >>string@ <<" << s>> >>string <<ptr >>ptr \9 \8 \7 \6 \5 \4 \3 \2 \1 
+\:s \: \0 \) \( }} || {{ THENs // +} *} {* {+ ++} **} {++ {** drops )) (( =" 
+,=" str=? (str=?) \$ \^ >last rest$ ?end start-rex? end-rex? !end start$ last$ 
+end$ greed' greed-counts var> >var varsmax varstack vars DONE, BEGIN, >loops 
+loops> loops -` `? ` -\s -\d .? \s \d any letter blanks digit -c? c? char? 
+-class +class and! +chars ..char -char +char charclass cur-class @+ -bit +bit 
+JOIN FORK object :: new defines end-class class var method interface 
+interface-does> object bind static dynamic o[] o> >o o@ ^ ostack Objects 
+8aligned define? heap-new dict-new xt-new init-object object equal print 
+construct [parent] [current] current' [bind] bind bind' <bind> [to-inst] 
+<to-inst> inst-value do-inst-value inst-var do-inst-var inst-something catch 
+;m exitm :m m: enterm to-this this implementation front-extend-mem end-class 
+end-class-noname end-methods drop-order class-previous remove-class-order 
+class methods push-order class>order add-class-order public protected 
+public-wordlist end-interface end-interface-noname interface 
+last-interface-offset overrides class-override! unique-interface-map 
+class->map interface-override! selector method do-interface-method 
+do-class-method no-method current-interface selector% selector-interface 
+selector-offset class% class-inst-size class-wordlist class-parent interface% 
+interface-offset interface-map-offset interface-map object% object-map 
+heap>dict thread-key prep-key keypollfds UDefer udefer-to kill event-block 
+sleep halt wake restart (restart) thread-deadline pause event-loop stop-dns 
+stop-ns stop ?events event? send-event (stop) execute-task stacksize4 
+stacksize >pagealign-stack c-section critical-section unlock lock cond sema 
+semaphore initiate pass (pass) activate (activate) task newtask newtask4 
+thread-init 's user' wake# epipew epiper pthread-id compsem: intsem: 
 set-compsem to-errno errno-table fork+exec fpid fork() getpid fd>file 
 int-errno-exec saved-errno ?ior ?errno-throw errno-throw fds[]! fds!+ 
 LC_IDENTIFICATION LC_MEASUREMENT LC_TELEPHONE LC_ADDRESS LC_NAME LC_PAPER 

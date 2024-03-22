@@ -5,6 +5,7 @@
  */
 #ifndef __OPEN_GL_H__
 #define __OPEN_GL_H__
+#include "config.h"
 
 #if defined(GL_WITH_GLAD)
 #   include <glad/glad.h>
@@ -30,7 +31,9 @@
 #    include <GLES2/gl2.h>
 #  endif
 #else
+#if defined(FREETYPE_GL_USE_GLEW)
 #  include <GL/glew.h>
+#endif
 #  include <GL/gl.h>
 #endif
 #endif /* GL_WITH_GLAD */
