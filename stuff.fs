@@ -677,9 +677,8 @@ User theme-color  0 theme-color !
     \G followed by a space.
     '$' emit ['] u. $10 base-execute ;
 
-synonym hex. h. \ gforth-obsolete
-    \G Display @i{u} as an unsigned hex number, prefixed with a "$" and
-    \G followed by a space.
+synonym hex. h. ( u -- ) \ gforth-obsolete
+    \G Old name for @code{h.}
 
 : hex.r ( u1 u2 -- )
     ['] u.r $10 base-execute ;
