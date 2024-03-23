@@ -82,7 +82,7 @@
     if ( start_glyph_id < end_glyph_id )
     {
       /* Render only the element with its ID equal to `glyph<ID>`. */
-      snprintf( str, sizeof(str), "g%u", slot->glyph_index );
+      snprintf( str, sizeof(str), "#glyph%u", slot->glyph_index );
       id = str;
     }
     else
@@ -94,15 +94,20 @@
     /* Librsvg variables. */
     /* General variables. */
 
-    resvg_render_tree *tree;
-    resvg_transform transform=resvg_transform_identity();
+    fprintf(stderr, "id=%s\n", id);
 
-    resvg_render_node(((Resvg_Port_StateRec*)_state)->tree,
-		      id,
-		      transform,
-		      (int)slot->bitmap.width,
-		      (int)slot->bitmap.rows,
-		      slot->bitmap.buffer);
+    resvg_render_tree *tree;
+    resvg_transform transform;
+
+    if(resvg_get_node_transform(((Resvg_Port_StateRec*)_state)->tree, id,
+				&transform)) {
+      resvg_render_node(((Resvg_Port_StateRec*)_state)->tree,
+			id,
+			transform,
+			(int)slot->bitmap.width,
+			(int)slot->bitmap.rows,
+			slot->bitmap.buffer);
+    }
     
     return error;
   }
@@ -139,7 +144,7 @@
     if ( start_glyph_id < end_glyph_id )
     {
       /* Render only the element with its ID equal to `glyph<ID>`. */
-      snprintf( str, sizeof(str), "g%u", slot->glyph_index );
+      snprintf( str, sizeof(str), "#glyph%u", slot->glyph_index );
       id = str;
     }
     else
@@ -147,6 +152,7 @@
       /* NULL = Render the whole document */
       id = NULL;
     }
+    fprintf(stderr, "id=%s\n", id);
 
     fprintf(stderr,
 	    "Metrics: x/y ppem=     %f %f\n"
@@ -164,7 +170,7 @@
       if( resvg_parse_tree_from_data( document->svg_document,
 				      document->svg_document_length,
 				      opts,
-				    &((Resvg_Port_StateRec*)_state)->tree) )
+				      &((Resvg_Port_StateRec*)_state)->tree) )
 	{
 	  error = FT_Err_Invalid_SVG_Document;
 	  goto CleanLibresvg;
