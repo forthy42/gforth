@@ -609,7 +609,7 @@ fonts[ssm]=same
 font-lang to emoji-font#
 2 font-lang >breakable
 \sans \regular
-color-fonts= NotoColorEmojiLegacy|NotoColorEmoji|emojione-android|Twemoji|SamsungColorEmoji|OpenMoji-Color
+color-fonts= NotoColorEmojiLegacy|NotoColorEmoji-Regular|NotoColorEmoji|emojione-android|Twemoji|SamsungColorEmoji|OpenMoji-Color
 fonts[ssm]=same
 {{ $20000 $1F000 }} 2/ +ranges
 [THEN]

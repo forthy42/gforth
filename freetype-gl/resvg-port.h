@@ -35,6 +35,7 @@
    */
   typedef struct  Resvg_Port_StateRec_
   {
+    int start_id, end_id;
     resvg_render_tree *tree;
   } Resvg_Port_StateRec;
 
