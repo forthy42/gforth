@@ -36,6 +36,7 @@ ARCH=
 VERSION	= "`gforth --version 2>&1 | cut -f2 -d' '`"
 SHELL	= /bin/sh
 RMTREE	= rm -rf
+ENV     = env
 prefix = 
 exec_prefix = ${prefix}
 libexecdir = $(package)${exec_prefix}/lib
@@ -50,6 +51,8 @@ GCC	= @CC@
 HOSTCC	= @HOSTCC@
 CC	= $(HOSTCC) $(INCLUDES) -I.
 HELPERS = stat.fs pthread-types.fs
+PREPENV = @PREPENV@
+EXECENV = @EXECENV@
 
 all: $(GENWRAPPERS) $(TARGETS) $(HELPERS)
 
@@ -68,7 +71,7 @@ libs: build-libcc-named $(LIBRARY)
 %.fs: %-fsi.c
 	@echo SWIG-GEN $@
 	$(srcdir)/trygcc "$(CC)" $@x $<
-	./$@x -gforth | $(srcdir)/doexec $@ $(srcdir) > $@
+	./$@x -gforth | $(ENV) $(EXECENV) $(srcdir)/doexec $@ $(srcdir) > $@
 
 stat.fs: stat-fsi.c
 	$(CC) -o $@x $<
@@ -88,7 +91,7 @@ pthread-types.fs: pthread-types-fsi.c
 %-fsi.c: $(srcdir)/%.i @HAS_SWIG_FORTH@
 	@echo SWIG $(patsubst %-fsi.c,%.i,$@)
 	$(SWIG) $(OPTIONS) -o $@+ $(srcdir)/$(patsubst %-fsi.c,%.i,$@)
-	$(srcdir)/doprep $@+ $(srcdir) > $@
+	$(ENV) $(PREPENV) $(srcdir)/doprep $@+ $(srcdir) > $@
 
 run: $(DEMO)
 	gforth $(DEMO)

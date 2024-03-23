@@ -1,8 +1,8 @@
 /****************************************************************************
  *
- * rsvg-port.h
+ * resvg-port.h
  *
- *   Librsvg based hook functions for OT-SVG rendering in FreeType
+ *   Libresvg based hook functions for OT-SVG rendering in FreeType
  *   (headers).
  *
  * Copyright (C) 2022-2024 by
@@ -22,10 +22,9 @@
 #include <ft2build.h>
 #include <freetype/otsvg.h>
 
-#ifdef HAVE_LIBRSVG
+#ifdef HAVE_LIBRESVG
 
-#include <cairo.h>
-#include <librsvg/rsvg.h>
+#include <resvg.h>
 #include <freetype/freetype.h>
 
 
@@ -34,37 +33,33 @@
    * structure and putting its address in `library->svg_renderer_state`.
    * Functions can then store and retrieve data from this structure.
    */
-  typedef struct  Rsvg_Port_StateRec_
+  typedef struct  Resvg_Port_StateRec_
   {
-    cairo_surface_t  *rec_surface;
+    resvg_render_tree *tree;
+  } Resvg_Port_StateRec;
 
-    double  x;
-    double  y;
-
-  } Rsvg_Port_StateRec;
-
-  typedef struct Rsvg_Port_StateRec_*  Rsvg_Port_State;
+  typedef struct Resvg_Port_StateRec_*  Resvg_Port_State;
 
 
   FT_Error
-  rsvg_port_init( FT_Pointer  *state );
+  resvg_port_init( FT_Pointer  *state );
 
   void
-  rsvg_port_free( FT_Pointer  *state );
+  resvg_port_free( FT_Pointer  *state );
 
   FT_Error
-  rsvg_port_render( FT_GlyphSlot  slot,
-                    FT_Pointer   *state );
+  resvg_port_render( FT_GlyphSlot  slot,
+		     FT_Pointer   *state );
 
   FT_Error
-  rsvg_port_preset_slot( FT_GlyphSlot  slot,
-                         FT_Bool       cache,
-                         FT_Pointer   *state );
+  resvg_port_preset_slot( FT_GlyphSlot  slot,
+			  FT_Bool       cache,
+			  FT_Pointer   *state );
 
 #endif /* HAVE_LIBRSVG */
 
 
-  extern SVG_RendererHooks  rsvg_hooks;
+  extern SVG_RendererHooks  resvg_hooks;
 
 #endif /* RSVG_PORT_H */
 

@@ -1599,6 +1599,8 @@ swig not found."
 fi
 
 has_swig=no
+EXECENV=""
+PREPENV=""
 GLXFLAG=false
 GLESFLAG=false
 MINOSFLAG=false
@@ -1796,10 +1798,9 @@ if test x$has_swig = xyes || test -f $srcdir/unix/freetype_gl-fsi.c; then
    if test x"$CPPFLAGS" != x"$CPPFLAGS_1"; then
       CPPFLAGS="$CPPFLAGS_2"
    fi
-   CPPFLAGS_1="$CPPFLAGS"
-   CPPFLAGS="$CPPFLAGS `$PKG_CONFIG --cflags librsvg-2.0`"
-   AC_CHECK_HEADER(librsvg/rsvg.h,
-   AC_CHECK_LIB(rsvg-2,rsvg_handle_new_from_data, , CPPFLAGS="$CPPFLAGS_1",), CPPFLAGS="$CPPFLAGS_1",)
+   AC_CHECK_HEADER(resvg.h,
+   AC_CHECK_LIB(resvg,resvg_render, EXECENV="$EXECENV FREETYPESVG=-lresvg"
+   AC_DEFINE_UNQUOTED(HAVE_LIBRESVG, 1, [libresvg available]), ,), ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
@@ -1937,6 +1938,8 @@ esac
 AC_SUBST(WAYLAND_SCANNER)
 AC_SUBST(WAYLAND_PROTOCOLS_DATADIR)
 AC_SUBST(INCLUDE_WAYLAND)
+AC_SUBST(PREPENV)
+AC_SUBST(EXECENV)
 
 if test x$GLESFLAG = xfalse -a x$GLXFLAG = xfalse
 then
