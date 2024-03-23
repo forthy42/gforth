@@ -72,13 +72,24 @@
   {
     /* FreeType variables. */
     FT_Error  error = FT_Err_Ok;
-
     FT_SVG_Document  document = (FT_SVG_Document)slot->other;
-    FT_Size_Metrics  metrics  = document->metrics;
-
     FT_UShort  units_per_EM   = document->units_per_EM;
     FT_UShort  end_glyph_id   = document->end_glyph_id;
     FT_UShort  start_glyph_id = document->start_glyph_id;
+    char  *id;
+    char  str[32];
+    
+    if ( start_glyph_id < end_glyph_id )
+    {
+      /* Render only the element with its ID equal to `glyph<ID>`. */
+      snprintf( str, sizeof(str), "g%u", slot->glyph_index );
+      id = str;
+    }
+    else
+    {
+      /* NULL = Render the whole document */
+      id = NULL;
+    }
 
     /* Librsvg variables. */
     /* General variables. */
@@ -86,11 +97,12 @@
     resvg_render_tree *tree;
     resvg_transform transform=resvg_transform_identity();
 
-    resvg_render(((Resvg_Port_StateRec*)_state)->tree,
-		 transform,
-		 (int)slot->bitmap.width,
-		 (int)slot->bitmap.rows,
-		 slot->bitmap.buffer);
+    resvg_render_node(((Resvg_Port_StateRec*)_state)->tree,
+		      id,
+		      transform,
+		      (int)slot->bitmap.width,
+		      (int)slot->bitmap.rows,
+		      slot->bitmap.buffer);
     
     return error;
   }
@@ -115,21 +127,53 @@
   {
     FT_Error  error = FT_Err_Ok;
     FT_SVG_Document  document = (FT_SVG_Document)slot->other;
+    FT_Size_Metrics  metrics  = document->metrics;
+    FT_UShort  end_glyph_id   = document->end_glyph_id;
+    FT_UShort  start_glyph_id = document->start_glyph_id;
     resvg_options *opts=resvg_options_create();
     resvg_rect imgrect;
     double tmpd;
+    char  *id;
+    char  str[32];
+    
+    if ( start_glyph_id < end_glyph_id )
+    {
+      /* Render only the element with its ID equal to `glyph<ID>`. */
+      snprintf( str, sizeof(str), "g%u", slot->glyph_index );
+      id = str;
+    }
+    else
+    {
+      /* NULL = Render the whole document */
+      id = NULL;
+    }
 
-    /* Form an `resvg_render_tree` by loading the SVG document. */
-    if( resvg_parse_tree_from_data( document->svg_document,
-				    document->svg_document_length,
-				    opts,
+    fprintf(stderr,
+	    "Metrics: x/y ppem=     %f %f\n"
+	    "         x/y scale=    %f %f\n"
+	    "         a/de scender= %f %f\n"
+	    "         heigth=       %f\n"
+	    "         max_advance=  %f\n",
+	    metrics.x_ppem/64., metrics.y_ppem/64.,
+	    metrics.x_scale/65536., metrics.y_scale/65536.,
+	    metrics.ascender/64., metrics.descender/64.,
+	    metrics.height/64., metrics.max_advance/64.);
+
+    if(((Resvg_Port_StateRec*)_state)->tree == NULL) {
+      /* Form an `resvg_render_tree` by loading the SVG document. */
+      if( resvg_parse_tree_from_data( document->svg_document,
+				      document->svg_document_length,
+				      opts,
 				    &((Resvg_Port_StateRec*)_state)->tree) )
-      {
-	error = FT_Err_Invalid_SVG_Document;
-	goto CleanLibresvg;
-      }
+	{
+	  error = FT_Err_Invalid_SVG_Document;
+	  goto CleanLibresvg;
+	}
+    }
 
-    resvg_get_image_bbox(((Resvg_Port_StateRec*)_state)->tree, &imgrect);
+    resvg_get_node_bbox(((Resvg_Port_StateRec*)_state)->tree, id, &imgrect);
+
+    fprintf(stderr, "BBox: %f %f %f %f\n", imgrect.x, imgrect.y, imgrect.width, imgrect.height);
     /* Preset the values. */
     slot->bitmap_left = (FT_Int) imgrect.x;  /* XXX rounding? */
     slot->bitmap_top  = (FT_Int)-imgrect.y;
