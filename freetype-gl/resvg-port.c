@@ -1,16 +1,20 @@
 /****************************************************************************
  *
- * rsvg-port.c
+ * resvg-port.c
  *
  *   Libresvg-based hook functions for OT-SVG rendering in FreeType
  *   (implementation).
+ *
+ * Copyright (C) 2024 by Bernd Paysan
+ *
+ * This is based on rsvg-port.c by heavily editing it. rsvg-port.c is
  *
  * Copyright (C) 2022-2024 by
  * David Turner, Robert Wilhelm, Werner Lemberg, and Moazin Khatti.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
- * license, LICENSE.TXT.  By continuing to use, modify, or distribute
+ * license, FTL.TXT.  By continuing to use, modify, or distribute
  * this file you indicate that you have read the license and
  * understand and accept it fully.
  *
@@ -31,6 +35,49 @@
 
 #include "resvg-port.h"
 
+#ifdef RESVG_DEBUG
+# define debugp(x...) fprintf(stderr, x)
+#else
+# define debugp(x...)
+#endif
+
+resvg_render_tree * search_tree(Resvg_Port_StateRec * state, unsigned int id)
+{
+  unsigned int i;
+  Resvg_Port_StateArray* array = state->array;
+  for(i=0; i<state->len; i++, array++) {
+    debugp("search[%d]: %d∈[%d,%d]\n", i, id, array->start_id, array->end_id);
+    if((id >= array->start_id) && (id <= array->end_id)) {
+      return array->tree;
+    }
+  }
+  return NULL;
+}
+
+void insert_tree(Resvg_Port_StateRec * state,
+		 resvg_render_tree * tree,
+		 unsigned int start_id, unsigned int end_id)
+{
+  Resvg_Port_StateArray* array = state->array;
+  state->len++;
+  state->array=array=realloc(array, (state->len)*sizeof(Resvg_Port_StateArray));
+  array+=(state->len)-1;
+  array->start_id = start_id;
+  array->end_id = end_id;
+  array->tree = tree;
+}
+
+void free_trees(Resvg_Port_StateRec * state)
+{
+  Resvg_Port_StateArray* array = state->array;
+  int i;
+  for(i=0; i<state->len; i++, array++) {
+    resvg_tree_destroy(array->tree);
+  }
+  free(array);
+  state->array=NULL;
+  state->len=0;
+}
 
   /*
    * The init hook is called when the first OT-SVG glyph is rendered.  All
@@ -56,8 +103,8 @@
   void
   resvg_port_free( FT_Pointer  *state )
   {
-    resvg_tree_destroy(((Resvg_Port_StateRec*)state)->tree);
-    free( *state );
+    free_trees(((Resvg_Port_StateRec*)state));
+    free( state );
   }
 
 
@@ -81,58 +128,34 @@
     char  *id;
     char  str[32];
     
-    if ( start_glyph_id < end_glyph_id )
-    {
-      /* Render only the element with its ID equal to `glyph<ID>`. */
-      snprintf( str, sizeof(str), "glyph%u", slot->glyph_index );
-      id = str;
-      fprintf(stderr, "id=%s\n", id);
-    }
-    else
-    {
-      /* NULL = Render the whole document */
-      id = NULL;
-      fprintf(stderr, "#id=%d\n", start_glyph_id);
-    }
+    /* Render only the element with its ID equal to `glyph<ID>`. */
+    snprintf( str, sizeof(str), "glyph%u", slot->glyph_index );
+    id = str;
+    debugp("id=%s\n", id);
 
     /* Librsvg variables. */
     /* General variables. */
 
-    resvg_render_tree *tree;
+    resvg_render_tree *tree = search_tree((Resvg_Port_StateRec*)_state, slot->glyph_index);
     resvg_transform transform;
     FT_Matrix ft_transform = document->transform;
     FT_Vector ft_delta = document->delta;
 
-    if(id) {
-      if(resvg_get_node_transform(((Resvg_Port_StateRec*)_state)->tree, id,
-				  &transform)) {
-	transform.a*=metrics.x_scale/4194304.;
-	transform.b*=metrics.y_scale/4194304.;
-	transform.c*=metrics.x_scale/4194304.;
-	transform.d*=metrics.y_scale/4194304.;
-	transform.e*=metrics.x_scale/4194304.;
-	transform.f*=metrics.y_scale/4194304.;
-	resvg_render_node(((Resvg_Port_StateRec*)_state)->tree,
-			  id,
-			  transform,
-			  (int)slot->bitmap.width,
-			  (int)slot->bitmap.rows,
-			  slot->bitmap.buffer);
-      }
-    } else {
-      transform=resvg_transform_identity();
+    if(resvg_get_node_transform(tree, id, &transform)) {
       transform.a*=metrics.x_scale/4194304.;
       transform.b*=metrics.y_scale/4194304.;
       transform.c*=metrics.x_scale/4194304.;
       transform.d*=metrics.y_scale/4194304.;
       transform.e*=metrics.x_scale/4194304.;
       transform.f*=metrics.y_scale/4194304.;
-      resvg_render(((Resvg_Port_StateRec*)_state)->tree,
-		   transform,
-		   (int)slot->bitmap.width,
-		   (int)slot->bitmap.rows,
-		   slot->bitmap.buffer);
+      resvg_render_node(tree,
+			id,
+			transform,
+			(int)slot->bitmap.width,
+			(int)slot->bitmap.rows,
+			slot->bitmap.buffer);
     }
+
     fprintf(stderr,
 	    "transform: %f %f %f matrix: %f %f delta: %f\n"
 	    "           %f %f %f         %f %f        %f\n",
@@ -186,17 +209,12 @@
     char  *id;
     char  str[32];
     Resvg_Port_StateRec* state = (Resvg_Port_StateRec*)_state;
-    
-    if ( start_glyph_id < end_glyph_id ) {
-      /* Render only the element with its ID equal to `glyph<ID>`. */
-      snprintf( str, sizeof(str), "glyph%u", slot->glyph_index );
-      id = str;
-      fprintf(stderr, "preset id=%s∈[%d,%d]\n", id, start_glyph_id, end_glyph_id);
-    } else {
-      /* NULL = Render the whole document */
-      id = NULL;
-      fprintf(stderr, "preset #id=%d\n", start_glyph_id);
-    }
+    resvg_render_tree *tree = search_tree(state, slot->glyph_index);
+
+    /* Render only the element with its ID equal to `glyph<ID>`. */
+    snprintf( str, sizeof(str), "glyph%u", slot->glyph_index );
+    id = str;
+    debugp("preset id=%s∈[%d,%d]\n", id, start_glyph_id, end_glyph_id);
 
     fprintf(stderr,
 	    "Metrics: x/y ppem=     %f %f\n"
@@ -209,40 +227,30 @@
 	    metrics.ascender/64., metrics.descender/64.,
 	    metrics.height/64., metrics.max_advance/64.);
 
-    if((state->tree == NULL) ||
-       (state->start_id != start_glyph_id) ||
-       (state->end_id != end_glyph_id)) {
-      if(state->tree) {
-	resvg_tree_destroy(state->tree);
-	state->tree = NULL;
-      }
+    if(tree == NULL) {
       /* Form an `resvg_render_tree` by loading the SVG document. */
       struct timespec time1, time2;
+      
       clock_gettime(CLOCK_REALTIME,&time1);
       if( resvg_parse_tree_from_data( document->svg_document,
 				      document->svg_document_length,
 				      opts,
-				      &((Resvg_Port_StateRec*)_state)->tree) )
+				      &tree ) )
 	{
 	  error = FT_Err_Invalid_SVG_Document;
 	  goto CleanLibresvg;
 	}
-      state->start_id = start_glyph_id;
-      state->end_id = end_glyph_id;
+      insert_tree(state, tree, start_glyph_id, end_glyph_id);
 
       clock_gettime(CLOCK_REALTIME,&time2);
-      fprintf(stderr, "tree parsing time: %f\n",
+      debugp("tree parsing time: %f\n",
 	      (time2.tv_sec+time2.tv_nsec*1e-9)-
 	      (time1.tv_sec+time1.tv_nsec*1e-9));
     }
 
-    if(id) {
-      resvg_get_node_bbox(((Resvg_Port_StateRec*)_state)->tree, id, &imgrect);
-    } else {
-      resvg_get_image_bbox(((Resvg_Port_StateRec*)_state)->tree, &imgrect);
-    }
+    resvg_get_node_bbox(tree, id, &imgrect);
 
-    fprintf(stderr, "BBox: %f %f %f %f\n", imgrect.x, imgrect.y, imgrect.width, imgrect.height);
+    debugp("BBox: %f %f %f %f\n", imgrect.x, imgrect.y, imgrect.width, imgrect.height);
     /* Preset the values. */
     slot->bitmap_left = (FT_Int) imgrect.x*metrics.x_scale/4194304.;  /* XXX rounding? */
     slot->bitmap_top  = (FT_Int)-imgrect.y*metrics.y_scale/4194304.;
@@ -253,6 +261,8 @@
     slot->bitmap.width = (unsigned int)tmpd;
     slot->bitmap.pitch = (unsigned int)slot->bitmap.width * 4;
     slot->bitmap.pixel_mode = FT_PIXEL_MODE_BGRA;
+
+    debugp("bitmap: %d %d %d %d\n", slot->bitmap_left, slot->bitmap_top, slot->bitmap.width, slot->bitmap.rows);
 
   CleanLibresvg:
     resvg_options_destroy(opts);

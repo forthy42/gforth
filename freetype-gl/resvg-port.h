@@ -4,13 +4,17 @@
  *
  *   Libresvg based hook functions for OT-SVG rendering in FreeType
  *   (headers).
+ * 
+ * Copyright (C) 2024 by Bernd Paysan
+ *
+ * This is based on rsvg-port.h by heavily editing it. rsvg-port.h is
  *
  * Copyright (C) 2022-2024 by
  * David Turner, Robert Wilhelm, Werner Lemberg, and Moazin Khatti.
  *
  * This file is part of the FreeType project, and may only be used,
  * modified, and distributed under the terms of the FreeType project
- * license, LICENSE.TXT.  By continuing to use, modify, or distribute
+ * license, FTL.TXT.  By continuing to use, modify, or distribute
  * this file you indicate that you have read the license and
  * understand and accept it fully.
  *
@@ -33,10 +37,15 @@
    * structure and putting its address in `library->svg_renderer_state`.
    * Functions can then store and retrieve data from this structure.
    */
-  typedef struct  Resvg_Port_StateRec_
+  typedef struct Resvg_Port_StateArray_
   {
-    int start_id, end_id;
+    unsigned int start_id, end_id;
     resvg_render_tree *tree;
+  } Resvg_Port_StateArray;
+  typedef struct Resvg_Port_StateRec_
+  {
+    unsigned int len;
+    Resvg_Port_StateArray* array;
   } Resvg_Port_StateRec;
 
   typedef struct Resvg_Port_StateRec_*  Resvg_Port_State;
