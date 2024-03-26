@@ -151,6 +151,21 @@ undefine(`index')
 undefine(`shift')
 undefine(`symbols')
 
+\ define m4 macro forloop (taken from /usr/share/doc/m4/examples/forloop2.m4)
+divert(`-1')
+# forloop(var, from, to, stmt) - improved version:
+#   works even if VAR is not a strict macro name
+#   performs sanity check that FROM is larger than TO
+#   allows complex numerical expressions in TO and FROM
+define(`forloop', `ifelse(eval(`($2) <= ($3)'), `1',
+  `pushdef(`$1')_$0(`$1', eval(`$2'),
+    eval(`$3'), `$4')popdef(`$1')')')
+define(`_forloop',
+  `define(`$1', `$2')$4`'ifelse(`$2', `$3', `',
+    `$0(`$1', incr(`$2'), `$3', `$4')')')
+divert`'dnl
+
+
 \F 0 [if]
 
 \ run-time routines for non-primitives.  They are defined as
@@ -2987,22 +3002,31 @@ r = cv.r;
 @localn ( noffset -- w )	gforth	fetch_local_n
 w = *(Cell *)(lp+noffset);
 
-@local0	( -- w )	new	fetch_local_zero
-w = ((Cell *)lp)[0];
+\ m4 macro definition: forlocal(upperbound,text) 
+define(forlocal,`translit(forloop(`i', `0', `$1', `$2
 
-@local1	( -- w )	new	fetch_local_four
-w = ((Cell *)lp)[1];
+'),`%')')
 
-@local2	( -- w )	new	fetch_local_eight
-w = ((Cell *)lp)[2];
 
-@local3	( -- w )	new	fetch_local_twelve
-w = ((Cell *)lp)[3];
+forlocal(`7',`@local%i ( -- w )	gforth	fetch_local_%i
+w = ((Cell *)lp)[i];')
+
+forlocal(`7',`!local%i ( w -- )	gforth	store_local_%i
+((Cell *)lp)[i] = w;')
 
 \+floating
 
-f@localn	( noffset -- r )	gforth	f_fetch_local_n
+f@localn	( noffset -- r ) gforth	f_fetch_local_n
 r = *(Float *)(lp+noffset);
+
+\ if we define the following, we also should do prim-states for them;
+\ the benefit of these is just one native instruction per VM inst
+\ it does not justify the cost
+\ #forlocal(`7',`f@local%i ( -- r ) gforth f_fetch_local_%i
+\ #r = ((Float *)lp)[i];')
+\ #
+\ #forlocal(`7',`f!local%i ( r -- ) gforth f_store_local_%i
+\ #((Float *)lp)[i] = r;')
 
 \+
 

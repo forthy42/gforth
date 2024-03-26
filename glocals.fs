@@ -90,14 +90,23 @@ require sections.fs
 User locals-size \ this is the current size of the locals stack
 		 \ frame of the current word
 
+create @local-table
+' @local0 ,
+' @local1 ,
+' @local2 ,
+' @local3 ,
+' @local4 ,
+' @local5 ,
+' @local6 ,
+' @local7 ,
+here @local-table - cell / constant @local-table-size
+
 : compile-@local ( n -- ) \ gforth-internal compile-fetch-local
- case
-    0       of postpone @local0 endof
-    1 cells of postpone @local1 endof
-    2 cells of postpone @local2 endof
-    3 cells of postpone @local3 endof
-   ( otherwise ) dup lit, postpone @localn
- endcase ;
+    dup @local-table-size < if
+        cells @local-table + @ compile,
+    else
+        lit, postpone @localn
+    then ;
 
 : compile-f@local ( n -- ) \ gforth-internal compile-f-fetch-local
     lit, postpone f@localn ;
