@@ -64,6 +64,8 @@ super36 = f@ f+
 \ super38 = lit arshift
 \ super39 = dup lit and swap
 super40 = >l >l
+super40a = >l >l >l
+super40b = >l >l >l >l
 super41 = dup >r
 
 \ compare-and-branch; comment them out if we take up work on gforth-native again
