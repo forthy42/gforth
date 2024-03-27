@@ -99,11 +99,12 @@ create @local-table
 ' @local5 ,
 ' @local6 ,
 ' @local7 ,
-here @local-table - cell / constant @local-table-size
+here @local-table - constant @local-table-size
 
 : compile-@local ( n -- ) \ gforth-internal compile-fetch-local
-    dup @local-table-size < if
-        cells @local-table + @ compile,
+    \ n is the offset from LP
+    dup @local-table-size < over cell mod 0= and if
+        @local-table + @ compile,
     else
         lit, postpone @localn
     then ;
