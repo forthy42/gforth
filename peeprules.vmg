@@ -66,6 +66,7 @@ super36 = f@ f+
 super40 = >l >l
 super40a = >l >l >l
 super40b = >l >l >l >l
+super40c = f>l f>l
 super41 = dup >r
 
 \ compare-and-branch; comment them out if we take up work on gforth-native again
@@ -223,7 +224,7 @@ csswaplstore = >r l>< r> l!
 \E prim-states char+                \ 77542
 \E prim-states ?dup                 \ 76850
 forlocal(`7',`\E prim-states @local%i              \ 75322')
-forlocal(`7',`\E prim-states !local%i')
+\ #forlocal(`7',`\E prim-states !local%i')
 \E prim-states @localn              \ 75322
 \E prim-states f@localn
 \E prim-states min                  \ 75264

@@ -3011,8 +3011,8 @@ define(forlocal,`translit(forloop(`i', `0', `$1', `$2
 forlocal(`7',`@local%i ( -- w )	gforth	fetch_local_%i
 w = ((Cell *)lp)[i];')
 
-forlocal(`7',`!local%i ( w -- )	gforth	store_local_%i
-((Cell *)lp)[i] = w;')
+\ #forlocal(`7',`!local%i ( w -- )	gforth	store_local_%i
+\ #((Cell *)lp)[i] = w;')
 
 \+floating
 
