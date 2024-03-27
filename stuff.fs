@@ -677,8 +677,11 @@ User theme-color  0 theme-color !
     \G followed by a space.
     '$' emit ['] u. $10 base-execute ;
 
-synonym hex. h. ( u -- ) \ gforth-obsolete
-    \G Old name for @code{h.}
+synonym hex. h. ( u -- ) \ gforth
+    \G Display @i{u} as an unsigned hex number, prefixed with a
+    \G @code{$} and followed by a space.  Another name for this word
+    \G is @code{h.}, which is present in several other systems, but
+    \G not in Gforth before 1.0.
 
 : hex.r ( u1 u2 -- )
     ['] u.r $10 base-execute ;
