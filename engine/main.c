@@ -921,7 +921,6 @@ static PrimNum lookup_ss(PrimNum *start, int length,
     if (c->state_in == state_in && c->state_out == state_out)
       return ss->super;
   }
-  assert(0);
   return -1;
 }
 
@@ -935,9 +934,10 @@ static void prepare_super_table()
   for (i=0; i<nprims; i++) {
     struct cost *c = &super_costs[i];
     if (c->branch_to_ip) {
-      branches_to_ip[lookup_ss(super2+c->offset, c->length,
-                               c->state_in, c->state_out)
-                     ]=i;
+      PrimNum ss =
+        lookup_ss(super2+c->offset, c->length, c->state_in, c->state_out);
+      if (ss != -1)
+        branches_to_ip[ss]=i;
       continue;
     }
     if ((c->length < 2 || nsupers < static_super_number) &&
