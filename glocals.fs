@@ -309,7 +309,14 @@ to-table: c!-table c! c+!
 : laddr, ( lit:xt -- ) -14 throw ;
 opt: ( lit:xt xt -- ) ?fold-to >body @ laddr#, ;
 
+: loffset, ( lit:xt -- ) -14 throw ;
+opt: ( lit:xt xt -- ) ?fold-to >body @ lp-offset postpone literal ;
+\ : !lp   lp@ + ! ;
+\ : +!lp  lp@ + +! ;
+\ to-table: !lp-table !lp +!lp
+
 ' laddr, !-table to-method: to-w:
+\ ' loffset, !lp-table to-method: to-w:
 ' laddr, defer-table to-method: to-xt:
 ' laddr, 2!-table to-method: to-d:
 ' laddr, c!-table to-method: to-c:
