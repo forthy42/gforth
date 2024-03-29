@@ -67,6 +67,8 @@ super40 = >l >l
 super40a = >l >l >l
 super40b = >l >l >l >l
 super40c = f>l f>l
+super40d = >l @local0
+super40e = f>l lit f@localn
 super41 = dup >r
 
 \ compare-and-branch; comment them out if we take up work on gforth-native again
