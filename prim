@@ -2999,7 +2999,7 @@ r = cv.r;
 
 \g locals
 
-@localn ( noffset -- w )	gforth	fetch_local_n
+@localn ( noffset -- w )	gforth-internal	fetch_local_n
 w = *(Cell *)(lp+noffset);
 
 \ m4 macro definition: forlocal(upperbound,text) 
@@ -3008,11 +3008,17 @@ define(forlocal,`translit(forloop(`i', `0', `$1', `$2
 '),`%')')
 
 
-forlocal(`7',`@local%i ( -- w )	gforth	fetch_local_%i
+forlocal(`7',`@local%i ( -- w )	gforth-internal	fetch_local_%i
 w = ((Cell *)lp)[i];')
 
-\ #forlocal(`7',`!local%i ( w -- )	gforth	store_local_%i
-\ #((Cell *)lp)[i] = w;')
+!localn ( w noffset -- )	gforth-internal	store_local_n
+*(Cell *)(lp+noffset) = w;
+
+forlocal(`7',`!local%i ( w -- )	gforth-internal	store_local_%i
+((Cell *)lp)[i] = w;')
+
++!localn ( w noffset -- )	gforth-internal	plus_store_local_n
+*(Cell *)(lp+noffset) += w;
 
 \+floating
 

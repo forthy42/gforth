@@ -90,6 +90,12 @@ require sections.fs
 User locals-size \ this is the current size of the locals stack
 		 \ frame of the current word
 
+\ optimize @localn and !localn
+
+: optimizes ( xt "name" -- )
+    \ xt is optimizer of "name"
+    ' make-latest set-optimizer ;
+
 create @local-table
 ' @local0 ,
 ' @local1 ,
@@ -101,13 +107,39 @@ create @local-table
 ' @local7 ,
 here @local-table - constant @local-table-size
 
+: opt-@localn ( xt -- )
+    lits# 1 u>= if
+        lits> dup @local-table-size < over cell mod 0= and if
+            @local-table + @ compile, drop exit then
+        >lits then
+    peephole-compile, ;
+' opt-@localn optimizes @localn
+
+create !local-table
+' !local0 ,
+' !local1 ,
+' !local2 ,
+' !local3 ,
+' !local4 ,
+' !local5 ,
+' !local6 ,
+' !local7 ,
+here !local-table - constant !local-table-size
+
+: opt-!localn ( xt -- )
+    lits# 1 u>= if
+        lits> dup !local-table-size < over cell mod 0= and if
+            !local-table + @ compile, drop exit then
+        >lits then
+    peephole-compile, ;
+' opt-!localn optimizes !localn
+
+\ compile locals with offset n
+
 : compile-@local ( n -- ) \ gforth-internal compile-fetch-local
     \ n is the offset from LP
-    dup @local-table-size < over cell mod 0= and if
-        @local-table + @ compile,
-    else
-        lit, postpone @localn
-    then ;
+    lit, postpone @localn ;
+
 
 : compile-f@local ( n -- ) \ gforth-internal compile-f-fetch-local
     lit, postpone f@localn ;
@@ -311,12 +343,9 @@ opt: ( lit:xt xt -- ) ?fold-to >body @ laddr#, ;
 
 : loffset, ( lit:xt -- ) -14 throw ;
 opt: ( lit:xt xt -- ) ?fold-to >body @ lp-offset postpone literal ;
-\ : !lp   lp@ + ! ;
-\ : +!lp  lp@ + +! ;
-\ to-table: !lp-table !lp +!lp
+to-table: !lp-table !localn +!localn
 
-' laddr, !-table to-method: to-w:
-\ ' loffset, !lp-table to-method: to-w:
+' loffset, !lp-table to-method: to-w:
 ' laddr, defer-table to-method: to-xt:
 ' laddr, 2!-table to-method: to-d:
 ' laddr, c!-table to-method: to-c:

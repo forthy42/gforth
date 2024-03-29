@@ -40,10 +40,6 @@
 	peephole-compile,
     then ;
 
-: optimizes ( xt "name" -- )
-    \ xt is optimizer of "name"
-    ' make-latest set-optimizer ;
-
 : folds ( folder-xt "name1" ... "namen" <eol> -- )
     {: folder-xt :} BEGIN
 	>in @ >r parse-name r> >in !
