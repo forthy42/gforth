@@ -140,14 +140,21 @@ void free_trees(Resvg_Port_StateRec * state)
     resvg_transform transform;
     FT_Matrix ft_transform = document->transform;
     FT_Vector ft_delta = document->delta;
+    float xscale=metrics.x_scale/4194304.;
+    float yscale=metrics.y_scale/4194304.;
 
     if(resvg_get_node_transform(tree, id, &transform)) {
-      transform.a*=metrics.x_scale/4194304.;
-      transform.b*=metrics.y_scale/4194304.;
-      transform.c*=metrics.x_scale/4194304.;
-      transform.d*=metrics.y_scale/4194304.;
-      transform.e*=metrics.x_scale/4194304.;
-      transform.f*=metrics.y_scale/4194304.;
+      transform.a*=xscale;
+      transform.b*=yscale;
+      transform.c*=xscale;
+      transform.d*=yscale;
+      transform.e*=xscale;
+      transform.f*=yscale;
+      /* some slots have points outside the legal range */
+      if(slot->bitmap_left < 0)
+	transform.e-=slot->bitmap_left;
+      if((float)(slot->bitmap_top) > metrics.height/64.)
+	transform.f+=slot->bitmap_top-(FT_Int)(metrics.height/64.);
       resvg_render_node(tree,
 			id,
 			transform,
@@ -156,11 +163,11 @@ void free_trees(Resvg_Port_StateRec * state)
 			slot->bitmap.buffer);
     }
 
-    fprintf(stderr,
-	    "transform: %f %f %f matrix: %f %f delta: %f\n"
-	    "           %f %f %f         %f %f        %f\n",
-	    transform.a, transform.c, transform.e, ft_transform.xx/65536., ft_transform.xy/65536., ft_delta.x/65536.,
-	    transform.b, transform.d, transform.f, ft_transform.yx/65536., ft_transform.yy/65536., ft_delta.y/65536.);
+    debugp("left/top: %d %d\n", slot->bitmap_left, slot->bitmap_top);
+    debugp("transform: %f %f %f matrix: %f %f delta: %f\n"
+	   "           %f %f %f         %f %f        %f\n",
+	   transform.a, transform.c, transform.e, ft_transform.xx/65536., ft_transform.xy/65536., ft_delta.x/65536.,
+	   transform.b, transform.d, transform.f, ft_transform.yx/65536., ft_transform.yy/65536., ft_delta.y/65536.);
 
     int i;
     uint32_t* ptr=(uint32_t*)(slot->bitmap.buffer);
@@ -216,16 +223,15 @@ void free_trees(Resvg_Port_StateRec * state)
     id = str;
     debugp("preset id=%s∈[%d,%d]\n", id, start_glyph_id, end_glyph_id);
 
-    fprintf(stderr,
-	    "Metrics: x/y ppem=     %f %f\n"
-	    "         x/y scale=    %f %f\n"
-	    "         a/de scender= %f %f\n"
-	    "         heigth=       %f\n"
-	    "         max_advance=  %f\n",
-	    metrics.x_ppem/64., metrics.y_ppem/64.,
-	    metrics.x_scale/65536., metrics.y_scale/65536.,
-	    metrics.ascender/64., metrics.descender/64.,
-	    metrics.height/64., metrics.max_advance/64.);
+    debugp("Metrics: x/y ppem=     %f %f\n"
+	   "         x/y scale=    %f %f\n"
+	   "         a/de scender= %f %f\n"
+	   "         heigth=       %f\n"
+	   "         max_advance=  %f\n",
+	   metrics.x_ppem/64., metrics.y_ppem/64.,
+	   metrics.x_scale/65536., metrics.y_scale/65536.,
+	   metrics.ascender/64., metrics.descender/64.,
+	   metrics.height/64., metrics.max_advance/64.);
 
     if(tree == NULL) {
       /* Form an `resvg_render_tree` by loading the SVG document. */
@@ -252,12 +258,15 @@ void free_trees(Resvg_Port_StateRec * state)
 
     debugp("BBox: %f %f %f %f\n", imgrect.x, imgrect.y, imgrect.width, imgrect.height);
     /* Preset the values. */
-    slot->bitmap_left = (FT_Int) imgrect.x*metrics.x_scale/4194304.;  /* XXX rounding? */
-    slot->bitmap_top  = (FT_Int)-imgrect.y*metrics.y_scale/4194304.;
+    float xscale=metrics.x_scale/4194304.;
+    float yscale=metrics.y_scale/4194304.;
+    
+    slot->bitmap_left = (FT_Int) imgrect.x*xscale;  /* XXX rounding? */
+    slot->bitmap_top  = (FT_Int)-imgrect.y*yscale;
     /* Do conversion in two steps to avoid 'bad function cast' warning. */
-    tmpd               = ceil( imgrect.height*metrics.y_scale/4194304. );
+    tmpd               = ceil( imgrect.height*yscale );
     slot->bitmap.rows  = (unsigned int)tmpd;
-    tmpd               = ceil( imgrect.width*metrics.x_scale/4194304. );
+    tmpd               = ceil( imgrect.width*xscale );
     slot->bitmap.width = (unsigned int)tmpd;
     slot->bitmap.pitch = (unsigned int)slot->bitmap.width * 4;
     slot->bitmap.pixel_mode = FT_PIXEL_MODE_BGRA;
