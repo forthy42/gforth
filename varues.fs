@@ -24,6 +24,12 @@
     2!-table >to+addr-table: 2!a-table
     c!-table >to+addr-table: c!a-table
     f!-table >to+addr-table: f!a-table
+
+    : localn ( n -- ) lp@ + ;
+    opt: drop lits# 1 u>= IF  lits> ]] lp@ literal + [[
+	ELSE  ]] lp@ + [[  THEN ;
+    
+    to-table: !alp-table !localn +!localn localn
 [THEN]
 
 ' >body !a-table to-method: varue-to ( n value-xt -- ) \ gforth-internal
@@ -58,7 +64,7 @@
 
 \ Locals with addrs
 
-' laddr, !a-table to-method: to-wa:
+' loffset, !alp-table to-method: to-wa:
 ' laddr, defera-table to-method: to-xta:
 ' laddr, 2!a-table to-method: to-da:
 ' laddr, c!a-table to-method: to-ca:

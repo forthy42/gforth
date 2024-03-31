@@ -323,6 +323,7 @@ GFORTH_FI_SRC2=\
 	to.fs \
 	user-object.fs \
 	utf-8.fs \
+	varues.fs \
 	vt100.fs \
 	vt100key.fs \
 	wordinfo.fs \
@@ -452,24 +453,24 @@ TEST_SRC = tester.fs ttester.fs checkans.fs coretest.fs dbltest.fs float.fs \
 UNIX_SRC = terminal-server.fs jni-helper.fs jni-tools.fs jni-media.fs	\
 	jni-location.fs sensors.fs win32.fs wayland-interfaces.fs
 
-FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(F_SRC)	      \
-	$(LIBCC_FORTH_SRC) $(patsubst %, minos2/%, $(MINOS2_SRC)) $(patsubst  \
-	%, minos2/%, $(MINOS2_BIN)) ans-report.fs ansi.fs answords.fs	      \
-	colorize.fs comp-i.fs csv.fs depth-changes.fs dosekey.fs doskey.fs    \
-	ds2texi.fs envos.dos envos.os2 etags.fs fft.fs filedump.fs fi2c.fs    \
-	forward.fs fsl-util.4th fsl-util.fs glosgen.fs gray.fs httpd.fs	      \
-	i18n.fs install-tags.fs make-app.fs doc/makedoc.fs locate.fs	      \
-	locate1.fs more.fs onebench.fs fft-bench.fs other.fs prims2x.fs	      \
-	prims2x0.6.2.fs proxy.fs random.fs regexp.fs sokoban.fs string.fs     \
-	table.fs tags.fs tt.fs unbuffer.fs wordsets.fs 2012words.fs	      \
-	$(patsubst %, test/%, $(TEST_SRC)) bubble.fs siev.fs matrix.fs fib.fs \
-	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs     \
-	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs scope.fs	      \
-	varues.fs callable.fs add.fs lib.fs oldlib.fs sieve.fs list.fs	      \
-	endtry-iferror.fs recover-endtry.fs $(patsubst %, unix/%,	      \
-	$(UNIX_SRC)) date.fs i18n-date.fs script.fs wf.fs traceall.fs	      \
-	notfound.fs utf16.fs archive.fs cilk.fs fixfiles.fs bits.fs	      \
-	reverse-words.fs config.fs set-compsem.fs coverage.fs tokenize.fs     \
+FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(F_SRC)		\
+	$(LIBCC_FORTH_SRC) $(patsubst %, minos2/%, $(MINOS2_SRC)) $(patsubst	\
+	%, minos2/%, $(MINOS2_BIN)) ans-report.fs ansi.fs answords.fs		\
+	colorize.fs comp-i.fs csv.fs depth-changes.fs dosekey.fs doskey.fs	\
+	ds2texi.fs envos.dos envos.os2 etags.fs fft.fs filedump.fs fi2c.fs	\
+	forward.fs fsl-util.4th fsl-util.fs glosgen.fs gray.fs httpd.fs		\
+	i18n.fs install-tags.fs make-app.fs doc/makedoc.fs locate.fs		\
+	locate1.fs more.fs onebench.fs fft-bench.fs other.fs prims2x.fs		\
+	prims2x0.6.2.fs proxy.fs random.fs regexp.fs sokoban.fs string.fs	\
+	table.fs tags.fs tt.fs unbuffer.fs wordsets.fs 2012words.fs		\
+	$(patsubst %, test/%, $(TEST_SRC)) bubble.fs siev.fs matrix.fs fib.fs	\
+	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs	\
+	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs scope.fs		\
+	callable.fs add.fs lib.fs oldlib.fs sieve.fs list.fs			\
+	endtry-iferror.fs recover-endtry.fs $(patsubst %, unix/%,		\
+	$(UNIX_SRC)) date.fs i18n-date.fs script.fs wf.fs traceall.fs		\
+	notfound.fs utf16.fs archive.fs cilk.fs fixfiles.fs bits.fs		\
+	reverse-words.fs config.fs set-compsem.fs coverage.fs tokenize.fs	\
 	unix/opensles-vals.fs recognizer2.fs trigger-value.fs
 
 GEN_SRC = standard-words.fs
