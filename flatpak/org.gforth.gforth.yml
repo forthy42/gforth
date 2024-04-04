@@ -20,5 +20,5 @@ modules:
     no-autogen: true
     sources:
       - type: archive
-        url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20240321/gforth-0.7.9_20240321.tar.xz
-        sha256: 1b263ac19ee3481c3e5aa1dfb5744eefc10401c79cfa51571e7c58e3902731b2
+        url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20240404/gforth-0.7.9_20240404.tar.xz
+        sha256: 
