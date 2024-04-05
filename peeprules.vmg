@@ -231,6 +231,10 @@ forlocal(`7',`\E prim-states @local%i              \ 75322')
 forlocal(`7',`\E prim-states !local%i')
 \E prim-states +!localn
 \E prim-states f@localn
+\E prim-states o
+forlocal(`15',`\E prim-states o%i')
+forlocal(`15',`\E prim-states @o%i')
+forlocal(`15',`\E prim-states !o%i')
 \E prim-states min                  \ 75264
 \ \E prim-states compare              \ 65603
 \E branch-states (u+do)               \ 63823
