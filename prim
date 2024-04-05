@@ -3516,26 +3516,8 @@ up@    ( -- a_addr )	new	up_fetch
 serves as the @i{task} identifier of the current task).""
 a_addr = (Cell*)up;
 
-forlocal(`15',`o%i ( -- a_addr )	gforth-internal	o_%i
+forlocal(`31',`o%i ( -- a_addr )	gforth-internal	o_%i
 a_addr = ((Cell *)op)+i;')
-
-forlocal(`15',`@o%i ( -- w )	gforth-internal	fetch_o_%i
-w = ((Cell *)op)[i];')
-
-forlocal(`15',`!o%i ( w -- )	gforth-internal	store_o_%i
-((Cell *)op)[i]=w;')
-
-forlocal(`15',`f@o%i ( -- r )	gforth-internal	ffetch_o_%i
-r = ((Float *)op)[i];')
-
-forlocal(`15',`f!o%i ( r -- )	gforth-internal	fstore_o_%i
-((Float *)op)[i]=r;')
-
-forlocal(`15',`sf@o%i ( -- r )	gforth-internal	sffetch_o_%i
-r = ((SFloat *)op)[i];')
-
-forlocal(`15',`sf!o%i ( r -- )	gforth-internal	sfstore_o_%i
-((SFloat *)op)[i]=r;')
 
 \+
 \g static_super

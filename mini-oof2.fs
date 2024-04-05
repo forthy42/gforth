@@ -22,10 +22,21 @@ require struct-val.fs
 
 Defer default-method ' noop IS default-method
 
-\ template for methods and ivars
+\ optimization for object access
+Create o+-table
+' o0 , ' o1 , ' o2 , ' o3 , ' o4 , ' o5 , ' o6 , ' o7 ,
+' o8 , ' o9 , ' o10 , ' o11 , ' o12 , ' o13 , ' o14 , ' o15 ,
+' o16 , ' o17 , ' o18 , ' o19 , ' o20 , ' o21 , ' o22 , ' o23 ,
+' o24 , ' o25 , ' o26 , ' o27 , ' o28 , ' o29 , ' o30 , ' o31 ,
+here o+-table - >r
+: oaddr, ( u -- )
+    dup cell 1- and 0= over [ r> ]L u< and IF
+	o+-table + @ compile,  EXIT  THEN
+    postpone o lit, postpone + ;
 
+\ template for methods and ivars
 Create o# 0 ,  DOES> @ o + ;
-opt: ( xt -- ) >body @ postpone o lit, postpone + ;
+opt: ( xt -- ) >body @ oaddr, ;
 s" Invalid method for this class" exception Constant !!inv-method!!
 : ?valid-method ( offset class -- offset )
     cell- @ over u<= !!inv-method!! and throw ;
@@ -45,7 +56,7 @@ opt: ( xt -- ) >body @ cell/ postpone o#exec , ;
 
 : o+field, ( addr body -- addr' )
     @ o + ;
-opt: drop @ postpone o lit, postpone + ;
+opt: drop @ oaddr, ;
 
 \ core system
 
