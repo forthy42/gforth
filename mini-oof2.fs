@@ -28,10 +28,10 @@ Create o+-table
 ' o8 , ' o9 , ' o10 , ' o11 , ' o12 , ' o13 , ' o14 , ' o15 ,
 ' o16 , ' o17 , ' o18 , ' o19 , ' o20 , ' o21 , ' o22 , ' o23 ,
 ' o24 , ' o25 , ' o26 , ' o27 , ' o28 , ' o29 , ' o30 , ' o31 ,
-here o+-table - >r
+here o+-table - cell/ sfloats >r
 : oaddr, ( u -- )
-    dup cell 1- and 0= over [ r> ]L u< and IF
-	o+-table + @ compile,  EXIT  THEN
+    dup 1 sfloats 1- and 0= over [ r> ]L u< and IF
+	sfloat/ cells o+-table + @ compile,  EXIT  THEN
     postpone o lit, postpone + ;
 
 \ template for methods and ivars
