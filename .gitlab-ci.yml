@@ -15,7 +15,7 @@ build-amd64:
     - ./autogen.sh
     - ./configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu
     - make distclean
-    - dpkg-buildpackage -uc -us -d -b
+    - dpkg-buildpackage -uc -us -d -b -j1
     - rm -f debian/*.deb
     - mv ../*.deb debian
   
@@ -32,7 +32,7 @@ build-i386:
     - ./autogen.sh
     - ./configure --host=i686-pc-linux-gnu --build=i686-pc-linux-gnu
     - make distclean
-    - dpkg-buildpackage -uc -us -d -b -ai386
+    - dpkg-buildpackage -uc -us -d -b -ai386 -j1
     - mv ../*i386*.deb debian
   
   # The files which are to be made available in GitLab
@@ -48,7 +48,7 @@ build-amd64-stable:
     - ./autogen.sh
     - ./configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu
     - make distclean
-    - dpkg-buildpackage -uc -us -d -b
+    - dpkg-buildpackage -uc -us -d -b -j1
     - mkdir -p debian/stable
     - rm -f debian/stable/*.deb
     - mv ../*.deb debian/stable
@@ -66,7 +66,7 @@ build-i386-stable:
     - ./autogen.sh
     - ./configure --host=i686-pc-linux-gnu --build=i686-pc-linux-gnu
     - make distclean
-    - dpkg-buildpackage -uc -us -d -b -ai386
+    - dpkg-buildpackage -uc -us -d -b -ai386 -j1
     - mv ../*i386*.deb debian/stable
   
   # The files which are to be made available in GitLab
@@ -82,7 +82,7 @@ build-amd64-oldstable:
     - ./autogen.sh
     - ./configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu
     - make distclean
-    - dpkg-buildpackage -uc -us -d -b
+    - dpkg-buildpackage -uc -us -d -b -j1
     - mkdir -p debian/oldstable
     - rm -f debian/oldstable/*.deb
     - mv ../*.deb debian/oldstable
@@ -100,7 +100,7 @@ build-i386-oldstable:
     - ./autogen.sh
     - ./configure --host=i686-pc-linux-gnu --build=i686-pc-linux-gnu
     - make distclean
-    - dpkg-buildpackage -uc -us -d -b -ai386
+    - dpkg-buildpackage -uc -us -d -b -ai386 -j1
     - mv ../*i386*.deb debian/oldstable
   
   # The files which are to be made available in GitLab
