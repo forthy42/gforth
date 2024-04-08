@@ -452,7 +452,7 @@ include ./recognizer.fs
 
 : s>int ( nt -- xt )  >body @ name>interpret ;
 : s>comp ( nt -- xt1 xt2 )  >body @ name>compile ;
-: s-to ( val nt -- )
+: s-to ( val operation nt -- )
     >body @ (to) ;
 opt: ( xt -- ) ?fold-to >body @ (to), ;
 : s-compile, ( xt -- )  >body @ compile, ;
@@ -778,16 +778,15 @@ opt: ?fold-to 4 swap (to), ;
 ' [noop] defer-table to-method: defer-is ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for deferred words
 
-:noname ( "name" x -- ) \ gforth-internal angle-is
-    \g Changes the @code{value} word @var{name} to return @var{x}.
+: int-to ( "name" x -- ) \ gforth-internal
+    \g Interpretation semantics of \code{to}.
     record-name 0 (') (to) ;
 
-:noname ( compilation "name" -- ; run-time x -- ) \ gforth-internal bracket-is
-    \g At run-time, changes the @code{value} word @var{name} to
-    \g return @var{x}.
+: comp-to ( compilation "name" -- ; run-time x -- ) \ gforth-internal
+    \g Compilation semantics of \code{to}.
     record-name 0 (') (to), ; immediate restrict
 
-interpret/compile: TO ( value "name" -- ) \ core-ext
+' int-to ' comp-to interpret/compile: TO ( value "name" -- ) \ core-ext
 \g changes the value of @var{name} to @var{value}
 
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
