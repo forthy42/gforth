@@ -180,6 +180,13 @@ csswaplstore = >r l>< r> l!
 \E S1 S2 state-prim over
 \E S2 S1 state-prim over
 \E S3 S2 state-prim over
+\E S0 S1 state-prim third
+\E S1 S2 state-prim third
+\E S2 S3 state-prim third
+\E S3 S1 state-prim third
+\E S0 S1 state-prim fourth
+\E S1 S2 state-prim fourth
+\E S2 S3 state-prim fourth
 \E prim-states negate               \ 257417
 \E prim-states cells                \ 254644
 \E prim-states rot                  \ 220273
