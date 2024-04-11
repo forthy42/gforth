@@ -32,7 +32,7 @@
     \ pushes l items from data stack to literal stack.
     lits# m u>= if
 	pop xt catch 0= if
-	    push rdrop exit then
+	    push exit then
 	unpop then
     xt dup >code-address docol: = if
 	:,

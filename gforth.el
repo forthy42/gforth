@@ -190,7 +190,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be
 	(("immediate" "compile-only" "restrict")
 	 immediate (font-lock-keyword-face . 1))
 	(("does>") definition-starter (font-lock-keyword-face . 1))
-	((":noname" "comp:" "compsem:" "opt:" "defer:" "defer@-opt:" "to-opt:") definition-starter (font-lock-keyword-face . 1))
+	((":noname" "comp:" "compsem:" "opt:" "fold1:") definition-starter (font-lock-keyword-face . 1))
 	((":trigger-on(") definition-starter (font-lock-keyword-face . 1)
 	 "[)]" t comment (font-lock-function-name-face . 3))
 	((";" ";code" ";abi-code") definition-ender (font-lock-keyword-face . 1))

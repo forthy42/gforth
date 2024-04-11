@@ -422,7 +422,7 @@ opt: ( operation xt-(to -- )
 \ \G @i{xt} represents the word currently associated with the deferred
 \ \G word @i{xt-deferred}.
 \ opt: ( xt-defer@ -- )
-\      ?fold-to defer@, ;
+\      ?fold1 defer@, ;
 
 swap cell+ swap \ hmextra
 
@@ -445,12 +445,12 @@ drop Constant hmsize \ vtable size
     \G @i{xt} represents the word currently associated with the deferred
     \G word @i{xt-deferred}.
     3 swap (to) ;
-opt: ?fold-to 3 swap (to), ;
+opt: ?fold1 3 swap (to), ;
 
 : initwl ( wid -- ) \ gforth init-voc
     \G initialises a vocabulary. Mapped to +TO
     1 swap (to) ;
-opt: ?fold-to 1 swap (to), ;
+opt: ?fold1 1 swap (to), ;
 
 : >extra ( nt -- addr )
     >namehm @ >hmextra ;

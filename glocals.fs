@@ -339,10 +339,10 @@ Defer locals-list!
 to-table: 2!-table 2! 2+!
 to-table: c!-table c! c+!
 : laddr, ( lit:xt -- ) -14 throw ;
-opt: ( lit:xt xt -- ) ?fold-to >body @ laddr#, ;
+fold1: >body @ laddr#, ;
 
 : loffset, ( lit:xt -- ) -14 throw ;
-opt: ( lit:xt xt -- ) ?fold-to >body @ lp-offset postpone literal ;
+fold1: >body @ lp-offset postpone literal ;
 to-table: !lp-table !localn +!localn
 
 ' loffset, !lp-table to-method: to-w:

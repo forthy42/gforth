@@ -454,7 +454,7 @@ include ./recognizer.fs
 : s>comp ( nt -- xt1 xt2 )  >body @ name>compile ;
 : s-to ( val operation nt -- )
     >body @ (to) ;
-opt: ( xt -- ) ?fold-to >body @ (to), ;
+opt: ( xt -- ) ?fold1 >body @ (to), ;
 : s-compile, ( xt -- )  >body @ compile, ;
 
 : synonym, ( nt int comp -- ) \ gforth-internal
@@ -747,26 +747,26 @@ Create hmtemplate
     \ OPT!-COMPILE,.
 ;
 
-: ?fold-to ( <to>-xt -- name-xt )
+: ?fold1 ( <to>-xt -- name-xt )
     \G Prepare partial constant folding for @code{(to)} methods: if
     \G there's no literal on the folding stack, just compile the
     \G @code{(to)} method as is.  If there is, drop the xt of the
     \G \code{(to)} method, and retrieve the @i{name-xt} of the word TO
     \G is applied to from the folding stack.
     lits# 0= IF :, rdrop EXIT THEN drop lits> ;
-: to-opt: ( -- colon-sys ) \ gforth-internal
+: fold1: ( -- colon-sys ) \ gforth-internal
     \G Defines a part of the TO <name> run-time semantics used with compiled
     \G @code{TO}.  The stack effect of the code following @code{to-opt:} must
     \G be: @code{( xt -- ) ( generated: v -- )}.  The generated code stores
     \G @i{v} in the storage represented by @i{xt}.
-    opt: postpone ?fold-to ;
+    opt: postpone ?fold1 ;
 
 \ defer and friends
 
 : defer! ( xt xt-deferred -- ) \ core-ext  defer-store
     \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
     4 swap (to) ;
-opt: ?fold-to 4 swap (to), ;
+opt: ?fold1 4 swap (to), ;
 
 ' defer! Alias reveal! ( xt wid -- ) \ core-ext  reveal-store
     \G add xt to a wordlist by using the TO access method

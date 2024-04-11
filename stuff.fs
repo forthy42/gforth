@@ -878,7 +878,7 @@ end-struct buffer% ( u1 u2 -- ) \ gforth-experimental
 
 : rpick ( u -- w )
     1+ cells rp@ + @ ;
-opt: ?fold-to
+fold1:
     case
 	0 of  postpone r@  endof
 	1 of  postpone r'@  endof

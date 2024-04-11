@@ -49,7 +49,7 @@ Create defer-table ' warn! A, ' n/a A, ' n/a A, ' @ A,   ' ! A,
 
 : >uvalue ( xt -- addr )
     >body @ up@ + ;
-opt: ?fold-to >body @ postpone up@ postpone lit+ , ;
+opt: ?fold1 >body @ postpone up@ postpone lit+ , ;
 
 : to:exec ( .. u xt1 xt2 -- .. ) rot >r 2@ r> cells + >r execute r> perform ;
 : to:,    ( u xt2 -- ) 2@ rot cells + >r compile, r> @ compile, ;

@@ -215,7 +215,7 @@ is ?warning
   Create 0 , watch-does> watch-opt: ;
 
 : ~~>body ( addr -- body ) ~~ ;
-to-opt: lit, ]] ~~ [[ ;
+fold1: lit, ]] ~~ [[ ;
 ' ~~>body !-table to-method: ~~value-to
 
 : ~~Value ( n "name" -- ) \ gforth
