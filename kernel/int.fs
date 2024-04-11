@@ -421,8 +421,8 @@ opt: ( operation xt-(to -- )
 \ method old-defer@ ( xt-deferred -- xt ) \ core-ext defer-fetch
 \ \G @i{xt} represents the word currently associated with the deferred
 \ \G word @i{xt-deferred}.
-\ opt: ( xt-defer@ -- )
-\      ?fold1 defer@, ;
+\ fold1: ( xt-defer@ -- )
+\      defer@, ;
 
 swap cell+ swap \ hmextra
 

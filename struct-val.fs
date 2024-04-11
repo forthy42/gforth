@@ -39,7 +39,7 @@ standard:field
 : vfield-comp, ( body -- ) dup cell+ @ opt-compile, ;
 : vfield, ( body -- addr )
     vfield-int, ;
-to-opt: vfield-comp, ;
+fold1: vfield-comp, ;
 
 : create+value ( n1 addr "name" -- n3 )
     >r r@ 2 cells + perform

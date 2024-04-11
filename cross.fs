@@ -3239,7 +3239,7 @@ ghost a>comp drop
 ghost a-to drop
 ghost s-to drop
 ghost :dodefer drop
-ghost ?fold-to drop
+ghost ?fold1 drop
 
 : Alias    ( cfa -- ) \ name
     >in @ skip? IF  2drop  EXIT  THEN  >in !
@@ -3261,8 +3261,6 @@ ghost ?fold-to drop
 
 : opt: ( -- colon-sys )   gstart-xt set-optimizer ;
 : comp: ( -- colon-sys )  gstart-xt set-optimizer ;
-
-: to-opt: T opt: H compile ?fold-to ;
 
 variable cross-boot$[]
 variable cross-boot[][]
