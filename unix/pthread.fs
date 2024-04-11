@@ -386,7 +386,7 @@ synonym sleep halt ( task -- ) \ gforth-experimental
 [IFUNDEF] >uvalue
     : >uvalue ( xt -- addr )
 	>body @ up@ + ;
-    to-opt: >body @ postpone up@ lit, postpone + ;
+    fold1: >body @ postpone up@ lit, postpone + ;
 [THEN]
 
 ' >uvalue defer-table to-method: udefer-to

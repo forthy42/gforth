@@ -42,7 +42,7 @@ s" Invalid method for this class" exception Constant !!inv-method!!
     cell- @ over u<= !!inv-method!! and throw ;
 : m>body ( xt class xtsel -- )
     >body @ over ?valid-method + ;
-to-opt: ( xt class xtsel -- ) >body @ lit, postpone + ;
+fold1: ( xt class xtsel -- ) >body @ lit, postpone + ;
 ' m>body defer-table to-method: m-to
 \ no validity check for compilation, normal usage is interpretative only
 Create m 0 ,  DOES> @ -1 cells o + @ + perform ;

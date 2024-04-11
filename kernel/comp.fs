@@ -756,7 +756,7 @@ Create hmtemplate
     lits# 0= IF :, rdrop EXIT THEN drop lits> ;
 : fold1: ( -- colon-sys ) \ gforth-internal
     \G Defines a part of the TO <name> run-time semantics used with compiled
-    \G @code{TO}.  The stack effect of the code following @code{to-opt:} must
+    \G @code{TO}.  The stack effect of the code following @code{fold1:} must
     \G be: @code{( xt -- ) ( generated: v -- )}.  The generated code stores
     \G @i{v} in the storage represented by @i{xt}.
     opt: postpone ?fold1 ;
