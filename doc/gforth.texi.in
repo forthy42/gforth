@@ -16586,8 +16586,7 @@ following methods (method selectors):
 .hm label method          overrider        field
           execute         set-execute      >cfa
 opt:      opt-compile,    set-optimizer    >hmcompile,
-to:       defer!          set-to           >hmto
-defer@@:   defer@@          set-defer@@       >hmdefer@@
+to:       (to)            set-to           >hmto
 extra:                                     >hmextra
 >int:     name>interpret  set->int         >hm>int
 >comp:    name>compile    set->comp        >hm>comp
