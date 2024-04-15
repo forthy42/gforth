@@ -96,50 +96,31 @@ User locals-size \ this is the current size of the locals stack
     \ xt is optimizer of "name"
     ' make-latest set-optimizer ;
 
-create @local-table
-' @local0 ,
-' @local1 ,
-' @local2 ,
-' @local3 ,
-' @local4 ,
-' @local5 ,
-' @local6 ,
-' @local7 ,
-here @local-table - constant @local-table-size
+: xts, ( "name1" .. "namen" -- )
+    BEGIN  parse-name  dup WHILE  rec-nt '-error ,  REPEAT  2drop ;
+    
+: opt-table ( unit -- xt )
+    noname Create 0 , , xts,
+    here latestxt dup >r 2 cells + - r> !
+    latestxt
+    DOES> ( xt table -- )
+    >r lits# 1 u>= if
+        lits> dup r@ cell+ @ /mod swap 0= third r@ @ u< and if
+            cells r> 2 cells + + @ compile, 2drop exit then
+	drop >lits then
+    rdrop peephole-compile, ;
 
-: opt-@localn ( xt -- )
-    lits# 1 u>= if
-        lits> dup @local-table-size < over cell mod 0= and if
-            @local-table + @ compile, drop exit then
-        >lits then
-    peephole-compile, ;
-' opt-@localn optimizes @localn
+cell opt-table @local0 @local1 @local2 @local3 @local4 @local5 @local6 @local7 
+optimizes @localn
 
-create !local-table
-' !local0 ,
-' !local1 ,
-' !local2 ,
-' !local3 ,
-' !local4 ,
-' !local5 ,
-' !local6 ,
-' !local7 ,
-here !local-table - constant !local-table-size
-
-: opt-!localn ( xt -- )
-    lits# 1 u>= if
-        lits> dup !local-table-size < over cell mod 0= and if
-            !local-table + @ compile, drop exit then
-        >lits then
-    peephole-compile, ;
-' opt-!localn optimizes !localn
+cell opt-table !local0 !local1 !local2 !local3 !local4 !local5 !local6 !local7 
+optimizes !localn
 
 \ compile locals with offset n
 
 : compile-@local ( n -- ) \ gforth-internal compile-fetch-local
     \ n is the offset from LP
     lit, postpone @localn ;
-
 
 : compile-f@local ( n -- ) \ gforth-internal compile-f-fetch-local
     lit, postpone f@localn ;
