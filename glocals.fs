@@ -101,11 +101,11 @@ User locals-size \ this is the current size of the locals stack
     
 : opt-table ( unit -- xt )
     noname Create 0 , , xts,
-    here latestxt dup >r 2 cells + - r> !
+    here latestxt dup >r 2 cells + - cell/ r> !
     latestxt
     DOES> ( xt table -- )
     >r lits# 1 u>= if
-        lits> dup r@ cell+ @ /mod swap 0= third r@ @ u< and if
+        lits> dup r@ cell+ @ /mod swap 0= over r@ @ u< and if
             cells r> 2 cells + + @ compile, 2drop exit then
 	drop >lits then
     rdrop peephole-compile, ;

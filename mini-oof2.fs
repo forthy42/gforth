@@ -23,19 +23,12 @@ require struct-val.fs
 Defer default-method ' noop IS default-method
 
 \ optimization for object access
-Create o+-table
-' o0 , ' o1 , ' o2 , ' o3 , ' o4 , ' o5 , ' o6 , ' o7 ,
-' o8 , ' o9 , ' o10 , ' o11 , ' o12 , ' o13 , ' o14 , ' o15 ,
-' o16 , ' o17 , ' o18 , ' o19 , ' o20 , ' o21 , ' o22 , ' o23 ,
-' o24 , ' o25 , ' o26 , ' o27 , ' o28 , ' o29 , ' o30 , ' o31 ,
-here o+-table - cell/ sfloats >r
-: oaddr, ( u -- )
-    dup 1 sfloats 1- and 0= over [ r> ]L u< and IF
-	sfloat/ cells o+-table + @ compile,  EXIT  THEN
-    postpone o lit, postpone + ;
+1 sfloats opt-table o0 o1 o2 o3 o4 o5 o6 o7 o8 o9 o10 o11 o12 o13 o14 o15 o16 o17 o18 o19 o20 o21 o22 o23 o24 o25 o26 o27 o28 o29 o30 o31
+optimizes o+
+: oaddr, ( u -- ) lit, postpone o+ ;
 
 \ template for methods and ivars
-Create o# 0 ,  DOES> @ o + ;
+Create o# 0 ,  DOES> @ o+ ;
 opt: ( xt -- ) >body @ oaddr, ;
 s" Invalid method for this class" exception Constant !!inv-method!!
 : ?valid-method ( offset class -- offset )
@@ -45,7 +38,7 @@ s" Invalid method for this class" exception Constant !!inv-method!!
 fold1: ( xt class xtsel -- ) >body @ lit, postpone + ;
 ' m>body defer-table to-method: m-to
 \ no validity check for compilation, normal usage is interpretative only
-Create m 0 ,  DOES> @ -1 cells o + @ + perform ;
+Create m 0 ,  DOES> @ -1 cells o+ @ + perform ;
 opt: ( xt -- ) >body @ cell/ postpone o#exec , ;
 ' m-to set-to
 ' o# Value var-xt
@@ -55,7 +48,7 @@ opt: ( xt -- ) >body @ cell/ postpone o#exec , ;
 \ ivalues
 
 : o+field, ( addr body -- addr' )
-    @ o + ;
+    @ o+ ;
 opt: drop @ oaddr, ;
 
 \ core system

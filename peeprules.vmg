@@ -239,6 +239,7 @@ forlocal(`7',`\E prim-states !local%i')
 \E prim-states +!localn
 \E prim-states f@localn
 \E prim-states o
+\E prim-states o+
 forlocal(`31',`\E prim-states o%i')
 \E prim-states min                  \ 75264
 \ \E prim-states compare              \ 65603

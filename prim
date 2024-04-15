@@ -3516,6 +3516,9 @@ up@    ( -- a_addr )	new	up_fetch
 serves as the @i{task} identifier of the current task).""
 a_addr = (Cell*)up;
 
+o+      ( n -- c_addr )	new	o_plus
+c_addr = ((Char*)op)+n;
+
 forlocal(`31',`o%i ( -- sf_addr )	gforth-internal	o_%i
 sf_addr = ((SFloat *)op)+i;')
 
