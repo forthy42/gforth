@@ -253,6 +253,7 @@ csswaplstore = >r l>< r> l!
 \E prim-states or                   \ 21587
 \E prim-states @local2              \ 20859
 \E S2 S1 state-prim (+loop)              \ 20006
+\E S2 S1 state-prim (+loop)-rstack              \ 20006
 \E S2 S1 state-prim (/loop)              \ 20006
 \E prim-states 1+                   \ 17944
 \E prim-states rdrop                \ 17902

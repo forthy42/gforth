@@ -457,27 +457,30 @@ if (nstart == nlimit) {
     SET_IP((Xt *)a_target);
 }
 
-(loop)-rstack ( R:a_doaddr R:nlimit R:n1 -- R:a_doaddr R:nlimit R:n2 ) gforth-internal paren_loop_rstack
+(loop)-rstack ( R:nlimit R:n1 -- R:nlimit R:n2 ) gforth-internal paren_loop_rstack
 n2=n1+1;
 if (n2 != nlimit) {
-  asm("");
+  Cell * a_doaddr;
+  vm_Cell2a_(rp[2],a_doaddr);
   SET_IP((Xt *)a_doaddr);
 }
 
-(+loop)-rstack ( n R:a_doaddr R:nlimit R:n1 -- R:a_doaddr R:nlimit R:n2 ) gforth-internal paren_plus_loop_rstack
+(+loop)-rstack ( n R:nlimit R:n1 -- R:nlimit R:n2 ) gforth-internal paren_plus_loop_rstack
 Cell olddiff = n1-nlimit;
 n2=n1+n;	
 if (((olddiff^(olddiff+n))    /* the limit is not crossed */
      &(olddiff^n))	       /* OR it is a wrap-around effect */
     >=0) { /* & is used to avoid having two branches for gforth-native */
-  asm("");
+  Cell * a_doaddr;
+  vm_Cell2a_(rp[2],a_doaddr);
   SET_IP((Xt *)a_doaddr);
 }
 
-(/loop)#-rstack ( #u R:a_doaddr R:nlimit R:n1 -- R:a_doaddr R:nlimit R:n2 ) gforth-internal paren_slash_loop_rstack
+(/loop)#-rstack ( #u R:nlimit R:n1 -- R:nlimit R:n2 ) gforth-internal paren_slash_loop_rstack
 n2=n1+u;
 if (n2-nlimit>=u) {
-  asm("");
+  Cell * a_doaddr;
+  vm_Cell2a_(rp[2],a_doaddr);
   SET_IP((Xt *)a_doaddr);
 }
 
