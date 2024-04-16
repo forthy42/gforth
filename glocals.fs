@@ -99,10 +99,9 @@ User locals-size \ this is the current size of the locals stack
 : xts, ( "name1" .. "namen" -- )
     BEGIN  parse-name  dup WHILE  rec-nt '-error ,  REPEAT  2drop ;
     
-: opt-table ( unit -- xt )
-    noname Create 0 , , xts,
+: opt-table: ( unit -- )
+    Create 0 , , xts,
     here latestxt dup >r 2 cells + - cell/ r> !
-    latestxt
     DOES> ( xt table -- )
     >r lits# 1 u>= if
         lits> dup r@ cell+ @ /mod swap 0= over r@ @ u< and if
@@ -110,11 +109,11 @@ User locals-size \ this is the current size of the locals stack
 	drop >lits then
     rdrop peephole-compile, ;
 
-cell opt-table @local0 @local1 @local2 @local3 @local4 @local5 @local6 @local7 
-optimizes @localn
+cell opt-table: opt-@localn @local0 @local1 @local2 @local3 @local4 @local5 @local6 @local7 
+' opt-@localn optimizes @localn
 
-cell opt-table !local0 !local1 !local2 !local3 !local4 !local5 !local6 !local7 
-optimizes !localn
+cell opt-table: opt-!localn !local0 !local1 !local2 !local3 !local4 !local5 !local6 !local7
+' opt-!localn optimizes !localn
 
 \ compile locals with offset n
 

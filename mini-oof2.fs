@@ -23,8 +23,8 @@ require struct-val.fs
 Defer default-method ' noop IS default-method
 
 \ optimization for object access
-1 sfloats opt-table o0 o1 o2 o3 o4 o5 o6 o7 o8 o9 o10 o11 o12 o13 o14 o15 o16 o17 o18 o19 o20 o21 o22 o23 o24 o25 o26 o27 o28 o29 o30 o31
-optimizes o+
+1 sfloats opt-table: opt-on o0 o1 o2 o3 o4 o5 o6 o7 o8 o9 o10 o11 o12 o13 o14 o15 o16 o17 o18 o19 o20 o21 o22 o23 o24 o25 o26 o27 o28 o29 o30 o31
+' opt-on optimizes o+
 : oaddr, ( u -- ) lit, postpone o+ ;
 
 \ template for methods and ivars
