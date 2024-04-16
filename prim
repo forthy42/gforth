@@ -3519,8 +3519,32 @@ a_addr = (Cell*)up;
 o+      ( n -- c_addr )	new	o_plus
 c_addr = ((Char*)op)+n;
 
+!o+      ( u n -- )	new	store_o_plus
+*(Cell*)(((Char*)op)+n) = u;
+
+@o+      ( n -- u )	new	fetch_o_plus
+u = *(Cell*)(((Char*)op)+n);
+
+sf!o+      ( r n -- )	new	sf_store_o_plus
+*(SFloat*)(((Char*)op)+n) = r;
+
+sf@o+      ( n -- r )	new	sf_fetch_o_plus
+r = *(SFloat*)(((Char*)op)+n);
+
 forlocal(`31',`o%i ( -- sf_addr )	gforth-internal	o_%i
 sf_addr = ((SFloat *)op)+i;')
+
+forlocal(`15',`!o%i ( u -- )	gforth-internal	store_o_%i
+((Cell *)op)[i] = u;')
+
+forlocal(`15',`@o%i ( -- u )	gforth-internal	fetch_o_%i
+u = ((Cell *)op)[i];')
+
+forlocal(`31',`sf!o%i ( r -- )	gforth-internal	sf_store_o_%i
+((SFloat *)op)[i] = r;')
+
+forlocal(`31',`sf@o%i ( -- r )	gforth-internal	sf_fetch_o_%i
+r = ((SFloat *)op)[i];')
 
 \+
 \g static_super

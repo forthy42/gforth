@@ -25,7 +25,19 @@ Defer default-method ' noop IS default-method
 \ optimization for object access
 1 sfloats opt-table: opt-on o0 o1 o2 o3 o4 o5 o6 o7 o8 o9 o10 o11 o12 o13 o14 o15 o16 o17 o18 o19 o20 o21 o22 o23 o24 o25 o26 o27 o28 o29 o30 o31
 ' opt-on optimizes o+
+cell opt-table: opt-!on !o0 !o1 !o2 !o3 !o4 !o5 !o6 !o7 !o8 !o9 !o10 !o11 !o12 !o13 !o14 !o15
+' opt-!on optimizes !o+
+cell opt-table: opt-@on @o0 @o1 @o2 @o3 @o4 @o5 @o6 @o7 @o8 @o9 @o10 @o11 @o12 @o13 @o14 @o15
+' opt-@on optimizes @o+
+1 sfloats opt-table: opt-sf!on sf!o0 sf!o1 sf!o2 sf!o3 sf!o4 sf!o5 sf!o6 sf!o7 sf!o8 sf!o9 sf!o10 sf!o11 sf!o12 sf!o13 sf!o14 sf!o15 sf!o16 sf!o17 sf!o18 sf!o19 sf!o20 sf!o21 sf!o22 sf!o23 sf!o24 sf!o25 sf!o26 sf!o27 sf!o28 sf!o29 sf!o30 sf!o31
+' opt-sf!on optimizes sf!o+
+1 sfloats opt-table: opt-sf@on sf@o0 sf@o1 sf@o2 sf@o3 sf@o4 sf@o5 sf@o6 sf@o7 sf@o8 sf@o9 sf@o10 sf@o11 sf@o12 sf@o13 sf@o14 sf@o15 sf@o16 sf@o17 sf@o18 sf@o19 sf@o20 sf@o21 sf@o22 sf@o23 sf@o24 sf@o25 sf@o26 sf@o27 sf@o28 sf@o29 sf@o30 sf@o31
+' opt-sf@on optimizes sf@o+
 : oaddr, ( u -- ) lit, postpone o+ ;
+: !oaddr, ( u -- ) lit, postpone !o+ ;
+: @oaddr, ( u -- ) lit, postpone @o+ ;
+: sf!oaddr, ( u -- ) lit, postpone sf!o+ ;
+: sf@oaddr, ( u -- ) lit, postpone sf@o+ ;
 
 \ template for methods and ivars
 Create o# 0 ,  DOES> @ o+ ;
@@ -47,9 +59,15 @@ opt: ( xt -- ) >body @ cell/ postpone o#exec , ;
 
 \ ivalues
 
-: o+field, ( addr body -- addr' )
-    @ o+ ;
-opt: drop @ oaddr, ;
+: o+field, ( addr body xt -- addr' )
+    >r @ o+ r> execute ;
+opt: drop @ case lits>
+	['] !    of  !oaddr,  endof
+	['] @    of  @oaddr,  endof
+	['] sf!  of  sf!oaddr,  endof
+	['] sf@  of  sf@oaddr,  endof
+	>r oaddr, r> compile,
+	0 endcase ;
 
 \ core system
 

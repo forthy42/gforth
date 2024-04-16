@@ -20,12 +20,11 @@
 
 Defer +field,
 
-: standard+field, ( addr body -- addr' )
-    @ + ;
+: standard+field, ( addr body xt -- addr' )
+    >r @ + r> execute ;
 opt: drop @ ?dup-IF
-	lits# 0> IF  lits> + >lits
-	ELSE  ['] lit+ peephole-compile, ,  THEN
-    THEN ;
+	lits> swap >lits postpone + >lits
+    THEN  lits> compile, ;
 
 :noname ( -- )
     defers standard:field ['] standard+field, IS +field, ; is standard:field
@@ -35,9 +34,9 @@ standard:field
 \ The xt to create the actual code with is at the second cell
 \ The actual offset in the first cell, which will be used by that code
 \ in the second cell...
-: vfield-int, ( addr body -- addr+offset ) dup cell+ @ execute ;
+: vfield-int, ( addr body -- addr+offset ) over cell+ @ execute ;
 : vfield-comp, ( body -- ) dup cell+ @ opt-compile, ;
-: vfield, ( body -- addr )
+: vfield-opt, ( body -- addr )
     vfield-int, ;
 fold1: vfield-comp, ;
 
@@ -45,10 +44,18 @@ fold1: vfield-comp, ;
     >r r@ 2 cells + perform
     r> 2@ create-from reveal over , + action-of +field, , ;
 
+: opt-to:exec ( .. u xt1 xt2 -- .. )
+    rot >r 2@ r> cells + @ swap execute ;
+: opt-to:,  ( u xt2 -- )
+    2@ rot cells + @ lits> swap >lits >lits compile, ;
+
+: opt-to-method: ( opt-xt !-table -- )
+    Create 2, ['] opt-to:exec set-does> ['] opt-to:, set-optimizer ;
+
 : wrapper-xts ( xt@ !-table "name" -- dummy-xt ) { xt@ xt! }
-    :noname ]] vfield-int, [[ xt@ compile, postpone ; >r \ xt-does
-    :noname ]] vfield-comp, [[ xt@ lit, ]] compile, ; [[ >r \ xt-comp,
-    ['] vfield, xt! noname to-method: latestxt >r \ xt-to
+    :noname xt@ >lits ]] vfield-int, [[ postpone ; >r \ xt-does
+    :noname xt@ >lits ]] >lits vfield-comp, [[ postpone ; >r \ xt-comp,
+    ['] vfield-opt, xt! noname opt-to-method: latestxt >r \ xt-to
     \ create a dummy word with these methods
     >in @ >r parse-name r> >in ! 2dup + 1- c@ ':' = +
     [: type ." -dummy" ;] $tmp
