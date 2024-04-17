@@ -118,6 +118,9 @@ warnings ! \ yes, these are obsolete, but they are good that way
 1 floats  ' faligned  ' f@  f!a-table  wrap+value: fvalue:  ( u1 "name" -- u2 )
 1 sfloats ' sfaligned ' sf@ sf!a-table wrap+value: sfvalue: ( u1 "name" -- u2 )
 1 dfloats ' dfaligned ' df@ df!a-table wrap+value: dfvalue: ( u1 "name" -- u2 )
+[IFDEF] z@
+    1 complex' ' dfaligned ' z@ z!a-table wrap+value: zvalue: ( u1 "name" -- u2 )
+[THEN]
 cell      ' aligned   ' $@  $!a-table  wrap+value: $value:  ( u1 "name" -- u2 )
 cell      ' aligned   ' perform defera-table wrap+value: defer: ( u1 "name" -- u2 )
 cell      ' aligned   ' $[]-@ $[]-!a-table wrap+value: value[]: ( u1 "name" -- u2 )
