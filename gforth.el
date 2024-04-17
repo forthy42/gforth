@@ -431,7 +431,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	 (0 . 2) (0 . 2))
 	((":" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" "uclass" "with" 
 	  "interface" "c-library" "c-library-name" "comp:" "opt:" "post:"
-	  "begin-structure" "extend-structure" "event:" "to-opt:" "defer@-opt:" "to:" "defer@:" ":trigger-on(")
+	  "begin-structure" "extend-structure" "event:" "fold1:" "to:" "defer@:" ":trigger-on(")
 	 (0 . 2) (0 . 2) non-immediate)
 	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
 	((";" ";m") (-2 . 0) (0 . -2))

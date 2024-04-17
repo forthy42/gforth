@@ -170,7 +170,9 @@ no-</>
 : name-set-located-view ( nt -- )
     dup name>view swap name>string nip set-located-view ;
 
-: locate-name ( nt -- )
+: xt-locate ( nt/xt -- )
+    \g Show the source code of the word @i{xt} and set the current
+    \g location there.
     name-set-located-view l ;
 
 : .rec'-stack ( xt -- xt )
@@ -193,7 +195,7 @@ no-</>
 : locate ( "name" -- ) \ gforth
     \g Show the source code of the word @i{name} and set the current
     \g location there.
-    view' .rec'-stack dup 0= #-13 and throw  locate-name ;
+    view' .rec'-stack dup 0= #-13 and throw  xt-locate ;
 
 ' locate alias view ( "name" -- )
 
@@ -586,7 +588,7 @@ included-files $[]# 1- constant doc-file#
 	then
     then
     info-color ." , LOCATEing source" default-color
-    c-addr u (view') locate-name ;
+    c-addr u (view') xt-locate ;
 
 : help-section {: c-addr u -- :}
     \ !! implement this!

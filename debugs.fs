@@ -263,7 +263,11 @@ Variable rec'[]
     [: rec-level @ rec'[] $[] ! ;] is trace-recognizer
     forth-recognize
     dup translate-nt? IF  drop rec'[] $free
-    ELSE  drop  rec'@  THEN
+    ELSE
+	dup ['] translate-num = IF
+	    drop dup xt? 0= IF  drop rec'@  THEN
+	ELSE  drop  rec'@  THEN
+    THEN
     2r> rot >r fp! sp! r>  r> is trace-recognizer
     dup ['] notfound = -#13 and throw ;
 

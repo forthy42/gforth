@@ -14479,6 +14479,7 @@ foreground).  If you have not set @code{EDITOR}, the default editor is
 @file{vi}.
 
 doc-locate
+doc-xt-locate
 
 The @emph{current location} is set by a number of other words in
 addition to @code{locate}.  Also, when an error happens while loading
