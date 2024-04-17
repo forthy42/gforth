@@ -20,22 +20,37 @@
 
 Defer +field,
 
-: standard+field, ( addr body xt -- addr' )
-    >r @ + r> execute ;
-opt: drop @ ?dup-IF
-	lits> swap >lits postpone + >lits
-    THEN  lits> compile, ;
-
 :noname ( -- )
-    defers standard:field ['] standard+field, IS +field, ; is standard:field
+    defers standard:field ['] + IS +field, ; is standard:field
 
 standard:field
+
+\ peephole optimizer enabled 2compile,
+
+$10 Constant peephole#
+0 Value peephole-index
+
+3 cells $10 * buffer: peephole-opts
+
+: 2compile, ( xt1 xt2 -- )
+    \G compile sequence of xt1 xt2, and apply peephole optimization
+    peephole-opts peephole-index 3 cells * bounds ?DO
+	2dup I 2@ d= IF
+	    2drop I 2 cells + @ opt-compile,  UNLOOP  EXIT
+	THEN
+    3 cells +LOOP
+    >r opt-compile, r> compile, ;
+
+: peephole ( xt1 xt2 "name" -- )
+    peephole-index peephole# u>= abort" Out of peephole space"
+    peephole-index 3 cells * peephole-opts + ' over 2 cells + ! 2!
+    1 +to peephole-index ;
 
 \ The xt to create the actual code with is at the second cell
 \ The actual offset in the first cell, which will be used by that code
 \ in the second cell...
-: vfield-int, ( addr body -- addr+offset ) over cell+ @ execute ;
-: vfield-comp, ( body -- ) dup cell+ @ opt-compile, ;
+: vfield-int, ( addr body xt -- addr+offset ) >r 2@ swap execute r> execute ;
+: vfield-comp, ( body -- ) lits> >r 2@ >lits r> 2compile, ;
 : vfield-opt, ( body -- addr )
     vfield-int, ;
 fold1: vfield-comp, ;
@@ -44,18 +59,18 @@ fold1: vfield-comp, ;
     >r r@ 2 cells + perform
     r> 2@ create-from reveal over , + action-of +field, , ;
 
-: opt-to:exec ( .. u xt1 xt2 -- .. )
+: field-to:exec ( .. u xt1 xt2 -- .. )
     rot >r 2@ r> cells + @ swap execute ;
-: opt-to:,  ( u xt2 -- )
+: field-to:,  ( u xt2 -- )
     2@ rot cells + @ lits> swap >lits >lits compile, ;
 
-: opt-to-method: ( opt-xt !-table -- )
-    Create 2, ['] opt-to:exec set-does> ['] opt-to:, set-optimizer ;
+: field-to-method: ( opt-xt !-table -- )
+    Create 2, ['] field-to:exec set-does> ['] field-to:, set-optimizer ;
 
 : wrapper-xts ( xt@ !-table "name" -- dummy-xt ) { xt@ xt! }
     :noname xt@ >lits ]] vfield-int, [[ postpone ; >r \ xt-does
     :noname xt@ >lits ]] >lits vfield-comp, [[ postpone ; >r \ xt-comp,
-    ['] vfield-opt, xt! noname opt-to-method: latestxt >r \ xt-to
+    ['] vfield-opt, xt! noname field-to-method: latestxt >r \ xt-to
     \ create a dummy word with these methods
     >in @ >r parse-name r> >in ! 2dup + 1- c@ ':' = +
     [: type ." -dummy" ;] $tmp
