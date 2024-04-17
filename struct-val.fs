@@ -27,14 +27,11 @@ standard:field
 
 \ peephole optimizer enabled 2compile,
 
-$10 Constant peephole#
-0 Value peephole-index
-
-3 cells $10 * buffer: peephole-opts
+$Variable peephole-opts
 
 : 2compile, ( xt1 xt2 -- )
     \G compile sequence of xt1 xt2, and apply peephole optimization
-    peephole-opts peephole-index 3 cells * bounds ?DO
+    peephole-opts $@ bounds ?DO
 	2dup I 2@ d= IF
 	    2drop I 2 cells + @ opt-compile,  UNLOOP  EXIT
 	THEN
@@ -42,9 +39,9 @@ $10 Constant peephole#
     >r opt-compile, r> compile, ;
 
 : peephole ( xt1 xt2 "name" -- )
-    peephole-index peephole# u>= abort" Out of peephole space"
-    peephole-index 3 cells * peephole-opts + ' over 2 cells + ! 2!
-    1 +to peephole-index ;
+    {: | xts[ 3 cells ] :}
+    xts[ 2! ' xts[ 2 cells + !
+    xts[ 3 cells peephole-opts $+! ;
 
 \ The xt to create the actual code with is at the second cell
 \ The actual offset in the first cell, which will be used by that code
