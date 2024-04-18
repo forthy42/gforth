@@ -48,26 +48,23 @@ $Variable peephole-opts
 \ in the second cell...
 : vfield-int, ( addr body xt -- addr+offset ) >r 2@ swap execute r> execute ;
 : vfield-comp, ( body -- ) lits> >r 2@ >lits r> 2compile, ;
-: vfield-opt, ( body -- addr )
-    vfield-int, ;
-fold1: vfield-comp, ;
 
 : create+value ( n1 addr "name" -- n3 )
     >r r@ 2 cells + perform
     r> 2@ create-from reveal over , + action-of +field, , ;
 
 : field-to:exec ( .. u xt1 xt2 -- .. )
-    rot >r 2@ r> cells + @ swap execute ;
+    rot >r @ r> cells + @ vfield-int, ;
 : field-to:,  ( u xt2 -- )
-    2@ rot cells + @ lits> swap >lits >lits compile, ;
+    @ swap cells + @ lits> swap >lits vfield-comp, ;
 
-: field-to-method: ( opt-xt !-table -- )
-    Create 2, ['] field-to:exec set-does> ['] field-to:, set-optimizer ;
+: field-to-method: ( !-table -- )
+    Create , ['] field-to:exec set-does> ['] field-to:, set-optimizer ;
 
 : wrapper-xts ( xt@ !-table "name" -- dummy-xt ) { xt@ xt! }
     :noname xt@ >lits ]] vfield-int, [[ postpone ; >r \ xt-does
     :noname xt@ >lits ]] >lits vfield-comp, [[ postpone ; >r \ xt-comp,
-    ['] vfield-opt, xt! noname field-to-method: latestxt >r \ xt-to
+    xt! noname field-to-method: latestxt >r \ xt-to
     \ create a dummy word with these methods
     >in @ >r parse-name r> >in ! 2dup + 1- c@ ':' = +
     [: type ." -dummy" ;] $tmp
