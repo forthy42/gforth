@@ -24,12 +24,6 @@
     2!-table >to+addr-table: 2!a-table
     c!-table >to+addr-table: c!a-table
     f!-table >to+addr-table: f!a-table
-
-    : localn ( n -- ) lp@ + ;
-    opt: drop lits# 1 u>= IF  lits> ]] lp@ literal + [[
-	ELSE  ]] lp@ + [[  THEN ;
-    
-    to-table: !alp-table !localn +!localn localn
 [THEN]
 
 ' >body !a-table to-method: varue-to ( n value-xt -- ) \ gforth-internal
@@ -64,11 +58,11 @@
 
 \ Locals with addrs
 
-' loffset, !alp-table to-method: to-wa:
-' laddr, defera-table to-method: to-xta:
-' laddr, 2!a-table to-method: to-da:
-' laddr, c!a-table to-method: to-ca:
-' laddr, f!a-table to-method: to-fa:
+!a-table locals-to-method: to-wa:
+defera-table locals-to-method: to-xta:
+2!a-table locals-to-method: to-da:
+c!a-table locals-to-method: to-ca:
+f!a-table locals-to-method: to-fa:
 
 get-current also locals-types definitions
 : WA: ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth w-a-colon

@@ -3020,6 +3020,9 @@ forlocal(`7',`!local%i ( w -- )	gforth-internal	store_local_%i
 +!localn ( w noffset -- )	gforth-internal	plus_store_local_n
 *(Cell *)(lp+noffset) += w;
 
+lp+n ( noffset -- c_addr )	gforth-internal	lp_plus_n
+c_addr = (Char *)(lp+noffset);
+
 \+floating
 
 f@localn	( noffset -- r ) gforth	f_fetch_local_n

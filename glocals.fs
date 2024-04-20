@@ -110,10 +110,34 @@ User locals-size \ this is the current size of the locals stack
     rdrop peephole-compile, ;
 
 cell opt-table: opt-@localn @local0 @local1 @local2 @local3 @local4 @local5 @local6 @local7 
-' opt-@localn optimizes @localn
+latestxt optimizes @localn
 
 cell opt-table: opt-!localn !local0 !local1 !local2 !local3 !local4 !local5 !local6 !local7
-' opt-!localn optimizes !localn
+latestxt optimizes !localn
+
+\ peephole optimizer enabled 2compile,
+
+$Variable peephole-opts
+
+: 2compile, ( xt1 xt2 -- )
+    \G compile sequence of xt1 xt2, and apply peephole optimization
+    peephole-opts $@ bounds ?DO
+	2dup I 2@ d= IF
+	    2drop I 2 cells + @ opt-compile,  UNLOOP  EXIT
+	THEN
+    3 cells +LOOP
+    >r opt-compile, r> compile, ;
+
+\ we define peephole using locals, so it needs to be here
+
+align here 3 cells allot >r
+: peephole ( xt1 xt2 "name" -- )
+    [ r@ ] Literal 2! ' [ r@ 2 cells + ] Literal !
+    [ r> ] Literal 3 cells peephole-opts $+! ;
+
+' lp+n ' @ peephole @localn
+' lp+n ' ! peephole !localn
+' lp+n ' +! peephole +!localn
 
 \ compile locals with offset n
 
@@ -304,6 +328,8 @@ Defer locals-list!
     ['] create-local1 locals-headers
     r> is xt-location ;
 
+\ offset calculation
+
 : lp-offset ( n1 -- n2 )
 \ converts the offset from the frame start to an offset from lp and
 \ i.e., the address of the local is lp+locals_size-offset
@@ -311,25 +337,29 @@ Defer locals-list!
 
 : laddr#, ( n -- )
     \ for local with offset n from frame start, compile the address
-    postpone lp@ lp-offset postpone literal postpone + ;
+    lp-offset postpone literal postpone lp+n ;
+
+\ specialized to-method:
+
+: locals-to:exec ( .. u xt1 xt2 -- .. )
+    -14 throw ;
+: locals-to:,  ( u lits:xt2 table-addr -- )
+    @ swap cells + @ lits> @ lp-offset >lits ['] lp+n swap 2compile, ;
+
+: locals-to-method: ( !-table -- )
+    Create , ['] locals-to:exec set-does> ['] locals-to:, set-optimizer ;
 
 : c+! ( c addr -- ) dup >r c@ + r> c! ;
 : 2+! ( d addr -- ) dup >r 2@ d+ r> 2! ;
 
 to-table: 2!-table 2! 2+!
 to-table: c!-table c! c+!
-: laddr, ( lit:xt -- ) -14 throw ;
-fold1: >body @ laddr#, ;
 
-: loffset, ( lit:xt -- ) -14 throw ;
-fold1: >body @ lp-offset postpone literal ;
-to-table: !lp-table !localn +!localn
-
-' loffset, !lp-table to-method: to-w:
-' laddr, defer-table to-method: to-xt:
-' laddr, 2!-table to-method: to-d:
-' laddr, c!-table to-method: to-c:
-' laddr, f!-table to-method: to-f:
+!-table locals-to-method: to-w:
+defer-table locals-to-method: to-xt:
+2!-table locals-to-method: to-d:
+c!-table locals-to-method: to-c:
+f!-table locals-to-method: to-f:
 
 : val-part-off ( -- ) val-part off ;
 

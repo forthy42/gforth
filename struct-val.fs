@@ -25,24 +25,6 @@ Defer +field,
 
 standard:field
 
-\ peephole optimizer enabled 2compile,
-
-$Variable peephole-opts
-
-: 2compile, ( xt1 xt2 -- )
-    \G compile sequence of xt1 xt2, and apply peephole optimization
-    peephole-opts $@ bounds ?DO
-	2dup I 2@ d= IF
-	    2drop I 2 cells + @ opt-compile,  UNLOOP  EXIT
-	THEN
-    3 cells +LOOP
-    >r opt-compile, r> compile, ;
-
-: peephole ( xt1 xt2 "name" -- )
-    {: | xts[ 3 cells ] :}
-    xts[ 2! ' xts[ 2 cells + !
-    xts[ 3 cells peephole-opts $+! ;
-
 \ The xt to create the actual code with is at the second cell
 \ The actual offset in the first cell, which will be used by that code
 \ in the second cell...

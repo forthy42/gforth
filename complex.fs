@@ -47,8 +47,8 @@
 to-table: z!-table z! z+!
 z!-table >to+addr-table: z!a-table
 
-' laddr, z!-table to-method: to-z:
-' laddr, z!a-table to-method: to-za:
+z!-table locals-to-method: to-z:
+z!a-table locals-to-method: to-za:
 
 : compile-pushlocal-z ( a-addr -- ) ( run-time: z -- )
     locals-size @ alignlp-f float+ float+ dup locals-size !

@@ -233,6 +233,7 @@ csswaplstore = >r l>< r> l!
 \E prim-states char+                \ 77542
 \E prim-states ?dup                 \ 76850
 \E prim-states @localn              \ 75322
+\E prim-states lp+n                 \ 75322
 forlocal(`7',`\E prim-states @local%i              \ 75322')
 \E prim-states !localn
 forlocal(`7',`\E prim-states !local%i')
