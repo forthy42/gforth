@@ -128,17 +128,6 @@ $Variable peephole-opts
     3 cells +LOOP
     >r opt-compile, r> compile, ;
 
-\ we define peephole using locals, so it needs to be here
-
-align here 3 cells allot >r
-: peephole ( xt1 xt2 "name" -- )
-    [ r@ ] Literal 2! ' [ r@ 2 cells + ] Literal !
-    [ r> ] Literal 3 cells peephole-opts $+! ;
-
-' lp+n ' @ peephole @localn
-' lp+n ' ! peephole !localn
-' lp+n ' +! peephole +!localn
-
 \ compile locals with offset n
 
 : compile-@local ( n -- ) \ gforth-internal compile-fetch-local
@@ -812,3 +801,14 @@ previous
 	no-post
     endcase ; is locals-post,
 ' locals-post, ' translate-locals >body 2 cells + ! \ replace stub
+
+\ we define peephole using locals, so it needs to be here
+
+: peephole ( xt1 xt2 "name" -- )
+    {: | xts[ 3 cells ] :}
+    xts[ 2! ' xts[ 2 cells + !
+    xts[ 3 cells peephole-opts $+! ;
+
+' lp+n ' @ peephole @localn
+' lp+n ' ! peephole !localn
+' lp+n ' +! peephole +!localn
