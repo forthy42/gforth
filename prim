@@ -3511,6 +3511,11 @@ u#+	( #n #w -- c_addr )	new	u_lit_plus
 ""instance variable using a user address as current object""
 c_addr = (*(Address*)(((Address)up)+n))+w;
 
+up@    ( -- a_addr )	new	up_fetch
+""@i{Addr} is the start of the user area of the current task (@i{addr} also
+serves as the @i{task} identifier of the current task).""
+a_addr = (Cell*)up;
+
 o      ( -- a_addr )	new	o
 a_addr = (Cell*)op;
 
@@ -3543,13 +3548,6 @@ forlocal(`31',`sf!o%i ( r -- )	gforth-internal	sf_store_o_%i
 
 forlocal(`31',`sf@o%i ( -- r )	gforth-internal	sf_fetch_o_%i
 r = ((SFloat *)op)[i];')
-
-\ keep up@ last, because it is used in xt?
-
-up@    ( -- a_addr )	new	up_fetch
-""@i{Addr} is the start of the user area of the current task (@i{addr} also
-serves as the @i{task} identifier of the current task).""
-a_addr = (Cell*)up;
 
 \+
 \g static_super
