@@ -40,6 +40,8 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 0 Value dpy        \ wayland display
 0 ' noop trigger-Value wl-compositor \ wayland compositor
 0 Value wl-output
+0 ' noop trigger-Value wp-fractional-scale-v1
+0 ' noop trigger-Value wp-fractional-scale-manager-v1
 0 ' noop trigger-Value wl-shell   \ wayland shell
 0 ' noop trigger-Value wl-pointer
 0 Value wl-keyboard
@@ -126,14 +128,20 @@ cb> wl-shell-surface-listener
     2Variable dpy-wh
 [THEN]
 1 Value wl-scale
+#120 Value fractional-scale
 0 Value screen-orientation
 
+: scale* ( n1 -- n2 )
+    fractional-scale #60 */ 1+ 2/ ;
+
 : wl-out-geometry { data out x y pw ph subp d: make d: model transform -- }
+    wayland( cr ." metrics: " pw . ph . )
     pw ph wl-metrics 2! transform to screen-orientation ;
 : wl-out-mode { data out flags w h r -- }
     w h dpy-wh 2! ;
 : wl-out-done { data out -- } ;
 : wl-out-scale { data out scale -- }
+    wayland( cr ." scale: " scale . )
     scale to wl-scale ;
 : wl-out-name { data out d: name -- }
     wayland( name [: cr ." output name: " type ;] do-debug )
@@ -150,6 +158,13 @@ cb> wl-shell-surface-listener
 ' wl-out-mode ?cb wl_output_listener-mode:
 ' wl-out-geometry ?cb wl_output_listener-geometry:
 cb> wl-output-listener
+
+<cb
+:noname { data fscale scale -- }
+    wayland( cr ." fractional scale: " scale . )
+    scale to fractional-scale
+; ?cb wp_fractional_scale_v1_listener-preferred_scale:
+cb> wp-fractional-scale-v1-listener
 
 \ As events come in callbacks, push them to an event queue
 
@@ -725,6 +740,14 @@ wl-registry set-current
 1 wl: wl_shell
 :trigger-on( wl-shell wl-surface )
     wl-shell wl-surface wl_shell_get_shell_surface to shell-surface ;
+1 wl: wp_fractional_scale_manager_v1
+:trigger-on( wp-fractional-scale-manager-v1 wl-surface )
+    wp-fractional-scale-manager-v1 wl-surface
+    wp_fractional_scale_manager_v1_get_fractional_scale
+    to wp-fractional-scale-v1 ;
+:trigger-on( wp-fractional-scale-v1 )
+    wp-fractional-scale-v1 wp-fractional-scale-v1-listener
+    0 wp_fractional_scale_v1_add_listener drop ;
 :trigger-on( shell-surface )
     shell-surface wl-shell-surface-listener 0 wl_shell_surface_add_listener drop
     shell-surface wl_shell_surface_set_toplevel
@@ -825,10 +848,10 @@ also opengl
 :noname { data xdg_toplevel width height states -- }
     wayland( height width [: cr ." toplevel-config: " . . ;] do-debug )
     height width d0= ?EXIT
+    win ?dup-IF  width scale* height scale* 0 0 wl_egl_window_resize  THEN
     xdg-surface 0 0 width height xdg_surface_set_window_geometry
-    win ?dup-IF  width height 0 0 wl_egl_window_resize  THEN
     wl-surface ?dup-IF  wl_surface_commit  THEN
-    width height resize-widgets ;
+    width scale* height scale* resize-widgets ;
 previous
 ?cb xdg_toplevel_listener-configure:
 cb> xdg-toplevel-listener

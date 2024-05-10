@@ -20,7 +20,7 @@
 
 WAYLAND_PROTOCOLS = text-input-unstable-v3 xdg-shell \
 	xdg-decoration-unstable-v1 primary-selection-unstable-v1 \
-	tablet-unstable-v2
+	tablet-unstable-v2 fractional-scale-v1
 
 WAYLAND_INCLUDE = $(patsubst %, wayland/%-client.h, $(WAYLAND_PROTOCOLS)) \
 	$(patsubst %, wayland/%.c, $(WAYLAND_PROTOCOLS))

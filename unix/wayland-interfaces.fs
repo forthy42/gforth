@@ -66,3 +66,5 @@ c-value zwp_tablet_pad_ring_v2_interface &zwp_tablet_pad_ring_v2_interface -- a
 c-value zwp_tablet_pad_strip_v2_interface &zwp_tablet_pad_strip_v2_interface -- a
 c-value zwp_tablet_pad_group_v2_interface &zwp_tablet_pad_group_v2_interface -- a
 c-value zwp_tablet_pad_v2_interface &zwp_tablet_pad_v2_interface -- a
+\c #include <fractional-scale-v1.c>
+c-value wp_fractional_scale_manager_v1_interface &wp_fractional_scale_manager_v1_interface -- a
