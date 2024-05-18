@@ -40,8 +40,10 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 0 Value dpy        \ wayland display
 0 ' noop trigger-Value wl-compositor \ wayland compositor
 0 Value wl-output
-0 ' noop trigger-Value wp-fractional-scale-v1
-0 ' noop trigger-Value wp-fractional-scale-manager-v1
+[IFDEF] wp_fractional_scale_v1_listener
+    0 ' noop trigger-Value wp-fractional-scale-v1
+    0 ' noop trigger-Value wp-fractional-scale-manager-v1
+[THEN]
 0 ' noop trigger-Value wl-shell   \ wayland shell
 0 ' noop trigger-Value wl-pointer
 0 Value wl-keyboard
@@ -159,12 +161,14 @@ cb> wl-shell-surface-listener
 ' wl-out-geometry ?cb wl_output_listener-geometry:
 cb> wl-output-listener
 
-<cb
-:noname { data fscale scale -- }
-    wayland( cr ." fractional scale: " scale . )
-    scale to fractional-scale
-; ?cb wp_fractional_scale_v1_listener-preferred_scale:
-cb> wp-fractional-scale-v1-listener
+[IFDEF] wp_fractional_scale_v1_listener
+    <cb
+    :noname { data fscale scale -- }
+	wayland( cr ." fractional scale: " scale . )
+	scale to fractional-scale
+    ; ?cb wp_fractional_scale_v1_listener-preferred_scale:
+    cb> wp-fractional-scale-v1-listener
+[THEN]
 
 \ As events come in callbacks, push them to an event queue
 
@@ -740,14 +744,16 @@ wl-registry set-current
 1 wl: wl_shell
 :trigger-on( wl-shell wl-surface )
     wl-shell wl-surface wl_shell_get_shell_surface to shell-surface ;
-1 wl: wp_fractional_scale_manager_v1
-:trigger-on( wp-fractional-scale-manager-v1 wl-surface )
-    wp-fractional-scale-manager-v1 wl-surface
-    wp_fractional_scale_manager_v1_get_fractional_scale
-    to wp-fractional-scale-v1 ;
-:trigger-on( wp-fractional-scale-v1 )
-    wp-fractional-scale-v1 wp-fractional-scale-v1-listener
-    0 wp_fractional_scale_v1_add_listener drop ;
+[IFDEF] wp_fractional_scale_v1_listener
+    1 wl: wp_fractional_scale_manager_v1
+    :trigger-on( wp-fractional-scale-manager-v1 wl-surface )
+	wp-fractional-scale-manager-v1 wl-surface
+	wp_fractional_scale_manager_v1_get_fractional_scale
+	to wp-fractional-scale-v1 ;
+    :trigger-on( wp-fractional-scale-v1 )
+	wp-fractional-scale-v1 wp-fractional-scale-v1-listener
+	0 wp_fractional_scale_v1_add_listener drop ;
+[THEN]
 :trigger-on( shell-surface )
     shell-surface wl-shell-surface-listener 0 wl_shell_surface_add_listener drop
     shell-surface wl_shell_surface_set_toplevel

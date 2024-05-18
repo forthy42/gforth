@@ -119,6 +119,8 @@ M4      = @M4@
 GCC	= @CC@
 EMACS   = @EMACS@
 WAYLAND_SCANNER = @WAYLAND_SCANNER@
+WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
+WAYLAND_PROTOCOLS = @WAYLAND_PROTOCOLS@
 LIBTOOL = @GNU_LIBTOOL@ --silent
 PREFORTH	= ./preforth -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 CC	= $(GCC)
@@ -399,16 +401,15 @@ FREETYPE_GL_C_SRC = freetype-gl/ftgl-utils.c freetype-gl/platform.c	      \
 FREETYPE_GL_SRC = $(FREETYPE_GL_C_SRC) $(FREETYPE_GL_INCLUDE)	\
 	$(FREETYPE_GL_LICENSES)
 
-WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
-
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs csv.fs \
 	i18n.fs @NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_LIB_SRC)
 
 MINOS_DOC = minos2/widgets.fs
 
-LIBCC_DIST_SRC = $(SWIG_SRC) unix/stat-fsi.c unix/pthread-types-fsi.c	     \
-	unix/test.i unix/Makefile.in unix/doexec unix/doprep unix/trygcc     \
-	$(patsubst %, unix/%, $(SWIGDIST) @HAS_SWIG_FORTH@) Makefile.wayland
+LIBCC_DIST_SRC = $(SWIG_SRC) unix/stat-fsi.c unix/pthread-types-fsi.c	\
+	unix/test.i unix/Makefile.in unix/wayland.i.in unix/doexec	\
+	unix/doprep unix/trygcc $(patsubst %, unix/%, $(SWIGDIST)	\
+	@HAS_SWIG_FORTH@) Makefile.wayland
 
 LIBCC_FORTH_SRC = unix/libffi.fs unix/fflib.fs $(UNIXLIBS_SRC) $(LIBCC_SRC1)
 LIBCC_GEN_SRC = unix/stat.fs unix/pthread-types.fs $(patsubst %, unix/%, \

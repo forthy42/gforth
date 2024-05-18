@@ -1932,11 +1932,33 @@ in
 wayland protocols not found."
 	else
 	    INCLUDE_WAYLAND='include $(srcdir)/Makefile.wayland'
+	    for i in text-input-unstable-v3 xdg-shell \
+	    	xdg-decoration-unstable-v1 primary-selection-unstable-v1 \
+		tablet-unstable-v2 fractional-scale-v1
+	    do
+		if find $WAYLAND_PROTOCOLS_DATADIR -name $i.xml
+		then
+		    WAYLAND_PROTOCOLS="$WAYLAND_PROTOCOLS $i"
+		fi
+	    done
+	    for i in $WAYLAND_PROTOCOLS
+	    do
+	        WAYLAND_INCLUDES="$WAYLAND_INCLUDES
+#include <$i-client.h>"
+	    done
+	    for i in $WAYLAND_PROTOCOLS
+	    do
+	        WAYLAND_SWIG_INCLUDES="$WAYLAND_SWIG_INCLUDES
+%include <$i-client.h>"
+	    done
 	fi
 	;;
 esac
 AC_SUBST(WAYLAND_SCANNER)
 AC_SUBST(WAYLAND_PROTOCOLS_DATADIR)
+AC_SUBST(WAYLAND_PROTOCOLS)
+AC_SUBST(WAYLAND_INCLUDES)
+AC_SUBST(WAYLAND_SWIG_INCLUDES)
 AC_SUBST(INCLUDE_WAYLAND)
 AC_SUBST(PREPENV)
 AC_SUBST(EXECENV)
@@ -2053,6 +2075,7 @@ engine/gforth.h
 doc/version.texi
 doc/Makefile
 unix/Makefile
+unix/wayland.i
 debian/changelog
 debian/control
 debian/rules

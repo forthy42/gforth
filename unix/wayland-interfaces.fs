@@ -18,6 +18,14 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+: ?include-wayland ( "file" -- )
+    parse-name 2dup [: ." wayland/" type ;] $tmp open-fpath-file 0=
+    IF  2drop close-file throw
+	[: ." #include <" type ." >" cr ;] c-source-file-execute
+    ELSE
+	postpone [ELSE]
+    THEN ;
+
 c-value wl_display_interface &wl_display_interface -- a
 c-value wl_registry_interface &wl_registry_interface -- a
 c-value wl_callback_interface &wl_callback_interface -- a
@@ -40,24 +48,28 @@ c-value wl_output_interface &wl_output_interface -- a
 c-value wl_region_interface &wl_region_interface -- a
 c-value wl_subcompositor_interface &wl_subcompositor_interface -- a
 c-value wl_subsurface_interface &wl_subsurface_interface -- a
-\c #include <text-input-unstable-v3.c>
+?include-wayland text-input-unstable-v3.c
 c-value zwp_text_input_v3_interface &zwp_text_input_v3_interface -- a
 c-value zwp_text_input_manager_v3_interface &zwp_text_input_manager_v3_interface -- a
-\c #include <xdg-shell.c>
+[THEN]
+?include-wayland xdg-shell.c
 c-value xdg_wm_base_interface &xdg_wm_base_interface -- a
 c-value xdg_positioner_interface &xdg_positioner_interface -- a
 c-value xdg_surface_interface &xdg_surface_interface -- a
 c-value xdg_toplevel_interface &xdg_toplevel_interface -- a
 c-value xdg_popup_interface &xdg_popup_interface -- a
-\c #include <xdg-decoration-unstable-v1.c>
+[THEN]
+?include-wayland xdg-decoration-unstable-v1.c
 c-value zxdg_toplevel_decoration_v1_interface &zxdg_toplevel_decoration_v1_interface -- a
 c-value zxdg_decoration_manager_v1_interface &zxdg_decoration_manager_v1_interface -- a
-\c #include <primary-selection-unstable-v1.c>
+[THEN]
+?include-wayland primary-selection-unstable-v1.c
 c-value zwp_primary_selection_device_manager_v1_interface &zwp_primary_selection_device_manager_v1_interface -- a
 c-value zwp_primary_selection_device_v1_interface &zwp_primary_selection_device_v1_interface -- a
 c-value zwp_primary_selection_offer_v1_interface &zwp_primary_selection_offer_v1_interface -- a
 c-value zwp_primary_selection_source_v1_interface &zwp_primary_selection_source_v1_interface -- a
-\c #include <tablet-unstable-v2.c>
+[THEN]
+?include-wayland tablet-unstable-v2.c
 c-value zwp_tablet_manager_v2_interface &zwp_tablet_manager_v2_interface -- a
 c-value zwp_tablet_seat_v2_interface &zwp_tablet_seat_v2_interface -- a
 c-value zwp_tablet_tool_v2_interface &zwp_tablet_tool_v2_interface -- a
@@ -66,5 +78,7 @@ c-value zwp_tablet_pad_ring_v2_interface &zwp_tablet_pad_ring_v2_interface -- a
 c-value zwp_tablet_pad_strip_v2_interface &zwp_tablet_pad_strip_v2_interface -- a
 c-value zwp_tablet_pad_group_v2_interface &zwp_tablet_pad_group_v2_interface -- a
 c-value zwp_tablet_pad_v2_interface &zwp_tablet_pad_v2_interface -- a
-\c #include <fractional-scale-v1.c>
+[THEN]
+?include-wayland fractional-scale-v1.c
 c-value wp_fractional_scale_manager_v1_interface &wp_fractional_scale_manager_v1_interface -- a
+[THEN]
