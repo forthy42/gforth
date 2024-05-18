@@ -1936,7 +1936,7 @@ wayland protocols not found."
 	    	xdg-decoration-unstable-v1 primary-selection-unstable-v1 \
 		tablet-unstable-v2 fractional-scale-v1
 	    do
-		if find $WAYLAND_PROTOCOLS_DATADIR -name $i.xml
+		if test -f `find $WAYLAND_PROTOCOLS_DATADIR -name $i.xml`
 		then
 		    WAYLAND_PROTOCOLS="$WAYLAND_PROTOCOLS $i"
 		fi
