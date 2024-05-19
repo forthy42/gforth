@@ -1939,6 +1939,8 @@ wayland protocols not found."
 		if test -f ""`find $WAYLAND_PROTOCOLS_DATADIR -name $i.xml`
 		then
 		    WAYLAND_PROTOCOLS="$WAYLAND_PROTOCOLS $i"
+		else
+		    echo "wayland protocol $i not found"
 		fi
 	    done
 	    for i in $WAYLAND_PROTOCOLS
