@@ -23,7 +23,7 @@
     IF  2drop close-file throw
 	[: ." #include <" type ." >" cr ;] c-source-file-execute
     ELSE
-	postpone [ELSE]
+	." Skip " type cr  postpone [ELSE]
     THEN ;
 
 c-value wl_display_interface &wl_display_interface -- a
