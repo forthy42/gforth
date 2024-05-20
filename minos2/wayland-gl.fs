@@ -58,6 +58,8 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 0 ' noop trigger-Value cursor-surface
 0 ' noop trigger-Value cursor-serial
 0 ' noop trigger-Value wl-surface
+0 ' noop trigger-Value wp-viewporter
+0 ' noop trigger-Value wp-viewport
 0 ' noop trigger-Value shell-surface
 0 ' noop trigger-Value wl-seat
 0 ' noop trigger-Value wl-shm
@@ -135,6 +137,8 @@ cb> wl-shell-surface-listener
 
 : scale* ( n1 -- n2 )
     fractional-scale #60 */ 1+ 2/ ;
+: scale*fixed ( n1 -- n2 )
+    fractional-scale 8 lshift #60 */ 1+ 2/ ;
 
 : wl-out-geometry { data out x y pw ph subp d: make d: model transform -- }
     wayland( cr ." metrics: " pw . ph . )
@@ -759,6 +763,9 @@ wl-registry set-current
     shell-surface wl_shell_surface_set_toplevel
     shell-surface window-title$ $@ wl_shell_surface_set_title
     shell-surface window-app-id$ $@ wl_shell_surface_set_class ;
+1 wl: wp_viewporter
+:trigger-on( wp-viewporter wl-surface )
+    wp-viewporter wl-surface wp_viewporter_get_viewport to wp-viewport ;
 4 wlal: wl_output
 8 wlal: wl_seat
 1 wl: wl_shm
@@ -856,6 +863,12 @@ also opengl
     height width d0= ?EXIT
     win ?dup-IF  width scale* height scale* 0 0 wl_egl_window_resize  THEN
     xdg-surface 0 0 width height xdg_surface_set_window_geometry
+    wp-viewport ?dup-IF
+	wayland( height scale*fixed s>f $100 fm/ width scale*fixed s>f $100 fm/
+	[: cr ." source w h: " f. f. ;] do-debug )
+	dup 0 0 width scale*fixed height scale*fixed wp_viewport_set_source
+	width height wp_viewport_set_destination
+    THEN
     wl-surface ?dup-IF  wl_surface_commit  THEN
     width scale* height scale* resize-widgets ;
 previous
