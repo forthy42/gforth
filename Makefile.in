@@ -927,6 +927,7 @@ install-include:
 		$(INSTALL_DATA) $(srcdir)/$$i $(includedir)/freetype-gl; done
 		for i in $(WAYLAND_INCLUDE); do \
 		$(INSTALL_DATA) $$i $(includedir)/wayland; done
+		$(LN_S) $(includedir)/wayland $(datadir)/gforth/$(VERSION)
 
 install-libcc:
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_SRC1) $(LIBCC_LIB_SRC); do \
