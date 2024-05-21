@@ -36,13 +36,17 @@ Variable ev-up/down
 Variable lasttime
 
 1e 256e f/ fconstant 1/256
+: coord>f ( fixed -- r )
+    1/256 fm* fdup fractional-scale #120 fm*/
+    \ wayland( [: cr ." coord: " fover f. ." -> " fdup f. ;] do-debug )
+    fnip ;
 
 \ handle scrolling
 
 :noname ( time axis val -- )
     rot dup lasttime !@ - twoclicks u<
     IF  1 +to clicks  clicks *  ELSE  0 to clicks  THEN  #-60 /
-    ev-xy 2@ swap 1/256 fm* 1/256 fm* top-act .scrolled ; IS b-scroll
+    ev-xy 2@ swap coord>f coord>f top-act .scrolled ; IS b-scroll
 
 \ handle clicks
 
@@ -52,7 +56,7 @@ Variable lasttime
     ev-xy 2@
     2dup samepos? 0= IF   0 to clicks  THEN  lastpos 2! ;
 : send-clicks ( -- )
-    lastpos 2@ swap 1/256 fm* 1/256 fm* buttonmask l@ lle
+    lastpos 2@ swap coord>f coord>f buttonmask l@ lle
     clicks 2* flags #lastdown bit@ -
     flags #pending -bit
     grab-move? ?dup-IF  .clicked  EXIT  THEN
@@ -63,7 +67,7 @@ Variable xy$
 : >xy$ ( x1 y1 .. xn yn n -- $rxy )
     2* sfloats xy$ $!len
     xy$ $@ bounds 1 sfloats - swap 1 sfloats - U-DO
-	1/256 fm* I sf!
+	coord>f I sf!
     1 sfloats -LOOP
     xy$ ;
 
@@ -107,12 +111,12 @@ DOES> + c@ ;
 ; is b-motion
 
 :noname ( x y -- )
-    swap 1/256 fm* 1/256 fm*
+    swap coord>f coord>f
     top-act ?dup-IF  .dndmove  ELSE  fdrop fdrop  THEN
 ; is dnd-move
 
 :noname ( x y addr u -- )
-    2swap swap 1/256 fm* 1/256 fm*
+    2swap swap coord>f coord>f
     top-act ?dup-IF  .dnddrop  ELSE  2drop fdrop fdrop  THEN
 ; is dnd-drop
 
