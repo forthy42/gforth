@@ -133,12 +133,18 @@ cb> wl-shell-surface-listener
 [THEN]
 1 Value wl-scale
 #120 Value fractional-scale
+0 ' noop trigger-value set-fractional-scale
 0 Value screen-orientation
 
+1e 256e f/ fconstant 1/256
 : scale* ( n1 -- n2 )
     fractional-scale #60 */ 1+ 2/ ;
 : scale*fixed ( n1 -- n2 )
     fractional-scale 8 lshift #60 */ 1+ 2/ ;
+: coord>f ( fixed -- r )
+    1/256 fm* fractional-scale #120 fm*/ ;
+: n>coord ( n -- r )
+    scale*fixed 1/256 fm* ;
 
 : wl-out-geometry { data out x y pw ph subp d: make d: model transform -- }
     wayland( cr ." metrics: " pw . ph . )
@@ -170,6 +176,7 @@ cb> wl-output-listener
     :noname { data fscale scale -- }
 	wayland( cr ." fractional scale: " scale . )
 	scale to fractional-scale
+	1 +to set-fractional-scale
     ; ?cb wp_fractional_scale_v1_listener-preferred_scale:
     cb> wp-fractional-scale-v1-listener
 [THEN]
@@ -764,8 +771,10 @@ wl-registry set-current
     shell-surface window-title$ $@ wl_shell_surface_set_title
     shell-surface window-app-id$ $@ wl_shell_surface_set_class ;
 1 wl: wp_viewporter
-:trigger-on( wp-viewporter wl-surface )
-    wp-viewporter wl-surface wp_viewporter_get_viewport to wp-viewport ;
+:trigger-on( set-fractional-scale wp-viewporter wl-surface )
+    fractional-scale #120 <> IF
+	wp-viewporter wl-surface wp_viewporter_get_viewport to wp-viewport
+    THEN ;
 4 wlal: wl_output
 8 wlal: wl_seat
 1 wl: wl_shm
@@ -864,7 +873,7 @@ also opengl
     win ?dup-IF  width scale* height scale* 0 0 wl_egl_window_resize  THEN
     xdg-surface 0 0 width height xdg_surface_set_window_geometry
     wp-viewport ?dup-IF
-	wayland( height scale*fixed s>f $100 fm/ width scale*fixed s>f $100 fm/
+	wayland( height n>coord width n>coord
 	[: cr ." source w h: " f. f. ;] do-debug )
 	dup 0 0 width scale*fixed height scale*fixed wp_viewport_set_source
 	width height wp_viewport_set_destination

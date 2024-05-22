@@ -35,12 +35,6 @@ Variable ev-up/down
 2Variable lastpos
 Variable lasttime
 
-1e 256e f/ fconstant 1/256
-: coord>f ( fixed -- r )
-    1/256 fm* fdup fractional-scale #120 fm*/
-    \ wayland( [: cr ." coord: " fover f. ." -> " fdup f. ;] do-debug )
-    fnip ;
-
 \ handle scrolling
 
 :noname ( time axis val -- )
