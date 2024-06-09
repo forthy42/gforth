@@ -131,6 +131,7 @@ cb> wl-shell-surface-listener
 [IFUNDEF] dpy-wh
     2Variable dpy-wh
 [THEN]
+2Variable dpy-unscaled-wh
 1 Value wl-scale
 #120 Value fractional-scale
 0 Value screen-orientation
@@ -170,11 +171,37 @@ cb> wl-shell-surface-listener
 ' wl-out-geometry ?cb wl_output_listener-geometry:
 cb> wl-output-listener
 
+require need-x.fs
+
+Defer config-changed
+:noname ( -- ) +sync +config ( getwh ) ; is config-changed
+Defer screen-ops      ' noop IS screen-ops
+Defer reload-textures ' noop is reload-textures
+
+also opengl
+: resize-widgets ( w h -- )
+    dpy-wh 2!  config-changed ;
+: rescale-win { width height -- }
+    width height d0= ?EXIT
+    width height dpy-unscaled-wh 2!
+    win ?dup-IF  width scale* height scale* 0 0 wl_egl_window_resize  THEN
+    xdg-surface 0 0 width height xdg_surface_set_window_geometry
+    wp-viewport ?dup-IF
+	wayland( height n>coord width n>coord
+	[: cr ." source w h: " f. f. ;] do-debug )
+	dup 0 0 width scale*fixed height scale*fixed wp_viewport_set_source
+	width height wp_viewport_set_destination
+    THEN
+    wl-surface ?dup-IF  wl_surface_commit  THEN
+    width scale* height scale* resize-widgets ;
+previous
+
 [IFDEF] wp_fractional_scale_v1_listener
     <cb
     :noname { data fscale scale -- }
 	wayland( cr ." fractional scale: " scale . )
 	scale to fractional-scale
+	dpy-unscaled-wh 2@ rescale-win
     ; ?cb wp_fractional_scale_v1_listener-preferred_scale:
     cb> wp-fractional-scale-v1-listener
 [THEN]
@@ -837,16 +864,6 @@ cb> xdg-surface-listener
 
 Variable level#
 
-require need-x.fs
-
-Defer config-changed
-:noname ( -- ) +sync +config ( getwh ) ; is config-changed
-Defer screen-ops      ' noop IS screen-ops
-Defer reload-textures ' noop is reload-textures
-
-: resize-widgets ( w h -- )
-    dpy-wh 2!  config-changed ;
-
 2Variable wl-min-size &640 &400 wl-min-size 2!
 
 <cb
@@ -862,21 +879,9 @@ wayland( capabilities [: cr ." wm capabilities: " h. ;] do-debug ) ;
     wayland( [: cr ." close" ;] do-debug )
     -1 level# +! ;
 ?cb xdg_toplevel_listener-close:
-also opengl
 :noname { data xdg_toplevel width height states -- }
     wayland( height width [: cr ." toplevel-config: " . . ;] do-debug )
-    height width d0= ?EXIT
-    win ?dup-IF  width scale* height scale* 0 0 wl_egl_window_resize  THEN
-    xdg-surface 0 0 width height xdg_surface_set_window_geometry
-    wp-viewport ?dup-IF
-	wayland( height n>coord width n>coord
-	[: cr ." source w h: " f. f. ;] do-debug )
-	dup 0 0 width scale*fixed height scale*fixed wp_viewport_set_source
-	width height wp_viewport_set_destination
-    THEN
-    wl-surface ?dup-IF  wl_surface_commit  THEN
-    width scale* height scale* resize-widgets ;
-previous
+    width height rescale-win ;
 ?cb xdg_toplevel_listener-configure:
 cb> xdg-toplevel-listener
 
