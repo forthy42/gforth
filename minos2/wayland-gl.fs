@@ -133,7 +133,6 @@ cb> wl-shell-surface-listener
 [THEN]
 1 Value wl-scale
 #120 Value fractional-scale
-0 ' noop trigger-value set-fractional-scale
 0 Value screen-orientation
 
 1e 256e f/ fconstant 1/256
@@ -176,7 +175,6 @@ cb> wl-output-listener
     :noname { data fscale scale -- }
 	wayland( cr ." fractional scale: " scale . )
 	scale to fractional-scale
-	1 +to set-fractional-scale
     ; ?cb wp_fractional_scale_v1_listener-preferred_scale:
     cb> wp-fractional-scale-v1-listener
 [THEN]
@@ -771,10 +769,8 @@ wl-registry set-current
     shell-surface window-title$ $@ wl_shell_surface_set_title
     shell-surface window-app-id$ $@ wl_shell_surface_set_class ;
 1 wl: wp_viewporter
-:trigger-on( set-fractional-scale wp-viewporter wl-surface )
-    fractional-scale #120 <> IF
-	wp-viewporter wl-surface wp_viewporter_get_viewport to wp-viewport
-    THEN ;
+:trigger-on( wp-viewporter wl-surface )
+    wp-viewporter wl-surface wp_viewporter_get_viewport to wp-viewport ;
 4 wlal: wl_output
 8 wlal: wl_seat
 1 wl: wl_shm

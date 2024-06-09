@@ -178,6 +178,7 @@ end-class slide-actor
     [ box-actor ] defers clicked +sync +resize ; slide-actor is clicked
 forward >fullscreen
 forward >normalscreen
+forward screenshot>png
 :noname ( ekey -- )
     case
 	k-up      of  prev-slide  endof
@@ -207,6 +208,8 @@ forward >normalscreen
 	k-f1 of  top-widget ..widget  endof
 	k-f7 of  >normalscreen   endof
 	k-f8 of  >fullscreen     endof
+	k-f9 of  slide# @ [: ." presentation-" 0 .r ." .png" ;] $tmp
+	    screenshot>png  endof
 	[ box-actor ] defers ekeyed  EXIT
     endcase +sync +resize ; slide-actor is ekeyed
 :noname ( $xy b -- ) 2dup [ box-actor ] defers touchmove drop
