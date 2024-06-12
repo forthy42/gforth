@@ -514,12 +514,13 @@ md-presenter new Constant presenter-md-styler
 
 get-current also markdown definitions
 : ::presentation::
-    presentation-size
+    ['] presentation-size is rescaler  rescaler
     presenter-md-styler to md-style ;
 presenter-md-styler to md-style
 previous set-current
 
-84e update-size#
+:noname 84e update-size# ; is rescaler
+rescaler
 
 \ generic formatting
 

@@ -196,11 +196,13 @@ also opengl
     width scale* height scale* resize-widgets ;
 previous
 
+Defer rescaler ' noop is rescaler
+
 [IFDEF] wp_fractional_scale_v1_listener
     <cb
     :noname { data fscale scale -- }
 	wayland( cr ." fractional scale: " scale . )
-	scale to fractional-scale
+	scale to fractional-scale  rescaler
 	dpy-unscaled-wh 2@ rescale-win
     ; ?cb wp_fractional_scale_v1_listener-preferred_scale:
     cb> wp-fractional-scale-v1-listener

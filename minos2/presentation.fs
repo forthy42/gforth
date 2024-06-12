@@ -29,7 +29,8 @@ require minos2/text-style.fs
 require minos2/presentation-support.fs
 
 gl-init
-44e update-size#
+:noname 44e update-size# ; is rescaler
+rescaler
 
 m2c:animtime% f@ 3e f* m2c:animtime% f!
 

@@ -171,6 +171,7 @@ Defer window-init     ' noop is window-init
 Defer config-changed
 Defer screen-ops      ' noop is screen-ops
 Defer reload-textures ' noop is reload-textures
+Defer rescaler        ' noop is rescaler
 
 : gl-init ( -- ) \ minos2
     \G if not already opened, open window and initialize OpenGL
