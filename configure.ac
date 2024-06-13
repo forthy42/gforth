@@ -2091,6 +2091,7 @@ chmod +x preforth
 chmod +x libforth
 chmod +x gforthker
 chmod +x debian/rules
+test -f $srcdir/unix/wayland-fsi.c&&touch $srcdir/unix/wayland-fsi.c
 test -d kernel||mkdir kernel
 test -d test||mkdir test
 test -d wayland||mkdir wayland
