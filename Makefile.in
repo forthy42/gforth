@@ -78,6 +78,7 @@ bindir = $(package)@bindir@
 #read-only architecture-independent files
 datarootdir = @datarootdir@
 datadir = $(package)@datadir@
+dataverdir = $(datadir)/gforth/$(VERSION)
 #read-only architecture-dependent non-ascii files
 libdir = $(package)@libdir@
 libccdir = $(subst $(package),,$(libdir)/gforth/$(VERSION)/$(machine)/libcc-named)
@@ -125,7 +126,7 @@ LIBTOOL = @GNU_LIBTOOL@ --silent
 PREFORTH	= ./preforth -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 CC	= $(GCC)
 EXTRAPATH = $(PATHSEP)/usr/share/gforth/site-forth$(PATHSEP)/usr/local/share/gforth/site-forth
-FORTHPATH = .$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(EXTRAPATH)
+FORTHPATH = .$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(dataverdir)$(EXTRAPATH)
 FORTHSIZES = @FORTHSIZES@
 FORTHS_ARGS = @check_option@ -p ".$(PATHSEP)$(realpath $(srcdir))$(PATHSEP)$(FORTHPATH)"
 FORTH_ARGS = --die-on-signal $(FORTHS_ARGS)
@@ -896,7 +897,7 @@ install-progs:
 install-sources:
 		-for i in doc/gforth.info* doc/vmgen.info*; do $(INSTALL_DATA) $$i $(infodir); done
 		for i in $(FORTH_SRC) $(COMPAT) prim; do \
-			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION)/$$i; \
+			$(INSTALL_DATA) $(srcdir)/$$i $(dataverdir)/$$i; \
 		done
 
 install-gensources:
@@ -904,30 +905,32 @@ install-gensources:
 			$(INSTALL_DATA) $$i $(libdir)/gforth/$(VERSION)/$$i; \
 		done
 		for i in kernel/prim.fs kernel/aliases.fs kernel/version.fs kernel/authors.fs; do \
-			$(INSTALL_DATA) $$i $(datadir)/gforth/$(VERSION)/$$i; \
+			$(INSTALL_DATA) $$i $(dataverdir)/$$i; \
 		done
 		$(INSTALL_DATA) $(srcdir)/siteinit.fs $(siteforthdir)/siteinit.fs
 
 install-txt:	txt
-		$(INSTALL_DATA) doc/gforth.txt $(datadir)/gforth/$(VERSION)/doc/gforth.txt
+		$(INSTALL_DATA) doc/gforth.txt $(dataverdir)/doc/gforth.txt
 
 install-md:
-		$(INSTALL_DATA) $(srcdir)/README.md $(datadir)/gforth/$(VERSION)/doc/README.md
+		$(INSTALL_DATA) $(srcdir)/README.md $(dataverdir)/doc/README.md
 
 install-images:	install-md @INSTALLTXT@
 		$(INSTALL_DATA) $(kernel_fi) $(libdir)/gforth/$(VERSION)
-		env GFORTH_IGNLIB=true GFORTH_COMPILELIB=no HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal --debug-mcheck -i $(kernel_fi) exboot.fs startup.fs" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi.install $(FORTHSIZES) $(STARTUP_FULL) fixfiles.fs
+		env GFORTH_IGNLIB=true GFORTH_COMPILELIB=no HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(dataverdir)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(dataverdir)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal --debug-mcheck -i $(kernel_fi) exboot.fs startup.fs" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi.install $(FORTHSIZES) $(STARTUP_FULL) fixfiles.fs
 		$(INSTALL_DATA) gforth.fi.install $(libdir)/gforth/$(VERSION)/gforth.fi
 
 install-include:
-		$(MKDIR_P) $(includedir)/gforth/$(VERSION)/$(machine) $(includedir)/freetype-gl $(includedir)/wayland
+		$(MKDIR_P) $(includedir)/gforth/$(VERSION)/$(machine) $(includedir)/freetype-gl $(includedir)/wayland $(dataverdir)/wayland
 		$(INSTALL_DATA) engine/config.h $(srcdir)/engine/libcc.h $(includedir)/gforth/$(VERSION)/$(machine)
 		$(INSTALL_DATA) engine/gforth.h $(includedir)
 		for i in $(FREETYPE_GL_INCLUDE); do \
 		$(INSTALL_DATA) $(srcdir)/$$i $(includedir)/freetype-gl; done
 		for i in $(WAYLAND_INCLUDE); do \
 		$(INSTALL_DATA) $$i $(includedir)/wayland; done
-		$(LN_S) $(includedir)/wayland $(datadir)/gforth/$(VERSION)
+		for i in $(WAYLAND_INCLUDE); do \
+		$(INSTALL_DATA) $$i $(dataverdir)/wayland; done
+		#$(LN_S) $(includedir)/wayland $(dataverdir)
 
 install-libcc:
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_SRC1) $(LIBCC_LIB_SRC); do \
@@ -955,7 +958,7 @@ install-pdf:	pdf
 		$(CP) doc/vmgen.pdf $(pdfdir)/../vmgen/
 
 install-tags:	install.TAGS
-		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
+		$(INSTALL_DATA) install.TAGS $(dataverdir)/TAGS
 
 install-elc:
 		@if test -n "@lispdir@"; then \
@@ -1021,18 +1024,18 @@ installdirs-arch:
 
 installdirs-indep:
 		$(NORMAL_INSTALL)
-		for i in $(man1dir) $(infodir) $(datadir)/gforth/$(VERSION) $(datadir)/gforth/site-forth; do \
+		for i in $(man1dir) $(infodir) $(dataverdir) $(datadir)/gforth/site-forth; do \
 			$(MKDIR_P) $$i; \
 		done
 		for i in $(INSTALLDIRS); do \
-			$(MKDIR_P) $(datadir)/gforth/$(VERSION)/$$i; \
+			$(MKDIR_P) $(dataverdir)/$$i; \
 		done
 
 #deinstall all files specific to this version of gforth
 #to uninstall version foo, type `make uninstall VERSION=foo'
 uninstall:	FORCE
 		$(NORMAL_UNINSTALL)
-		-$(RMTREE) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(includedir)/gforth/$(VERSION)/$(machine)
+		-$(RMTREE) $(libdir)/gforth/$(VERSION) $(dataverdir) $(includedir)/gforth/$(VERSION)/$(machine)
 		-for i in "$(EXT)" -$(VERSION)$(EXT) -$(machine)$(EXT) -$(VERSION)-$(machine)$(EXT); do $(RM) $(bindir)/gforth$$i $(bindir)/gforth-fast$$i $(bindir)/gforth-itc$$i $(bindir)/gforth-ditc$$i $(bindir)/gforthmi$$i ; done
 		-$(RM) $(bindir)/vmgen-$(VERSION)
 		-$(RMTREE) $(incdir)/gforth/$(VERSION)/$(machine)
@@ -1193,7 +1196,7 @@ all-bench allbench:	onebench.fs
 	./gforth-ditc$(EXT) $<
 	@libbench@./libgforth-ditc$(EXT) $<
 
-EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth-light.fi" "LIBCCNAMED=$(shell pwd)/$(buildccdir)" "libccdir=$(libccdir)" "package=$(package)" "PREFIX=$(EXTRAPREFIX)" "prefix=$(EXTRAPREFIX)" "datadir=$(datadir)/gforth/$(VERSION)" "ARCH=" "FAST=$(FAST)" "GFVER=$(VERSION)"
+EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth-light.fi" "LIBCCNAMED=$(shell pwd)/$(buildccdir)" "libccdir=$(libccdir)" "package=$(package)" "PREFIX=$(EXTRAPREFIX)" "prefix=$(EXTRAPREFIX)" "datadir=$(dataverdir)" "ARCH=" "FAST=$(FAST)" "GFVER=$(VERSION)"
 
 extras:	gforth-light.fi $(EXTRAS:%=%.extras)
 
