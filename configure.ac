@@ -1907,6 +1907,11 @@ if test x$has_swig = xyes || test -f $srcdir/unix/va_x11-fsi.c; then
    AC_CHECK_HEADER(va/va_x11.h, SWIGMODULES="$SWIGMODULES va_x11.fs"
 		   SWIGLIBS="$SWIGLIBS va_x11.fs",), ,)
 fi
+if test x$has_swig = xyes || test -f $srcdir/unix/va_wayland-fsi.c; then
+   AC_CHECK_LIB(va-wayland,vaGetDisplayWl,
+   AC_CHECK_HEADER(va/va_wayland.h, SWIGMODULES="$SWIGMODULES va_wayland.fs"
+		   SWIGLIBS="$SWIGLIBS va_wayland.fs",), ,)
+fi
 if test x$has_swig = xyes || test -f $srcdir/unix/va_drm-fsi.c; then
    AC_CHECK_LIB(va-drm,vaGetDisplayDRM,
    AC_CHECK_HEADER(va/va_drm.h, SWIGMODULES="$SWIGMODULES va_drm.fs"

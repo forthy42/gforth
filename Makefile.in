@@ -385,7 +385,8 @@ SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i unix/gl.i    \
 	unix/gdi32.i unix/user32.i unix/wayland.i unix/gps.i unix/vulkan.i    \
 	unix/harfbuzz.i unix/gobject.i unix/gst.i unix/avcodec.i unix/pulse.i \
 	unix/pipewire.i unix/opus.i unix/va.i unix/va_glx.i unix/va_drm.i     \
-	unix/va_x11.i unix/opensles.i unix/spi.i unix/i2c.i unix/xkbcommon.i
+	unix/va_x11.i unix/va_wayland.i unix/opensles.i unix/spi.i unix/i2c.i \
+	unix/xkbcommon.i
 
 FREETYPE_GL_INCLUDE = freetype-gl/freetype-gl-errdef.h			   \
 	freetype-gl/ftgl-utils.h freetype-gl/freetype-gl.h		   \
