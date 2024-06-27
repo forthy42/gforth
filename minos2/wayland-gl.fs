@@ -960,9 +960,7 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
     ?looper-timeouts >poll-events >r
     xpollfds r> xpoll
     IF
-	xpollfds revents >r
-	r@ w@ POLLIN and  IF  ?events  THEN
-	r> pollfd + >r
+	xpollfds revents pollfd + >r
 	dpy IF
 	    r@ w@ POLLIN and IF  get-events  THEN
 	    r> pollfd + >r
