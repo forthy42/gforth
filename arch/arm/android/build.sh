@@ -72,11 +72,6 @@ echo $APP_VERSION >~/.app-version
 
 exec 3>&1 1>build.log 2>&1
 
-if [ ! -f local.properties ]
-then
-    android update project -p . -s --target android-28
-fi
-
 #eval $(grep ^sdk.dir= local.properties| sed -e 's/^sdk.dir=/sdk_dir=/g')
 #
 #mkdir -p libs

@@ -90,6 +90,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
 import gnu.gforth.R;
+import androidx.core.content.pm.ShortcutManagerCompat;
+import androidx.core.content.pm.ShortcutInfoCompat;
+import androidx.core.graphics.drawable.IconCompat;
 
 public class Gforth
     extends android.app.Activity
@@ -985,7 +988,7 @@ public class Gforth
 	Context context = getApplicationContext();
 	if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
 	    ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, "#1")
-		.setIntent(new Intent(context, YourActivity.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
+		.setIntent(new Intent(context, Gforth.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
 		.setShortLabel(name)
 		.setSliceUri(Uri.parse("file://"+file))
 		.setIcon(IconCompat.createWithResource(context, R.drawable.ic_launcher))

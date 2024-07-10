@@ -12,6 +12,12 @@ buildscript {
 allprojects {
   repositories {
       google() // and here
+      mavenCentral()
+      maven {
+        // Used only for PhotoView
+        url "https://www.jitpack.io"
+        name 'JitPack Github wrapper'
+      }
       jcenter()
   }
 }
@@ -69,5 +75,8 @@ android {
             signingConfig signingConfigs.release
         }
     }
+}
+dependencies {
+    implementation 'androidx.sharetarget:sharetarget:1.2.0'
 }
 EOF
