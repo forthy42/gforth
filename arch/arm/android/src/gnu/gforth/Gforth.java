@@ -979,4 +979,18 @@ public class Gforth
 	}
 	doStart();
     }
+    
+    public void addShortcutToHomeScreen(String name, String file)
+    {
+	Context context = getApplicationContext();
+	if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+	    ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, "#1")
+		.setIntent(new Intent(context, YourActivity.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
+		.setShortLabel(name)
+		.setSliceUri(Uri.parse("file://"+file))
+		.setIcon(IconCompat.createWithResource(context, R.drawable.ic_launcher))
+		.build();
+	    ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
+	}
+    }
 }

@@ -15,7 +15,9 @@ allprojects {
       jcenter()
   }
 }
-
+dependencies {
+    implementation 'androidx.sharetarget:sharetarget:1.0.0-alpha01'
+}
 apply plugin: 'com.android.application'
 
 def keystorePropertiesFile = rootProject.file("ant.properties")
