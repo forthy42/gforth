@@ -2,7 +2,7 @@ cat <<EOF
 buildscript {
     repositories {
 	google()
-	jcenter()
+	mavenCentral()
     }
 
     dependencies {
@@ -18,11 +18,10 @@ allprojects {
         url "https://www.jitpack.io"
         name 'JitPack Github wrapper'
       }
-      jcenter()
   }
 }
 dependencies {
-    implementation 'androidx.sharetarget:sharetarget:1.0.0-alpha01'
+    implementation 'androidx.sharetarget:sharetarget:1.2.0'
 }
 apply plugin: 'com.android.application'
 
@@ -74,6 +73,9 @@ android {
         release {
             signingConfig signingConfigs.release
         }
+     }
+     lint {
+         baseline = file("lint-baseline.xml")
     }
 }
 dependencies {

@@ -56,10 +56,10 @@ if [ ! -z "$arch" ]
 then
     (cd $SRC; ./autogen.sh) >autogen.log
     echo "Extra builds in$arch"
-    APP_PACKAGE=gnu.gforth
 else
     APP_PACKAGE=gnu.gforth_$machine
 fi
+APP_PACKAGE=gnu.gforth
 
 APP_VERSION=$[$(cat ~/.app-version)+1]
 for i in $arch

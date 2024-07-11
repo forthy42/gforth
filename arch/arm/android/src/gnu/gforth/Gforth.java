@@ -89,10 +89,10 @@ import java.io.InputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
-import gnu.gforth.R;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
+import gnu.gforth.R;
 
 public class Gforth
     extends android.app.Activity
@@ -453,12 +453,7 @@ public class Gforth
 	if(mView!=null) mView.restartIME();
     }
     public void showStatus() {
-	if (Build.VERSION.SDK_INT < 16) {
-	    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-	}
-	else {
-	    getWindow().getDecorView().setSystemUiVisibility(0);
-	}
+	getWindow().getDecorView().setSystemUiVisibility(0);
     }
     public void hideStatus() {
 	// Hide Status Bar
