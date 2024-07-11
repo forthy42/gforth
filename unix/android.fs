@@ -30,6 +30,8 @@ Defer reload-textures ' noop is reload-textures
 
 \ The rest is in the "android" vocabulary
 
+Defer rescaler        ' noop is rescaler
+
 Vocabulary android
 get-current also android definitions
 
@@ -331,7 +333,6 @@ Defer screen-ops ' noop IS screen-ops
 ' android-everyline is everyline
 
 Defer config-changed
-Defer rescaler        ' noop is rescaler
 Defer window-init
 
 :noname [: ." app window " app window @ h. cr ;] $err ; IS window-init
