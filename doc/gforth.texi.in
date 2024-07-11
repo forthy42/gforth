@@ -14385,7 +14385,7 @@ whole string constants.
 doc-\^
 doc-\$
 doc-str=?
-doc-=''
+doc-="
 
 Loops that check for repeated character sets can be greedy or
 non-greedy.

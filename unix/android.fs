@@ -331,14 +331,15 @@ Defer screen-ops ' noop IS screen-ops
 ' android-everyline is everyline
 
 Defer config-changed
+Defer rescaler        ' noop is rescaler
 Defer window-init
+
 :noname [: ." app window " app window @ h. cr ;] $err ; IS window-init
 : window-init, ( xt -- )
     >r :noname action-of window-init compile, r@ compile,
     postpone ; is window-init
     ctx IF  r@ execute  THEN  rdrop ;
 screen-ops     ' noop IS screen-ops
-
 :noname ( -- ) +sync +config ; is config-changed
 
 Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop

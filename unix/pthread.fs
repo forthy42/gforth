@@ -143,9 +143,9 @@ c-library pthread
 end-c-library
 
 require unix/pthread-types.fs
-0 pthread_t cfield: pthread+ drop
-0 pthread_mutex_t cfield: pthread-mutex+ drop
-0 pthread_cond_t cfield: pthread-cond+ drop
+pthread_t cfield: pthread+ drop
+pthread_mutex_t cfield: pthread-mutex+ drop
+pthread_cond_t cfield: pthread-cond+ drop
 
 Create pthreads 0 pthread+ ,
 DOES> @ * ;

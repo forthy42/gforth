@@ -18,6 +18,8 @@
 %}
 
 #define SPA_PRINTF_FUNC(x, y)
+#define SPA_DEFINE_AUTOPTR_CLEANUP(x, y, z)
+#define SPA_DEFINE_AUTO_CLEANUP(x, y, z)
 #define SPA_SENTINEL
 #define SPA_DEPRECATED
 #define SPA_WARN_UNUSED_RESULT
