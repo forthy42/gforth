@@ -310,14 +310,17 @@ synonym c-section critical-section
 	xt perform
     THEN ;
 : send-event ( xt task -- ) \ gforth-experimental
-    \G Task IPC: send @var{xt} to @var{task}.  The xt is executed
-    \G there.  Use a one-shot closure to pass parameters with the xt.
+    \G Inter-task communication: send @var{xt} @code{( -- )} to
+    \G @var{task}.  @var{task} executes the xt at some later point in
+    \G time.  To pass parameters, construct a one-shot closure that
+    \G contains the parameters (@pxref{Closures}) and pass the xt of
+    \G that closure.
     >r {: w^ xt :} xt cell epipew r> 's @ write-file throw ;
-: event? ( -- flag )  epiper @ check_read 0> ;
+: event? ( -- flag ) epiper @ check_read 0> ;
 
 : ?events ( -- ) \ gforth-experimental question-events
-    \G Perform all event sequences in the current task's message
-    \G queue, one event sequence at a time.
+    \G Execute all event xts in the current task's message
+    \G queue, one xt at a time.
     BEGIN  event?  WHILE  (stop)  REPEAT ;
 
 : stop ( -- ) \ gforth-experimental
@@ -331,10 +334,10 @@ synonym c-section critical-section
 \G Stop with dtimeout (in nanoseconds), better replacement for ms
 
 : event-loop ( -- ) \ gforth-experimental
-    \G Wait for event sequences, and execute any event sequences when
-    \G they arrive.  Return to waiting if no event sequences are in
-    \G the queue.  This word never returns.
-    BEGIN  stop  AGAIN ;
+    \G Wait for event xts and execute these xts when they arrive, one
+    \G at a time.  Return to waiting if no event xts are in the queue.
+    \G This word never returns.
+    BEGIN stop AGAIN ;
 
 : pause ( -- ) \ gforth-experimental
     \G voluntarily switch to the next waiting task (@code{pause} is

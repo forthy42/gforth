@@ -15126,22 +15126,37 @@ doc-barrier
 
 Gforth's message queues are a variant of the actor model.
 
-An event is an xt; the sending task tells the receiving task to run an
-event, and the receiving task performs one event from its message queue
-when it is ready.  Execute-once closures can be used for events that
-pass parameters.
+The sending task tells the receiving task to execute an xt with the
+stack effect @code{( -- )} (an @emph{event} in the name of the words
+below; the actor model would call these xts @emph{messages}), and when
+the receiving task is ready, it will execute the xt, possibly after
+other xts from its message queue.
+
+The execution order between xts from different tasks is arbitrary, the
+order between xts from the same task is the sending order.
+
+In many cases you do not just want to pass the xts of existing words,
+but also parameters.  You can construct execute-once closures (defined
+using @code{:@}h1}, @pxref{Closures}) to achieve that, e.g., with
+
+@example
+: .-in-task ( n task -- )
+  >r [@{: n :@}h1 n . ;] r> send-event ;
+
+5 my-task .-in-task
+@end example
 
 doc-send-event
 
-When several tasks send event to one task, the events may arrive in any
-order.  In order to receive events, you put one of the following words
-in the receiving task:
+In order to execute xts received from other tasks, perform one of the
+following words in the receiving task:
 
 doc-?events
 doc-event-loop
 
 Alternatively, when a task is @code{stop}ped, it is also ready for
-receiving event, and receiving an event will wake it up.
+receiving xts, and receiving an xt will not just execute the xt, but
+also continue execution after the @code{stop}.
 
 @c @node Conditions,  , Message queues, Pthreads
 @c @subsubsection Conditions

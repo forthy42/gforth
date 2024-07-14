@@ -78,9 +78,11 @@ locals-types definitions
     \G the heap.
     ['] alloch :}* ;
 
-: :}h1 ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth colon-close-brace-h
-    \G end a closure's locals declaration.  The closure will be allocated on
-    \G the heap.
+: :}h1 ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth colon-close-brace-h-one
+    \G end a closure's locals declaration.  The closure is deallocated
+    \G after the first execution, so this is a one-shot closure,
+    \G particularly useful in combination with @code{send-event}
+    \G (@pxref{Message queues}).
     true to 1t-closure? ['] alloch :}* ;
 
 forth definitions
