@@ -507,6 +507,10 @@ public class Gforth
                 if (ln != null) libname = ln;
                 String sf = ai.metaData.getString(META_DATA_STARTFILE);
                 if (sf != null) startfile = sf;
+		String sliceuri = ai.metaData.getString(SLICE_METADATA_KEY);
+		if ((sliceuri != null) && sliceuri.startsWith("file://"))
+		    startfile = sliceuri.substring(7);
+		}
             }
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException("Error getting activity info", e);
