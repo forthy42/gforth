@@ -26,6 +26,8 @@ jni-method: restartIME restartIME ()V
 jni-method: setEditLine setEditLine (Ljava/lang/String;II)V
 jni-method: set_alarm set_alarm (J)V
 jni-method: screen_on screen_on (I)V
+jni-method: addShortcutToHomeScreen addShortcutToHomeScreen (Ljava/lang/String;Ljava/lang/String)V
+jni-method: addShortcutToHomeScreenIcon addShortcutToHomeScreenIcon (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String)V
 jni-field: audioManager audioManager Landroid/media/AudioManager;
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
 jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityManager;
