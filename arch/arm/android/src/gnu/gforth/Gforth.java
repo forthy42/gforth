@@ -74,6 +74,7 @@ import android.app.PendingIntent;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.NotificationChannel;
+import android.app.slice.SliceManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.util.Log;
@@ -509,12 +510,22 @@ public class Gforth
             ai = getPackageManager().getActivityInfo(intent.getComponent(), PackageManager.GET_META_DATA);
             if (ai.metaData != null) {
                 String ln = ai.metaData.getString(META_DATA_LIB_NAME);
-                if (ln != null) libname = ln;
+                if (ln != null) {
+		    libname = ln;
+		}
                 String sf = ai.metaData.getString(META_DATA_STARTFILE);
-                if (sf != null) startfile = sf;
-		String sliceuri = ai.metaData.getString("SLICE_METADATA_KEY");
-		if ((sliceuri != null) && sliceuri.startsWith("file://"))
-		    startfile = sliceuri.substring(7);
+                if (sf != null) {
+		    startfile = sf;
+		}
+		String sliceuri = ai.metaData.getString(SLICE_METADATA_KEY);
+		if (sliceuri != null) {
+		    Log.v(TAG, "sliceuri="+sliceuri);
+		    if(sliceuri.startsWith("file://")) {
+			startfile = sliceuri.substring(7);
+		    }
+		}
+		Log.v(TAG, "libname="+libname);
+		Log.v(TAG, "startfile="+startfile);
             }
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException("Error getting activity info", e);
