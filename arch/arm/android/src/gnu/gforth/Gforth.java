@@ -508,9 +508,14 @@ public class Gforth
 
 	try {
             ai = getPackageManager().getActivityInfo(intent.getComponent(), PackageManager.GET_META_DATA);
+	    ResolveInfo ri = getPackageManager().resolveActivity(intent,
+								 PackageManager.GET_META_DATA);
             if (ai.metaData != null) {
 		for (String key : ai.metaData.keySet()) {
-		    Log.v(TAG, "metaData."+key+"="+ai.metaData.getString(key));
+		    Log.v(TAG, "ai.metaData."+key+"="+ai.metaData.getString(key));
+		}
+		for (String key : ri.activityInfo.metaData.keySet()) {
+		    Log.v(TAG, "ri.metaData."+key+"="+ri.activityInfo.metaData.getString(key));
 		}
                 String ln = ai.metaData.getString(META_DATA_LIB_NAME);
                 if (ln != null) {
@@ -520,7 +525,7 @@ public class Gforth
                 if (sf != null) {
 		    startfile = sf;
 		}
-		String sliceuri = ai.metaData.getString(SliceManager.SLICE_METADATA_KEY);
+		String sliceuri = ri.activityInfo.metaData.getString(SliceManager.SLICE_METADATA_KEY);
 		if (sliceuri != null) {
 		    Log.v(TAG, "sliceuri="+sliceuri);
 		    if(sliceuri.startsWith("file://")) {
