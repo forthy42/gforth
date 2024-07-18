@@ -517,7 +517,7 @@ public class Gforth
                 if (sf != null) {
 		    startfile = sf;
 		}
-		String sliceuri = ai.metaData.getString(SLICE_METADATA_KEY);
+		String sliceuri = ai.metaData.getString(SliceManager.SLICE_METADATA_KEY);
 		if (sliceuri != null) {
 		    Log.v(TAG, "sliceuri="+sliceuri);
 		    if(sliceuri.startsWith("file://")) {
