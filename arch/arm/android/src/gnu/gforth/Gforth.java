@@ -675,9 +675,10 @@ public class Gforth
 		    Context context = getApplicationContext();
 		    if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
 			ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, "#1")
-			    .setIntent(new Intent(context, Gforth.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
+			    .setIntent(new Intent(context, Gforth.class)
+				       .setAction(Intent.ACTION_MAIN)
+				       .setData(Uri.parse("file://"+shortcutfile)))
 			    .setShortLabel(shortcutname)
-			    .setSliceUri(Uri.parse("file://"+shortcutfile))
 			    .setIcon(IconCompat.createWithContentUri("file.//"+shortcuticon))
 			    .build();
 			ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
