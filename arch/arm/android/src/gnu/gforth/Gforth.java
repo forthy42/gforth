@@ -22,7 +22,6 @@
 package gnu.gforth;
 
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.os.Handler;
 import android.os.Build;
 import android.os.Environment;
@@ -660,7 +659,7 @@ public class Gforth
 		public void run() {
 		    Context context = getApplicationContext();
 		    if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
-			PersistableBundle pb=new PersistableBundle();
+			Bundle pb=new Bundle();
 			pb.putString("file",shortcutfile);
 			ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, "#1")
 			    .setIntent(new Intent(context, Gforth.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
