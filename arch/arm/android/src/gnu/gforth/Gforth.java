@@ -22,6 +22,7 @@
 package gnu.gforth;
 
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.os.Handler;
 import android.os.Build;
 import android.os.Environment;
@@ -659,16 +660,26 @@ public class Gforth
 		public void run() {
 		    Context context = getApplicationContext();
 		    if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
-			Bundle pb=new Bundle();
-			pb.putString("file",shortcutfile);
-			ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, "#1")
-			    .setIntent(new Intent(context, Gforth.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
-			    .setShortLabel(shortcutname)
-			    .setSliceUri(Uri.parse("file://"+shortcutfile))
-			    .setExtras(pb)
-			    .setIcon(IconCompat.createWithResource(context, R.drawable.ic_launcher))
-			    .build();
-			ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
+			if(Build.VERSION.SDK_INT > 20) {
+			    PersistableBundle pb=new PersistableBundle();
+			    pb.putString("file",shortcutfile);
+			    ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, "#1")
+				.setIntent(new Intent(context, Gforth.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
+				.setShortLabel(shortcutname)
+				.setSliceUri(Uri.parse("file://"+shortcutfile))
+				.setExtras(pb)
+				.setIcon(IconCompat.createWithResource(context, R.drawable.ic_launcher))
+				.build();
+			    ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
+			} else {
+			    ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, "#1")
+				.setIntent(new Intent(context, Gforth.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
+				.setShortLabel(shortcutname)
+				.setSliceUri(Uri.parse("file://"+shortcutfile))
+				.setIcon(IconCompat.createWithResource(context, R.drawable.ic_launcher))
+				.build();
+			    ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
+			}
 		    }
 		}
 	    };
