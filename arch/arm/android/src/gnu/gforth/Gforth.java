@@ -523,7 +523,7 @@ public class Gforth
 		Uri uri = intent.getData();
 		if (uri != null) {
 		    Log.v(TAG, "uri="+uri.toString());
-		    startfile = uri.getPath();
+		    startfile = uri.toString().substring(7);
 		}
 		Log.v(TAG, "libname="+libname);
 		Log.v(TAG, "startfile="+startfile);
