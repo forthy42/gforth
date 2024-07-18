@@ -520,11 +520,10 @@ public class Gforth
                 if (sf != null) {
 		    startfile = sf;
 		}
-		String sliceuri = ai.metaData.getString(SliceManager.SLICE_METADATA_KEY);
-		if (sliceuri != null) {
-		    Log.v(TAG, "sliceuri="+sliceuri);
-		    if(sliceuri.startsWith("file://")) {
-			startfile = sliceuri.substring(7);
+		String slicefile = ai.metaData.getExtras().getString("file");
+		if (slicefile != null) {
+		    Log.v(TAG, "slicefile="+slicefile);
+			startfile = slicefile;
 		    }
 		}
 		Log.v(TAG, "libname="+libname);
@@ -665,6 +664,7 @@ public class Gforth
 			    .setIntent(new Intent(context, Gforth.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
 			    .setShortLabel(shortcutname)
 			    .setSliceUri(Uri.parse("file://"+shortcutfile))
+			    .setExtras(PersistableBundle().putString("file",shurtcutfile))
 			    .setIcon(IconCompat.createWithResource(context, R.drawable.ic_launcher))
 			    .build();
 			ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
