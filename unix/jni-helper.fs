@@ -26,8 +26,6 @@ jni-method: restartIME restartIME ()V
 jni-method: setEditLine setEditLine (Ljava/lang/String;II)V
 jni-method: set_alarm set_alarm (J)V
 jni-method: screen_on screen_on (I)V
-jni-method: addShortcutToHomeScreen addShortcutToHomeScreen (Ljava/lang/String;Ljava/lang/String;)V
-jni-method: addShortcutToHomeScreenIcon addShortcutToHomeScreenIcon (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 jni-field: audioManager audioManager Landroid/media/AudioManager;
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
 jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityManager;
@@ -50,11 +48,16 @@ jni-field: rsecurescreenon rsecurescreenon Ljava/lang/Runnable;
 jni-field: rsecurescreenoff rsecurescreenoff Ljava/lang/Runnable;
 jni-field: notifyer notifyer Ljava/lang/Runnable;
 jni-field: startbrowser startbrowser Ljava/lang/Runnable;
+jni-field: addshortcut addshortcut Ljava/lang/Runnable;
+jni-field: addshortcuticon addshortcuticon Ljava/lang/Runnable;
 jni-field: args0 args0 Ljava/lang/String;
 jni-field: argf0 argf0 D
 jni-field: argj0 argj0 J
 jni-field: argnotify argnotify Landroid/app/Notification;
 jni-field: cameraPath cameraPath Ljava/lang/String;
+jni-field: shortcutname shortcutname Ljava/lang/String;
+jni-field: shortcutfile shortcutfile Ljava/lang/String;
+jni-field: shortcuticon shortcuticon Ljava/lang/String;
 
 jni-class: android/os/Handler
 jni-method: post post (Ljava/lang/Runnable;)Z

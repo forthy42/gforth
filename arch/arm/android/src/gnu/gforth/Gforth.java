@@ -150,8 +150,13 @@ public class Gforth
     public Runnable rsecurescreenoff;
     public Runnable notifyer;
     public Runnable startbrowser;
+    public Runnable addshortcut;
+    public Runnable addshortcuticon;
     public ProgressDialog progress;
     public String cameraPath;
+    public String shortcutname;
+    public String shortcutfile;
+    public String shortcuticon;
 
     private static final String META_DATA_LIB_NAME = "android.app.lib_name";
     private static final String META_DATA_STARTFILE = "android.app.startfile";
@@ -981,31 +986,32 @@ public class Gforth
 	doStart();
     }
     
-    public void addShortcutToHomeScreen(String name, String file)
-    {
-	Context context = getApplicationContext();
-	if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
-	    ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, "#1")
-		.setIntent(new Intent(context, Gforth.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
-		.setShortLabel(name)
-		.setSliceUri(Uri.parse("file://"+file))
-		.setIcon(IconCompat.createWithResource(context, R.drawable.ic_launcher))
-		.build();
-	    ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
-	}
-    }
-
-    public void addShortcutToHomeScreenIcon(String name, String file, String icon)
-    {
-	Context context = getApplicationContext();
-	if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
-	    ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, "#1")
-		.setIntent(new Intent(context, Gforth.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
-		.setShortLabel(name)
-		.setSliceUri(Uri.parse("file://"+file))
-		.setIcon(IconCompat.createWithContentUri("file.//"+icon))
-		.build();
-	    ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
-	}
-    }
+    addshortcut=new Runnable() {
+	    public void run() {
+		Context context = getApplicationContext();
+		if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+		    ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, "#1")
+			.setIntent(new Intent(context, Gforth.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
+			.setShortLabel(shortcutname)
+			.setSliceUri(Uri.parse("file://"+shortcutfile))
+			.setIcon(IconCompat.createWithResource(context, R.drawable.ic_launcher))
+			.build();
+		    ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
+		}
+	    }
+	};
+    addshortcuticon=new Runnable() {
+	    public void run() {
+		Context context = getApplicationContext();
+		if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+		    ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, "#1")
+			.setIntent(new Intent(context, Gforth.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
+			.setShortLabel(shortcutname)
+			.setSliceUri(Uri.parse("file://"+shortcutfile))
+			.setIcon(IconCompat.createWithContentUri("file.//"+shortcuticon))
+			.build();
+		    ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
+		}
+	    }
+	};
 }

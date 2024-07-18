@@ -220,6 +220,12 @@ false value wake-lock \ doesn't work, why?
 : screen+secure ( -- )  ['] rsecurescreenon post-it ;
 : screen-secure ( -- )  ['] rsecurescreenoff post-it ;
 
+: +shortcut ( name u file u -- )
+    classz >o
+    make-jstring to shortcutfile
+    make-jstring to shortcutname o>
+    ['] addshortcut post-it ;
+
 \ callbacks
 
 : $err ( xt -- )  $tmp stderr write-file throw ;
