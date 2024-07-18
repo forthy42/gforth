@@ -221,7 +221,7 @@ false value wake-lock \ doesn't work, why?
 : screen-secure ( -- )  ['] rsecurescreenoff post-it ;
 
 : +shortcut ( name u file u -- )
-    classz >o
+    clazz >o
     make-jstring to shortcutfile
     make-jstring to shortcutname o>
     ['] addshortcut post-it ;
