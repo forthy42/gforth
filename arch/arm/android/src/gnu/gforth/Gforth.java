@@ -660,11 +660,13 @@ public class Gforth
 		public void run() {
 		    Context context = getApplicationContext();
 		    if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+			PersistableBundle pb=new PersistableBundle();
+			pb.putString("file",shortcutfile));
 			ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, "#1")
 			    .setIntent(new Intent(context, Gforth.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
 			    .setShortLabel(shortcutname)
 			    .setSliceUri(Uri.parse("file://"+shortcutfile))
-			    .setExtras(new PersistableBundle().putString("file",shortcutfile))
+			    .setExtras(pb)
 			    .setIcon(IconCompat.createWithResource(context, R.drawable.ic_launcher))
 			    .build();
 			ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
