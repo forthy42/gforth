@@ -78,6 +78,8 @@ $(extra_perms)
                     android:value="gforth-fast" />
             <meta-data android:name="android.app.startfile"
                     android:value="starta.fs" />
+	    <meta-data android:name="android.metadata.SLICE_URI"
+                       android:value="file://starta.fs" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.DEFAULT" />
