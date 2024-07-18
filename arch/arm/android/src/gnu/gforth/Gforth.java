@@ -520,7 +520,7 @@ public class Gforth
                 if (sf != null) {
 		    startfile = sf;
 		}
-		String slicefile = ai.metaData.getExtras().getString("file");
+		String slicefile = ai.getExtras().getString("file");
 		if (slicefile != null) {
 		    Log.v(TAG, "slicefile="+slicefile);
 		    startfile = slicefile;
