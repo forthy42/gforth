@@ -661,7 +661,7 @@ public class Gforth
 		    Context context = getApplicationContext();
 		    if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
 			PersistableBundle pb=new PersistableBundle();
-			pb.putString("file",shortcutfile));
+			pb.putString("file",shortcutfile);
 			ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, "#1")
 			    .setIntent(new Intent(context, Gforth.class).setAction(Intent.ACTION_MAIN)) // !!! intent's action must be set on oreo
 			    .setShortLabel(shortcutname)
