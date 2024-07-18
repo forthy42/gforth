@@ -22,6 +22,7 @@
 package gnu.gforth;
 
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.os.Handler;
 import android.os.Build;
 import android.os.Environment;
