@@ -523,8 +523,7 @@ public class Gforth
 		String slicefile = ai.metaData.getExtras().getString("file");
 		if (slicefile != null) {
 		    Log.v(TAG, "slicefile="+slicefile);
-			startfile = slicefile;
-		    }
+		    startfile = slicefile;
 		}
 		Log.v(TAG, "libname="+libname);
 		Log.v(TAG, "startfile="+startfile);
