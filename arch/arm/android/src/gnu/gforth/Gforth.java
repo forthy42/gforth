@@ -509,7 +509,9 @@ public class Gforth
 	try {
             ai = getPackageManager().getActivityInfo(intent.getComponent(), PackageManager.GET_META_DATA);
             if (ai.metaData != null) {
-		Log.v(TAG, "metaData="+ai.metaData.toString());
+		for (String key : ai.metaData.keySet()) {
+		    Log.v(TAG, "metaData."+key+"="+ai.metaData.getString(key));
+		}
                 String ln = ai.metaData.getString(META_DATA_LIB_NAME);
                 if (ln != null) {
 		    libname = ln;
