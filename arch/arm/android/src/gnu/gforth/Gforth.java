@@ -521,10 +521,13 @@ public class Gforth
                 if (sf != null) {
 		    startfile = sf;
 		}
-		String slicefile = intent.getExtras().getString("file");
-		if (slicefile != null) {
-		    Log.v(TAG, "slicefile="+slicefile);
-		    startfile = slicefile;
+		Bundle extras = intent.getExtras();
+		if (extras != null) {
+		    String slicefile = extras.getString("file");
+		    if (slicefile != null) {
+			Log.v(TAG, "slicefile="+slicefile);
+			startfile = slicefile;
+		    }
 		}
 		Log.v(TAG, "libname="+libname);
 		Log.v(TAG, "startfile="+startfile);
