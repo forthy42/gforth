@@ -161,7 +161,8 @@ Variable opus-out
 	dup idx-channels c@ swap idx-samples w@ wle * 2*
     ELSE  drop 0  THEN ;
 : /sample ( -- u ) idx-block $@ $10 u>= IF
-	idx-channels c@ 2*  ELSE  drop 0  THEN ;
+	idx-channels c@ 2*  ELSE  drop 0  THEN
+    opus( ." samples: " dup . cr ) ;
 
 Semaphore opus-block-sem
 

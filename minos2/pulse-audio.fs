@@ -163,7 +163,10 @@ Variable def-output$
 	pa-ml pa_mainloop_get_api to pa-api
 	pa-api app-name $@ pa_context_new to pa-ctx
 	pa-ctx ${PULSE_SERVER}
-	dup IF  save-mem compact-filename  THEN
+	dup IF  save-mem compact-filename
+	ELSE  2drop [: ." unix:" ${XDG_RUNTIME_DIR} type ." /pulse/native" ;] $tmp save-mem
+	THEN
+	pulse( ." server: " 2dup type cr )
 	PA_CONTEXT_NOAUTOSPAWN 0 pa_context_connect ?pa-ior
 	pa-ctx pa-context-notify-cb ['] pa-notify-state
 	pa_context_set_state_callback

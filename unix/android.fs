@@ -22,15 +22,16 @@ require struct0x.fs
 
 \ public interface, C calls us through these
 
-Defer reload-textures ' noop is reload-textures
-
 [IFUNDEF] ctx
     0 Value ctx
 [THEN]
 
-\ The rest is in the "android" vocabulary
-
+Defer reload-textures ' noop is reload-textures
 Defer rescaler        ' noop is rescaler
+Defer config-changed
+Defer window-init
+
+\ The rest is in the "android" vocabulary
 
 Vocabulary android
 get-current also android definitions
@@ -337,9 +338,6 @@ Defer screen-ops ' noop IS screen-ops
 : android-everyline ( -- )
     defers everyline restartkb ;
 ' android-everyline is everyline
-
-Defer config-changed
-Defer window-init
 
 :noname [: ." app window " app window @ h. cr ;] $err ; IS window-init
 : window-init, ( xt -- )
