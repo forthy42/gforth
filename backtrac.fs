@@ -41,7 +41,8 @@
     backtrace-rp0 @ cell- over - 0 max ;
 
 :noname ( -- )
-    backtrace-return-stack stored-backtrace $! first-throw off ;
+    first-throw off \ avoid throw loops when store-backtrace fails
+    backtrace-return-stack stored-backtrace $! ;
 IS store-backtrace
 
 : >bt-entry ( return-stack-item -- nt )

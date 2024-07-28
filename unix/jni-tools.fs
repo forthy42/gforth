@@ -195,7 +195,7 @@ Variable jstring#
 : cstr" ( -- addr u )  parse-name ;
 : cstr1" ( -- addr u ) parse-name 2dup cstring1 $! ;
 : make-jstring ( addr u -- jstring-addr )
-    env -rot JNIEnv-NewStringUTF() dup to-jstring ;
+    fieldenv JNIEnv-NewStringUTF() dup to-jstring ;
 : js" ( -- addr )  '"' parse make-jstring ;
 compsem: '"' parse ]] SLiteral make-jstring [[ ;
 

@@ -221,6 +221,8 @@ false value wake-lock \ doesn't work, why?
 : screen+secure ( -- )  ['] rsecurescreenon post-it ;
 : screen-secure ( -- )  ['] rsecurescreenoff post-it ;
 
+: >shortcuticon ( addr u -- )
+    clazz >o 2dup d0= IF  drop  ELSE  make-jstring  THEN to shortcuticon o> ;
 : +shortcut ( name u file u -- )
     clazz >o
     make-jstring to shortcutfile
