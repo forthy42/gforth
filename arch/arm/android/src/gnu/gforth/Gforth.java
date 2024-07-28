@@ -694,10 +694,12 @@ public class Gforth
 		    onEventNative(21, 0);
 		}
 	    };
-	registerReceiver(recKeepalive, new IntentFilter("gnu.gforth.keepalive") );
-	
-	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), PendingIntent.FLAG_MUTABLE);
+	if (Build.VERSION.SDK_INT >= 26) {
+	    registerReceiver(recKeepalive, new IntentFilter("gnu.gforth.keepalive"), RECEIVER_NOT_EXPORTED );
+	}
 
+	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), PendingIntent.FLAG_IMMUTABLE);
+	
 	// intent for notifications
 	gforthintent = PendingIntent.getActivity
 	    (this, 1,
