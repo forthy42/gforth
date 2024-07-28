@@ -416,7 +416,7 @@ typedef struct {
   UCell return_stack_size;
   UCell locals_stack_size;
   Xt *boot_entry;	/* initial ip for booting (in BOOT) */
-  Xt *throw_entry;	/* ip after signal (in THROW) */
+  Xt *throw_entry;	/* ip after signal (in THROW), obsolete */
   Xt *quit_entry;
   Xt *execute_entry;
   Xt *find_entry;

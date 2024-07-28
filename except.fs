@@ -135,12 +135,17 @@ variable located-bottom \ last line to display with l
 	first-throw @ IF
 	    store-backtrace
 	THEN
+	[ here >r ]
 	handler @ IF
 	    fast-throw THEN
 	>stderr cr ." uncaught exception: " .error cr
 	kill-task  2 (bye)
     THEN ;
 is throw
+
+:noname
+    defers 'cold
+    debugging-method 0= IF  [ r> ] Literal throw-entry !  THEN ; is 'cold
 
 0 [if]
     \ primitives for wrap..end-wrap
