@@ -131,10 +131,12 @@ debug: .string.( ( -- ) \ dot-string-dot-paren
 
 : ... ( x1 .. xn -- x1 .. xn ) \ gforth
     \G smart version of @code{.s}
+    0 first-throw !@ >r
     smart.s-skip off
     ['] smart.s. ['] .s. ['] .s wrap-xt
     fdepth IF
-	cr ." F:" f.s THEN ;
+	cr ." F:" f.s THEN
+    r> first-throw ! ;
 
 ' ... IS printdebugdata
 

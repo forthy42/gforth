@@ -22,15 +22,16 @@ require struct0x.fs
 
 \ public interface, C calls us through these
 
-Defer reload-textures ' noop is reload-textures
-
 [IFUNDEF] ctx
     0 Value ctx
 [THEN]
 
-\ The rest is in the "android" vocabulary
-
+Defer reload-textures ' noop is reload-textures
 Defer rescaler        ' noop is rescaler
+Defer config-changed
+Defer window-init
+
+\ The rest is in the "android" vocabulary
 
 Vocabulary android
 get-current also android definitions
@@ -220,6 +221,8 @@ false value wake-lock \ doesn't work, why?
 : screen+secure ( -- )  ['] rsecurescreenon post-it ;
 : screen-secure ( -- )  ['] rsecurescreenoff post-it ;
 
+: >shortcuticon ( addr u -- )
+    clazz >o 2dup d0= IF  drop  ELSE  make-jstring  THEN to shortcuticon o> ;
 : +shortcut ( name u file u -- )
     clazz >o
     make-jstring to shortcutfile
@@ -337,9 +340,6 @@ Defer screen-ops ' noop IS screen-ops
 : android-everyline ( -- )
     defers everyline restartkb ;
 ' android-everyline is everyline
-
-Defer config-changed
-Defer window-init
 
 :noname [: ." app window " app window @ h. cr ;] $err ; IS window-init
 : window-init, ( xt -- )

@@ -49,7 +49,6 @@ jni-field: rsecurescreenoff rsecurescreenoff Ljava/lang/Runnable;
 jni-field: notifyer notifyer Ljava/lang/Runnable;
 jni-field: startbrowser startbrowser Ljava/lang/Runnable;
 jni-field: addshortcut addshortcut Ljava/lang/Runnable;
-jni-field: addshortcuticon addshortcuticon Ljava/lang/Runnable;
 jni-field: args0 args0 Ljava/lang/String;
 jni-field: argf0 argf0 D
 jni-field: argj0 argj0 J

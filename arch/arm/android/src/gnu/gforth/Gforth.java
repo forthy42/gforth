@@ -152,7 +152,6 @@ public class Gforth
     public Runnable notifyer;
     public Runnable startbrowser;
     public Runnable addshortcut;
-    public Runnable addshortcuticon;
     public ProgressDialog progress;
     public String cameraPath;
     public String shortcutname;
@@ -659,27 +658,15 @@ public class Gforth
 		public void run() {
 		    Context context = getApplicationContext();
 		    if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+			IconCompat icon = (shortcuticon != null) ?
+			    IconCompat.createWithContentUri("file.//"+shortcuticon) :
+			    IconCompat.createWithResource(context, R.drawable.ic_launcher);
 			ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, shortcutfile)
 			    .setIntent(new Intent(context, Gforth.class)
 				       .setAction(Intent.ACTION_MAIN)
 				       .setData(Uri.parse("file://"+shortcutfile)))
 			    .setShortLabel(shortcutname)
-			    .setIcon(IconCompat.createWithResource(context, R.drawable.ic_launcher))
-			    .build();
-			ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
-		    }
-		}
-	    };
-	addshortcuticon=new Runnable() {
-		public void run() {
-		    Context context = getApplicationContext();
-		    if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
-			ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, "#1")
-			    .setIntent(new Intent(context, Gforth.class)
-				       .setAction(Intent.ACTION_MAIN)
-				       .setData(Uri.parse("file://"+shortcutfile)))
-			    .setShortLabel(shortcutname)
-			    .setIcon(IconCompat.createWithContentUri("file.//"+shortcuticon))
+			    .setIcon(icon)
 			    .build();
 			ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
 		    }

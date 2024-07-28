@@ -313,6 +313,7 @@ xc-vector !
     (gl-atxy) ;
 
 : gl-atxy ( x y -- )
+    gl-wh cell+ @ 1- min 0 max
     scroll-y @ gl-xy @ gl-wh cell+ @ 2 - - 0 max max
     + (gl-atxy) ;
 
