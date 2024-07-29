@@ -135,7 +135,9 @@ variable located-bottom \ last line to display with l
 	first-throw @ IF
 	    store-backtrace
 	THEN
-	[ here >r ]
+	AHEAD
+	[ here >r ] stored-backtrace $free  first-throw off
+	THEN
 	handler @ IF
 	    fast-throw THEN
 	>stderr cr ." uncaught exception: " .error cr
