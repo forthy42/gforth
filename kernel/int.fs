@@ -413,8 +413,8 @@ method opt-compile, ( xt -- ) \ gforth-internal
 
 method (to) ( val operation xt -- ) \ gforth paren-to
 \G @i{xt} is of a value like word @i{name}.  Stores @i{val} @code{to}
-\G @i{name}.  @i{operation} selects between @code{to}, @code{+to},
-\G @code{addr}, and @code{action-of}.
+\G @i{name}.  @i{operation} selects between @code{to} (0), @code{+to} (1),
+\G @code{addr} (2), @code{action-of} (3) and @code{is} (4).
 opt: ( operation xt-(to -- )
     lits# 0= IF  swap lit, postpone swap :, EXIT THEN  (to), ;
 
