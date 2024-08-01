@@ -102,7 +102,7 @@ UValue $? ( -- n ) \ gforth dollar-question
 [endif]
 
 : in-return-stack? ( addr -- f )
-    rp0 @ [ forthstart 7 cells + ]L @ - $FFF + -$1000 and rp0 @ within ;
+    rp0 @ [ forthstart 9 cells + ]L @ - $FFF + -$1000 and rp0 @ within ;
 
 \ const-does>
 

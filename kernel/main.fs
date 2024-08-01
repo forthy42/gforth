@@ -64,7 +64,7 @@ here 1802 over
     has? rstack-size ,  \ return stack size
     has? lstack-size ,  \ locals stack size
     0 A,                \ boot entry point
-    0 A,                \ throw entry point
+    0 A,                \ throw entry point, obsolete
     0 A,                \ quit entry point
     0 A,                \ execute entry point
     0 A,                \ find entry point
