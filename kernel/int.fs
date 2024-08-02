@@ -447,7 +447,7 @@ drop Constant hmsize \ vtable size
     3 swap (to) ;
 opt: ?fold1 3 swap (to), ;
 
-: initwl ( wid -- ) \ gforth init-voc
+: initwl ( wid -- ) \ gforth-internal
     \G initialises a vocabulary. Mapped to +TO
     1 swap (to) ;
 opt: ?fold1 1 swap (to), ;
@@ -482,13 +482,14 @@ defer compile, ( xt -- ) \ core-ext compile-comma
 	hold 1- c(warning") #>>
     THEN ;
 : obsolete? ( nt -- flag ) \ gforth
-    \G true if @i{nt} is marked as obsolete.
+    \G true if @i{nt} is obsolete, i.e., will be removed in a future
+    \G version of Gforth.
     dup name>string nip IF
 	>f+c @ obsolete-mask and 0<>
     ELSE drop false THEN ;
 : ?obsolete ( nt -- nt )
     dup obsolete? IF
-	<<# s"  is obsolete" holds dup name>string holds #0. #>
+	<<# s" is obsolete" holds dup name>string holds #0. #>
 	hold 1- c(warning") #>>
     THEN ;
 

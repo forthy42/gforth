@@ -435,7 +435,7 @@ include ./recognizer.fs
 \G Mark the last definition as compile-only; as a result, the text
 \G interpreter and @code{'} will warn when they encounter such a word.
 
-: obsolete ( -- ) \ gforth
+: obsolete ( -- ) \ gforth-internal
     \G Mark the last word as obsolete
     obsolete-mask lastflags or! ;
 
@@ -769,7 +769,8 @@ Create hmtemplate
 opt: ?fold1 4 swap (to), ;
 
 ' defer! Alias reveal! ( xt wid -- ) \ core-ext  reveal-store
-    \G add xt to a wordlist by using the TO access method
+\G Add xt to a wordlist.
+\ by using the TO access method
 ' >hmto Alias reveal-method ( wid -- addr )
 
 ' [noop] !-table to-method: value-to ( n value-xt -- ) \ gforth-internal

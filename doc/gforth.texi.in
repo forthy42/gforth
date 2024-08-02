@@ -5649,6 +5649,8 @@ standard document for the exact rules).
 doc->r
 doc-r>
 doc-r@
+doc-r'@
+doc-rpick
 doc-rdrop
 doc-2>r
 doc-2r>
@@ -8319,6 +8321,7 @@ Gforth allows you to change the @code{(to)} action of a word.
 
 doc-(to)
 doc-to-table:
+doc->to+addr-table:
 doc-to-method:
 doc-set-to
 doc-n/a
@@ -8497,6 +8500,7 @@ created with this defining word is huge.
 
 doc-create-from
 doc-reveal
+doc-reveal!
 
 The performance advantage does not extend to using @code{noname} with
 the defining word.  Therefore we also have
@@ -9039,6 +9043,7 @@ doc-name>compile
 doc-name>string
 doc-id.
 doc-.id
+doc-obsolete?
 doc-name>link
 
 A nameless word usually has no interpretation nor compilation
@@ -12239,12 +12244,13 @@ the output of @code{see}, so they are documented here:
 
 doc-@localn
 doc-f@localn
-doc-lp@
+doc-lp+!
 doc-lp+!#
 doc-lp!
 doc->l
 doc-f>l
 
+See also @code{lp@@} (@pxref{Stack pointer manipulation}).
 
 In addition to these primitives, some specializations of these
 primitives for commonly occurring inline arguments are provided for

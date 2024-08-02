@@ -19,22 +19,27 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : to-method: ( xt table "name" -- ) \ gforth-experimental to-method-colon
-    \G create a to-method, where @var{xt} computes the address to access the
-    \G field, and @var{table} contains the operators to store to it.
+    \G create a to-method @i{name}, where @var{xt} computes the
+    \G address to access the field, and @var{table} contains the
+    \G operators to store to it.
     ['] value-to Create-from reveal 2, ;
 
-: to-table: ( "name" "xt1" .. "xtn" -- ) \ gforth-experimental to-table-colon
-    \G create a table with entries for @code{TO}, @code{+TO},
-    \G @code{ADDR}, and @code{ACTION-OF}.  Use @code{n/a} to mark
-    \G unsupported operations.
-    Create  0  BEGIN  parse-name  dup WHILE
+: to-table: ( "name" "to-word" "+to-word" "addr-word" "action-of-word" "is-word" -- ) \ gforth-experimental to-table-colon
+    \G create a table @i{name} with entries for @code{TO}, @code{+TO},
+    \G @code{ADDR}, @code{ACTION-OF}, and @code{IS}.  The words for
+    \G these entries are called with @i{xt} on the stack, where xt
+    \G belongs to the word behind @code{to} (or @code{+to} etc.).  Use
+    \G @code{n/a} to mark unsupported operations.  Unsupported
+    \G operations can be left away at the end of the line.
+    Create 0 BEGIN parse-name dup WHILE
 	    forth-recognize '-error , 1+
-    REPEAT  2drop
+    REPEAT 2drop
     \ here goes the number of methods supported
     to-table-size# swap U+DO ['] n/a , LOOP ;
 
 : >to+addr-table: ( table-addr "name" -- ) \ gforth-experimental to-to-plus-addr-table-colon
-    \G copy a table and set the @code{ADDR}-method to allow it
+    \G @i{name} is a copy of the table at @i{table-addr}, but in
+    \G @i{name} the @code{ADDR}-method is supported
     create here to-table-size# cells move
     ['] [noop] here 2 cells + !  to-table-size# cells allot ;
 
@@ -47,7 +52,7 @@
 
 \ Create TO variants by number
 
-: to: ( u "name" -- ) \ gforth-experimental to-colon
+: to: ( u "name" -- ) \ gforth-internal to-colon
     \G create a new TO variant with the table position number @var{u}
     >r r@ to-table-size# u>= abort" Too many TO operators"
     :noname postpone record-name r@ postpone Literal

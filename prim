@@ -631,7 +631,7 @@ r'@   ( r:w r:w2 -- r:w r:w2 w )	gforth	r_tick_fetch
   r> r> r> dup itmp ! >r >r >r itmp @ ;
 [IFUNDEF] itmp variable itmp [THEN]
 
-rpick#	  ( #u -- w )	gforth	rpick_num
+rpick#	  ( #u -- w )	gforth-internal	rpick_num
 w = rp[u];
 
 \f[THEN]
@@ -2270,7 +2270,7 @@ IF_fpTOS(fp[0]=fpTOS);
 GFORTH_CALL_C(a_addr, sp, fp);
 IF_fpTOS(fpTOS=fp[0]);
 
-call-c@	( ... a_addr -- ... )	gforth	call_c_fetch
+call-c@	( ... a_addr -- ... )	gforth-internal	call_c_fetch
 ""Call the C function pointed to by the pointer stored at @i{a_addr}. The C
 function has to access the stack itself. The stack pointers are exported into
 a ptrpair structure passed to the C function, and returned in that form.""
