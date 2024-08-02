@@ -197,8 +197,9 @@ defer header-extra ' noop is header-extra
 : create-from ( nt "name" -- ) \ gforth
     \G Create a word @i{name} that behaves like @i{nt}, but with an
     \G empty body.  @i{nt} must be the nt of a named word.  The
-    \G resulting header is not yet revealed.  Creating a word with
-    \G @code{create-from} without using any @code{set-} words is
+    \G resulting header is not yet @code{reveal}ed; use @code{reveal}
+    \G to reveal it or @code{latest} to get its xt.  Creating a word
+    \G with @code{create-from} without using any @code{set-} words is
     \G faster than if you create a word using @code{set-} words,
     \G @code{immediate}, or @code{does>}.  You can use @code{noname}
     \G with @code{create-from}.
