@@ -79,7 +79,7 @@ does> 6 cell array>mem MEM+DO
     ELSE
 	'#' emit dec.  THEN ;
 
-debug: .string.( ( -- ) \ dot-string-dot-paren
+debug: .string.( ( -- ) \ gforth-internal dot-string-dot-paren
 \G this debug switch adds a printout of addr len in parents
 \G to a smart string printout
 

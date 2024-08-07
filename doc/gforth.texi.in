@@ -331,7 +331,7 @@ User-defined Defining Words
 * CREATE..DOES> applications::
 * CREATE..DOES> details::
 * Advanced does> usage example::
-* User-defined TO and DEFER@@::
+* Words with user-defined TO etc.::
 * User-defined compile-comma::
 * Creating from a prototype::
 * Making a word current::
@@ -7815,7 +7815,7 @@ are particularly flexible, whereas the children of, e.g.,
 * CREATE..DOES> applications::
 * CREATE..DOES> details::
 * Advanced does> usage example::
-* User-defined TO and DEFER@@::
+* Words with user-defined TO etc.::
 * User-defined compile-comma::
 * Creating from a prototype::
 * Making a word current::
@@ -8184,7 +8184,7 @@ CREATE name ( ... -- ... )
 doc-set-does>
 doc->body
 
-@node Advanced does> usage example, User-defined TO and DEFER@@, CREATE..DOES> details, User-defined Defining Words
+@node Advanced does> usage example, Words with user-defined TO etc., CREATE..DOES> details, User-defined Defining Words
 @subsubsection Advanced does> usage example
 
 The MIPS disassembler (@file{arch/mips/disasm.fs}) contains many words
@@ -8309,54 +8309,137 @@ understand this, but it may improve your understanding of Forth.
 
 
 
-@node User-defined TO and DEFER@@, User-defined compile-comma, Advanced does> usage example, User-defined Defining Words
-@subsubsection User-defined @code{to} and @code{defer@@}
+@node Words with user-defined TO etc., User-defined compile-comma, Advanced does> usage example, User-defined Defining Words
+@subsubsection Words with user-defined @code{to} etc.
 
-Gforth's values have several operators: @code{to} (to which @code{is} is
-an alias, and @code{defer!} takes an xt instead of a name in the input
-stream), @code{+to}, @code{addr}, and @code{action-of} (where
-@code{defer@@} takes an xt instead of a name in the input stream).
-
-Gforth allows you to change the @code{(to)} action of a word.
-
-doc-(to)
-doc-to-table:
-doc->to+addr-table:
-doc-to-method:
-doc-set-to
-doc-n/a
-
-@code{(to)} is a word used inside @code{to}: it stores the value at
-run-time.  The general stack effect of @code{(to)} method is @code{(
-val operation xt -- )}, where @i{xt} identifies the word stored into,
-@i{operation} the actual variant of @code{to}-like operations, and
-@i{val} is the value (of appropriate type) stored there.
-
-You shall implement the @code{to}-method using @code{to-table:} to
-create a type-specific table of operations (not specified slots at the
-end of the table are filled up with @code{n/a}), and using
-@code{to-method:} together with the operation to get from the @i{xt} of
-the value to its data field (usually @code{>body} for values in the
-dictionary, but value-style data can also reside in structures or user
-areas).
-
-E.g., one can implement @code{fvalue} as follows:
+When you define a word @emph{x}, you can set its execution semantics
+with @code{set-does>} (@pxref{User-defined defining words using
+CREATE}) or @code{set-execute} (@pxref{Header methods}).  But you can
+also change the semantics of
 
 @example
-to-table: f!-table f! f+!
-' >body f!-table to-method: fvalue-to
+to @emph{x}        \ aka ->@emph{x}
++to @emph{x}       \ aka +>@emph{x}
+addr @emph{x}
+action-of @emph{x} \ aka `@emph{x} defer@@
+is @emph{x}        \ aka `@emph{x} defer!
+@end example
+@cindex @code{to @emph{name}} semantics, changing them
+@cindex @code{+to @emph{name}} semantics, changing them
+@cindex @code{addr @emph{name}} semantics, changing them
+@cindex @code{action-of @emph{name}} semantics, changing them
+@cindex @code{is @emph{name}} semantics, changing them
+@cindex semantics, changing the @code{to}/@code{+to}/@code{addr}/@code{action-of}/@code{is @emph{name}} semantics
 
-: fvalue ( r "name" -- ; name: -- r )
-  create f,
-  ['] f@@ set-does>
-  ['] fvalue-to set-to ;
+This is all achieved through a common mechanism described in this
+section.  As an example, let's define @code{dvalue} (it behaves in
+Gforth exactly like @code{2value}, @pxref{Values}).  First, we need a
+table of the various @code{to}-like actions:
 
-5e fvalue foo
-: bar foo 1e f+ to foo ;
-see bar
+@example
+: d+! ( d addr -- )
+  dup >r 2@@ d+ r> 2! ;
+
+\                  to +to addr action-of is
+to-table: d!-table 2! d+!  n/a    n/a    n/a 
 @end example
 
-@node User-defined compile-comma, Creating from a prototype, User-defined TO and DEFER@@, User-defined Defining Words
+This defines a table @code{d!-table} with a @code{to} and a @code{+to}
+action, and no action for @code{addr}, @code{action-of} and @code{is};
+i.e., if for our @emph{x} defined with @code{dvalue} you do @code{addr
+@emph{x}}, you will get an error message.  At the end of the line you
+can leave trailing @code{n/a}s away, but here we show them for
+completeness.
+
+The entries in the table are words that get an address on the
+top-of-stack.  They possibly also expect some additional data deeper
+in the stack, but that is data that is provided in the usual use of
+the word.  E.g., in the case of @code{dvalue}, the expectation is that
+you put a double-cell @emph{d} on the stack before you do a @code{to
+@emph{x}} or @code{+to @emph{x}}, and that @emph{d} and the address
+where it should be stored is eventually passed to @code{2!}.
+
+In the case of @code{dvalue}, the address is computed from the xt of
+@emph{x} with @code{>body}.  In order to let that be known to the
+system, you write
+
+@example
+`>body d!-table to-method: dvalue-to
+@end example
+
+This defines the method implementations of the methods behind
+@code{to}, @code{+to} and @code{addr}, and the methods @code{defer@@},
+and @code{defer!}.  The reason for defining the methods in two steps
+(by first defining the table) is that the same table can be used for
+several sets of method implementations; e.g., @code{!-table} is used
+for defining @code{value-to} (used for @code{value}), but also for
+@code{uvalue} (@pxref{Task-local data}) and @code{to-w:} (used for the
+default (@code{w:}) locals).
+
+@code{>body} is appropriate for words with storage in the dictionary,
+such as @code{value}.  But, e.g., for storage in user (task-local)
+storage (e.g., @code{uvalue}), you use @code{>uvalue} instead.  The
+general case is that the system pushes the xt of @emph{x}, and then
+executes the xt that has been passed to @code{to-method:}.  This xt
+may also consume one or more values passed on the stack (e.g., for
+value-flavoured fields or arrays); it's overall stack effect is
+@code{( ... xt -- addr )}.
+
+Now you can define
+
+@example
+: dvalue ( d "name" -- )
+  create 2,
+  `2@@ set-does>
+  `dvalue-to set-to ;
+@end example
+
+Here the @code{set-to} changes the created word @emph{name} to use the
+methods from @code{dvalue-to} for implementing @code{to} and
+@code{+to} (and the others, but they are defined to deliver errors).
+
+Now you can define words with @code{dvalue} and use them:
+
+@example
+#5. dvalue x
+#2. +to x
+x d. \ prints "7 "
+@end example
+
+The @code{+to x} first pushes the xt of @code{x}, then performs
+@code{>body} (provided in the definition of @code{dvalue-to}), and
+finally performs the @code{d+!} provided in the @code{d!-table}.
+
+You may want to define another defining word @code{dvarue} that is
+like @code{dvalue}, but also supports @code{addr} (@pxref{Varues}),
+usually using @code{[noop]} as implementation for the part of
+@code{addr} that already receives the address on the stack.  Gforth
+provides @code{>to+addr-table}; it takes a table address on the stack
+and creates a new table with the same entries, except that the
+@code{addr} entry is replaced by @code{[noop]}.  So you can now define
+@code{dvarue} as follows:
+
+@example
+d!-table >to+addr-table d!a-table
+`>body d!a-table to-method: dvarue-to
+: dvarue ( d "name" -- )
+  create 2,
+  `2@@ set-does>
+  `dvarue-to set-to ;
+@end example
+
+These are the words mentioned above:
+
+doc-to-table:
+doc-n/a
+doc->to+addr-table:
+doc-[noop]
+doc-to-method:
+doc->uvalue
+doc-set-to
+
+
+@node User-defined compile-comma, Creating from a prototype, Words with user-defined TO etc., User-defined Defining Words
 @subsubsection User-defined @code{compile,}
 
 You can also change the implementation of @code{compile,} for a word,
@@ -8714,9 +8797,9 @@ synonyms).
 doc-synonym
 
 Gforth also offers the non-standard @code{alias}, that does not
-inherit the compilation semantics, @code{to}/@code{defer!} or
-@code{defer@@} semantics from its parent.  You can then change, e.g.,
-the compilation semantics with, e.g., @code{immediate}.
+inherit the compilation semantics, @code{to @emph{name}} semantics
+etc. from its parent.  You can then change, e.g., the compilation
+semantics with, e.g., @code{immediate}.
 
 doc-alias
 
@@ -16694,54 +16777,9 @@ Note that @code{set-execute} and @code{set-does>} perform
 and @code{compile,} agree, so if you want to add your own optimizer,
 you should add it afterwards.
 
-The @code{defer!} (aka @code{(to)} method (@pxref{User-defined TO and
-DEFER@@}) implements @code{defer!}  for words defined with
-@code{defer} and similar words, but it is also the core of @code{to}.
-The general stack effect of the @code{defer!}/@code{(to)} method is
-@code{( val xt -- )}, where @i{xt} identifies the word stored into,
-and @i{val} is the value (of appropriate type) stored there.
-
-E.g., one can implement @code{fvalue} as follows:
-
-@example
-: fvalue-to ( r xt -- ) >body f! ;
-
-: fvalue ( r -- )
-  create f,
-  ['] f@@ set-does>
-  ['] fvalue-to set-to ;
-
-5e fvalue foo
-: bar foo 1e f+ to foo ;
-see bar
-@end example
-
-You can improve the generated code with @code{set-optimizer}:
-
-@example
-: compile-fvalue-to ( xt-value-to -- )
-  drop ]] >body f! [[ ;
-  
-: fvalue-to ( r xt -- ) >body f! ;
-' compile-fvalue-to set-optimizer
-
-: fvalue ( r -- )
-  create f,
-  ['] f@@ set-does>
-  [: >body ]] literal f@@ [[ ;] set-optimizer
-  ['] fvalue-to set-to ;
-
-5e fvalue foo
-: bar foo 1e f+ to foo ;
-see bar
-@end example
-
-In practice Gforth has a few additional twists to implement, e.g.,
-@code{+TO}.
-
-@code{Set-defer@@} (@pxref{User-defined TO and DEFER@@}) allows to
-implement variants of the @code{defer@@} (@pxref{Deferred Words})
-method for @code{defer}-like words.
+The @code{(to)} method and @code{set-to} are used for implementing
+@code{to @emph{name}} semantics etc. (@pxref{Words with user-defined
+TO etc.}).
 
 The @code{>hmextra} field is used for cases where additional data
 needs to be stored in the header methods table.  In particular, it

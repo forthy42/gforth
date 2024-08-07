@@ -106,7 +106,7 @@ previous
 
 2 to: addr ( "name" -- addr ) \ gforth
 \g provides the address @var{addr} of the varue, 2varue, or fvarue
-\g @var{name} or a local @i{name} defined with one of @code{wa: ca:
+\g @var{name} or a local @var{name} defined with one of @code{wa: ca:
 \g da: fa: xta:}.
 
 synonym &of addr \ for SwiftForth compatibility

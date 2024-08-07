@@ -19,13 +19,13 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : to-method: ( xt table "name" -- ) \ gforth-experimental to-method-colon
-    \G create a to-method @i{name}, where @var{xt} computes the
+    \G Create a to-method @i{name}, where @var{xt} computes the
     \G address to access the field, and @var{table} contains the
     \G operators to store to it.
     ['] value-to Create-from reveal 2, ;
 
 : to-table: ( "name" "to-word" "+to-word" "addr-word" "action-of-word" "is-word" -- ) \ gforth-experimental to-table-colon
-    \G create a table @i{name} with entries for @code{TO}, @code{+TO},
+    \G Create a table @i{name} with entries for @code{TO}, @code{+TO},
     \G @code{ADDR}, @code{ACTION-OF}, and @code{IS}.  The words for
     \G these entries are called with @i{xt} on the stack, where xt
     \G belongs to the word behind @code{to} (or @code{+to} etc.).  Use
@@ -38,7 +38,7 @@
     to-table-size# swap U+DO ['] n/a , LOOP ;
 
 : >to+addr-table: ( table-addr "name" -- ) \ gforth-experimental to-to-plus-addr-table-colon
-    \G @i{name} is a copy of the table at @i{table-addr}, but in
+    \G @i{Name} is a copy of the table at @i{table-addr}, but in
     \G @i{name} the @code{ADDR}-method is supported
     create here to-table-size# cells move
     ['] [noop] here 2 cells + !  to-table-size# cells allot ;
@@ -53,7 +53,7 @@
 \ Create TO variants by number
 
 : to: ( u "name" -- ) \ gforth-internal to-colon
-    \G create a new TO variant with the table position number @var{u}
+    \G Create a new TO variant with the table position number @var{u}
     >r r@ to-table-size# u>= abort" Too many TO operators"
     :noname postpone record-name r@ postpone Literal
     postpone (') ['] (to) :, postpone ;

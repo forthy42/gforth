@@ -28,14 +28,15 @@ hex \ everything now hex!                               11may93jaw
 [THEN]
 
 : n/a ( -- ) \ gforth-experimental not-available
-    \G this word can be ticked, but throws an ``Operation not supported''
+    \G This word can be ticked, but throws an ``Operation not supported''
     \G exception on interpretation and compilation.  Use this for methods
     \G and alike that aren't supported.
     #-21 throw ;
 ' execute set-optimizer
 
-: [noop] ; \ gforth-experimental bracket-noop
-\G Word that neither does something on execute nor on compilation
+: [noop] ( -- ) \ gforth-experimental bracket-noop
+    ;
+\G Does nothing, both when executed and when compiled.
 ' execute set-optimizer
 
 : oam-warning ( -- )
@@ -47,7 +48,10 @@ opt: drop postpone ! oam-warning ;
 Create !-table     ' ! A,     ' +! A,  ' n/a A, ' n/a A, ' warn! A,
 Create defer-table ' warn! A, ' n/a A, ' n/a A, ' @ A,   ' ! A,
 
-: >uvalue ( xt -- addr )
+: >uvalue ( xt -- addr ) \ gforth-experimental to-uvalue
+    \G @i{Xt} is the xt of a word @i{x} defined with @code{uvalue};
+    \G @i{addr} is the address of the data of @i{x} in the current
+    \G task.
     >body @ up@ + ;
 opt: ?fold1 >body @ postpone up@ postpone lit+ , ;
 
