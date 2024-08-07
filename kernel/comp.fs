@@ -197,8 +197,9 @@ defer header-extra ' noop is header-extra
 : create-from ( nt "name" -- ) \ gforth
     \G Create a word @i{name} that behaves like @i{nt}, but with an
     \G empty body.  @i{nt} must be the nt of a named word.  The
-    \G resulting header is not yet revealed.  Creating a word with
-    \G @code{create-from} without using any @code{set-} words is
+    \G resulting header is not yet @code{reveal}ed; use @code{reveal}
+    \G to reveal it or @code{latest} to get its xt.  Creating a word
+    \G with @code{create-from} without using any @code{set-} words is
     \G faster than if you create a word using @code{set-} words,
     \G @code{immediate}, or @code{does>}.  You can use @code{noname}
     \G with @code{create-from}.
@@ -435,7 +436,7 @@ include ./recognizer.fs
 \G Mark the last definition as compile-only; as a result, the text
 \G interpreter and @code{'} will warn when they encounter such a word.
 
-: obsolete ( -- ) \ gforth
+: obsolete ( -- ) \ gforth-internal
     \G Mark the last word as obsolete
     obsolete-mask lastflags or! ;
 
@@ -769,7 +770,8 @@ Create hmtemplate
 opt: ?fold1 4 swap (to), ;
 
 ' defer! Alias reveal! ( xt wid -- ) \ core-ext  reveal-store
-    \G add xt to a wordlist by using the TO access method
+\G Add xt to a wordlist.
+\ by using the TO access method
 ' >hmto Alias reveal-method ( wid -- addr )
 
 ' [noop] !-table to-method: value-to ( n value-xt -- ) \ gforth-internal

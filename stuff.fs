@@ -876,7 +876,9 @@ end-struct buffer% ( u1 u2 -- ) \ gforth-experimental
 
 \ rpick
 
-: rpick ( u -- w )
+: rpick ( u -- wu ; R: wu ... w0 -- wu ... w0 ) \ gforth
+    \G @i{wu} is the @i{u}th element on the return stack; @code{0
+    \G rpick} is equivalent to @code{r@@}.
     1+ cells rp@ + @ ;
 fold1:
     case
