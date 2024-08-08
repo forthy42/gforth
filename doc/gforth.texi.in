@@ -8346,7 +8346,7 @@ to-table: d!-table 2! d+!  n/a    n/a    n/a
 
 This defines a table @code{d!-table} with a @code{to} and a @code{+to}
 action, and no action for @code{addr}, @code{action-of} and @code{is};
-i.e., if for our @emph{x} defined with @code{dvalue} you do @code{addr
+i.e., for our @emph{x} defined with @code{dvalue}, if you @code{addr
 @emph{x}}, you will get an error message.  At the end of the line you
 can leave trailing @code{n/a}s away, but here we show them for
 completeness.
@@ -8356,7 +8356,7 @@ top-of-stack.  They possibly also expect some additional data deeper
 in the stack, but that is data that is provided in the usual use of
 the word.  E.g., in the case of @code{dvalue}, the expectation is that
 you put a double-cell @emph{d} on the stack before you do a @code{to
-@emph{x}} or @code{+to @emph{x}}, and that @emph{d} and the address
+@emph{x}}, and that @emph{d} and the address
 where it should be stored is eventually passed to @code{2!}.
 
 In the case of @code{dvalue}, the address is computed from the xt of
@@ -8364,26 +8364,27 @@ In the case of @code{dvalue}, the address is computed from the xt of
 system, you write
 
 @example
-`>body d!-table to-method: dvalue-to
+`>body d!-table to-class: dvalue-to
 @end example
 
 This defines the method implementations of the methods behind
 @code{to}, @code{+to} and @code{addr}, and the methods @code{defer@@},
 and @code{defer!}.  The reason for defining the methods in two steps
 (by first defining the table) is that the same table can be used for
-several sets of method implementations; e.g., @code{!-table} is used
-for defining @code{value-to} (used for @code{value}), but also for
-@code{uvalue} (@pxref{Task-local data}) and @code{to-w:} (used for the
-default (@code{w:}) locals).
+several to-classes; e.g., @code{!-table} is used for defining
+@code{value-to} (used for @code{value}), but also for @code{uvalue-to}
+used for defining @code{uvalue} (@pxref{Task-local data}) and
+@code{to-w:} (used for the default (@code{w:}) locals).
 
 @code{>body} is appropriate for words with storage in the dictionary,
 such as @code{value}.  But, e.g., for storage in user (task-local)
 storage (e.g., @code{uvalue}), you use @code{>uvalue} instead.  The
 general case is that the system pushes the xt of @emph{x}, and then
-executes the xt that has been passed to @code{to-method:}.  This xt
-may also consume one or more values passed on the stack (e.g., for
-value-flavoured fields or arrays); it's overall stack effect is
-@code{( ... xt -- addr )}.
+executes the xt that has been passed to @code{to-class:}.  This xt may
+also consume one or more additional values passed on the stack (e.g.,
+for value-flavoured struct fields, xt consumes the address of the
+struct right below the xt); its overall stack effect is @code{( ... xt
+-- addr )}.
 
 Now you can define
 
@@ -8421,7 +8422,7 @@ and creates a new table with the same entries, except that the
 
 @example
 d!-table >to+addr-table d!a-table
-`>body d!a-table to-method: dvarue-to
+`>body d!a-table to-class: dvarue-to
 : dvarue ( d "name" -- )
   create 2,
   `2@@ set-does>
@@ -8434,7 +8435,7 @@ doc-to-table:
 doc-n/a
 doc->to+addr-table:
 doc-[noop]
-doc-to-method:
+doc-to-class:
 doc->uvalue
 doc-set-to
 

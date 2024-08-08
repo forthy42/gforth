@@ -30,7 +30,7 @@ hex \ everything now hex!                               11may93jaw
 : n/a ( -- ) \ gforth-experimental not-available
     \G This word can be ticked, but throws an ``Operation not supported''
     \G exception on interpretation and compilation.  Use this for methods
-    \G and alike that aren't supported.
+    \G etc. that aren't supported.
     #-21 throw ;
 ' execute set-optimizer
 
@@ -48,10 +48,14 @@ opt: drop postpone ! oam-warning ;
 Create !-table     ' ! A,     ' +! A,  ' n/a A, ' n/a A, ' warn! A,
 Create defer-table ' warn! A, ' n/a A, ' n/a A, ' @ A,   ' ! A,
 
-: >uvalue ( xt -- addr ) \ gforth-experimental to-uvalue
+: >uvalue ( xt -- addr ) \ gforth-internal to-uvalue
     \G @i{Xt} is the xt of a word @i{x} defined with @code{uvalue};
     \G @i{addr} is the address of the data of @i{x} in the current
-    \G task.
+    \G task.  This word is useful for building, e.g., @code{uvalue}.
+    \G Do not use it to circumvent that you cannot get the address of
+    \G a uvalue with @code{addr}; in the future Gforth may perform
+    \G optimizations that assume that uvalues can only be accessed
+    \G through their name.
     >body @ up@ + ;
 opt: ?fold1 >body @ postpone up@ postpone lit+ , ;
 

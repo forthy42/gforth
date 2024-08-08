@@ -697,10 +697,13 @@ Create hmtemplate
     ['] does, set-optimizer
     hmtemplate >hmextra !
     dodoes: latestnt only-code-address! ;
+
 : set-to ( to-xt -- ) \ gforth
-    \G Sets the implementation of the @code{(to) ( val xt -- )} method
-    \G of the current word to @i{to-xt}.
+    \G Changes the implementations of the to-class methods of the most
+    \G recently defined word to come from the to-class that has the xt
+    \G @i{to-xt}.
     ?hm hmtemplate >hmto ! ;
+
 : set->int ( xt -- ) \ gforth set-to-int
     \G Sets the implementation of the @code{name>interpret ( nt -- xt2 )}
     \G method of the current word to @i{xt}.
