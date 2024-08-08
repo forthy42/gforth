@@ -25,7 +25,7 @@ cs-wordlist AConstant macros-wordlist ( -- wid ) \ gforth-experimental
 
 [IFUNDEF] $Value
     to-table: $!-table  $! $+!
-    ' >body $!-table to-method: $value-to
+    ' >body $!-table to-class: $value-to
     
     : $Value ( addr u -- )
 	Create here 0 , $!

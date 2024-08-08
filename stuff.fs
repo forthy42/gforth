@@ -727,7 +727,7 @@ synonym hex. h. ( u -- ) \ gforth
 
 : 2value-compile, ( xt -- )  >body postpone Literal postpone 2@ ;
 
-' >body 2!-table to-method: 2value-to ( addr -- ) \ gforth-internal
+' >body 2!-table to-class: 2value-to ( addr -- ) \ gforth-internal
 
 create dummy-2value
 ' 2@ set-does>

@@ -26,7 +26,7 @@ s" No more translator slots free" exception constant translator-overflow
     >body @ >body + ;
 fold1: ( xt -- ) >body @ lit, postpone >body postpone + ;
 
-' >translate-method defer-table to-method: translate-method-to
+' >translate-method defer-table to-class: translate-method-to
 
 ' >postpone make-latest
 ' translate-method-to set-to

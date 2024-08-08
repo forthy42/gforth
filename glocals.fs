@@ -328,14 +328,14 @@ Defer locals-list!
     \ for local with offset n from frame start, compile the address
     lp-offset postpone literal postpone lp+n ;
 
-\ specialized to-method:
+\ specialized to-class:
 
 : locals-to:exec ( .. u xt1 xt2 -- .. )
     -14 throw ;
 : locals-to:,  ( u lits:xt2 table-addr -- )
     @ swap cells + @ lits> @ lp-offset >lits ['] lp+n swap 2compile, ;
 
-: locals-to-method: ( !-table -- )
+: locals-to-class: ( !-table -- )
     Create , ['] locals-to:exec set-does> ['] locals-to:, set-optimizer ;
 
 : c+! ( c addr -- ) dup >r c@ + r> c! ;
@@ -344,11 +344,11 @@ Defer locals-list!
 to-table: 2!-table 2! 2+!
 to-table: c!-table c! c+!
 
-!-table locals-to-method: to-w:
-defer-table locals-to-method: to-xt:
-2!-table locals-to-method: to-d:
-c!-table locals-to-method: to-c:
-f!-table locals-to-method: to-f:
+!-table locals-to-class: to-w:
+defer-table locals-to-class: to-xt:
+2!-table locals-to-class: to-d:
+c!-table locals-to-class: to-c:
+f!-table locals-to-class: to-f:
 
 : val-part-off ( -- ) val-part off ;
 

@@ -171,7 +171,7 @@ comp: drop ]] o ]xref o> [[ ;
 
 : xref! ( xref addr -- )  dup @ ?dup-IF  ]xref  THEN ! ;
 to-table: xref!-table xref!
-' >body xref!-table to-method: j-to
+' >body xref!-table to-class: j-to
 
 : JValue ( "name" -- ) 0 Value ['] j-to set-to ;
 
@@ -269,7 +269,7 @@ to-table: jni-table [noop]
     >in @ parse-name 2drop jni-fid >in @ { old-in fid new-in }
     :noname postpone drop postpone o fid lit,
     cstring@1 'field! + @ compile, postpone ; jni-table
-    noname to-method: latestxt >r
+    noname to-class: latestxt >r
     old-in >in !
     : ( o:jobject -- retval ) postpone o fid lit,
     cstring@1 'field@ + @ compile, postpone ;

@@ -175,5 +175,5 @@ e? os-type s" linux-musl" string-prefix? or [IF]
     THEN ; is 'cold
 
 to-table: errno-table ->errno
-' drop errno-table to-method: to-errno
+' drop errno-table to-class: to-errno
 ' errno make-latest ' to-errno set-to hm,

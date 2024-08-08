@@ -58,7 +58,7 @@ opt: ?fold1 >body @ postpone up@ postpone lit+ , ;
 : to:exec ( .. u xt1 xt2 -- .. ) rot >r 2@ r> cells + >r execute r> perform ;
 : to:,    ( u xt2 -- ) 2@ rot cells + @ >r compile, r> compile, ;
 
-' >uvalue !-table to-method: uvalue-to
+' >uvalue !-table to-class: uvalue-to
 
 : u-compile, ( xt -- )  >body @ postpone up@ postpone lit+ , postpone @ ;
 

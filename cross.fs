@@ -3339,7 +3339,7 @@ Ghost to:,
 Ghost to:exec
 2drop
 
-Builder to-method:
+Builder to-class:
 Build: T A, A, H ;Build
 by: :dodoes ;DO
 hm: [G'] to:, gset-optimizer

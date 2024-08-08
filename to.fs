@@ -18,10 +18,11 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: to-method: ( xt table "name" -- ) \ gforth-experimental to-method-colon
-    \G Create a to-method @i{name}, where @var{xt} computes the
-    \G address to access the field, and @var{table} contains the
-    \G operators to store to it.
+: to-class: ( xt table "name" -- ) \ gforth-experimental to-class-colon
+    \G Create a to-class implementation @i{name}, where @var{xt}
+    \G @code{( ... xt -- addr )} computes the address to access the
+    \G data, and @var{table} (created with @code{to-table:}) contains
+    \G the words for accessing it.
     ['] value-to Create-from reveal 2, ;
 
 : to-table: ( "name" "to-word" "+to-word" "addr-word" "action-of-word" "is-word" -- ) \ gforth-experimental to-table-colon

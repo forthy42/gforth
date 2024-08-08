@@ -392,7 +392,7 @@ synonym sleep halt ( task -- ) \ gforth-experimental
     fold1: >body @ postpone up@ lit, postpone + ;
 [THEN]
 
-' >uvalue defer-table to-method: udefer-to
+' >uvalue defer-table to-class: udefer-to
 
 : UDefer ( "name" -- ) \ gforth
     \G @i{Name} is a task-local deferred word.@*

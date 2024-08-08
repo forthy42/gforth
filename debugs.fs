@@ -216,7 +216,7 @@ is ?warning
 
 : ~~>body ( addr -- body ) ~~ ;
 fold1: lit, ]] ~~ [[ ;
-' ~~>body !-table to-method: ~~value-to
+' ~~>body !-table to-class: ~~value-to
 
 : ~~Value ( n "name" -- ) \ gforth
     \G Value that will be watched on every access

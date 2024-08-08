@@ -774,10 +774,10 @@ opt: ?fold1 4 swap (to), ;
 \ by using the TO access method
 ' >hmto Alias reveal-method ( wid -- addr )
 
-' [noop] !-table to-method: value-to ( n value-xt -- ) \ gforth-internal
+' [noop] !-table to-class: value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values
 
-' [noop] defer-table to-method: defer-is ( n value-xt -- ) \ gforth-internal
+' [noop] defer-table to-class: defer-is ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for deferred words
 
 : int-to ( "name" x -- ) \ gforth-internal
@@ -905,7 +905,7 @@ interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 ) \ core does
 
 Create voc-table ' (reveal) A, ' drop A, ' n/a A, ' n/a A, ' (reveal) A,
 
-' [noop] voc-table to-method: voc-to ( n voc-xt -- ) \ gforth-internal
+' [noop] voc-table to-class: voc-to ( n voc-xt -- ) \ gforth-internal
     \g this is the TO-method for wordlists
 
 ' reveal alias recursive ( compilation -- ; run-time -- ) \ gforth

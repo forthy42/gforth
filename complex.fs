@@ -47,8 +47,8 @@
 to-table: z!-table z! z+!
 z!-table >to+addr-table: z!a-table
 
-z!-table locals-to-method: to-z:
-z!a-table locals-to-method: to-za:
+z!-table locals-to-class: to-z:
+z!a-table locals-to-class: to-za:
 
 : compile-pushlocal-z ( a-addr -- ) ( run-time: z -- )
     locals-size @ alignlp-f float+ float+ dup locals-size !
@@ -80,14 +80,14 @@ previous
 
 : ZVariable ( -- )  Create 0e f, 0e f, ;
 
-' >body z!-table to-method: z-to
+' >body z!-table to-class: z-to
 : ZValue ( complex -- )
     Create 1 complex' small-allot z!
     ['] z@ set-does>
     [: lit, postpone z@ ;] set-optimizer
     ['] z-to set-to ;
 
-' >body z!a-table to-method: za-to
+' >body z!a-table to-class: za-to
 : ZVarue ( complex -- )
     ZValue ['] za-to set-to ;
 
