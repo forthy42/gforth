@@ -35,9 +35,9 @@ hex \ everything now hex!                               11may93jaw
 ' execute set-optimizer
 
 : [noop] ( -- ) \ gforth-experimental bracket-noop
-    ;
-\G Does nothing, both when executed and when compiled.
-' execute set-optimizer
+    \G Does nothing, both when executed and when compiled.
+;
+' drop set-optimizer
 
 : oam-warning ( -- )
     true warning" obsolescent access method" ;
