@@ -34,9 +34,9 @@ hex \ everything now hex!                               11may93jaw
     #-21 throw ;
 ' execute set-optimizer
 
-: [noop] ( -- ) \ gforth-experimental bracket-noop
-    \G Does nothing, both when executed and when compiled.
-;
+' noop H unlock t>cfa X @ $8000 xor lock T
+#primitive [noop] ( -- ) \ gforth-experimental bracket-noop
+\G Does nothing, both when executed and when compiled.
 ' drop set-optimizer
 
 : oam-warning ( -- )
