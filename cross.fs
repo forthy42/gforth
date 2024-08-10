@@ -2551,7 +2551,7 @@ Variable prim#
   dup >ghost-flags <primitive> set-flag
   s" EC" T $has? H 0=
   IF
-      T here H resolve-noforwards $8000 xor cfa,
+      T here H resolve-noforwards $8000 invert and cfa,
 \      alias-mask flag!
   ELSE
       T here H resolve-noforwards cfa,
