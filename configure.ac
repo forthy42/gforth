@@ -673,11 +673,15 @@ case "$ac_cv_sizeof_void_p" in
     ;;
   4)
     vwordsize=32
+    VULKANPTR="unsigned long long"
     ;;
   8)
     vwordsize=64
+    VULKANPTR="SWIGTYPE *"
     ;;
 esac
+
+AC_SUBST(VULKANPTR)
 
 AC_CHECK_SIZEOF(char)
 AC_CHECK_SIZEOF(short)
@@ -2088,6 +2092,7 @@ doc/version.texi
 doc/Makefile
 unix/Makefile
 unix/wayland.i
+unix/vulkan.i
 debian/changelog
 debian/control
 debian/rules
