@@ -34,7 +34,7 @@ hex \ everything now hex!                               11may93jaw
     #-21 throw ;
 ' execute set-optimizer
 
-' noop H unlock t>cfa X @ lock T
+' noop unlock t>cfa lock @ $8000 or
 #primitive [noop] ( -- ) \ gforth-experimental bracket-noop
 \G Does nothing, both when executed and when compiled.
 ' drop set-optimizer
