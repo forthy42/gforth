@@ -292,6 +292,7 @@ Variable vararg$
 
 get-current libcc-types set-current
 
+0 warnings !@ \ no warnings for 0 as null pointer
 \ index values
 -1
 const+ -- \ end of arguments
@@ -309,6 +310,7 @@ const+ t \ tuple
 const+ 0 \ NULL pointer (sentinel)
 const+ ... \ varargs (programmable)
 drop
+warnings !
 
 set-current
 
@@ -514,7 +516,7 @@ create gen-par-types
 
 \ the call itself
 
-: gen-wrapped-func { d: pars d: c-name fp-change1 sp-change1 -- }
+: gen-call-func { d: pars d: c-name fp-change1 sp-change1 -- }
     c-name type ." ("
     fp-change1 sp-change1 pars over + swap u+do 
 	i 1+ count i c@ gen-par
@@ -524,16 +526,16 @@ create gen-par-types
     +loop
     2drop ." )" ;
 
-: gen-wrapped-const { d: pars d: c-name fp-change1 sp-change1 -- }
+: gen-call-const { d: pars d: c-name fp-change1 sp-change1 -- }
     ." (" c-name type ." )" ;
 
-: gen-wrapped-var { d: pars d: c-name fp-change1 sp-change1 -- }
+: gen-call-var { d: pars d: c-name fp-change1 sp-change1 -- }
     ." &(" c-name type ." )" ;
 
 create gen-call-types
-' gen-wrapped-func ,
-' gen-wrapped-const ,
-' gen-wrapped-var ,
+' gen-call-func ,
+' gen-call-const ,
+' gen-call-var ,
 
 : gen-wrapped-call ( pars c-name fp-change1 sp-change1 -- )
     5 pick 3 chars - c@ cells gen-call-types + @ execute ;

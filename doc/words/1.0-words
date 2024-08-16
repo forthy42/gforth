@@ -22,19 +22,19 @@ gen-wrapper-function .externc >ptr-declare .prefix wrapper-function-name
 sanitize gen-wrapped-stmt gen-wrapped-types gen-wrapped-t gen-wrapped-func 
 gen-wrapped-r gen-wrapped-ud gen-wrapped-d gen-wrapped-s gen-wrapped-a 
 gen-wrapped-u gen-wrapped-n gen-wrapped-void gen-wrapped-call gen-call-types 
-gen-wrapped-var gen-wrapped-const gen-wrapped-func gen-par gen-par-types 
-gen-par-t gen-par-0 gen-par-ws gen-par-s gen-par-void gen-par-func gen-par-r 
-gen-par-ud gen-par-d ?return gen-par-a gen-par-u gen-par-n gen-par-fp 
-gen-par-sp+ *gen-par-sp++ r-cast gen-par-sp .gen count-stacks 
-count-stacks-types count-stacks-t count-stacks-ws count-stacks-s 
-count-stacks-void count-stacks-func count-stacks-r count-stacks-ud 
-count-stacks-d count-stacks-a count-stacks-u count-stacks-n type-letter 
-is-funptr? parse-variable-type parse-value-type parse-function-types 
-function-types, ...-types, parse-return-type libcc-cast, parse-libcc-cast 
-parse-libcc-type >libcc-type libcc-type c-var c-val c-func vararg$ libcc-types 
-libcc-include \c save-c-prefix-line write-c-prefix-line c-source-file-execute 
-add-libpath add-framework add-lib add-ldflags add-incdir add-cflags lib-prefix 
-c++-mode c-libs c-flags const+ .nb replace-rpath ptr-declare libcc-path 
+gen-call-var gen-call-const gen-call-func gen-par gen-par-types gen-par-t 
+gen-par-0 gen-par-ws gen-par-s gen-par-void gen-par-func gen-par-r gen-par-ud 
+gen-par-d ?return gen-par-a gen-par-u gen-par-n gen-par-fp gen-par-sp+ 
+*gen-par-sp++ r-cast gen-par-sp .gen count-stacks count-stacks-types 
+count-stacks-t count-stacks-ws count-stacks-s count-stacks-void 
+count-stacks-func count-stacks-r count-stacks-ud count-stacks-d count-stacks-a 
+count-stacks-u count-stacks-n type-letter is-funptr? parse-variable-type 
+parse-value-type parse-function-types function-types, ...-types, 
+parse-return-type libcc-cast, parse-libcc-cast parse-libcc-type >libcc-type 
+libcc-type c-var c-val c-func vararg$ libcc-types libcc-include \c 
+save-c-prefix-line write-c-prefix-line c-source-file-execute add-libpath 
+add-framework add-lib add-ldflags add-incdir add-cflags lib-prefix c++-mode 
+c-libs c-flags const+ .nb replace-rpath ptr-declare libcc-path 
 libcc-named-dir$ c-source-hash lib-handle! lib-handle lib-modulename 
 lib-filename lib-handle-addr c-source-file-id lha-hash lha-name lha-next 
 lha-id lha% ccb-cfuns ccb-ips ccb-lha ccb-num ccb% cff-ptypes cff-np cff-rtype 
@@ -724,16 +724,16 @@ extern-g b n view locate .rec'-stack xt-locate name-set-located-view l l1
 no-</> index-- index++ after-l append-locate-lines prepend-locate-lines 
 display-locate-lines located-erase l2 print-locate-header view>filename 
 current-location? current-location?1 located-buffer locate-print-line 
-locate-type located-diff locate-lines+ locate-lines# type-prefix 
-locate-next-line locate-line set-bn-view view>buffer included-buffer 
-included-file-buffers backtrace-index where-index where-results -status 
-+status .status-line status-xts .order .stacks .base wide? replace-char 
-.unstatus-line redraw-status status-attr status-offset mwords wordlist-mwords 
-.mwords[] wid>words[] mword-filename-match mword-search-match mword-match 
-words[] le-uxd@ le-ux@ le-ul@ le-uw@ be-uxd@ be-ux@ be-ul@ be-uw@ le-xd! le-x! 
-le-l! le-w! be-xd! be-x! be-l! be-w! sxd@ sx@ sl@ sw@ uxd@ ux@ ul@ uw@ find 
-sfind word sword +place place (word) .strings name parse-word comp: definer! 
-[(')] lastxt longstring, header, obsoletes scroll-down scroll-up 
+locate-type located-diff locate-lines+ locate-lines# locate-next-line 
+locate-line set-bn-view view>buffer included-buffer included-file-buffers 
+backtrace-index where-index where-results -status +status .status-line 
+status-xts .order .stacks .base wide? replace-char .unstatus-line 
+redraw-status status-attr status-offset mwords wordlist-mwords .mwords[] 
+wid>words[] mword-filename-match mword-search-match mword-match words[] 
+le-uxd@ le-ux@ le-ul@ le-uw@ be-uxd@ be-ux@ be-ul@ be-uw@ le-xd! le-x! le-l! 
+le-w! be-xd! be-x! be-l! be-w! sxd@ sx@ sl@ sw@ uxd@ ux@ ul@ uw@ find sfind 
+word sword +place place (word) .strings name parse-word comp: definer! [(')] 
+lastxt longstring, header, obsoletes scroll-down scroll-up 
 cursor-previous-line cursor-next-line erase-display insert-lines cursor-down 
 cursor-up control-sequence: restore-cursor-position save-cursor-position 
 (control-sequence) auto-color magenta-input dark-mode light-mode 
