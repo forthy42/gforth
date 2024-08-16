@@ -698,7 +698,7 @@ fvalue-dummy 2value: 2value-dummy slvalue: slvalue-dummy swvalue:
 swvalue-dummy scvalue: scvalue-dummy lvalue: lvalue-dummy wvalue: wvalue-dummy 
 cvalue: cvalue-dummy value: value-dummy $[]-!a-table $[]!a-table $!a-table 
 df!a-table sf!a-table l!a-table w!a-table $[]-+! $[]-! $[]-@ sc@ df+! sf+! l+! 
-w+! wrap+value: wrapper-xts field-to-method: field-to:, field-to:exec 
+w+! wrap+value: wrapper-xts field-to-class: field-to:, field-to:exec 
 create+value vfield-comp, vfield-int, +field, rec-complex translate-complex 
 zliteral z.s z. fc. zacot zatan zacos zasin pi/2 zacoth zatanh zacosh zasinh 
 Im Re Imag Real ztan zcos zsin ztanh zcosh zsinh zfib phi z** zsqrt z0= zln 
@@ -839,8 +839,8 @@ rectype-word translate-word basic-help 2Value dummy-2value 2value-to
 2value-compile, name>comp name>int nr> n>r \\\ th dump hex.r hex. h. dec. 
 base-execute derived-output: derived-input: execute-theme-color theme-color 
 infile-execute outfile-execute xaligned xalign laligned lalign waligned walign 
-*align *aligned xd, x, l, w, xd>s x>s xdle xle lle wle xdbe xbe lbe wbe noop0 
-/x /l /w typewhite what's action-of preserve f.s f.s-precision f.rdp f>str-rdp 
+*align *aligned xd, x, l, w, xd>s x>s xdle xle lle wle xdbe xbe lbe wbe /x /l 
+/w typewhite what's action-of preserve f.s f.s-precision f.rdp f>str-rdp 
 f>buf-rdp f>buf-rdp-try push-right mem+do mem-do u-[do -[do general-mem+loop 
 const-mem+loop array>mem mem*do-noconstant ]] rec-[[ rectype-[[ translate-[[ 
 try-recognize try-free +after -stack set-recognizers get-recognizers 
@@ -856,7 +856,7 @@ translator-max-offset# translator-offset peephole locals| >definer noname-w:
 locals-;-hook locals-:-hook {: { new-locals new-locals-rec some-waddr 
 some-xtlocal some-wlocal some-flocal some-dlocal some-clocal locals-types 
 val-part-off to-f: to-c: to-d: to-xt: to-w: c!-table 2!-table 2+! c+! 
-locals-to-method: locals-to:, locals-to:exec laddr#, lp-offset create-local 
+locals-to-class: locals-to:, locals-to:exec laddr#, lp-offset create-local 
 locals-where, locals-headers create-local1 locals-name-size+ check-begin 
 set-locals-size-list locals-list! list-size sub-list? common-list /list 
 list-length compile-pushlocal-[ compile-pushlocal-c compile-pushlocal-d 2>l 
@@ -881,7 +881,7 @@ tablevoc-to hashvoc-to tablevoc-table hashvoc-table table-reveal hash-reveal
 (reveal lastlink! hash-rec hash-find bucket NewFix DelFix hash-alloc 
 hashsearch-map HashTable HashPop HashIndex HashPointer revealed insRule hash 
 erase Hashlen hashbits reserve-mem to: interpret/compile: >to+addr-table: 
-to-table: to-method: never-happens warning-error broken-pipe-error exceptions 
+to-table: to-class: never-happens warning-error broken-pipe-error exceptions 
 exception next-exception errstring linked minos? glx? gles? getrandom? 
 getentropy? include-ffi.h-string libffi-present ffcall-present libtool-flags 
 libtool-cxx libtool-cc libtool-command machine lib-suffix has? $has? e? 
