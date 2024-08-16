@@ -16,10 +16,14 @@ A        [x] simplify API
  B       [x] examples
 AB       [x] Documentation in manual
   G      [x] Modify env-recognizer to use ${HOME} instead of $HOME to avoid collision with hex-numbers like $BEEF
+ B       [ ]*update to current word names etc.
 ABGO [ ]*Documentation for Undocumented features
  B       [ ]*Document so far, that other programmers can understand the code and complete the documentation
 A        [d] Search changelogs for features
 A        [x] Document what is stable and what is not
+AB   [ ]* Only make words obsolete that are not used in Gforth and that are non-standard
+ B       [ ]* Use of obsolete words in obsolete.fs is not reported
+A        [ ]* Move standard words from obsolete.fs to regular code
 AB   [x] "IDE" locate, view, where & edit
          [x] help or doc - get documentation of word
  B       [x] help for recognizer
@@ -39,7 +43,7 @@ B    [x] version comparison 001.000.000 -> upgrade path: 000.007.009
   G  [x] better vim support
 A    [ ] changelog
 A    [ ] news-file
-A    [ ] update this ToDo file
+A    [ ]*update this ToDo file
  BG  [x]*implement smart .s "..."
  B   [x] Extensible ... : Allow a stack of recognizer-like scanners
  B   [ ]*Configurable ... : Allow different outputs (think about notation)
@@ -47,11 +51,17 @@ AB   [x] ~~ uses ... and prints floating stack
  B   [x] compare-image warnings überprüfen
 ABG  [ ]*fix warnings during compilation
 ABG  [ ] defaults
-ABG      [ ]*which recognizers should be included by default
-         [ ] which files should be in image
-         [ ] documented words which are not included by default should state how they are included
-A    [ ] make file for all obsolete words
-A    [ ] see-code should work properly with zero-length primitives
+ABG      [x] which recognizers should be included by default
+         [x] which files should be in image
+A        [ ]*documented words which are not included by default should state how they are included
+A    [*] make file for all obsolete words
+A    [*] see-code should work properly with zero-length primitives
+ B   [ ] Build issues
+ B       [ ] Build extra libs only on request
+ B       [ ] Build text-only on request
+ B       [ ] configure stops if gcc is really LLVM
+  G      [ ] Hints for errors
+AB       [ ] Try building on non-Linux machines (cfarm)
 
 -*- RoadMap for gforth post 1.0 -*-
  B   [d] (Dropped) Multithreading: Use sections to allow compilation in every threading
