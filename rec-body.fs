@@ -24,7 +24,7 @@
 	[: ['] translate-nt = ;] try-recognize ;
 [THEN]
 
-: rec-body ( addr u -- xt translate-tick | translate-null ) \ gforth-experimental
+: rec-body ( addr u -- xt translate-num | notfound ) \ gforth-experimental
     \G words bracketed with @code{'<'} @code{'>'} return their body.
     \G Example: @code{<dup>} gives the body of dup
     over c@ '<' <> >r  2dup + 1- c@ '>' <> r> or
