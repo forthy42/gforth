@@ -493,7 +493,7 @@ defer compile, ( xt -- ) \ core-ext compile-comma
 	hold 1- c(warning") #>>
     THEN ;
 
-: name?int ( nt -- xt ) \ gforth-obsolete name-question-int
+: name?int ( nt -- xt ) \ gforth-internal name-question-int
 \G Like @code{name>interpret}, but warns when encountering a word marked
 \G compile-only or obsolete
     ?compile-only ?obsolete name>interpret ; obsolete

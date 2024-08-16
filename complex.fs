@@ -192,7 +192,7 @@ translate: translate-complex
 \ : translate-complex ( z -- ) fswap translate-float translate-float ;
 
 :noname ( locals-nt -- )
-    dup name>interpret >does-code [ ' some-zlocal >does-code ]L =
+    dup name>interpret >does-code [ comp' some-zlocal drop >does-code ]L =
     IF    name-compsem ['] zliteral compile,
     ELSE  defers locals-post,
     THEN ; is locals-post,
