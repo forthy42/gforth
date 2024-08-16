@@ -235,6 +235,7 @@ Forth Words
 * Strings and Characters::
 * Control Structures::
 * Defining Words::
+* Structures::
 * Interpretation and Compilation Semantics::
 * Tokens for Words::
 * Compiling words::
@@ -247,7 +248,6 @@ Forth Words
 * Other I/O::
 * OS command line arguments::
 * Locals::
-* Structures::
 * Object-oriented Forth::
 * Regular Expressions::
 * Programming Tools::
@@ -337,6 +337,13 @@ User-defined Defining Words
 * Making a word current::
 * Const-does>::
 
+Structures
+
+* Standard Structures::
+* Varue-Flavoured and Defer-Flavoured Fields::
+* Structure Extension::
+* Gforth structs::
+
 Interpretation and Compilation Semantics
 
 * Combined words::
@@ -415,15 +422,6 @@ Gforth locals
 * Locals programming style::
 * Locals implementation::
 * Closures::
-
-Structures
-
-* Why explicit structure support?::
-* Structure Usage::
-* Structure Naming Convention::
-* Structure Implementation::
-* Structure Glossary::
-* Forth200x Structures::
 
 Object-oriented Forth
 
@@ -4796,6 +4794,7 @@ and pasting the output of @code{...} (@pxref{Examining data}).
 * Strings and Characters::
 * Control Structures::
 * Defining Words::
+* Structures::
 * Interpretation and Compilation Semantics::
 * Tokens for Words::
 * Compiling words::
@@ -4808,7 +4807,6 @@ and pasting the output of @code{...} (@pxref{Examining data}).
 * Other I/O::
 * OS command line arguments::
 * Locals::
-* Structures::
 * Object-oriented Forth::
 * Regular Expressions::
 * Programming Tools::
@@ -7335,7 +7333,7 @@ doc-warning"
 doc-warnings
 
 @c -------------------------------------------------------------
-@node Defining Words, Interpretation and Compilation Semantics, Control Structures, Words
+@node Defining Words, Structures, Control Structures, Words
 @section Defining Words
 @cindex defining words
 
@@ -8819,7 +8817,7 @@ ticking it (or using @code{name>interpret}) produces the same xt as
 the original (@pxref{Tokens for Words}).
 
 @c ----------------------------------------------------------
-@node Structures, Object-oriented Forth, Locals, Words
+@node Structures, Interpretation and Compilation Semantics, Defining Words, Words
 @section  Structures
 @cindex structures
 @cindex records
@@ -8834,7 +8832,14 @@ In Forth you can use raw address arithmetic to access fields of
 structures, but using field names and defining field access words with
 the defining words described in this section makes the code more readable.
 
-@node Standard Structures,  , Structure Glossary, Structures
+@menu
+* Standard Structures::
+* Varue-Flavoured and Defer-Flavoured Fields::
+* Structure Extension::
+* Gforth structs::
+@end menu
+
+@node Standard Structures, Varue-Flavoured and Defer-Flavoured Fields, Structures, Structures
 @subsection Standard Structures
 @cindex Structures in Forth200x
 
@@ -8942,7 +8947,7 @@ compile a first-field word, no code is generated. So, in the interest
 of readability and maintainability you should include the word for the
 field when accessing the field.
 
-@node Varue-Flavoured and Defer-Flavoured Fields
+@node Varue-Flavoured and Defer-Flavoured Fields, Structure Extension, Standard Structures, Structures
 @subsection Value-Flavoured and Defer-Flavoured Fields
 
 In addition to the variable-flavoured fields that produce an address
@@ -9070,12 +9075,12 @@ my-foo foo'bar                   \ prints "test1"
 
 doc-defer:
 
-For documentation of @code{is}, @code{action-of}, @code{defer@},
+For documentation of @code{is}, @code{action-of}, @code{defer@@},
 @code{defer!}, see @xref{Deferred Words}.  Note however, that when
 used on defer-flavoured fields, all these words consume the start
 address of the structure, unlike for words defined with @code{defer}.
 
-@node Structure Extension
+@node Structure Extension, Gforth structs, Varue-Flavoured and Defer-Flavoured Fields, Structures
 @subsection Structure Extension
 @cindex structure extension
 @cindex extended records
@@ -9129,7 +9134,7 @@ doc-extend-structure
 
 
 
-@node Gforth structs
+@node Gforth structs,  , Structure Extension, Structures
 @subsection Gforth structs
 
 Gforth has had structs before the standard had them; they are a little
@@ -9201,59 +9206,13 @@ specify an array of, e.g., 10 cells like this:
 
 @example
   cell% 10 * field bla-blub
-@end example
-
-This is equivalent to the standard
-
-@example
-  aligned 10 cells +field bla-blub
+  \ equivalent to the standard:
+  \ aligned 10 cells +field bla-blub
 @end example
 
 You can use @code{cell% 10 *} not just with @code{field}, but also in
 other places where an alignment and size is expected, e.g., with
 @code{%alloc}.
-
-
-@node Structure Implementation, Structure Glossary, Structure Naming Convention, Structures
-@subsection Structure Implementation
-@cindex structure implementation
-@cindex implementation of structures
-
-The central idea in the implementation is to pass the data about the
-structure being built on the stack, not in some global
-variable. Everything else falls into place naturally once this design
-decision is made.
-
-The type description on the stack is of the form @emph{align
-size}. Keeping the size on the top-of-stack makes dealing with arrays
-very simple.
-
-@code{field} is a defining word that uses @code{Create}
-and @code{DOES>}. The body of the field contains the offset
-of the field, and the normal @code{DOES>} action is simply:
-
-@example
-@@ +
-@end example
-
-@noindent
-i.e., add the offset to the address, giving the stack effect
-@i{addr1 -- addr2} for a field.
-
-@cindex first field optimization, implementation
-This simple structure is slightly complicated by the optimization
-for fields with offset 0, which requires a different
-@code{DOES>}-part (because we cannot rely on there being
-something on the stack if such a field is invoked during
-compilation). Therefore, we put the different @code{DOES>}-parts
-in separate words, and decide which one to invoke based on the
-offset. For a zero offset, the field is basically a noop; it is
-immediate, and therefore no code is generated when it is compiled.
-
-@node Structure Glossary, Forth200x Structures, Structure Implementation, Structures
-@subsection Structure Glossary
-@cindex structure glossary
-
 
 doc-%align
 doc-%alignment
@@ -9271,11 +9230,8 @@ doc-sfloat%
 doc-%size
 doc-struct
 
-
-
-
 @c ----------------------------------------------------------------
-@node Interpretation and Compilation Semantics, Tokens for Words, Defining Words, Words
+@node Interpretation and Compilation Semantics, Tokens for Words, Structures, Words
 @section Interpretation and Compilation Semantics
 @cindex semantics, interpretation and compilation
 
@@ -12272,7 +12228,7 @@ doc-argc
 doc-argv
 
 @c -------------------------------------------------------------
-@node Locals, Structures, OS command line arguments, Words
+@node Locals, Object-oriented Forth, OS command line arguments, Words
 @section Locals
 @cindex locals
 
@@ -13016,7 +12972,7 @@ it is easy to implement using the ANS Forth locals wordset, but then,
 so is the @code{@{:} syntax.
 
 @c -------------------------------------------------------------
-@node Object-oriented Forth, Regular Expressions, Structures, Words
+@node Object-oriented Forth, Regular Expressions, Locals, Words
 @section Object-oriented Forth
 
 Gforth comes with three packages for object-oriented programming:
@@ -13538,10 +13494,10 @@ end-class circle
 @cindex scoping and classes
 
 Inheritance is frequent, unlike structure extension. This exacerbates
-the problem with the field name convention (@pxref{Structure Naming
-Convention}): One always has to remember in which class the field was
-originally defined; changing a part of the class structure would require
-changes for renaming in otherwise unaffected code.
+the problem with the field name convention (@pxref{Standard
+Structures}): One always has to remember in which class the field was
+originally defined; changing a part of the class structure would
+require changes for renaming in otherwise unaffected code.
 
 @cindex @code{inst-var} visibility
 @cindex @code{inst-value} visibility
