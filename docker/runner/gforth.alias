@@ -1,5 +1,7 @@
 DEVICES=$(find /dev/dri -type c | sed -e 's/^.*$/--device=\0:\0/g' | tr '\n' ' ')
+USERMAP="$(id -u):$(id -g)"
+
 alias swigdk="docker run -ti -v `pwd`:/workdir -v /usr/include:/usr/include --rm forthy42/swig"
-alias gforthdk="docker run -ti --rm forthy42/gforth"
-alias gforth-guidk="docker run -ti -e XDG_RUNTIME_DIR=/tmp/xdg-runtime-dir -e USER=\$USER -e DISPLAY=\$DISPLAY -e XDG_SESSION_TYPE=\$XDG_SESSION_TYPE -e WAYLAND_DISPLAY=\$WAYLAND_DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v /usr/share/fonts:/usr/share/fonts -v \$XAUTHORITY:/home/gforth/.Xauthority -v \${XDG_RUNTIME_DIR}:/tmp/xdg-runtime-dir $DEVICES --rm forthy42/gforth-gui"
-alias gforth-gui-fontsdk="docker run -ti -e XDG_RUNTIME_DIR=/tmp/xdg-runtime-dir -e USER=\$USER -e DISPLAY=\$DISPLAY -e XDG_SESSION_TYPE=\$XDG_SESSION_TYPE -e WAYLAND_DISPLAY=\$WAYLAND_DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v \$XAUTHORITY:/home/gforth/.Xauthority -v \${XDG_RUNTIME_DIR}:/tmp/xdg-runtime-dir $DEVICES --rm forthy42/gforth-gui-fonts"
+alias gforthdk="docker run -ti --user $USERMAP -v `pwd`:/workdir --rm forthy42/gforth"
+alias gforth-guidk="docker run --user $USERMAP -ti -v `pwd`:/workdir -e XDG_RUNTIME_DIR=/tmp/xdg-runtime-dir -e USER=\$USER -e DISPLAY=\$DISPLAY -e XDG_SESSION_TYPE=\$XDG_SESSION_TYPE -e WAYLAND_DISPLAY=\$WAYLAND_DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v /usr/share/fonts:/usr/share/fonts -v \$XAUTHORITY:/home/gforth/.Xauthority -v \${XDG_RUNTIME_DIR}:/tmp/xdg-runtime-dir $DEVICES --rm forthy42/gforth-gui"
+alias gforth-gui-fontsdk="docker run --user $USERMAP -ti -v `pwd`:/workdir -e XDG_RUNTIME_DIR=/tmp/xdg-runtime-dir -e USER=\$USER -e DISPLAY=\$DISPLAY -e XDG_SESSION_TYPE=\$XDG_SESSION_TYPE -e WAYLAND_DISPLAY=\$WAYLAND_DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v \$XAUTHORITY:/home/gforth/.Xauthority -v \${XDG_RUNTIME_DIR}:/tmp/xdg-runtime-dir $DEVICES --rm forthy42/gforth-gui-fonts"
