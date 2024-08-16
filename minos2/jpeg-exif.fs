@@ -1,7 +1,7 @@
 \ a simple jpeg parser to read important EXIF stuff
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2014,2016,2019,2020,2021 Free Software Foundation, Inc.
+\ Copyright (C) 2014,2016,2019,2020,2021,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -53,7 +53,7 @@ object uclass exif-o
     umethod >exif-open ( addr u -- )
 end-class exif-class
 
-exif-class new dup constant file-exif-o exif-o !
+exif-class ' new static-a with-allocater dup constant file-exif-o exif-o !
 
 \ file variant
 
@@ -86,7 +86,7 @@ exif-class uclass exif-o
     cell uvar exif-pos
 end-class exif-mem-class
 
-exif-mem-class new dup Constant exif-mem-o exif-o !
+exif-mem-class new exif-o !
 
 : mem-exif/ ( -- addr u )  exif-mem 2@ exif-pos @ safe/string ;
 : mem-exb ( -- c )
@@ -175,12 +175,12 @@ DOES> + c@ ;
 
 : .exif-tag ( -- )
     exw exw exl exl { cmd type len offset }
-    cmd hex. type hex. len hex.
+    cmd h. type h. len h.
     type exif-sizes len * { size }
     size 4 > IF
 	cr offset size exif-read-at $100 umin dump
     ELSE
-	offset hex. cr
+	offset h. cr
     THEN ;
 
 : .exif-tags ( -- )
@@ -194,7 +194,7 @@ DOES> + c@ ;
 : >thumb ( -- )
     exw 0 ?DO
 	exw exw exl exl { cmd typ len offset }
-	\ cmd hex. typ hex. len hex. offset hex. cr
+	\ cmd h. typ h. len h. offset h. cr
 	offset  case cmd \ len ~~ drop
 	    $100  of  img-w      !  endof
 	    $101  of  img-h      !  endof

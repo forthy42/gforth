@@ -1,7 +1,7 @@
 \ catch, throw, etc.
 
 \ Authors: Anton Ertl, Bernd Paysan, Gerald Wodni
-\ Copyright (C) 1999,2000,2003,2006,2007,2010,2013,2014,2015,2016,2017,2019,2020,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1999,2000,2003,2006,2007,2010,2013,2014,2015,2016,2017,2019,2020,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -87,7 +87,7 @@ User stored-backtrace ( addr -- )
 is catch
 
 Defer kill-task ( -- ) \ gforth-experimental
-\G kill the current task, deferred word set when loading the multitasker
+\G Terminate the current task.
 ' noop IS kill-task
 
 Variable located-view
@@ -130,7 +130,7 @@ variable located-bottom \ last line to display with l
 
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP-IF
-	[ here forthstart #10 cells + ! ]
+	[ here forthstart #13 cells + ! ]
 	[ here throw-entry ! ]
 	first-throw @ IF
 	    store-backtrace

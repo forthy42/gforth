@@ -1,7 +1,7 @@
 \ High level floating point                            14jan94py
 
 \ Authors: Bernd Paysan, Anton Ertl, Neal Crook, Jens Wilke, Lennart Benschop
-\ Copyright (C) 1995,1997,2003,2004,2005,2006,2007,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1997,2003,2004,2005,2006,2007,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -89,7 +89,7 @@
 
 to-table: f!-table f! f+!
 
-' >body f!-table to-method: fvalue-to ( r xt-fvalue -- ) \ gforth-internal
+' >body f!-table to-class: fvalue-to ( r xt-fvalue -- ) \ gforth-internal
 
 create dummy-fvalue
 ' f@ set-does>
@@ -207,7 +207,7 @@ si-prefixes count 2/ + Constant zero-exp
 
 ' noop ' fliteral ' fliteral >postponer
 translate: translate-float
-\ translate floating point numbers
+\G translate floating point numbers
 ' translate-float Constant rectype-float
 
 : rec-float ( addr u -- r translate-float | notfound ) \ gforth-experimental
@@ -246,7 +246,7 @@ infinity fnegate fconstant -infinity ( -- r ) \ gforth
 synonym -inf -infinity
 \G synonym for copy-paste from @code{...}, @xref{Examining data and code}.
 
-0.e0 0.e0 fconstant NaN ( -- r ) \ gforth
+0.e0 0.e0 f/ fconstant NaN ( -- r ) \ gforth
 \G floating point Not a Number
 
 get-current environment-wordlist set-current

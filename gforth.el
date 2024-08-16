@@ -1,7 +1,7 @@
 ;;; gforth.el --- major mode for editing (G)Forth sources
 
 ;; Authors: Bernd Paysan, Anton Ertl, David Kühling
-;; Copyright (C) 1995,1996,1997,1998,2000,2001,2003,2004,2007,2008,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+;; Copyright (C) 1995,1996,1997,1998,2000,2001,2003,2004,2007,2008,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 ;; This file is part of Gforth.
 
@@ -190,7 +190,9 @@ PARSED-TYPE specifies what kind of text is parsed. It should be
 	(("immediate" "compile-only" "restrict")
 	 immediate (font-lock-keyword-face . 1))
 	(("does>") definition-starter (font-lock-keyword-face . 1))
-	((":noname" "comp:" "compsem:" "opt:" "defer:" "defer@-opt:" "to-opt:") definition-starter (font-lock-keyword-face . 1))
+	((":noname" "comp:" "compsem:" "opt:" "fold1:") definition-starter (font-lock-keyword-face . 1))
+	((":trigger-on(") definition-starter (font-lock-keyword-face . 1)
+	 "[)]" t comment (font-lock-function-name-face . 3))
 	((";" ";code" ";abi-code") definition-ender (font-lock-keyword-face . 1))
 	(("include" "require" "needs" "use") 
 	 non-immediate (font-lock-keyword-face . 1) 
@@ -216,7 +218,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be
 	(("warning\"") compile-only (font-lock-keyword-face . 1)
 	 "[\"\n]" nil string (font-lock-string-face . 1))
 	(("{" "{:" "[{:") compile-only (font-lock-variable-name-face . 1)
-	 "[\n}]" nil name (font-lock-variable-name-face . 1))
+	 "[\n}][hld]?1?" nil name (font-lock-variable-name-face . 1))
 	((".(" "(") immediate (font-lock-comment-face . 1)
 	  ")" nil comment (font-lock-comment-face . 1))
 	(("\\" "\\G") immediate (font-lock-comment-face . 1)
@@ -232,10 +234,10 @@ PARSED-TYPE specifies what kind of text is parsed. It should be
 	 immediate (font-lock-keyword-face . 2))
 	(("[ifdef]" "[ifundef]" "[defined]" "[undefined]") immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
-	(("if" "begin" "ahead" "do" "?do" "+do" "u+do" "-do" "u-do" "for" 
+	(("if" "begin" "ahead" "do" "?do" "+do" "u+do" "-do" "u-do" "mem-do" "mem+do" "for" 
 	  "case" "of" "?of" "?dup-if" "?dup-0=-if" "then" "endif" "until"
 	  "repeat" "again" "leave" "?leave"
-	  "loop" "+loop" "-loop" "next" "endcase" "next-case" "endof" "contof"
+	  "loop" "+loop" "-loop" "mem+loop" "mem-loop" "next" "endcase" "next-case" "endof" "contof"
 	  "else" "while" "try"
 	  "recover" "endtry" "iferror" "restore" "endtry-iferror"
 	  "assert(" "assert0(" "assert1(" "assert2("
@@ -251,7 +253,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be
 	(("postpone" "[is]" "defers" "[']" "[compile]") 
 	 compile-only (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
-	(("is" "what's") immediate (font-lock-keyword-face . 2)
+	(("is" "what's" "action-of") immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
 	(("<is>" "'" "see") non-immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
@@ -276,6 +278,8 @@ PARSED-TYPE specifies what kind of text is parsed. It should be
 	(("method" "umethod")
 	 non-immediate (font-lock-type-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
+	(("with") compile-only (font-lock-type-face . 2)
+	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
 	("\\S-+%" non-immediate (font-lock-type-face . 2))
 	(("defer" "alias" "create-interpret/compile:") 
 	 non-immediate (font-lock-type-face . 1)
@@ -317,7 +321,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be
 	("\".*\""
 	 immediate (font-lock-string-face . 3))
 	("[a-z\-0-9]+(" immediate (font-lock-comment-face . 1)
-	 ")" nil comment (font-lock-comment-face . 1))
+	 "[)]" nil comment (font-lock-comment-face . 1))
 	))
 
 (defvar forth-use-objects nil 
@@ -369,8 +373,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be
     (("ptr" "asptr" "[]") 
      immediate (font-lock-keyword-face . 2)
      "[ \t\n]" t name (font-lock-variable-name-face . 3))
-    (("class;" "how:" "self" "new" "new[]" "definitions" "class?" "with"
-      "endwith")
+    (("class;" "how:" "self" "new" "new[]" "definitions" "class?" "endwith")
      non-immediate (font-lock-keyword-face . 2))
     (("object") non-immediate (font-lock-type-face . 2)))
   "Hilighting description for words of the \"OOF\" package")
@@ -422,13 +425,13 @@ INDENT1 and INDENT2 are indentation specifications of the form
 
 (setq forth-indent-words
       '((("if" "begin" "do" "?do" "+do" "-do" "u+do"
-	  "u-do" "?dup-if" "?dup-0=-if" "case" "of" "?of" "try" "iferror"
+	  "u-do" "mem-do" "mem+do" "?dup-if" "?dup-0=-if" "case" "of" "?of" "try" "iferror"
 	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]" "[:"
 	  "[n:l" "[n:h" "[n:d" "[d:l" "[d:h" "[d:d" "[f:l" "[f:h" "[f:d" "[{:")
 	 (0 . 2) (0 . 2))
-	((":" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" "uclass" 
+	((":" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" "uclass" "with" 
 	  "interface" "c-library" "c-library-name" "comp:" "opt:" "post:"
-	  "begin-structure" "extend-structure" "event:" "to-opt:" "defer@-opt:" "to:" "defer@:")
+	  "begin-structure" "extend-structure" "event:" "fold1:" "to:" "defer@:" ":trigger-on(")
 	 (0 . 2) (0 . 2) non-immediate)
 	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
 	((";" ";m") (-2 . 0) (0 . -2))
@@ -436,16 +439,19 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	  "[then]" "[endif]" "[loop]" "[+loop]" "[next]" 
 	  "[until]" "[again]" "loop" ";]" "nope")
 	 (-2 . 0) (0 . -2))
-	(("end-code" "end-class" "end-interface" "end-class-noname" 
+	(("end-code" "end-class" "endwith" "end-interface" "end-class-noname" 
 	  "end-interface-noname" "end-struct" "class;" "end-c-library" "end-structure")
 	 (-2 . 0) (0 . -2) non-immediate)
 	(("protected" "public" "how:") (-1 . 1) (0 . 0) non-immediate)
-	(("+loop" "-loop" "until") (-2 . 0) (-2 . 0))
+	(("+loop" "-loop" "mem+loop" "mem-loop" "until") (-2 . 0) (-2 . 0))
 	(("else" "recover" "restore" "endtry-iferror" "[else]")
 	 (-2 . 2) (0 . 0))
 	(("does>" "compile>" "int>" ";code" ";abi-code") (-1 . 1) (0 . 0))
 	(("while" "[while]") (-2 . 4) (0 . 2))
-	(("repeat" "[repeat]") (-4 . 0) (0 . -4))))
+	(("repeat" "[repeat]") (-4 . 0) (0 . -4))
+	(("{{" "vt{{") (0 . 2) (0 . 2) immediate)
+	(("}}h" "}}v" "}}z" "}}vp" "}}p" "}}vt") (-2 . 0) (-2 . 0) immediate)
+	))
 
 (defvar forth-local-indent-words nil 
   "List of Forth words to prepend to `forth-indent-words', when a forth-mode

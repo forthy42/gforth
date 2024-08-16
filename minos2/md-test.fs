@@ -28,7 +28,8 @@ ctx 0= [IF]  window-init  [THEN]
 
 require minos2/font-style.fs
 
-84e update-size#
+:noname 84e update-size# ; is rescaler
+rescaler
 
 require minos2/text-style.fs
 require minos2/md-viewer.fs

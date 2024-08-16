@@ -1,7 +1,7 @@
 \ OpenGL terminal
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -313,6 +313,7 @@ xc-vector !
     (gl-atxy) ;
 
 : gl-atxy ( x y -- )
+    gl-wh cell+ @ 1- min 0 max
     scroll-y @ gl-xy @ gl-wh cell+ @ 2 - - 0 max max
     + (gl-atxy) ;
 
@@ -351,7 +352,7 @@ xc-vector !
 	ELSE  r> gl-xy 2!  THEN  m +
     LOOP  drop ;
 
-s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
+${GFORTH_IGNLIB} s" true" str= 0= [IF]
     Sema gl-sema
 [ELSE]
     Create gl-sema
@@ -478,6 +479,8 @@ s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
 	    dpy-w @ rr-out0 XRROutputInfo-mm_width  l@ s>f fm*/ fswap ;
 	previous
     [ELSE]
+	: screen-pwh ( -- w h )
+	    dpy-wh 2@ ;
 	: screen-wh ( -- rw rh )
 	    wl-metrics 2@ swap s>f s>f ;
     [THEN]
@@ -501,21 +504,21 @@ Defer scale-me ' terminal-scale-me is scale-me
 
 [IFDEF] screen-xywh@
     2Variable screen-xy
-    2Variable screen-wh
 [THEN]
 
 : config-changer ( -- )
 [IFDEF] screen-xywh@
-    screen-xywh@ screen-wh 2! screen-xy 2!
+    screen-xywh@ 2drop screen-xy 2!
 [THEN]
     getwh  >screen-orientation  scale-me
     form-chooser ;
 : ?config-changer ( -- )
     ?config IF
-	dpy-w @ dpy-h @ 2>r config-changer
-	dpy-w @ dpy-h @ 2r> d<> IF
-	    winch? on +resize +sync +config
-	ELSE  -config  THEN
+	gl-wh 2@ 2>r config-changer
+	gl-wh 2@ 2r> d<> IF
+	    winch? on +resize +sync
+	ELSE  +sync  THEN
+	-config
     THEN ;
 
 : screen-sync ( -- )
@@ -543,7 +546,7 @@ Defer scale-me ' terminal-scale-me is scale-me
 : scroll-yr ( -- float )  scroll-y @ s>f
     y-pos sf@ f2/ rows fm* f+ ;
 
-: +scroll ( f -- f' )
+: +scroll ( f -- )
     scroll-yr f+ actualrows 1 - s>f fmin
     0e fmax screen-scroll ;
 
@@ -597,7 +600,7 @@ default-out op-vector !
 
 : >screen ( -- )
     ctx 0= IF  window-init  [IFDEF] map-win map-win [THEN] config-changer  THEN
-    err>screen op-vector @ debug-vector ! out>screen
+    err>screen op-vector @ debug-vector !  out>screen
     white? IF  >light  ELSE  >dark  THEN ;
 
 \ initialize

@@ -1,7 +1,7 @@
 \ MINOS2 widget basis
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2014,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2014,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -35,11 +35,19 @@ debug: dispose( \ +db dispose( \ )
 
 require ../i18n.fs \ localization
 require gl-terminal.fs
-
 require ftgl-helper.fs
-
 require ../mini-oof2.fs
 require ../config.fs
+
+Variable minos2-debug$
+${MINOS2_DEBUGS} minos2-debug$ $!
+minos2-debug$ ','
+:noname ( addr u -- )
+    [: type '(' emit ;] $tmp find-name ?dup-IF
+	dup >does-code ['] debug-doer =
+	IF  >body on  ELSE  drop  THEN
+    THEN
+; $iter
 
 get-current
 also [IFDEF] android android [THEN]
@@ -113,6 +121,8 @@ $3F7FFF7F #Variable selectioncolor#
 $FFFF7FFF #Variable setstring-color#
 $1010107F #Variable shadow-color#
 Variable curminchars#
+Variable twoclicks#
+Variable samepos#
 FVariable curminwidth%
 FVariable pwtime%
 FVariable scale%
@@ -121,10 +131,15 @@ $Variable translate$
 set-current
 
 0 curminchars# !
+#200 twoclicks# !  \ every edge further apart than 200ms into separate clicks
+#6 samepos# !      \ position difference square-summed less than is same pos
 1e curminwidth% f!
 0.5e pwtime% f!
 1e scale% f!
 0.3e animtime% f!
+
+: twoclicks  twoclicks# @ ;
+: samepos    samepos# @ ;
 
 previous
 
@@ -137,9 +152,9 @@ Variable config-file$  s" ~/.config/minos2rc" config-file$ $!
 [THEN]
 
 : ?.minos-config ( -- )  true configured? !@ ?EXIT
-    s" XDG_CONFIG_HOME" getenv dup IF
+    ${XDG_CONFIG_HOME} dup IF
 	config-file$ $! s" /minos2rc" config-file$ $+!  ELSE  2drop  THEN
-    s" MINOS2_CONF" getenv dup IF  config-file$ $!  ELSE  2drop  THEN
+    ${MINOS2_CONF} dup IF  config-file$ $!  ELSE  2drop  THEN
     config-file$ $@ 2dup file-status nip ['] m2c >wordlist swap
     no-file# = IF  write-config  ELSE
 	config-throw >r  0 to config-throw
@@ -160,7 +175,7 @@ $[]Variable ranges>lang[]
     \G @var{end} to the list of ranges.
     U+DO
 	I 8 rshift ranges>lang[] $[] { range }
-	I $FF and 0= I' I $100 + u>= and IF
+	I $FF and 0= delta-i $100 u>= and IF
 	    range @ $100 u>= IF  range $free  THEN
 	    dup range !
 	ELSE
@@ -169,7 +184,7 @@ $[]Variable ranges>lang[]
 		zeros[ $100 2dup range @ fill
 		range off  range $!
 	    THEN
-	    range $@ I $FF and /string I' I - umin third fill
+	    range $@ I $FF and /string delta-i umin third fill
 	THEN
     $100 I $FF and - +LOOP  drop ;
 : range@ ( codepoint -- font# ) \ minos2
@@ -265,6 +280,10 @@ object class
     \G raw click up
     method touchmove ( $rxy*n bmask -- ) \ minos2
     \G raw click, move. @var{bmask}=0 is hover
+    method dndmove ( rx ry -- ) \ minos2
+    \G drag&drop move, objects can show willingness to accept
+    method dnddrop ( rx ry addr u -- ) \ minos2
+    \G drag&drop drop, objects can insert data described by @var{addr u}
     method ukeyed ( addr u -- ) \ minos2
     \G key event, string of printable unicode characters
     method ekeyed ( ekey -- ) \ minos2
@@ -307,7 +326,10 @@ end-class helper-glue
 ' true helper-glue is aidglue= \ if equal, no need to rerun
 
 \ dummy methods for empty actor, used for inheritance
-:noname 2drop fdrop fdrop ; actor is clicked
+:noname 2drop fdrop fdrop ;
+dup actor is clicked
+actor is dnddrop
+:noname fdrop fdrop ; actor is dndmove
 ' 2drop actor is scrolled
 ' 2drop actor is touchdown
 ' 2drop actor is touchup
@@ -447,7 +469,7 @@ widget is resized
 Defer dispose-check ' noop is dispose-check
 : dispose-nodict ( o:object -- )
 \    o in-dictionary? 0= IF
-	dispose( o hex. name$ type ."  dispose" cr )
+	dispose( o h. name$ type ."  dispose" cr )
 	addr name$ $free
 	dispose dispose-check
 \    ELSE  dispose( ." in dictionary, don't dispose" cr )  THEN
@@ -774,9 +796,9 @@ $3F7FFF7F text-color, FValue selection-color
 
 : edit-marking ( -- )
     cursize 0< ?EXIT  text-font to font  w text-w text-scale!
-    text$ curpos curpos-string { f: ww }
+    text$ curpos curpos-string 0e { f: ww f: wleft }
     setstring$ $@len cursize 0>= and IF
-	setstring$ $@ dup curpos-string +to ww  0e
+	setstring$ $@ dup curpos-string fdup to wleft +to ww  0e
     ELSE
 	text$ curpos cursize m2c:curminchars# @ umax +
 	curpos-string ww f-
@@ -792,7 +814,10 @@ $3F7FFF7F text-color, FValue selection-color
     x1 y0 >xy fdup i>c n> 3e 2e >st v+
     x0 y1 >xy fdup i>c n> 2e 3e >st v+
     x1 y1 >xy      i>c n> 3e 3e >st v+
-    v> 2 quad ;
+    v> 2 quad
+    [IFDEF] >cursor-xyxy
+	x0 wleft f- y0 x1 y1 >cursor-xyxy
+    [THEN] ;
 
 : edit-text ( -- )
     edit-marking
@@ -1007,9 +1032,26 @@ previous
 
 ' button1 >body cell+ Value slider-frame# \ set the frame number to button2 style
 
+: thumb: ( addr u r -- ) \ minos2
+    file>fpath Create
+    here 0 , $! here atlas-region dup allot erase  0 , f,
+  DOES> ( -- o thumb-o )
+    cell+ >r
+    r@ atlas-region 0 skip nip 0= IF
+	r@ cell- $@ open-fpath-file throw 2drop slurp-fid
+	over >r load-thumb r> free throw
+	r@ swap move
+	r@ atlas-region + cell+ f@ fdup
+	glue new >o
+	fm* vglue-c df!
+	fm* hglue-c df!  o o>
+	r@ atlas-region + !
+    THEN
+    r@ atlas-region + @ r> }}thumb >o white# to frame-color o o> ;
+
 : }}canvas ( glue color xt-lines xt-text -- o )
     canvas new >o
-    to text-canvas to draw-canvas
+    is text-canvas is draw-canvas
     to frame-color to tile-glue o
     white-tile o> ;
 
@@ -1486,6 +1528,7 @@ $10 stack: box-depth \ this $10 here is no real limit
 \ draw everything
 
 : widget-init ( o:widget -- )
+    [IFDEF] 0offset  0offset [THEN]
     <draw-init      draw-init      draw-init>   time( ." init:  " .!time cr )
 ;
 
@@ -1603,7 +1646,9 @@ $10 stack: vp<>
 
 :noname
     [: ?sync ?config or ;] vp-needed ?vpsync or IF
+	[IFDEF] +offset  x vp-x f-  y vp-h vp-y f- f- +offset  [THEN]
 	draw-vpchilds
+	[IFDEF] +offset  vp-x x f-  vp-h vp-y f- y f- +offset  [THEN]
 	[: -sync -config ;] vp-needed
     THEN ; viewport is draw-init
 :noname ( -- )  render>
@@ -1779,6 +1824,8 @@ $7F7F7FFF color, FValue slider-fgcolor
 0 Value top-widget
 : top-act ( -- o ) top-widget .act ;
 
+forward >animate
+
 require actors.fs
 require animation.fs
 
@@ -1830,22 +1877,17 @@ Defer re-config ' noop is re-config
 
 also [IFDEF] android jni [THEN]
 : widget-sync ( -- ) rendering @ -2 > ?EXIT
-    level# @ 0> IF
-	?config-changer
-	?lang         IF  top-widget .widget-init +resize +resizeall  THEN
-	?textures     IF  1+config    THEN
-	anims[] $@len IF  animations  THEN
-	top-widget .widgets-redraw
-	[IFDEF] showkb
-	    ?keyboard IF  showkb      THEN
-	[THEN]
-	-textures -lang -keyboard
-    ELSE
-	defers screen-ops
-    THEN ;
-previous
+    ?config-changer
+    ?lang         IF  top-widget .widget-init +resize +resizeall  THEN
+    ?textures     IF  1+config    THEN
+    anims[] $@len IF  animations  THEN
+    top-widget .widgets-redraw
+    [IFDEF] showkb
+	?keyboard IF  showkb      THEN
+    [THEN]
+    -textures -lang -keyboard ;
 
-' widget-sync is screen-ops
+previous
 
 : widgets-looper ( -- )
     0 looper-to# anims[] $@len ?sync or select

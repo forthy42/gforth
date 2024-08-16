@@ -2,7 +2,7 @@
   This is the machine-specific part for ARM processors
 
   Authors: Anton Ertl, Bernd Paysan, David Kühling
-  Copyright (C) 2000,2003,2004,2005,2007,2008,2011,2016,2018,2019 Free Software Foundation, Inc.
+  Copyright (C) 2000,2003,2004,2005,2007,2008,2011,2016,2018,2019,2023 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -52,10 +52,12 @@ R12, R14: caller-saved
 R11: frame pointer
 R13: stack pointer
 */
-/* works with gcc-2.95.2 */
+/* works with gcc-2.95.2, isn't needed for later gccs */
+#if (__GNUC__ < 4)
 #define RPREG asm("r6")
 #define LPREG asm("r7")
 #define FPREG asm("r8")
 #define SPREG asm("r10")
 #define TOSREG asm("r5")
+#endif
 #endif

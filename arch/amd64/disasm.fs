@@ -4,7 +4,7 @@
 \ Copyright (C) 1992-2000 by Bernd Paysan (486 disassembler)
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -452,6 +452,13 @@ $0C flt, bld     $0D flt, ild     $0E flt, bstp    $0F flt, istp
     .sse-suff tab mod@ >r? .ssereg .,
     vex? IF vvvv @ .ssereg ., THEN
     .sseaddr ;
+
+: .sse-mov ( -- )
+     s" q  dqadqu???" rex @ 4 rshift $3 and 3 * /string 3 umin type ;
+: .ssemov ( ip -- ip' )
+    .sse-mov tab mod@ >r? .ssereg ., .sseaddr ;
+: .ssemov2 ( ip -- ip' )
+    .sse-mov tab mod@ >r? >r .sseaddr ., r> .ssereg ;
 : .ssea ( ip -- ip' )
     .sse-suff tab mod@ >r? >r .sseaddr ., r> .ssereg
     vex? IF ., vvvv @ .ssereg  THEN ;
@@ -500,6 +507,9 @@ $FF $58 t, .sse add"              $FF $59 t, .sse mul"
 $FF $5A t, .cvt2 cvt"             $FF $5B t, .cvt3 cvt"
 $FF $5C t, .sse sub"              $FF $5D t, .sse min"
 $FF $5E t, .sse div"              $FF $5F t, .sse max"
+\ !!FIXME!! here is a list of opcodes up to $7F missing
+$FF $6F t, .ssemov mov"
+$FF $7F t, .ssemov2 mov"
 \ !!FIXME!! here is a list of opcodes up to $7F missing
 $FC $70 t, .mmi ps"
 $F0 $80 t, .jl j"                 $F0 $90 t, .set set"

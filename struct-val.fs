@@ -1,7 +1,7 @@
 \ add structure values to Forth 2012 structs
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2014,2016,2017,2018,2019,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2014,2016,2017,2018,2019,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -20,35 +20,33 @@
 
 Defer +field,
 
-: standard+field, ( addr body -- addr' )
-    @ + ;
-opt: drop @ ?dup-IF
-	lits# 0> IF  lits> + >lits
-	ELSE  ['] lit+ peephole-compile, ,  THEN
-    THEN ;
-
 :noname ( -- )
-    defers standard:field ['] standard+field, IS +field, ; is standard:field
+    defers standard:field ['] + IS +field, ; is standard:field
 
 standard:field
 
 \ The xt to create the actual code with is at the second cell
 \ The actual offset in the first cell, which will be used by that code
 \ in the second cell...
-: vfield-int, ( addr body -- addr+offset ) dup cell+ @ execute ;
-: vfield-comp, ( body -- ) dup cell+ @ opt-compile, ;
-: vfield, ( body -- addr )
-    vfield-int, ;
-to-opt: vfield-comp, ;
+: vfield-int, ( addr body xt -- addr+offset ) >r 2@ swap execute r> execute ;
+: vfield-comp, ( body -- ) lits> >r 2@ >lits r> 2compile, ;
 
 : create+value ( n1 addr "name" -- n3 )
     >r r@ 2 cells + perform
     r> 2@ create-from reveal over , + action-of +field, , ;
 
+: field-to:exec ( .. u xt1 xt2 -- .. )
+    rot >r @ r> cells + @ vfield-int, ;
+: field-to:,  ( u xt2 -- )
+    @ swap cells + @ lits> swap >lits vfield-comp, ;
+
+: field-to-class: ( !-table -- )
+    Create , ['] field-to:exec set-does> ['] field-to:, set-optimizer ;
+
 : wrapper-xts ( xt@ !-table "name" -- dummy-xt ) { xt@ xt! }
-    :noname ]] vfield-int, [[ xt@ compile, postpone ; >r \ xt-does
-    :noname ]] vfield-comp, [[ xt@ lit, ]] compile, ; [[ >r \ xt-comp,
-    ['] vfield, xt! noname to-method: latestxt >r \ xt-to
+    :noname xt@ >lits ]] vfield-int, [[ postpone ; >r \ xt-does
+    :noname xt@ >lits ]] >lits vfield-comp, [[ postpone ; >r \ xt-comp,
+    xt! noname field-to-class: latestxt >r \ xt-to
     \ create a dummy word with these methods
     >in @ >r parse-name r> >in ! 2dup + 1- c@ ':' = +
     [: type ." -dummy" ;] $tmp
@@ -70,13 +68,13 @@ opt: drop ]] c@ c>s [[ ;
 : $[]-! ( n addr -- x ) $[] ! ;
 : $[]-+! ( n addr -- x ) $[] +! ;
 
-to-table: w!a-table  w! w+! >body -/-
-to-table: l!a-table  l! l+! >body -/-
-to-table: sf!a-table sf! sf+! >body -/-
-to-table: df!a-table df! df+! >body -/-
-to-table: $!a-table  $! $+! >body -/-
-to-table: $[]!a-table $[]! $[]+! >body -/-
-to-table: $[]-!a-table $[]-! $[]-+! >body -/-
+to-table: w!a-table  w! w+! [noop]
+to-table: l!a-table  l! l+! [noop]
+to-table: sf!a-table sf! sf+! [noop]
+to-table: df!a-table df! df+! [noop]
+to-table: $!a-table  $! $+! [noop]
+to-table: $[]!a-table $[]! $[]+! [noop]
+to-table: $[]-!a-table $[]-! $[]-+! [noop]
 
 [IFUNDEF] !a-table
     !-table >to+addr-table: !a-table
@@ -86,23 +84,45 @@ to-table: $[]-!a-table $[]-! $[]-+! >body -/-
     f!-table >to+addr-table: f!a-table
 [THEN]
 
-cell      ' aligned   ' @   !a-table   wrap+value: value:   ( u1 "name" -- u2 )
-1         ' noop      ' c@  c!a-table  wrap+value: cvalue:  ( u1 "name" -- u2 )
-2         ' waligned  ' w@  w!a-table  wrap+value: wvalue:  ( u1 "name" -- u2 )
-4         ' laligned  ' l@  l!a-table  wrap+value: lvalue:  ( u1 "name" -- u2 )
+cell      ' aligned   ' @   !a-table   wrap+value: value:   ( u1 "name" -- u2 ) \ gforth-experimental
+\G \i{Name} is a varue-flavoured field; in-memory-size: cell; on-stack: cell
+1         ' noop      ' c@  c!a-table  wrap+value: cvalue:  ( u1 "name" -- u2 ) \ gforth-experimental
+\G \i{Name} is a varue-flavoured field; in-memory-size: char; on-stack: unsigned cell
+2         ' waligned  ' w@  w!a-table  wrap+value: wvalue:  ( u1 "name" -- u2 ) \ gforth-experimental
+\G \i{Name} is a varue-flavoured field; in-memory-size: 16 bits; on-stack: unsigned cell
+4         ' laligned  ' l@  l!a-table  wrap+value: lvalue:  ( u1 "name" -- u2 ) \ gforth-experimental
+\G \i{Name} is a varue-flavoured field; in-memory-size: 32 bits; on-stack: unsigned cell
 0 warnings !@
-1         ' noop      ' sc@ c!a-table  wrap+value: scvalue:  ( u1 "name" -- u2 )
-2         ' waligned  ' sw@ w!a-table  wrap+value: swvalue: ( u1 "name" -- u2 )
-4         ' laligned  ' sl@ l!a-table  wrap+value: slvalue: ( u1 "name" -- u2 )
+1         ' noop      ' sc@ c!a-table  wrap+value: scvalue: ( u1 "name" -- u2 ) \ gforth-experimental
+\G \i{Name} is a varue-flavoured field; in-memory-size: char; on-stack: signed cell
+2         ' waligned  ' sw@ w!a-table  wrap+value: swvalue: ( u1 "name" -- u2 ) \ gforth-experimental
+\G \i{Name} is a varue-flavoured field; in-memory-size: 16 bits; on-stack: signed cell
+4         ' laligned  ' sl@ l!a-table  wrap+value: slvalue: ( u1 "name" -- u2 ) \ gforth-experimental
+\G \i{Name} is a varue-flavoured field; in-memory-size: 32 bits; on-stack: signed cell
 warnings ! \ yes, these are obsolete, but they are good that way
-2 cells   ' aligned   ' 2@  2!a-table  wrap+value: 2value:  ( u1 "name" -- u2 )
-1 floats  ' faligned  ' f@  f!a-table  wrap+value: fvalue:  ( u1 "name" -- u2 )
-1 sfloats ' sfaligned ' sf@ sf!a-table wrap+value: sfvalue: ( u1 "name" -- u2 )
-1 dfloats ' dfaligned ' df@ df!a-table wrap+value: dfvalue: ( u1 "name" -- u2 )
-cell      ' aligned   ' $@  $!a-table  wrap+value: $value:  ( u1 "name" -- u2 )
-cell      ' aligned   ' perform defera-table wrap+value: defer: ( u1 "name" -- u2 )
-cell      ' aligned   ' $[]-@ $[]-!a-table wrap+value: value[]: ( u1 "name" -- u2 )
-cell      ' aligned   ' $[]@ $[]!a-table wrap+value: $value[]: ( u1 "name" -- u2 )
+2 cells   ' aligned   ' 2@  2!a-table  wrap+value: 2value:  ( u1 "name" -- u2 ) \ gforth-experimental
+\G \i{Name} is a varue-flavoured field; in-memory-size: 2 cells;
+\G on-stack: 2 cells; @code{+to} performs double-cell addition
+\G (@code{d+}).
+1 floats  ' faligned  ' f@  f!a-table  wrap+value: fvalue:  ( u1 "name" -- u2 ) \ gforth-experimental
+\G \i{Name} is a varue-flavoured field; in-memory-size: float; on-stack: float
+1 sfloats ' sfaligned ' sf@ sf!a-table wrap+value: sfvalue: ( u1 "name" -- u2 ) \ gforth-experimental
+\G \i{Name} is a varue-flavoured field; in-memory-size: 32-bit float; on-stack: float
+1 dfloats ' dfaligned ' df@ df!a-table wrap+value: dfvalue: ( u1 "name" -- u2 ) \ gforth-experimental
+\G \i{Name} is a varue-flavoured field; in-memory-size: 64-bit float; on-stack: float
+[IFDEF] z@
+    1 complex' ' dfaligned ' z@ z!a-table wrap+value: zvalue: ( u1 "name" -- u2 ) \ gforth-experimental
+    \G \i{Name} is a varue-flavoured field; in-memory-size: 2 floats;
+    \G on-stack: 2 floats; \code{+to} performs componentwise addition.
+[THEN]
+cell      ' aligned   ' $@  $!a-table       wrap+value: $value: ( u1 "name" -- u2 ) \ gforth-experimental
+\G \i{Name} is a varue-flavoured field; in-memory-size: cell;
+\G on-stack: c-addr u (@pxref{$tring words}); @code{( c-addr u ) +to
+\G @i{name}} appends c-addr u to the string in the field.
+cell      ' aligned   ' perform defera-table wrap+value: defer: ( u1 "name" -- u2 ) \ gforth-experimental
+\G \i{Name} is a defer-flavoured field
+cell      ' aligned   ' $[]-@ $[]-!a-table wrap+value: value[]: ( u1 "name" -- u2 ) \ gforth-experimental
+cell      ' aligned   ' $[]@ $[]!a-table  wrap+value: $value[]: ( u1 "name" -- u2 ) \ gforth-experimental
 
 0 [IF] \ test
     begin-structure foo
@@ -117,6 +137,10 @@ cell      ' aligned   ' $[]@ $[]!a-table wrap+value: $value[]: ( u1 "name" -- u2
     slvalue: l
     sfvalue: m
     dfvalue: n
+    $value: o
+    defer: p
+    value[]: q
+    $value[]: r
     end-structure
     foo buffer: test
 [THEN]

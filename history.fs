@@ -1,7 +1,7 @@
 \ command line edit and history support                 16oct94py
 
 \ Authors: Bernd Paysan, Anton Ertl, Jens Wilke
-\ Copyright (C) 1995,2000,2003,2004,2005,2006,2007,2008,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,2000,2003,2004,2005,2006,2007,2008,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -227,10 +227,10 @@ Create prefix-found  0 , 0 ,
 
 Defer search-prefix
 : simple-search-prefix  ( addr1 len1 -- addr2 len2 )
-    0 ['] search-order >body $@ bounds cell- swap cell-
-    -DO  I cell- 2@ <>
+    0 ['] search-order >body $@ cell MEM-DO
+        I cell- 2@ <>
         IF  I @ wordlist-id @ swap  search-voc  THEN
-    cell -LOOP
+    LOOP
     prefix-string ;
 ' simple-search-prefix is search-prefix
 

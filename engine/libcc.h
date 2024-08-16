@@ -1,7 +1,7 @@
 /* header file for libcc-generated C code
 
   Authors: Anton Ertl, Bernd Paysan
-  Copyright (C) 2006,2007,2008,2012,2013,2014,2015,2016,2017,2019,2020 Free Software Foundation, Inc.
+  Copyright (C) 2006,2007,2008,2012,2013,2014,2015,2016,2017,2019,2020,2023 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -18,6 +18,10 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see http://www.gnu.org/licenses/.
 */
+
+#ifdef  __cplusplus
+extern "C" {
+#endif
 
 #include "config.h"
 #include <stddef.h>
@@ -97,7 +101,8 @@ extern user_area *gforth_main_UP;
 extern Cell gforth_go(Xt *ip);
 extern void gforth_sigset(sigset_t* set, ...);
 extern void gforth_setstacks(user_area*);
-#define GFORTH_ARGS gforth_stackpointers x, void* cdesc
+  /* #define GFORTH_ARGS gforth_stackpointers x, void* cdesc */
+#define GFORTH_ARGS gforth_stackpointers x
 gforth_stackpointers gforth_libcc_init(GFORTH_ARGS)
 {
   x.spx++;
@@ -127,7 +132,7 @@ gforth_stackpointers gforth_libcc_init(GFORTH_ARGS)
 #define gforth_go ((Cell(*)(Xt*))gforth_pointers(7))
 #define gforth_sigset ((void(*)(sigset_t*, ...))gforth_pointers(8))
 #define gforth_setstacks ((void(*)(user_area*))gforth_pointers(9))
-#define GFORTH_ARGS gforth_stackpointers x, void* a_addr
+#define GFORTH_ARGS gforth_stackpointers x
 
 static Cell *(*gforth_pointers)(Cell);
 gforth_stackpointers gforth_libcc_init(GFORTH_ARGS)
@@ -186,19 +191,19 @@ static void * gforth_strs[0x10] = { 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,
   if(gforth_strs[gforth_strs_i]) free(gforth_strs[gforth_strs_i]); \
   gforth_strs[gforth_strs_i]=(void*)str;
 
-static Char * gforth_str2c(Char* addr, UCell u)
+static __attribute__((unused)) char * gforth_str2c(Char* addr, UCell u)
 {
   if(addr == NULL) {
-    return (Char*)u; // pass direct values
+    return (char*)u; // pass direct values
   } else {
-    ROLLSTR(Char, u+1);
+    ROLLSTR(char, u+1);
     memmove(str, addr, u);
     str[u]='\0'; // add zero terminator
     return str;
   }
 }
 
-static wchar_t * gforth_str2wc(Char* addr, UCell u)
+static __attribute__((unused)) wchar_t * gforth_str2wc(Char* addr, UCell u)
 {
   if(addr == NULL) {
     return (wchar_t*)u;
@@ -241,3 +246,7 @@ static wchar_t * gforth_str2wc(Char* addr, UCell u)
 typedef Char hash_128[16];
 
 #define GFSS 0x80 /* stack sizes */
+
+#ifdef  __cplusplus
+}
+#endif

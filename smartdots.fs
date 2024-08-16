@@ -1,7 +1,7 @@
 \ smart .s                                             09mar2012py
 
 \ Authors: Bernd Paysan, Anton Ertl, Gerald Wodni
-\ Copyright (C) 2012,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2012,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -36,8 +36,9 @@ User smart.s-skip
 	IFERROR  2drop drop false nothrow ELSE  true  THEN  ENDTRY ;
 Create cs? ( addr -- flag )
 defstart , live-orig , dead-orig , dest , do-dest , scopestart ,
-does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
-  cell +LOOP  drop false ;
+does> 6 cell array>mem MEM+DO
+      dup I @ = if  drop true unloop  exit  then
+  LOOP  drop false ;
 
 : .addr. ( addr -- ) dup >r
     [:  dup xt? if
@@ -59,10 +60,10 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
 		then
 	    [ 1 maxaligned ]L -LOOP
 	then
-	hex. ;] catch IF  drop r> hex. nothrow  ELSE  rdrop  THEN ;
+	h. ;] catch IF  drop r> h. nothrow  ELSE  rdrop  THEN ;
 
 : .var. ( addr -- )
-    dup body> >name dup IF  .name drop  ELSE  drop hex.  THEN ;
+    dup body> >name dup IF  .name drop  ELSE  drop h.  THEN ;
 
 : .cs. ( x1 addr -- )
     '<' emit
@@ -78,25 +79,45 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
     ELSE
 	'#' emit dec.  THEN ;
 
-debug: .string.(
+debug: .string.( ( -- ) \ gforth-internal dot-string-dot-paren
+\G this debug switch adds a printout of addr len in parents
+\G to a smart string printout
 
 : .string. ( addr u -- )
     .string.( ." ( " over smart. dup dec. ." ) " )
     \ print address and length of string?
     '"' emit type '"' emit space ;
 
-: smart.s. ( n -- )
-    smart.s-skip @ dup 1- 0 max smart.s-skip ! IF  drop  EXIT  THEN
-    over i' ( r> i swap >r ) - >r \ we access the .s loop counter
-    r@ cs-item-size 1- < IF  false dup  ELSE
-	r@ cs-item-size 2 - - pick dup cs?  THEN
-    IF  .cs.  cs-item-size 1- smart.s-skip !  rdrop  EXIT  THEN  drop
-    r@ 2 < IF  false dup  ELSE  r@ pick  2dup string?  THEN  rdrop
-    IF
-	.string. 1 smart.s-skip !
-    ELSE
-	drop smart.
-    THEN ;
+\ a .s.<matcher> either consumes its data and returns true
+\ or it doesn't, and returns false
+\ The last item in the stack must consume and return true
+
+: .s.skip ( n depth -- t / n f )
+    drop smart.s-skip @ dup 1- 0 max smart.s-skip !
+    0<> dup IF  nip  THEN ;
+: .s.cs ( n depth -- t / n f )
+    dup cs-item-size 1- < IF  drop false EXIT  THEN
+    cs-item-size 2 - - pick dup cs?
+    IF  .cs.  cs-item-size 1- smart.s-skip !  true  EXIT  THEN
+    drop false ;
+: .s.string ( addr depth -- t / addr f )
+    dup 2 < IF  drop false  EXIT  THEN
+    pick  2dup string?
+    IF  .string. 1 smart.s-skip ! true EXIT THEN
+    drop false ;
+: .s.smart ( n depth -- t )
+    drop smart. true ;
+
+\ This is actually a sequence, so the top of stack is executed last
+10 stack: smart<>
+
+' .s.skip ' .s.cs ' .s.string ' .s.smart 4 smart<> set-stack
+
+: smart.s. ( total n -- total )
+    over r> i swap >r - { dpth } \ i is the loop index of the calling .s
+    smart<> $@ cell MEM+DO
+	dpth I perform ?LEAVE
+    LOOP ;
 
 : wrap-xt {: xt1 xt2 xt: xt3 -- ... :} \ gforth
     \G Set deferred word xt2 to xt1 and execute xt3.
@@ -109,10 +130,13 @@ debug: .string.(
     throw ;
 
 : ... ( x1 .. xn -- x1 .. xn ) \ gforth
+    \G smart version of @code{.s}
+    0 first-throw !@ >r
     smart.s-skip off
     ['] smart.s. ['] .s. ['] .s wrap-xt
     fdepth IF
-	cr ." F:" f.s THEN ;
+	cr ." F:" f.s THEN
+    r> first-throw ! ;
 
 ' ... IS printdebugdata
 

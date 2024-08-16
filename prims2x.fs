@@ -1,7 +1,7 @@
 \ converts primitives to, e.g., C code 
 
 \ Authors: Anton Ertl, Bernd Paysan, Jens Wilke
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2009,2010,2011,2013,2015,2017,2019,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2009,2010,2011,2013,2015,2017,2019,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -98,6 +98,7 @@ variable out-nls \ newlines in output (for output sync lines)
 0 out-nls !
 variable store-optimization \ use store optimization?
 store-optimization off
+wordlist constant prim-killregs \ only kill the regs for these primitives
 
 variable include-skipped-insts
 \ does the threaded code for a combined instruction include the cells
@@ -215,15 +216,22 @@ create stacks max-stacks cells allot \ array of stacks
 256 constant max-registers
 create registers max-registers cells allot \ array of registers
 variable nregisters 0 nregisters ! \ number of registers
+0 value stack-cache-regs \ numer of data stack registers used for stack caching
 variable next-state-number 0 next-state-number ! \ next state number
-0 value ip-offset \ length of a primitive/combined in cells
-                  \  for offsetting on immediate accesses
+0 value ip-offset1 \ length of a primitive/combined in cells
+                   \  for offsetting on immediate accesses
+0 value ip-offset \ number of cells between the last ip update and the
+                  \ current primitive, for primitive variants that
+                  \ are to be compiled with a lagging ip.
+24 value max-ip-offset
+0 value branch-to-ip \ 1 when generating branch variants that branch to ip
 
 : stack-in-index ( in-size item -- in-index )
     item-offset @ - 1- ;
 
 : inst-in-index ( in-size item -- in-index )
-    nip dup item-offset @ swap item-type @ type-size @ + ip-offset - ;
+    nip dup item-offset @ swap item-type @ type-size @ +
+    ip-offset1 - ip-offset + ;
 
 : make-stack ( addr-ptr u1 type "stack-name" -- )
     next-stack-number @ max-stacks < s" too many stacks" ?print-error
@@ -288,10 +296,11 @@ struct%
     cell% max-stacks * field prim-stacks-in  \ number of in items per stack
     cell% max-stacks * field prim-stacks-out \ number of out items per stack
     cell% max-stacks * field prim-stacks-sync \ sync flag per stack
+    cell%    field prim-superend \ this prim ends a dynamic superinstruction
 end-struct prim%
 
 : make-prim ( -- prim )
-    prim% %alloc { p }
+    prim% %alloc { p } p prim% nip erase
     s" " p prim-doc 2! s" " p prim-forth-code 2! s" " p prim-wordset 2!
     p ;
 
@@ -734,7 +743,8 @@ stack inst-stream IP Cell
 : make-register ( type addr u -- )
     \ define register with type TYPE and name ADDR U.
     nregisters @ max-registers < s" too many registers" ?print-error
-    2dup nextname create register% %allot dup
+    2dup nextname create here registers nregisters @ th !
+    register% %allot dup
     >r register-name 2!
     r@ register-type !
     nregisters @ r@ register-number !
@@ -804,6 +814,16 @@ stack inst-stream IP Cell
     prim prim-effect-out prim prim-effect-out-end @ ['] compute-offset-out map-items
     inst-stream stack-out @ 0= s" # can only be on the input side" ?print-error ;
 
+: prim-branch? { prim -- f }
+    \ true if prim is a branch or super-end
+    prim prim-c-code 2@  s" SET_IP" search nip nip 0<> ;
+
+: compute-superend ( -- )
+    prim prim-branch?
+    prim prim-c-code 2@  s" SUPER_END" search nip nip 0<> or
+    prim prim-c-code 2@  s" SUPER_CONTINUE" search nip nip 0= and
+    prim prim-superend ! ;
+
 : init-simple { prim -- }
     \ much of the initialization is elsewhere
     ['] clear-prim-stacks-sync map-stacks ;
@@ -811,7 +831,7 @@ stack inst-stream IP Cell
 : process-simple ( -- )
     prim prim { W^ key } key cell
     combinations ['] constant insert-wordlist
-    declarations compute-offsets
+    compute-superend declarations compute-offsets
     output @ execute ;
 
 : stack-state-items ( stack state -- n )
@@ -845,6 +865,20 @@ stack inst-stream IP Cell
 : spill-state ( -- )
     ['] spill-stack map-stacks1 ;
 
+1 constant data-stack#
+
+: kill-regs ( -- )
+    \ kill stack-cache registers that are dead in state-out.  This
+    \ means that the C compiler does not consider these registers
+    \ alive in the primitive after the primitive last reads them;
+    \ particularly relevant for primitives with calls.  !! specific to
+    \ the simple stack-cache organization with only the data stack.
+    prim prim-name 2@ prim-killregs search-wordlist if
+        stack-cache-regs state-out state-sss data-stack# th @ ss-offset @ 1+ +do
+            ." KILL(" registers i th @ register-name 2@ type ." );" cr
+        loop
+    then ;
+
 : fill-stack-items { stack -- u }
     \ there are u items to fill in stack
     stack unused-stack-items
@@ -864,8 +898,11 @@ stack inst-stream IP Cell
     loop ;
 
 : fill-state ( -- )
+    \ load stack items if necessary
+    \ also kills stack-cache registers that are dead in state-out
     \ !! inst-stream for prefetching?
-    ['] fill-stack map-stacks1 ;
+    ['] fill-stack map-stacks1
+    kill-regs ;
 
 : fetch ( addr -- )
     dup item-type @ type-fetch @ execute ;
@@ -913,12 +950,15 @@ stack inst-stream IP Cell
     0 r> execute - ;
 
 : update-stack-pointer { stack n -- }
-    n if \ this check is not necessary, gcc would do this for us
+    n stack inst-stream = if
+        1+ then \ the cell of the instruction itself
+    { n1 }
+    n1 if \ this check is not necessary, gcc would do this for us
         stack inst-stream = if
-            ." ip += " n 0 .r ." ;" cr
+            ." ip += " n1 0 .r ." ;" cr
         else
             stack stack-pointer 2@ type ."  += "
-	    n stack stack-update-transform 0 .r ." ;" cr
+	    n1 stack stack-update-transform 0 .r ." ;" cr
 	endif
     endif ;
 
@@ -941,14 +981,31 @@ stack inst-stream IP Cell
     endif ;
 
 
-defer ip-update ( -- )
 : ip-update1 ( -- )
-    ." ip++; " \ skip the cell of the instruction itself
     inst-stream stack-pointer-update \ skip the other cells
-    inst-stream stack-diff 1+ to ip-offset ;
+    inst-stream stack-diff 1+ to ip-offset1 ;
+
+defer ip-update
 ' ip-update1 is ip-update
 
+: ip-update-early ( -- )
+    \ ip-update at the start of a prim (possibly not copied into a superinst)
+    ip-update ;
+
+: ip-update-offset ( -- )
+    \ update by ip-offset
+    ip-offset 0<> if
+        ." ip += " ip-offset 0 .r ." ;" cr
+    then ;
+
+: ip-update-middle ( -- )
+    \ ip update in the middle of a prim (by ip-offset)
+    prim prim-superend @ if
+        ip-update-offset
+    then ;
+
 : stack-pointer-updates ( -- )
+    ip-update-middle
     ['] stack-pointer-update map-stacks1 ;
 
 : stack-pointer-update2 { stack -- }
@@ -1103,13 +1160,18 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 	bounds ?DO  I c@ dup '* = IF  drop 'x  THEN  emit  LOOP
     ELSE  type  THEN ;
 
+: .ip-offset ( -- )
+    ip-offset if
+        ."  ip-offset=" ip-offset .
+    then ;
+
 : output-c ( -- )
     print-entry ."  /* " prim prim-name 2@ prim-type
     ."  ( " prim prim-stack-string 2@ type ." ) "
-    state-in .state ." -- " state-out .state ."  */" cr
+    state-in .state ." -- " state-out .state .ip-offset ."  */" cr
     ." /* " prim prim-doc 2@ type ."  */" cr
     ." NAME(" quote prim prim-name 2@ type quote ." )" cr \ debugging
-    ip-update
+    ip-update-early
     print-label1
     ." {" cr
     ." DEF_CA" cr
@@ -1195,16 +1257,10 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     endif
     ." }" cr ;
 
-: prim-branch? { prim -- f }
-    \ true if prim is a branch or super-end
-    prim prim-c-code 2@  s" SET_IP" search nip nip 0<> ;
-
 : output-superend ( -- )
     \ output flag specifying whether the current word ends a dynamic superinst
-    prim prim-branch?
-    prim prim-c-code 2@  s" SUPER_END" search nip nip 0<> or
-    prim prim-c-code 2@  s" SUPER_CONTINUE" search nip nip 0= and
-    negate 0 .r ." , /* " prim prim-name 2@ prim-type ."  */" cr ;
+    prim prim-superend @ negate 0 .r
+    ." , /* " prim prim-name 2@ prim-type ."  */" cr ;
 
 : gen-arg-parm { item -- }
     item item-stack @ inst-stream = if
@@ -1520,18 +1576,60 @@ variable reprocessed-num 0 reprocessed-num !
     new-name prim prim-c-name 2!
     output @ execute ;
 
+defer reprocess-prim
+' reprocess-simple is reprocess-prim
+
 : lookup-prim ( c-addr u -- prim )
     primitives search-wordlist 0= -13 and throw execute ;
 
-: state-prim1 { in-state out-state prim -- }
-    in-state out-state state-default dup d= ?EXIT
+: state-prim2 { in-state out-state prim -- }
     in-state state-enabled? out-state state-enabled? and 0= ?EXIT
     in-state  to state-in
     out-state to state-out
-    prim reprocess-simple ;
+    prim reprocess-prim ;
+
+: state-prim1 { in-state out-state prim -- }
+    in-state out-state state-default dup d= ?EXIT
+    in-state out-state prim state-prim2 ;
 
 : state-prim ( in-state out-state "name" -- )
     parse-word lookup-prim state-prim1 ;
+
+\ state-offset-prim (for, e.g., ?BRANCH)
+
+: ip-offset-prim { noffset prim -- }
+    noffset to ip-offset
+    prim reprocess-simple
+    0 to ip-offset ;
+
+: gen-prim-offsets { prim -- }
+    max-ip-offset 0 ?do
+        i prim ip-offset-prim
+    loop ;
+
+: state-offset-prim { in-state out-state --  }
+    \ also consumes "name"
+    parse-word lookup-prim { prim }
+    ['] reprocess-prim defer@
+    ['] gen-prim-offsets is reprocess-prim
+    in-state out-state prim state-prim2
+    ['] reprocess-prim defer! ;
+
+\ gen-ip-updates (using "noop" as prim)
+
+: gen-ip-update { n prim -- }
+    action-of ip-update
+    n to ip-offset
+    ['] ip-update-offset is ip-update
+    state-default dup prim state-prim2
+    0 to ip-offset
+    is ip-update ;
+
+: gen-ip-updates ( "prim" -- )
+    parse-word lookup-prim { prim }
+    max-ip-offset dup negate ?do
+        i prim gen-ip-update
+    loop ;
 
 \ reprocessing with default states
 
@@ -1560,6 +1658,25 @@ variable reprocessed-num 0 reprocessed-num !
 
 : prim-states ( "name" -- )
     parse-word lookup-prim gen-prim-states ;
+
+\ doesn't work yet: stack caching for super instructions
+\ : lookup-combinations ( c-addr u -- prim )
+\     combined-prims num-combined @ cells
+\     combinations search-wordlist 0= -13 and throw execute ;
+
+\ : super-states ( "name1" .. "name_n" -- )
+\     0 num-combined !
+\     BEGIN  parse-word dup  WHILE  add-prim  REPEAT  2drop
+\     lookup-combinations gen-prim-states ;
+
+: gen-prim-states-offsets { prim -- }
+    ['] reprocess-prim defer@
+    ['] gen-prim-offsets is reprocess-prim
+    prim gen-prim-states
+    ['] reprocess-prim defer! ;
+
+: prim-states-offsets ( "name" -- )
+    parse-word lookup-prim gen-prim-states-offsets ;    
 
 : gen-branch-states ( prim -- )
     \ generate versions that produce state-default; useful for branches
@@ -1649,7 +1766,7 @@ variable reprocessed-num 0 reprocessed-num !
 : output-c-combined ( -- )
     print-entry cr
     \ debugging messages just in parts
-    ip-update
+    ip-update-early
     print-label1
     ." {" cr
     ." DEF_CA" cr
@@ -1739,28 +1856,28 @@ variable reprocessed-num 0 reprocessed-num !
 
 variable offset-super2  0 offset-super2 ! \ offset into the super2 table
 
-: output-costs-prefix ( -- )
+: output-costs1 { d: super2indexstring nlength -- }
     ." {" prim compute-costs
     rot 2 .r ." ," swap 2 .r ." ," 2 .r ." , "
     prim prim-branch? negate . ." ,"
     state-in  state-number @ 2 .r ." ,"
     state-out state-number @ 2 .r ." ,"
     inst-stream stack-in @ 1 .r ." ,"
-;
+    ip-offset 2 .r ." ,"
+    super2indexstring type ." ,"
+    nlength 2 .r ." ,"
+    branch-to-ip 2 .r
+    ." },"
+    output-name-comment
+    cr ;
 
 : output-costs-gforth-simple ( -- )
-    output-costs-prefix
-    prim output-num-part
-    1 2 .r ." },"
-    output-name-comment
-    cr ;
+    s" N_" prim prim-c-name-orig 2@ s+ 1 output-costs1 ;
 
 : output-costs-gforth-combined ( -- )
-    output-costs-prefix
-    ." N_START_SUPER+" offset-super2 @ 5 .r ." ,"
-    super2-length dup 2 .r ." }," offset-super2 +!
-    output-name-comment
-    cr ;
+    offset-super2 @ 0
+    <<# #s s" N_START_SUPER+" holds #> super2-length output-costs1 #>>
+    super2-length offset-super2 +! ;
 
 \  : output-costs ( -- )
 \      \ description of superinstructions and simple instructions

@@ -1,7 +1,7 @@
 \ lib.fs	shared library support package 		16aug03py
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2006,2007,2008,2009,2013,2015,2016,2017,2019,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2006,2007,2008,2009,2013,2015,2016,2017,2019,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -33,7 +33,7 @@ c-library fflib
     \c static long long llrv;
     \c static void * prv;
     \c 
-    \c void gforth_callback_ffcall(Xt* fcall, void * alist)
+    \c void gforth_callback_ffcall(void * fcall, va_alist alist)
     \c {
     \c   {
     \c     /* save global variables */
@@ -131,8 +131,8 @@ c-function va-return-double1 va_return_double1 r -- void
 end-c-library
 
 : av-int-r      2r> >r av-int ;
-: av-float-r    f@local0 lp+ av-float ;
-: av-double-r   f@local0 lp+ av-double ;
+: av-float-r    0 f@localn lp+ av-float ;
+: av-double-r   0 f@localn lp+ av-double ;
 : av-longlong-r r> 2r> rot >r av-longlong ;
 : av-ptr-r      2r> >r av-ptr ;
 : va-return-void      va-return-void1     0 (bye) ;

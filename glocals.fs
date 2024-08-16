@@ -1,7 +1,7 @@
 \ A powerful locals implementation
 
 \ Authors: Anton Ertl, Bernd Paysan, Jens Wilke, Neal Crook
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2007,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2007,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -90,21 +90,52 @@ require sections.fs
 User locals-size \ this is the current size of the locals stack
 		 \ frame of the current word
 
+\ optimize @localn and !localn
+
+: optimizes ( xt "name" -- )
+    \ xt is optimizer of "name"
+    ' make-latest set-optimizer ;
+
+: xts, ( "name1" .. "namen" -- )
+    BEGIN  parse-name  dup WHILE  rec-nt '-error ,  REPEAT  2drop ;
+    
+: opt-table: ( unit -- )
+    Create 0 , , xts,
+    here latestxt dup >r 2 cells + - cell/ r> !
+    DOES> ( xt table -- )
+    >r lits# 1 u>= if
+        lits> dup r@ cell+ @ /mod swap 0= over r@ @ u< and if
+            cells r> 2 cells + + @ compile, 2drop exit then
+	drop >lits then
+    rdrop peephole-compile, ;
+
+cell opt-table: opt-@localn @local0 @local1 @local2 @local3 @local4 @local5 @local6 @local7 
+latestxt optimizes @localn
+
+cell opt-table: opt-!localn !local0 !local1 !local2 !local3 !local4 !local5 !local6 !local7
+latestxt optimizes !localn
+
+\ peephole optimizer enabled 2compile,
+
+$Variable peephole-opts
+
+: 2compile, ( xt1 xt2 -- )
+    \G compile sequence of xt1 xt2, and apply peephole optimization
+    peephole-opts $@ bounds ?DO
+	2dup I 2@ d= IF
+	    2drop I 2 cells + @ opt-compile,  UNLOOP  EXIT
+	THEN
+    3 cells +LOOP
+    >r opt-compile, r> compile, ;
+
+\ compile locals with offset n
+
 : compile-@local ( n -- ) \ gforth-internal compile-fetch-local
- case
-    0       of postpone @local0 endof
-    1 cells of postpone @local1 endof
-    2 cells of postpone @local2 endof
-    3 cells of postpone @local3 endof
-   ( otherwise ) dup postpone @local# ,
- endcase ;
+    \ n is the offset from LP
+    lit, postpone @localn ;
 
 : compile-f@local ( n -- ) \ gforth-internal compile-f-fetch-local
- case
-    0        of postpone f@local0 endof
-    1 floats of postpone f@local1 endof
-   ( otherwise ) dup postpone f@local# ,
- endcase ;
+    lit, postpone f@localn ;
 
 \ locals stuff needed for control structures
 
@@ -114,7 +145,7 @@ User locals-size \ this is the current size of the locals stack
     else -1 cells  over = if postpone lp-
     else  1 floats over = if postpone lp+
     else  2 floats over = if postpone lp+2
-    else postpone lp+!# dup ,
+    else dup lit, postpone lp+!
     then then then then drop ;
 
 : adjust-locals-size ( n -- ) \ gforth-internal
@@ -135,10 +166,12 @@ vocabulary locals \ this contains the local variables
 slowvoc !
 
 : no-post -48 throw ;
+Defer locals-post,
 
 ' translate-nt >body 2@ swap
-' no-post
-translate: translate-locals ( takes nt, i.e. result of find-name and find-name-in )
+' locals-post,
+translate: translate-locals
+\G translate locals, which postpone to their value as literal
 
 : locals-rec [ ' locals >wordlist ] Literal execute
     dup ['] translate-nt = IF  drop ['] translate-locals  THEN ;
@@ -157,6 +190,9 @@ translate: translate-locals ( takes nt, i.e. result of find-name and find-name-i
 
 : alignlp-f ( n1 -- n2 )
     faligned dup adjust-locals-size ;
+
+: maxalign-lp ( -- )
+    locals-size @ alignlp-f locals-size ! ;
 
 \ a local declaration group (the braces stuff) is compiled by calling
 \ the appropriate compile-pushlocal for the locals, starting with the
@@ -281,29 +317,38 @@ Defer locals-list!
     ['] create-local1 locals-headers
     r> is xt-location ;
 
+\ offset calculation
+
 : lp-offset ( n1 -- n2 )
 \ converts the offset from the frame start to an offset from lp and
 \ i.e., the address of the local is lp+locals_size-offset
   locals-size @ swap - ;
 
-: lp-offset, ( n -- )
-\ converts the offset from the frame start to an offset from lp and
-\ adds it as inline argument to a preceding locals primitive
-  lp-offset , ;
+: laddr#, ( n -- )
+    \ for local with offset n from frame start, compile the address
+    lp-offset postpone literal postpone lp+n ;
+
+\ specialized to-class:
+
+: locals-to:exec ( .. u xt1 xt2 -- .. )
+    -14 throw ;
+: locals-to:,  ( u lits:xt2 table-addr -- )
+    @ swap cells + @ lits> @ lp-offset >lits ['] lp+n swap 2compile, ;
+
+: locals-to-class: ( !-table -- )
+    Create , ['] locals-to:exec set-does> ['] locals-to:, set-optimizer ;
 
 : c+! ( c addr -- ) dup >r c@ + r> c! ;
 : 2+! ( d addr -- ) dup >r 2@ d+ r> 2! ;
 
 to-table: 2!-table 2! 2+!
 to-table: c!-table c! c+!
-: laddr, ( lit:xt -- ) -14 throw ;
-opt: ( lit:xt xt -- ) ?fold-to postpone laddr# >body @ lp-offset, ;
 
-' laddr, !-table to-method: to-w:
-' laddr, defer-table to-method: to-xt:
-' laddr, 2!-table to-method: to-d:
-' laddr, c!-table to-method: to-c:
-' laddr, f!-table to-method: to-f:
+!-table locals-to-class: to-w:
+defer-table locals-to-class: to-xt:
+2!-table locals-to-class: to-d:
+c!-table locals-to-class: to-c:
+f!-table locals-to-class: to-f:
 
 : val-part-off ( -- ) val-part off ;
 
@@ -324,7 +369,7 @@ locals-types definitions
     create-local
     ['] compile-pushlocal-w
   does> ( Compilation: -- ) ( Run-time: -- w )
-    postpone laddr# @ lp-offset, ;
+    @ laddr#, ;
 
 : F: ( compilation "name" -- a-addr xt; run-time r -- ) \ gforth f-colon
     \G Define value-flavoured float local @i{name} @code{( -- r1 )}
@@ -342,7 +387,7 @@ locals-types definitions
     create-local ['] to-d: set-to
     ['] compile-pushlocal-d
   does> ( Compilation: -- ) ( Run-time: -- x3 x4 )
-    postpone laddr# @ lp-offset, postpone 2@ ;
+    @ laddr#, postpone 2@ ;
 
 : D^ ( compilation "name" -- a-addr xt; run-time x1 x2 -- ) \ gforth d-caret
     \G Define variable-flavoured double local @i{name} @code{( -- a-addr )}
@@ -353,7 +398,7 @@ locals-types definitions
     create-local ['] to-c: set-to
     ['] compile-pushlocal-c
   does> ( Compilation: -- ) ( Run-time: -- c1 )
-    postpone laddr# @ lp-offset, postpone c@ ;
+    @ laddr#, postpone c@ ;
 
 : C^ ( compilation "name" -- a-addr xt; run-time c -- ) \ gforth c-caret
     \G Define variable-flavoured char local @i{name} @code{( -- c-addr )}
@@ -444,7 +489,7 @@ locals-types definitions
 	execute
     repeat
     drop hm,
-    locals-size @ alignlp-f locals-size ! \ the strictest alignment
+    maxalign-lp
     set-current lastnt ! last !
     hmrestore
     activate-locals ;
@@ -534,23 +579,11 @@ forth definitions
 \   ...
 \ UNTIL
 
-\ In this case x is defined before the use, and the definition dominates
-\ the use, but the compiler does not know this until it processes the
-\ UNTIL. So what should the compiler assume does live at the BEGIN, if
-\ the BEGIN is not a control flow join? The safest assumption would be
-\ the intersection of all locals lists on the control flow
-\ stack. However, our compiler assumes that the same variables are live
-\ as on the top of the control flow stack. This covers the following case:
-
-\ { x }
-\ AHEAD
-\ BEGIN
-\   x
-\ [ 1 CS-ROLL ] THEN
-\   ...
-\ UNTIL
-
-\ If this assumption is too optimistic, the compiler will warn the user.
+\ In this case x is defined before the use, and the definition
+\ dominates the use, but the compiler does not know this until it
+\ processes the UNTIL. So what should the compiler assume does live at
+\ the BEGIN, if the BEGIN is not a control flow join?  See the
+\ documentation for our current approach.
 
 \ Implementation:
 
@@ -604,7 +637,7 @@ is adjust-locals-list
 : (then-like) ( orig -- )
     dead-orig =
     if
-	>resolve 2drop
+	>resolve 2drop after-cs-pop
     else
         dead-code @
         if
@@ -724,6 +757,12 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
 	2drop
     endif ;
 
+also locals-types
+: noname-w: ( -- n )
+    \ generate local; its offset is n
+    POSTPONE { 0 0 nextname W: latestxt >r } r> @ ;
+previous
+
 [ifundef] >extra
     : >extra ( nt -- addr )
         >namehm @ >hmextra ;
@@ -750,7 +789,6 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
     REPEAT
     drop 0 (local) ; immediate restrict
 
-
 \ POSTPONEing locals
 
 :noname ( locals-nt -- )
@@ -760,7 +798,17 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
 	[ ' some-flocal  >does-code ] literal of name-compsem postpone flit, endof
 	[ ' some-wlocal  >does-code ] literal of name-compsem postpone lit, endof
 	[ ' some-xtlocal >does-code ] literal of >body @ lp-offset compile-@local postpone compile, endof
-	[ ' some-waddr   >does-code ] literal of no-post   endof
-	>r lit, postpone name-compsem r>
-    endcase ;
-' translate-locals >body 2 cells + ! \ replace stub
+	no-post
+    endcase ; is locals-post,
+' locals-post, ' translate-locals >body 2 cells + ! \ replace stub
+
+\ we define peephole using locals, so it needs to be here
+
+: peephole ( xt1 xt2 "name" -- )
+    {: | xts[ 3 cells ] :}
+    xts[ 2! ' xts[ 2 cells + !
+    xts[ 3 cells peephole-opts $+! ;
+
+' lp+n ' @ peephole @localn
+' lp+n ' ! peephole !localn
+' lp+n ' +! peephole +!localn

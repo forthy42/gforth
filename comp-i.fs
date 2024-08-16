@@ -1,7 +1,7 @@
 \ Compare nonrelocatable images and produce a relocatable image
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 1996,1997,1998,2002,2003,2004,2007,2010,2012,2013,2015,2016,2017,2019,2021 Free Software Foundation, Inc.
+\ Copyright (C) 1996,1997,1998,2002,2003,2004,2007,2010,2012,2013,2015,2016,2017,2019,2021,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -100,9 +100,9 @@ drop
 0 Value lbase  0 Value loffset
 
 : set-image-offsets ( -- )
-    ."  code" 14 cells 26 cells image-data to coffset to cbase
-    ."    xt" 15 cells 22 cells image-data to xoffset to xbase
-    ." label" 16 cells 18 cells image-data to loffset to lbase ;
+    ."  code" 17 cells 26 cells image-data to coffset to cbase
+    ."    xt" 18 cells 22 cells image-data to xoffset to xbase
+    ." label" 19 cells 18 cells image-data to loffset to lbase ;
 
 : alloc-reloc-bits ( size -- )
     reloc-bits ?dup-IF  free throw  THEN

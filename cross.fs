@@ -2,7 +2,7 @@
 \ Idea and implementation: Bernd Paysan (py)
 
 \ Authors: Bernd Paysan, Anton Ertl, Jens Wilke, David Kühling, Neal Crook
-\ Copyright (C) 1995,1996,1997,1998,1999,2000,2003,2004,2005,2006,2007,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,1999,2000,2003,2004,2005,2006,2007,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -90,7 +90,7 @@ H
 
 : bl-word ( -- addr )
     parse-name here place here ;
-: defined? bl-word find nip ;
+: defined? parse-name find-name 0<> ;
 defined? emit-file defined? toupper and \ drop 0
 [IF]
 \ use this in a gforth system
@@ -107,7 +107,7 @@ defined? emit-file defined? toupper and \ drop 0
 [IF]
 : \G postpone \ ; immediate
 : rdrop postpone r> postpone drop ; immediate
-: name bl-word count ;
+: parse-name bl-word count ;
 : bounds over + swap ;
 : scan >r BEGIN dup WHILE over c@ r@ <> WHILE 1 /string REPEAT THEN rdrop ;
 : linked here over @ , swap ! ;
@@ -316,7 +316,7 @@ hex
 \G The next word in the input is a target word.
 \G Equivalent to T <name> but without permanent
 \G switch to target dictionary. Used as prefix e.g. for @, !, here etc.
-  bl-word count [ ' target >wordlist ] Literal search-wordlist
+  parse-name [ ' target >wordlist ] Literal search-wordlist
   IF state @ IF compile, ELSE execute THEN
   ELSE	-1 ABORT" Cross: access method not supported!"
   THEN ; immediate
@@ -355,12 +355,12 @@ set-order previous
 : D? ( <name> -- flag )
 \G return true if debug flag is defined or switched on
 \G while compiling we do not return the current value but
-  bl-word count debug? ;
+  parse-name debug? ;
 
 : [d?]
 \G compile the value-xt so the debug flag can be switched
 \G the flag must exist!
-  bl-word count debugflags-wl search-wordlist
+  parse-name debugflags-wl search-wordlist
   IF 	compile,
   ELSE  -1 ABORT" unknown debug flag"
 	\ POSTPONE false 
@@ -466,7 +466,7 @@ sourcepath value fpath
 
 : path+ ( path-addr  "dir" -- ) \ gforth
     \G Add the directory @var{dir} to the search path @var{path-addr}.
-    name rot also-path ;
+    parse-name rot also-path ;
 
 : fpath+ ( "dir" ) \ gforth
     \G Add directory @var{dir} to the Forth search path.
@@ -474,7 +474,7 @@ sourcepath value fpath
 
 : path= ( path-addr "dir1|dir2|dir3" ) \ gforth
     \G Make a complete new search path; the path separator is |.
-    name 2dup bounds ?DO i c@ '|' = IF 0 i c! THEN LOOP
+    parse-name 2dup bounds ?DO i c@ '|' = IF 0 i c! THEN LOOP
     rot only-path ;
 
 : fpath= ( "dir1|dir2|dir3" ) \ gforth
@@ -648,9 +648,9 @@ false DebugFlag showincludedfiles
 	ELSE	included1
 	THEN ;
 
-: include bl-word count included ;
+: include parse-name included ;
 
-: require bl-word count required ;
+: require parse-name required ;
 
 0 [IF]
 
@@ -730,7 +730,7 @@ Variable comp-state
   ['] pi-undefined , \ target plugin action
   8765 ,     \ plugin magic
 [IFDEF] set-to
-  ['] value-to set-to
+  ['] defer-is set-to
 [THEN]
   DOES> perform ;
 
@@ -998,7 +998,7 @@ ghosts-wordlist Value current-ghosts
   \ restore current
   r> set-current
   here (ghostheader)
-  bl-word count string, align
+  parse-name string, align
   space>
   \ set ghost-xt field by doing a search
   dup >ghost-name count 
@@ -1138,7 +1138,7 @@ Variable reuse-ghosts reuse-ghosts off
 
 : HeaderGhost ( "name" -- ghost )
   >in @ 
-  bl-word count 
+  parse-name 
 \  2dup type space
   current-ghosts search-wordlist
   IF  >body dup undefined? reuse-ghosts @ or
@@ -1211,8 +1211,7 @@ Ghost 2drop drop
 Ghost 2dup drop
 Ghost call drop
 Ghost @ drop
-Ghost useraddr drop
-Ghost user@ drop
+Ghost up@ drop
 Ghost execute drop
 Ghost + drop
 Ghost decimal drop
@@ -1265,13 +1264,13 @@ Variable env-current
 : e? ( "name" -- x )
 \G returns the content of environment variable. 
 \G The variable is expected to exist. If not, issue an error.
-   bl-word count T environment? H 
+   parse-name T environment? H 
    0= ABORT" environment variable not defined!" ;
 
 : has? ( "name" --- x | false )
 \G returns the content of environment variable 
 \G or false if not present
-   bl-word count T $has? H ;
+   parse-name T $has? H ;
 
 
 >ENVIRON get-order get-current swap 1+ set-order
@@ -1432,7 +1431,7 @@ Variable mirrored-link          \ linked list for mirrored regions
 	over ( startaddr ) , ( length ) , ( dp ) ,
 	region-link linked 0 , 0 , 0 , 0 , 
         ['] uninitialized ,
-        bl-word count string,
+        parse-name string,
   ELSE	\ store new parameters in region
         bl-word drop
 	>body (region)
@@ -1835,7 +1834,9 @@ T has? relocate H
     dup cfalign+ + ;
 
 : @  ( taddr -- w )     >image S@ ;
+: d@  ( taddr -- d )    >image DS@ ;
 : !  ( w taddr -- )     >ramimage S! ;
+: d!  ( d taddr -- )    >ramimage DS! ;
 : c@ ( taddr -- char )  >image Sc@ ;
 : c! ( char taddr -- )  >ramimage Sc! ;
 : 2@ ( taddr -- x1 x2 ) T dup cell+ @ swap @ H ;
@@ -1847,6 +1848,7 @@ T has? relocate H
 : here  ( -- there )    there ;
 : allot ( n -- )        tdp +! ;
 : ,     ( w -- )        T here H tcell T allot  ! H ;
+: d,    ( d -- )        T here H tcell T allot d! H ;
 : c,    ( char -- )     T here H tchar T allot c! H ;
 : >align ( n -- )       0 ?DO  bl T c, H tchar +LOOP ;
 : align ( -- )          T here H align+ T >align H ;
@@ -1858,6 +1860,8 @@ T has? relocate H
 : A!                    swap >address swap dup relon T ! H ;
 : A,    ( w -- )        >address T here H relon T , H ;
 : V,    ( w -- )        >address T here H reloff T , H ;
+: dA,   ( d -- )        >address T here H relon T d, H ;
+: dV,   ( d -- )        >address T here H reloff T d, H ;
 
 \ high-level ghosts
 
@@ -2509,7 +2513,7 @@ Variable last-prim-ghost
 : asmprimname, ( ghost -- : name ) 
   dup last-prim-ghost !
   >r
-  here bl-word count string, r@ >asm-name !
+  here parse-name string, r@ >asm-name !
   aprim-nr @ r> >asm-dummyaddr ! ;
 
 Defer setup-prim-semantics
@@ -2528,7 +2532,7 @@ Defer setup-prim-semantics
   >in @ skip? IF  2drop  EXIT  THEN  >in !
   dup 0< s" prims" T $has? H 0= and
   IF
-      .sourcepos ." needs doer: " >in @ bl-word count type >in ! cr
+      .sourcepos ." needs doer: " >in @ parse-name type >in ! cr
   THEN
   Ghost
   tuck swap resolve-noforwards <do:> swap >magic ! ;
@@ -2537,7 +2541,7 @@ Ghost prim-dummy Constant prim-ghost
 
 Variable prim#
 : first-primitive ( n -- )  prim# ! ;
-: group 0 word drop prim# @ 1- -$200 and prim# ! ;
+: group 0 parse 2drop prim# @ 1- -$200 and prim# ! ;
 : groupadd  ( n -- )  drop ;
 : #primitive ( n "name" -- )
   prim-ghost executed-ghost !
@@ -2547,7 +2551,7 @@ Variable prim#
   dup >ghost-flags <primitive> set-flag
   s" EC" T $has? H 0=
   IF
-      T here H resolve-noforwards $8000 xor cfa,
+      T here H resolve-noforwards $8000 invert and cfa,
 \      alias-mask flag!
   ELSE
       T here H resolve-noforwards cfa,
@@ -2556,7 +2560,7 @@ Variable prim#
   >in @ skip? IF  drop  EXIT  THEN  >in !
   s" prims" T $has? H 0=
   IF
-     .sourcepos ." needs prim: " >in @ bl-word count type >in ! cr
+     .sourcepos ." needs prim: " >in @ parse-name type >in ! cr
   THEN
   prim# @ #primitive
   -1 prim# +! ;
@@ -2718,7 +2722,7 @@ Cond: ALiteral ( n -- )   alit, ;Cond
 Cond: [Char]   ( "<char>" -- )  Char  lit, ;Cond
 
 : (x#) ( adr len base -- )
-  base @ >r base ! 0 0 name >number 2drop drop r> base ! ;
+  base @ >r base ! 0 0 parse-name >number 2drop drop r> base ! ;
 
 : d# $0a (x#) ;
 : h# $010 (x#) ;
@@ -3235,7 +3239,7 @@ ghost a>comp drop
 ghost a-to drop
 ghost s-to drop
 ghost :dodefer drop
-ghost ?fold-to drop
+ghost ?fold1 drop
 
 : Alias    ( cfa -- ) \ name
     >in @ skip? IF  2drop  EXIT  THEN  >in !
@@ -3257,8 +3261,6 @@ ghost ?fold-to drop
 
 : opt: ( -- colon-sys )   gstart-xt set-optimizer ;
 : comp: ( -- colon-sys )  gstart-xt set-optimizer ;
-
-: to-opt: T opt: H compile ?fold-to ;
 
 variable cross-boot$[]
 variable cross-boot[][]
@@ -3337,7 +3339,7 @@ Ghost to:,
 Ghost to:exec
 2drop
 
-Builder to-method:
+Builder to-class:
 Build: T A, A, H ;Build
 by: :dodoes ;DO
 hm: [G'] to:, gset-optimizer
@@ -3349,17 +3351,21 @@ hm: [G'] to:, gset-optimizer
 Builder (Constant)
 Build:  ( n -- ) ;Build
 by: :docon ( target-body-addr -- n ) T @ H ;DO
-compile: g>body compile lit T @ , H ;compile
+compile: g>body compile lit T d@ dV, H ;compile
 hm: [G'] constant, gset-optimizer ;hm
 
 Builder (AConstant)
 Build:  ( n -- ) ;Build
 by: :doacon ( target-body-addr -- n ) T @ H ;DO
-compile: g>body compile lit T @ A, H ;compile
+compile: g>body compile lit T d@ dA, H ;compile
 hm: [G'] constant, gset-optimizer ;hm
 
 Builder Constant
 Build:  ( n -- ) T , H ;Build
+by (Constant)
+
+Builder dConstant
+Build:  ( d -- ) T d, H ;Build
 by (Constant)
 
 Builder AConstant
@@ -3499,6 +3505,10 @@ T has? rom H [IF]
 
     Builder Value
     BuildSmart: T , H ;Build
+    by (Value)
+    
+    Builder dValue
+    BuildSmart: T d, H ;Build
     by (Value)
     
     Builder AValue
@@ -3690,7 +3700,7 @@ Builder Create
 compile: g>body alit, ;compile
 
 Builder User
-compile: g>body compile useraddr T @ V, H ;compile
+compile: g>body compile up@ compile lit+ T @ V, H ;compile
 
 Builder Defer
 compile: g>body compile lit-perform T A, H ;compile
@@ -3699,7 +3709,7 @@ Builder (Field)
 compile: g>body T @ H compile lit+ T V, H ;compile
 
 Builder (UValue)
-compile: g>body compile user@ T @ V, H ;compile
+compile: g>body compile up@ compile lit+ T @ V, H compile @ ;compile
 
 Builder 2Constant
 compile: g>body compile lit T dup cell+ @ V, H compile lit T @ V, H ;compile
@@ -3977,8 +3987,8 @@ Cond: IS        cross-record-name T ' >body H compile ALiteral compile ! ;Cond
 : IS            cross-record-name T >address ' >body ! H ;
 Cond: TO        T ' >body H compile ALiteral compile ! ;Cond
 : TO            T ' >body ! H ;
-Cond: UTO       compile useraddr T ' >body @ , H compile ! ;Cond
-Cond: UADDR     compile useraddr T ' >body @ , H ;Cond
+Cond: UTO       compile up@ compile lit+ T ' >body @ , H compile ! ;Cond
+Cond: UADDR     compile up@ compile lit+ T ' >body @ , H ;Cond
 : UADDR         T ' >body @ H tup@ + ;
 : UTO           UADDR X ! ;
 [THEN]
@@ -4302,7 +4312,7 @@ Variable outfile-fd
 
 : [ELSE]
     1 BEGIN
-	BEGIN bl-word count dup WHILE
+	BEGIN parse-name dup WHILE
 	    comment? 20 umin 2dup upcase
 	    2dup s" [IF]" str= >r 
 	    2dup s" [IFUNDEF]" str= >r
@@ -4343,11 +4353,11 @@ Cond: [ELSE]    postpone [ELSE] ;Cond
 \ we want to use IFDEF on compiler directives (e.g. E?) in the source, too
 
 : directive? 
-  bl-word count [ ' target >wordlist ] literal search-wordlist 
+  parse-name [ ' target >wordlist ] literal search-wordlist 
   dup IF nip THEN ;
 
 : [IFDEF]  >in @ directive? swap >in !
-	   0= IF tdefined? ELSE name 2drop true THEN
+	   0= IF tdefined? ELSE parse-name 2drop true THEN
 	   postpone [IF] ;
 
 : [IFUNDEF] tdefined? 0= postpone [IF] ;
@@ -4399,7 +4409,10 @@ Cond: \? \? ;Cond
 
 \ words that should be in minimal
 
-create s-buffer 50 chars allot
+[IFUNDEF] save-mem
+    create s-buffer 50 chars allot
+    : save-mem  s-buffer place s-buffer count ;
+[THEN]
 
 bigendian Constant bigendian
 
@@ -4425,7 +4438,7 @@ bigendian Constant bigendian
 \G Ends a redefinition section. Warnings are enabled again.
   twarnings on warnings on reuse-ghosts off ;
 
-: warnings name 3 = 
+: warnings parse-name 3 = 
   IF twarnings off warnings off ELSE twarnings on warnings on THEN drop ;
 
 : | ;
@@ -4441,12 +4454,14 @@ also forth
 \ [IFDEF] builttag	: builttag builttag ;	[THEN]
 previous
 
-: s" '"' parse s-buffer place s-buffer count ; \ for environment?
+: s" '"' parse save-mem ; \ for environment?
 : + + ;
+: - - ;
+: d+ d+ ;
+: d- d- ;
 : 1+ 1 + ;
 : 2+ 2 + ;
 : 1- 1- ;
-: - - ;
 : and and ;
 : or or ;
 : xor xor ;
@@ -4464,6 +4479,11 @@ previous
 : <>  <> ;
 : 0=   0= ;
 : lshift lshift ;
+[IFDEF] dlshift
+    : dlshift dlshift ;
+[ELSE]
+    : dlshift 0 ?DO 2dup d+ LOOP ;
+[THEN]
 : 2/ 2/ ;
 : hex. base @ $10 base ! swap . base ! ;
 : invert invert ;
@@ -4481,7 +4501,7 @@ previous
 : \  postpone \ ;  immediate
 : \G T-\G ; immediate
 : (  postpone ( ;  immediate
-: include bl-word count included ;
+: include parse-name included ;
 : included swap >image swap included ;
 : require require ;
 : needs require ;

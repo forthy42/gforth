@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #Authors: Anton Ertl, Bernd Paysan
-#Copyright (C) 2008,2011,2012,2016,2019 Free Software Foundation, Inc.
+#Copyright (C) 2008,2011,2012,2016,2019,2023 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -21,12 +21,16 @@
 @NO_CROSS@test -z "$ENGINE" && ENGINE=./gforth
 @NO_CROSS@test -f "@srcdir@/@kernel_fi@" && KERNEL="@srcdir@/@kernel_fi@"
 @NO_CROSS@test -f "@kernel_fi@" && KERNEL="@kernel_fi@"
+case "$1" in
+    -p | --path)
+	path1="$1"
+	path2="$2"
+	shift; shift
+	;;
+esac
 if test -f "$ENGINE" -a -f "$KERNEL"; then 
-  path1="$1"
-  path2="$2"
-  shift; shift
 #  set -x -v
-  $ENGINE --die-on-signal -m64M -i @kernel_fi@ $path1 $path2 exboot.fs startup.fs "$@"
+  $ENGINE --die-on-signal -m64M -i @kernel_fi@ $path1 $path2 exboot.fs -e ': no-warnings ;' startup.fs "$@"
 else
-  @PREFORTH@ -m64M "$@"
+  @PREFORTH@ -m64M $path1 $path2 -e "warnings off" "$@"
 fi

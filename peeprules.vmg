@@ -1,7 +1,7 @@
 \ Gforth superinstructions and stack caching replicas
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 2003,2004,2005,2007,2010,2012,2013,2015,2016,2019,2020,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2003,2004,2005,2007,2010,2012,2013,2015,2016,2019,2020,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -27,11 +27,11 @@
 \E ' noop is output-c-prim-num
 
 \ super1 = lit +
-super2 = lit call
+\ super2 = lit call
 \ super3 = lit @
 \ super4 = lit @ call
 \ super5 = @ call
-super6 = lit !
+\ super6 = lit !
 \ super7 = lit lit
 \ super8 = dup lit
 \ super9 = ! lit
@@ -39,31 +39,36 @@ super6 = lit !
 \ super11 = ! ;s
 \ super12 = lit + @
 \ super14 = dup call
-super15 = useraddr @
+\ super15 = useraddr @
 \ super16 = + @
 \ super17 = lit @ ?branch
 \ super18 = lit ! ;s
-super19 = lit@ and
+\ super19 = lit@ and
 \ super21 = lit lit !
 \ super22 = @ ?branch
-super23 = useraddr !
+\ super23 = useraddr !
 \ super24 = dup ?branch
 \ super25 = @ ;s
-super26 = lit@ +
+\ super26 = lit@ +
 \ super27 = dup @
 \ super28 = lit execute \ currently not supported
-super29 = o#+ @
-super30 = o#+ !
-super31 = lit f@
-super32 = lit f!
+\ super29 = o+ @
+\ super30 = o+ ! \ doesn't get selected
+\ super31 = lit f@
+\ super32 = lit f!
 \ super33 = noop flit
-super34 = lit+ @
+\ super34 = lit+ @
 super35 = f@ f*
 super36 = f@ f+
-super37 = lit and
-super38 = lit arshift
-super39 = dup lit and swap
+\ super37 = lit and
+\ super38 = lit arshift
+\ super39 = dup lit and swap
 super40 = >l >l
+super40a = >l >l >l
+super40b = >l >l >l >l
+super40c = f>l f>l
+super40d = >l @local0
+super40e = f>l lit f@localn
 super41 = dup >r
 
 \ compare-and-branch; comment them out if we take up work on gforth-native again
@@ -90,6 +95,39 @@ cb20 = u> ?branch
 cb21 = u>= ?branch
 cb22 = within ?branch
 
+\ branch-to-ip variants of compare-and-branch
+\E 1 to branch-to-ip
+\E cr ." #undef SET_IP"
+\E cr ." #define SET_IP(x)" cr
+
+cb1a = 0< ?branch
+cb2a = 0<= ?branch
+cb3a = 0<> ?branch
+cb4a = 0= ?branch
+cb5a = 0> ?branch
+cb6a = 0>= ?branch
+cb7a = < ?branch
+cb8a = <= ?branch
+cb9a = <> ?branch
+cb10a = = ?branch
+cb11a = > ?branch
+cb12a = >= ?branch
+cb13a = d0= ?branch
+cb14a = d< ?branch
+cb15a = d= ?branch
+cb16a = f< ?branch
+cb17a = f= ?branch
+cb18a = u< ?branch
+cb19a = u<= ?branch
+cb20a = u> ?branch
+cb21a = u>= ?branch
+cb22a = within ?branch
+
+
+\E cr ." #undef SET_IP"
+\E cr ." #  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)" cr
+\E 0 to branch-to-ip
+
 \ memory access combinations
 cscfetch = c@ c>s
 cswfetch = w@ w>s
@@ -106,11 +144,13 @@ csswaplstore = >r l>< r> l!
 \F 0 [if]
 
 \ \E prim-states ;s                   \ 2950159
-\E prim-states lit                  \ 2802835
-\ \E prim-states call                 \ 2558373
+\ \E prim-states lit                  \ 2802835
+\E prim-states-offsets lit          \ 2802835
+\E S1 S1 state-offset-prim call     \ 2558373
 \E prim-states @                    \ 2244351
-\E branch-states ?branch              \ 1134432
-\E prim-states lit@                 \ 1051813
+\E S2 S1 state-offset-prim ?branch  \ 1134432
+\E S2 state-enabled? 0= [if] S1 S1 state-offset-prim ?branch [then] \ 1134432
+\E prim-states-offsets lit@                 \ 1051813
 \E prim-states swap                 \ 737988
 \E S0 S2 state-prim swap
 \E S1 S2 state-prim swap
@@ -130,16 +170,23 @@ csswaplstore = >r l>< r> l!
 \E S1 S0 state-prim under+
 \E prim-states i                    \ 502908
 \E prim-states +!                   \ 448925
-\ \E prim-states branch               \ 409561
-\ \E prim-states (loop)               \ 379646
+\E S1 S1 state-offset-prim branch   \ 409561
+\E S1 S1 state-offset-prim (loop)   \ 379646
 \ \E prim-states lp!                  \ 326743
 \E prim-states and                  \ 309427
-\E prim-states useraddr             \ 303254
+\ \E prim-states useraddr             \ 303254
 \E prim-states over                 \ 283556
 \E S0 S1 state-prim over
 \E S1 S2 state-prim over
 \E S2 S1 state-prim over
 \E S3 S2 state-prim over
+\E S0 S1 state-prim third
+\E S1 S2 state-prim third
+\E S2 S3 state-prim third
+\E S3 S1 state-prim third
+\E S0 S1 state-prim fourth
+\E S1 S2 state-prim fourth
+\E S2 S3 state-prim fourth
 \E prim-states negate               \ 257417
 \E prim-states cells                \ 254644
 \E prim-states rot                  \ 220273
@@ -158,20 +205,23 @@ csswaplstore = >r l>< r> l!
 \E S3 S1 state-prim 2dup
 \E S4 S4 state-prim 2dup
 \E S4 S2 state-prim 2dup
-\ \E branch-states lit-perform          \ 188331
+\E S1 S1 state-offset-prim lit-perform \ 188331
 \E prim-states <>                   \ 179502
 \E prim-states c!                   \ 179332
-\E prim-states lit+                 \ 179156
+\E S1 S1 state-offset-prim lit+     \ 179156
+\E prim-states-offsets lit+         \ 179156
 \E prim-states drop                 \ 173995
 \E S0 S0 state-prim drop
 \E prim-states lshift               \ 164671
+\E prim-states rshift
+\E prim-states arshift
 \ \E prim-states /modf                 \ 164670
 \ \E prim-states /mods
 \E prim-states >r                   \ 145247
 \E prim-states r>                   \ 133792
-\ \E branch-states does-exec            \ 120944
+\E S1 S1 state-offset-prim does-xt  \ 120944 
 \E prim-states cell+                \ 116183
-\E prim-states lp+!#                \ 106697 \ --
+\E prim-states lp+!                 \ 106697 \ --
 \E prim-states -                    \ 106245
 \E prim-states unloop               \ 98938 \ --
 \E prim-states lp+                  \ 87190 \ --
@@ -182,7 +232,18 @@ csswaplstore = >r l>< r> l!
 \E prim-states /string              \ 78595
 \E prim-states char+                \ 77542
 \E prim-states ?dup                 \ 76850
-\E prim-states @local0              \ 75322
+\E prim-states @localn              \ 75322
+\E prim-states lp+n                 \ 75322
+forlocal(`7',`\E prim-states @local%i              \ 75322')
+\E prim-states !localn
+forlocal(`7',`\E prim-states !local%i')
+\E prim-states +!localn
+\E prim-states f@localn
+\E prim-states o
+\E prim-states o+
+forlocal(`31',`\E prim-states o%i')
+forlocal(`15',`\E prim-states !o%i')
+forlocal(`15',`\E prim-states @o%i')
 \E prim-states min                  \ 75264
 \ \E prim-states compare              \ 65603
 \E branch-states (u+do)               \ 63823
@@ -201,7 +262,6 @@ csswaplstore = >r l>< r> l!
 \E prim-states lp-                  \ 45385
 \E branch-states perform              \ 38756
 \E prim-states xor                  \ 35599
-\E prim-states @local#              \ 34586
 \ \E prim-states pick                 \ 32015
 \E prim-states u>                   \ 29373
 \E prim-states -rot                 \ 26211
@@ -216,7 +276,8 @@ csswaplstore = >r l>< r> l!
 \ \E prim-states (tablelfind)         \ 22243
 \E prim-states or                   \ 21587
 \E prim-states @local2              \ 20859
-\E branch-states (+loop)              \ 20006
+\E S2 S1 state-prim (+loop)              \ 20006
+\E S2 S1 state-prim (/loop)              \ 20006
 \E prim-states 1+                   \ 17944
 \E prim-states rdrop                \ 17902
 \E branch-states (?do)                \ 17348
@@ -238,14 +299,12 @@ csswaplstore = >r l>< r> l!
 \ \E prim-states rp@                  \ 8410
 \E prim-states 0<                   \ 8380
 \E prim-states <                    \ 7741
-\E prim-states @local1              \ 7458
 \ \E prim-states move                 \ 7050
 \E prim-states u>=                  \ 6138
 \E branch-states (+do)                \ 5863
 \ \E prim-states va-return-double     \ 5517
 \E prim-states um*                  \ 5342
 \ \E prim-states toupper              \ 3517
-\ \E prim-states f@local1             \ 2907
 \ \E prim-states rp!                  \ 2859
 \ \E prim-states ?dup-?branch         \ 2829
 \E prim-states d+                   \ 2671
@@ -260,6 +319,8 @@ csswaplstore = >r l>< r> l!
 \E prim-states aligned              \ 714
 \E prim-states u<=                  \ 684
 \E prim-states i'                   \ 684
+\E prim-states delta-i
+\E prim-states bounds
 \E prim-states >                    \ 411
 \ \E prim-states (hashlfind)          \ 397
 \E prim-states 2swap                \ 336
@@ -267,7 +328,7 @@ csswaplstore = >r l>< r> l!
 \E S1 S3 state-prim 2swap
 \E S2 S4 state-prim 2swap
 \E S4 S2 state-prim 2swap
-\E prim-states laddr#               \ 335
+\E prim-states lp@                  \ 335
 \ \E prim-states faxpy                \ 286
 \ \E prim-states (next)               \ 272
 \ \E prim-states (-loop)-lp+!#        \ 248
@@ -319,12 +380,35 @@ csswaplstore = >r l>< r> l!
 \E prim-states w><
 \E prim-states l><
 \ \E prim-states x><
+\E prim-states o
+\E prim-states up@
 
+\E gen-ip-updates noop
 
 \E ' noop is ip-update
 \E ' noop is output-nextp0
 \E ' noop is output-nextp1
 
 \E gen-transitions noop
+
+\ now the branch-to-ip conditional branches;
+\E 1 to branch-to-ip
+\E cr ." #undef SET_IP"
+\E cr ." #define SET_IP(x)" cr
+
+\E S1 S1 s" ?branch" lookup-prim state-prim2
+\E S2 S1 state-prim ?branch
+\E S1 S1 s" (next)" lookup-prim state-prim2
+\E S1 S1 s" (loop)" lookup-prim state-prim2 \ 379646
+\E S1 S1 s" (+loop)" lookup-prim state-prim2
+\E S2 S1 state-prim (+loop)              \ 20006
+\ \E S2 S1 state-prim (-loop)
+\E S1 S1 s" (/loop)" lookup-prim state-prim2
+\E S2 S1 state-prim (/loop)
+\ \E S2 S1 state-prim (s+loop)
+
+\E cr ." #undef SET_IP"
+\E cr ." #  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)" cr
+\E 0 to branch-to-ip
 
 \F [ENDIF]

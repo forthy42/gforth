@@ -1,7 +1,7 @@
 \ stack depth checking
 
 \ Authors: Anton Ertl
-\ Copyright (C) 2021 Free Software Foundation, Inc.
+\ Copyright (C) 2021,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -166,6 +166,7 @@ stack-effect-unknown does-xt 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
 
 : copy-ase ( -- ase )
     \ ase is a copy of current-ase; used in cs-item-pushing words
+    before-cs-push
     ase-size ['] small-allot in-stack-check-section
     current-ase over ase-size move
     dup stacks 0 ?do \ the copy has 0 offsets from the original
@@ -218,7 +219,7 @@ stack-effect-unknown does-xt 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
     current-ase stacks 0 ?do
 	2dup match-anchors
 	anchor-size + swap anchor-size + swap loop
-    2drop ;
+    drop defers pop-stack-state ;
 
 `prim-stack-check is prim-check
 `call-stack-check is call-check

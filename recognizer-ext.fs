@@ -1,7 +1,7 @@
 \ Recognizer extensions
 
 \ Authors: Bernd Paysan
-\ Copyright (C) 2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -20,27 +20,39 @@
 
 0 Value translator-offset
 #10 cells constant translator-max-offset#
-"No more translator slots free" exception constant translator-overflow
+s" No more translator slots free" exception constant translator-overflow
 
-: >translator ( xt rectype translator -- )
+: >translate-method ( xt rectype translate-method -- )
     >body @ >body + ;
-to-opt: ( xt -- ) >body @ lit, ]] >body + [[ ;
+fold1: ( xt -- ) >body @ lit, postpone >body postpone + ;
 
-' >translator !-table to-method: translator-to
+' >translate-method defer-table to-class: translate-method-to
 
-: translator: ( "name" -- ) \ gforth-experimental
-    \G create a new translator, extending the translator table.
+' >postpone make-latest
+' translate-method-to set-to
+
+: translate-method: ( "name" -- ) \ gforth-experimental
+    \G create a new translate method, extending the translator table.
     \G You can assign an xt to an existing rectype by using
     \G @var{xt rectype} @code{to} @var{translator}.
     translator-offset translator-max-offset# u>=
     translator-overflow and throw
-    Create translator-offset ,  cell +to translator-offset
-    [: ( rec-type ) @ + >body @ ;] set-does>
-    ['] translator-to set-to ;
+    ['] >postpone create-from reveal
+    translator-offset ,  cell +to translator-offset ;
 
-translator: interpret-translator ( translator -- xt ) \ gforth-experimental
-\G obtain interpreter action from translator
-translator: compile-translator ( translator -- xt ) \ gforth-experimental
-\G obtain compile action from translator
-translator: postpone-translator ( translator -- xt ) \ gforth-experimental
-\G obtain postpone action from translator
+translate-method: >interpret ( translator -- ) \ gforth-experimental
+\G perform interpreter action of translator
+translate-method: >compile ( translator -- ) \ gforth-experimental
+\G perform compile action of translator
+0 warnings !@ \ we already have this, but this version is better
+\ we already have defined this in the kernel
+\ translate-method: >postpone ( translator -- ) \ gforth-experimental
+\ \G perform postpone action of translator
+cell +to translator-offset
+warnings !
+
+: translate-state ( xt -- ) \ gforth-experimental
+    \G change the current state of the system so that executing
+    \G a translator matches the translate-method passsed as @var{xt}
+    dup >does-code [ ' >postpone >does-code ] Literal <> #-12 and throw
+    >body @ cell/ negate state ! ;

@@ -29,12 +29,23 @@ require minos2/text-style.fs
 require minos2/presentation-support.fs
 
 gl-init
-44e update-size#
+:noname 44e update-size# ; is rescaler
+rescaler
 
 m2c:animtime% f@ 3e f* m2c:animtime% f!
 
 tex: minos2
 ' minos2 "net2o-minos2.png" 0.666e }}image-file Constant minos2-glue drop
+
+"net2o-minos2.png" 0.666e pixelsize# f* thumb: minos2-logo
+
+$FFFFFF9F (col,) FConstant white-transp#
+: logo-thumb ( xt -- o ) >r
+    baseline# 0e to baseline#
+    {{  r> execute dup >r /right
+    glue*l }}glue
+    }}v >o font-size# f2/ to border o o>
+    to baseline# r> >o white-transp# to frame-color o> ;
 
 : logo-img ( xt xt -- o o-img ) 2>r
     baseline# 0e to baseline#
@@ -153,6 +164,8 @@ $004444FF $BFFFFFFF pres-frame
 }}z box[] /flip dup >slides
 
 \ page 17
+$FF7733FF text-color: redish
+
 {{
     $000000FF $FFFFFFFF pres-frame
     {{
@@ -163,6 +176,8 @@ $004444FF $BFFFFFFF pres-frame
 	    [: s" xdg-open https://net2o.de/" system ;] 0 click[]
 	}}vt
 	glue*l }}glue
+	l" close" redish x-color blackish }}button /center*ll
+	[: -1 level# +! ;] over click[]
     }}v box[] >bdr
 }}z box[] /flip dup >slides
 
@@ -172,7 +187,7 @@ $004444FF $BFFFFFFF pres-frame
 glue-right @ }}glue
 }}h box[]
 {{
-    ' minos2     minos2-glue logo-img solid-frame
+    ' minos2-logo logo-thumb
 }}z
 }}z slide[]
 to top-widget
@@ -192,19 +207,3 @@ script? [IF]
 [ELSE]
     presentation
 [THEN]
-
-\\\
-Local Variables:
-forth-local-words:
-    (
-     ("[a-z0-9]+(" immediate (font-lock-comment-face . 1)
-      ")" nil comment (font-lock-comment-face . 1))
-     (("x\"" "l\"") immediate (font-lock-string-face . 1)
-      "[\"\n]" nil string (font-lock-string-face . 1))
-    )
-forth-local-indent-words:
-    (
-     (("{{" "vt{{") (0 . 2) (0 . 2) immediate)
-     (("}}h" "}}v" "}}z" "}}vp" "}}p" "}}vt") (-2 . 0) (-2 . 0) immediate)
-    )
-End:

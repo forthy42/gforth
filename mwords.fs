@@ -1,7 +1,7 @@
 \ display words in reverse with pattern matching
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2021 Free Software Foundation, Inc.
+\ Copyright (C) 2021,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -31,10 +31,10 @@ Defer mword-match
 : wid>words[] ( wid -- )
     [: words[] >stack true ;] swap traverse-wordlist ;
 : .mwords[] ( addr u -- ) 0 { n }
-    cr words[] $@ bounds cell- swap cell- U-DO
+    cr words[] $@ cell MEM-DO
 	I @ name>string 2over mword-match
 	IF  n I @ .word to n  THEN
-    cell -LOOP  2drop ;
+    LOOP  2drop ;
 
 : wordlist-mwords ( addr u wid -- )  wid>words[] .mwords[] words[] $free ;
 : mwords ( ["pattern"] -- ) \ gforth

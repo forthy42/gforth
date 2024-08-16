@@ -22,4 +22,4 @@ esac
 
 
 git clone https://github.com/GeraldWodni/swig.git
-(cd swig && ./autogen.sh && ./configure "$@" && make -j`nproc` && sudo make install)
+(cd swig && ./autogen.sh && ./configure --program-suffix=-forth "$@" && make -j`nproc` && sudo make install)

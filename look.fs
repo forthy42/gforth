@@ -1,7 +1,7 @@
 \ LOOK.FS      xt -> lfa                               22may93jaw
 
 \ Authors: Anton Ertl, Bernd Paysan, Jens Wilke
-\ Copyright (C) 1995,1996,1997,2000,2003,2007,2011,2012,2013,2014,2015,2017,2019,2021 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,2000,2003,2007,2011,2012,2013,2014,2015,2017,2019,2021,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -41,11 +41,11 @@ decimal
     THEN  =
     r> first-throw ! ;
 
-: threaded>xt ( ca -- xt|0 ) \ gforth-internal
-    \G For the code address ca of a primitive, find the xt (or 0).
-    [IFDEF] decompile-prim
-	decompile-prim
-    [THEN]
+: threaded>xt ( ca -- xt|0 )
+    \ Given the static code address of a primitive (i.e., coming from
+    \ @decompile-prim), xt is the xt of the primitive there.  Return 0
+    \ if there is no primitive there.
+    \
     \ walk through the array of primitive CAs
     >r ['] image-header >link @ begin
 	dup while
@@ -55,6 +55,16 @@ decimal
 	    >link @
     repeat
     drop rdrop 0 ;
+
+: @threaded>xt ( a-addr -- xt|0 ) \ gforth-internal
+    \G Given a threaded-code address a-addr, xt is the xt of the
+    \G primitive there.  Return 0 if there is no primitive there.
+    [IFDEF] @decompile-prim
+        @decompile-prim
+    [ELSE]
+        @
+    [THEN]
+    threaded>xt ;
 
 \ !!! nicht optimal!
 [IFUNDEF] look
@@ -112,7 +122,11 @@ has? rom
     look and ;
 
 : threaded>name ( ca -- nt|0 )
+    \ for static cas only
     threaded>xt >name ;
+
+: @threaded>name ( a-addr -- nt|0 )
+    @threaded>xt >name ;
 
 ' >name ALIAS >head \ gforth to-head
 ' >name Alias prim>name
@@ -120,10 +134,24 @@ has? rom
 \ print recognizer stack
 
 [IFDEF] forth-recognizer
+    : .recognizer-sequence ( recognizer -- )
+	get-recognizer-sequence 0 ?DO
+	    dup defers@ >does-code ['] recognize =
+	    IF  dup >r  ELSE  0 >r  THEN
+	    dup >voc >does-code [ ' forth >does-code ] Literal = IF
+		>voc
+	    THEN
+	    name>string 2dup s" rec-" string-prefix? IF
+		4 /string  9 attr! ." ~"  0 attr!
+	    THEN  type space
+	    r> ?dup-IF
+		." ( " recurse ." ) "
+	    THEN
+	LOOP ;
     : .recognizers ( -- ) \ gforth-experimental dot-recognizers
         \G Print the current recognizer order, with the first-searched
-        \G recognizer leftmost (unlike .order).
-	get-recognizers 0 ?DO
-	    >name .name
-	LOOP ;
+	\G recognizer leftmost (unlike .order).  The inverted @code{~} is
+	\G displayed instead of @code{rec-}, which is the common prefix
+	\G of all recognizers.
+	['] forth-recognize .recognizer-sequence ;
 [THEN]

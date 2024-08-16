@@ -1,20 +1,25 @@
+cat <<EOF
 buildscript {
     repositories {
 	google()
-	jcenter()
+	mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.0.0'
+        classpath 'com.android.tools.build:gradle:8.5.0'
     }
 }
 allprojects {
   repositories {
       google() // and here
-      jcenter()
+      mavenCentral()
+      maven {
+        // Used only for PhotoView
+        url "https://www.jitpack.io"
+        name 'JitPack Github wrapper'
+      }
   }
 }
-
 apply plugin: 'com.android.application'
 
 def keystorePropertiesFile = rootProject.file("ant.properties")
@@ -22,15 +27,15 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    buildToolsVersion "33.0.0"
+    buildToolsVersion "35.0.0"
 
-    compileSdkVersion 33
+    compileSdkVersion 35
 
     ndkVersion "23.1.7779620"
 //    ndkVersion "17.2.4988734"
 
 
-    namespace 'gnu.gforth'
+    namespace '${APP_PACKAGE}'
 
     packagingOptions {
         jniLibs {
@@ -39,7 +44,9 @@ android {
     }
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 33
+        targetSdkVersion 35
+        versionCode ${APP_VERSION}
+        versionName "${GFORTH_VERSION}"
     }
     signingConfigs {
         release {
@@ -63,5 +70,12 @@ android {
         release {
             signingConfig signingConfigs.release
         }
+     }
+     lint {
+         baseline = file("lint-baseline.xml")
     }
 }
+dependencies {
+    implementation 'androidx.sharetarget:sharetarget:1.2.0'
+}
+EOF

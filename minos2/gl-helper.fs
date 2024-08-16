@@ -1,7 +1,7 @@
 \ opengl common stuff
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2014,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2014,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -21,8 +21,12 @@
 require ../unix/mmap.fs
 require ../mini-oof2.fs
 
-Variable dpy-w
-Variable dpy-h
+[IFUNDEF] dpy-wh
+    2Variable dpy-wh
+[THEN]
+dpy-wh Constant dpy-h
+dpy-wh cell+ Constant dpy-w
+
 [IFUNDEF] ctx
     0 Value ctx
 [THEN]
@@ -41,9 +45,9 @@ s" os-type" environment? [IF]
 	synonym use-egl noop
     [ELSE]
 	2dup s" darwin" str= >r s" linux-" string-prefix? r> or [IF]
-	    [IFDEF] use-wl
-		s" XDG_SESSION_TYPE" getenv s" wayland" str=
-	    [ELSE] false [THEN] \ wayland is experimental, default to x11
+	    [IFUNDEF] use-x11
+		${XDG_SESSION_TYPE} s" wayland" str=
+	    [ELSE] false [THEN] \ x11 is deprecated
 	    [IF]
 		require wayland-gl.fs
 		require ../unix/opengles.fs
@@ -52,7 +56,7 @@ s" os-type" environment? [IF]
 		[IFUNDEF] use-wl synonym use-wl noop [THEN]
 	    [ELSE] \ it's probably "x11" or undefined
 		[DEFINED] use-glx glx? and gles? 0= or
-		s" GFORTH_GL" getenv s" glx" str= or
+		${GFORTH_GL} s" glx" str= or
 		[DEFINED] use-egl gles? and 0= and [IF]
 		    require ../unix/opengl.fs
 		    [IFUNDEF] use-glx synonym use-glx noop [THEN]
@@ -119,7 +123,7 @@ Variable configs
 Variable numconfigs
 Variable eglformat
 
-: ??gl defers printdebugdata ." gl: " glGetError . ." o: " o hex. ;
+: ??gl defers printdebugdata ." gl: " glGetError . ." o: " o h. ;
 ' ??gl is printdebugdata
 
 [IFDEF] android
@@ -172,8 +176,9 @@ Variable eglformat
 	
 	: choose-config ( -- )
 	    get-display dpy-h ! dpy-w !
-	    0 eglGetDisplay to egldpy
+	    dpy eglGetDisplay to egldpy
 	    egldpy 0 0 eglInitialize drop
+	    EGL_OPENGL_ES_API eglBindAPI drop
 	    egldpy attribs3 configs 1 numconfigs eglChooseConfig drop
 	    numconfigs @ 0= IF
 		egldpy attribs2 configs 1 numconfigs eglChooseConfig drop
@@ -184,13 +189,18 @@ Variable eglformat
 		." simple config only" cr
 	    THEN ;
 
+	[IFUNDEF] window-title$
+	    $Variable window-title$ s" ΜΙΝΟΣ2 OpenGL Window" window-title$ $!
+	[THEN]
+	
 	: create-context ( -- )
 	    [IFDEF] use-wl
 		dpy-w @ dpy-h @ wl-eglwin
+		egldpy configs @ win 0 eglCreatePlatformWindowSurface to surface
 	    [ELSE]
-		default-events "EGL-Window" dpy-w @ dpy-h @ simple-win
+		default-events window-title$ $@ dpy-w @ dpy-h @ simple-win
+		egldpy configs @ win 0 eglCreateWindowSurface to surface
 	    [THEN]
-	    egldpy configs @ win 0 eglCreateWindowSurface to surface
 	    egldpy configs @ 0 eglattribs eglCreateContext to ctx
 	    egldpy surface dup ctx eglMakeCurrent drop ;
 
@@ -240,9 +250,10 @@ Variable eglformat
 		    THEN
 		THEN  to visual 2drop ;
 	[THEN]
+	$Variable window-title$ s" ΜΙΝΟΣ2 OpenGL Window" window-title$ $!
 
 	: create-context ( -- ) \ win ?EXIT
-	    default-events "GL-Window" dpy-w @ dpy-h @ simple-win
+	    default-events window-title$ $@ dpy-w @ dpy-h @ simple-win
 	    dpy visual 0 1 glXCreateContext to ctx
 	    dpy win ctx glXMakeCurrent drop
 	    visuals XFree drop 0 to visuals 0 to visual ;
@@ -254,7 +265,7 @@ Variable eglformat
     [THEN]
 [THEN]
 : init-opengl ( -- )
-    choose-config create-context getwh ;
+    choose-config create-context sync getwh ;
 
 ?looper \ init-opengl ." Screen size: " dpy-w ? dpy-h ? cr
 
@@ -291,10 +302,10 @@ Variable eglformat
     >body 2 cells + @ cstring>sstring ;
 
 : >word ( addr u -- addr' u' ) bounds ?DO
-	I c@ bl > IF  I I' over - unloop  EXIT  THEN
+	I c@ bl > IF  I delta-I unloop  EXIT  THEN
     LOOP  s" " ;
 : >wordend ( addr u -- addr' u' ) bounds ?DO
-	I c@ bl <= IF  I I' over - unloop  EXIT  THEN
+	I c@ bl <= IF  I delta-I unloop  EXIT  THEN
     LOOP  s" " ;
 
 : >attrib ( addr u search u1 -- addr' u' )  2>r
@@ -1087,7 +1098,7 @@ previous
 	cur old !
     ELSE
 	cur old @ over old ! swap -
-	s>f dpy-h @ s>f rows fm/ f/ fdup f2/ motion f@ f2/ f+ motion f!
+	s>f dpy-h @ s>f rows fm/ 1e fmax f/ fdup f2/ motion f@ f2/ f+ motion f!
 	xt execute
     THEN ;
 

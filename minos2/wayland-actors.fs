@@ -1,7 +1,7 @@
 \ MINOS2 actors on Wayland
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2017,2019 Free Software Foundation, Inc.
+\ Copyright (C) 2017,2019,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -35,40 +35,38 @@ Variable ev-up/down
 2Variable lastpos
 Variable lasttime
 
-#200 Value twoclicks  \ every edge further apart than 150ms into separate clicks
-$60000. 2Value samepos      \ position difference square-summed less than is same pos
-
-1e 256e f/ fconstant 1/256
-
 \ handle scrolling
 
 :noname ( time axis val -- )
-    rot ev-time ! top-act .scrolled ; IS b-scroll
+    rot dup lasttime !@ - twoclicks u<
+    IF  1 +to clicks  clicks *  ELSE  0 to clicks  THEN  #-60 /
+    ev-xy 2@ swap coord>f coord>f top-act .scrolled ; IS b-scroll
 
 \ handle clicks
 
 : samepos? ( x y -- flag )
-    lastpos 2@ rot - dup m* 2swap - dup m* d+ samepos d< ;
+    lastpos 2@ rot - dup m* 2swap - dup m* d+ samepos $10000 m* d< ;
 : ?samepos ( -- )
     ev-xy 2@
     2dup samepos? 0= IF   0 to clicks  THEN  lastpos 2! ;
 : send-clicks ( -- )
-    lastpos 2@ swap 1/256 fm* 1/256 fm* buttonmask le-ul@
+    lastpos 2@ swap coord>f coord>f buttonmask l@ lle
     clicks 2* flags #lastdown bit@ -
     flags #pending -bit
     grab-move? ?dup-IF  .clicked  EXIT  THEN
     top-act    ?dup-IF  .clicked  EXIT  THEN
     2drop fdrop fdrop ;
 
+Variable xy$
 : >xy$ ( x1 y1 .. xn yn n -- $rxy )
     2* sfloats xy$ $!len
     xy$ $@ bounds 1 sfloats - swap 1 sfloats - U-DO
-	1/256 fm* I sf!
+	coord>f I sf!
     1 sfloats -LOOP
     xy$ ;
 
 :noname ( -- )
-    Xtime lasttime @ - twoclicks >= IF
+    XTime lasttime @ - twoclicks >= IF
 	flags #pending -bit@ IF
 	    send-clicks
 	THEN
@@ -77,13 +75,13 @@ $60000. 2Value samepos      \ position difference square-summed less than is sam
 	THEN
     THEN ; is ?looper-timeouts
 
-Create >button 0 c, 2 c, 1 c, 3 c, 4 c, 6 c, 5 c, 7 c,
+Create >button 0 c, 2 c, 1 c, 7 c, 8 c, 3 c, 4 c, 5 c,
 DOES> + c@ ;
 
 :noname { time b mask -- }
     mask IF  \ button pressend
 	buttonmask b 7 and >button +bit
-	top-act IF  ev-xy 2@ 1 >xy$ buttonmask le-ul@ top-act .touchdown  THEN
+	top-act IF  ev-xy 2@ 1 >xy$ buttonmask l@ lle top-act .touchdown  THEN
 	time lasttime !  ?samepos
 	flags #lastdown +bit  flags #pending +bit
     ELSE \ button released
@@ -91,7 +89,7 @@ DOES> + c@ ;
 	flags #lastdown -bit@  IF
 	    1 +to clicks  send-clicks  flags #clearme +bit  THEN
 	buttonmask b 7 and >button -bit
-	top-act IF ev-xy 2@ 1 >xy$ buttonmask le-ul@ top-act .touchup  THEN
+	top-act IF ev-xy 2@ 1 >xy$ buttonmask l@ lle top-act .touchup  THEN
     THEN
 ; is b-button
 
@@ -100,13 +98,72 @@ DOES> + c@ ;
     flags #pending bit@  ev-xy 2@ samepos? 0= and IF
 	send-clicks  0 to clicks
     THEN
-    top-act IF  ev-xy 2@ 1 >xy$ buttonmask le-ul@ top-act .touchmove  THEN
+    grab-move? IF  ev-xy 2@ 1 >xy$ >dxy buttonmask l@ lle
+	[: grab-move? .touchmove ;] vp-needed<>|  EXIT
+    THEN
+    top-act IF  ev-xy 2@ 1 >xy$ buttonmask l@ lle top-act .touchmove  THEN
 ; is b-motion
+
+:noname ( x y -- )
+    swap coord>f coord>f
+    top-act ?dup-IF  .dndmove  ELSE  fdrop fdrop  THEN
+; is dnd-move
+
+:noname ( x y addr u -- )
+    2swap swap coord>f coord>f
+    top-act ?dup-IF  .dnddrop  ELSE  2drop fdrop fdrop  THEN
+; is dnd-drop
+
+\ key handling
+
+4 buffer: xstring
+
+: >xstring ( xchar -- addr u )
+    xstring xc!+ xstring tuck - ;
+: ctrls? ( addr u -- flag )
+    false -rot bounds ?DO
+	I c@ bl < or \ all UTF-8 codepoints are >= bl
+	I c@ #del = or \ and <> del
+    LOOP ;
+: u/ekeyed ( ekey -- )
+    wayland( [: cr ." ekey: " dup h. ;] do-debug )
+    dup 0= IF  drop  EXIT  THEN
+    case
+	#del of  k-delete     wl-meta mask-shift# lshift or  endof
+	#bs  of  k-backspace  wl-meta mask-shift# lshift or  endof
+	#lf  of  k-enter      wl-meta mask-shift# lshift or  endof
+	#cr  of  k-enter      wl-meta mask-shift# lshift or  endof
+    dup endcase
+    dup bl keycode-start within over #del <> and
+    IF    $1000000 invert and >xstring top-act .ukeyed
+    ELSE  top-act .ekeyed  THEN ;
+: ctrl-keyed ( addr u -- )
+    bounds ?DO  I xc@+ swap >r u/ekeyed  r> I -  +LOOP ;
+: u/keyed ( addr u -- )
+    wayland( [: cr ." u/keys: " 2dup dump ;] do-debug )
+    2dup ctrls? IF
+	ctrl-keyed
+    ELSE
+	top-act .ukeyed
+    THEN ;
+: keys-commit ( addr u -- )
+    wayland( [: cr ." keys: " 2dup dump ;] do-debug )
+    2dup ctrls? IF
+	ctrl-keyed
+    ELSE
+	top-act .ukeyed
+    THEN ;
 
 \ enter and leave
 
 : enter-minos ( -- )
+    ['] keys-commit is wayland-keys
+    ['] u/ekeyed is wl-ekeyed
+    ['] u/keyed is wl-ukeyed
     edit-widget edit-out ! ;
 : leave-minos ( -- )
+    preserve wayland-keys
+    preserve wl-ekeyed
+    preserve wl-ukeyed
     edit-terminal edit-out !
     +sync  +show ;

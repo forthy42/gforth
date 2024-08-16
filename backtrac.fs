@@ -1,7 +1,7 @@
 \ backtrace handling
 
 \ Authors: Anton Ertl, Bernd Paysan, Gerald Wodni
-\ Copyright (C) 1999,2000,2003,2004,2006,2007,2012,2013,2016,2017,2018,2019,2020 Free Software Foundation, Inc.
+\ Copyright (C) 1999,2000,2003,2004,2006,2007,2012,2013,2016,2017,2018,2019,2020,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -34,31 +34,27 @@
     else \ throw by signal handler with insufficient information
 	handler @ cell- \ beyond that we know nothing
 	extra-backtrace# ?dup-IF  cells -
-	    rp0 @ [ forthstart 7 cells + ]L @ - $FFF + -$1000 and umax
+	    rp0 @ [ forthstart 9 cells + ]L @ - $FFF + -$1000 and umax
 	    BEGIN  dup @ 0=  WHILE  cell+  REPEAT
 	THEN
     then
     backtrace-rp0 @ cell- over - 0 max ;
 
 :noname ( -- )
-    backtrace-return-stack stored-backtrace $! first-throw off ;
+    first-throw off \ avoid throw loops when store-backtrace fails
+    backtrace-return-stack stored-backtrace $! ;
 IS store-backtrace
 
 : >bt-entry ( return-stack-item -- nt )
     cell- dup in-dictionary? over dup aligned = and
     if
-	@ dup threaded>name dup if
+	dup @ swap @threaded>name dup if
 	    nip EXIT
 	else
-	    drop dup look if
-		nip EXIT
+	    drop look if
+		EXIT
 	    else
-		drop body> look \ !! check for "call" in cell before?
-		if
-		    EXIT
-		else
-		    drop
-		then
+		drop
 	    then
 	then
     else
@@ -76,7 +72,7 @@ defer .backtrace-pos ( addr -- )
     2dup u< IF  cr ." Backtrace:"  THEN
     0 swap rot u+do
 	cr i @ dup .backtrace-pos over 2 .r space
-	dup hex. dup print-bt-entry
+	dup h. dup print-bt-entry
 	catch-frame = IF  ."  [catch frame]" 1+  7 cells  ELSE  1+ cell  THEN
     +loop
     drop ;

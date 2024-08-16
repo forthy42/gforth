@@ -2,7 +2,7 @@
   This is the machine-specific part for the AMD64 (née x86-64) architecture.
 
   Authors: Anton Ertl, Bernd Paysan
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2011,2013,2014,2015,2016,2018,2019,2020 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2011,2013,2014,2015,2016,2018,2019,2020,2023 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -167,3 +167,6 @@ actually compiles the call to memcpy into a call to memcpy.
 #endif
 
 #define GOTO_ALIGN asm(".p2align 4,,7");
+/* GCC 12 and further combine 2! into one move through an xmm register
+   which defeats the store-to-load facility of modern amd64 processors.
+   I.e. it looks nice on paper, but actually is a lot slower. */

@@ -1,7 +1,7 @@
 \ multi-line loops in the interpeter
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2018,2019 Free Software Foundation, Inc.
+\ Copyright (C) 2018,2019,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -34,7 +34,7 @@ $20 stack: loop-indices
     input-stack stack> ?dup-IF  { w^ in } in $free  THEN ;
 : input< ( -- )
     input-stack $[]# ?dup-IF
-	1- input-stack $[] get-stack restore-input  throw
+	1- input-stack $[] get-stack restore-input -12 and throw
     THEN ;
 
 : [DO]  ( n-limit n-index -- ) \ gforth bracket-do

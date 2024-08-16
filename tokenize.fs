@@ -1,7 +1,7 @@
 \ Tokenize Forth source code
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2019,2020,2021 Free Software Foundation, Inc.
+\ Copyright (C) 2019,2020,2021,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -113,7 +113,7 @@ Variable blacklisted
 	dup I @ = IF  drop I cell+ @  UNLOOP  EXIT  THEN
     2 cells +LOOP  drop false ;
 
-recognized-method: rectype-tokenize
+translate-method: >tokenize
 
 :noname ( xt -- xt )
     dup ?blacklist dup IF
@@ -130,23 +130,23 @@ recognized-method: rectype-tokenize
     THEN
     nextname$ $@ d0<> IF
 	nextname$ $@ n,
-    THEN ; rectype-nt is rectype-tokenize
+    THEN ; rectype-nt is >tokenize
 :noname ( n -- n )
-    3 emit dup { w^ x } x cell type ; rectype-num is rectype-tokenize
+    3 emit dup { w^ x } x cell type ; rectype-num is >tokenize
 :noname ( d -- d )
-    4 emit 2dup { d^ x } x 2 cells type ; rectype-dnum is rectype-tokenize
+    4 emit 2dup { d^ x } x 2 cells type ; rectype-dnum is >tokenize
 :noname ( r -- r )
-    5 emit fdup { f^ x } x 1 floats type ; rectype-float is rectype-tokenize
+    5 emit fdup { f^ x } x 1 floats type ; rectype-float is >tokenize
 :noname ( addr u -- addr u )
-    6 emit 2dup dup xemit type ; rectype-string is rectype-tokenize
+    6 emit 2dup dup xemit type ; rectype-string is >tokenize
 :noname ( xt -- )
     over ?token IF  8 emit xemit
-    ELSE  7 i,  THEN ; rectype-to is rectype-tokenize
+    ELSE  7 i,  THEN ; rectype-to is >tokenize
 
 : tokenize-it ( rectype rec-xt -- rectype )
     drop rec-level @ 0> ?EXIT
     \ dup [: .addr. space rec-level ? cr ;] stdout outfile-execute
-    dup >r ['] rectype-tokenize catch
+    dup >r ['] >tokenize catch
     dup #-13 = IF  2drop  9 i,  ELSE  throw  THEN  r>
     parsed-name$ $free ;
 
@@ -178,14 +178,14 @@ recognized-method: rectype-tokenize
 
 dup set-current
 
-: >tokenize ( addr u -- )
+: (tokenize-file) ( addr u -- )
     r/w create-file throw to token-file
     ['] parse-name' is parse-name
     ['] parse'      is parse
     ['] tokenize    is trace-recognizer ;
 
 : tokenize-file ( addr u -- )
-    2dup '.' -scan [: type ." .ft" ;] $tmp >tokenize included
+    2dup '.' -scan [: type ." .ft" ;] $tmp (tokenize-file) included
     reset-interpreter ;
 
 tokenizer definitions
@@ -199,22 +199,22 @@ tokenizer definitions
 	!!token!! throw
     endcase ;
 
-: token-nt-name ( -- nt rectype-nt )
-    >nt rectype-nt ;
-: token-nt ( -- nt rectype-nt )
-    nt@ rectype-nt ;
-: token-num ( -- n rectype-num )
-    token-pos# @ 1 cells +to token-pos# rectype-num ;
-: token-dnum ( -- n rectype-num )
-    token-pos# 2@ 2 cells +to token-pos# rectype-dnum ;
-: token-float ( -- n rectype-num )
-    token-pos# f@ 1 floats +to token-pos# rectype-float ;
-: token-string ( -- addr u rectype-string )
-    >parsed rectype-string ;
-: token-to-name ( -- nt rectype-to )
-    >nt rectype-to ;
-: token-to ( -- nt rectype-to )
-    nt@ rectype-to ;
+: token-nt-name ( -- nt translate-nt )
+    >nt ['] translate-nt ;
+: token-nt ( -- nt translate-nt )
+    nt@ ['] translate-nt ;
+: token-num ( -- n translate-num )
+    token-pos# @ 1 cells +to token-pos# ['] translate-num ;
+: token-dnum ( -- n translate-dnum )
+    token-pos# 2@ 2 cells +to token-pos# ['] translate-dnum ;
+: token-float ( -- n translate-float )
+    token-pos# f@ 1 floats +to token-pos# ['] translate-float ;
+: token-string ( -- addr u translate-string )
+    >parsed ['] translate-string ;
+: token-to-name ( -- nt translate-to )
+    >nt ['] translate-to ;
+: token-to ( -- nt translate-to )
+    nt@ ['] translate-to ;
 : token-generic ( -- ... rectype-??? )
     >parsed backup-recognize ;
 
@@ -237,7 +237,7 @@ Create token-actions
 
 : token-int ( -- )
     BEGIN  ?stack token-pos# tokens$ $@ + u< WHILE
-	    token@ 0 parser
+	    token@ 0 forth-recognize execute
     REPEAT ;
 
 set-current

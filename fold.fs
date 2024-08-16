@@ -32,17 +32,13 @@
     \ pushes l items from data stack to literal stack.
     lits# m u>= if
 	pop xt catch 0= if
-	    push rdrop exit then
+	    push exit then
 	unpop then
     xt dup >code-address docol: = if
 	:,
     else
 	peephole-compile,
     then ;
-
-: optimizes ( xt "name" -- )
-    \ xt is optimizer of "name"
-    ' make-latest set-optimizer ;
 
 : folds ( folder-xt "name1" ... "namen" <eol> -- )
     {: folder-xt :} BEGIN
@@ -87,7 +83,7 @@
 ' fold3-1 folds within select mux */f */s u*/
 
 : fold3-2 ( xt -- ) 3 ['] 3lits> ['] >3lits ['] >2lits fold-constants ;
-' fold3-2 folds um/mod fm/mod sm/rem du/mod */modf */mods u*/mod
+' fold3-2 folds um/mod fm/mod sm/rem du/mod */modf */mods u*/mod under+
 
 : fold3-3 ( xt -- ) 3 ['] 3lits> ['] >3lits ['] >3lits fold-constants ;
 ' fold3-3 folds rot -rot
@@ -104,16 +100,16 @@
 \ optimize +loop (not quite folding)
 : replace-(+loop) ( xt1 -- xt2 )
     case
-	['] (+loop)       of ['] (/loop)# endof
-	['] (+loop)-lp+!# of ['] (/loop)#-lp+!# endof
+	['] (+loop)       of ['] (/loop) endof
+	['] (+loop)-lp+!# of ['] (/loop)-lp+!# endof
 	-21 throw
     endcase ;
 
 : (+loop)-optimizer ( xt -- )
     lits# 1 u>= if
-	lits> dup 0> if
-	    swap replace-(+loop) peephole-compile, , exit then
-	>lits then
+	lits> dup >lits 0> if
+	    replace-(+loop) then
+    then
     peephole-compile, ;
 
 ' (+loop)-optimizer optimizes (+loop)
@@ -160,6 +156,28 @@ optimizes fpick
 	exit then
     action-of op fold2-1 ;
 ' opt+- folds + -
+
+: opt* ( xt -- )
+    drop lits# 1 = if
+        lits> case
+            0    of postpone drop 0 lit, endof
+            2    of postpone 2*    endof
+            cell of postpone cells endof
+            dup pow2? ?of log2 lit, postpone lshift endof
+            dup lit, ['] * peephole-compile,
+        endcase
+    else
+        ['] * fold2-1
+    then ;
+' opt* optimizes *
+
+: opt-array>mem ( xt -- )
+    drop lits# 1 = if
+        lits> dup ]] literal * literal [[
+    else
+        ['] array>mem fold2-2
+    then ;
+' opt-array>mem optimizes array>mem
 
 \ optimize lit @ into lit@
 : opt@ ( xt -- )

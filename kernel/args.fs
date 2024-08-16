@@ -1,7 +1,7 @@
 \ argument expansion
 
 \ Authors: Anton Ertl, Bernd Paysan, Neal Crook, Jens Wilke
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2006,2007,2012,2014,2016,2019,2021 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2006,2007,2012,2014,2016,2019,2021,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -88,8 +88,6 @@ Variable argc ( -- addr ) \ gforth
 
 : args-required ( i*x addr u -- i*x ) \ gforth-internal
     2dup ['] args-required1 os-execute-parsing ;
-
-: interpret2 ['] interpret bt-rp0-wrapper ;
 
 : args-evaluate ( i*x addr u -- j*x ) \ gforth-internal
     ['] interpret2 os-execute-parsing ;

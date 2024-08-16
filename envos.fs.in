@@ -1,7 +1,7 @@
 \ envos.fs set os-specific environmental queries 	07jul97jaw
 
 \ Authors: Anton Ertl, Bernd Paysan, David Kühling
-\ Copyright (C) 1997,1999,2000,2003,2006,2007,2008,2009,2010,2012,2013,2015,2016,2018,2019,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1997,1999,2000,2003,2006,2007,2008,2009,2010,2012,2013,2015,2016,2018,2019,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -42,6 +42,10 @@ set-current
 : libtool-cc ( -- c-addr u ) \ gforth-internal
 \G invocation string of the C compiler used for libtool
     s" @LIBTOOL_CC@ @CFLAGS@ @CPPFLAGS@ -I@incdir@/gforth/@PACKAGE_VERSION@/@machine@ @LDFLAGS@" ;
+
+: libtool-cxx ( -- c-addr u ) \ gforth-internal
+\G invocation string of the C++ compiler used for libtool
+    s" @LIBTOOL_CXX@ @CXXFLAGS@ @CPPFLAGS@ -I@incdir@/gforth/@PACKAGE_VERSION@/@machine@ @LDFLAGS@" ;
 
 : libtool-flags ( -- c-addr u ) \ gforth-internal
 \G force no undefined for cygwin

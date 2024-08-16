@@ -1,7 +1,7 @@
 \ TOOLS.FS     Toolkit extentions                      2may93jaw
 
 \ Authors: Anton Ertl, Bernd Paysan, Neal Crook, Jens Wilke
-\ Copyright (C) 1995,1998,1999,2001,2003,2006,2007,2011,2013,2014,2015,2016,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,1999,2001,2003,2006,2007,2011,2013,2014,2015,2016,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -73,7 +73,7 @@ Variable /dump
     \G an operating system you may get @file{Invalid memory address} errors
     \G if you attempt to access arbitrary locations.
     cr base @ >r hex        \ save base on return stack
-    0 ?DO  I' I - 10 min /dump !
+    0 ?DO  delta-I 10 min /dump !
 	dup 8 u.r ." : " dup .line cr  10 +
 	10 +LOOP
     drop r> base ! ;

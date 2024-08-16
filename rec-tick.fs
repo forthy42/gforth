@@ -2,7 +2,7 @@
 \ `foo puts the xt of foo on the stack like ' foo does
 
 \ Authors: Gerald Wodni, Anton Ertl
-\ Copyright (C) 2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -20,11 +20,8 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 [IFUNDEF] ?rec-nt
-    : ?rec-nt ( addr u -- xt true / something 0 )
-	sp@ >in @ 2>r
-	forth-recognize ['] translate-nt = dup
-	if  2r> 2over  else  2r> #0.  then  2>r >in ! sp!
-	2drop 2r> ;
+    : ?rec-nt ( addr u -- nt true / 0 )
+	[: ['] translate-nt = ;] try-recognize ;
 [THEN]
 
 : rec-tick ( addr u -- xt rectype-num | rectype-null ) \ gforth-experimental
@@ -33,7 +30,7 @@
     over c@ '`' = if
         1 /string ?rec-nt if
             ?compile-only name>interpret ['] translate-num exit  then
-        0 then
+        ['] notfound exit  then
     2drop ['] notfound ;
 
 : rec-dtick ( addr u -- nt rectype-num | rectype-null ) \ gforth-experimental
@@ -41,7 +38,7 @@
     \G Example: @code{``S"} gives the nt of @code{S"}
     2dup "``" string-prefix? if
 	2 /string ?rec-nt if  ['] translate-num exit then  0
-	then
+        ['] notfound exit  then
     2drop ['] notfound ;
 
 ' rec-dtick forth-recognizer >back

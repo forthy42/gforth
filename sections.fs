@@ -69,10 +69,12 @@ is addr>view
     image-offset >r
     dup r@ + allocate throw r> + dup current-section !
     dup section-start !
+    dup codestart !
     section-desc + section-dp !
     section-size !
     ['] noname section-name !
     locs[] dup off $saved
+    primbits off  targets off
     current-section @ r> current-section ! ;
 
 : new-section ( -- )

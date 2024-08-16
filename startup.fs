@@ -1,7 +1,7 @@
 \ startup file
 
 \ Authors: Anton Ertl, Bernd Paysan, Jens Wilke, Gerald Wodni
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -28,7 +28,9 @@ require except.fs \ included on command line
 [IFDEF] throw>error
     ' throw>error Alias rethrow
 [THEN]
--2 warnings !
+[IFUNDEF] no-warnings
+    -2 warnings !
+[THEN]
 require rec-sequence.fs
 require search.fs
 require options.fs
@@ -42,6 +44,7 @@ require sections.fs
 require float.fs
 require extend.fs
 require glocals.fs
+require recognizer-ext.fs
 require stuff.fs
 require iloops.fs
 threading-method 1 <> [IF] require fold.fs [THEN]
@@ -87,10 +90,11 @@ require forward.fs
 require marker.fs
 require varues.fs
 require complex.fs
+require struct-val.fs
 require rec-env.fs
-\ require rec-scope.fs
+require rec-scope.fs
 require rec-meta.fs
-
+\ require unix/pthread.fs
 
 \ define the environmental queries for all the loaded wordsets
 \ since the blocks wordset is loaded in a single file, its queries

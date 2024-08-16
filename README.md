@@ -68,7 +68,9 @@ To start the system, just say `gforth` (after installing it).
 ## Download
 
 You can find new versions of Gforth at\
-[gforth.org/gforth](https://gforth.org/gforth)\
+[www.complang.tuwien.ac.at/forth/gforth/](https://www.complang.tuwien.ac.at/forth/gforth/)\
+and current snapshots on\
+[www.complang.tuwien.ac.at/forth/gforth/Snapshots/current/](https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/current/)\
 or at\
 [ftp://ftp.gnu.org/gnu/gforth/](ftp://ftp.gnu.org/gnu/gforth/)
 
@@ -138,7 +140,7 @@ anton@mips.complang.tuwien.ac.at
 ---
 
 Authors: Bernd Paysan, Anton Ertl, Gerald Wodni
-Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2006,2007,2008,2009,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2006,2007,2008,2009,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 This file is part of Gforth.
 

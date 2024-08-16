@@ -1,7 +1,7 @@
 \ mpeg transport stream tool
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2014,2016,2019,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2014,2016,2019,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -111,7 +111,7 @@ $1000 Value dump#
     r@ $E0 and IF  space  THEN
     r@ $10 and IF  ." pcr: " dup .pcr  6 +  THEN
     r@ $08 and IF  ." opcr: " dup .pcr  6 +  THEN
-    r@ $04 and IF  ." slice: " count hex. THEN
+    r@ $04 and IF  ." slice: " count h. THEN
     drop rdrop ;
 
 : pts@ ( addr -- addr' n )
@@ -132,9 +132,9 @@ $1000 Value dump#
     dup be-ul@
     dup $1C0 $1E0 within IF  ." audio ch: " $1C0 - .  ELSE
 	dup $1E0 $200 within IF  ." video ch: " $1E0 - .  ELSE
-	    ." invalid channel:" hex.  THEN
+	    ." invalid channel:" h.  THEN
     THEN  4 +
-    dup be-uw@ ." len: " hex. 2 +  .pes ;
+    dup be-uw@ ." len: " h. 2 +  .pes ;
 
 Variable pns s" " pns $!
 
@@ -154,18 +154,18 @@ Variable pns s" " pns $!
     dup 1- r@ 3 + crc32 0<> IF  ." inv-crc "  THEN  2 +  r> ;
 
 : .ids ( addr -- addr' )
-    be-w@+ hex.
-    count ." vn " hex.
-    count ." sn " hex.
-    count ." lsn " hex. ;
+    be-w@+ h.
+    count ." vn " h.
+    count ." sn " h.
+    count ." lsn " h. ;
 
 : .pat ( addr -- addr' ) ." pat: " count + ( get to real PAT )
-    count hex. \ pat table id
+    count h. \ pat table id
     p>len 2dup + { addr' } ." len " .
     ." tsid: " .ids
     addr' 4 - swap U+DO
 	I 2 + be-uw@ $1FFF and  I be-uw@ 2dup pns!
-	." pn " hex. ." pid " .
+	." pn " h. ." pid " .
     4 +LOOP
     addr' ;
 
@@ -214,10 +214,10 @@ $FF c,
     REPEAT  2drop s" Invalid tag " ;
 
 : .pnt ( addr -- addr' ) ." pnt: " count + ( should be 0 )
-    count hex. \ should be 2
+    count h. \ should be 2
     p>len 2dup + { addr' } ." len " .
     ." pn: " .ids
-    dup be-uw@ ." pcr: " $1FFF and hex. 2 +
+    dup be-uw@ ." pcr: " $1FFF and h. 2 +
     be-w@+ $3FF and ." pd: " 2dup .dump8 +
     addr' 4 - swap U+DO
 	i c@ ." { st: '" st-ids val>string type ." ' "
@@ -254,30 +254,30 @@ $FF c,
     bounds U+DO
 	I c@ desc-lst val>string type ." : "
 	I c@ $48 = IF
-	    I 2 + c@ ." type: " hex.
+	    I 2 + c@ ." type: " h.
 	    I 3 + count 2dup ." '" type ." ', '" + count type ." ' "
 	ELSE  I c@ 1+ count .dump8  THEN
     I 1+ c@ 2 + +LOOP ;
 
 : .sdt ( addr -- addr' ) ." sdt: " count + ( should be 0 )
-    count hex. \ should be $42
+    count h. \ should be $42
     p>len 2dup + { addr' } ." len " .
     ." tsid: " .ids
-    be-w@+ ." onid: " hex.
+    be-w@+ ." onid: " h.
     1+
     addr' 4 - swap U+DO
-	I be-w@+ ." { sid: " hex.
-	count ." eit: " 3 and hex.
-	be-w@+ dup 13 rshift ." rstate: " hex.
+	I be-w@+ ." { sid: " h.
+	count ." eit: " 3 and h.
+	be-w@+ dup 13 rshift ." rstate: " h.
 	$3FF and 2dup .descs + ." } "
 	I -
     +LOOP
     addr' ;
 
-: .mts-header ( addr 4byte -- addr' )  packet# @ 1- /packet * hex. dup
+: .mts-header ( addr 4byte -- addr' )  packet# @ 1- /packet * h. dup
     >r $FF000000 and $47000000 <> IF  ." no TS header" drop rdrop  EXIT  THEN
     r@ $001FFF00 and 8 rshift { pid } ." pid: " pid .
-    r@ $0000000F and hex.
+    r@ $0000000F and h.
     r@ $00000020 and IF  '<' emit .afield '>' emit space  THEN
     r@ $00400010 and $00400010 = IF
 	pid 0=  IF  .pat  ELSE

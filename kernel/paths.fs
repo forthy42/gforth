@@ -1,7 +1,7 @@
 \ paths.fs path file handling                                    03may97jaw
 
 \ Authors: Anton Ertl, Bernd Paysan, Jens Wilke, Neal Crook
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2010,2013,2016,2017,2018,2019,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2010,2013,2016,2017,2018,2019,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -79,7 +79,7 @@ User tfile
 
 : path+ ( path-addr  "dir" -- ) \ gforth
     \G Add the directory @var{dir} to the search path @var{path-addr}.
-    parse-name rot also-path ;
+    ?parse-name rot also-path ;
 
 : fpath+ ( "dir" ) \ gforth
     \G Add directory @var{dir} to the Forth search path.
@@ -90,7 +90,7 @@ User tfile
 
 : path= ( path-addr "dir1|dir2|dir3" -- ) \ gforth path-equals
     \G Make a complete new search path; the path separator is |.
-    parse-name '|' 0 substc rot only-path ;
+    ?parse-name '|' 0 substc rot only-path ;
 
 : fpath= ( "dir1|dir2|dir3" ) \ gforth f-path-equals
     \G Make a complete new Forth search path; the path separator is |.

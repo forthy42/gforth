@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #Authors: Bernd Paysan, Anton Ertl
-#Copyright (C) 2008,2011,2012,2014,2015,2016,2017,2018,2019,2020 Free Software Foundation, Inc.
+#Copyright (C) 2008,2011,2012,2014,2015,2016,2017,2018,2019,2020,2023 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -24,7 +24,7 @@ DEST=$1
 shift
 export CROSS_PREFIX=@CROSS_PREFIX@
 @NO_CROSS@test -z "$ENGINE" && ENGINE=./gforth
-@NO_CROSS@test -f "gforth.fi" && KERNEL="gforth.fi"
+@NO_CROSS@test -f "gforth-light.fi" && KERNEL="gforth-light.fi"
 export libccdir="$PWD/lib/gforth/$VERSION/$machine/libcc-named/"
 export libccnameddir="$libccdir"
 if test x"@LIB_SUFFIX@" = "x.so" ; then
@@ -37,7 +37,7 @@ else
 fi
 EXTRAPATH="also c-lib :noname 2drop s\" $DEST\" ; is replace-rpath previous 0 warnings !@ get-current environment-wordlist set-current : os-type ( -- c-addr u ) s\" @host_os@\" ; set-current warnings !"
 if test -f "$ENGINE" -a -f "$KERNEL"; then 
-  $ENGINE -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" --die-on-signal -e "$EXTRAPATH" "$@"
+  $ENGINE -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" --die-on-signal -i $KERNEL -e "$EXTRAPATH" "$@"
 else
   export includedir=`pwd`/include
   @GFORTHKER@ -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" exboot.fs startup.fs \

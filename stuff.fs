@@ -1,7 +1,7 @@
 \ miscelleneous words
 
 \ Authors: Anton Ertl, Bernd Paysan, Neal Crook
-\ Copyright (C) 1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -47,6 +47,28 @@ AUser CSP
 : dmax ( d1 d2 -- d ) \ double d-max
     2over 2over d< IF  2swap  THEN 2drop ;
 
+\ pow2? ctz
+
+[undefined] log2 [if]
+: log2 ( x -- n )
+    \ integer binary logarithm
+    -1 swap begin
+	dup while
+	    1 rshift 1 under+ repeat
+    drop ;
+[then]
+
+: pow2? ( u -- f ) \ gforth pow-two-query
+    \g @i{f} is true iff @i{u} is a power of two, i.e., there is
+    \g exactly one bit set in @i{u}.
+    dup dup 1- and 0= and 0<> ;
+
+: ctz ( x -- u ) \ gforth c-t-z
+    \g count trailing zeros in binary representation of x
+    dup if
+	dup negate and log2 exit then
+    drop 8 cells ;
+
 \ shell commands
 
 UValue $? ( -- n ) \ gforth dollar-question
@@ -80,7 +102,7 @@ UValue $? ( -- n ) \ gforth dollar-question
 [endif]
 
 : in-return-stack? ( addr -- f )
-    rp0 @ [ forthstart 7 cells + ]L @ - $FFF + -$1000 and rp0 @ within ;
+    rp0 @ [ forthstart 9 cells + ]L @ - $FFF + -$1000 and rp0 @ within ;
 
 \ const-does>
 
@@ -109,7 +131,7 @@ UValue $? ( -- n ) \ gforth dollar-question
     ['] on create-from \ start colon def without stack junk
     true to in-colon-def?
     ur compile-fliterals uw compile-literals
-    target compile, POSTPONE exit reveal
+    target compile, POSTPONE exit flush-code reveal
     false to in-colon-def? ;
 
 : const-does> ( run-time: w*uw r*ur uw ur "name" -- ) \ gforth-obsolete const-does
@@ -185,9 +207,9 @@ UValue $? ( -- n ) \ gforth dollar-question
 : defers@ ( xt -- xt' )
     BEGIN  dup ['] defer@ catch 0= WHILE  nip  REPEAT  drop ;
 synonym >rec-stack >body ( xt -- stack )
-: get-rec-sequence ( recs-xt -- x1 .. xtn n )
+: get-recognizer-sequence ( recs-xt -- x1 .. xtn n )
     defers@ >rec-stack get-stack ;
-: set-rec-sequence ( x1 .. xtn n recs-xt -- )
+: set-recognizer-sequence ( x1 .. xtn n recs-xt -- )
     defers@ >rec-stack set-stack ;
 
 Create forth-recognizer ( -- xt ) \ gforth-experimental
@@ -200,10 +222,39 @@ opt: @ 3 swap (to), ;
 
 : get-recognizers ( -- xt1 .. xtn n ) \ gforth-experimental
     \G push the content on the recognizer stack
-    ['] forth-recognize get-rec-sequence ;
+    ['] forth-recognize get-recognizer-sequence ;
 : set-recognizers ( xt1 .. xtn n -- ) \ gforth-experimental
     \G set the recognizer stack from content on the stack
-    ['] forth-recognize set-rec-sequence ;
+    ['] forth-recognize set-recognizer-sequence ;
+
+: -stack { x stack -- } \ gforth-experimental
+    \G delete x from a stack
+    stack get-stack  0 stack set-stack 0 ?DO
+	dup x <> IF  stack >back  ELSE  drop  THEN
+    LOOP ;
+: +after { y x stack -- } \ gforth-experimental
+    \G add @var{y} after @var{x} in stack
+    stack get-stack  0 stack set-stack 0 ?DO
+	dup stack >back x = IF  y stack >back  THEN
+    LOOP ;
+
+0 Value try-free
+
+: try-recognize ( addr u xt -- results | false ) \ gforth-experimental
+    \G For nested recognizers: try to recognize @var{addr u}, and execute
+    \G @var{xt} to check if the result is desired.  If @var{xt} returns false,
+    \G clean up all side effects of the recognizer, and return false.
+    \G Otherwise return the results of the call to @var{xt}, of which the
+    \G topmost is non-zero.
+    { xt: xt }  0 to try-free  sp@ fp@ 2>r >in @ >r
+    forth-recognize xt dup
+    if    rdrop 2rdrop
+    else
+	try-free ?dup-if  free throw  then
+	r> >in ! 2r> fp! sp! 2drop false
+    then ;
+
+:noname defers 'image   0 to try-free ; is 'image
 
 \ ]] ... [[
 
@@ -221,7 +272,61 @@ translate: translate-[[
     \G processed as if they were preceded by @code{postpone}.
     \G Postpone state ends when @code{[[} is recognized.
     ['] rec-[[ forth-recognizer >stack
-    -2 state ! ; immediate restrict
+    ['] >postpone translate-state ; immediate restrict
+
+\ mem+do...mem+loop mem-do...mem-loop array>mem
+
+\ !! todo: check for matching MEM*LOOP; also support non-constants
+
+s" mem+do and mem-do currently require a constant stride" exception
+constant mem*do-noconstant
+
+: array>mem ( uelements uelemsize -- ubytes uelemsize )
+    tuck * swap ;
+
+: const-mem+loop ( +nstride xt do-sys -- )
+    cs-item-size 1+ pick ]] literal +loop [[ 2drop ;
+
+: general-mem+loop ( local-offset xt do-sys )
+    cs-item-size 1+ pick lp-offset compile-@local ]] +loop [[ 2drop
+    ]] endscope [[ ;
+
+: -[do ( compilation -- do-sys ; run-time n1 n2 -- | loop-sys ) \ gforth-experimental minus-bracket-do
+    \G Start of a counted loop with negative stride; Skips the loop if
+    \G @i{n2}<@i{n1}; such a counted loop ends with @code{+loop} where
+    \G the increment is negative; it runs as long as @code{I}>=@i{n1}.
+    POSTPONE (-[do) ?do-like ; immediate restrict    
+
+: u-[do ( compilation -- do-sys ; run-time u1 u2 -- | loop-sys ) \ gforth-experimental u-minus-bracket-do
+    \G Start of a counted loop with negative stride; Skips the loop if
+    \G @i{u2}<@i{u1}; such a counted loop ends with @code{+loop} where
+    \G the increment is negative; it runs as long as @code{I}>=@i{u1}.
+    POSTPONE (u-[do) ?do-like ; immediate restrict    
+
+: mem-do ( compilation -- w xt do-sys; run-time addr ubytes +nstride -- ) \ gforth-experimental mem-minus-do
+    \g Starts a counted loop that starts with @code{I} as
+    \g @i{addr}+@i{ubytes}-@i{ustride} and then steps backwards
+    \g through memory with -@i{nstride} wide steps as long as
+    \g @code{I}>=@i{addr}.  Must be finished with @i{loop}.
+    lits# if
+        lits> negate ['] const-mem+loop over ]] literal + over + u-[do [[
+    else
+        ]] scope dup negate [[
+        noname-w: ['] general-mem+loop ]] - over + u-[do [[
+    then
+    1 or ; immediate compile-only
+
+: mem+do ( compilation -- w xt do-sys; run-time addr ubytes +nstride -- ) \ gforth-experimental mem-plus-do
+    \g Starts a counted loop that starts with @code{I} as @i{addr} and
+    \g then steps upwards through memory with @i{nstride} wide steps
+    \g as long as @code{I}<@i{addr}+@i{ubytes}.  Must be finished with
+    \g @i{loop}.
+    lits# if
+        lits> ['] const-mem+loop ]] bounds u+do [[
+    else
+        ]] scope [[ noname-w: ['] general-mem+loop ]] bounds u+do [[
+    then
+    1 or ; immediate compile-only
 
 \ f.rdp
 
@@ -266,10 +371,11 @@ translate: translate-[[
 	    #>> mantlen
 	endif
     else \ inf or nan
-        \ don't rely on REPRESENT result
-        2drop
-        rf f0< if s" -Inf" else rf f0>= if s" Inf" else s" NaN" endif endif
-        c-addr ur rot umin dup >r move c-addr ur r> /string blank
+        \ rely on REPRESENT result
+	2drop
+	\ if you don't want to rely, use this:
+	\ rf f0< if s" -Inf" else rf f0>= if s" Inf" else s" NaN" endif endif
+        \ c-addr ur rot umin dup >r move c-addr ur r> /string blank
         ur
     endif
     1 max ur min ;
@@ -357,6 +463,11 @@ translate: translate-[[
 
 \ defer stuff
 
+: preserve ( "name" -- ) \ gforth
+    \G emit code that reverts a deferred word to the state at
+    \G compilation
+    ' dup defer@ lit, 4 swap (to), ; immediate
+
 3 to: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
 \G @i{Xt} is the XT that is currently assigned to @i{name}.
 
@@ -409,15 +520,10 @@ previous
     [then]
 [then]
 
-' noop create-from noop0 ( -- ) \ gforth-internal
-\g noop that compiles to nothing
-' drop set-optimizer
-reveal
-
 1 pad ! pad c@ 1 = [IF] \ little endian
-    ' noop0 ' noop0 ' noop0 ' noop0 ' xd><  ' x><   ' l><   ' w><
+    ' [noop] ' [noop] ' [noop] ' [noop] ' xd><   ' x><    ' l><    ' w><
 [else] \ big-endian
-    ' xd><  ' x><   ' l><   ' w><   ' noop0 ' noop0 ' noop0 ' noop0
+    ' xd><   ' x><    ' l><    ' w><    ' [noop] ' [noop] ' [noop] ' [noop]
 [THEN]
 
 ( 8 xts )
@@ -454,10 +560,10 @@ alias xdle ( ud1 -- ud2 ) \ gforth
 \g little-endian or from little-endian to native byte order (the same
 \g operation)
 
-' noop0 alias x>s ( x -- n ) \ gforth
+' [noop] alias x>s ( x -- n ) \ gforth
 \g Sign-extend the 64-bit value in @i{x} to cell @i{n}.
 1 cells 4 = [if]
-    ' noop0
+    ' [noop]
 [else] 1 cells 8 = [if]
         ' s>d
     [else]
@@ -557,8 +663,23 @@ User theme-color  0 theme-color !
     endtry
     throw ;
 
+: dec. ( n -- ) \ gforth
+    \G Display @i{n} as a signed decimal number, followed by a space.
+    ['] . #10 base-execute ;
+
+: h. ( u -- ) \ gforth
+    \G Display @i{u} as an unsigned hex number, prefixed with a "$" and
+    \G followed by a space.
+    '$' emit ['] u. $10 base-execute ;
+
+synonym hex. h. ( u -- ) \ gforth
+    \G Display @i{u} as an unsigned hex number, prefixed with a
+    \G @code{$} and followed by a space.  Another name for this word
+    \G is @code{h.}, which is present in several other systems, but
+    \G not in Gforth before 1.0.
+
 : hex.r ( u1 u2 -- )
-    ['] u.r #16 base-execute ;
+    ['] u.r $10 base-execute ;
 
 : dump ( addr u -- ) \ tools
     ['] dump $10 base-execute ;
@@ -601,7 +722,7 @@ User theme-color  0 theme-color !
 
 : 2value-compile, ( xt -- )  >body postpone Literal postpone 2@ ;
 
-' >body 2!-table to-method: 2value-to ( addr -- ) \ gforth-internal
+' >body 2!-table to-class: 2value-to ( addr -- ) \ gforth-internal
 
 create dummy-2value
 ' 2@ set-does>
@@ -747,3 +868,16 @@ end-struct buffer% ( u1 u2 -- ) \ gforth-experimental
     evaluate \ execute entry code
     drop \ drop handle used by loader
 ;
+
+\ rpick
+
+: rpick ( u -- wu ; R: wu ... w0 -- wu ... w0 ) \ gforth
+    \G @i{wu} is the @i{u}th element on the return stack; @code{0
+    \G rpick} is equivalent to @code{r@@}.
+    1+ cells rp@ + @ ;
+fold1:
+    case
+	0 of  postpone r@  endof
+	1 of  postpone r'@  endof
+	postpone rpick# dup ,
+    endcase ;

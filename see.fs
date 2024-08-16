@@ -1,7 +1,7 @@
 \ SEE.FS       highend SEE for ANSforth                16may93jaw
 
 \ Authors: Bernd Paysan, Anton Ertl, David Kühling, Jens Wilke, Neal Crook
-\ Copyright (C) 1995,2000,2003,2004,2006,2007,2008,2010,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,2000,2003,2004,2006,2007,2008,2010,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -321,10 +321,11 @@ ACONSTANT MaxTable
 : back? ( addr target -- addr flag )
     over u< ;
 
-: .word ( addr x -- addr )
-    \ print x as a word if possible
+: .word1 ( addr x -- addr )
+    \ print x as a word if possible; for primitives, x must be fetched
+    \ with @decompile-prim
     dup look 0= IF
-	drop dup threaded>name dup 0= if
+        drop dup threaded>name dup 0= if
 	    drop over cell- @ dup body> look IF
 		nip nip dup ." <" name>string rot wordinfo .string ." > "
 	    ELSE
@@ -341,13 +342,13 @@ ACONSTANT MaxTable
 
 : c-call ( addr1 -- addr2 )
     Display? IF
-	dup @ body> .word bl cemit
+	dup @ body> .word1 bl cemit
     THEN
     cell+ ;
 
 : c-callxt ( addr1 -- addr2 )
     Display? IF
-	dup @ .word bl cemit
+	dup @ .word1 bl cemit
     THEN
     cell+ ;
 
@@ -374,8 +375,8 @@ ACONSTANT MaxTable
 	endif
     endif
     over 4 cells + over = if
-	over 1 cells + @ decompile-prim ['] call xt= >r
-	over 3 cells + @ decompile-prim ['] ;S xt=
+	over 1 cells + @decompile-prim ['] call xt= >r
+	over 3 cells + @decompile-prim ['] ;S xt=
 	r> and if
 	    over 2 cells + @ ['] set-does> >body = if  drop
 		S" DOES> " ['] Com-color ?.string 4 cells + EXIT endif
@@ -417,8 +418,8 @@ ACONSTANT MaxTable
 : id.-without ( addr -- addr )
     \ !! the stack effect cannot be correct
     \ prints a name without () and without -LP+!#, e.g. a (+LOOP) or (s")
-    dup cell- @ threaded>name dup IF
-	dup ``(/loop)# = over ``(/loop)#-lp+!# = or if drop ``+loop then
+    dup cell- @threaded>name dup IF
+	dup ``(/loop) = over ``(/loop)-lp+!# = or if drop ``+loop then
 	name>string over c@ '( = IF
 	    1 /string
 	THEN
@@ -449,13 +450,13 @@ ACONSTANT MaxTable
     \ abort": if ahead X: len string then lit X c(abort") then
     dup @ back? if false exit endif
     dup @ dup
-    >r @ decompile-prim ['] lit xt= 0= if rdrop false exit endif
+    >r @decompile-prim ['] lit xt= 0= if rdrop false exit endif
     r@ cell+ @ over cell+ <> if rdrop false exit endif
     \ we have at least C"
-    r@ 2 cells + @ decompile-prim dup ['] lit xt= if
+    r@ 2 cells + @decompile-prim dup ['] lit xt= if
 	drop r@ 3 cells + @ over cell+ + aligned r@ = if
 	    \ we have at least s"
-	    r@ 4 cells + @ decompile-prim ['] lit-perform xt=
+	    r@ 4 cells + @decompile-prim ['] lit-perform xt=
 	    r@ 5 cells + @ ['] type >body = and if
 		6 s\" .\\\" "
 	    else
@@ -602,11 +603,6 @@ ACONSTANT MaxTable
     THEN ( addr1 ) \ perverse stack effect of MoreBranchAddr?
     cell+ ;
 
-: c-loop# ( addr -- addr1 )
-    Display? if
-	dup @ c-. then
-    c-loop cell+ ;
-
 : c-do ( addr -- addr )
     Display? IF
 	dup BranchAddr? IF ( addr addr1 )
@@ -657,8 +653,8 @@ ACONSTANT MaxTable
     Variable u#what \ global variable to specify what to search for
     : search-u#gen ( 0 offset1 offset2 nt -- xt/0 offset1 offset2 flag )
 	name>interpret dup >code-address docol: = IF
-	    dup >body @ decompile-prim u#what @ xt=
-	    over >body 3 cells + @ decompile-prim ['] ;S xt= and
+	    dup >body @decompile-prim u#what @ xt=
+	    over >body 3 cells + @decompile-prim ['] ;S xt= and
 	    IF  >r 2dup r@ >body cell+ 2@ d=
 		IF  r> -rot 2>r nip 2r> false  EXIT  THEN
 		r>
@@ -687,7 +683,7 @@ ACONSTANT MaxTable
 	THEN  cell+ ;
 [THEN]
 
-[IFDEF] useraddr
+[DEFINED] useraddr [DEFINED] up@ or [IF]
     : ?type-found ( offset nt flag -- offset flag' )
 	IF  2dup >body @ = IF  -rot nip false  EXIT
 	    THEN  THEN  drop true ;
@@ -707,6 +703,16 @@ ACONSTANT MaxTable
     : c-useraddr ( addr -- addr' )
 	[: ['] search-uservar swap traverse-wordlist ;]
 	s" useraddr " c-searcharg ;
+[THEN]
+[IFDEF] up@
+    : c-up@ ( addr -- addr' )
+	dup @decompile-prim ['] lit+ xt= IF
+	    cell+ c-useraddr
+	ELSE
+	    display? IF
+		s" up@ " ['] default-color .string
+	    THEN
+	THEN  ;
 [THEN]
 [IFDEF] user@
     : search-userval ( offset nt -- offset flag )
@@ -737,6 +743,8 @@ CREATE C-Table \ primitives map to code only
 [IFDEF] (u+do)	' (u+do) A,	    ' c-?do A, [THEN]
 [IFDEF] (-do)	' (-do) A,	    ' c-?do A, [THEN]
 [IFDEF] (u-do)	' (u-do) A,	    ' c-?do A, [THEN]
+[IFDEF] (-[do)  ' (-[do) A,         ' c-?do A, [THEN]
+[IFDEF] (u-[do) ' (u-[do) A,        ' c-?do A, [THEN]
         	' (?do) A,          ' c-?do A,
         	' (for) A,          ' c-for A,
         	' ?branch A,        ' c-?branch A,
@@ -746,7 +754,7 @@ CREATE C-Table \ primitives map to code only
         	' (+loop) A,        ' c-loop A,
 [IFDEF] (s+loop) ' (s+loop) A,      ' c-loop A, [THEN]
 [IFDEF] (-loop) ' (-loop) A,        ' c-loop A, [THEN]
-[IFDEF] (/loop)# ' (/loop)# A,      ' c-loop# A, [THEN]
+[IFDEF] (/loop) ' (/loop) A,        ' c-loop A, [THEN]
         	' (next) A,         ' c-loop A,
         	' ;s A,             ' c-exit A,
 \ [IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
@@ -757,6 +765,7 @@ CREATE C-Table \ primitives map to code only
 [IFDEF] call-c# ' call-c# A,        ' c-call-c# A, [THEN]
 [IFDEF] useraddr ' useraddr A,      ' c-useraddr A, [THEN]
 [IFDEF] user@    ' user@ A,         ' c-user@ A, [THEN]
+[IFDEF] up@     ' up@ A,            ' c-up@ A, [THEN]
         	0 ,		here 0 ,
 
 avariable c-extender
@@ -765,7 +774,6 @@ c-extender !
 \ DOTABLE                                               15may93jaw
 
 : DoTable ( ca/cfa -- flag )
-    decompile-prim
     C-Output @ IF
 	dup ['] lit xt= IF  drop c>lit true  EXIT  THEN
     THEN
@@ -808,11 +816,11 @@ c-extender !
 
 : analyse ( a-addr1 -- a-addr2 )
     Branches @ IF BranchTo? THEN
-    dup cell+ swap @
+    dup cell+ swap @decompile-prim
     dup >r DoTable IF rdrop EXIT THEN
     r> Display?
     IF
-	.word bl cemit
+	.word1 bl cemit
     ELSE
 	drop
     THEN ;
@@ -901,8 +909,8 @@ c-extender !
 	." latestxt >body !"
     then ;
 : umethod? ( xt -- flag )
-    >body dup @ decompile-prim ['] u#exec xt= swap
-    3 cells + @ decompile-prim ['] ;S xt= and ;
+    >body dup @decompile-prim ['] u#exec xt= swap
+    3 cells + @decompile-prim ['] ;S xt= and ;
 
 \ user visible words
 
@@ -967,7 +975,7 @@ set-current
     ELSE
 	dup alias? IF
 	    dup >body @ name>string nip 0= IF
-		dup >body @ hex.
+		dup >body @ h.
 	    ELSE
 		." ' " dup >body @ id.
 	    THEN ." Alias " dup id.
@@ -993,6 +1001,6 @@ set-current
     \G the definition, the formatting is mechanised and some source
     \G information (comments, interpreted sequences within definitions
     \G etc.) is lost.
-    parse-name name-too-short? find-name dup 0= -&13 and throw name-see ;
+    view' name-see ;
 
 previous

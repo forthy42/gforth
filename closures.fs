@@ -1,7 +1,7 @@
 \ A powerful closure implementation
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -30,6 +30,7 @@ Defer end-d ( ... xt -- ... )
 Defer endref, ( -- )
 \ pushes a reference to the location
 ' noop is endref,
+false Value 1t-closure?
 
 -2 cells field: >addr ( xt -- addr ) \ gforth-experimental to-addr
     \G convert the xt of a closure on the heap to the @var{addr} with can be
@@ -43,7 +44,7 @@ drop
     dp +! dp @ ;
 
 : >lp ( addr -- r:oldlp ) r> lp@ >r >r lp! ;
-opt: drop ]] laddr# [[ 0 , ]] >r lp! [[ ;
+opt: drop ]] lp@ >r lp! [[ ;
 : lp> ( r:oldlp -- ) r> r> lp! >r ;
 opt: drop ]] r> lp! [[ ;
 
@@ -77,6 +78,13 @@ locals-types definitions
     \G the heap.
     ['] alloch :}* ;
 
+: :}h1 ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth colon-close-brace-h-one
+    \G end a closure's locals declaration.  The closure is deallocated
+    \G after the first execution, so this is a one-shot closure,
+    \G particularly useful in combination with @code{send-event}
+    \G (@pxref{Message queues}).
+    true to 1t-closure? ['] alloch :}* ;
+
 forth definitions
 
 : push-locals ( list size -- )
@@ -109,7 +117,7 @@ forth definitions
 
 : wrap-closure ( xt -- )
     dup >extra !  ['] does, set-optimizer
-    finish-code  hm,  wrap!  hmtemplate off \ dead hmtemplate link
+    flush-code  hm,  wrap!  hmtemplate off \ dead hmtemplate link
     previous-section  dead-code off ;
 
 : (closure-;]) ( closure-sys lastxt -- )
@@ -123,12 +131,16 @@ forth definitions
 
 : closure-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
+    :-hook1
     ['] here locals-headers latest latestnt
     clear-leave-stack
     dead-code off
     defstart
     true to in-colon-def? ;
 
+: free-closure ( xt -- ) \ gforth-internal
+    \G free a heap-allocated closure
+    >addr free throw ;
 : closure> ( hmaddr -- addr ) \ gforth-internal closure-end
     \G create trampoline head
     [ 0 >body ] [IF] dodoes: >l >l lp@ cell+
@@ -137,15 +149,18 @@ forth definitions
     >r
     postpone lit here 0 ,
     ]] closure> [[ r> execute
-    wrap@ next-section finish-code|
+    wrap@ next-section
     action-of :-hook >r  ['] closure-:-hook is :-hook
     :noname
     r> is :-hook
+    1t-closure? IF  ]] dup [[ THEN
     case locals-size @ \ special optimizations for few locals
 	cell    of ]] @ >l   [[ endof
 	2 cells of ]] 2@ 2>l [[ endof
-	]] lp+!# [[ dup negate , ]] laddr# [[ 0 , dup ]] literal move [[
+	dup negate ]] literal lp+! lp@ [[ dup ]] literal move [[
     endcase
+    1t-closure? IF  ]] free-closure [[ THEN
+    false to 1t-closure?
     ['] (closure-;]) colon-sys-xt-offset stick ;
 
 : [{: ( -- hmaddr u latest latestnt wid 0 ) \ gforth-experimental start-closure
@@ -172,26 +187,32 @@ forth definitions
 
 : ;> ( -- ) \ gforth-experimental end-homelocation
     \G end using a home location
-    pop-locals ]] laddr# [[ 0 , ]] lp> [[
+    pop-locals ]] lp@ lp> [[
 ; immediate compile-only
 
 \ stack-based closures without name
 
-: (;*]) ( xt -- hm )
+: (;]*) ( xt -- hm )
     >r ] ]] UNREACHABLE ENDSCOPE [[
     r@ wrap-closure  r> >namehm @ ;
 
-: (;]l) ( xt1 n xt2 -- ) (;*]) >r dummy-local,
+: (;]l) ( xt1 n xt2 -- )
+    (;]*) >r dummy-local,
     compile, r> lit, ]] closure> [[ ;
-: (;]*) ( xt0 xt1 n xt2 -- )  (;*]) >r lit, swap compile,
-    ]] >lp [[ compile, r> lit, ]] closure> lp> [[ ;
+
+: alloc-by-xt, ( xt n -- )
+    lit, swap compile, ]] >lp [[ ;
+: (;]xt) ( xt0 xt1 n xt2 -- )
+    (;]*) >r alloc-by-xt,
+    compile, r> lit, ]] closure> lp> [[ ;
 
 : :l ( -- xt )                  ['] (;]l) ; immediate restrict
-: :h ( -- xt1 xt2 )  ['] alloch ['] (;]*) ; immediate restrict
-: :d ( -- xt1 xt2 )  ['] allocd ['] (;]*) ; immediate restrict
+: :h ( -- xt1 xt2 )  ['] alloch ['] (;]xt) ; immediate restrict
+: :d ( -- xt1 xt2 )  ['] allocd ['] (;]xt) ; immediate restrict
 
 : [*:: [{: xt@ xt>l size :}d
-	>r xt>l size [ 2 cells ]L + maxaligned postpone [: xt@ compile,
+	>r xt>l size [ 2 cells ]L + maxaligned
+	postpone [: xt@ compile,
 	r> [ colon-sys-xt-offset 2 + ]L stick ;]
     alias immediate restrict ;
 
@@ -203,16 +224,16 @@ cell 4 = [IF]  :noname ( n -- xt )  false >l >l ;  [ELSE]  ' >l  [THEN]
 \ combined names (used in existing code)
 
 : [n:l ( -- colon-sys ) ]] :l [n: [[ ; immediate restrict
-: [n:h ( -- colon-sys ) ]] :h [n: [[ ; immediate restrict
-: [n:d ( -- colon-sys ) ]] :d [n: [[ ; immediate restrict
-
 : [d:l ( -- colon-sys ) ]] :l [d: [[ ; immediate restrict
-: [d:h ( -- colon-sys ) ]] :h [d: [[ ; immediate restrict
-: [d:d ( -- colon-sys ) ]] :d [d: [[ ; immediate restrict
-
 : [f:l ( -- colon-sys ) ]] :l [f: [[ ; immediate restrict
-: [f:h ( -- colon-sys ) ]] :h [f: [[ ; immediate restrict
+
+: [n:d ( -- colon-sys ) ]] :d [n: [[ ; immediate restrict
+: [d:d ( -- colon-sys ) ]] :d [d: [[ ; immediate restrict
 : [f:d ( -- colon-sys ) ]] :d [f: [[ ; immediate restrict
+
+: [n:h ( -- colon-sys ) ]] :h [n: [[ ; immediate restrict
+: [d:h ( -- colon-sys ) ]] :h [d: [[ ; immediate restrict
+: [f:h ( -- colon-sys ) ]] :h [f: [[ ; immediate restrict
 
 [IFDEF] test-it
     : foo [{: a f: b d: c xt: d :}d a . b f. c d. d ;] ;

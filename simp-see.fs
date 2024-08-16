@@ -1,7 +1,7 @@
 \ simple-minded see (good for seeing what the compiler produces)
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 2001,2003,2007,2014,2017,2019,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2001,2003,2007,2014,2017,2019,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -36,10 +36,22 @@ get-current also see-voc definitions
     then ;
 
 : see-word.addr ( addr -- )
-    xpos off hex. ;
+    xpos off h. ;
+
+: .transition ( ustart uend -- )
+    swap 4 spaces 0 .r ." ->" . ;
+
+: simp.word {: addr -- :}
+    addr decompile-prim3 {: nseqlen ustart uend c-addr u nlen :} nlen 0< if
+        addr @ .word1
+    else
+        c-addr u type
+        nseqlen if
+            ustart uend .transition then
+    then ;
 
 : simple-see-word { addr -- }
-    addr see-word.addr addr cell+ addr @ .word drop ;
+    addr see-word.addr addr cell+ addr simp.word drop ;
 
 set-current
 
@@ -64,15 +76,15 @@ set-current
     \G Decompile code in [@i{addr1},@i{addr2}) like @code{see-code}.
     0 addr1 0 0 ['] noop begin { nseqlen  addr d: codeblock xt: cr? }
         addr addr2 u< while
-            addr @ decompile-prim2 { ulen } ulen 0< if
+            addr decompile-prim3 { ulen } ulen 0< if
                 drop 2drop 2drop
                 cr? addr simple-see-word
                 nseqlen
             else
                 nseqlen 0= if
-                    codeblock discode 0 0 to codeblock ['] noop to cr? then
-                cr? addr see-word.addr type { nseqlen1 ustart uend } ulen if
-                    ustart 4 spaces 0 .r ." ->" uend .
+                    codeblock discode 0 0 to codeblock ['] noop is cr? then
+                cr? addr see-word.addr type { nseqlen1 ustart uend } nseqlen1 if
+                    ustart uend .transition
                     assert( codeblock nip 0= )
                     addr @ ulen to codeblock then
                 nseqlen nseqlen1 max 1-

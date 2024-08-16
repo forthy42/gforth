@@ -2,7 +2,7 @@
 \ <foo> puts the body of foo on the stack like ' foo >body does
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -20,11 +20,8 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 [IFUNDEF] ?rec-nt
-    : ?rec-nt ( addr u -- xt true / something 0 )
-	sp@ >in @ 2>r
-	forth-recognize ['] translate-nt = dup
-	if  2r> 2over  else  2r> #0.  then  2>r >in ! sp!
-	2drop 2r> ;
+    : ?rec-nt ( addr u -- nt true / something 0 )
+	[: ['] translate-nt = ;] try-recognize ;
 [THEN]
 
 : rec-body ( addr u -- xt translate-tick | translate-null ) \ gforth-experimental
@@ -33,7 +30,7 @@
     over c@ '<' <> >r  2dup + 1- c@ '>' <> r> or
     if 2drop ['] notfound exit then
     1 /string 1- '+' $split 2>r ?rec-nt
-    0= if  drop 2rdrop ['] notfound exit then
+    0= if  2rdrop ['] notfound exit then
     name>interpret >body
     2r> dup 0= if  2drop ['] translate-num  exit  then
     case  rec-num

@@ -1,7 +1,7 @@
 \ scope recognizer
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2015,2016,2017,2018,2019,2020,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2015,2016,2017,2018,2019,2020,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -31,17 +31,34 @@
 		>wordlist  REPEAT  drop  THEN
     2drop ['] notfound ;
 
-: rec-scope ( addr u -- nt rectype-nt | notfound )
+: rec-scope ( addr u -- nt rectype-nt | notfound ) \ gforth-experimental
+    \G Recognizes strings of the form (simplified)
+    \G @code{@i{wordlist}:@i{word}}, where wordlist is found in the
+    \G search order.  The result is the same as for @code{rec-nt} for
+    \G @i{word} (the ordinary word recognizer) if the search order
+    \G consists only of @i{wordlist}.  The general form can have
+    \G several wordlists preceding @i{word}, separated by @code{:};
+    \G the first (leftmost) wordlist is found in the search order, the
+    \G second in the first, etc.  @i{word} is the looked up in the
+    \G last (rightmost) wordlist.
     ['] search-order scope-split ;
 
-get-recognizers 1+ ' rec-scope -rot set-recognizers
+' forth-recognize defer@ get-stack 1+ ' rec-scope -rot
+' forth-recognize defer@ set-stack
 
 : in ( "voc" "defining-word" -- ) \ gforth-experimental
     \G execute @var{defining-word} with @var{voc} as one-shot current
     \G directory. Example: @code{in gui : init-gl ... ;} will define
     \G @code{init-gl} in the @code{gui} vocabulary.
-    get-current >r also ' execute definitions previous ' execute
-    r> set-current ;
+    get-current >r also ' execute definitions previous ' catch
+    r> set-current throw ;
+
+: in-wordlist ( wordlist "defining-word" -- ) \ gforth-experimental
+    \G execute @var{defining-word} with @var{wordlist} as one-shot current
+    \G directory. Example: @code{gui-wordlist in-wordlist : init-gl ... ;}
+    \G will define @code{init-gl} in the @code{gui-wordlist} wordlist.
+    get-current >r set-current ' catch
+    r> set-current throw ;
 
 : ?search-prefix ( addr len wid/0 -- addr' len' )
     ?dup-IF

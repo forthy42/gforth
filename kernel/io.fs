@@ -1,7 +1,7 @@
 \ input output basics				(extra since)	02mar97jaw
 
 \ Authors: Bernd Paysan, Anton Ertl, Jens Wilke, Neal Crook, Gerald Wodni
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -146,11 +146,11 @@ here
 ' (emit) A,
 ' (cr) A,
 [IFDEF] (form) ' (form) A, [THEN]
-' -/- A, \ page
-' -/- A, \ at-xy
-' -/- A, \ at-deltaxy
-' -/- A, \ attr!
-' -/- A, \ control-sequence
+' n/a A, \ page
+' n/a A, \ at-xy
+' n/a A, \ at-deltaxy
+' n/a A, \ attr!
+' n/a A, \ control-sequence
 ' drop A, \ theme-color!
 A, here AConstant default-out
 
@@ -159,11 +159,11 @@ here
 ' (err-emit) A,
 ' (cr) A,
 [IFDEF] (form) ' (form) A, [THEN]
-' -/- A, \ page
-' -/- A, \ at-xy
-' -/- A, \ at-deltaxy
-' -/- A, \ attr!
-' -/- A, \ control-sequence
+' n/a A, \ page
+' n/a A, \ at-xy
+' n/a A, \ at-deltaxy
+' n/a A, \ attr!
+' n/a A, \ control-sequence
 ' drop A, \ theme-color!
 A, here AConstant debug-out
 
@@ -185,7 +185,7 @@ default-in ip-vector !
 
 : output: ( type-xt emit-xt cr-xt form-xt -- )
     Create here cell+ , swap 2swap swap , , , ,
-    ['] -/- , ['] -/- , ['] -/- , ['] -/- , ['] -/- , ['] drop ,
+    ['] n/a , ['] n/a , ['] n/a , ['] n/a , ['] n/a , ['] drop ,
   DOES> cell+ op-vector ! ;
 
 \ Input                                                13feb93py
@@ -213,9 +213,9 @@ default-in ip-vector !
 Defer theme!  ' 2drop is theme!
 Defer theme@  ' noop is theme@
 
-Create theme-table ' theme! A, ' -/- A, ' -/- A, ' theme@ A,
+Create theme-table ' theme! A, ' n/a A, ' n/a A, ' theme@ A,
 
-' [noop] theme-table to-method: theme-to ( n value-xt -- ) \ gforth-internal
+' [noop] theme-table to-class: theme-to ( n value-xt -- ) \ gforth-internal
 
 Variable theme-color#
 : theme-color: ( "name" -- )
@@ -246,7 +246,7 @@ theme-color: status-color ( -- ) \ gforth
 
 decimal
 : spaces-loop ( n addr -- )
-    swap  0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
+    swap  0 max 0 ?DO  delta-I &80 min 2dup type  +LOOP  drop ;
 Create spaces ( u -- ) \ core
 \G Display @var{u} spaces. 
 bl 80 c,s \ c,s from target compiler! 11may93jaw

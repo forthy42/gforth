@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Authors: Bernd Paysan, Anton Ertl
-#Copyright (C) 2000,2003,2006,2007,2009,2011,2012,2016,2017,2018,2020 Free Software Foundation, Inc.
+#Copyright (C) 2000,2003,2006,2007,2009,2011,2012,2016,2017,2018,2020,2023,2021 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -63,7 +63,7 @@ cat <<EOF
 [Setup]
 AppName=Gforth
 AppVersion=$VERSION
-AppCopyright=Copyright © 1995-2020 Free Software Foundation
+AppCopyright=Copyright © 1995-2020,2021 Free Software Foundation
 DefaultDirName={pf}\gforth
 DefaultGroupName=Gforth
 AllowNoIcons=1

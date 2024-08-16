@@ -1,7 +1,7 @@
 \ Pulse audio driver
 
 \ Authors: Bernd Paysan
-\ Copyright (C) 2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -162,8 +162,11 @@ Variable def-output$
     [:  pa_mainloop_new to pa-ml
 	pa-ml pa_mainloop_get_api to pa-api
 	pa-api app-name $@ pa_context_new to pa-ctx
-	pa-ctx s" PULSE_SERVER" getenv
-	dup IF  save-mem compact-filename  THEN
+	pa-ctx ${PULSE_SERVER}
+	dup IF  save-mem compact-filename
+	ELSE  2drop [: ." unix:" ${XDG_RUNTIME_DIR} type ." /pulse/native" ;] $tmp save-mem
+	THEN
+	pulse( ." server: " 2dup type cr )
 	PA_CONTEXT_NOAUTOSPAWN 0 pa_context_connect ?pa-ior
 	pa-ctx pa-context-notify-cb ['] pa-notify-state
 	pa_context_set_state_callback
@@ -175,18 +178,12 @@ Variable def-output$
 	    ?requests
 	AGAIN ;] catch ?dup-IF  DoError  THEN ;
 
-event: :>exec ( xt -- ) execute ;
-event: :>execq ( xt -- ) dup >r execute r> >addr free throw ;
-: pa-event> ( -- ) pa-task event>
+: pulse-exec ( xt -- ) pa-task send-event
     pa-ml pa_mainloop_wakeup ;
-: pulse-exec ( xt -- ) { xt }
-    <event xt elit, :>exec pa-event>  ;
-: pulse-exec# ( lit xt -- ) { xt }
-    <event elit, xt elit, :>exec  pa-event> ;
-: pulse-exec## ( lit lit xt -- ) { xt }
-    <event swap elit, elit, xt elit, :>exec  pa-event> ;
-: pulse-execq ( xt -- ) { xt }
-    <event xt elit, :>execq pa-event> ;
+: pulse-exec# ( lit xt -- )
+    [{: n xt: xt :}h1 n xt ;] pulse-exec ;
+: pulse-exec## ( lit lit xt -- )
+    [{: d: d xt: xt :}h1 d xt ;] pulse-exec ;
 
 : pa-sample! ( rate channels ss -- ) { ss }
     ss pa_sample_spec-channels c!
@@ -291,7 +288,7 @@ Defer write-record
     pulse( ss[ pa_sample_spec dump  cm[ pa_channel_map dump )
     pa_stream_new dup to stereo-play  ba[ read-record play-rest ;
 
-event: :>kill-pulse ( -- )
+: kill-pulse ( -- )
     mono-play   ?dup-IF  pa_stream_disconnect ?pa-ior  0 to mono-play    THEN
     stereo-play ?dup-IF  pa_stream_disconnect ?pa-ior  0 to stereo-play  THEN
     mono-rec    ?dup-IF  pa_stream_disconnect ?pa-ior  0 to mono-rec     THEN
@@ -301,7 +298,7 @@ event: :>kill-pulse ( -- )
 
 : kill-pulse ( -- )
     pa-task IF
-	<event :>kill-pulse pa-task event>
+	['] kill-pulse pa-task send-event
 	5 0 DO  pa-task 0= ?LEAVE  1 ms  LOOP
     THEN ;
 

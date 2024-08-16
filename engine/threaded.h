@@ -1,7 +1,7 @@
 /* This file defines a number of threading schemes.
 
   Authors: Anton Ertl, Bernd Paysan, David Kühling, Jens Wilke
-  Copyright (C) 1995, 1996,1997,1999,2003,2004,2005,2007,2008,2010,2014,2015,2019,2021 Free Software Foundation, Inc.
+  Copyright (C) 1995, 1996,1997,1999,2003,2004,2005,2007,2008,2010,2014,2015,2019,2021,2023 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -181,7 +181,7 @@ before_goto: asm(ASMCOMMENT "before_goto"); goto *real_ca; after_goto: asm(ASMCO
 
    and lose just a little performance.
 */
-#define KILLS asm("":"=X"(cfa));
+#define KILLS KILL(cfa);
 
 /* #warning direct threading scheme 8: cfa dead, i386 hack */
 #  define NEXT_P0

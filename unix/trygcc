@@ -14,12 +14,17 @@ export LC_ALL=C
 
 if $CC -o $output $input 2>${output}-err
 then
-    echo "Compiled on first attempt"
-    echo "--------------compilation output--------------"
-    cat ${output}-err
-    echo "------------compilation output end------------"
+    if [ -s ${output}-err ]
+    then
+	echo "Compiled $input on first attempt"
+	echo "--------------compilation output--------------"
+	cat ${output}-err
+	echo "------------compilation output end------------"
+    else
+	echo "Compiled $input on first attempt, no warnings"
+    fi
 else
-    echo "Failed on first attempt"
+    echo "Failed $input on first attempt"
     echo "--------------compilation output--------------"
     cat ${output}-err
     echo "------------compilation output end------------"

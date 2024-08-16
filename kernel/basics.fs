@@ -66,6 +66,9 @@ cell uvar section-size
 cell uvar section-dp
 cell uvar section-name
 cell uvar locs[]
+cell uvar primbits
+cell uvar targets
+cell uvar codestart
 
 Constant section-desc
 drop
@@ -136,12 +139,14 @@ Defer in-dictionary? ( x -- f )
 
 \ bounds                                         13feb93py
 
-: bounds ( addr u -- addr+u addr ) \ gforth
-    \G Given a memory block represented by starting address @i{addr}
-    \G and length @i{u} in aus, produce the end address @i{addr+u} and
-    \G the start address in the right order for @code{u+do} or
-    \G @code{?do}.
-    over + swap ;
+[IFUNDEF] bounds
+    : bounds ( addr u -- addr+u addr ) \ gforth
+	\G Given a memory block represented by starting address @i{addr}
+	\G and length @i{u} in aus, produce the end address @i{addr+u} and
+	\G the start address in the right order for @code{u+do} or
+	\G @code{?do}.
+	over + swap ;
+[THEN]
 
 \ (word)                                               22feb93py
 
@@ -215,7 +220,7 @@ Defer in-dictionary? ( x -- f )
     LOOP
         0
     ELSE
-	1- I' I -
+	1- delta-I
 	UNLOOP
     THEN ;
 
@@ -241,11 +246,6 @@ Defer in-dictionary? ( x -- f )
     dup >r u/mod r> swap >r um/mod r> ;
 
 \ catch throw                                          23feb93py
-
-has? glocals [IF]
-: lp@ ( -- addr ) \ gforth	lp-fetch
- laddr# [ 0 , ] ;
-[THEN]
 
 has? os 0= [IF]
     : catch  ( ... xt -- ... 0 )

@@ -6,7 +6,8 @@ ENV XAUTHORITY /home/gforth/.Xauthority
 USER root
 
 RUN apk add --no-cache mesa-gles libx11 libxrandr \
-        harfbuzz opus pulseaudio mesa-dri-gallium
+        harfbuzz opus pulseaudio mesa-dri-gallium libxkbcommon \
+        wayland-libs-egl wayland-libs-client wayland-libs-cursor
 
 COPY pulse-client.conf /etc/pulse/client.conf
 

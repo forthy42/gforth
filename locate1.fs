@@ -1,7 +1,7 @@
 \ SwiftForth-like locate etc.
 
 \ Authors: Anton Ertl, Bernd Paysan, Gerald Wodni
-\ Copyright (C) 2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -41,7 +41,7 @@ variable included-file-buffers
     dup *terminal*# = IF  drop 0 0  EXIT  THEN \ special files
     dup >r included-file-buffers $[] dup
     >r $@ dup IF  rdrop rdrop  EXIT  THEN  2drop
-    i' included-files $[]@ r@
+    r'@ included-files $[]@ r@
     [: >r open-fpath-file throw 2drop r> $slurp ;] catch IF
 	drop 2drop 0 0  r> $free rdrop  EXIT  THEN
     r> $@ rdrop ;
@@ -170,7 +170,9 @@ no-</>
 : name-set-located-view ( nt -- )
     dup name>view swap name>string nip set-located-view ;
 
-: locate-name ( nt -- )
+: xt-locate ( nt/xt -- )
+    \g Show the source code of the word @i{xt} and set the current
+    \g location there.
     name-set-located-view l ;
 
 : .rec'-stack ( xt -- xt )
@@ -193,7 +195,7 @@ no-</>
 : locate ( "name" -- ) \ gforth
     \g Show the source code of the word @i{name} and set the current
     \g location there.
-    view' .rec'-stack dup 0= #-13 and throw  locate-name ;
+    view' .rec'-stack dup 0= #-13 and throw  xt-locate ;
 
 ' locate alias view ( "name" -- )
 
@@ -202,14 +204,14 @@ no-</>
     \g @code{n} or @code{b} output (whichever was later).
     current-location?
     located-bottom @ dup located-top ! rows 2/ + located-bottom !
-    set-bn-view l1 ;
+    set-bn-view cr print-locate-header l1 ;
 
 : b ( -- ) \ gforth
     \g Display lines before the current location, or before the last
     \g @code{n} or @code{b} output (whichever was later).
     current-location?
     located-top @ dup located-bottom ! rows 2/ - 0 max located-top !
-    set-bn-view l1 ;
+    set-bn-view cr print-locate-header l1 ;
 
 : extern-g ( -- ) \ gforth-internal
     \g Enter the external editor at the place of the latest error,
@@ -324,10 +326,12 @@ variable code-locations 0 code-locations !
 : bt-location ( u -- f )
     \ locate-setup backtrace entry with index u; returns true iff successful
     cells >r stored-backtrace $@ r@ u> if ( addr1 r: offset )
-	r> + @ cell- addr>view dup if ( view )
-	    1 set-located-view true exit then
+        r> + @ dup addr>view dup if ( x view )
+            swap >bt-entry dup if
+                name>string nip then
+	    1 max set-located-view true exit then
     else
-        rdrop then
+        drop rdrop then
     drop ." no location for this backtrace index" false ;
 
 : backtrace# ( -- n ) stored-backtrace $@len cell/ ;
@@ -401,20 +405,21 @@ variable code-locations 0 code-locations !
 
 : forwheres ( ... xt -- ... )
     where-results $free
-    0 { xt wno } wheres $@ bounds u+do
+    0 { xt wno } wheres $@ where-struct mem+do
 	i where-nt @ xt execute if
 	    i where-loc @ cr wno .whereview1
 	    i where-results >stack
 	    1 +>wno
 	then
-    where-struct +loop ;
+    loop ;
 
 : (where) ( "name" -- ) \ gforth-internal
-    parse-name find-name dup 0= #-13 and throw [: over = ;] forwheres
+    (') [: over = ;] forwheres
     drop -1 where-index ! ;
 
 Defer where-setup
-: where-reset ( n1 n2 -- ) to source-line#  to source-pos# ;
+: where-reset ( n1 n2 -- ) to source-line#  to source-pos#
+    lastfile off ;
 
 : short-where ( -- ) \ gforth
     \G Set up @code{where} to use a short file format (default).
@@ -488,7 +493,7 @@ Variable browse-results
     context @ wid>words[]
     where-results $free browse-results $free
     parse-name 0 { d: match wno }
-    words[] $@ bounds cell- swap cell- U-DO
+    words[] $@ cell MEM-DO
 	i @ name>string match mword-match IF
 	    { | where[ where-struct ] }
 	    i @ where[ where-nt !
@@ -497,11 +502,11 @@ Variable browse-results
 	    where[ where-struct browse-results $+!
 	    1 +>wno
 	THEN
-    cell -LOOP
+    LOOP
     words[] $free
-    browse-results $@ bounds U+DO
+    browse-results $@ where-struct MEM+DO
 	i where-results >stack
-    where-struct +LOOP ;
+    LOOP ;
 
 : browse ( "subname" -- ) \ gforth
     \g Show all places where a word with a name that contains
@@ -517,9 +522,9 @@ Variable browse-results
 
 : usage# ( nt -- n ) \ gforth-internal
     \G count usage of the word @var{nt}
-    0 wheres $@ bounds U+DO
+    0 wheres $@ where-struct MEM+DO
 	over i where-nt @ = -
-    where-struct +LOOP  nip ;
+    LOOP  nip ;
 
 \ display unused words
 
@@ -533,10 +538,10 @@ lcount-mask 1+ Constant unused-mask
 : unused-all ( wid -- )
     [: +unused true ;] swap traverse-wordlist ;
 : unmark-used ( -- )
-    wheres $@ bounds U+DO
+    wheres $@ where-struct MEM+DO
 	i where-nt @ dup forthstart here within
 	IF  -unused  ELSE  drop  THEN
-    where-struct +LOOP ;
+    LOOP ;
 : unused@ ( wid -- nt1 .. ntn n )
     0 [: dup >f+c @ unused-mask and IF
 	    dup -unused swap 1+
@@ -583,7 +588,7 @@ included-files $[]# 1- constant doc-file#
 	then
     then
     info-color ." , LOCATEing source" default-color
-    c-addr u find-name dup 0= -13 and throw locate-name ;
+    c-addr u (view') xt-locate ;
 
 : help-section {: c-addr u -- :}
     \ !! implement this!

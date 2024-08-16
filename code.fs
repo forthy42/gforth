@@ -1,7 +1,7 @@
 \ ASSEMBLER, CODE etc.
 
 \ Authors: Anton Ertl, Bernd Paysan, David Kühling, Neal Crook
-\ Copyright (C) 1995,1996,1997,1999,2003,2007,2010,2013,2014,2015,2016,2019,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1999,2003,2007,2010,2013,2014,2015,2016,2019,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -93,8 +93,8 @@ vocabulary assembler ( -- ) \ tools-ext
 :noname ( colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
     ( create the [;code] part of a low level defining word )
     [ifdef] 0-adjust-locals-size 0-adjust-locals-size [then]
-    ;-hook postpone (;code) basic-block-end finish-code ?colon-sys postpone [
-    defstart init-asm ;
+    ;-hook postpone (;code) basic-block-end ;-hook2 flush-code
+    ?colon-sys postpone [ defstart init-asm ;
 interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
 \g The code after @code{;code} becomes the behaviour of the last
 \g defined word (which must be a @code{create}d word).  The same

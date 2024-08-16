@@ -1,7 +1,7 @@
 \ Android based stuff, including wrapper to androidlib.fs
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -22,11 +22,14 @@ require struct0x.fs
 
 \ public interface, C calls us through these
 
-Defer reload-textures ' noop is reload-textures
-
 [IFUNDEF] ctx
     0 Value ctx
 [THEN]
+
+Defer reload-textures ' noop is reload-textures
+Defer rescaler        ' noop is rescaler
+Defer config-changed
+Defer window-init
 
 \ The rest is in the "android" vocabulary
 
@@ -218,6 +221,14 @@ false value wake-lock \ doesn't work, why?
 : screen+secure ( -- )  ['] rsecurescreenon post-it ;
 : screen-secure ( -- )  ['] rsecurescreenoff post-it ;
 
+: >shortcuticon ( addr u -- )
+    clazz >o 2dup d0= IF  drop  ELSE  make-jstring  THEN to shortcuticon o> ;
+: +shortcut ( name u file u -- )
+    clazz >o
+    make-jstring to shortcutfile
+    make-jstring to shortcutname o>
+    ['] addshortcut post-it ;
+
 \ callbacks
 
 : $err ( xt -- )  $tmp stderr write-file throw ;
@@ -330,15 +341,12 @@ Defer screen-ops ' noop IS screen-ops
     defers everyline restartkb ;
 ' android-everyline is everyline
 
-Defer config-changed
-Defer window-init
-:noname [: ." app window " app window @ hex. cr ;] $err ; IS window-init
+:noname [: ." app window " app window @ h. cr ;] $err ; IS window-init
 : window-init, ( xt -- )
     >r :noname action-of window-init compile, r@ compile,
     postpone ; is window-init
     ctx IF  r@ execute  THEN  rdrop ;
 screen-ops     ' noop IS screen-ops
-
 :noname ( -- ) +sync +config ; is config-changed
 
 Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop

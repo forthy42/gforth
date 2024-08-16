@@ -1,7 +1,7 @@
 \ see-ext.fs extentions for see locals, floats
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 1995,1996,1997,2003,2007,2012,2014,2019,2021 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,2003,2007,2012,2014,2019,2021,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -23,16 +23,8 @@
 get-current also see-voc definitions
 
 : c-loop-lp+!#  c-loop cell+ ;
-: c-loop#-lp+!# c-loop# cell+ ;
 : c-?branch-lp+!#  c-?branch cell+ ;
 : c-branch-lp+!#   c-branch  cell+ ;
-
-: c-@local#
-    Display? IF
-	S" @local" ['] pri-color .string
-	dup @ dup cell/ abs 0 <# #S rot sign #> ['] default-color .string bl cemit
-    THEN
-    cell+ ;
 
 : c-flit
     Display? IF
@@ -52,42 +44,17 @@ get-current also see-voc definitions
 : c-flit1
     cell+ c-flit ;
 
-: c-f@local#
-    Display? IF
-	S" f@local" ['] pri-color .string
-	dup @ dup float/ abs 0 <# #S rot sign #> ['] default-color .string bl cemit
-    THEN
-    cell+ ;
-
-: c-laddr#
-    Display? IF
-	S" laddr# " ['] pri-color .string
-	dup @ dup abs 0 <# #S rot sign #> ['] default-color .string bl cemit
-    THEN
-    cell+ ;
-
-: c-lp+!#
-    Display? IF
-	S" lp+!# " ['] pri-color .string
-	dup @ dup abs 0 <# #S rot sign #> ['] default-color .string bl cemit
-    THEN
-    cell+ ;
-
 create c-extend1
-	' @local# A,        ' c-@local# A,
 [ifdef] flit ' flit A,      ' c-flit A, [then]
 [ifdef] flit0 ' flit0 A,    ' c-flit0 A, [then]
 [ifdef] flit1 ' flit1 A,    ' c-flit1 A, [then]
-	' f@local# A,       ' c-f@local# A,
-	' laddr# A,         ' c-laddr# A,
-	' lp+!# A,          ' c-lp+!# A,
         ' ?branch-lp+!# A,  ' c-?branch-lp+!# A,
         ' branch-lp+!# A,   ' c-branch-lp+!# A,
         ' (loop)-lp+!# A,   ' c-loop-lp+!# A,
         ' (+loop)-lp+!# A,  ' c-loop-lp+!# A,
         ' (s+loop)-lp+!# A, ' c-loop-lp+!# A,
         ' (-loop)-lp+!# A,  ' c-loop-lp+!# A,
-[IFDEF] (/loop)# ' (/loop)#-lp+!# A, ' c-loop#-lp+!# A, [THEN]
+[IFDEF] (/loop) ' (/loop)-lp+!# A, ' c-loop-lp+!# A, [THEN]
         ' (next)-lp+!# A,   ' c-loop-lp+!# A,
 	0 ,		here 0 ,
 

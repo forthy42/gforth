@@ -124,7 +124,7 @@ wordlist constant commands
 : rework-% ( add -- )
     { url }  base @ >r hex
     0 url $@len 0 ?DO
-	url $@ drop I + c@ dup '% = IF
+	url $@ drop I + c@ dup '%' = IF
 	    drop 0. url $@ I 1+ /string
 	    2 min dup >r >number r> swap - >r 2drop
 	ELSE  0 >r  THEN  over url $@ drop + c!  1+
@@ -132,7 +132,7 @@ wordlist constant commands
     r> base ! ;
 
 : rework-? ( addr -- )
-    dup >r $@ '? $split url-args $! nip r> $!len ;
+    dup >r $@ '?' $split url-args $! nip r> $!len ;
 
 : get-url ( -- )
     url get protocol get-rest
@@ -196,10 +196,10 @@ Variable htmldir
   htmldir $@ s" ../" string-prefix?
   IF    -1 EXIT  THEN  \ can't access below current directory
   htmldir $@ s" ~" string-prefix?
-  IF    UserDir $@ htmldir dup $@ 2dup '/ scan '/ skip
+  IF    UserDir $@ htmldir dup $@ 2dup '/' scan '/' skip
         nip - nip $ins
   ELSE  DocumentRoot $@ htmldir 0 $ins  THEN
-  htmldir $@ 1- 0 max + c@ '/ = htmldir $@len 0= or
+  htmldir $@ 1- 0 max + c@ '/' = htmldir $@len 0= or
   IF  s" index.html" htmldir dup $@len $ins  THEN
   htmldir $@ file-status nip ?dup ?EXIT
   htmldir $@ ;
@@ -208,7 +208,7 @@ Variable htmldir
 
 : >mime ( addr u -- mime u' )
   2dup tuck over + 1- ?DO
-  I c@ '. = ?LEAVE  1-  -1 +LOOP  /string ;
+  I c@ '.' = ?LEAVE  1-  -1 +LOOP  /string ;
 
 : >file ( addr u -- size fd )
   r/o bin open-file throw dup

@@ -1,6 +1,6 @@
 #!/bin/bash
 #Authors: Bernd Paysan, Anton Ertl
-#Copyright (C) 2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021 Free Software Foundation, Inc.
+#Copyright (C) 2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -36,7 +36,7 @@ function extra_perms {
 function extra_features {
     for i in $EXTRADIRS
     do
-	test -f $i/AndroidManifest/app && cat $i/AndroidManifest/features
+	test -f $i/AndroidManifest/features && cat $i/AndroidManifest/features
     done
 }
 
@@ -56,10 +56,10 @@ if [ ! -z "$arch" ]
 then
     (cd $SRC; ./autogen.sh) >autogen.log
     echo "Extra builds in$arch"
-    APP_PACKAGE=gnu.gforth
 else
     APP_PACKAGE=gnu.gforth_$machine
 fi
+APP_PACKAGE=gnu.gforth
 
 APP_VERSION=$[$(cat ~/.app-version)+1]
 for i in $arch
@@ -71,11 +71,6 @@ echo $APP_VERSION >~/.app-version
 # Create log file from here on
 
 exec 3>&1 1>build.log 2>&1
-
-if [ ! -f local.properties ]
-then
-    android update project -p . -s --target android-28
-fi
 
 #eval $(grep ^sdk.dir= local.properties| sed -e 's/^sdk.dir=/sdk_dir=/g')
 #
@@ -117,6 +112,7 @@ do
 done
 
 . ./AndroidManifest.xml.in >AndroidManifest.xml
+. ./build.gradle.in >build.gradle
 
 if [ "$1" != "--no-gforthgz" ]
 then

@@ -1,7 +1,7 @@
 /* common header file
 
   Authors: Bernd Paysan, Anton Ertl, David Kühling, Jens Wilke, Neal Crook
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -135,6 +135,7 @@ typedef unsigned OCTABYTE_TYPE UOctabyte;
 /* Cell and UCell must be the same size as a pointer */
 #define CELL_BITS	(sizeof(Cell) * CHAR_BIT)
 #define CELL_MIN (((Cell)1)<<(sizeof(Cell)*CHAR_BIT-1))
+#define SECTION_BITS 8
 
 #define HALFCELL_BITS	(CELL_BITS/2)
 #define HALFCELL_MASK   ((~(UCell)0)>>HALFCELL_BITS)
@@ -142,8 +143,9 @@ typedef unsigned OCTABYTE_TYPE UOctabyte;
 #define LH(x)		((x)&HALFCELL_MASK)
 #define L2U(x)		(((UCell)(x))<<HALFCELL_BITS)
 #define HIGHBIT(x)	(((UCell)(x))>>(CELL_BITS-1))
-#define SECTION(x)      (((UCell)(x))>>(CELL_BITS-8))
-#define INSECTION(x)    (((UCell)(x))&((~(UCell)0)>>8))
+#define SECTION(x)      (((UCell)(x))>>(CELL_BITS-SECTION_BITS))
+#define INSECTION(x)    (((UCell)(x))&((~(UCell)0)>>SECTION_BITS))
+#define PRIMSECTION     ((1U<<SECTION_BITS)-1)
 
 #define F_TRUE (FLAG(0==0))
 #define F_FALSE (FLAG(0!=0))
@@ -151,7 +153,16 @@ typedef unsigned OCTABYTE_TYPE UOctabyte;
 typedef struct {
   Cell* spx;
   Float* fpx;
-} ptrpair;
+} gforth_stackpointers;
+
+#define GFORTH_CALL_C(addr, sp, fp)					\
+  { gforth_stackpointers x;						\
+    x.fpx=fp;								\
+    x.spx=sp;								\
+    x=((gforth_stackpointers (*)(gforth_stackpointers))(*addr))(x);	\
+    sp=x.spx;								\
+    fp=x.fpx;								\
+  }
 
 // prior to 4.8, gcc did not provide __builtin_bswap16 on some platforms so we emulate it
 // see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
@@ -162,18 +173,18 @@ typedef struct {
 # ifdef HAVE___BUILTIN_BSWAP32
 #  define BSWAP16(x) __builtin_bswap32((x) << 16)
 # else
-#  define BSWAP16(x) ((((uint16_t)(x))>>8) | (((uint16_t)(x))<<8))
+#  define BSWAP16(x) (((x << 8)  & 0xff00U) | ((x >> 8)  & 0x00ffU))
 # endif
 #endif
 #ifdef HAVE___BUILTIN_BSWAP32
 # define BSWAP32(x) __builtin_bswap32(x)
 #else
-# define BSWAP32(x) ((((uint32_t)BSWAP16(x))<<16)|((uint32_t)BSWAP16((x)>>16)))
+# define BSWAP32(x) (((x << 24) & 0xff000000U) | ((x << 8)  & 0x00ff0000U) | ((x >> 8)  & 0x0000ff00U) | ((x >> 24) & 0x000000ffU))
 #endif
 #ifdef HAVE___BUILTIN_BSWAP64
 # define BSWAP64(x) __builtin_bswap64(x)
 #else
-# define BSWAP64(x) ((((uint64_t)BSWAP32(x))<<32)|((uint64_t)BSWAP32((x)>>32)))
+# define BSWAP64(x) (((x << 56) & 0xff00000000000000ULL) | ((x << 40) & 0x00ff000000000000ULL) | ((x << 24) & 0x0000ff0000000000ULL) | ((x << 8)  & 0x000000ff00000000ULL) | ((x >> 8)  & 0x00000000ff000000ULL) | ((x >> 24) & 0x0000000000ff0000ULL) | ((x >> 40) & 0x000000000000ff00ULL) | ((x >> 56) & 0x00000000000000ffULL))
 #endif
 
 #if defined(BUGGY_LONG_LONG)
@@ -397,12 +408,15 @@ typedef struct {
   Address image_dp;	/* all sizes in bytes */
   Address sect_name;
   Address sect_locs;
+  Address sect_primbits;
+  Address sect_targets;
+  Address sect_codestart;
   UCell data_stack_size;
   UCell fp_stack_size;
   UCell return_stack_size;
   UCell locals_stack_size;
   Xt *boot_entry;	/* initial ip for booting (in BOOT) */
-  Xt *throw_entry;	/* ip after signal (in THROW) */
+  Xt *throw_entry;	/* ip after signal (in THROW), obsolete */
   Xt *quit_entry;
   Xt *execute_entry;
   Xt *find_entry;
@@ -477,8 +491,8 @@ typedef struct {
 } stackpointers;
 
 typedef struct {
-  Label start;
-  int16_t length;
+  Label *tcp; /* points to the threaded-code cell */
+  int16_t length; /* native-code length of code at *tcp */
   uint16_t prim;
   int8_t seqlen; /* number of basic primitives in (potential) super <prim> */
   int8_t start_state;
@@ -611,12 +625,15 @@ void vm_count_block(Xt *ip);
 
 /* dynamic superinstruction stuff */
 void compile_prim1(Cell *start);
+void gforth_compile_range(Cell *image, Cell size,
+			  Char *bitstring, Char *targets);
 void finish_code(void);
 void finish_code_barrier(void);
-int forget_dyncode(Address code);
+int forget_dyncode3(Label *tc);
 Label decompile_code(Label prim);
 extern const char * const prim_names[];
-extern DynamicInfo *decompile_prim1(Label _code);
+extern DynamicInfo *decompile_prim3(Label *tcp);
+extern Cell fetch_decompile_prim(Cell *a_addr);
 int state_map(int);
 
 extern int offset_image;

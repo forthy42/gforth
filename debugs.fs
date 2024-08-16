@@ -1,7 +1,7 @@
 \ Simple debugging aids
 
 \ Authors: Bernd Paysan, Anton Ertl, Gerald Wodni, Neal Crook
-\ Copyright (C) 1995,1997,1999,2002,2003,2004,2005,2006,2007,2009,2011,2012,2013,2014,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1997,1999,2002,2003,2004,2005,2006,2007,2009,2011,2012,2013,2014,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -171,7 +171,8 @@ is ?warning
 ' check-shadow >code-address dodefer: = [if]
 :noname  ( addr count wid -- )
     \ prints a warning if the string is already present in the wordlist
-    warnings @ 0= IF  drop 2drop  EXIT  THEN
+    \ don't check 0-length names (as in noname-w:)
+    over 0= warnings @ 0= or IF  drop 2drop  EXIT  THEN
     >r 2dup r> find-name-in dup
     ['] shadow-warning ?warning IF  2drop  EXIT  THEN
     warnings @ >r warnings off
@@ -214,8 +215,8 @@ is ?warning
   Create 0 , watch-does> watch-opt: ;
 
 : ~~>body ( addr -- body ) ~~ ;
-to-opt: lit, ]] ~~ [[ ;
-' ~~>body !-table to-method: ~~value-to
+fold1: lit, ]] ~~ [[ ;
+' ~~>body !-table to-class: ~~value-to
 
 : ~~Value ( n "name" -- ) \ gforth
     \G Value that will be watched on every access
@@ -262,7 +263,11 @@ Variable rec'[]
     [: rec-level @ rec'[] $[] ! ;] is trace-recognizer
     forth-recognize
     dup translate-nt? IF  drop rec'[] $free
-    ELSE  drop  rec'@  THEN
+    ELSE
+	dup ['] translate-num = IF
+	    drop dup xt? 0= IF  drop rec'@  THEN
+	ELSE  drop  rec'@  THEN
+    THEN
     2r> rot >r fp! sp! r>  r> is trace-recognizer
     dup ['] notfound = -#13 and throw ;
 
@@ -345,7 +350,7 @@ Variable rec'[]
     dup >name if
 	.name
     else
-	hex.
+	h.
     then ;
 
 : .hm ( nt -- ) \ gforth dot-h-m

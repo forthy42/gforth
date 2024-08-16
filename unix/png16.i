@@ -10,6 +10,7 @@ extern struct _IO_FILE *stderr;
 
 %apply int { time_t };
 %apply unsigned int { png_size_t, png_uint_32 };
+%apply unsigned long { size_t, png_alloc_size_t };
 
 #if defined(host_os_linux_android) || defined(host_os_linux_androideabi)
 # define __ANDROID__

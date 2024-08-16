@@ -1,7 +1,7 @@
 \ Presentation support
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -159,9 +159,14 @@ end-class slide-actor
 
 0 Value scroll<<
 
-:noname ( axis dir -- ) nip
-    0< IF  prev-slide  ELSE  next-slide  THEN ; slide-actor is scrolled
-:noname ( rx ry b n -- )  dup 1 and 0= IF
+:noname ( axis dir rx ry -- )
+    scroll<< 4 = IF
+	[ box-actor ] defers scrolled
+    ELSE
+	nip fdrop fdrop
+	0> IF  prev-slide  ELSE  next-slide  THEN
+    THEN ; slide-actor is scrolled
+:noname ( rx ry b n -- ) dup 1 and 0= IF
 	over $180 and IF  4 to scroll<<  THEN
 	over $08 scroll<< lshift and IF  prev-slide  2drop fdrop fdrop  EXIT  THEN
 	over $10 scroll<< lshift and IF  next-slide  2drop fdrop fdrop  EXIT  THEN
@@ -171,6 +176,9 @@ end-class slide-actor
 	    ELSE  0.9e f> IF  2drop fdrop fdrop  next-slide  EXIT  THEN  THEN
 	THEN  THEN
     [ box-actor ] defers clicked +sync +resize ; slide-actor is clicked
+forward >fullscreen
+forward >normalscreen
+forward screenshot>png
 :noname ( ekey -- )
     case
 	k-up      of  prev-slide  endof
@@ -197,9 +205,13 @@ end-class slide-actor
 	k-f6 of  color-theme 0=  IF  anim-end 0.25e o
 		[:             fdup f>s to color-theme 1/2 f+ ColorMode! +sync +vpsync ;]
 		>animate  THEN   endof
-	k-f1      of  top-widget ..widget  endof
+	k-f1 of  top-widget ..widget  endof
+	k-f7 of  >normalscreen   endof
+	k-f8 of  >fullscreen     endof
+	k-f9 of  slide# @ [: ." presentation-" 0 .r ." .png" ;] $tmp
+	    screenshot>png  endof
 	[ box-actor ] defers ekeyed  EXIT
-    endcase +sync +resize ; slide-actor to ekeyed
+    endcase +sync +resize ; slide-actor is ekeyed
 :noname ( $xy b -- ) 2dup [ box-actor ] defers touchmove drop
     xy@ dpy-h @ s>f fswap f- dpy-h @ 2/ fm/ lightpos-xyz sfloat+ sf!
     dpy-w @ s>f f- dpy-w @ 2/ fm/ lightpos-xyz sf!
@@ -211,25 +223,34 @@ end-class slide-actor
 glue-left  @ >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 glue-right @ >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 
-: pres-frame ( colorday colornight -- o1 o2 )
+: pres-frame ( colorday colornight -- o )
     light-gui new-color, dark-gui -1 +to color,# new-color, fdrop light-gui
     glue*wh slide-frame dup .button1 simple[] ;
 
 $10 stack: vp-tops
 
 also opengl also also [IFDEF] android previous android also jni [THEN]
+also [IFDEF] wayland wayland [THEN]
 
 : >fullscreen ( -- )
-    [IFDEF] set-fullscreen-hint
-	set-fullscreen-hint 1 set-compose-hint
+    [IFDEF] xdg_toplevel_set_fullscreen
+	xdg-toplevel wl-output xdg_toplevel_set_fullscreen
     [ELSE]
-	[IFDEF] hidestatus hidekb hidestatus [THEN]
+	[IFDEF] set-fullscreen-hint
+	    set-fullscreen-hint 1 set-compose-hint
+	[ELSE]
+	    [IFDEF] hidestatus hidekb hidestatus [THEN]
+	[THEN]
     [THEN] ;
 : >normalscreen
-    [IFDEF] reset-fullscreen-hint
-	reset-fullscreen-hint 0 set-compose-hint
+    [IFDEF] xdg_toplevel_unset_fullscreen
+	xdg-toplevel xdg_toplevel_unset_fullscreen
     [ELSE]
-	[IFDEF] showstatus showstatus [THEN]
+	[IFDEF] reset-fullscreen-hint
+	    reset-fullscreen-hint 0 set-compose-hint
+	[ELSE]
+	    [IFDEF] showstatus showstatus [THEN]
+	[THEN]
     [THEN] ;
 
 \ make screenshots of slides
@@ -278,4 +299,4 @@ synonym rgbas sfloats
 	    looper-keys $@len 0> ;] is key? ;
 [THEN]
 
-previous previous previous
+previous previous previous previous

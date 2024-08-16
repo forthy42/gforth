@@ -1,7 +1,7 @@
 \ serial interface for Gforth under Unix
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2015,2019,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2015,2019,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -142,7 +142,13 @@ pollfd buffer: port-poll
     dup fileno POLLIN port-poll fds!+ drop
     port-poll 1 -1 poll 0< ?ior ;
 
-11 Constant EAGAIN
+[IFUNDEF] EAGAIN
+    e? os-type s" darwin" string-prefix? [IF]
+	#35 Constant EAGAIN
+    [ELSE]
+	#11 Constant EAGAIN
+    [THEN]
+[THEN]
 -512 EAGAIN - Constant eagain-throw#
 
 : throw-serial ( throw-code -- )

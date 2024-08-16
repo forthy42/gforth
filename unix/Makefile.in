@@ -1,7 +1,7 @@
 # Generic makefile, for crosscompiling use make -f Makefile.<target>
 
 #Authors: Bernd Paysan, Anton Ertl
-#Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+#Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -18,7 +18,11 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
-INCLUDES   = @SWIGINCLUDES@ -I@srcdir@/../freetype-gl
+ifndef VERBOSE
+.SILENT:
+endif
+
+INCLUDES   = @SWIGINCLUDES@ -I@srcdir@/../freetype-gl -I../wayland
 SWIG       = @SWIG@
 TARGETS    = @SWIGMODULES@
 WRAPPERS   = $(patsubst %.fs, %.fsx, $(TARGETS))
@@ -32,6 +36,7 @@ ARCH=
 VERSION	= "`gforth --version 2>&1 | cut -f2 -d' '`"
 SHELL	= /bin/sh
 RMTREE	= rm -rf
+ENV     = env
 prefix = 
 exec_prefix = ${prefix}
 libexecdir = $(package)${exec_prefix}/lib
@@ -41,12 +46,15 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 top_builddir = @top_builddir@
 DESTDIR = $(PWD)
-LIBTOOL = @LIBTOOL@
+LIBTOOL = @GNU_LIBTOOL@ --silent
 GCC	= @CC@
 HOSTCC	= @HOSTCC@
 CC	= $(HOSTCC) $(INCLUDES) -I.
+HELPERS = stat.fs pthread-types.fs
+PREPENV = @PREPENV@
+EXECENV = @EXECENV@
 
-all: $(GENWRAPPERS) $(TARGETS) stat.fs
+all: $(GENWRAPPERS) $(TARGETS) $(HELPERS)
 
 wrappers: $(WRAPPERS)
 
@@ -56,15 +64,20 @@ build-libcc-named: $(LIBRARY) $(TARGETS)
 
 libs: build-libcc-named $(LIBRARY)
 	for i in $(LIBRARY); do \
-	    $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf`basename $$i .fs`.la $(DESTDIR)$(libccdir)libgf`basename $$i .fs`.la; \
+	    $(LIBTOOL) --mode=install $(INSTALL) lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf`basename $$i .fs`.la $(DESTDIR)$(libccdir)libgf`basename $$i .fs`.la; \
 	done
 
 # execute compiled file
 %.fs: %-fsi.c
+	@echo SWIG-GEN $@
 	$(srcdir)/trygcc "$(CC)" $@x $<
-	./$@x -gforth | $(srcdir)/doexec $@ $(srcdir) > $@
+	./$@x -gforth | $(ENV) $(EXECENV) $(srcdir)/doexec $@ $(srcdir) > $@
 
 stat.fs: stat-fsi.c
+	$(CC) -o $@x $<
+	./$@x -gforth > $@
+
+pthread-types.fs: pthread-types-fsi.c
 	$(CC) -o $@x $<
 	./$@x -gforth > $@
 
@@ -75,9 +88,10 @@ stat.fs: stat-fsi.c
 # use swig to create the fsi file
 # if swig -forth is available, do this even when there's a fsi file older
 # than the configure run
-%-fsi.c: $(srcdir)/%.i @HAS_SWIG_FORTH@
-	$(SWIG) $(OPTIONS) -o $@+ $(srcdir)/$(patsubst %-fsi.c,%.i,$@)
-	$(srcdir)/doprep $@+ $(srcdir) > $@
+%-fsi.c: %.i @HAS_SWIG_FORTH@
+	@echo SWIG $<
+	$(SWIG) $(OPTIONS) -o $@+ $<
+	$(ENV) $(PREPENV) $(srcdir)/doprep $@+ $(srcdir) > $@
 
 run: $(DEMO)
 	gforth $(DEMO)
@@ -85,9 +99,9 @@ run: $(DEMO)
 .PHONY: clean
 
 clean:
-	rm -f $(TARGETS) stat.fs
+	rm -f $(TARGETS) $(HELPERS)
 	rm -f $(GENWRAPPERS) $(GENWRAPPERS_PLUS)
-	rm -f $(WRAPPERS) stat.fsx
+	rm -f $(WRAPPERS) $(patsub %,%x,$(HELPERS))
 	rm -f example.o example example-fast example.fs
 
 # Example for C program that wraps Gforth

@@ -1,7 +1,7 @@
 \ Input handling (object oriented)                      22oct00py
 
 \ Authors: Anton Ertl, Bernd Paysan, Gerald Wodni
-\ Copyright (C) 2000,2003,2004,2005,2006,2007,2011,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2003,2004,2005,2006,2007,2011,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -34,9 +34,11 @@
     ." scanning for [THEN]" cr ;
 Defer .unstatus ' noop is .unstatus
 
-:noname ( in 1 -- ) 1 <> -12 and throw >in ! ;
-                       \ restore-input
-:noname ( -- in 1 ) >in @ 1 ;     \ save-input
+:noname ( in line# 1 -- )
+    2 <> -12 and throw
+    loadline @ <> -12 and throw
+    >in ! ;           \ restore-input
+:noname ( -- in line# 1 ) >in @ loadline @ 2 ;     \ save-input
 ' false                \ source-id
 :noname ( -- flag )
     [ has? file [IF] ] stdin file-eof?  IF  false  EXIT  THEN [ [THEN] ]
@@ -73,15 +75,16 @@ has? file [IF]
     \G @i{u2}=@i{u1} and the next read-line returns @i{u2}=0.
     (read-line) nip ;
 
-:noname  ( in line# udpos 4 -- )
-    4 <> -12 and throw
+:noname  ( in line# udpos file 5 -- )
+    5 <> -12 and throw
+    loadfile @ <> -12 and throw
     loadfile @ reposition-file throw
     refill 0= -36 and throw \ should never throw
     loadline ! >in ! ; \ restore-input
-:noname  ( -- in line# udpos 4 )
+:noname  ( -- in line# udpos 5 )
     >in @ sourceline#
     loadfile @ file-position throw #fill-bytes @ 0 d-
-    4 ;                \ save-input
+    loadfile @ 5 ;     \ save-input
 :noname  ( -- file ) loadfile @ ;  \ source-id
 :noname  ( -- flag )
     #tib off #fill-bytes off input-start-line
@@ -143,7 +146,7 @@ terminal-input @       \ source -> terminal-input::source
     \G everything is allowed.
     current-input @ >r swap current-input ! 1- dup >r
     ['] (restore-input) catch
-    dup IF  r> 0 ?DO  nip  LOOP  r> current-input !  EXIT  THEN
+    dup IF  r> 0 ?DO  nip  LOOP  r> current-input ! 0<>  EXIT  THEN
     rdrop rdrop ;
 
 \ create terminal input block

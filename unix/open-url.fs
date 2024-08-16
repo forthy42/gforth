@@ -64,6 +64,8 @@ require ./os-name.fs
 	    xdg-string 0$!
 	    xdg-open $@ xdg-args fork+exec ;
 	\ [: ." xdg-open " type ;] $tmp system ;
+	:noname defers 'cold "xdg-open" >upath xdg-open $! ; is 'cold
+	:noname defers 'image xdg-open off ; is 'image
     [ELSE]
 	[IFDEF] darwin
 	    \ on MacOS, you call open
@@ -80,6 +82,8 @@ require ./os-name.fs
 		xdg-string 0$!
 		xdg-open $@ xdg-args fork+exec ;
 	    \ [: ." open " type ;] $tmp system ;
+	    :noname defers 'cold "open" >upath xdg-open $! ; is 'cold
+	    :noname defers 'image xdg-open off ; is 'image
 	[ELSE]
 	    \ we don't know how to open URLs
 	[THEN]

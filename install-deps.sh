@@ -11,9 +11,10 @@ install_debian() {
   sudo apt-get -y install libx11-dev
   sudo apt-get -y install libx11-xcb-dev
   sudo apt-get -y install libxrandr-dev
+  sudo apt-get -y install libxkbcommon-dev 
   sudo apt-get -y install libgles2-mesa-dev libglew-dev
   sudo apt-get -y install libgl1-mesa-dev
-  sudo apt-get -y install libwayland-dev
+  sudo apt-get -y install libwayland-dev wayland-protocols
   sudo apt-get -y install libharfbuzz-dev
   sudo apt-get -y install libvulkan-dev
   sudo apt-get -y install libpng-dev
@@ -46,7 +47,7 @@ install_alpine() {
     sudo apk add freetype-dev build-base autoconf automake m4 libtool git \
         coreutils gcc libffi-dev mesa-dev glew-dev libx11-dev \
         libxrandr-dev glfw-dev harfbuzz-dev gstreamer-dev gst-plugins-base-dev \
-	opus-dev pulseaudio-dev unzip texinfo
+	opus-dev pulseaudio-dev pipewire-dev wayland-dev unzip texinfo wayland-protocols libxkbcommon-dev
     (cd /tmp && git clone https://github.com/nothings/stb.git && \
     sudo mkdir /usr/include/stb && sudo cp stb/*.h /usr/include/stb && rm -rf stb)
 }
@@ -57,10 +58,20 @@ install_fedora() {
 	@development-tools autoconf automake m4 \
 	libtool libtool-ltdl libtool-ltdl-devel git \
         coreutils gcc libffi-devel mesa-devel glew-devel libx11-devel \
-        libXrandr-devel glfw-devel harfbuzz-devel gstreamer-devel gst-plugins-base-devel \
+        libXrandr-devel glfw-devel harfbuzz-devel gstreamer-devel gst-plugins-base-devel wayland-protocols-devel libxkbcommon-devel \
 	opus-devel pulseaudio-devel unzip texinfo
     (cd /tmp && git clone https://github.com/nothings/stb.git && \
     sudo mkdir /usr/include/stb && sudo cp stb/*.h /usr/include/stb && rm -rf stb)
+}
+
+install_opensuse() {
+    sudo zypper install -y libtool libltdl7 Mesa-libGL-devel \
+    Mesa-libglapi-devel glew-devel vulkan-devel gpsd-devel \
+    Mesa-libGLESv2-devel Mesa-libGLESv3-devel libpng16-devel stb-devel \
+    freetype2-devel harfbuzz-devel libpulse-devel libopus-devel \
+    libva-devel libva-gl-devel linux-glibc-devel libxkbcommon-devel \
+    makeinfo texinfo info wayland-devel wayland-protocols-devel m4 \
+    emacs-nox libffi-devel libX11-devel
 }
 
 install_linux() {
@@ -80,7 +91,7 @@ install_osx() {
   brew tap forthy42/homebrew-zsh
   brew update > /dev/null
   brew upgrade > /dev/null
-  brew install gcc harfbuzz texinfo xz mesa premake automake yodl
+  brew install gcc harfbuzz texinfo xz mesa premake automake yodl libtool
   export PATH="/usr/local/opt/texinfo/bin:$PATH"
   brew install --cask xquartz mactex
   export PATH="/Library/TeX/texbin:$PATH"

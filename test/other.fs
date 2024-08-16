@@ -2,7 +2,7 @@
 \ or where we don't use the testing framework
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 1997,1998,2000,2003,2007,2013,2015,2019 Free Software Foundation, Inc.
+\ Copyright (C) 1997,1998,2000,2003,2007,2013,2015,2019,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -31,7 +31,7 @@ variable (hashkey2)-broken
     4100 0 do \ at least as many as given in the "pagesize" in hashkey2a()
         sa (hashkey2)-buffer i + tuck sl move ( addr )
         8 + u 8 cells (hashkey2) key <> if
-            cr ." wrong hash at " sa i + 8 + hex. u hex.
+            cr ." wrong hash at " sa i + 8 + h. u h.
             (hashkey2)-broken on then
     loop ;
 
@@ -209,10 +209,22 @@ abort" ( does not work across lines"
 
 s" ( testing ( without being delimited by newline in non-files" evaluate
 
+\ constant folding must not produce a compile-time error
+: test 1 0 / ;
+
+\ the following standard program must work with automatic scoping
+: foo0 {: xxxxx :} ahead begin xxxxx again then ;
+:noname {: xxxxx :} ahead begin xxxxx again then ; drop
+
+
+\ and the equivalent for quotations and closures
+: foo1 [: {: xxxxx :} ahead begin xxxxx again then ;] ;
+: foo2 [n:d {: xxxxx :} ahead begin xxxxx again then ;] ;
+: foo3 [{: xxxxx :}h1 {: yyyyy :} ahead begin xxxxx yyyyy again then ;
+
+
 \ last test!
 \ testing '(' without ')' at end-of-file
 ." expect ``warning: ')' missing''" cr
 (
 
-\ constant folding must not produce a compile-time error
-: test 1 0 / ;

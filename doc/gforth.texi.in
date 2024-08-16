@@ -79,7 +79,7 @@ serves as reference manual, but it also contains an introduction to
 Forth and a Forth tutorial.
 
 Authors: Bernd Paysan, Anton Ertl, Gerald Wodni
-Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -115,6 +115,7 @@ Software Foundation raise funds for GNU development.''
 @author David Kuehling
 @author Bernd Paysan
 @author Jens Wilke
+@author Gerald Wodni
 @page
 @vskip 0pt plus 1filll
 @insertcopying
@@ -330,7 +331,7 @@ User-defined Defining Words
 * CREATE..DOES> applications::
 * CREATE..DOES> details::
 * Advanced does> usage example::
-* User-defined TO and DEFER@@::
+* Words with user-defined TO etc.::
 * User-defined compile-comma::
 * Creating from a prototype::
 * Making a word current::
@@ -364,6 +365,7 @@ Recognizers
 
 * Default Recognizers::
 * Dealing with existing Recognizers::
+* Defining Recognizers::
 
 Word Lists
 
@@ -479,6 +481,14 @@ Multitasker
 
 * Pthreads::                    Native Unix multitasker
 * Cilk::                        Implements Cilk-like spawn+sync
+
+Pthreads
+
+* Basic multi-tasking::
+* Task-local data::
+* Semaphores::
+* Hardware operations for multi-tasking::
+* Message queues::
 
 C Interface
 
@@ -810,6 +820,7 @@ gforth[-fast] [engine options] [image options]
 The engine options must come before the rest of the command
 line. They are:
 
+@c !! vollstaendig?
 @table @code
 @cindex -i, command-line option
 @cindex --image-file, command-line option
@@ -1093,10 +1104,13 @@ previous) session(s). The full list of command-line editing facilities is:
 @itemize @bullet
 @item
 @kbd{Ctrl-p} (``previous'') (or up-arrow) to recall successively older
-commands from the history buffer.
+lines from the history buffer.
 @item
-@kbd{Ctrl-n} (``next'') (or down-arrow) to recall successively newer commands
-from the history buffer.
+@kbd{Ctrl-n} (``next'') (or down-arrow) to recall successively newer
+lines from the history buffer.  If you moved to an older line earlier
+and gave it to Gforth for text-interpretation, asking for the next
+line as the first editing command gives you the next line after the
+one you selected last time.
 @item
 @kbd{Ctrl-f} (or right-arrow) to move the cursor right, non-destructively.
 @item
@@ -1130,9 +1144,10 @@ cursor position; the line is always in ``insert'' (as opposed to
 
 @cindex history file
 @cindex @file{.gforth-history}
-On Unix systems, the history file is @file{~/.local/share/gforth/history} by
-default@footnote{i.e. it is stored in the user's home directory.}. You
-can find out the name and location of your history file using:
+On Unix systems, the history file is
+@file{$HOME/.local/share/gforth/history} by default@footnote{i.e. it
+is stored in the user's home directory.}. You can find out the name
+and location of your history file using:
 
 @example 
 history-file type \ Unix-class systems
@@ -1165,14 +1180,14 @@ Gforth uses these environment variables:
 @cindex @code{GFORTHHIST} -- environment variable
 @code{GFORTHHIST} -- (Unix systems only) specifies the path for the
 history file @file{.gforth-history}. Default:
-@code{$HOME/.gforth-history}.
+@code{$HOME/.local/share/gforth/history}.
 
 @item
 @cindex @code{GFORTHPATH} -- environment variable
 @code{GFORTHPATH} -- specifies the path used when searching for the
 gforth image file and for Forth source-code files (usually @samp{.}, the
 current working directory).  Path separator is @samp{:}, a typical path
-would be @file{/usr/local/share/gforth/0.8.0:.}.
+would be @file{/usr/local/share/gforth/1.0:.}.
 
 @item
 @cindex @code{LANG} -- environment variable
@@ -1193,12 +1208,11 @@ that is unset, in @code{LANG}.
 
 @item
 @cindex @code{GFORTHSYSTEMPREFIX} -- environment variable
-
 @code{GFORTHSYSTEMPREFIX} -- specifies what to prepend to the argument
 of @code{system} before passing it to C's @code{system()}.  Default:
-@code{"./$COMSPEC /c "} on Windows, @code{""} on other OSs.  The prefix
-and the command are directly concatenated, so if a space between them is
-necessary, append it to the prefix.
+@code{"./$COMSPEC /c "} on Windows, @code{""} on other OSs.  The
+prefix and the command are directly concatenated, so if a space
+between them is necessary, append it to the prefix.
 
 @item
 @cindex @code{GFORTH} -- environment variable
@@ -1339,6 +1353,7 @@ makes startup speed a little faster: @code{gforth-fast --ss-number=0
 --ss-states=1 --no-dynamic -e bye} consumes about 2.6ms user and 1.2ms
 system time.
 
+@c !! check
 The next step to improve startup speed is to use a data-relocatable
 image (@pxref{Data-Relocatable Image Files}).  This avoids the
 relocation cost for the code in the image (but not for the data).
@@ -5634,6 +5649,8 @@ standard document for the exact rules).
 doc->r
 doc-r>
 doc-r@
+doc-r'@
+doc-rpick
 doc-rdrop
 doc-2>r
 doc-2r>
@@ -6041,7 +6058,6 @@ doc-blank
 doc-insert
 doc-delete
 doc-compare
-doc-bounds
 doc-pad
 
 @comment TODO examples
@@ -6483,8 +6499,7 @@ This is an endless loop.
 
 The basic counted loop is:
 @example
-@i{limit} @i{start}
-?DO
+@i{limit} @i{start} ?DO
   @i{body}
 LOOP
 @end example
@@ -6504,10 +6519,19 @@ The index of the innermost loop can be accessed with @code{i}, the index
 of the next loop with @code{j}, and the index of the third loop with
 @code{k}.
 
-doc-i
-doc-j
-doc-k
-doc-i'
+You can access the limit of the innermost loop with @code{i'} and
+@code{i'}-@code{i} with @code{delta-i}.  E.g., running
+
+@example
+: foo 7 5 ?do cr i . i' . delta-i . loop ; 
+@end example
+
+prints
+
+@example
+5 7 2 
+6 7 1
+@end example
 
 The loop control data are kept on the return stack, so there are some
 restrictions on mixing return stack accesses and counted loop words. In
@@ -6590,11 +6614,36 @@ prints @code{0 -1}
 @end example
 prints nothing.
 
-Therefore we recommend avoiding @code{@i{n} +LOOP} with negative
-@i{n}. One alternative is @code{@i{u} -LOOP}, which reduces the
-index by @i{u} each iteration. The loop is terminated when the border
-between @i{limit+1} and @i{limit} is crossed. Gforth also provides
-@code{-DO} and @code{U-DO} for down-counting loops. E.g.:
+We recommend not combining @code{?DO} with @code{+LOOP}.  Gforth offers
+several alternatives:
+
+If you want @code{-1 +LOOP}'s behaviour of including an iteration
+where @code{I}=limit, start the loop with @code{-[DO} or @code{U-[DO}
+(where the @code{[} is inspired by the mathematical notation for
+inclusive ranges, e.g., [1,n]):
+
+@example
+-1 0 -[DO  i .  -1 +LOOP
+@end example
+
+prints @code{0 -1}.
+
+@example
+0 0 -[DO  i .  -1 +LOOP
+@end example
+
+prints @code{0}.
+
+@example
+0 -1 -[DO  i .  -1 +LOOP
+@end example
+
+prints nothing.
+
+If you want to exclude the limit, you instead use @code{1 -LOOP} (or
+generally @code{@i{u} -LOOP}) and start the loop with @code{?DO},
+@code{-DO} or @code{U-DO}.  @code{-LOOP} terminates the loop when the
+border between @i{limit+1} and @i{limit} is crossed.  E.g.:
 
 @example
 -2 0 -DO  i .  1 -LOOP
@@ -6614,14 +6663,61 @@ prints @code{0}
 @noindent
 prints nothing.
 
-@end itemize
-
 Unfortunately, @code{+DO}, @code{U+DO}, @code{-DO}, @code{U-DO} and
 @code{-LOOP} are not defined in Standard Forth. However, an implementation
 for these words that uses only standard words is provided in
 @file{compat/loops.fs}.
 
+@item
+@cindex iterate over array
+@cindex array, iterating over
+A common task is to iterate over the elements of an array, forwards or
+backwards.  Iterating over the addresses of the elements has two
+benefits: It avoids the need to keep the start address of the array
+around, reducing the data stack load; and it avoids the need to
+perform address computations in every iteration.  The disadvantage is
+that, starting with the usual array representations @i{addr uelems} or
+@i{addr ubytes}, some processing is required to produce a start and
+limit address.  Gforth has @code{bounds} for getting there from the
+@i{addr ubytes} representation, so you can write a forward loop
+through a cell array @code{v} as:
 
+@example
+create v 1 , 3 , 7 ,
+: foo v 3 cells bounds U+DO i @ . cell +LOOP ;
+foo
+@end example
+
+which prints @code{1 3 7}.  Preprocessing the inputs for walking
+backwards is more involved, so Gforth provide a loop construct of the
+form @code{MEM-DO}...@code{LOOP} that does it for you: It takes an
+array in @i{addr ubytes} representation and the element size, and
+iterates over the addresses of the elements in backwards order:
+
+@example
+create v 1 , 3 , 7 ,
+: foo1 v 3 cell array>mem MEM-DO i @ . LOOP ;
+foo1
+@end example
+
+This prints @code{7 3 1}.  @code{ARRAY>MEM} converts the @i{addr
+uelems uelemsize} representation into the @i{addr ubytes uelemsize}
+representation expected by @code{MEM-DO}.  This loop is finished with
+@code{LOOP} which decrements by @i{uelemsize} when it finishes a
+@code{MEM-DO}.
+
+Gforth also adds @code{MEM+DO} for completeness.  It takes the same
+parameters as @code{MEM-DO}, but walks forwards through the array:
+
+@example
+create v 1 , 3 , 7 ,
+: foo2 v 3 cell array>mem MEM+DO i @ . LOOP ;
+foo2
+@end example
+
+prints @code{1 3 7}.
+
+@item
 @cindex @code{FOR} loops
 Another counted loop is:
 @example
@@ -6636,6 +6732,47 @@ defined in Standard Forth. In Gforth, this loop iterates @i{n+1} times;
 @code{i} produces values starting with @i{n} and ending with 0. Other
 Forth systems may behave differently, even if they support @code{FOR}
 loops. To avoid problems, don't use @code{FOR} loops.
+
+@end itemize
+
+The counted-loop words are:
+
+doc-?do
+doc-+do
+doc-u+do
+doc-bounds
+doc--[do
+doc-u-[do
+doc--do
+doc-u-do
+doc-array>mem
+doc-mem+do
+doc-mem-do
+doc-do
+doc-for
+doc-loop
+doc-+loop
+doc--loop
+doc-next
+doc-i
+doc-j
+doc-k
+doc-i'
+doc-delta-i
+doc-leave
+doc-?leave
+doc-unloop
+doc-done
+
+
+The standard does not allow using @code{CS-PICK} and @code{CS-ROLL} on
+@i{do-sys}. Gforth allows it, except for the do-sys produced by
+@code{MEM+DO} and @code{MEM-DO}, but it's your job to ensure that for
+every @code{?DO} etc. there is exactly one @code{UNLOOP} on any path
+through the definition (@code{LOOP} etc. compile an @code{UNLOOP} on
+the fall-through path). Also, you have to ensure that all
+@code{LEAVE}s are resolved (by using one of the loop-ending words or
+@code{DONE}).
 
 @node BEGIN loops with multiple exits, General control structures with CASE, Counted Loops, Control Structures
 @subsection @code{Begin} loops with multiple exits
@@ -6839,35 +6976,6 @@ Gforth adds some more control-structure words:
 doc-endif
 doc-?dup-if
 doc-?dup-0=-if
-
-
-@noindent
-Counted loop words constitute a separate group of words:
-
-
-doc-?do
-doc-+do
-doc-u+do
-doc--do
-doc-u-do
-doc-do
-doc-for
-doc-loop
-doc-+loop
-doc--loop
-doc-next
-doc-leave
-doc-?leave
-doc-unloop
-doc-done
-
-
-The standard does not allow using @code{CS-PICK} and @code{CS-ROLL} on
-@i{do-sys}. Gforth allows it, but it's your job to ensure that for
-every @code{?DO} etc. there is exactly one @code{UNLOOP} on any path
-through the definition (@code{LOOP} etc. compile an @code{UNLOOP} on the
-fall-through path). Also, you have to ensure that all @code{LEAVE}s are
-resolved (by using one of the loop-ending words or @code{DONE}).
 
 @noindent
 Another group of control structure words are:
@@ -7707,7 +7815,7 @@ are particularly flexible, whereas the children of, e.g.,
 * CREATE..DOES> applications::
 * CREATE..DOES> details::
 * Advanced does> usage example::
-* User-defined TO and DEFER@@::
+* Words with user-defined TO etc.::
 * User-defined compile-comma::
 * Creating from a prototype::
 * Making a word current::
@@ -8076,7 +8184,7 @@ CREATE name ( ... -- ... )
 doc-set-does>
 doc->body
 
-@node Advanced does> usage example, User-defined TO and DEFER@@, CREATE..DOES> details, User-defined Defining Words
+@node Advanced does> usage example, Words with user-defined TO etc., CREATE..DOES> details, User-defined Defining Words
 @subsubsection Advanced does> usage example
 
 The MIPS disassembler (@file{arch/mips/disasm.fs}) contains many words
@@ -8201,45 +8309,138 @@ understand this, but it may improve your understanding of Forth.
 
 
 
-@node User-defined TO and DEFER@@, User-defined compile-comma, Advanced does> usage example, User-defined Defining Words
-@subsubsection User-defined TO and DEFER@@
+@node Words with user-defined TO etc., User-defined compile-comma, Advanced does> usage example, User-defined Defining Words
+@subsubsection Words with user-defined @code{to} etc.
 
-Gforth allows you to change the @code{(to)} action of a word.
-
-doc-(to)
-doc-set-to
-
-@code{(to)} is a word used inside @code{to}: it stores the value at
-run-time.  The general stack effect of @code{(to)} method is @code{(
-val xt -- )}, where @i{xt} identifies the word stored into, and
-@i{val} is the value (of appropriate type) stored there.
-
-E.g., one can implement @code{fvalue} as follows:
+When you define a word @emph{x}, you can set its execution semantics
+with @code{set-does>} (@pxref{User-defined defining words using
+CREATE}) or @code{set-execute} (@pxref{Header methods}).  But you can
+also change the semantics of
 
 @example
-: fvalue-to ( r xt -- )
-  >body f! ;
+to @emph{x}        \ aka ->@emph{x}
++to @emph{x}       \ aka +>@emph{x}
+addr @emph{x}
+action-of @emph{x} \ aka `@emph{x} defer@@
+is @emph{x}        \ aka `@emph{x} defer!
+@end example
+@cindex @code{to @emph{name}} semantics, changing them
+@cindex @code{+to @emph{name}} semantics, changing them
+@cindex @code{addr @emph{name}} semantics, changing them
+@cindex @code{action-of @emph{name}} semantics, changing them
+@cindex @code{is @emph{name}} semantics, changing them
+@cindex semantics, changing the @code{to}/@code{+to}/@code{addr}/@code{action-of}/@code{is @emph{name}} semantics
 
-: fvalue ( r "name" -- ; name: -- r )
-  create f,
-  ['] f@@ set-does>
-  ['] fvalue-to set-to ;
+This is all achieved through a common mechanism described in this
+section.  As an example, let's define @code{dvalue} (it behaves in
+Gforth exactly like @code{2value}, @pxref{Values}).  First, we need a
+table of the various @code{to}-like actions:
 
-5e fvalue foo
-: bar foo 1e f+ to foo ;
-see bar
+@example
+: d+! ( d addr -- )
+  dup >r 2@@ d+ r> 2! ;
+
+\                  to +to addr action-of is
+to-table: d!-table 2! d+!  n/a    n/a    n/a 
 @end example
 
-@code{(To)} is also known as @code{defer!} (called by @code{is},
-@pxref{Deferred Words}), so you can use it to implement variations of
-deferred words.  You also need to change @code{defer@@} then, and you
-can do that, too:
+This defines a table @code{d!-table} with a @code{to} and a @code{+to}
+action, and no action for @code{addr}, @code{action-of} and @code{is};
+i.e., for our @emph{x} defined with @code{dvalue}, if you @code{addr
+@emph{x}}, you will get an error message.  At the end of the line you
+can leave trailing @code{n/a}s away, but here we show them for
+completeness.
 
-doc-set-defer@
+The entries in the table are words that get an address on the
+top-of-stack.  They possibly also expect some additional data deeper
+in the stack, but that is data that is provided in the usual use of
+the word.  E.g., in the case of @code{dvalue}, the expectation is that
+you put a double-cell @emph{d} on the stack before you do a @code{to
+@emph{x}}, and that @emph{d} and the address
+where it should be stored is eventually passed to @code{2!}.
+
+In the case of @code{dvalue}, the address is computed from the xt of
+@emph{x} with @code{>body}.  In order to let that be known to the
+system, you write
+
+@example
+`>body d!-table to-class: dvalue-to
+@end example
+
+This defines the method implementations of the methods behind
+@code{to}, @code{+to} and @code{addr}, and the methods @code{defer@@},
+and @code{defer!}.  The reason for defining the methods in two steps
+(by first defining the table) is that the same table can be used for
+several to-classes; e.g., @code{!-table} is used for defining
+@code{value-to} (used for @code{value}), but also for @code{uvalue-to}
+used for defining @code{uvalue} (@pxref{Task-local data}) and
+@code{to-w:} (used for the default (@code{w:}) locals).
+
+@code{>body} is appropriate for words with storage in the dictionary,
+such as @code{value}.  But, e.g., for storage in user (task-local)
+storage (e.g., @code{uvalue}), you use @code{>uvalue} instead.  The
+general case is that the system pushes the xt of @emph{x}, and then
+executes the xt that has been passed to @code{to-class:}.  This xt may
+also consume one or more additional values passed on the stack (e.g.,
+for value-flavoured struct fields, xt consumes the address of the
+struct right below the xt); its overall stack effect is @code{( ... xt
+-- addr )}.
+
+Now you can define
+
+@example
+: dvalue ( d "name" -- )
+  create 2,
+  `2@@ set-does>
+  `dvalue-to set-to ;
+@end example
+
+Here the @code{set-to} changes the created word @emph{name} to use the
+methods from @code{dvalue-to} for implementing @code{to} and
+@code{+to} (and the others, but they are defined to deliver errors).
+
+Now you can define words with @code{dvalue} and use them:
+
+@example
+#5. dvalue x
+#2. +to x
+x d. \ prints "7 "
+@end example
+
+The @code{+to x} first pushes the xt of @code{x}, then performs
+@code{>body} (provided in the definition of @code{dvalue-to}), and
+finally performs the @code{d+!} provided in the @code{d!-table}.
+
+You may want to define another defining word @code{dvarue} that is
+like @code{dvalue}, but also supports @code{addr} (@pxref{Varues}),
+usually using @code{[noop]} as implementation for the part of
+@code{addr} that already receives the address on the stack.  Gforth
+provides @code{>to+addr-table}; it takes a table address on the stack
+and creates a new table with the same entries, except that the
+@code{addr} entry is replaced by @code{[noop]}.  So you can now define
+@code{dvarue} as follows:
+
+@example
+d!-table >to+addr-table d!a-table
+`>body d!a-table to-class: dvarue-to
+: dvarue ( d "name" -- )
+  create 2,
+  `2@@ set-does>
+  `dvarue-to set-to ;
+@end example
+
+These are the words mentioned above:
+
+doc-to-table:
+doc-n/a
+doc->to+addr-table:
+doc-[noop]
+doc-to-class:
+doc->uvalue
+doc-set-to
 
 
-
-@node User-defined compile-comma, Creating from a prototype, User-defined TO and DEFER@@, User-defined Defining Words
+@node User-defined compile-comma, Creating from a prototype, Words with user-defined TO etc., User-defined Defining Words
 @subsubsection User-defined @code{compile,}
 
 You can also change the implementation of @code{compile,} for a word,
@@ -8383,6 +8584,7 @@ created with this defining word is huge.
 
 doc-create-from
 doc-reveal
+doc-reveal!
 
 The performance advantage does not extend to using @code{noname} with
 the defining word.  Therefore we also have
@@ -8551,7 +8753,6 @@ doc-defer!
 doc-is
 doc-defer@
 doc-action-of
-@comment TODO document these: what's defers [is]
 
 @c Use @code{words-deferred} to see a list of deferred words.
 
@@ -8560,6 +8761,7 @@ Definitions of these Forth-2012 words in Forth-94 are provided in
 
 doc-defers
 doc-wrap-xt
+doc-preserve
 
 
 @node Forward, Aliases, Deferred Words, Defining Words
@@ -8596,9 +8798,9 @@ synonyms).
 doc-synonym
 
 Gforth also offers the non-standard @code{alias}, that does not
-inherit the compilation semantics, @code{to}/@code{defer!} or
-@code{defer@@} semantics from its parent.  You can then change, e.g.,
-the compilation semantics with, e.g., @code{immediate}.
+inherit the compilation semantics, @code{to @emph{name}} semantics
+etc. from its parent.  You can then change, e.g., the compilation
+semantics with, e.g., @code{immediate}.
 
 doc-alias
 
@@ -8616,6 +8818,463 @@ Both synonyms and aliases have a different nt than the original, but
 ticking it (or using @code{name>interpret}) produces the same xt as
 the original (@pxref{Tokens for Words}).
 
+@c ----------------------------------------------------------
+@node Structures, Object-oriented Forth, Locals, Words
+@section  Structures
+@cindex structures
+@cindex records
+
+A structure (aka record) is a collection of fields that are stored
+together.  The fields can have different types and are accessed by
+name.  There are typically several instances of a structure, otherwise
+programmers tend to prefer using a variable or somesuch for each
+field.
+
+In Forth you can use raw address arithmetic to access fields of
+structures, but using field names and defining field access words with
+the defining words described in this section makes the code more readable.
+
+@node Standard Structures,  , Structure Glossary, Structures
+@subsection Standard Structures
+@cindex Structures in Forth200x
+
+The Forth 2012 standard defines a number of words for defining fields
+and structures.
+
+A typical example of defining a structure with several fields is:
+
+@example
+0 \ offset of first field, 0 in the usual case
+  field: intlist-next ( intlist -- addr1 )
+  field: intlist-val  ( intlist -- addr2 )
+constant intlist ( -- u )
+@end example
+
+An equivalent alternative way of defining this structure is:
+
+@example
+begin-structure intlist ( -- u )
+  field: intlist-next ( intlist -- addr1 )
+  field: intlist-val  ( intlist -- addr2 )
+end-structure
+@end example
+
+@code{Intlist} returns the size of the structure.  The convention for
+the field names here is to prepend the structure name, so that you
+don't run into conflicts when several structures have @code{next} and
+@code{val} fields; in Forth, by default field names are in the same
+wordlist (i.e., the same name space) as the other words (including
+other field names), and trying to use the search order (@pxref{Word
+Lists}) for avoiding conflicts is rather cumbersome (unless you use
+the scope recognizer !! pxref).
+
+You can then use that to allocate an instance of that structure and
+then use the field words to access the fields of that instance:
+
+@example
+intlist allocate throw constant my-intlist1
+0 my-intlist1 intlist-next !
+5 my-intlist1 intlist-val  !
+
+intlist allocate throw constant my-intlist2
+my-intlist1 my-intlist2 intlist-next !
+7           my-intlist2 intlist-val !
+
+: intlist-sum ( intlist -- n )
+\ "intlist" is a pointer to the first element of a linked list
+\ "n" is the sum of the intlist-val fields in the linked list
+    0 BEGIN ( intlist1 n1 )
+        over
+    WHILE ( list1 n1 )
+        over intlist-val @@ +
+        swap intlist-next @@ swap
+    REPEAT
+    nip ;
+
+my-intlist2 intlist-sum . \ prints "12"
+@end example
+
+In addition to @code{field:} for cell-aligned and cell-sized fields,
+you can define fields sized and aligned for various types with:
+
+doc-cfield:
+doc-field:
+doc-2field:
+doc-ffield:
+doc-sffield:
+doc-dffield:
+doc-wfield:
+doc-lfield:
+doc-xfield:
+
+If you need something beyond these field types, you can use
+@code{+field} to define fields of arbitrary size.  You have to ensure
+the correct alignment yourself in this case.  E.g., if you want to put
+one struct inside another struct, you would do it with
+
+@example
+0
+  cfield:                nested-foo
+  aligned intlist +field nested-bar
+constant nested
+@end example
+
+In this example the field @code{nested-bar} contains an intlist
+structure, so the size of @code{intlist} is passed to @code{+field}.
+An @code{intlist} must be cell-aligned (it contains cell fields), and
+this is achieved by aligning the current field offset with
+@code{aligned} before the field definition.  Our recommendation is to
+always precede the usage of @code{+field} with an appropriate
+alignment word (except if character-alignment is good enough for the
+field); this ensures that the field will stay correctly aligned even
+if other fields are later inserted before the @code{+field}-defined
+field.
+
+doc-+field
+
+@cindex first field optimization
+The first field is at the base address of a structure and the word for
+this field (e.g., @code{list-next}) actually does not change the
+address on the stack. You may be tempted to leave it away in the
+interest of run-time and space efficiency. This is not necessary,
+because Gforth and other Forth systems optimize this case: If you
+compile a first-field word, no code is generated. So, in the interest
+of readability and maintainability you should include the word for the
+field when accessing the field.
+
+@node Varue-Flavoured and Defer-Flavoured Fields
+@subsection Value-Flavoured and Defer-Flavoured Fields
+
+In addition to the variable-flavoured fields that produce an address
+(@pxref{Standard Structures}), Gforth also provides varue-flavoured
+fields.  Like all fields, varue-flavoured fields consume the start
+address of the struct, but they produce their value and you can apply
+@code{to}, @code{+to} and @code{addr} on them.  E.g., we can do
+something like the @code{intlist} definition (@pxref{Standard
+Structures}):
+
+@example
+0
+  value: intlist>next ( intlista -- intlista1 )
+  value: intlist>val  ( intlista -- n )
+constant intlista ( -- u )
+@end example
+
+This means that there are the following ways of accessing
+@code{intlist>val}:
+
+@example
+intlist>val ( intlista -- n )
+->intlist>val ( n intlista -- ) \ aka  to intlist>val
++>intlist>val ( n intlista -- ) \ aka +to intlist>val
+addr intlist>val ( intlista -- addr )
+@end example
+
+And here's the earlier example (@pxref{Standard Structures}) rewritten
+to use @code{intlista}:
+
+@example
+intlista allocate throw constant my-intlista1
+0 my-intlista1 to intlist>next
+5 my-intlista1 to intlist>val
+
+intlista allocate throw constant my-intlista2
+my-intlista1 my-intlista2 to intlist>next
+7            my-intlista2 to intlist>val
+
+: intlista-sum ( intlista -- n )
+\ "intlista" is a pointer to the first element of a linked list
+\ "n" is the sum of the intlist>val fields in the linked list
+    0 BEGIN ( intlista1 n1 )
+        over
+    WHILE ( list1 n1 )
+        over intlist>val +
+        swap intlist>next swap
+    REPEAT
+    nip ;
+
+my-intlista2 intlista-sum . \ prints "12"
+@end example
+
+Depending on the type of the field, the value can be something
+different than a single cell.
+
+doc-value:
+doc-cvalue:
+doc-wvalue:
+doc-lvalue:
+doc-scvalue:
+doc-swvalue:
+doc-slvalue:
+doc-2value:
+doc-fvalue:
+doc-sfvalue:
+doc-dfvalue:
+doc-zvalue:
+doc-$value:
+
+Gforth also has field words for dealing with dynamically-sized arrays.
+A field for such an array contains just a cell that points to the
+actual data, and this cell has to be set to 0 before accessing the
+array the first time.  When accessing the field (without operator, or
+with @code{to} or @code{+to}), there has to be the index and the
+structure address on the stack, with the structure address on top.
+Any further items consumed by @code{to} or @code{+to} are below the
+index on the stack.  The array expands to the size given by the
+maximum access; any unset elements are 0; for @code{$value[]}
+accessing them produces a 0-length (i.e., empty) string.
+
+Here is a usage example:
+
+@example
+0
+  value[]:  bla>x[]
+  $value[]: bla>$y[]
+constant bla
+
+bla allocate throw constant mybla
+mybla bla erase \ set all fields to 0
+
+5 2 mybla to bla>x[] \ access at index 2
+7 0 mybla to bla>x[] \ access at index 0
+2 mybla bla>x[] . \ prints "5"
+3 mybla bla>x[] . \ prints "0"
+"foo" 2 mybla to bla>$y[]  \ access at index 2
+"bla" 1 mybla to bla>$y[]  \ access at index 1
+"bar" 2 mybla +to bla>$y[] \ access at index 2
+0 mybla bla>$y[] . . \ prints "0 0"
+1 mybla bla>$y[] type \ prints "bla"
+2 mybla bla>$y[] type \ prints "foobar"
+@end example
+
+doc-value[]:
+doc-$value[]:
+
+Finally, you can define defer-flavoured fields.  Here is a usage
+example:
+
+@example
+0
+  defer: foo'bar
+constant foo
+
+foo allocate throw constant my-foo
+:noname ." test" ; my-foo is foo'bar
+my-foo foo'bar                   \ prints "test"
+my-foo addr foo'bar @@ execute   \ prints "test"
+my-foo action-of foo'bar execute \ prints "test"
+my-foo `foo'bar defer@ execute   \ prints "test"
+:noname ." test1" ; my-foo `foo'bar defer!
+my-foo foo'bar                   \ prints "test1"
+@end example
+
+doc-defer:
+
+For documentation of @code{is}, @code{action-of}, @code{defer@},
+@code{defer!}, see @xref{Deferred Words}.  Note however, that when
+used on defer-flavoured fields, all these words consume the start
+address of the structure, unlike for words defined with @code{defer}.
+
+@node Structure Extension
+@subsection Structure Extension
+@cindex structure extension
+@cindex extended records
+
+You can create a new structure starting with an existing structure and
+its fields.  E.g., if we also want to define @code{floatlist}, we can
+factor out the @code{...-next} field into a general structure
+@code{list} without payload, and then define @code{intlist} and
+@code{floatlist} as extensions of @code{list}:@footnote{This feature
+is also known as @emph{extended records} in Oberon.}
+
+@example
+0
+  field: list-next ( list -- addr )
+constant list ( -- u )
+
+list
+  field: intlist-val ( intlist -- addr )
+constant intlist ( -- u )
+
+list
+  ffield: floatlist-val ( floatlist -- addr )
+constant floatlist ( -- u )
+@end example
+
+Note that in this variant there is no @code{intlist-next} nor a
+@code{floatlist-next}, just a @code{list-next}; so when you use, e.g.,
+a @code{floatlist}, the organization through extension of @code{list}
+is exposed.  This may make it harder to refactor things, so you may
+prefer to also introduce synonyms @code{intlist-next} and
+@code{floatlist-next}.
+
+If you prefer to use @code{begin-structure}...@code{end-structure},
+you can do the equivalent definition as follows:
+
+@example
+begin-structure list ( -- u )
+  field: list-next ( list -- addr )
+end-structure
+
+list extend-structure intlist
+  field: intlist-val  ( intlist -- addr )
+end-structure
+
+list extend-structure floatlist
+  ffield: floatlist-val  ( floatlist -- addr )
+end-structure
+@end example
+
+doc-extend-structure
+
+
+
+@node Gforth structs
+@subsection Gforth structs
+
+Gforth has had structs before the standard had them; they are a little
+different, and you can still use them.  One benefit of the Gforth
+structs is that they propagate knowledge of alignment requirements, so
+if you build the @code{nested} structure (@pxref{Standard
+Structures}), you do not need to look inside @code{intlist} to find
+out the proper alignment, and you also do not need to mention
+alignment at all.  Instead, this example would look like:
+
+@example
+struct
+  cell% field intlist-next
+  cell% field intlist-val
+end-struct intlist%
+
+struct
+  char%    field nested-foo
+  intlist% field nested-bar
+end-struct nested%
+@end example
+
+The fields are variable-flavoured, i.e., they work in the same way as
+those defined with @code{field:}, @code{+field} etc.
+
+A disadvantage of the Gforth structs is that, with the standard going
+for something else, you need to learn additional material to write and
+understand code that uses them.  Another disadvantage of the Gforth
+structs is that they do not support value-flavoured or defer-flavoured
+fields.  On the balance, in our opinion the disadvantages now outweigh
+the advantages, so we recommend using the standard structure words
+(@pxref{Standard Structures}).  Nevertheless, here is the
+documentation for Gforth's structs.
+@cindex @code{field} usage
+@cindex @code{struct} usage
+@cindex @code{end-struct} usage
+
+The @code{list} and @code{intlist} example looks like this with Gforth
+structs:
+
+@example
+struct
+  cell% field list-next
+end-struct list%
+
+list%
+  cell% field intlist-val
+end-struct intlist%
+@end example
+
+@code{Intlist%} contains information about size and alignment, and you
+use @code{%size} to get the size, e.g., for allocation:
+
+@example
+intlist% %size allocate throw constant my-intlist1
+@end example
+
+A shorthand for that is
+
+@example
+intlist% %alloc constant my-intlist1
+@end example
+
+The fields behave the same way, so the rest of the example works as
+with standard structures.
+
+In addition to specifying single cells with @code{cell%}, you can also
+specify an array of, e.g., 10 cells like this:
+
+@example
+  cell% 10 * field bla-blub
+@end example
+
+This is equivalent to the standard
+
+@example
+  aligned 10 cells +field bla-blub
+@end example
+
+You can use @code{cell% 10 *} not just with @code{field}, but also in
+other places where an alignment and size is expected, e.g., with
+@code{%alloc}.
+
+
+@node Structure Implementation, Structure Glossary, Structure Naming Convention, Structures
+@subsection Structure Implementation
+@cindex structure implementation
+@cindex implementation of structures
+
+The central idea in the implementation is to pass the data about the
+structure being built on the stack, not in some global
+variable. Everything else falls into place naturally once this design
+decision is made.
+
+The type description on the stack is of the form @emph{align
+size}. Keeping the size on the top-of-stack makes dealing with arrays
+very simple.
+
+@code{field} is a defining word that uses @code{Create}
+and @code{DOES>}. The body of the field contains the offset
+of the field, and the normal @code{DOES>} action is simply:
+
+@example
+@@ +
+@end example
+
+@noindent
+i.e., add the offset to the address, giving the stack effect
+@i{addr1 -- addr2} for a field.
+
+@cindex first field optimization, implementation
+This simple structure is slightly complicated by the optimization
+for fields with offset 0, which requires a different
+@code{DOES>}-part (because we cannot rely on there being
+something on the stack if such a field is invoked during
+compilation). Therefore, we put the different @code{DOES>}-parts
+in separate words, and decide which one to invoke based on the
+offset. For a zero offset, the field is basically a noop; it is
+immediate, and therefore no code is generated when it is compiled.
+
+@node Structure Glossary, Forth200x Structures, Structure Implementation, Structures
+@subsection Structure Glossary
+@cindex structure glossary
+
+
+doc-%align
+doc-%alignment
+doc-%alloc
+doc-%allocate
+doc-%allot
+doc-cell%
+doc-char%
+doc-dfloat%
+doc-double%
+doc-end-struct
+doc-field
+doc-float%
+doc-sfloat%
+doc-%size
+doc-struct
+
+
+
+
+@c ----------------------------------------------------------------
 @node Interpretation and Compilation Semantics, Tokens for Words, Defining Words, Words
 @section Interpretation and Compilation Semantics
 @cindex semantics, interpretation and compilation
@@ -8925,6 +9584,7 @@ doc-name>compile
 doc-name>string
 doc-id.
 doc-.id
+doc-obsolete?
 doc-name>link
 
 A nameless word usually has no interpretation nor compilation
@@ -9753,9 +10413,21 @@ doc-#line
 @subsection Recognizers
 @cindex recongizers
 
+When the text interpreter processes source code, it divides the code
+into blank-delimited strings, and then calls recognizers to identify
+them as words, numbers, etc., until one recognizer identifies
+(recognizes) the string; if the string is not recognized, the text
+interpreter reports an error (@code{undefined word}).
+
+The usual way to deal with recognizers is to just write code that one
+of them identifies (@pxref{Default Recognizers}); however, you can
+also manipulate them (@pxref{Dealing with existing Recognizers}) or
+even define new ones (@pxref{Defining Recognizers}).
+
 @menu
 * Default Recognizers::
 * Dealing with existing Recognizers::
+* Defining Recognizers::
 @end menu
 
 @node Default Recognizers, Dealing with existing Recognizers, Recognizers, Recognizers
@@ -9802,7 +10474,7 @@ using a specific recognizer to recognize something, e.g., @code{float?1.}, , wit
 
 @end itemize
 
-You can use @code{locate} (@pxref{Locating source code definitions} to
+You can use @code{locate} (@pxref{Locating source code definitions}) to
 determine which recognizer recognizes a piece of source code.  E.g.:
 
 @example
@@ -9818,15 +10490,11 @@ You can see which recognizers are used and the order of recognizers with
 
 doc-.recognizers
 
-The usual way to deal with recognizers is to just write code that one
-of them recogizes, but if you want to manipulate them, @ref{Dealing
-with existing Recognizers}.
-
 Recognizers are typically designed to avoid matching the same strings
 as other recognizers.  E.g., @code{rec-env} (the environment variable
 recognizer) requires braces to avoid a conflict with the number
-recognizer for strings like @code{$ADD}.  There are a few exceptions
-to this policy, however:
+recognizer for input strings like @code{$ADD}.  There are a few
+exceptions to this policy, however:
 
 @itemize @bullet
 
@@ -9865,15 +10533,19 @@ avoid a conflict by using @code{to myvalue} or @code{to?->myvalue}
 
 @end itemize
 
-@node Dealing with existing Recognizers,  , Default Recognizers, Recognizers
+@node Dealing with existing Recognizers, Defining Recognizers, Default Recognizers, Recognizers
 @subsubsection Dealing with existing Recognizers
 @cindex Recognizers, dealing with
 
 A recognizer is a word to which you pass a string.  If the recognizer
 recognizes the string, it typically returns some data and the xt of a
-word for processing the data; this word is called the translator.
+word for processing the data; this word is called the translator.  If
+the recognizer does not recognize the string, it returns the xt of
+@code{notfound}.
 
-All recognizers have the stack effect ( c-addr u -- ... xt )
+All recognizers have the stack effect ( c-addr u -- ... xt ).
+
+
 
 Recognizers take a string and return some data and a translator for
 interpreting that data.  Gforth implements that translator as xt
@@ -9913,13 +10585,17 @@ doc-translate-nt
 doc-translate-num
 doc-translate-dnum
 doc-translate-float
+doc-try-recognize
+doc->interpret
+doc->compile
+doc->postpone
+doc-translate-method:
+doc-translate-state
 
-The following extension is only avaiable if you load @code{recognizer-ext.fs}:
+@node Defining Recognizers,  , Dealing with existing Recognizers, Recognizers
+@subsubsection Defining Recognizers
 
-doc-interpret-translator
-doc-compile-translator
-doc-postpone-translator
-doc-translator:
+
 
 @node Text Interpreter Hooks,  , Recognizers, The Text Interpreter
 @subsection Text Interpreter Hooks
@@ -10904,6 +11580,7 @@ data stack.  Numbers are displayed in the base (aka radix) stored in
 
 doc-.
 doc-dec.
+doc-h.
 doc-hex.
 doc-u.
 doc-.r
@@ -11935,11 +12612,32 @@ about undefined locals.
 If the @code{BEGIN} is not reachable from above (e.g., after
 @code{AHEAD} or @code{EXIT}), the compiler cannot even make an
 optimistic guess, as the locals visible after the @code{BEGIN} may be
-defined later. Therefore, the compiler assumes that no locals are
-visible after the @code{BEGIN}. However, the user can use
-@code{ASSUME-LIVE} to make the compiler assume that the same locals are
-visible at the BEGIN as at the point where the top control-flow stack
-item was created.
+defined later.
+
+It pessimistically assumes that all locals are visible that were
+visible at the latest place outside any control structure (i.e., where
+nothing is on the control-flow stack).  This means that in:
+
+@example
+: foo
+  IF @{: z :@} THEN
+  @{: x :@}
+  AHEAD
+    BEGIN
+      ( * )
+    [ 1 CS-ROLL ] THEN
+    @{: y :@}
+    ...
+  UNTIL ;
+@end example
+
+At the place marked with @code{( * )}, @code{x} is visible, but
+@code{y} is not (although, according to the reachability rule it
+should); @code{z} is not and should not be visible there.
+
+However, you can use @code{ASSUME-LIVE} to make the compiler assume
+that the same locals are visible at the BEGIN as at the point where
+the top control-flow stack item was created.
 
 
 doc-assume-live
@@ -11948,15 +12646,22 @@ doc-assume-live
 @noindent
 E.g.,
 @example
-@{: x :@}
-AHEAD
-ASSUME-LIVE
-BEGIN
-  x
-[ 1 CS-ROLL ] THEN
-  ...
-UNTIL
+IF
+  @{: x :@}
+  AHEAD
+    ASSUME-LIVE
+    BEGIN
+      x
+    [ 1 CS-ROLL ] THEN
+    ...
+  UNTIL
+THEN
 @end example
+
+Here @code{x} would not be visible at the use of @code{x}, because its
+definition is inside a control structure, but by using ASSUME-LIVE the
+programmer tells the compiler that the locals visible at the
+@code{AHEAD} should be visible at the @code{BEGIN}.
 
 Other cases where the locals are defined before the @code{BEGIN} can be
 handled by inserting an appropriate @code{CS-ROLL} before the
@@ -12078,21 +12783,21 @@ toward lower addresses. A few primitives allow an efficient
 implementation; you should not use them directly, but they appear in
 the output of @code{see}, so they are documented here:
 
-doc-@local#
-doc-f@local#
-doc-laddr#
+doc-@localn
+doc-f@localn
+doc-lp+!
 doc-lp+!#
 doc-lp!
 doc->l
 doc-f>l
 
+See also @code{lp@@} (@pxref{Stack pointer manipulation}).
 
 In addition to these primitives, some specializations of these
 primitives for commonly occurring inline arguments are provided for
-efficiency reasons, e.g., @code{@@local0} as specialization of
-@code{@@local#} for the inline argument 0. The following compiling words
-compile the right specialized version, or the general version, as
-appropriate:
+efficiency reasons, e.g., @code{@@local0} as specialization of @code{0
+@@localn}. The following compiling words compile the right specialized
+version, or the general version, as appropriate:
 
 
 @c doc-compile-@local
@@ -12220,8 +12925,10 @@ doc-[{:
 doc-:}l
 doc-:}d
 doc-:}h
+doc-:}h1
 doc-:}xt
 doc->addr
+doc-free-closure
 
 @example
 : foo [@{: a f: b d: c xt: d :@}d a . b f. c d. d ;] ;
@@ -12253,7 +12960,7 @@ the outer procedure; especially closures allocated in the dictionary
 or on the heap are designed to outlive their parent procedure.
 
 For those, we have home locations, which are allocated like closures,
-but their code is directly executed at run-time and should provide us
+but their code is directly executed at creation and should provide us
 with the addresses of the home locations.
 
 @example
@@ -12307,381 +13014,6 @@ standard stack comment notation, making programs harder to read, and
 easier to misread and miswrite. The only merit of this syntax is that
 it is easy to implement using the ANS Forth locals wordset, but then,
 so is the @code{@{:} syntax.
-
-@c ----------------------------------------------------------
-@node Structures, Object-oriented Forth, Locals, Words
-@section  Structures
-@cindex structures
-@cindex records
-
-This section presents the structure package that comes with Gforth. A
-version of the package implemented in Standard Forth is available in
-@file{compat/struct.fs}. This package was inspired by a posting on
-comp.lang.forth in 1989 (unfortunately I don't remember, by whom;
-possibly John Hayes). A version of this section has been published in
-M. Anton Ertl,
-@uref{https://www.complang.tuwien.ac.at/forth/objects/structs.html, Yet
-Another Forth Structures Package}, Forth Dimensions 19(3), pages
-13--16. Marcel Hendrix provided helpful comments.
-
-@menu
-* Why explicit structure support?::
-* Structure Usage::
-* Structure Naming Convention::
-* Structure Implementation::
-* Structure Glossary::
-* Forth200x Structures::
-@end menu
-
-@node Why explicit structure support?, Structure Usage, Structures, Structures
-@subsection Why explicit structure support?
-
-@cindex address arithmetic for structures
-@cindex structures using address arithmetic
-If we want to use a structure containing several fields, we could simply
-reserve memory for it, and access the fields using address arithmetic
-(@pxref{Address arithmetic}). As an example, consider a structure with
-the following fields
-
-@table @code
-@item a
-is a float
-@item b
-is a cell
-@item c
-is a float
-@end table
-
-Given the (float-aligned) base address of the structure we get the
-address of the field
-
-@table @code
-@item a
-without doing anything further.
-@item b
-with @code{float+}
-@item c
-with @code{float+ cell+ faligned}
-@end table
-
-It is easy to see that this can become quite tiring. 
-
-Moreover, it is not very readable, because seeing a
-@code{cell+} tells us neither which kind of structure is
-accessed nor what field is accessed; we have to somehow infer the kind
-of structure, and then look up in the documentation, which field of
-that structure corresponds to that offset.
-
-Finally, this kind of address arithmetic also causes maintenance
-troubles: If you add or delete a field somewhere in the middle of the
-structure, you have to find and change all computations for the fields
-afterwards.
-
-So, instead of using @code{cell+} and friends directly, how
-about storing the offsets in constants:
-
-@example
-0 constant a-offset
-0 float+ constant b-offset
-0 float+ cell+ faligned c-offset
-@end example
-
-Now we can get the address of field @code{x} with @code{x-offset
-+}. This is much better in all respects. Of course, you still
-have to change all later offset definitions if you add a field. You can
-fix this by declaring the offsets in the following way:
-
-@example
-0 constant a-offset
-a-offset float+ constant b-offset
-b-offset cell+ faligned constant c-offset
-@end example
-
-Since we always use the offsets with @code{+}, we could use a defining
-word @code{cfield} that includes the @code{+} in the action of the
-defined word:
-
-@example
-: cfield ( n "name" -- )
-    create ,
-does> ( name execution: addr1 -- addr2 )
-    @@ + ;
-
-0 cfield a
-0 a float+ cfield b
-0 b cell+ faligned cfield c
-@end example
-
-Instead of @code{x-offset +}, we now simply write @code{x}.
-
-The structure field words now can be used quite nicely. However,
-their definition is still a bit cumbersome: We have to repeat the
-name, the information about size and alignment is distributed before
-and after the field definitions etc.  The structure package presented
-here addresses these problems.
-
-@node Structure Usage, Structure Naming Convention, Why explicit structure support?, Structures
-@subsection Structure Usage
-@cindex structure usage
-
-@cindex @code{field} usage
-@cindex @code{struct} usage
-@cindex @code{end-struct} usage
-You can define a structure for a (data-less) linked list with:
-@example
-struct
-    cell% field list-next
-end-struct list%
-@end example
-
-With the address of the list node on the stack, you can compute the
-address of the field that contains the address of the next node with
-@code{list-next}. E.g., you can determine the length of a list
-with:
-
-@example
-: list-length ( list -- n )
-\ "list" is a pointer to the first element of a linked list
-\ "n" is the length of the list
-    0 BEGIN ( list1 n1 )
-        over
-    WHILE ( list1 n1 )
-        1+ swap list-next @@ swap
-    REPEAT
-    nip ;
-@end example
-
-You can reserve memory for a list node in the dictionary with
-@code{list% %allot}, which leaves the address of the list node on the
-stack. For the equivalent allocation on the heap you can use @code{list%
-%alloc} (or, for an @code{allocate}-like stack effect (i.e., with ior),
-use @code{list% %allocate}). You can get the the size of a list
-node with @code{list% %size} and its alignment with @code{list%
-%alignment}.
-
-Note that in Standard Forth the body of a @code{create}d word is
-@code{aligned} but not necessarily @code{faligned};
-therefore, if you do a:
-
-@example
-create @emph{name} foo% %allot drop
-@end example
-
-@noindent
-then the memory alloted for @code{foo%} is guaranteed to start at the
-body of @code{@emph{name}} only if @code{foo%} contains only character,
-cell and double fields.  Therefore, if your structure contains floats,
-better use
-
-@example
-foo% %allot constant @emph{name}
-@end example
-
-@cindex structures containing structures
-You can include a structure @code{foo%} as a field of
-another structure, like this:
-@example
-struct
-...
-    foo% field ...
-...
-end-struct ...
-@end example
-
-@cindex structure extension
-@cindex extended records
-Instead of starting with an empty structure, you can extend an
-existing structure. E.g., a plain linked list without data, as defined
-above, is hardly useful; You can extend it to a linked list of integers,
-like this:@footnote{This feature is also known as @emph{extended
-records}. It is the main innovation in the Oberon language; in other
-words, adding this feature to Modula-2 led Wirth to create a new
-language, write a new compiler etc.  Adding this feature to Forth just
-required a few lines of code.}
-
-@example
-list%
-    cell% field intlist-int
-end-struct intlist%
-@end example
-
-@code{intlist%} is a structure with two fields:
-@code{list-next} and @code{intlist-int}.
-
-@cindex structures containing arrays
-You can specify an array type containing @emph{n} elements of
-type @code{foo%} like this:
-
-@example
-foo% @emph{n} *
-@end example
-
-You can use this array type in any place where you can use a normal
-type, e.g., when defining a @code{field}, or with
-@code{%allot}.
-
-@cindex first field optimization
-The first field is at the base address of a structure and the word for
-this field (e.g., @code{list-next}) actually does not change the address
-on the stack. You may be tempted to leave it away in the interest of
-run-time and space efficiency. This is not necessary, because the
-structure package optimizes this case: If you compile a first-field
-words, no code is generated. So, in the interest of readability and
-maintainability you should include the word for the field when accessing
-the field.
-
-
-@node Structure Naming Convention, Structure Implementation, Structure Usage, Structures
-@subsection Structure Naming Convention
-@cindex structure naming convention
-
-The field names that come to (my) mind are often quite generic, and,
-if used, would cause frequent name clashes. E.g., many structures
-probably contain a @code{counter} field. The structure names
-that come to (my) mind are often also the logical choice for the names
-of words that create such a structure.
-
-Therefore, I have adopted the following naming conventions: 
-
-@itemize @bullet
-@cindex field naming convention
-@item
-The names of fields are of the form
-@code{@emph{struct}-@emph{field}}, where
-@code{@emph{struct}} is the basic name of the structure, and
-@code{@emph{field}} is the basic name of the field. You can
-think of field words as converting the (address of the)
-structure into the (address of the) field.
-
-@cindex structure naming convention
-@item
-The names of structures are of the form
-@code{@emph{struct}%}, where
-@code{@emph{struct}} is the basic name of the structure.
-@end itemize
-
-This naming convention does not work that well for fields of extended
-structures; e.g., the integer list structure has a field
-@code{intlist-int}, but has @code{list-next}, not
-@code{intlist-next}.
-
-@node Structure Implementation, Structure Glossary, Structure Naming Convention, Structures
-@subsection Structure Implementation
-@cindex structure implementation
-@cindex implementation of structures
-
-The central idea in the implementation is to pass the data about the
-structure being built on the stack, not in some global
-variable. Everything else falls into place naturally once this design
-decision is made.
-
-The type description on the stack is of the form @emph{align
-size}. Keeping the size on the top-of-stack makes dealing with arrays
-very simple.
-
-@code{field} is a defining word that uses @code{Create}
-and @code{DOES>}. The body of the field contains the offset
-of the field, and the normal @code{DOES>} action is simply:
-
-@example
-@@ +
-@end example
-
-@noindent
-i.e., add the offset to the address, giving the stack effect
-@i{addr1 -- addr2} for a field.
-
-@cindex first field optimization, implementation
-This simple structure is slightly complicated by the optimization
-for fields with offset 0, which requires a different
-@code{DOES>}-part (because we cannot rely on there being
-something on the stack if such a field is invoked during
-compilation). Therefore, we put the different @code{DOES>}-parts
-in separate words, and decide which one to invoke based on the
-offset. For a zero offset, the field is basically a noop; it is
-immediate, and therefore no code is generated when it is compiled.
-
-@node Structure Glossary, Forth200x Structures, Structure Implementation, Structures
-@subsection Structure Glossary
-@cindex structure glossary
-
-
-doc-%align
-doc-%alignment
-doc-%alloc
-doc-%allocate
-doc-%allot
-doc-cell%
-doc-char%
-doc-dfloat%
-doc-double%
-doc-end-struct
-doc-field
-doc-float%
-doc-sfloat%
-doc-%size
-doc-struct
-
-
-@node Forth200x Structures,  , Structure Glossary, Structures
-@subsection Forth200x Structures
-@cindex Structures in Forth200x
-
-The Forth 2012 standard defines a slightly less convenient form of
-structures.  In general (when using @code{field+}, you have to perform
-the alignment yourself, but there are a number of convenience words
-(e.g., @code{field:}) that include alignment.
-
-A typical usage example is:
-
-@example
-0
-  field:                   s-a
-  faligned 2 floats +field s-b
-constant s-struct
-@end example
-
-An alternative way of writing this structure is:
-
-@example
-begin-structure s-struct
-  field:                   s-a
-  faligned 2 floats +field s-b
-end-structure
-@end example
-
-You can define a structure that has the same fields and additional
-fields as follows:
-
-@example
-s-struct
-  cfield: t-c
-  cfield: t-d
-constant t-struct
-@end example
-
-or alternatively
-
-@example
-s-struct extend-structure t-struct
-  cfield: t-c
-  cfield: t-d
-end-structure
-@end example
-
-doc-begin-structure
-doc-extend-structure
-doc-end-structure
-doc-+field
-doc-cfield:
-doc-field:
-doc-2field:
-doc-ffield:
-doc-sffield:
-doc-dffield:
-doc-wfield:
-doc-lfield:
-doc-xfield:
 
 @c -------------------------------------------------------------
 @node Object-oriented Forth, Regular Expressions, Structures, Words
@@ -14225,7 +14557,7 @@ whole string constants.
 doc-\^
 doc-\$
 doc-str=?
-doc-=''
+doc-="
 
 Loops that check for repeated character sets can be greedy or
 non-greedy.
@@ -14319,6 +14651,7 @@ foreground).  If you have not set @code{EDITOR}, the default editor is
 @file{vi}.
 
 doc-locate
+doc-xt-locate
 
 The @emph{current location} is set by a number of other words in
 addition to @code{locate}.  Also, when an error happens while loading
@@ -14808,6 +15141,30 @@ their semantics.
 @subsection Pthreads
 @cindex pthread
 
+@c You need to include @file{unix/pthread.fs} to use the following words.
+
+Posix threads can run in parallel on several cores, or with
+pre-emptive multitasking on onecore.  However, many of the following
+words are the same as in the traditional cooperative multi-tasker.
+
+In addition, there are words that allow you to make sure that only one
+task at a time changes something, and for communicating between tasks.
+These words are necessary for pre-emptive and multi-core
+multi-tasking, because the cooperative-multitasking way of performing
+transactions between calls to @code{pause} does not work in this
+environment.
+
+@menu
+* Basic multi-tasking::
+* Task-local data::
+* Semaphores::
+* Hardware operations for multi-tasking::
+* Message queues::
+@end menu
+
+@node Basic multi-tasking, Task-local data, Pthreads, Pthreads
+@subsubsection Basic multi-tasking
+
 Tasks can be created with @code{newtask} or @code{newtask4} with a
 given amount of stack space (either all the same or each stack's size
 specified).
@@ -14817,15 +15174,23 @@ doc-task
 doc-newtask4
 
 If you don't know which stack sizes to use for the task, you can use
-the size(s) of the current task:
+the size(s) of the main task:
 
 doc-stacksize
 doc-stacksize4
 
-A tasks is created in an inactive state.  To let it run, you have to
+A task is created in an inactive state.  To let it run, you have to
 activate it with one of the following words:
 
 doc-initiate
+
+The following legacy words provide the same functionality as
+@code{initiate}, but with a different interface: Like @code{does>}, they
+split their containing colon definition in two parts: The part before
+@code{activate}/@code{pass} runs in the activating task, and returns to
+its caller after activating the task.  The part behind
+@code{activate}/@code{pass} is executed in the activated target task.
+
 doc-activate
 doc-pass
 
@@ -14833,13 +15198,14 @@ You can also do creation and activation in one step:
 
 doc-execute-task
 
-The task can terminate itself with @code{kill-task} or other tasks can
-terminate it with @code{kill}.
+Apart from terminating by running to the end, a task can terminate
+itself with @code{kill-task}.  Other tasks can terminate it with
+@code{kill}.
 
 doc-kill-task
 doc-kill
 
-Tasks can also stop themselves temporarily or be stopped:
+Tasks can also temporarily stop themselves or be stopped:
 
 doc-halt
 doc-stop
@@ -14854,37 +15220,34 @@ There is also:
 
 doc-pause
 
+@node Task-local data, Semaphores, Basic multi-tasking, Pthreads
 @subsubsection Task-local data
 @cindex user variables
 @cindex user space
 @cindex task-local data
 
 In Forth every task has essentially the same task-local data, called
-``user'' data (early Forth systems were multi-user systems and there
-often was one user per task).  Each task gets the user data defined by
-the system.  You can define additional user date with:
-
-Aside from the user variables that are already defined in the kernel,
-tasks may want to have user values and user defers, optain the offset
-of a user variable, or the address of those related to another task to
-initialize that task's user area.
+``user'' area (early Forth systems were multi-user systems and there
+often was one user per task).  The @i{task} result of,
+e.g. @code{newtask} is the start address of its user area.  Each task
+gets the user data defined by the system (e.g., @code{base}).  You can
+define additional user data with:
 
 doc-user
 doc-auser
 doc-uallot
 doc-uvalue
 doc-udefer
+
+There are also the following words for dealing with user data.
+
+doc-up@
 doc-user'
 doc-'s
 
-
-The defining word @code{User} behaves in the same way as
-@code{Variable}.  The difference is that it reserves space in the
-@i{user (data) space} of each task rather than normal data space. Each
-task has its own instance of the user space.
-
 @c doc-udp
 
+@node Semaphores, Hardware operations for multi-tasking, Task-local data, Pthreads
 @subsubsection Semaphores
 
 A cooperative multitasker can ensure that there is no other task
@@ -14908,65 +15271,105 @@ exclusive.
 
 doc-critical-section
 
-@subsubsection Atomic operations
+@node Hardware operations for multi-tasking, Message queues, Semaphores, Pthreads
+@subsubsection Hardware operations for multi-tasking
 
-Atomic operations can be used to synchronize tasks without using slow
-OS primitives.
+Atomic hardware operations perform the whole operation, without any
+other task seeing an intermediate state.  These operations can be used
+to synchronize tasks without using slow OS primitives, but compared to
+the non-atomic sequences of operations they tend to be slow.  Atomic
+operations only work correctly on aligned addresses, even on hardware
+that otherwise does not require alignment.
 
 doc-!@
 doc-+!@
 doc-?!@
+
+Another hardware operation is the memory barrier.  Unfortunately
+modern hardware often can reorder memory operations relative to other
+memory operations (as seen by a different core), and the memory
+barrier suppresses this reordering for one point in the execution of
+the task.
+
 doc-barrier
 
-@subsubsection Message Queues
+@node Message queues,  , Hardware operations for multi-tasking, Pthreads
+@subsubsection Message queues
 
-Gforth implements executable message queues for event driven programs:
-you send instructions to other tasks, enclosed in @code{<event} and
-@code{event>}; the entire event sequence is executed atomically.  You
-can pass integers, floats, and strings (only the addresses, so treat
-the string as read-only after you have send it to another task).  The
-messages you send are defined with @code{event:} @var{name}, which,
-when invoked, will add the code for its execution to the message
-queue, and when recieved, will execute the code following.  The
-message queue is queried when you @code{stop} a task, or when you
-check for events with @code{?events}.  You can define a maximum of 256
-different events.
+Gforth's message queues are a variant of the actor model.
 
-doc-<event
-doc-event>
-doc-event:
+The sending task tells the receiving task to execute an xt with the
+stack effect @code{( -- )} (an @emph{event} in the name of the words
+below; the actor model would call these xts @emph{messages}), and when
+the receiving task is ready, it will execute the xt, possibly after
+other xts from its message queue.
+
+The execution order between xts from different tasks is arbitrary, the
+order between xts from the same task is the sending order.
+
+In many cases you do not just want to pass the xts of existing words,
+but also parameters.  You can construct execute-once closures (defined
+using @code{:@}h1}, @pxref{Closures}) to achieve that, e.g., with
+
+@example
+: .-in-task ( n task -- )
+  >r [@{: n :@}h1 n . ;] r> send-event ;
+
+5 my-task .-in-task
+@end example
+
+doc-send-event
+
+In order to execute xts received from other tasks, perform one of the
+following words in the receiving task:
+
 doc-?events
 doc-event-loop
-doc-elit,
-doc-e$,
-doc-eflit,
 
-The naming conventions for events is @code{:>}@var{name}.
+Alternatively, when a task is @code{stop}ped, it is also ready for
+receiving xts, and receiving an xt will not just execute the xt, but
+also continue execution after the @code{stop}.
 
-@subsubsection Conditions
-
-The pthreads library also provides conditional variables, which allow to
-wait for a condition.  Using the message queue is generally preferred.
-
-doc-cond
-doc-pthread_cond_signal
-doc-pthread_cond_broadcast
-doc-pthread_cond_wait
-doc-pthread_cond_timedwait
+@c @node Conditions,  , Message queues, Pthreads
+@c @subsubsection Conditions
+@c 
+@c The pthreads library also provides conditional variables, which allow to
+@c wait for a condition.  Using the message queue is generally preferred.
+@c 
+@c doc-cond
+@c doc-pthread_cond_signal
+@c doc-pthread_cond_broadcast
+@c doc-pthread_cond_wait
+@c doc-pthread_cond_timedwait
 
 @node Cilk,  , Pthreads, Multitasker
 @subsection Cilk
 
-Cilk is an extension to C-like languages, and centers around the
-functions @code{spawn} and @code{sync}.  @file{cilk.fs} extends Forth in
-such a way, using workers and queues to implement this.
+Gforth's Cilk is a framework for dividing work between multiple tasks
+running on several cores, inspired by the programming language of the
+same name.  Use @code{require cilk.fs} if you want to use Cilk.
 
-doc-cilk-sync
+The idea is that you identify subproblems that can be solved in
+parallel, and the framework assigns worker tasks to these subproblems.
+In particular, you use one of the @code{spawn} words for each subtask.
+Eventually you need to wait with @code{cilk-sync} for the subproblems
+to be solved.
+
+Currently all the spawning has to happen from one task, and
+@code{cilk-sync} waits for all subproblems to complete, so using the
+current Gforth Cilk for recursive algorithms is not straightforward.
+
+Do not divide the subproblems too finely, in order to avoid overhead;
+how fine is too fine depends on how uniform the run-time for the
+subproblems is, but for problems with substantial run-time, having
+5*@code{cores} subproblems is probably a good starting point.
+
+doc-cores
+doc-cilk-init
 doc-spawn
 doc-spawn1
 doc-spawn2
-doc-spawn-closure
-doc-cilk-init
+doc-cilk-sync
 doc-cilk-bye
 
 @c ------------------------------------------------------------
@@ -16236,6 +16639,9 @@ abi-code my+ ( n1 n2 --  n3 )
 end-code
 @end example
 
+@c !! ARM64
+@c !! RISC-V
+
 @node Other assemblers,  , ARM Assembler, Assembler and Code Words
 @subsection Other assemblers
 
@@ -16368,8 +16774,7 @@ following methods (method selectors):
 .hm label method          overrider        field
           execute         set-execute      >cfa
 opt:      opt-compile,    set-optimizer    >hmcompile,
-to:       defer!          set-to           >hmto
-defer@@:   defer@@          set-defer@@       >hmdefer@@
+to:       (to)            set-to           >hmto
 extra:                                     >hmextra
 >int:     name>interpret  set->int         >hm>int
 >comp:    name>compile    set->comp        >hm>comp
@@ -16455,54 +16860,9 @@ Note that @code{set-execute} and @code{set-does>} perform
 and @code{compile,} agree, so if you want to add your own optimizer,
 you should add it afterwards.
 
-The @code{defer!} (aka @code{(to)} method (@pxref{User-defined TO and
-DEFER@@}) implements @code{defer!}  for words defined with
-@code{defer} and similar words, but it is also the core of @code{to}.
-The general stack effect of the @code{defer!}/@code{(to)} method is
-@code{( val xt -- )}, where @i{xt} identifies the word stored into,
-and @i{val} is the value (of appropriate type) stored there.
-
-E.g., one can implement @code{fvalue} as follows:
-
-@example
-: fvalue-to ( r xt -- ) >body f! ;
-
-: fvalue ( r -- )
-  create f,
-  ['] f@@ set-does>
-  ['] fvalue-to set-to ;
-
-5e fvalue foo
-: bar foo 1e f+ to foo ;
-see bar
-@end example
-
-You can improve the generated code with @code{set-optimizer}:
-
-@example
-: compile-fvalue-to ( xt-value-to -- )
-  drop ]] >body f! [[ ;
-  
-: fvalue-to ( r xt -- ) >body f! ;
-' compile-fvalue-to set-optimizer
-
-: fvalue ( r -- )
-  create f,
-  ['] f@@ set-does>
-  [: >body ]] literal f@@ [[ ;] set-optimizer
-  ['] fvalue-to set-to ;
-
-5e fvalue foo
-: bar foo 1e f+ to foo ;
-see bar
-@end example
-
-In practice Gforth has a few additional twists to implement, e.g.,
-@code{+TO}.
-
-@code{Set-defer@@} (@pxref{User-defined TO and DEFER@@}) allows to
-implement variants of the @code{defer@@} (@pxref{Deferred Words})
-method for @code{defer}-like words.
+The @code{(to)} method and @code{set-to} are used for implementing
+@code{to @emph{name}} semantics etc. (@pxref{Words with user-defined
+TO etc.}).
 
 The @code{>hmextra} field is used for cases where additional data
 needs to be stored in the header methods table.  In particular, it
@@ -19441,6 +19801,9 @@ dup
 ;s
 @end example
 
+Use @code{simple-see} (@pxref{Examining compiled code}) to see the
+threaded code of a colon definition.
+
 In normal direct threaded code there is a code address occupying one
 cell for each of these primitives.  Each code address points to a
 machine code routine, and the interpreter jumps to this machine code in
@@ -19506,6 +19869,25 @@ primitive  code address
 
 Thus there can be threaded-code jumps to any place in this piece of
 code.  This also simplifies decompilation quite a bit.
+
+@code{See-code} (@pxref{Examining compiled code}) shows the threaded
+code intermingled with the native code of dynamic superinstructions.
+These days some additional optimizations are applied for the
+dynamically-generated native code, so the output of @code{see-code
+squared} on @code{gforth-fast} on one particular AMD64 installation
+looks like this:
+
+@example
+$7FB689C678C8 dup    1->2 
+7FB68990C1B2:   mov     r15,r8
+$7FB689C678D0 *    2->1 
+7FB68990C1B5:   imul    r8,r15
+$7FB689C678D8 ;s    1->1 
+7FB68990C1B9:   mov     rbx,[r14]
+7FB68990C1BC:   add     r14,$08
+7FB68990C1C0:   mov     rax,[rbx]
+7FB68990C1C3:   jmp     eax
+@end example
 
 @cindex --no-dynamic command-line option
 @cindex --no-super command-line option

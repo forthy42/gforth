@@ -354,20 +354,9 @@ Defer rec-nt ( addr u -- nt translate-nt | notfound ) \ gforth-experimental
 \ cross-compiler, so we kludge it by generating a constant and then
 \ storing the proper value into it (and that's another kludge).
 \ alias- and immediate-masks are no longer used
-$80000000 constant restrict-mask
-1 bits/char 1 - lshift
--1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
-                          [ELSE] 0 1 cells 1- c,s c, [THEN]
-$40000000 constant obsolete-mask
-1 bits/char 2 - lshift
--1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
-                          [ELSE] 0 1 cells 1- c,s c, [THEN]
-\ $01000000 constant unused-mask \ defined in locate1.fs, used only temporarily
-\ reserve 8 bits for all possible flags in total
-$00ffffff constant lcount-mask
-0 -1 cells allot  bigendian [IF]   c, -1 1 cells 1- c,s
-                          [ELSE] -1 1 cells 1- c,s c, [THEN]
-[THEN]
+$80000000. 1 cells 8 = [IF] #32 dlshift [THEN] dconstant restrict-mask
+$40000000. 1 cells 8 = [IF] #32 dlshift [THEN] dconstant obsolete-mask
+$01000000. 1 cells 8 = [IF] #32 dlshift [THEN] #1. d- dconstant lcount-mask
 
 \ higher level parts of find
 
@@ -422,16 +411,18 @@ method opt-compile, ( xt -- ) \ gforth-internal
 \g The intelligent @code{compile,} compiles each word as specified by
 \g @code{set-optimizer} for that word.
 
-method (to) ( val index xt -- ) \ gforth paren-to
-\G @i{xt} is of a value like word @i{name}.  Stores @i{val} @code{to} @i{name}.
-opt: ( index xt-(to -- )
+method (to) ( val operation xt -- ) \ gforth-internal paren-to
+\G @i{xt} is of a value like word @i{name}.  Stores @i{val} @code{to}
+\G @i{name}.  @i{operation} selects between @code{to} (0), @code{+to} (1),
+\G @code{addr} (2), @code{action-of} (3) and @code{is} (4).
+opt: ( operation xt-(to -- )
     lits# 0= IF  swap lit, postpone swap :, EXIT THEN  (to), ;
 
 \ method old-defer@ ( xt-deferred -- xt ) \ core-ext defer-fetch
 \ \G @i{xt} represents the word currently associated with the deferred
 \ \G word @i{xt-deferred}.
-\ opt: ( xt-defer@ -- )
-\      ?fold-to defer@, ;
+\ fold1: ( xt-defer@ -- )
+\      defer@, ;
 
 swap cell+ swap \ hmextra
 
@@ -454,10 +445,12 @@ drop Constant hmsize \ vtable size
     \G @i{xt} represents the word currently associated with the deferred
     \G word @i{xt-deferred}.
     3 swap (to) ;
-opt: ?fold-to 3 swap (to), ;
+opt: ?fold1 3 swap (to), ;
 
-' defer@ alias initwl \ gforth init-voc
-\G initialises a vocabulary. Mapped to defer@
+: initwl ( wid -- ) \ gforth-internal
+    \G initialises a vocabulary. Mapped to +TO
+    1 swap (to) ;
+opt: ?fold1 1 swap (to), ;
 
 : >extra ( nt -- addr )
     >namehm @ >hmextra ;
@@ -489,13 +482,14 @@ defer compile, ( xt -- ) \ core-ext compile-comma
 	hold 1- c(warning") #>>
     THEN ;
 : obsolete? ( nt -- flag ) \ gforth
-    \G true if @i{nt} is marked as obsolete.
+    \G true if @i{nt} is obsolete, i.e., will be removed in a future
+    \G version of Gforth.
     dup name>string nip IF
 	>f+c @ obsolete-mask and 0<>
     ELSE drop false THEN ;
 : ?obsolete ( nt -- nt )
     dup obsolete? IF
-	<<# s"  is obsolete" holds dup name>string holds #0. #>
+	<<# s" is obsolete" holds dup name>string holds #0. #>
 	hold 1- c(warning") #>>
     THEN ;
 
@@ -545,7 +539,7 @@ const Create ???
 	dup >body dup maxaligned = IF
 	    dup >namehm @ hm? IF
 		dup >code-address tuck body> = swap
-		docol:  ['] u#+ >code-address 1+ within or  EXIT
+		docol:  ['] image-header >link @ >code-address 1+ within or  EXIT
 	    THEN
 	THEN
     THEN
@@ -628,9 +622,6 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 
 \ interpret                                            10mar92py
 
-Defer parser ( c-addr u -- ... )
-\G text-interpretation of @var{c-addr u}
-
 Defer parse-name ( "name" -- c-addr u ) \ core-ext
 \G Get the next word from the input buffer
 ' (name) IS parse-name
@@ -655,7 +646,7 @@ defer int-execute ( ... xt -- ... )
     BEGIN
 	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
     WHILE
-	parser
+	forth-recognize execute
     REPEAT
     2drop @local0 >r lp+ ;
 
@@ -761,21 +752,10 @@ User error-stack  0 error-stack !
     input-lexeme 2@ >r + r> sourceline#
     [ has? file [IF] ] sourcefilename [ [THEN] ] ;
 
-: dec. ( n -- ) \ gforth
-    \G Display @i{n} as a signed decimal number, followed by a space.
-    \ !! not used...
-    base @ decimal swap . base ! ;
-
 : dec.r ( u n -- ) \ gforth
     \G Display @i{u} as a unsigned decimal number in a field @i{n}
     \G characters wide.
     base @ >r decimal .r r> base ! ;
-
-: hex. ( u -- ) \ gforth
-    \G Display @i{u} as an unsigned hex number, prefixed with a "$" and
-    \G followed by a space.
-    \ !! not used...
-    '$' emit base @ swap hex u. base ! ;
 
 : -trailing  ( c_addr u1 -- c_addr u2 ) \ string dash-trailing
 \G Adjust the string specified by @i{c-addr, u1} to remove all
@@ -924,7 +904,7 @@ Variable rec-level
 : gforth ( -- )
     ." Gforth " version-string type cr
     ." Authors: Anton Ertl, Bernd Paysan, Jens Wilke et al., for more type `authors'" cr
-    (c) ."  2023 Free Software Foundation, Inc." cr
+    (c) ."  2024 Free Software Foundation, Inc." cr
     ." License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>" cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]

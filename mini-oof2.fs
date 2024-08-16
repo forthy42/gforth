@@ -1,7 +1,7 @@
 \ Mini-OOF2, using current object+Gforth primitives    09jan12py
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2012,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2012,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -22,30 +22,40 @@ require struct-val.fs
 
 Defer default-method ' noop IS default-method
 
-\ template for methods and ivars
+\ optimization for object access
+1 sfloats opt-table: opt-on o0 o1 o2 o3 o4 o5 o6 o7 o8 o9 o10 o11 o12 o13 o14 o15 o16 o17 o18 o19 o20 o21 o22 o23 o24 o25 o26 o27 o28 o29 o30 o31
+latestxt optimizes o+
+cell opt-table: opt-!on !o0 !o1 !o2 !o3 !o4 !o5 !o6 !o7 !o8 !o9 !o10 !o11 !o12 !o13 !o14 !o15
+latestxt optimizes !o+
+cell opt-table: opt-@on @o0 @o1 @o2 @o3 @o4 @o5 @o6 @o7 @o8 @o9 @o10 @o11 @o12 @o13 @o14 @o15
+latestxt optimizes @o+
+1 sfloats opt-table: opt-sf!on sf!o0 sf!o1 sf!o2 sf!o3 sf!o4 sf!o5 sf!o6 sf!o7 sf!o8 sf!o9 sf!o10 sf!o11 sf!o12 sf!o13 sf!o14 sf!o15 sf!o16 sf!o17 sf!o18 sf!o19 sf!o20 sf!o21 sf!o22 sf!o23 sf!o24 sf!o25 sf!o26 sf!o27 sf!o28 sf!o29 sf!o30 sf!o31
+latestxt optimizes sf!o+
+1 sfloats opt-table: opt-sf@on sf@o0 sf@o1 sf@o2 sf@o3 sf@o4 sf@o5 sf@o6 sf@o7 sf@o8 sf@o9 sf@o10 sf@o11 sf@o12 sf@o13 sf@o14 sf@o15 sf@o16 sf@o17 sf@o18 sf@o19 sf@o20 sf@o21 sf@o22 sf@o23 sf@o24 sf@o25 sf@o26 sf@o27 sf@o28 sf@o29 sf@o30 sf@o31
+latestxt optimizes sf@o+
 
-Create o 0 ,  DOES> @ o#+ [ 0 , ] + ;
-opt: ( xt -- ) >body @ postpone o#+ , ;
+' o+ ' ! peephole !o+
+' o+ ' @ peephole @o+
+' o+ ' sf! peephole sf!o+
+' o+ ' sf@ peephole sf@o+
+
+\ template for methods and ivars
+Create o# 0 ,  DOES> @ o+ ;
+opt: ( xt -- ) >body @ lit, postpone o+ ;
 s" Invalid method for this class" exception Constant !!inv-method!!
 : ?valid-method ( offset class -- offset )
     cell- @ over u<= !!inv-method!! and throw ;
 : m>body ( xt class xtsel -- )
     >body @ over ?valid-method + ;
-to-opt: ( xt class xtsel -- ) >body @ postpone lit+ , ;
-' m>body defer-table to-method: m-to
+fold1: ( xt class xtsel -- ) >body @ lit, postpone + ;
+' m>body defer-table to-class: m-to
 \ no validity check for compilation, normal usage is interpretative only
-Create m 0 ,  DOES> @ o#+ [ -1 cells , ] @ + perform ;
+Create m 0 ,  DOES> @ -1 cells o+ @ + perform ;
 opt: ( xt -- ) >body @ cell/ postpone o#exec , ;
 ' m-to set-to
-' o Value var-xt
+' o# Value var-xt
 ' m Value method-xt
-: current-o  ['] o to var-xt  ['] m to method-xt ;
-
-\ ivalues
-
-: o+field, ( addr body -- addr' )
-    @ o + ;
-opt: drop @ postpone o#+ , ;
+: current-o  ['] o# to var-xt  ['] m to method-xt ;
 
 \ core system
 
@@ -62,7 +72,7 @@ opt: drop @ postpone o#+ , ;
 : class ( class -- class methods vars ) \ mini-oof2
     \G start a class definition with superclass @var{class}, putting the size
     \G of the methods table and instance variable space on the stack.
-    dup >osize 2@ ['] var IS +field ['] o+field, IS +field, ;
+    dup >osize 2@ ['] var IS +field ['] o+ IS +field, ;
 : end-class ( class methods vars "name" -- ) \ mini-oof2
     \G finishs a class definition and assigns a name @var{name} to the newly
     \G created class. Inherited methods are copied from the superclass.
@@ -80,11 +90,11 @@ end-class storage
 storage class end-class static-alloc
 storage class end-class dynamic-alloc
 
-:noname  ( len -- addr )  here swap allot ; static-alloc to :allocate
-:noname  ( addr -- )      drop ;            static-alloc to :free
+:noname  ( len -- addr )  here swap allot ; static-alloc is :allocate
+:noname  ( addr -- )      drop ;            static-alloc is :free
 
-:noname  ( len -- addr )  allocate throw ; dynamic-alloc to :allocate
-:noname  ( addr -- )      free throw ;     dynamic-alloc to :free
+:noname  ( len -- addr )  allocate throw ; dynamic-alloc is :allocate
+:noname  ( addr -- )      free throw ;     dynamic-alloc is :free
 
 static-alloc dup >osize @ cell+ here swap allot swap over ! cell+ Constant static-a
 UValue allocater

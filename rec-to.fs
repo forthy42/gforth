@@ -1,7 +1,7 @@
 \ -> (to/is replacement) recognizer
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -23,10 +23,11 @@
 ' (to) ' (to), ' post-to, >postponer translate: translate-to
 ' translate-to Constant rectype-to
 
-: rec-to ( addr u -- xt r:to | rectype-null ) \ gforth-experimental
+: rec-to ( addr u -- xt n r:to | rectype-null ) \ gforth-experimental
     \G words prefixed with @code{->} are treated as if preceeded by
-    \G @code{TO} or @code{IS}, with @code{+>} as @code{+TO}, with
-    \G @code{'>} as @code{ADDR}, and with @code{@@>} as @code{ACTION-OF}.
+    \G @code{TO}, with @code{+>} as @code{+TO}, with
+    \G @code{'>} as @code{ADDR}, with @code{@@>} as @code{ACTION-OF}, and
+    \G with @code{=>} as @code{IS}.
     dup 3 u< IF  2drop ['] notfound  EXIT  THEN
     over 1+ c@ '>' <> IF  2drop ['] notfound  EXIT  THEN
     case  over c@
@@ -34,10 +35,12 @@
 	'+' of  1  endof
 	''' of  2  endof
 	'@' of  3  endof
+	'=' of  4  endof
 	drop 2drop ['] notfound  EXIT
     endcase  -rot
     2 /string forth-recognize
     translate-nt? 0= IF  drop ['] notfound EXIT  THEN
-    name?int ['] translate-to ;
+    dup >namehm @ >hmto @ ['] no-to = IF  2drop ['] notfound EXIT  THEN
+    name>interpret ['] translate-to ;
 
 ' rec-to forth-recognizer >back

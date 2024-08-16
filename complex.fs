@@ -1,7 +1,7 @@
 \ complex numbers
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 2005,2007,2015,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2005,2007,2015,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -25,7 +25,7 @@
 
 \ simple operations                                    02mar05py
 
-: fl>      ( -- r ) f@local0 lp+ ;
+: fl>      ( -- r ) 0 f@localn lp+ ;
 
 : zdup     ( z -- z z ) fover fover ;
 : zdrop    ( z -- ) fdrop fdrop ;
@@ -47,19 +47,15 @@
 to-table: z!-table z! z+!
 z!-table >to+addr-table: z!a-table
 
-' laddr, z!-table to-method: to-z:
-' laddr, z!a-table to-method: to-za:
+z!-table locals-to-class: to-z:
+z!a-table locals-to-class: to-za:
 
 : compile-pushlocal-z ( a-addr -- ) ( run-time: z -- )
     locals-size @ alignlp-f float+ float+ dup locals-size !
     swap !
     ]] f>l f>l [[ ;
 : compile-z@local ( n -- )
-    case
-	0        of  ]] f@local0 f@local1 [[ endof
-	1 floats of  ]] f@local1 f@local# [[ 2 floats ,  endof
-	dup postpone f@local# dup , postpone f@local# float+ ,
-    endcase ;
+    dup ]] literal f@localn [[ float+ ]] literal f@localn [[ ;
 
 also locals-types definitions
 : z: ( compilation "name" -- a-addr xt; run-time z -- ) \ gforth w-colon
@@ -84,15 +80,14 @@ previous
 
 : ZVariable ( -- )  Create 0e f, 0e f, ;
 
-' >body z!-table to-method: z-to
+' >body z!-table to-class: z-to
 : ZValue ( complex -- )
     Create 1 complex' small-allot z!
     ['] z@ set-does>
     [: lit, postpone z@ ;] set-optimizer
     ['] z-to set-to ;
 
-z!-table >to+addr-table: z!a-table
-' >body z!a-table to-method: za-to
+' >body z!a-table to-class: za-to
 : ZVarue ( complex -- )
     ZValue ['] za-to set-to ;
 
@@ -193,6 +188,14 @@ Defer fc.       ' f. IS fc.
 : zliteral ( z -- ) fswap ]] fliteral fliteral [[ ; immediate
 ' noop ' zliteral ' zliteral >postponer
 translate: translate-complex
+\ alternative:
+\ : translate-complex ( z -- ) fswap translate-float translate-float ;
+
+:noname ( locals-nt -- )
+    dup name>interpret >does-code [ ' some-zlocal >does-code ]L =
+    IF    name-compsem ['] zliteral compile,
+    ELSE  defers locals-post,
+    THEN ; is locals-post,
 
 : rec-complex ( addr u -- z translate-complex | notfound ) \ gforth
     \G Complex numbers are always in the format a+bi, where a and b are
@@ -203,4 +206,4 @@ translate: translate-complex
 	['] translate-complex ['] notfound rot select
     ELSE  2drop ['] notfound  THEN ;
 
-' rec-complex forth-recognizer >back
+' rec-complex ' rec-float forth-recognizer +after

@@ -1,7 +1,7 @@
 \ Linux bindings for GLES
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2014,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2014,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -59,10 +59,10 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
 
 : best-im ( -- im )
     XSupportsLocale IF
-	"XMODIFIERS" getenv dup IF
+	${XMODIFIERS} dup IF
 	    XSetLocaleModifiers 0= IF
 		." Warning: Cannot set locale modifiers to '"
-		"XMODIFIERS" getenv type  ." '" cr THEN
+		${XMODIFIERS} type  ." '" cr THEN
 	ELSE  2drop  THEN
     THEN
     dpy 0 0 0 XOpenIM dup to xim
@@ -85,7 +85,7 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
     misslist @ XFreeStringList ;
 
 : get-display ( -- w h )
-    "DISPLAY" getenv XOpenDisplay to dpy
+    ${DISPLAY} XOpenDisplay to dpy
     dpy 0= abort" Can't open display!"
     dpy XDefaultScreenOfDisplay to screen-struct
     dpy XDefaultScreen to screen
@@ -171,6 +171,7 @@ Defer window-init     ' noop is window-init
 Defer config-changed
 Defer screen-ops      ' noop is screen-ops
 Defer reload-textures ' noop is reload-textures
+Defer rescaler        ' noop is rescaler
 
 : gl-init ( -- ) \ minos2
     \G if not already opened, open window and initialize OpenGL
@@ -522,7 +523,7 @@ previous previous
 	dpy over XGetAtomName cstring>sstring type cr
     endcase ;
 : selection-request ( -- )
-\    ." Selection Request from: " e.requestor hex.
+\    ." Selection Request from: " e.requestor h.
 \    e.selection .atom space
 \    e.property .atom cr
     e.sr.time XTime0 - to timeoffset
@@ -564,7 +565,7 @@ previous previous
 ' noop handler-class is DoGenericEvent
 ' noop handler-class is ?looper-timeouts
 
-: handle-event ( -- ) e.type cells o#+ [ -1 cells , ] @ + perform ;
+: handle-event ( -- ) e.type cells o -1 cells + @ + perform ;
 #16 Value looper-to# \ 16ms, don't sleep too long
 : get-events ( -- )
     \ looper-to# #1000000 um* ntime d+ { d: timeout }

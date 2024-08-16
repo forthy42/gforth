@@ -1,7 +1,7 @@
 \ MINOS2 text style
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -41,10 +41,11 @@ color-h 1 > [IF]
 blackish
 
 0e FValue x-border
+140% FValue skip-baseline*
 : cbl ( -- )
     current-baseline% to x-baseline ;
 : \skip ( -- )
-    x-baseline 140% f* to x-baseline ;
+    x-baseline skip-baseline* f* to x-baseline ;
 : >bl ( o -- o' )
     >o x-baseline to baseline
     x-baseline gap% f* font@gap fmax to gap o o> cbl ;

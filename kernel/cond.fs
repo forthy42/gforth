@@ -1,7 +1,7 @@
 \ Structural Conditionals                              12dec92py
 
 \ Authors: Anton Ertl, Bernd Paysan, Neal Crook, Jens Wilke
-\ Copyright (C) 1995,1996,1997,2000,2003,2004,2007,2010,2011,2012,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,2000,2003,2004,2007,2010,2011,2012,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -27,11 +27,32 @@ variable backedge-locals
     \ contains the locals list that BEGIN will assume to be live on
     \ the back edge if the BEGIN is unreachable from above. Set by
     \ ASSUME-LIVE, reset by UNREACHABLE.
+variable backedge-locals-default 0 backedge-locals-default !
+    \ contains the locals list that UNREACHABLE uses to reset
+    \ BACKEDGE-LOCALS.  Currently this is the locals list at the
+    \ latest place without anything on the control-flow stack.  A more
+    \ refined version could use the locals list on the latest place
+    \ that had only dests on the locals stack and an empty LEAVE
+    \ stack.
+0 value cs-depth1 ( -- u )
+\ number of items on the control-flow stack
+0 value cs-floor ( -- u )
+\ number of items on the control-flow stack at the start of the quotation etc.
+
+: :-hook1 ( -- )
+    cs-depth1 to cs-floor
+    0 backedge-locals-default !
+    here codestart ! ;
+' :-hook1 is :-hook
+
+: ;-hook21 ( -- )
+    cs-depth1 cs-floor <> -22 and throw ;
+' ;-hook21 is ;-hook2
 
 : UNREACHABLE ( -- ) \ gforth
     \ declares the current point of execution as unreachable
     dead-code on
-    0 backedge-locals ! ; immediate
+    backedge-locals-default @ backedge-locals ! ; immediate
 
 : ASSUME-LIVE ( orig -- orig ) \ gforth
     \ used immediatly before a BEGIN that is not reachable from
@@ -39,7 +60,24 @@ variable backedge-locals
     \ as at the orig point
     dup orig?
     third backedge-locals ! ; immediate
-    
+
+: update-backedge-locals-default ( -- )
+    cs-depth1 cs-floor = if
+        locals-list @ backedge-locals-default !
+    then ;
+
+: cs-depth1++ ( -- )
+    cs-depth1 1+ to cs-depth1 ;
+
+: cs-depth1-- ( -- )
+    cs-depth1 1- to cs-depth1 ;
+
+: before-cs-push ( -- )
+    update-backedge-locals-default cs-depth1++ ;
+
+: after-cs-pop ( -- )
+    cs-depth1-- ;
+
 \ Control Flow Stack
 \ orig, etc. have the following structure:
 \ type ( defstart, live-orig, dead-orig, dest, do-dest, scopestart) ( TOS )
@@ -47,10 +85,23 @@ variable backedge-locals
 \ locals-list (valid at address) (third)
 \ stack state address for checking (fourth)
 
-defer push-stack-state ( -- addr ) ' false is push-stack-state
-\ push (a copy of) the current stack state
-defer pop-stack-state ( addr -- )  ' drop is pop-stack-state
-\ check if the stack state pointed to by addr matches the current stack state
+: push-stack-state1 ( -- addr )
+    before-cs-push 0 ;
+
+defer push-stack-state ( -- addr )
+\ Called by every cs-item-producing word.  addr is the data for a
+\ static checker.  If no checker is loaded, addr is 0.
+' push-stack-state1 is push-stack-state
+
+: pop-stack-state1 ( addr -- )
+    drop after-cs-pop ;
+
+defer pop-stack-state ( addr -- )
+\ Called by every cs-item-consuming word.  addr is the data for a
+\ static checker: check if the stack state pointed to by addr matches
+\ the current stack state.
+' pop-stack-state1 is pop-stack-state
+
 
 \ types
 [IFUNDEF] defstart 
@@ -83,6 +134,7 @@ Create scopestart
 4 constant cs-item-size
 
 : CS-PICK ( orig0/dest0 orig1/dest1 ... origu/destu u -- ... orig0/dest0 ) \ tools-ext c-s-pick
+    before-cs-push
     1+ cs-item-size * 1- dup
     >r pick  r@ pick  r@ pick  r@ pick
     rdrop
@@ -95,7 +147,7 @@ Create scopestart
     dup cs-item? ; 
 
 : CS-DROP ( dest -- ) \ gforth
-    cs-item? 2drop drop ; \ maximum depth information of propagated on pushing
+    cs-item? 2drop drop after-cs-pop ; \ maximum depth information of propagated on pushing
 
 : cs-push-part ( -- stack-state list addr )
     push-stack-state locals-list @ here ;
@@ -126,8 +178,9 @@ defer if-like
     >mark if-like ;
 : >resolve    ( addr -- )
     basic-block-end
-    here swap ! ;
-: <resolve    ( addr -- )        , ;
+    here dup +target swap ! ;
+: <resolve    ( addr -- )
+    dup +target , ;
 
 : BUT
     1 cs-roll ;                      immediate restrict
@@ -245,49 +298,36 @@ IS until-like
 \ This is solved by storing the information about the leavings in a
 \ special stack.
 
-\ !! remove the fixed size limit. 'Tis not hard.
-40 constant leave-stack-size
-create leave-stack  leave-stack-size cs-item-size * cells allot
-Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
+Variable leave-stack
 
 : clear-leave-stack ( -- )
-    leave-stack leave-sp ! ;
+    leave-stack $free ;
 
-\ : leave-empty? ( -- f )
-\  leave-sp @ leave-stack = ;
+: leave-empty? ( -- f )
+    leave-stack stack# 0= ;
 
 : >leave ( orig -- )
     \ push on leave-stack
-    leave-sp @
-    dup [ leave-stack leave-stack-size cs-item-size * cells + ] Aliteral
-    >= abort" leave-stack full"
-    tuck ! cell+
-    tuck ! cell+
-    tuck ! cell+
-    tuck ! cell+
-    leave-sp ! ;
+    cs-item-size 0 ?DO  leave-stack >stack  LOOP
+    after-cs-pop ;
 
 : leave> ( -- orig )
     \ pop from leave-stack
-    leave-sp @
-    dup leave-stack <= IF
-       drop 0 0 0 0  EXIT  THEN
-    cell- dup @ swap
-    cell- dup @ swap
-    cell- dup @ swap
-    cell- dup @ swap
-    leave-sp ! ;
+    before-cs-push
+    cs-item-size 0 ?DO  leave-stack stack>  LOOP ;
 
-: DONE ( compilation orig -- ; run-time -- ) \ gforth
-    \g resolves all LEAVEs up to the compilaton orig (from a BEGIN)
+: DONE ( compilation do-sys -- ; run-time -- ) \ gforth
+    \g resolves all LEAVEs up to the do-sys
     drop >r 2drop
     begin
+	leave-empty? 0=
+    while
 	leave>
 	over r@ u>=
     while
 	POSTPONE then
-    repeat
-    >leave rdrop ; immediate restrict
+    repeat  >leave  then
+    rdrop after-cs-pop ; immediate restrict
 
 : LEAVE ( compilation -- ; run-time loop-sys -- ) \ core
     \G @xref{Counted Loops}.
@@ -340,7 +380,9 @@ Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
 
 : LOOP ( compilation do-sys -- ; run-time loop-sys1 -- | loop-sys2 )	\ core
     \G @xref{Counted Loops}.
- ['] (loop) ['] (loop)-lp+!# loop-like ; immediate restrict
+    dup -2 and tuck do-dest? 1 and if \ use matching LOOP for MEM-DO or the like
+        cs-item-size pick execute exit then
+    ['] (loop) ['] (loop)-lp+!# loop-like ; immediate restrict
 
 : +LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 )	\ core	plus-loop
     \G @xref{Counted Loops}.
@@ -403,13 +445,19 @@ defer adjust-locals-list ( wid -- )
 
 : endscope ( compilation scope -- ; run-time  -- ) \ gforth
     scope?
-    drop  adjust-locals-list drop ; immediate
+    drop  adjust-locals-list drop
+    after-cs-pop ; immediate
 
 \ quotations
 : wrap@-kernel ( -- wrap-sys )
-    hmsave latest latestnt leave-sp @ ( unlocal-state @ ) ;
+    hmsave latest latestnt 0 leave-stack !@
+    cs-floor backedge-locals-default @
+    ( unlocal-state @ ) ;
+
 : wrap!-kernel ( wrap-sys -- )
-    ( unlocal-state ! ) leave-sp ! lastnt ! last ! hmrestore ;
+    ( unlocal-state ! )
+    backedge-locals-default ! to cs-floor
+    leave-stack ! lastnt ! last ! hmrestore ;
 
 Defer wrap@ ( -- wrap-sys ) ' wrap@-kernel is wrap@
 Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
@@ -418,13 +466,13 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 : (;]) ( some-sys lastxt -- )
     >r
     ] postpone UNREACHABLE postpone ENDSCOPE
-    finish-code  hm,  previous-section  wrap!  dead-code off
+    flush-code hm,  previous-section  wrap!  dead-code off
     r> postpone Literal ;
 
 : int-[: ( -- flag colon-sys )
     wrap@ ['] (int-;]) :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
-    wrap@  next-section  finish-code|
+    wrap@  next-section
     postpone SCOPE locals-list off
     ['] (;])  :noname  ;
 ' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon

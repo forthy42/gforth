@@ -1,7 +1,7 @@
 \ MINOS2 font style
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -254,14 +254,14 @@ Variable font-path
 Variable font-ext$
 Variable font-prefix
 
-"GFORTHFONTS" getenv 2dup d0= [IF] 2drop
-    "container" getenv "flatpak" str=
+${GFORTHFONTS} 2dup d0= [IF] 2drop
+    ${container} "flatpak" str=
     [IF] font-prefix path= /usr/share/fonts|/run/host/fonts
     [ELSE] font-prefix path= /usr/share/fonts/ [THEN]
 [ELSE]
     ':' 0 substc font-prefix also-path
 [THEN]
-"GFORTHFONTEXT" getenv 2dup d0= [IF] 2drop "ttf:otf:ttc:woff:woff2" [THEN]
+${GFORTHFONTEXT} 2dup d0= [IF] 2drop "ttf:otf:ttc:woff:woff2" [THEN]
 font-ext$ $!
 
 also freetype-gl
@@ -609,7 +609,7 @@ fonts[ssm]=same
 font-lang to emoji-font#
 2 font-lang >breakable
 \sans \regular
-color-fonts= NotoColorEmojiLegacy|NotoColorEmoji|emojione-android|Twemoji|SamsungColorEmoji|OpenMoji-Color
+color-fonts= NotoColorEmojiLegacy|NotoColorEmoji-Regular|NotoColorEmoji|emojione-android|Twemoji|SamsungColorEmoji|OpenMoji-Color
 fonts[ssm]=same
 {{ $20000 $1F000 }} 2/ +ranges
 [THEN]

@@ -1,7 +1,7 @@
 \ useful libc functions
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -26,6 +26,7 @@ c-library libc
     \c #include <fcntl.h>
     \c #include <locale.h>
     \c #include <sys/stat.h>
+    \c #include <sys/ioctl.h>
     \c #if HAVE_GETPAGESIZE
     \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
     \c #define getpagesize() sysconf(_SC_PAGESIZE)
@@ -35,6 +36,8 @@ c-library libc
     \c #define set_errno(n) (errno=n)
     \c extern char ** environ;
     c-value errno errno -- n ( -- value )
+    c-value FIONREAD FIONREAD -- n ( -- value )
+    c-value FIONBIO FIONBIO -- n ( -- value )
     c-function ->errno set_errno n -- void ( n -- )
     c-function getpagesize getpagesize -- n ( -- size )
     c-function fileno fileno a{(FILE*)} -- n ( file* -- fd )
@@ -100,6 +103,7 @@ end-structure
 $001 Constant POLLIN
 $002 Constant POLLPRI
 $004 Constant POLLOUT
+$010 Constant POLLHUP
 
 0 Constant LC_CTYPE
 1 Constant LC_NUMERIC
@@ -160,11 +164,16 @@ e? os-type s" linux-musl" string-prefix? or [IF]
     ELSE  fpid ! drop 2drop  THEN ;
 [THEN]
 
-:noname defers 'cold
-    ['] int-errno-exec is int-execute
-    getpagesize to pagesize
-    (getpid) to getpid ; is 'cold
+:noname ['] execute is int-execute 0 to getpid defers 'image ; is 'image
+
+:noname
+    defers 'cold
+    host? IF
+	['] int-errno-exec is int-execute
+	getpagesize to pagesize
+	(getpid) to getpid
+    THEN ; is 'cold
 
 to-table: errno-table ->errno
-' drop errno-table to-method: to-errno
+' drop errno-table to-class: to-errno
 ' errno make-latest ' to-errno set-to hm,

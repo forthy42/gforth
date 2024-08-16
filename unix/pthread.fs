@@ -1,7 +1,7 @@
 \ posix threads
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -17,6 +17,10 @@
 
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
+
+:noname defers 'image
+    preserve key-ior  preserve deadline
+; is 'image
 
 c-library pthread
     \c #include <pthread.h>
@@ -40,15 +44,15 @@ c-library pthread
     \c void create_pipe(FILE ** addr)
     \c {
     \c   int epipe[2];
-    \c   pipe(epipe);
+    \c   int __attribute__((unused)) perr=pipe(epipe);
     \c   addr[0]=fdopen(epipe[0], "r");
     \c   addr[1]=fdopen(epipe[1], "a");
+    \c   setvbuf(addr[0], NULL, _IONBF, 0);
     \c   setvbuf(addr[1], NULL, _IONBF, 0);
     \c }
     \c void *gforth_thread(user_area * t)
     \c {
     \c   Cell x;
-    \c   int throw_code;
     \c   void *ip0=(void*)(t->save_task);
     \c   sigset_t set;
     \c   gforth_UP=t;
@@ -62,34 +66,6 @@ c-library pthread
     \c   x=gforth_go(ip0);
     \c   pthread_cleanup_pop(1);
     \c   pthread_exit((void*)x);
-    \c }
-    \c static inline void *gforth_thread_p()
-    \c {
-    \c   return (void*)&gforth_thread;
-    \c }
-    \c static inline void *pthread_plus(void * thread)
-    \c {
-    \c   return thread+sizeof(pthread_t);
-    \c }
-    \c static inline Cell pthreads(Cell thread)
-    \c {
-    \c   return thread*(int)sizeof(pthread_t);
-    \c }
-    \c static inline void *pthread_mutex_plus(void * thread)
-    \c {
-    \c   return thread+sizeof(pthread_mutex_t);
-    \c }
-    \c static inline Cell pthread_mutexes(Cell thread)
-    \c {
-    \c   return thread*(int)sizeof(pthread_mutex_t);
-    \c }
-    \c static inline void *pthread_cond_plus(void * thread)
-    \c {
-    \c   return thread+sizeof(pthread_cond_t);
-    \c }
-    \c static inline Cell pthread_conds(Cell thread)
-    \c {
-    \c   return thread*(int)sizeof(pthread_cond_t);
     \c }
     \c pthread_attr_t * pthread_detach_attr(void)
     \c {
@@ -139,9 +115,7 @@ c-library pthread
     \ if there's no such function, don't do anything
     \c }
 
-    c-function pthread+ pthread_plus a -- a ( addr -- addr' )
-    c-function pthreads pthreads n -- n ( n -- n' )
-    c-function thread_start gforth_thread_p -- a ( -- addr )
+    c-variable thread_start gforth_thread ( -- addr )
     c-function gforth_create_thread gforth_stacks n n n n -- a ( dsize fsize rsize lsize -- task )
     c-function pthread_create pthread_create a{(pthread_t*)} a a a -- n ( thread attr start arg )
     c-function pthread_exit pthread_exit a -- void ( retaddr -- )
@@ -153,12 +127,10 @@ c-library pthread
     c-function pthread_mutex_destroy pthread_mutex_destroy a -- n ( mutex -- r )
     c-function pthread_mutex_lock pthread_mutex_lock a -- n ( mutex -- r )
     c-function pthread_mutex_unlock pthread_mutex_unlock a -- n ( mutex -- r )
-    c-function pthread-mutex+ pthread_mutex_plus a -- a ( mutex -- mutex' )
-    c-function pthread-mutexes pthread_mutexes n -- n ( n -- n' )
-    c-function pthread-cond+ pthread_cond_plus a -- a ( cond -- cond' )
-    c-function pthread-conds pthread_conds n -- n ( n -- n' )
     c-function sched_yield sched_yield -- void ( -- )
     c-function pthread_detach_attr pthread_detach_attr -- a ( -- addr )
+    c-function pthread_cond_init pthread_cond_init a a -- n ( cond attr -- r )
+    c-function pthread_cond_destroy pthread_cond_destroy a -- n ( cond -- r )
     c-function pthread_cond_signal pthread_cond_signal a -- n ( cond -- r ) \ gforth-experimental
     c-function pthread_cond_broadcast pthread_cond_broadcast a -- n ( cond -- r ) \ gforth-experimental
     c-function pthread_cond_wait pthread_cond_wait a a -- n ( cond mutex -- r ) \ gforth-experimental
@@ -167,17 +139,27 @@ c-library pthread
     c-function check_read check_read a -- n ( pipefd -- n )
     c-function wait_read wait_read a n n -- n ( pipefd timeoutns timeouts -- n )
     c-function stick-to-core stick_to_core n -- n ( core -- n )
-    \c #define get_pthread_id(addr) *(pthread_t*)(addr) = pthread_self()
-    c-function pthread_self get_pthread_id a -- void ( pthread-id -- )
+    c-function pthread_self pthread_self -- t{*(pthread_t*)} ( pthread-id -- )
 end-c-library
 
+require unix/pthread-types.fs
+pthread_t cfield: pthread+ drop
+pthread_mutex_t cfield: pthread-mutex+ drop
+pthread_cond_t cfield: pthread-cond+ drop
+
+Create pthreads 0 pthread+ ,
+DOES> @ * ;
+opt: @ ]] literal * [[ ;
+' pthreads create-from pthread-mutexes reveal 0 pthread-mutex+ ,
+' pthreads create-from pthread-conds   reveal 0 pthread-cond+ ,
+
 require ./libc.fs
-require ../set-compsem.fs
+require set-compsem.fs
 
 User pthread-id
-s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
-    -1 cells pthread+ uallot drop
+-1 cells pthread+ uallot drop
 
+host? [IF]
     pthread-id pthread_self
 [THEN]
 
@@ -185,17 +167,24 @@ User epiper
 User epipew
 User wake#
 
-: user' ( 'user' -- n ) \ gforth-experimental
-    \G USER' computes the task offset of a user variable
+: user' ( "name" -- u ) \ gforth-experimental
+    \G @i{U} is the offset of the user variable @i{name} in the user
+    \G area of each task.
     ' >body @ ;
 compsem: ' >body @ postpone Literal ;
 
+[IFUNDEF] up@
 ' next-task alias up@ ( -- addr ) \ gforth-experimental
-\G the current user pointer
+    \G @i{Addr} is the start of the user area of the current task
+    \G (@i{addr} also serves as the @i{task} identifier of the current
+    \G task).
+[THEN]
 
 0 warnings !@
-: 's ( user task -- user' ) \ gforth-experimental
-\G get the tasks's address of our user variable
+: 's ( addr1 task -- addr2 ) \ gforth-experimental
+\G With @i{addr1} being an address in the user data of the current
+\G task, @i{addr2} is the corresponding address in @i{task}'s user
+\G data.
     + up@ - ;
 warnings !
 
@@ -215,22 +204,27 @@ Defer thread-init
     [IFDEF] sh$ #0. sh$ 2! [THEN]
     current-input off create-input ; IS thread-init
 
-: newtask4 ( dsize rsize fsize lsize -- task ) \ gforth-experimental
-    \G creates a task, each stack individually sized
+: newtask4 ( u-data u-return u-fp u-locals -- task ) \ gforth-experimental
+    \G creates @i{task} with data stack size @i{u-data}, return stack
+    \G size @i{u-return}, FP stack size @i{u-fp} and locals stack size
+    \G @i{u-locals}.
     gforth_create_thread >r
     throw-entry r@ udp @ throw-entry up@ - /string move
     word-pno-size chars r@ pagesize + over - dup holdbufptr r@ 's !
     + dup holdptr r@ 's !  holdend r@ 's !
     epiper r@ 's create_pipe
-    action-of kill-task >body  rp0 r@ 's @ 1 cells - dup rp0 r@ 's ! !
+    action-of kill-task >body rp0 r@ 's @ 1 cells - dup rp0 r@ 's ! !
     r> ;
 
 : newtask ( stacksize -- task ) \ gforth-experimental
-\G creates a task, uses stacksize for stack, rstack, fpstack, locals
+    \G creates @i{task}; each stack (data, return, FP, locals) has size
+    \G @i{stacksize}.
     dup 2dup newtask4 ;
 
-: task ( stacksize "name" -- ) \ gforth-experimental
-    \G create a named task with stacksize @var{stacksize}
+: task ( ustacksize "name" -- ) \ gforth-experimental
+    \G creates a task @i{name}; each stack (data, return, FP, locals)
+    \G has size @i{ustacksize}.@*
+    \G @i{name} execution: ( -- @i{task} )
     newtask constant ;
 
 : (activate) ( task -- ) \ gforth-experimental
@@ -238,9 +232,11 @@ Defer thread-init
     r> swap >r  save-task r@ 's !
     pthread-id r@ 's pthread_detach_attr thread_start r> pthread_create drop ; compile-only
 
-: activate ( task -- ) \ gforth-experimental
-    \G activates a task. The remaining part of the word calling
-    \G @code{activate} will be executed in the context of the task.
+: activate ( run-time nest-sys1 task -- ) \ gforth-experimental
+    \G Let @i{task} perform the code behind @code{activate}, and
+    \G return to the caller of the word containing @code{activate}.
+    \G When the task returns from the code behind @code{activate}, it
+    \G terminates itself.
     ]] (activate) up! thread-init [[ ; immediate compile-only
 
 : (pass) ( x1 .. xn n task -- ) \ gforth-experimental
@@ -250,25 +246,34 @@ Defer thread-init
     pthread-id r@ 's pthread_detach_attr thread_start r> pthread_create drop ; compile-only
 
 : pass ( x1 .. xn n task -- ) \ gforth-experimental
-    \G activates task, and passes n parameters from the data stack
+    \G Pull @i{x1 .. xn n} from the current task's data stack and push
+    \G @i{x1 .. xn} on @i{task}'s data stack.  Let @i{task} perform
+    \G the code behind @code{pass}, and return to the caller of the
+    \G word containing @code{pass}.  When the task returns from the
+    \G code behind @code{pass}, it terminates itself.
     ]] (pass) up! sp0 ! thread-init [[ ; immediate compile-only
 
 : initiate ( xt task -- ) \ gforth-experimental
-    \G pass an @var{xt} to a task (VFX compatible)
+    \G Let @i{task} execute @i{xt}.  Upon return from the @i{xt}, the task
+    \G terminates itself (VFX compatible).  Use one-time executable closures
+    \G to pass arbitrary paramenters to a task.
     1 swap pass execute ;
-: initiate-closure ( xt task -- ) \ gforth-experimental
-    \G pass a heap-allocated closure @var{xt} to a task and free it after use
-    1 swap pass dup >r execute r> >addr free throw ;
 
 : semaphore ( "name" -- ) \ gforth-experimental
-    \G create a named semaphore @var{"name"} \\
-    \G "name"-execution: @var{( -- semaphore )}
-    Create here 1 pthread-mutexes allot 0 pthread_mutex_init drop ;
+    \G create a named semaphore @i{name}@*
+    \G @i{name} execution: ( -- @i{semaphore} )
+    Create  here 1 pthread-mutexes allot
+    host? IF
+	0 pthread_mutex_init drop
+    ELSE  drop  THEN ;
 synonym sema semaphore
 
 : cond ( "name" -- ) \ gforth-experimental
     \G create a named condition
-    Create here 1 pthread-conds dup allot erase ;
+    Create  here 1 pthread-conds allot
+    host? IF
+	0 pthread_cond_init drop
+    ELSE  drop  THEN ;
 
 : lock ( semaphore -- ) \ gforth-experimental
 \G lock the semaphore
@@ -278,70 +283,46 @@ synonym sema semaphore
     pthread_mutex_unlock drop ;
 
 : critical-section ( xt semaphore -- )  \ gforth-experimental
-    \G implement a critical section that will unlock the semaphore
-    \G even in case there's an exception within.
+    \G Execute @i{xt} while locking @i{semaphore}.  After leaving
+    \G @i{xt}, @i{semaphore} is unlocked even if an exception is
+    \G thrown.
     { sema } try sema lock execute 0 restore sema unlock endtry throw ;
 synonym c-section critical-section
 
 : >pagealign-stack ( n addr -- n' ) \ gforth-experimental
     -1 under+ 1- pagesize negate mux 1+ ;
-: stacksize ( -- n ) \ gforth-experimental
-    \G stacksize for data stack
-    forthstart 5 cells + @ ;
-: stacksize4 ( -- dsize fsize rsize lsize ) \ gforth-experimental
-    \G This gives you the system stack sizes
-    forthstart 5 cells + 4 cells bounds DO  I @  cell +LOOP
+: stacksize ( -- u ) \ gforth-experimental
+    \G @i{u} is the data stack size of the main task.
+    forthstart 8 cells + @ ;
+: stacksize4 ( -- u-data u-return u-fp u-locals ) \ gforth-experimental
+    \G Pushes the data, return, FP, and locals stack sizes of the main task.
+    forthstart 8 cells + 4 cells cell MEM+DO  I @  LOOP
     2>r >r  sp0 @ >pagealign-stack r> fp0 @ >pagealign-stack 2r> ;
 
 : execute-task ( xt -- task ) \ gforth-experimental
-    \G create a new task @var{task} and initiate it with @var{xt}
+    \G Create a new task @var{task} with the same stack sizes as the
+    \G main task. Let @i{task} execute @i{xt}.  Upon return from the
+    \G @i{xt}, the task terminates itself.
     stacksize4 newtask4 tuck initiate ;
 
-\ event handling
+: (stop) ( -- )
+    {: | w^ xt :} xt cell epiper @ read-file throw cell = IF
+	xt perform
+    THEN ;
+: send-event ( xt task -- ) \ gforth-experimental
+    \G Inter-task communication: send @var{xt} @code{( -- )} to
+    \G @var{task}.  @var{task} executes the xt at some later point in
+    \G time.  To pass parameters, construct a one-shot closure that
+    \G contains the parameters (@pxref{Closures}) and pass the xt of
+    \G that closure.
+    >r {: w^ xt :} xt cell epipew r> 's @ write-file throw ;
+: event? ( -- flag ) epiper @ check_read 0> ;
 
-s" Undefined event"   exception Constant !!event!!
-s" Event buffer full" exception Constant !!ebuffull!!
-
-Variable event#  1 event# !
-
-User eventbuf# $100 uallot drop \ 256 bytes buffer for atomic event squences
-User event-start
-
-: 'event ( -- addr )  eventbuf# dup @ + cell+ ;
-: event+ ( n -- addr )
-    dup eventbuf# @ + $100 u>= !!ebuffull!! and throw
-    'event swap eventbuf# +! ;
-: <event ( -- ) \ gforth-experimental
-    \G starts a sequence of events.
-    eventbuf# @ IF  event-start @ 1 event+ c! eventbuf# @ event-start !  THEN ;
-: event> ( task -- ) \ gforth-experimental
-    \G ends a sequence and sends it to the mentioned task
-    eventbuf# @ event-start @ u> IF
-	>r eventbuf# cell+ eventbuf# @ event-start @
-	?dup-if  /string  event-start @ 1- eventbuf# !  'event c@ event-start !
-	else  eventbuf# off  then
-	epipew r> 's @ write-file throw
-    ELSE  drop  THEN ;
-
-: event-crash  !!event!! throw ;
-
-Create event-table $100 0 [DO] ' event-crash , [LOOP]
-
-: event-does ( -- )  DOES>  @ 1 event+ c! ;
-: event: ( "name" -- ) \ gforth-experimental
-    \G defines an event and the reaction to it as Forth code.
-    \G If @code{name} is invoked, the event gets assembled to the event buffer.
-    \G If the event @code{name} is received, the Forth definition
-    \G that follows the event declaration is executed.
-    Create event# @ ,  event-does
-    here 0 , >r  noname : latestxt dup event# @ cells event-table + !
-    r> ! 1 event# +! ;
-: (stop) ( -- )  epiper @ key-file
-    dup 0>= IF  cells event-table + perform  ELSE  drop  THEN ;
-: event? ( -- flag )  epiper @ check_read 0> ;
-: ?events ( -- ) \ gforth-experimental
-\G checks for events and executes them
+: ?events ( -- ) \ gforth-experimental question-events
+    \G Execute all event xts in the current task's message
+    \G queue, one xt at a time.
     BEGIN  event?  WHILE  (stop)  REPEAT ;
+
 : stop ( -- ) \ gforth-experimental
 \G stops the current task, and waits for events (which may restart it)
     (stop) ?events ;
@@ -351,10 +332,13 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
 : stop-dns ( dtimeout -- ) \ gforth-experimental
     epiper @ -rot 1000000000 um/mod wait_read 0> IF  stop  THEN ;
 \G Stop with dtimeout (in nanoseconds), better replacement for ms
+
 : event-loop ( -- ) \ gforth-experimental
-\G Tasks that are controlled by sending events to them should
-\G go into an event-loop
-    BEGIN  stop  AGAIN ;
+    \G Wait for event xts and execute these xts when they arrive, one
+    \G at a time.  Return to waiting if no event xts are in the queue.
+    \G This word never returns.
+    BEGIN stop AGAIN ;
+
 : pause ( -- ) \ gforth-experimental
     \G voluntarily switch to the next waiting task (@code{pause} is
     \G the traditional cooperative task switcher; in the pthread
@@ -369,37 +353,30 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
     2drop 2drop ;
 ' thread-deadline is deadline
 
-event: :>lit  0 { w^ n } n cell epiper @ read-file throw drop n @ ;
-event: :>flit 0e { f^ r } r float epiper @ read-file throw drop r f@ ;
-
-: elit,  ( x -- ) \ gforth-experimental
-\G sends a literal
-    :>lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
-: estring, ( addr u -- ) \ gforth-experimental
-\G sends a string (actually only the address and the count, because it's
-\G shared memory
-    swap elit, elit, ;
-: eflit, ( x -- ) \ gforth-experimental
-\G sends a float
-    :>flit { f^ r } r float event+ float move ;
-
-event: :>wake ( wake# -- )  wake# ! ;
-event: :>sleep  stop ;
-
+: (restart) ( task wake# -- )
+    [{: n :}h1 n wake# ! ;] swap send-event ;
 : restart ( task -- ) \ gforth-experimental
     \G Wake a task
-    <event 0 elit, :>wake event> ;
+    0 (restart) ;
 synonym wake restart ( task -- ) \ gforth-experimental
-
-event: :>restart ( wake# task -- ) <event swap elit, :>wake event> ;
 
 : halt ( task -- ) \ gforth-experimental
     \G Stop a task
-    <event :>sleep event> ;
-synonym sleep halt ( task -- )
+    ['] stop swap send-event ;
+synonym sleep halt ( task -- ) \ gforth-experimental
+
+: event-block ( task -- ) \ gforth-experimental
+    \G send an event and wait for the answer
+    dup up@ = IF \ don't block, just eval what we sent to ourselves
+	drop ?events
+    ELSE
+	wake# @ 1+ dup >r up@ [{: wake task :}h1
+	    task wake (restart) ;] swap send-event
+	BEGIN  stop  wake# @ r@ =  UNTIL  rdrop
+    THEN ;
 
 : kill ( task -- ) \ gforth-experimental
-    \G Kill a task
+    \G Terminate @i{task}.
     user' pthread-id +
     [IFDEF] pthread_cancel
 	pthread_cancel drop
@@ -407,39 +384,35 @@ synonym sleep halt ( task -- )
 	15 pthread_kill drop
     [THEN] ;
 
-: event| ( task -- ) \ gforth-experimental
-    \G send an event and block
-    dup up@ = IF \ don't block, just eval what we sent to ourselves
-	event> ?events
-    ELSE
-	wake# @ 1+ dup >r elit, up@ elit, :>restart event>
-	BEGIN  stop  wake# @ r@ =  UNTIL  rdrop
-    THEN ;
-
 \ User deferred words, user values
 
 [IFUNDEF] >uvalue
     : >uvalue ( xt -- addr )
-	>body @ next-task + ;
-    to-opt: >body @ postpone useraddr , ;
+	>body @ up@ + ;
+    fold1: >body @ postpone up@ lit, postpone + ;
 [THEN]
 
-' >uvalue defer-table to-method: udefer-to
+' >uvalue defer-table to-class: udefer-to
 
-: UDefer ( "name" -- ) \ gforth-experimental
-    \G Define a per-thread deferred word
+: UDefer ( "name" -- ) \ gforth
+    \G @i{Name} is a task-local deferred word.@*
+    \G @i{Name} execution: ( ... -- ... )
     Create cell uallot ,
     [: @ up@ + perform ;] set-does>
     ['] udefer-to set-to
-    [: >body @ postpone useraddr , postpone perform ;] set-optimizer ;
-
-false [IF] \ event test - send to myself
-    <event 1234 elit, up@ event> ?event 1234 = [IF] ." event ok" cr [THEN]
-[THEN]
+    [: >body @ postpone up@ lit, postpone + postpone perform ;] set-optimizer ;
 
 \ key for pthreads
 
 User keypollfds pollfd 2* cell- uallot drop
+
+:noname defers 'image
+    keypollfds pollfd 2* erase
+    pthread-id pthread_t erase
+    epiper off
+    epipew off
+    wake# off
+; is 'image
 
 : prep-key ( -- )
     keypollfds >r
@@ -454,8 +427,11 @@ User keypollfds pollfd 2* cell- uallot drop
 
 ' thread-key is key-ior
 
-:noname defers 'cold epiper create_pipe ; is 'cold
-
+:noname defers 'cold
+    host? IF
+	pthread-id pthread_self epiper create_pipe
+	preserve key-ior  preserve deadline
+    THEN ; is 'cold
 
 \ a simple test (not commented in)
 

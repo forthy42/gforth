@@ -2,6 +2,7 @@
 %module egl
 %insert("include")
 %{
+#define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>
 #ifdef __gnu_linux__
 #undef stderr
@@ -44,5 +45,7 @@ extern struct _IO_FILE *stderr;
 %apply SWIGTYPE * { EGLNativeDisplayType };
 %apply long { EGLNativeWindowType, EGLNativePixmapType };
 #endif
+
+// exec: sed -e 's/^c-library\( .*\)/[IFUNDEF] opengl cs-vocabulary opengl [THEN]``get-current also opengl definitions``c-library\1`/g' -e 's/^end-c-library/end-c-library`previous set-current/g' | tr '`' '\n'
 
 %include <EGL/egl.h>

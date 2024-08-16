@@ -1,7 +1,7 @@
 \ Hashed dictionaries                                  15jul94py
 
 \ Authors: Bernd Paysan, Anton Ertl, Jens Wilke
-\ Copyright (C) 1995,1998,2000,2003,2006,2007,2009,2013,2017,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,2000,2003,2006,2007,2009,2013,2017,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -108,11 +108,11 @@ Defer hash-alloc ( addr -- addr )
 : table-reveal ( nfa wid -- )
     2dup (nocheck-reveal) (reveal ;
 
-Create hashvoc-table ' hash-reveal , ' -/- , ' -/- , ' noop ,
-Create tablevoc-table ' table-reveal , ' -/- , ' -/- , ' noop ,
+Create hashvoc-table ' hash-reveal , ' drop , ' n/a , ' n/a , ' hash-reveal ,
+Create tablevoc-table ' table-reveal , ' drop , ' n/a , ' n/a , ' table-reveal ,
 
-' [noop] hashvoc-table to-method: hashvoc-to
-' [noop] tablevoc-table to-method: tablevoc-to
+' [noop] hashvoc-table to-class: hashvoc-to
+' [noop] tablevoc-table to-class: tablevoc-to
 
 [IFUNDEF] >link ' noop Alias >link [THEN]
 
@@ -128,8 +128,7 @@ Create tablevoc-table ' table-reveal , ' -/- , ' -/- , ' noop ,
     BEGIN  @ dup WHILE
 	    dup 0 wordlist-link -
 	    dup wordlist-map @ reveal-method @ >r
-	    r@ ['] hashvoc-to = r@ ['] tablevoc-to = or
-	    r@ ['] hash-reveal = or r> ['] table-reveal = or
+	    r@ ['] hashvoc-to = r> ['] tablevoc-to = or
 	    IF  inithash ELSE drop THEN
     REPEAT  drop ;
 
@@ -166,8 +165,8 @@ Create tablevoc-table ' table-reveal , ' -/- , ' -/- , ' noop ,
   IF   inithash
   ELSE rehashall THEN ;
 
-' (rehash) hashvoc-table 3 cells + !
-' (rehash) tablevoc-table 3 cells + !
+' (rehash) hashvoc-table cell+ !
+' (rehash) tablevoc-table cell+ !
 
 : hashdouble ( -- )
     HashTable >r clearhash

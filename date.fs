@@ -48,37 +48,39 @@
     THEN ;
 
 \ load with: gforth test/ttester.fs coverage.fs date.fs
-[defined] t{ [defined] cov% and [IF]
-    t{ 0 3 1 ymd2day dup day2dow -> 0 1 }t cov% cr
-    t{ 1582 10 15 ymd2day 1- day2ymd -> 1582 10 4 }t cov% cr
-    t{ 1400 3 1 ymd2day 1- day2ymd -> 1400 2 29 }t cov% cr
-    t{ 2018 1 1 ymd2day 1- day2ymd -> 2017 12 31 }t cov% cr
+[IFUNDEF] cov% : cov%cr ; : .coverage ;
+[ELSE] : cov%cr info-color cov% default-color cr ; [THEN]
+[defined] t{ [IF]
+    t{ 0 3 1 ymd2day dup day2dow -> 0 1 }t cov%cr
+    t{ 1582 10 15 ymd2day 1- day2ymd -> 1582 10 4 }t cov%cr
+    t{ 1400 3 1 ymd2day 1- day2ymd -> 1400 2 29 }t cov%cr
+    t{ 2018 1 1 ymd2day 1- day2ymd -> 2017 12 31 }t cov%cr
     \ the tests up to here are sufficient for a full code coverage.
     \ they are not sufficient to ensure functionality.
-    t{ -61 day2ymd -> -1 12 31 }t cov% cr \ check if we can go negative
-    t{ 1900 3 1 ymd2day 1- day2ymd -> 1900 2 28 }t cov% cr
-    t{ 1582 10 4 ymd2day 1+ day2ymd -> 1582 10 15 }t cov% cr
-    13 1 [DO] t{ 2018 [I] 13 ymd2day day2ymd -> 2018 [I] 13 }t [LOOP] cov% cr
-    32 1 [DO] t{ 2018 12 [I] ymd2day day2ymd -> 2018 12 [I] }t [LOOP] cov% cr
-    t{ 2018 2 1 ymd2day 1- day2ymd -> 2018 1 31 }t cov% cr
-    t{ 2018 3 1 ymd2day 1- day2ymd -> 2018 2 28 }t cov% cr
-    t{ 2018 4 1 ymd2day 1- day2ymd -> 2018 3 31 }t cov% cr
-    t{ 2018 5 1 ymd2day 1- day2ymd -> 2018 4 30 }t cov% cr
-    t{ 2018 6 1 ymd2day 1- day2ymd -> 2018 5 31 }t cov% cr
-    t{ 2018 7 1 ymd2day 1- day2ymd -> 2018 6 30 }t cov% cr
-    t{ 2018 8 1 ymd2day 1- day2ymd -> 2018 7 31 }t cov% cr
-    t{ 2018 9 1 ymd2day 1- day2ymd -> 2018 8 31 }t cov% cr
-    t{ 2018 10 1 ymd2day 1- day2ymd -> 2018 9 30 }t cov% cr
-    t{ 2018 11 1 ymd2day 1- day2ymd -> 2018 10 31 }t cov% cr
-    t{ 2018 12 1 ymd2day 1- day2ymd -> 2018 11 30 }t cov% cr
+    t{ -61 day2ymd -> -1 12 31 }t cov%cr \ check if we can go negative
+    t{ 1900 3 1 ymd2day 1- day2ymd -> 1900 2 28 }t cov%cr
+    t{ 1582 10 4 ymd2day 1+ day2ymd -> 1582 10 15 }t cov%cr
+    13 1 [DO] t{ 2018 [I] 13 ymd2day day2ymd -> 2018 [I] 13 }t [LOOP] cov%cr
+    32 1 [DO] t{ 2018 12 [I] ymd2day day2ymd -> 2018 12 [I] }t [LOOP] cov%cr
+    t{ 2018 2 1 ymd2day 1- day2ymd -> 2018 1 31 }t cov%cr
+    t{ 2018 3 1 ymd2day 1- day2ymd -> 2018 2 28 }t cov%cr
+    t{ 2018 4 1 ymd2day 1- day2ymd -> 2018 3 31 }t cov%cr
+    t{ 2018 5 1 ymd2day 1- day2ymd -> 2018 4 30 }t cov%cr
+    t{ 2018 6 1 ymd2day 1- day2ymd -> 2018 5 31 }t cov%cr
+    t{ 2018 7 1 ymd2day 1- day2ymd -> 2018 6 30 }t cov%cr
+    t{ 2018 8 1 ymd2day 1- day2ymd -> 2018 7 31 }t cov%cr
+    t{ 2018 9 1 ymd2day 1- day2ymd -> 2018 8 31 }t cov%cr
+    t{ 2018 10 1 ymd2day 1- day2ymd -> 2018 9 30 }t cov%cr
+    t{ 2018 11 1 ymd2day 1- day2ymd -> 2018 10 31 }t cov%cr
+    t{ 2018 12 1 ymd2day 1- day2ymd -> 2018 11 30 }t cov%cr
     2100 1904 [DO] t{ [I] 3 1 ymd2day 1- day2ymd -> [I] 2 29 }t 4 [+LOOP]
-    2000 1700 [DO] t{ [I] 3 1 ymd2day 1- day2ymd -> [I] 2 28 }t 100 [+LOOP] cov% cr
-    1620 1560 [DO] t{ [I] 1 3 ymd2day day2ymd -> [I] 1 3 }t [LOOP] cov% cr
-    7  0 [DO] t{ 1896 [I] + 12 13 ymd2day day2dow -> [I] }t [lOOP]    cov% cr
-    2000 1 1 ymd2day 1461 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov% cr
-    1580 1 1 ymd2day 1461 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov% cr
+    2000 1700 [DO] t{ [I] 3 1 ymd2day 1- day2ymd -> [I] 2 28 }t 100 [+LOOP] cov%cr
+    1620 1560 [DO] t{ [I] 1 3 ymd2day day2ymd -> [I] 1 3 }t [LOOP] cov%cr
+    7  0 [DO] t{ 1896 [I] + 12 13 ymd2day day2dow -> [I] }t [lOOP]    cov%cr
+    2000 1 1 ymd2day 1461 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov%cr
+    1580 1 1 ymd2day 1461 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov%cr
     .coverage
     #ERRORS @ [IF]  error-color  ." had " #ERRORS ? ." errors"
     [ELSE]  info-color  ." passed successful"  [THEN]
-    default-color cr cov% cr
+    default-color cr cov%cr
 [THEN]

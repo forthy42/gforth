@@ -1,7 +1,7 @@
 \ compiler definitions						14sep97jaw
 
 \ Authors: Bernd Paysan, Anton Ertl, Neal Crook, Jens Wilke, David Kühling, Gerald Wodni
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -197,8 +197,9 @@ defer header-extra ' noop is header-extra
 : create-from ( nt "name" -- ) \ gforth
     \G Create a word @i{name} that behaves like @i{nt}, but with an
     \G empty body.  @i{nt} must be the nt of a named word.  The
-    \G resulting header is not yet revealed.  Creating a word with
-    \G @code{create-from} without using any @code{set-} words is
+    \G resulting header is not yet @code{reveal}ed; use @code{reveal}
+    \G to reveal it or @code{latest} to get its xt.  Creating a word
+    \G with @code{create-from} without using any @code{set-} words is
     \G faster than if you create a word using @code{set-} words,
     \G @code{immediate}, or @code{does>}.  You can use @code{noname}
     \G with @code{create-from}.
@@ -215,7 +216,7 @@ defer header-extra ' noop is header-extra
     , cfa, ;
 
 : input-stream-header ( "name" -- )
-    parse-name name-too-short? name, ;
+    ?parse-name name, ;
 
 : input-stream ( -- )  \ gforth-internal
     \G switches back to getting the name from the input stream ;
@@ -310,8 +311,13 @@ has? new-cfa [IF]
 
 defer basic-block-end ( -- )
 
+: +target ( addr -- )
+    dup codestart @ here cell+ within IF
+	codestart @ - cell/ targets $+bit
+    ELSE  drop  THEN ;
+
 :noname ( -- )
-    lits, 0 compile-prim1 ;
+    lits, ;
 is basic-block-end
 
 \ record locations
@@ -329,7 +335,7 @@ Defer xt-location
 Defer addr>view
 :noname ( ip-addr -- view / 0 )
     \G give @i{view} information for instruction address @i{ip-addr}
-    dup cell- section-start @ section-dp @ within
+    dup section-start @ section-dp @ 1+ within
     section-start @ and ?dup-IF
 	- cell/ 1- locs[] $[] @  EXIT
     THEN  drop 0 ; is addr>view
@@ -340,13 +346,22 @@ has? primcentric [IF]
     has? peephole [IF]
 	defer prim-check ( xt -- xt ) ' noop is prim-check
 	\ hook for stack depth (and maybe later type) checker
-	
+
 	: peephole-compile, ( xt -- )
 	    \ compile xt, appending its code to the current dynamic superinstruction
-	    lits, prim-check here swap , xt-location compile-prim1 ;
+	    lits, prim-check here swap , xt-location
+	    codestart @ - cell/ primbits $+bit ;
+	: flush-code ( -- )
+	    codestart @ here aligned over -
+	    dup cell/ dup primbits $bit 2drop targets $bit 2drop
+	    primbits $@ drop targets $@ drop
+	    compile-prims
+	    primbits $free targets $free
+	    here aligned codestart ! ;
     [ELSE]
 	: peephole-compile, ( xt -- addr )
 	    lits, here xt-location drop , ;
+	: flush-code ( -- ) ;
     [THEN]
 [ELSE]
     ' xt, is compile,
@@ -421,7 +436,7 @@ include ./recognizer.fs
 \G Mark the last definition as compile-only; as a result, the text
 \G interpreter and @code{'} will warn when they encounter such a word.
 
-: obsolete ( -- ) \ gforth
+: obsolete ( -- ) \ gforth-internal
     \G Mark the last word as obsolete
     obsolete-mask lastflags or! ;
 
@@ -438,9 +453,9 @@ include ./recognizer.fs
 
 : s>int ( nt -- xt )  >body @ name>interpret ;
 : s>comp ( nt -- xt1 xt2 )  >body @ name>compile ;
-: s-to ( val nt -- )
+: s-to ( val operation nt -- )
     >body @ (to) ;
-opt: ( xt -- ) ?fold-to >body @ (to), ;
+opt: ( xt -- ) ?fold1 >body @ (to), ;
 : s-compile, ( xt -- )  >body @ compile, ;
 
 : synonym, ( nt int comp -- ) \ gforth-internal
@@ -453,20 +468,18 @@ opt: ( xt -- ) ?fold-to >body @ (to), ;
     \G Define @i{name} as a word that performs @i{xt}.  Unlike for
     \G deferred words, aliases don't have an indirection overhead when
     \G compiled.
-    ['] parser create-from ['] a>int ['] a>comp synonym, reveal ;
+    ['] parse-name create-from ['] a>int ['] a>comp synonym, reveal ;
 
 : alias? ( nt -- flag )
     >namehm @ >hm>int 2@ ['] a>comp ['] a>int d= ;
 
-$BF000000 Value synonym-mask \ do not copy obsolete flag
-$BF -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
-                          [ELSE] 0 1 cells 1- c,s c, [THEN]
+$BF000000. 1 cells 8 = [IF] #32 dlshift [THEN] dValue synonym-mask \ do not copy obsolete flag
 
 : Synonym ( "name" "oldname" -- ) \ tools-ext
     \G Define @i{name} to behave the same way as @i{oldname}: Same
     \G interpretation semantics, same compilation semantics, same
     \G @code{to}/@code{defer!} and @code{defer@@} semantics.
-    ['] parser create-from
+    ['] parse-name create-from
     ?parse-name find-name dup 0= #-13 and throw
     dup >f+c @ synonym-mask and latest >f+c +!
     ['] s>int ['] s>comp synonym, reveal ;
@@ -497,15 +510,19 @@ $BF -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
 : 2Variable ( "name" -- ) \ double two-variable
     Create 0 , 0 , ;
 
-: uallot ( n -- n' ) \ gforth
-    \g Reserve @i{n} bytes in every user space.
+: uallot ( n1 -- n2 ) \ gforth
+    \g Reserve @i{n1} bytes of user data.  @i{n2} is the offset of the
+    \g start of the reserved area within the user area.
     udp @ swap udp +! ;
 
 : User ( "name" -- ) \ gforth
+    \G @i{Name} is a user variable (1 cell).@*
+    \G @i{Name} execution: ( -- @i{addr} )@*
+    \G @i{Addr} is the address of the user variable in the current task.
     ['] sp0 create-from reveal cell uallot , ;
 
 : AUser ( "name" -- ) \ gforth
-    \g Define a user variable for containing an addres (this only
+    \G @i{Name} is a user variable containing an address (this only
     \g makes a difference in the cross-compiler).
     User ;
 
@@ -536,7 +553,7 @@ $BF -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
     \G (this only makes a difference in the cross-compiler).
     (Value) A, ;
 
-4 Constant to-table-size#
+5 Constant to-table-size#
 
 : (Field)  ['] wordlist-map create-from reveal ;
 
@@ -550,7 +567,7 @@ defer defer-default ( -- )
 \G Define a deferred word @i{name}; its execution semantics can be
 \G set with @code{defer!} or @code{is} (and they have to, before first
 \G executing @i{name}.
-    ['] parser create-from reveal
+    ['] parse-name create-from reveal
     ['] defer-default A, ;
 
 : Defers ( compilation "name" -- ; run-time ... -- ... ) \ gforth
@@ -569,8 +586,7 @@ defer defer-default ( -- )
     exit-like
     here [ has? peephole [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] cells +
     postpone literal r> compile, [compile] exit
-    ?colon-sys [ has? peephole [IF] ] finish-code [ [THEN] ]
-    colon-sys ;
+    ?colon-sys basic-block-end colon-sys ;
 
 \ call with locals - unused
 
@@ -681,10 +697,13 @@ Create hmtemplate
     ['] does, set-optimizer
     hmtemplate >hmextra !
     dodoes: latestnt only-code-address! ;
+
 : set-to ( to-xt -- ) \ gforth
-    \G Sets the implementation of the @code{(to) ( val xt -- )} method
-    \G of the current word to @i{to-xt}.
+    \G Changes the implementations of the to-class methods of the most
+    \G recently defined word to come from the to-class that has the xt
+    \G @i{to-xt}.
     ?hm hmtemplate >hmto ! ;
+
 : set->int ( xt -- ) \ gforth set-to-int
     \G Sets the implementation of the @code{name>interpret ( nt -- xt2 )}
     \G method of the current word to @i{xt}.
@@ -732,46 +751,58 @@ Create hmtemplate
     \ OPT!-COMPILE,.
 ;
 
-: ?fold-to ( <to>-xt -- name-xt )
+: ?fold1 ( <to>-xt -- name-xt )
     \G Prepare partial constant folding for @code{(to)} methods: if
     \G there's no literal on the folding stack, just compile the
     \G @code{(to)} method as is.  If there is, drop the xt of the
     \G \code{(to)} method, and retrieve the @i{name-xt} of the word TO
     \G is applied to from the folding stack.
     lits# 0= IF :, rdrop EXIT THEN drop lits> ;
-: to-opt: ( -- colon-sys ) \ gforth-internal
+: fold1: ( -- colon-sys ) \ gforth-internal
     \G Defines a part of the TO <name> run-time semantics used with compiled
-    \G @code{TO}.  The stack effect of the code following @code{to-opt:} must
+    \G @code{TO}.  The stack effect of the code following @code{fold1:} must
     \G be: @code{( xt -- ) ( generated: v -- )}.  The generated code stores
     \G @i{v} in the storage represented by @i{xt}.
-    opt: postpone ?fold-to ;
+    opt: postpone ?fold1 ;
 
 \ defer and friends
 
 : defer! ( xt xt-deferred -- ) \ core-ext  defer-store
     \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
-    0 swap (to) ;
-opt: ?fold-to 0 swap (to), ;
-' defer! Alias reveal! ( xt wid -- )
+    4 swap (to) ;
+opt: ?fold1 4 swap (to), ;
+
+' defer! Alias reveal! ( xt wid -- ) \ core-ext  reveal-store
+\G Add xt to a wordlist.
+\ by using the TO access method
 ' >hmto Alias reveal-method ( wid -- addr )
 
-' [noop] !-table to-method: value-to ( n value-xt -- ) \ gforth-internal
+' [noop] !-table to-class: value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values
 
-' [noop] defer-table to-method: defer-is ( n value-xt -- ) \ gforth-internal
+' [noop] defer-table to-class: defer-is ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for deferred words
+
+: int-to ( "name" x -- ) \ gforth-internal
+    \g Interpretation semantics of \code{to}.
+    record-name 0 (') (to) ;
+
+: comp-to ( compilation "name" -- ; run-time x -- ) \ gforth-internal
+    \g Compilation semantics of \code{to}.
+    record-name 0 (') (to), ; immediate restrict
+
+' int-to ' comp-to interpret/compile: TO ( value "name" -- ) \ core-ext
+\g changes the value of @var{name} to @var{value}
 
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
-    record-name 0 (') (to) ;
+    record-name 4 (') (to) ;
 
 : [IS] ( compilation "name" -- ; run-time xt -- ) \ gforth-internal bracket-is
     \g At run-time, changes the @code{defer}red word @var{name} to
     \g execute @var{xt}.
-    record-name 0 (') (to), ; immediate restrict
+    record-name 4 (') (to), ; immediate restrict
 
-' <IS> ' [IS] interpret/compile: TO ( value "name" -- ) \ core-ext
-\g changes the value of @var{name} to @var{value}
 ' <IS> ' [IS] interpret/compile: IS ( value "name" -- ) \ core-ext
 \g changes the @code{defer}red word @var{name} to execute @var{value}
 
@@ -785,7 +816,7 @@ opt: ?fold-to 0 swap (to), ;
 
 defer :-hook ( sys1 -- sys2 )
 defer ;-hook ( sys2 -- sys1 )
-defer ;-hook2 ( sys2 -- sys1 )
+defer ;-hook2 ( -- )
 defer 0-adjust-locals-size ( -- )
 
 1 value colon-sys-xt-offset
@@ -801,17 +832,21 @@ Create defstart
     \ by ;-hook before this stuff here is processed).
     ['] noop defstart ;
 
+: :start ( -- )
+    lits, primbits $@len
+    IF  flush-code  ELSE  primbits $free targets $free  THEN ;
+
 : : ( "name" -- colon-sys ) \ core	colon
-    basic-block-end ['] on create-from colon-sys ] :-hook ;
+    :start ['] on create-from colon-sys ] :-hook ;
 
 :noname ; aconstant dummy-noname
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
-    basic-block-end dummy-noname noname-from
+    :start dummy-noname noname-from
     latestnt colon-sys ] :-hook ;
 
-: ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
-    ;-hook [compile] exit ;-hook2 ?colon-sys
-    [ has? peephole [IF] ] finish-code [ [THEN] ]
+: ; ( compilation colon-sys -- ; run-time nest-sys -- ) \ core	semicolon
+    ;-hook [compile] exit flush-code
+    ;-hook2 ?colon-sys
     reveal postpone [ ; immediate restrict
 
 : concat ( xt1 xt2 -- xt )
@@ -871,9 +906,9 @@ interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 ) \ core does
 	then
     then ;
 
-Create voc-table ' (reveal) A, ' -/- A, ' -/- A, ' drop A,
+Create voc-table ' (reveal) A, ' drop A, ' n/a A, ' n/a A, ' (reveal) A,
 
-' [noop] voc-table to-method: voc-to ( n voc-xt -- ) \ gforth-internal
+' [noop] voc-table to-class: voc-to ( n voc-xt -- ) \ gforth-internal
     \g this is the TO-method for wordlists
 
 ' reveal alias recursive ( compilation -- ; run-time -- ) \ gforth

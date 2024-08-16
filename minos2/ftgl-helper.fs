@@ -1,7 +1,7 @@
 \ freetype GL helper stuff
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2014,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2014,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -348,15 +348,15 @@ require bidi.fs
 
 \ text rendering
 
-: ?soft-hyphen { I' I -- xaddr xs }
-    I I' over - 2dup x-size { xs }
+: ?soft-hyphen { addr u -- xaddr xs }
+    addr u 2dup x-size { xs }
     "\u00AD" string-prefix?
-    IF  I xs + I' =
-	IF  "-" drop  ELSE  I xchar+ dup I' over - x-size +to xs  THEN
-    ELSE  I  THEN  xs ;
+    IF  u xs =
+	IF  "-" drop  ELSE  addr u +x/string over swap x-size +to xs  THEN
+    ELSE  addr  THEN  xs ;
 
-: ?variant { I' I -- xaddr xs variant / xaddr xs -1 }
-    I I' over - 2dup x-size { xs }
+: ?variant { addr u -- xaddr xs variant / xaddr xs -1 }
+    addr u 2dup x-size { xs }
     over swap xs safe/string 3 u>= IF
 	xc@ $FE00 - dup $10 u< IF  xs 3 + swap  EXIT  THEN
     THEN
@@ -365,15 +365,15 @@ require bidi.fs
 0 Value emoji-font#  \ patched later if found
 0 Value symbol-font# \ patched later if found
 
-: ?font-select# { I' I | xs -- xaddr font# xs }
-    case  I' I ?variant
-	-1 of  2drop  I' I ?soft-hyphen to xs  font-select#  endof
+: ?font-select# { addr u | xs -- xaddr font# xs }
+    case  addr u ?variant
+	-1 of  2drop  addr u ?soft-hyphen to xs  font-select#  endof
 	$F of  to xs  emoji-font#   endof
 	$E of  to xs  symbol-font#  endof
 	drop 3 - to xs  font-select#  0
     endcase
     dup last-font# !  xs ;
-: ?font-select ( I' I -- xaddr font xs )
+: ?font-select ( addr u -- xaddr font xs )
     ?font-select# >r font#-load r> ;
 
 -1 value bl/null?
@@ -401,7 +401,7 @@ Variable $splits<[]> \ stack of arrays
     $level-buffer $@ drop -1 { lbuf last-level }
     bounds ?DO
 	last-font# @ { lf# }
-	I' I ?font-select# { xs } lf# <>
+	I delta-I ?font-select# { xs } lf# <>
 	lbuf c@ last-level over to last-level <> or  IF
 	    last-font# @ 2* last-level 1 and or { w^ font^ }
 	    font^ 2 $make
@@ -417,7 +417,7 @@ Variable positions[]
 Variable directions[]
 Variable segment-lens[]
 
-s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
+${GFORTH_IGNLIB} s" true" str= 0= [IF]
     hb_buffer_create Value hb-buffer
     hb-buffer hb_language_get_default hb_buffer_set_language
 [ELSE]
@@ -516,12 +516,12 @@ Defer get-glyphs
     -1 to bl/null?
     0 -rot  bounds ?DO
 	6 ?flush-tris
-	I' I ?font-select { xs } xchar+xy
+	I delta-I ?font-select { xs } xchar+xy
     xs +LOOP  drop ;
 
 : get-simple-glyphs ( addr u -- glyph1 .. glyphn )
     bounds ?DO
-	I' I ?font-select { ft xs }
+	I delta-I ?font-select { ft xs }
 	ft font->t.i0
 	ft swap glyph@
     xs +LOOP ;
@@ -586,7 +586,7 @@ previous
 : layout-simple-string ( addr u -- fw fd fh )
     \ depth is how far it goes down
     0 -rot  0e 0e 0e  bounds ?DO
-	I' I ?font-select { xs } xchar@xy
+	I delta-I ?font-select { xs } xchar@xy
     xs +LOOP  drop ;
 also harfbuzz
 
@@ -638,7 +638,7 @@ cell 4 = [IF]
     fdup f0< IF  2drop fdrop 0  EXIT  THEN
     dup >r over >r
     0 -rot 0e bounds ?DO
-	fdup 0e 0e  I' I ?font-select { xs } xchar@xy
+	fdup 0e 0e  I delta-I ?font-select { xs } xchar@xy
 	fdrop fdrop
 	{ f: p f: n }
 	fdup p f>= fdup n f< and IF

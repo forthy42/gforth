@@ -2,8 +2,8 @@ app-id: org.gforth.gforth
 runtime: org.freedesktop.Platform
 platform-extensions:
   - org.freedesktop.Platform.GL.default
-runtime-version: "22.08"
-branch: "22.08"
+runtime-version: "23.08"
+branch: "23.08"
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.stb
@@ -20,5 +20,5 @@ modules:
     no-autogen: true
     sources:
       - type: archive
-        url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20230803/gforth-0.7.9_20230803.tar.xz
-        sha256: 9d233fff09eb5c7e7f9947362300ff6603d719d8208b3af69d50029481cf7421
+        url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20240815/gforth-0.7.9_20240815.tar.xz
+        sha256: 0a1b78087486b49a70bb392bc03c7e98d0447cbcb412374265c4b2145b06b5e3

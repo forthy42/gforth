@@ -1,7 +1,7 @@
 \ libcc.fs	foreign function interface implemented using a C compiler
 
 \ Authors: Bernd Paysan, Anton Ertl, David Kühling
-\ Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -138,10 +138,10 @@ require string.fs
 : scan-back { c-addr u1 c -- c-addr u2 } \ gforth
     \ the last occurence of c in c-addr u1 is at u2-1; if it does not
     \ occur, u2=0.
-    c-addr 1- c-addr u1 + 1- u-do
+    c-addr u1 1 mem-do
 	i c@ c = if
 	    c-addr i over - 1+ unloop exit endif
-    1 -loop
+    loop
     c-addr 0 ;
 
 : dirname ( c-addr1 u1 -- c-addr1 u2 ) \ gforth
@@ -165,8 +165,9 @@ synonym c-function \c
 synonym add-lib \c
 synonym clear-libs \c
 
-: host? ( -- flag )  s" HOSTPREFIX" getenv nip 0=
+: get-host? ( -- flag )  s" HOSTPREFIX" getenv nip 0=
     s" GFORTH_IGNLIB" getenv s" true" str= 0= and ;
+get-host? Value host?
 
 Vocabulary c-lib
 
@@ -214,6 +215,9 @@ variable lib-handle-addr \ points to the library handle of the current batch.
                          \ batch is not yet compiled.
 Variable lib-filename   \ filename without extension
 : lib-modulename ( -- addr ) lib-handle-addr @ lha-name ;
+: lib-handle ( -- addr )     lib-handle-addr @ lha-id @ ;
+: lib-handle! ( addr -- )    lib-handle-addr @ lha-id ! ;
+: c-source-hash ( -- addr )  lib-handle-addr @ lha-hash ;
 \ basename of the file without extension
 variable libcc-named-dir$ \ directory for named libcc wrapper libraries
 Variable libcc-path      \ pointer to path of library directories
@@ -230,6 +234,7 @@ defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 
 Variable c-flags \ include flags
 Variable c-libs \ library names in a string (without "lib")
+0 Value c++-mode
 
 : lib-prefix ( -- addr u )  s" libgf" ;
 
@@ -275,7 +280,9 @@ Variable c-libs \ library names in a string (without "lib")
     -1 parse write-c-prefix-line ;
 
 : libcc-include ( -- )
-    [: ." #include <libcc.h>" cr ;] c-source-file-execute ;
+    [: ." #include <libcc.h>" cr
+\      ." #include <stdio.h>" cr
+    ;] c-source-file-execute ;
 
 \ Types (for parsing)
 
@@ -511,7 +518,7 @@ create gen-par-types
     c-name type ." ("
     fp-change1 sp-change1 pars over + swap u+do 
 	i 1+ count i c@ gen-par
-	i 1+ c@ 2 + dup i + i' u< if
+	i 1+ c@ 2 + dup delta-I u< if
 	    ." ,"
 	endif
     +loop
@@ -614,6 +621,9 @@ create gen-wrapped-types
 	2>r 2dup 2r> ':' $split 2>r string-prefix?
 	IF  2nip 2r> 2swap  ELSE  2rdrop THEN ;] $[]map 2drop ;
 
+: .externc ( -- )
+    c++-mode IF .\" extern \"C\" " THEN ;
+
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
     dup { descriptor }
@@ -621,7 +631,7 @@ create gen-wrapped-types
     count 2dup { d: pars }
     + count 2dup to r-cast
     + count { d: c-name }
-    ." gforth_stackpointers " .prefix
+    .externc ." gforth_stackpointers " .prefix
     descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n{\n"
     pars c-name 2over count-stacks
@@ -665,7 +675,7 @@ create gen-types
 : callback-header ( descriptor -- )
     count { ret } count 2dup { d: pars } chars + count + count { d: c-name }
     ." #define CALLBACK_" c-name type ." (I) \" cr
-    ret print-type space .prefix ." gforth_cb_" c-name type ." _##I ("
+    .externc ret print-type space .prefix ." gforth_cb_" c-name type ." _##I ("
     0 pars bounds u+do
 	i 1+ count dup IF
 	    2dup s" *(" string-prefix? IF
@@ -673,7 +683,7 @@ create gen-types
 	    THEN  type
 	ELSE  2drop i c@ print-type  THEN
 	."  x" dup 0 .r 1+
-	i 1+ c@ 2 + dup i + i' u< if
+	i 1+ c@ 2 + dup delta-I u< if
 	    ." , "
 	endif
     +loop  drop .\" ) \\\n{ \\" cr ;
@@ -695,6 +705,7 @@ Create callback-&style c-var c,
 
 : callback-call ( descriptor -- )
     1+ count + count + count \ callback C name
+\    .\"   fprintf(stderr, \"Calling IP=%p\\n\", " .prefix ." gforth_cbips_" 2dup type ." [I]); \" cr
     ."   gforth_engine(" .prefix ." gforth_cbips_" type
     ." [I], &x); \" cr ;
 
@@ -729,11 +740,11 @@ Create callback-&style c-var c,
     LOOP 2drop ;
 
 : callback-ip-array ( addr u -- )
-    ." Xt* " .prefix ." gforth_cbips_" 2dup type ." [" callback# .nb ." ] = {" cr
+    .externc ." Xt* " .prefix ." gforth_cbips_" 2dup type ." [" callback# .nb ." ] = {" cr
     space callback# 0 ?DO ."  0," LOOP ." };" cr 2drop ;
 
 : callback-c-array ( addr u -- )
-    ." const Address " .prefix ." gforth_callbacks_" 2dup type ." [" callback# .nb ." ] = {" cr
+    .externc ." const Address " .prefix ." gforth_callbacks_" 2dup type ." [" callback# .nb ." ] = {" cr
     callback# 0 ?DO
 	."   (Address)" .prefix ." gforth_cb_" 2dup type ." _" I .nb ." ," cr
     LOOP
@@ -768,24 +779,59 @@ Create callback-&style c-var c,
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     [: type type ;] $tmp ;
 
+: c-hash-ok? ( -- addr1 addr2 flag )
+    [: ." gflibcc_hash_" lib-modulename $. ;] $tmp
+    lib-handle lib-sym
+    ?dup-IF  c-source-hash 2dup $10 tuck str=  ELSE  0 0 false  THEN ;
+
+: .xx ( n -- ) 0 [: <<# # # #> type #>> ;] $10 base-execute ;
+: .hashxx ( addr u -- ) bounds DO  I c@ .xx  LOOP ;
+: .bytes ( addr u -- )
+    false -rot bounds ?DO  IF ',' emit  THEN  ." 0x" I c@ .xx true  LOOP drop ;
+
+: check-c-hash ( -- flag )
+    c-hash-ok?
+    IF  2drop true
+    ELSE
+	2dup d0= IF
+	    [: ." libcc module " lib-modulename $. ."  doesn't have a hash value" cr ;]
+	ELSE  [: ." libcc hash mismatch in module '"
+		lib-modulename $. ." ': expected " 16 .hashxx
+		."  got " 16 .hashxx cr ;]
+	THEN  do-debug
+	lib-handle close-lib  0 lib-handle!  false
+  THEN ;
+
+: open-olib ( addr u -- file-id ior )
+    ofile $@ open-lib dup IF
+	lib-handle!
+	c-hash-ok? IF  2drop lib-handle 0  EXIT  THEN  2drop
+	lib-handle close-lib  0 lib-handle!  0
+    THEN  #-514 ;
+
+: open-path-lib ( addr u -- addr/0 )
+    \ This assumes that there's a current valid lib-handle-addr and the
+    \ c source hash is computed.  Only libraries with the correct hash
+    \ will be opened, other libraries will be skipped and the next in path
+    \ is searched.
+    ['] open-olib libcc-path execute-path-file
+    IF  0  ELSE  2drop  THEN ;
+
+: preopen-path-lib ( addr u -- addr/0 )
+    \ This opens a library in the path and doesn't check for the hash
+    [: ofile $@ open-lib dup IF  0  EXIT  THEN  #-514 ;]
+    libcc-path execute-path-file
+    IF  0  ELSE  2drop  THEN ;
+
 : lib-name ( -- addr u )
     [: lib-filename $@ dirname type lib-prefix type
 	lib-filename $@ basename type lib-suffix type ;] $tmp ;
 : open-wrappers ( -- addr|0 )
     lib-name 2dup libcc-named-dir string-prefix? if ( c-addr u )
 	\ see if we can open it in the path
-	libcc-named-dir nip /string
-	libcc-path open-path-file if
-\	    ." Failed to find library '" lib-filename $. ." ' in '"
-\	    libcc-path .path ." ', need compiling" cr
-	    0 exit endif
-	( wfile-id c-addr2 u2 ) rot close-file throw ( c-addr2 u2 )
+	libcc-named-dir nip /string open-path-lib EXIT
     endif
     open-lib ;
-
-: open-path-lib ( addr u -- addr/0 )
-    libcc-path open-path-file IF  0
-    ELSE  rot close-file throw open-lib  THEN ;
 
 : c-library-name-setup ( c-addr u -- )
     assert( c-source-file-id @ 0= )
@@ -795,24 +841,21 @@ Create callback-&style c-var c,
 
 : c-library-name-create ( -- )
     libcc-named-dir $1ff mkdir-parents drop
-    [: lib-filename $. ." .c" ;] $tmp r/w create-file throw
+    [: lib-filename $. ." .c" c++-mode IF ." pp" THEN ;] $tmp
+    r/w create-file throw
     c-source-file-id ! ;
 
 : c-named-library-name ( c-addr u -- )
     \ set up filenames for a (possibly new) library; c-addr u is the
     \ basename of the library
-    libcc-named-dir prepend-dirname c-library-name-setup
-    open-wrappers lib-handle-addr @ ! ;
+    libcc-named-dir prepend-dirname c-library-name-setup ;
 
 : c-tmp-library-name ( c-addr u -- )
     \ set up filenames for a new library; c-addr u is the basename of
     \ the library
     libcc-tmp-dir 2dup $1ff mkdir-parents drop
     prepend-dirname c-library-name-setup
-    open-wrappers lib-handle-addr @ ! ;
-
-: lib-handle ( -- addr )
-    lib-handle-addr @ @ ;
+    open-wrappers lib-handle! ;
 
 : c-source-file ( -- file-id )
     c-source-file-id @ assert( dup ) ;
@@ -830,34 +873,20 @@ Create callback-&style c-var c,
 	    addr third u move $20 /string  REPEAT
     2drop ;
 
-: c-source-hash ( -- addr )
-    lib-handle-addr @ lha-hash ;
-
-: .xx ( n -- ) 0 [: <<# # # #> type #>> ;] $10 base-execute ;
-: .bytes ( addr u -- )
-    bounds ?DO  ." \x" I c@ .xx  LOOP ;
 : .c-hash ( -- )
     lib-filename @ 0= IF
-	[: c-source-hash 16 bounds DO  I c@ .xx  LOOP ;] $tmp
+	true warning" Generate anonymous C binding"
+	[: c-source-hash 16 .hashxx ;] $tmp
 	c-tmp-library-name
 	lib-modulename $@ replace-hash
     THEN
     ." hash_128 gflibcc_hash_" lib-modulename $.
-    .\"  = \"" c-source-hash 16 .bytes .\" \";" cr ;
+    .\"  = { " c-source-hash 16 .bytes .\"  };" cr ;
 
 : hash-c-source ( -- )
     c-source-hash 16 erase
     libcc$ $@ false c-source-hash hashkey2
     ['] .c-hash c-source-file-execute ;
-
-: check-c-hash ( -- flag )
-    [: ." gflibcc_hash_" lib-modulename $. ;] $tmp
-    lib-handle lib-sym
-    ?dup-IF  c-source-hash 16 tuck compare  ELSE  true  THEN
-    IF  lib-handle close-lib  lib-handle-addr @ off false
-    ELSE  true  THEN ;
-
-\ clear library
 
 DEFER compile-wrapper-function ( -- )
 
@@ -867,7 +896,7 @@ DEFER compile-wrapper-function ( -- )
 
 : free-libs ( -- ) \ gforth-internal
     ptr-declare off  c-libs off  c-flags off
-    libcc$ off  libcc-include ;
+    libcc$ $free  libcc-include ;
 
 : clear-libs ( -- ) \ gforth
 \G Clear the list of libs
@@ -875,12 +904,13 @@ DEFER compile-wrapper-function ( -- )
 	compile-wrapper-function
     endif
     lib-handle-addr @ dup if
-	@ 0=
+	lha-id @ 0=
     endif
     0= if
 	lha,
     endif
-    free-libs ;
+    free-libs
+    0 to c++-mode ;
 : end-libs ( -- )
     ptr-declare $[]free
     vararg$ $free  c-flags $free  c-libs $free ;
@@ -892,15 +922,32 @@ end-libs
 tmp$ $execstr-ptr !
 
 : compile-cmd ( -- )
-    [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=compile " $type
-      s" CROSS_PREFIX" getenv $type
-      libtool-cc $type s"  -I '" $type
-      s" includedir" getenv tuck $type 0= [IF]
-	  pad $100 get-dir $type s" /" $type version-string $type
-	  s" /include" $type  [THEN]
-      s" '" $type s" extrastuff" getenv $type
-      tmp$ $@ ] sliteral type c-flags $. c-flags $free
-    ."  -O -c " lib-filename $. ." .c -o "
+    c++-mode IF
+	[ libtool-command tmp$ $! s"  --silent --tag=CXX --mode=compile " $type
+	s" CROSS_PREFIX" getenv $type
+	libtool-cxx $type s"  '-I" $type
+	s" includedir" getenv tuck $type 0= [IF]
+	    pad $100 get-dir $type s" /" $type version-string $type
+	    s" /include" $type  [THEN]
+	s" '" $type s" extrastuff" getenv $type
+	tmp$ $@
+	\ cr ." Libcc command: " 2dup type cr
+	] sliteral
+    ELSE
+	[ libtool-command tmp$ $! s"  --silent --tag=CC --mode=compile " $type
+	s" CROSS_PREFIX" getenv $type
+	libtool-cc $type s"  '-I" $type
+	s" includedir" getenv tuck $type 0= [IF]
+	    pad $100 get-dir $type s" /" $type version-string $type
+	    s" /include" $type  [THEN]
+	s" '" $type s" extrastuff" getenv $type
+	tmp$ $@
+	\ cr ." Libcc command: " 2dup type cr
+	] sliteral
+    THEN
+    type c-flags $. c-flags $free
+    ."  -O -c " lib-filename $.
+    c++-mode IF  ." .cpp -o "  ELSE  ." .c -o "  THEN
     lib-filename $. ." .lo" ;
 
 : link-cmd ( -- )
@@ -913,26 +960,31 @@ tmp$ $execstr-ptr !
     lib-filename $@ basename type ." .la"
     c-libs $.  c-libs $free ;
 
+: init-lib ( handle -- )
+    s" gforth_libcc_init" rot lib-sym  ?dup-if
+	gforth-pointers swap call-c  endif ;
 : compile-wrapper-function1 ( -- )
-    hash-c-source check-c-hash
+    hash-c-source open-wrappers dup lib-handle!
     0= if
 	c-library-name-create
 	libcc$ $@ c-source-file write-file throw  libcc$ $free
 	c-source-file close-file throw
 	c-source-file-id off
-	['] compile-cmd $tmp system $? 0<> !!libcompile!! and throw
-	['] link-cmd    $tmp system $? 0<> !!liblink!! and throw
+	s" GFORTH_COMPILELIB" getenv s" no" str= 0= IF
+	    ['] compile-cmd $tmp system $? 0<> !!libcompile!! and throw
+	    ['] link-cmd    $tmp system $? 0<> !!liblink!! and throw
+	THEN
 	open-wrappers dup 0= if
 	    .lib-error
 	    host?  IF  !!openlib!! throw  ELSE
+                -1 lib-handle! \ fake lha ID
 		drop lib-filename $free
 		free-libs EXIT
 	    THEN
 	endif
-	( lib-handle ) lib-handle-addr @ !
+	( lib-handle ) lib-handle!
     endif
-    s" gforth_libcc_init" lib-handle lib-sym  ?dup-if
-	gforth-pointers swap call-c  endif
+    host? IF  lib-handle init-lib  THEN
     lib-filename $free clear-libs ;
 ' compile-wrapper-function1 IS compile-wrapper-function
 
@@ -960,35 +1012,45 @@ tmp$ $execstr-ptr !
 : make-rt ( addr -- )
     rt-vtable >namehm @ swap body> >namehm ! ;
 
-: rt-does> @ call-c ;
 : ?link-wrapper ( addr -- xf-cfr )
-    dup body> >does-code [ ' rt-does> >body ]L <> IF
+    dup body> >does-code ['] call-c@ <> IF
 	dup make-rt
 	dup link-wrapper-function over !  THEN ;
 
-: ft-does> ?compile-wrapper ?link-wrapper @ call-c ;
+: ft-does> ?compile-wrapper ?link-wrapper call-c@ ;
 
 : cfun, ( xt -- )
-    dup >does-code [ '  rt-does> >body ]L <>
-    IF  >body ?compile-wrapper ?link-wrapper  ELSE  >body  THEN
+    dup >does-code ['] call-c@ <>
+    IF  host? IF
+	    ?compile-wrapper ?link-wrapper
+	ELSE
+	    dup body> make-rt
+	    dup cff-lha @ lha-id on \ fake that the library is in use
+	THEN
+    THEN
     postpone call-c# , ;
 
 cfalign 0 , 0 , noname Create
 \ can not be named due to rebind-libcc
 named-hm \ but is actually a named hm
+' call-c@ set-does>
 ' cfun, set-optimizer
-' rt-does> set-does>
 
 latestnt to rt-vtable
 
+cfalign 0 , 0 , noname Create
+named-hm
+' ft-does> set-does>
+' cfun, set-optimizer
+
+latestnt Constant ft-vtable
+
 : (c-function) ( xt-parse "forth-name" "c-name" "{stack effect}" -- )
     { xt-parse-types }
-    create 0 , lib-handle-addr @ ,
+    ft-vtable create-from reveal 0 , lib-handle-addr @ ,
     parse-c-name { d: c-name }
     xt-parse-types execute c-name string,
-    ['] gen-wrapper-function c-source-file-execute
-    ['] ft-does> set-does>
-    ['] cfun, set-optimizer ;
+    ['] gen-wrapper-function c-source-file-execute ;
 
 : c-function ( "forth-name" "c-name" "@{type@}" "---" "type" -- ) \ gforth
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
@@ -1072,6 +1134,10 @@ latestnt to rt-vtable
     c-named-library-name
     also c-lib ; \ setup of a named c library also extends vocabulary stack
 
+: c++-library-name ( c-addr u -- ) \ gforth
+\G Start a C++ library interface with name @i{c-addr u}.
+    c-library-name true to c++-mode ;
+
 : libcc>named-path ( -- )
     libcc-path clear-path  libcc-named-dir
     [ lib-suffix s" .so" str= ] [IF]
@@ -1096,12 +1162,21 @@ latestnt to rt-vtable
 init-libcc
 
 : rebind-libcc ( -- )
-    [: [: dup >does-code [ ' rt-does> >body ]L = IF
+    [: [: dup >does-code ['] call-c@ = IF
 		>body dup link-wrapper-function
-		\ ." relink: " over body> .name dup hex. cr
+		\ ." relink: " over body> .name dup h. cr
 		over !
 	    ELSE  dup >does-code [ ' callback-does> >body ]L = IF
 		    dup >body setup-callback
+		THEN
+	    THEN  drop
+	    true ;] swap traverse-wordlist ;] map-vocs ;
+: unbind-libcc ( -- )
+    [: [: dup >does-code ['] call-c@ = IF
+		dup >body off
+		\ ." relink: " over body> .name dup h. cr
+	    ELSE  dup >does-code [ ' callback-does> >body ]L = IF
+		    dup >body off
 		THEN
 	    THEN  drop
 	    true ;] swap traverse-wordlist ;] map-vocs ;
@@ -1118,31 +1193,36 @@ Defer prefetch-lib ( addr u -- )
     lha-next @ dup 0= UNTIL  drop ;
 
 : .libs ( -- ) [: lha-name $. space ;] map-libs ;
+
 : reopen-libs ( -- )
-    [: dup >r lha-name $@
+    [:  lib-handle-addr !
+	lib-modulename $@
 	libcc-named-dir 2dup  $1ff mkdir-parents drop
 	prepend-dirname lib-filename $!
 	open-wrappers dup IF
-	    r@ !
-	    r@ lha-name [: ." gflibcc_hash_" $. ;] $tmp
-	    r@ @ lib-sym r> lha-hash $10 tuck str= ?EXIT
+	    \ ." link " r@ lha-name $. ."  to " dup h. cr
+	    dup lib-handle!  init-lib  EXIT
 	THEN
 	.lib-error !!openlib!! throw
     ;] map-libs ;
 
 :noname ( -- )
-    defers 'cold
+    defers 'cold  get-host? to host?
     init-libcc reopen-libs rebind-libcc lib-filename $free ;
 is 'cold
 
 :noname ( -- )
-    defers 'image
+    defers 'image  unbind-libcc  ['] on map-libs
     libcc$ off  libcc-named-dir$ off  libcc-path off ;
 is 'image
 
 : c-library ( "name" -- ) \ gforth
 \G Parsing version of @code{c-library-name}
     ?parse-name save-mem c-library-name ;
+
+: c++-library ( "name" -- ) \ gforth
+\G Parsing version of @code{c++-library-name}
+    ?parse-name save-mem c++-library-name ;
 
 : end-c-library ( -- ) \ gforth
     \G Finish and (if necessary) build the latest C library interface.

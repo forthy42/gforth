@@ -1,5 +1,5 @@
 Authors: Anton Ertl, Bernd Paysan, David Kühling
-Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
    This file is free documentation; the Free Software Foundation gives
 unlimited permission to copy, distribute and modify it.
@@ -17,10 +17,24 @@ All times are given in seconds of user time.
 After 0.7.0:
 AMD64:
  sieve bubble matrix fib   fft  release; CPU; gcc
- 0.060 0.062  0.033 0.042 0.015 20211118; Intel Xeon W-1370P 5200MHz; gcc-10.2.1
- 0.073 0.075  0.041 0.058 0.024 20210705; Intel Core i5 1135G7 4200MHz; gcc-10.3
- 0.056 0.055  0.033 0.044 0.023 20210218; AMD Ryzen 5800X 4800MHz; gcc-8.3
+ 0.038 0.042  0.013 0.032 0.014 20231214; Intel Xeon W-1370P 5200MHz; gcc-10.2.1
+ 0.037 0.035  0.014 0.031 0.021 20231214; AMD Ryzen 5800X 4800MHz; gcc-10.2.1
+ 0.051 0.058  0.017 0.041 0.018 20231214; Intel Core i5 1135G7 4200MHz; gcc-11.4
+ 0.057 0.051  0.013 0.037 0.018 20231214; Golden Cove 3.8GHz (Core i3-1315U); gcc-11.4.0
+ 0.069 0.099  0.022 0.068 0.034 20231214; Gracemont 2.6GHz (Core i3-1315U); gcc-11.4.0
+ 0.021 0.021  0.011 0.027 0.016 20240418; AMD Ryzen 8945HS 4.8GHz; gcc-14.0.1
+ 0.028 0.034  0.029 0.046 0.020 20240418; AMD Ryzen 4700U 4.0GHz; gcc-14.0.1
+ 0.042 0.045  0.029 0.050 0.020 20240112; AMD Ryzen 4700U 4.1GHz; gcc-13.2.1
+ 0.055 0.091  0.032 0.061 0.023 2023-08-31; AMD Ryzen 4700U 3.8GHz; gcc-12.3.0
+ 0.051 0.061  0.029 0.057 0.021 2023-08-31; AMD Ryzen 4700U 4.1GHz; gcc-11.3.0
+ 0.051 0.062  0.030 0.058 0.022 2023-08-31; AMD Ryzen 4700U 4.0GHz; gcc-10.2.1
+ 0.056 0.063  0.031 0.056 0.021 2023-08-31; AMD Ryzen 4700U 4.0GHz; gcc-9.3.0
+ 0.057 0.061  0.024 0.058 0.022 2023-08-31; AMD Ryzen 4700U 4.1GHz; gcc-7.5.0
+ 0.082 0.090  0.030 0.059 0.021 2023-08-20; AMD Ryzen 4700U 4.1GHz; gcc-13.2.1
  0.091 0.090  0.031 0.062 0.023 2023-07-22; AMD Ryzen 4700U 4.1GHz; gcc-13.1.1
+ 0.060 0.062  0.033 0.042 0.015 20211118; Intel Xeon W-1370P 5200MHz; gcc-10.2.1
+ 0.056 0.055  0.033 0.044 0.023 20210218; AMD Ryzen 5800X 4800MHz; gcc-8.3
+ 0.073 0.075  0.041 0.058 0.024 20210705; Intel Core i5 1135G7 4200MHz; gcc-10.3
  0.092 0.086  0.038 0.068 0.022 2020-07-03; AMD Ryzen 3900X 4.36GHz; gcc-8.3
  0.105 0.122  0.046 0.111 0.032 2020-07-03; AMD Ryzen 1600X 3.628GHz; gcc-8.3
  0.093 0.099  0.042 0.104 0.030 2017-07-05; AMD Ryzen 1600X 4GHz; gcc-6.3
@@ -44,13 +58,17 @@ AMD64:
 
 ARM64:
  sieve bubble matrix fib   fft  release; CPU; gcc
+ 0.055 0.061  0.028 0.039 0.020 20231123; Snapdragon 8 Gen 2 3200MHz; gcc-4.9 (Android 13)
  0.091 0.088  0.053 0.080 0.040 20220707; Apple M1 Firestorm 3000MHz; gcc-11.3.0
  0.126 0.179  0.079 0.118 0.052 20230622; Rock 5B RK3588 A76 2231MHz; gcc-6.3.0 (Debian 9)
  0.136 0.155  0.081 0.147 0.081 20220707; Apple M1 Icestorm 2064MHz; gcc-11.3.0
- 0.128 0.176  0.060 0.116 0.076 20130726; Samsung Exynos 8859, M1 core, 2,31GHz, gcc 4.9 (Android 9)
+ 0.120 0.160  0.060 0.116 0.068 20230823; Samsung Exynos 8859, M1 core, 2,31GHz, gcc 4.9 (Android 9)
+ 0.128 0.152  0.056 0.136 0.068 20230825; Odroid N2+ (2400MHz Cortex-A73), gcc-12.3.0
  0.152 0.168  0.064 0.152 0.068 20230726; Odroid N2+ (2400MHz Cortex-A73), gcc-11.3.0
+ 0.152 0.176  0.084 0.164 0.080 20210422; Odroid N2+ (2400MHz Cortex-A73), gcc-9.3.0 
  0.180 0.224  0.108 0.208 0.100 20190124; Odroid N2 (1800MHz Cortex-A73), gcc-6.3.0
  0.204 0.232  0.108 0.212 0.100 20190124; RockPro64 (1800MHz Cortex-A72), gcc-6.3.0 (Debian 9)
+ 0.236 0.276  0.124 0.260 0.119 20230629; BCM2835 (1500MHz Cortex-A73, Raspberry Pi 4); gcc-10.2.1 (Debian 11)
  0.241 0.262  0.163 0.320 0.173 20230622; Rock 5B RK3588 A55 1800MHz; gcc-6.3.0 (Debian 9)
  0.283 0.404  0.169 0.330 0.179 2014-10-31; Apple A7 1.3GHz, clang 3.5 (iOS 8.1.1)
  0.350 0.390  0.240 0.470 0.280 20190124; Odroid C2 (1536MHz Cortex-A53), gcc-6.3.0 (Debian 9)
@@ -60,7 +78,7 @@ ARM64:
 
 s390x:
  sieve bubble matrix   fib   fft release; CPU; gcc
- 0.088  0.125  0.056 0.120 0.041 20230130; LinuxONE III LT1 8561 5200MHz; gcc-12.2.1
+ 0.079  0.116  0.079 0.103 0.036 20240725; LinuxONE III LT1 8561 5200MHz; gcc-13.2
 
 RV64GC:
  sieve bubble matrix fib   fft  release; CPU; gcc
@@ -90,6 +108,7 @@ sieve bubble matrix fib   fft   release
  2.671 3.125  2.515 4.054       2012-06-27; TI OMAP 3620 1.0GHz; gcc-4.4.3 (Android 2.3.4)
 PowerPC:
  sieve bubble matrix   fib   fft
+ 0.075  0.099  0.042 0.112 0.033 20231116; Power10 3900MHz; gcc-11.4.1, little endian
  0.169  0.215  0.097 0.209 0.079 20230114; POWER9 2400MHz; gcc-12.2.1, big endian
  0.169  0.216  0.097 0.208 0.071 20230114; POWER9 2400MHz; gcc-12.2.1, little endian
  0.620 0.728  0.340 1.000 0.532 2017-03-20; PPC 7447a 1066MHz; gcc 4.3.2

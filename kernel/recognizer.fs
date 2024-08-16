@@ -1,7 +1,7 @@
 \ recognizer-based interpreter                       05oct2011py
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -43,8 +43,13 @@
     Create swap rot , , , 7 0 DO  ['] no.extensions ,  LOOP
     ['] do-rec set-does> ;
 
-: >postpone ( ... rectype -- )
-    2 cells + @ execute-;s ;
+Create >postpone ( translator -- ) \ gforth-experimental
+\G perform postpone action of translator
+2 cells ,
+DOES> @ + @ execute-;s ;
+
+\ for combined translators better use:
+\   -2 state !@ >r execute r> state ! ;
 
 : name-compsem ( ... nt -- ... )
     \ perform compilation semantics of nt
@@ -87,7 +92,8 @@ translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
     THEN
     drop ['] notfound ;
 
-\ generic stack get/set
+\ generic stack get/set; actually, we don't need this for
+\ the recognizer any more, but other parts of the kernel use it.
 
 : get-stack ( stack -- x1 .. xn n )
     \G fetch everything from the generic stack to the data stack
@@ -95,7 +101,7 @@ translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
 : set-stack ( x1 .. xn n stack -- )
     \G set the generic stack with values from the data stack
     >r cells r@ $!len
-    r> $@ bounds cell- swap cell- -DO  I !  cell -LOOP ;
+    r> $@ bounds cell- swap cell- U-DO  I !  cell -LOOP ;
 
 : stack: ( n "name" -- )
     \G create a named stack with at least @var{n} cells space
@@ -130,11 +136,6 @@ Defer forth-recognize ( c-addr u -- ... translate-xt ) \ recognizer
     \G Change the system recognizer
     is forth-recognize ;
 
-: forth-parser ( addr u -- ... )
-    forth-recognize execute-;s ;
-
-' forth-parser IS parser
-
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.
     state off ; immediate
@@ -146,4 +147,6 @@ Defer forth-recognize ( c-addr u -- ... translate-xt ) \ recognizer
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
     parse-name forth-recognize >postpone
+    \ -2 state !@ >r parse-name forth-recognize execute
+    \ r> state !
 ; immediate restrict

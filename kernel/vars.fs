@@ -1,7 +1,7 @@
 \ VARS.FS      Kernal variables
 
 \ Authors: Anton Ertl, Bernd Paysan, Neal Crook, Jens Wilke
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -27,36 +27,53 @@ hex \ everything now hex!                               11may93jaw
 \G @code{Constant} -- @code{1 cells}
 [THEN]
 
-: -/- ( -- ) \ gforth-experimental not-available
-    \G this word can be ticked, but throws an ``Operation not supported''
+: n/a ( -- ) \ gforth-experimental not-available
+    \G This word can be ticked, but throws an ``Operation not supported''
     \G exception on interpretation and compilation.  Use this for methods
-    \G and alike that aren't supported.
+    \G etc. that aren't supported.
     #-21 throw ;
 ' execute set-optimizer
 
-: [noop] ; \ gforth-experimental bracket-noop
-\G Word that neither does something on execute nor on compilation
-' execute set-optimizer
+' noop unlock t>cfa lock @ $8000 or
+#primitive [noop] ( -- ) \ gforth-experimental bracket-noop
+\G Does nothing, both when executed and when compiled.
+' drop set-optimizer
 
-Create !-table ' ! A, ' +! A, ' -/- A, ' -/- A,
-Create defer-table ' ! A, ' -/- A, ' -/- A, ' @ A,
+: oam-warning ( -- )
+    true warning" obsolescent access method" ;
+: warn! ( x addr -- ) ! oam-warning ;
+opt: drop postpone ! oam-warning ;
 
-: >uvalue ( xt -- addr )
-    >body @ next-task + ;
-opt: ?fold-to >body @ postpone useraddr , ;
+\                  to         +to      addr     defer@   defer!
+Create !-table     ' ! A,     ' +! A,  ' n/a A, ' n/a A, ' warn! A,
+Create defer-table ' warn! A, ' n/a A, ' n/a A, ' @ A,   ' ! A,
+
+: >uvalue ( xt -- addr ) \ gforth-internal to-uvalue
+    \G @i{Xt} is the xt of a word @i{x} defined with @code{uvalue};
+    \G @i{addr} is the address of the data of @i{x} in the current
+    \G task.  This word is useful for building, e.g., @code{uvalue}.
+    \G Do not use it to circumvent that you cannot get the address of
+    \G a uvalue with @code{addr}; in the future Gforth may perform
+    \G optimizations that assume that uvalues can only be accessed
+    \G through their name.
+    >body @ up@ + ;
+opt: ?fold1 >body @ postpone up@ postpone lit+ , ;
 
 : to:exec ( .. u xt1 xt2 -- .. ) rot >r 2@ r> cells + >r execute r> perform ;
-: to:,    ( u xt2 -- ) 2@ rot cells + >r compile, r> @ compile, ;
+: to:,    ( u xt2 -- ) 2@ rot cells + @ >r compile, r> compile, ;
 
-' >uvalue !-table to-method: uvalue-to
+' >uvalue !-table to-class: uvalue-to
 
-: u-compile, ( xt -- )  >body @ postpone user@ , ;
+: u-compile, ( xt -- )  >body @ postpone up@ postpone lit+ , postpone @ ;
 
 : (UValue) ( "name" -- )
     \G Define a per-thread value
     Create cell uallot ,
-  DOES> @ next-task + @ ;
+  DOES> @ up@ + @ ;
+
 : UValue ( "name" -- ) \ gforth
+    \G @i{Name} is a user value.@*
+    \G @i{Name} execution:  ( -- @i{x} )
     (UValue)
     ['] uvalue-to set-to
     ['] u-compile, set-optimizer ;

@@ -2,7 +2,7 @@
 
 
   Authors: Anton Ertl, Bernd Paysan, Jens Wilke, David Kühling
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -134,9 +134,9 @@ jmp_buf throw_jmp_handler;
 #define CFA_BYTE_OFFSET         0
 #endif
 #if defined(DOUBLY_INDIRECT)
-#  define CFA(n)	({Cell _n = (n); (((Cell)(((_n & 0x4000) ? symbols : xts)+(_n&~0x4000UL)))+((_n & 0x4000) ? CFA_BYTE_OFFSET : 0));})
+#  define CFA(n)	({Cell _n = (n); (((Cell)(((_n & 0x4000) ? vm_prims : xts)+(_n&~0x4000UL)))+((_n & 0x4000) ? CFA_BYTE_OFFSET : 0));})
 #else
-#  define CFA(n)	(((Cell)(symbols+((n)&~0x4000UL)))+CFA_BYTE_OFFSET)
+#  define CFA(n)	(((Cell)(vm_prims+((n)&~0x4000UL)))+CFA_BYTE_OFFSET)
 #endif
 
 #define maxaligned(n)	(typeof(n))((((Cell)n)+sizeof(Float)-1)&-sizeof(Float))
@@ -189,8 +189,13 @@ Address code_here; /* does for code-area what HERE does for the dictionary */
 Address start_flush=NULL; /* start of unflushed code */
 PrimNum last_jump=0; /* if the last prim was compiled without jump, this
                         is it's PrimNum, otherwise this contains 0 */
-Cell ip_at=0; /* ip currently points to the prim at ip_at */
-#define MAX_IP_UPDATE 16
+Label *ip_at=0; /* during execution of the currently compiled code ip
+                    points to ip_at, which may be somewhere behind
+                    the position where it would be without ip_update
+                    optimization */
+PrimNum ip_update0=0; /* base primitive for ip updates */
+int min_ip_update=0;
+int max_ip_update=0;
 Cell inst_index; /* current instruction */
 Label **ginstps; /* array of threaded code locations for
                            primitives being optimize_rewrite()d */
@@ -202,6 +207,7 @@ static int no_dynamic_image=0; /* disable dynamic while loading the image */
 static int no_rc0=0;  /* true if don't load ~/.config/gforthrc0 */
 static int print_metrics=0; /* if true, print metrics on exit */
 static int print_prims=0; /* if true, print primitives on exit */
+static int print_nonreloc=0; /* if true, print non-relocatable prims */
 static int static_super_number = 10000; /* number of ss used if available */
 #define MAX_STATE 9 /* maximum number of states */
 #define CANONICAL_STATE 0
@@ -210,7 +216,14 @@ static int opt_ip_updates =  /* 0=disable, 1=simple, >=2=also optimize ;s */
 #ifdef GFORTH_DEBUGGING
   0
 #else
-  100
+  7
+#endif
+  ;
+static int opt_ip_updates_branch =  /* 0=disable, n>0: branch can use n */
+#ifdef GFORTH_DEBUGGING
+  0
+#else
+  3
 #endif
   ;
 static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */
@@ -239,7 +252,6 @@ Label *xts; /* same content as vm_prims, but should only be used for xts */
 Label *labels; /* labels, as pointed to by vm_prims */
 #endif
 
-#ifndef NO_DYNAMIC
 #ifndef CODE_ALIGNMENT
 #define CODE_ALIGNMENT 0
 #endif
@@ -254,6 +266,14 @@ typedef struct {
   unsigned uses; /* number of uses */
   char superend; /* true if primitive ends superinstruction, i.e.,
                      unconditional branch, execute, etc. */
+  signed char max_ip_offset; /* this primitive has ip_offset=0, but
+                                the following max_ip_offset primitives
+                                are variants of the same
+                                primitive+stack-caching with
+                                consecutive ip_offsets, up to
+                                max_ip_offset, and they are all
+                                relocatable */
+  signed char min_ip_offset; /* as above */
   Cell nimmargs;
   struct immarg {
     Cell offset; /* offset of immarg within prim */
@@ -262,8 +282,8 @@ typedef struct {
 } PrimInfo;
 
 PrimInfo *priminfos;
-PrimInfo **decomp_prims;
 
+#ifndef NO_DYNAMIC
 void init_ss_cost(void);
 
 static int is_relocatable(int p)
@@ -281,6 +301,7 @@ const char * const prim_names[]={
 #if !defined(NO_DYNAMIC)
 #include PRIM_NAMES_I
 #endif
+  ""
 };
 
 #ifdef MEMCMP_AS_SUBROUTINE
@@ -358,137 +379,71 @@ Cell groups[32] = {
 #define GROUPADD(n)
 };
 
-static unsigned char *branch_targets(Cell *image, const unsigned char *bitstring,
-				     int size, Cell base, int sect)
-     /* produce a bitmask marking all the branch targets */
+void gforth_compile_range(Cell *image, Cell size,
+			  Char *bitstring, Char *targets)
 {
-  int i=0, j, k, steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
-  Cell token;
-  unsigned char bits;
-  unsigned char *result=malloc_l(steps);
+  int i, k;
+  int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
 
-  memset(result, 0, steps);
-  for(k=0; k<steps; k++) {
-    for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
-      if(bits & (1U << (RELINFOBITS-1))) {
-	assert(i < steps*RELINFOBITS);
-        token=image[i];
-	if ((token>=base) &&
-	    (SECTION(token) == sect)) { /* relocatable address */
-	  UCell bitnum=(INSECTION(token)-INSECTION(base))/sizeof(Cell);
-	  if (bitnum/RELINFOBITS < (UCell)steps)
-	    result[bitnum/RELINFOBITS] |= 1U << ((~bitnum)&(RELINFOBITS-1));
-	}
+  if(size<=0)
+    return;
+
+  for(i=k=0; k<steps; k++) {
+    Char bitmask;
+    for(bitmask=(1U<<(RELINFOBITS-1)); bitmask; i++, bitmask>>=1) {
+      /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
+      if(targets[k] & bitmask) {
+	// debugp(stderr,"target: image[%d]\n", i);
+	compile_prim1(0);
+      }
+      if(bitstring[k] & bitmask) {
+	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
+	compile_prim1(&image[i]);
       }
     }
   }
-  return result;
+
+  finish_code();
 }
 
-void gforth_relocate(Address sections[], Char *bitstrings[], 
-		     UCell sizes[], Cell bases[], Label symbols[])
+static unsigned char *gforth_relocate_range(Address sections[], Cell bases[],
+					    Cell *image, Cell size, Cell base,
+					    Char *bitstring, int sect)
 {
-  int i=0, j, k;
-  Cell token;
-  char bits;
-  Cell max_symbols;
-  /* 
-   * A virtual start address that's the real start address minus 
-   * the one in the image 
-   */
-  int ii;
-  for (ii=0; ii<0x100; ii++) {
-    Char * bitstring=bitstrings[ii];
-    Cell * image=(Cell*)sections[ii];
-    UCell size=sizes[ii];
-    Cell base=bases[ii];
+  int i, k;
+  int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
+  unsigned char *targets=malloc_l(steps);
+  bzero(targets, steps);
 
-    int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
-
-    debugp(stderr, "relocate section %i, %p:%lx\n", ii, (void *)base, size);
-    
-    if(!bitstring) break;
-    
-    unsigned char *targets = branch_targets(image, bitstring, size, base, ii);
-    
-    /* group index into table */
-    if(groups[31]==0) {
-      int groupsum=0;
-      for(i=0; i<32; i++) {
-	groupsum += groups[i];
-	groups[i] = groupsum;
-	/* printf("group[%d]=%d\n",i,groupsum); */
-      }
-      i=0;
-    }
-    
-    /* printf("relocating to %x[%x] start=%x base=%x\n", image, size, start, base); */
-    
-    for (max_symbols=0; symbols[max_symbols]!=0; max_symbols++)
-      ;
-    max_symbols--;
-    
-    for(i=k=0; k<steps; k++) {
-      for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
-	/*      fprintf(stderr,"relocate: image[%d]\n", i);*/
-	if(bits & (1U << (RELINFOBITS-1))) {
-	  // debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
-	  assert(i < steps*RELINFOBITS);
-	  token=image[i];
-	  if(SECTION(token)==0xFF) {
-	    int group = (-token & 0x3E00) >> 9;
-	    if(group == 0) {
-	      switch(token|0x4000) {
-	      case CF_NIL      : image[i]=0; break;
+  for(i=k=0; k<steps; k++) {
+    Char bitmask;
+    for(bitmask=(1U<<(RELINFOBITS-1)); bitmask; i++, bitmask>>=1) {
+      Cell token;
+      /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
+      if(bitstring[k] & bitmask) {
+	// debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
+	assert(i < steps*RELINFOBITS);
+	token=image[i];
+	bitstring[k] &= ~bitmask;
+	if(SECTION(token)==PRIMSECTION) {
+	  int group = (-token & 0x3E00) >> 9;
+	  if(group == 0) {
+	    switch(token|0x4000) {
+	    case CF_NIL      : image[i]=0; break;
 #if !defined(DOUBLY_INDIRECT)
-	      case CF(DOER_MAX) ... CF(DOCOL):
-		compile_prim1(0); /* flush primitive state whatever it is in */
-		MAKE_CF(image+i,symbols[CF(token)]);
-		break;
+	    case CF(DOER_MAX) ... CF(DOCOL):
+	      compile_prim1(0); /* flush primitive state whatever it is in */
+	      MAKE_CF(image+i,vm_prims[CF(token)]);
+	      break;
 #endif /* !defined(DOUBLY_INDIRECT) */
-	      default          : /* backward compatibility */
-		/*	      printf("Code field generation image[%x]:=CFA(%x)\n",
+	    default          : /* backward compatibility */
+	      /*	      printf("Code field generation image[%x]:=CFA(%x)\n",
 			      i, CF(image[i])); */
-		if (CF((token | 0x4000))<max_symbols) {
-		  image[i]=(Cell)CFA(CF(token));
-#ifdef DIRECT_THREADED
-		  if ((token & 0x4000) == 0) { /* threaded code, no CFA */
-		    if (targets[k] & (1U<<(RELINFOBITS-1-j)))
-		      compile_prim1(0);
-		    compile_prim1(&image[i]);
-		  }
-#endif
-		} else if(debug_prim) {
-		  Char * dumpa = (Char*)&image[i];
-		  for(; dumpa < (Char*)&image[i+8]; dumpa++) {
-		    fprintf(stderr, "%02x ", *dumpa);
-		  }
-		  fprintf(stderr, "\n");
-		  fprintf(stderr,"Primitive %ld used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token), &image[i], i, PACKAGE_VERSION);
-		}
-	      }
-	    } else {
-	      int tok = -token & 0x1FF;
-	      if (tok < (groups[group+1]-groups[group])) {
-#if defined(DOUBLY_INDIRECT)
-		image[i]=(Cell)CFA(((groups[group]+tok) | (CF(token) & 0x4000)));
-#else
-		image[i]=(Cell)CFA((groups[group]+tok));
-#endif
+	      if (CF((token | 0x4000))<npriminfos) {
+		image[i]=(Cell)CFA(CF(token));
 #ifdef DIRECT_THREADED
 		if ((token & 0x4000) == 0) { /* threaded code, no CFA */
-		  if (targets[k] & (1U<<(RELINFOBITS-1-j)))
-		    compile_prim1(0);
-		  compile_prim1(&image[i]);
-		} else if((token & 0x8000) == 0) { /* special CFA */
-		  /* debugp(stderr, "image[%x] = symbols[%x]\n", i, groups[group]+tok); */
-		  MAKE_CF(image+i,symbols[groups[group]+tok]);
-		}
-#endif
-#if defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)
-		if((token & 0x8000) == 0) { /* special CFA */
-		  /* debugp(stderr, "image[%x] = symbols[%x] = %p\n", i, groups[group]+tok, symbols[groups[group]+tok]); */
-		  MAKE_CF(image+i,symbols[groups[group]+tok]);
+		  bitstring[k] |= bitmask;
 		}
 #endif
 	      } else if(debug_prim) {
@@ -497,26 +452,101 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
 		  fprintf(stderr, "%02x ", *dumpa);
 		}
 		fprintf(stderr, "\n");
-		fprintf(stderr,"Primitive %lx, %d of group %d used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, &image[i],i,PACKAGE_VERSION);
+		fprintf(stderr,"Primitive %ld used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token), &image[i], i, PACKAGE_VERSION);
 	      }
 	    }
 	  } else {
-	    /* if base is > 0: 0 is a null reference so don't adjust*/
-	    if (token>=base) {
-	      UCell sec = SECTION(token);
-	      UCell start = (Cell) (((void *) sections[sec]) - ((void *) bases[sec]));
-	      image[i]=start+INSECTION(token);
-	    } else if(token!=0) {
-	      fprintf(stderr, "tagged item image[%x]=%llx unrelocated\n", i, (long long)image[i]);
+	    int tok = -token & 0x1FF;
+	    if (tok < (groups[group+1]-groups[group])) {
+#if defined(DOUBLY_INDIRECT)
+	      image[i]=(Cell)CFA(((groups[group]+tok) | (CF(token) & 0x4000)));
+#else
+	      image[i]=(Cell)CFA((groups[group]+tok));
+#endif
+#ifdef DIRECT_THREADED
+	      if ((token & 0x4000) == 0) { /* threaded code, no CFA */
+		bitstring[k] |= bitmask;
+	      } else if((token & 0x8000) == 0) { /* special CFA */
+		/* debugp(stderr, "image[%x] = symbols[%x]\n", i, groups[group]+tok); */
+		MAKE_CF(image+i,vm_prims[groups[group]+tok]);
+	      }
+#endif
+#if defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)
+	      if((token & 0x8000) == 0) { /* special CFA */
+		/* debugp(stderr, "image[%x] = symbols[%x] = %p\n", i, groups[group]+tok, symbols[groups[group]+tok]); */
+		MAKE_CF(image+i,vm_prims[groups[group]+tok]);
+	      }
+#endif
+	    } else if(debug_prim) {
+	      Char * dumpa = (Char*)&image[i];
+	      for(; dumpa < (Char*)&image[i+8]; dumpa++) {
+		fprintf(stderr, "%02x ", *dumpa);
+	      }
+	      fprintf(stderr, "\n");
+	      fprintf(stderr,"Primitive %lx, %d of group %d used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, &image[i],i,PACKAGE_VERSION);
 	    }
+	  }
+	} else {
+	  /* if base is > 0: 0 is a null reference so don't adjust*/
+	  if (token>=base) {
+	    UCell sec = SECTION(token);
+	    UCell start = (Cell) (((void *) sections[sec]) - ((void *) bases[sec]));
+	    image[i]=start+INSECTION(token);
+	    /* mark branch targets */
+	    if(sec == sect) { /* address within the same section */
+	      UCell bitnum=(INSECTION(token)-INSECTION(base))/sizeof(Cell);
+	      if (bitnum/RELINFOBITS < (UCell)steps)
+		targets[bitnum/RELINFOBITS] |= 1U << ((~bitnum)&(RELINFOBITS-1));
+	    }
+	  } else if(token!=0) {
+	    fprintf(stderr, "tagged item image[%x]=%llx unrelocated\n", i, (long long)image[i]);
 	  }
 	}
       }
     }
+  }
+  return targets;
+}
+
+void gforth_relocate(Address sections[], Char *bitstrings[], 
+		     UCell sizes[], Cell bases[])
+{
+  /* 
+   * A virtual start address that's the real start address minus 
+   * the one in the image 
+   */
+  int i;
+
+  /* group index into table */
+  if(groups[31]==0) {
+    int groupsum=0;
+    for(i=0; i<32; i++) {
+      groupsum += groups[i];
+      groups[i] = groupsum;
+      /* printf("group[%d]=%d\n",i,groupsum); */
+    }
+    i=0;
+  }
+  
+  for (i=0; i<=PRIMSECTION; i++) {
+    Char * bitstring=bitstrings[i];
+    Cell * image=(Cell*)sections[i];
+    UCell size=sizes[i];
+    Cell base=bases[i];
+
+    debugp(stderr, "relocate section %i, %p:%lx\n", i, (void *)base, size);
+    
+    if(!bitstring) break;
+    
+    unsigned char *targets = gforth_relocate_range(sections, bases,
+						   image, size, base,
+						   bitstring, i);
+
+    gforth_compile_range(image, size, bitstring, targets);
+    
     free(targets);
-    if(ii==0)
+    if(i==0)
       image[0] = (Cell)image;
-    finish_code();
   }
 }
 
@@ -781,7 +811,8 @@ Cell gforth_go(Xt* ip0)
 	(saved_rp < NEXTPAGE(gforth_UP->rp0))) {
       /* no rstack overflow or underflow */
       gforth_RP = saved_rp;
-      *--gforth_RP = (Cell)saved_ip;
+      /* return addresses point behind the call, so also do it here: */
+      *--gforth_RP = (Cell)(saved_ip+1);
     } else {
       gforth_RP = signal_return_stack+16;
     }
@@ -828,8 +859,11 @@ struct cost { /* super_info might be a more accurate name */
   unsigned char state_out;   /* state on exit */
   unsigned char imm_ops;     /* number of additional threaded-code slots
                                 (immediate arguments+number of components-1) */
+  signed char ip_offset;   /* 0 if ip points to the end of the instruction,
+                                1 if it points 1 cell earlier ... */
   short offset;     /* offset into super2 table */
   unsigned char length;      /* number of components */
+  char branch_to_ip; /* 1 if the prim is a conditional branch to ip, 0 otherwise */
 };
 
 PrimNum super2[] = {
@@ -856,6 +890,7 @@ struct super_table_entry {
 int max_super=2;
 
 struct super_state *state_transitions=NULL;
+PrimNum *branches_to_ip = NULL;
 
 static int hash_super(PrimNum *start, int length)
 {
@@ -873,7 +908,6 @@ static struct super_state **lookup_super(PrimNum *start, int length)
   int hash=hash_super(start,length);
   struct super_table_entry *p = super_table[hash];
 
-  /* assert(length >= 2); */
   for (; p!=NULL; p = p->next) {
     if (length == p->length &&
 	memcmp((char *)p->start, (char *)start, length*sizeof(PrimNum))==0)
@@ -882,44 +916,92 @@ static struct super_state **lookup_super(PrimNum *start, int length)
   return NULL;
 }
 
+static PrimNum lookup_ss(PrimNum *start, int length,
+                              unsigned state_in, unsigned state_out)
+{
+  struct super_state *ss = *lookup_super(start, length);
+  for (; ss!=NULL; ss = ss->next) {
+    struct cost *c = &super_costs[ss->super];
+    if (c->state_in == state_in && c->state_out == state_out)
+      return ss->super;
+  }
+  return -1;
+}
+
 static void prepare_super_table()
 {
-  int i;
-  int nsupers = 0;
+  long i;
+  long nsupers = 0;
+  long nprims = sizeof(super_costs)/sizeof(super_costs[0]);
 
-  for (i=0; i<sizeof(super_costs)/sizeof(super_costs[0]); i++) {
+  branches_to_ip = calloc(nprims,sizeof(PrimNum));
+  for (i=0; i<nprims; i++) {
     struct cost *c = &super_costs[i];
+    if (c->branch_to_ip) {
+      PrimNum ss =
+        lookup_ss(super2+c->offset, c->length, c->state_in, c->state_out);
+      if (ss != -1)
+        branches_to_ip[ss]=i;
+      continue;
+    }
     if ((c->length < 2 || nsupers < static_super_number) &&
 	c->state_in < maxstates && c->state_out < maxstates) {
       struct super_state **ss_listp= lookup_super(super2+c->offset, c->length);
-      struct super_state *ss = malloc_l(sizeof(struct super_state));
-      ss->super= i;
-      if (c->offset==N_noop && i != N_noop) {
-	if (is_relocatable(i)) {
-	  ss->next = state_transitions;
-	  state_transitions = ss;
-	}
-      } else if (ss_listp != NULL) {
-	ss->next = *ss_listp;
-	*ss_listp = ss;
-      } else {
-	int hash = hash_super(super2+c->offset, c->length);
-	struct super_table_entry **p = &super_table[hash];
-	struct super_table_entry *e = malloc_l(sizeof(struct super_table_entry));
-	ss->next = NULL;
-	e->next = *p;
-	e->start = super2 + c->offset;
-	e->length = c->length;
-	e->ss_list = ss;
-	*p = e;
+      if (c->ip_offset == 0) { /* don't enter ip_offset variants */
+        struct super_state *ss = malloc_l(sizeof(struct super_state));
+        ss->super= i;
+        if (c->offset==N_noop && i != N_noop) { /* stack caching transition */
+          if (is_relocatable(i)) {
+            if (c->state_in==CANONICAL_STATE && c->state_out==CANONICAL_STATE) {
+              /* this is actually from the ip-update series */
+              assert(ip_update0 == 0); /* no second occurence */
+              ip_update0 = i;
+              min_ip_update = priminfos[i].min_ip_offset;
+              max_ip_update = priminfos[i].max_ip_offset;
+            } else { /* it's a state transition */
+              ss->next = state_transitions;
+              state_transitions = ss;
+            }
+          }
+        } else if (ss_listp != NULL) { /* already registered */
+          if (c->state_in==CANONICAL_STATE && c->state_out==CANONICAL_STATE &&
+              priminfos != NULL && priminfos[i].max_ip_offset>0) {
+            /* ip-update variation header for prim that has its
+               original already in the table: replace the original
+               with this one so that ip-update variants can be used */
+            free(ss);
+            ss = *ss_listp;
+            assert(c->length == 1);
+            for (; ss != NULL; ss = ss->next)
+              if (ss->super == c->offset) {
+                ss->super = i;
+                break;
+              }
+            assert(ss != NULL);
+          } else { /* just add another state combination for the primitive */
+            ss->next = *ss_listp;
+            *ss_listp = ss;
+          }
+        } else { /* new entry */
+          int hash = hash_super(super2+c->offset, c->length);
+          struct super_table_entry **p = &super_table[hash];
+          struct super_table_entry *e = malloc_l(sizeof(struct super_table_entry));
+          ss->next = NULL;
+          e->next = *p;
+          e->start = super2 + c->offset;
+          e->length = c->length;
+          e->ss_list = ss;
+          *p = e;
+        }
+        if (c->length > max_super)
+          max_super = c->length;
+        if (c->length >= 2)
+          nsupers++;
       }
-      if (c->length > max_super)
-	max_super = c->length;
-      if (c->length >= 2)
-	nsupers++;
     }
   }
-  debugp(stderr, "Using %d static superinsts\n", nsupers);
+  debugp(stderr, "Using %ld static superinsts\n", nsupers);
+  debugp(stderr, "ip-update0 = %d in %d..%d\n", ip_update0, min_ip_update, max_ip_update);
   if (nsupers>0 && !tpa_noautomaton && !tpa_noequiv) {
     /* Currently these two things don't work together; see Section 3.2
        of <http://www.complang.tuwien.ac.at/papers/ertl+06pldi.ps.gz>,
@@ -933,22 +1015,6 @@ static void prepare_super_table()
 }
 
 /* dynamic replication/superinstruction stuff */
-
-#ifndef NO_DYNAMIC
-static int compare_priminfo_length(const void *_a, const void *_b)
-{
-  PrimInfo **a = (PrimInfo **)_a;
-  PrimInfo **b = (PrimInfo **)_b;
-  Cell diff = (*a)->length - (*b)->length;
-  if (diff)
-    return diff;
-  else /* break ties by start address; thus the decompiler produces
-          the earliest primitive with the same code (e.g. noop instead
-          of (char) and @ instead of >code-address */
-    return (*b)->start - (*a)->start;
-}
-#endif /* !defined(NO_DYNAMIC) */
-
 static char MAYBE_UNUSED superend[]={
 #include PRIM_SUPEREND_I
 };
@@ -1000,9 +1066,9 @@ static void gforth_printprims()
   for (i=0; i<npriminfos; i++) {
     PrimInfo *pi=&priminfos[i];
     struct cost *sc=&super_costs[i];
-    fprintf(stderr,"%-17s %d-%d %4d %4d %14p len=%2ld+%3ld+%2ld send=%1d\n",
+    fprintf(stderr,"%-17s %d-%d %2d %4d %4d %4d %14p len=%2ld+%3ld+%2ld send=%1d\n",
 	    prim_names[i], state_map(sc->state_in), state_map(sc->state_out),
-	    i, pi->uses, pi->start, (long)(pi->len1),
+	    sc->ip_offset, i, branches_to_ip[i], pi->uses, pi->start, (long)(pi->len1),
             (long)(pi->length - pi->len1), (long)(pi->restlength), pi->superend);
   }
 }
@@ -1063,6 +1129,7 @@ static void check_prims(Label symbols1[])
     int prim_len = ends1[i]-symbols1[i];
     PrimInfo *pi=&priminfos[i];
     struct cost *sc=&super_costs[i];
+    signed char o=sc->ip_offset;
     int j=0;
     char *s1 = (char *)symbols1[i];
     char *s2 = (char *)symbols2[i];
@@ -1074,6 +1141,8 @@ static void check_prims(Label symbols1[])
     pi->length = prim_len;
     pi->restlength = endlabel - symbols1[i] - pi->length;
     pi->uses = 0;
+    pi->max_ip_offset = 0; /* initial value */
+    pi->min_ip_offset = 0; /* initial value */
     pi->nimmargs = 0;
     relocs++;
 #if defined(BURG_FORMAT)
@@ -1096,6 +1165,8 @@ static void check_prims(Label symbols1[])
 #ifndef BURG_FORMAT
       debugp(stderr,"\n   non_reloc: no J label > start found\n");
 #endif
+      if (print_nonreloc)
+        printf("create %s\n",prim_names[i]);
       relocs--;
       nonrelocs++;
       continue;
@@ -1106,6 +1177,8 @@ static void check_prims(Label symbols1[])
 #ifndef BURG_FORMAT
       debugp(stderr,"\n   non_reloc: there is a J label before the K label (restlength<0)\n");
 #endif
+      if (print_nonreloc)
+        printf("create %s\n",prim_names[i]);
       relocs--;
       nonrelocs++;
       continue;
@@ -1116,6 +1189,8 @@ static void check_prims(Label symbols1[])
 #ifndef BURG_FORMAT
       debugp(stderr,"\n   non_reloc: K label before I label (length<0)\n");
 #endif
+      if (print_nonreloc)
+        printf("create %s\n",prim_names[i]);
       relocs--;
       nonrelocs++;
       continue;
@@ -1125,6 +1200,8 @@ static void check_prims(Label symbols1[])
       debugp(stderr,"\n   non_reloc: architecture specific check failed\n");
 #endif
       pi->start = NULL; /* not relocatable */
+      if (print_nonreloc)
+        printf("create %s\n",prim_names[i]);
       relocs--;
       nonrelocs++;
       continue;
@@ -1144,6 +1221,8 @@ static void check_prims(Label symbols1[])
 	debugp(stderr,"\n   non_reloc: engine1!=engine2 offset %3d",j);
 #endif
 	/* assert(j<prim_len); */
+        if (print_nonreloc)
+          printf("create %s\n",prim_names[i]);
 	relocs--;
 	nonrelocs++;
 	break;
@@ -1151,12 +1230,25 @@ static void check_prims(Label symbols1[])
       j++;
     }
     debugp(stderr,"\n");
+    if (opt_ip_updates>2 && o>0) { /* ip-updates info */
+      assert(strcmp(prim_names[i],prim_names[i-o])==0);
+      /* add this primitive only if all the ip_update variants up to
+         here are relocatable: */
+      if (pi->start != NULL && priminfos[i-o].max_ip_offset == o-1)
+        priminfos[i-o].max_ip_offset = o;
+    }
+    /* check for ip_update variants with negative ip_offset */
+    if (o==0) {
+      long k;
+      for (k=-1; i+k>=0; k--) {
+        // debugp(stderr,"  k=%d, priminfos[i+k].start=%p, super_costs[i+k].ip_offset=%d\n",k,priminfos[i+k].start,super_costs[i+k].ip_offset);
+        if (priminfos[i+k].start == NULL || super_costs[i+k].ip_offset != k)
+          break;
+        assert(strcmp(prim_names[i],prim_names[i+k])==0);
+        pi->min_ip_offset = k;
+      }
+    }
   }
-  decomp_prims = calloc(i,sizeof(PrimInfo *));
-  for (i=DOER_MAX+1; i<npriminfos; i++)
-    decomp_prims[i] = &(priminfos[i]);
-  qsort(decomp_prims+DOER_MAX+1, npriminfos-DOER_MAX-1, sizeof(PrimInfo *),
-	compare_priminfo_length);
 #endif
 }
 
@@ -1164,26 +1256,14 @@ static void check_prims(Label symbols1[])
 DynamicInfo *dynamicinfos = NULL; /* 2^n-sized growable array */
 long ndynamicinfos=0; /* index of next dynamicinfos entry */
 
-DynamicInfo *dynamic_info(Label code)
+DynamicInfo *dynamic_info3(Label *tcp)
 {
   DynamicInfo *di;
-#if 0
-  /* !! faster implementation: linear search for the block, then use
-        binary search within the block */
-  struct code_block_list *p;
-  Address code=_code;
-
-  /* first, check if we are in code at all */
-  for (p = code_block_list;; p = p->next) {
-    if (p == NULL)
-      return code;
-    if (code >= p->block && code < p->block+p->size)
-      break;
+  if (dynamicinfos != NULL) {
+    for (di=dynamicinfos; di<&dynamicinfos[ndynamicinfos]; di++)
+      if (di->tcp == tcp)
+        return di;
   }
-#endif
-  for (di=dynamicinfos; di<&dynamicinfos[ndynamicinfos]; di++)
-    if (di->start == code)
-      return di;
   return NULL;
 }
 
@@ -1194,9 +1274,9 @@ static DynamicInfo *add_dynamic_info()
 {
   long old=ndynamicinfos;
   long new=old+1;
-  if (dynamicinfos!=NULL && dynamicinfos[old-1].length == 0) {
+  /* if (dynamicinfos!=NULL && dynamicinfos[old-1].length == 0) {
     return &dynamicinfos[old-1];
-  }
+    } */
   ndynamicinfos=new;
   if ((old&new)==0) { /* one too early for old>=1, but we can live with that */
     dynamicinfos =
@@ -1241,10 +1321,13 @@ static void MAYBE_UNUSED align_code(void)
 
 static Cell *ip_update_metrics = NULL;
 static Cell nip_update_metrics=0;
+static Cell ip_update_metrics_base=-1; /* lower bound for ip_update_metrics */
 
 #ifndef NO_DYNAMIC
 static void record_ip_update(Cell n)
 {
+  n -= ip_update_metrics_base;
+  assert(n>=0);
   if (n>=nip_update_metrics) {
     ip_update_metrics = realloc(ip_update_metrics, (n+1)*sizeof(Cell));
     memset(ip_update_metrics+nip_update_metrics,0,
@@ -1254,29 +1337,43 @@ static void record_ip_update(Cell n)
   ip_update_metrics[n]++;
 }
 
-static void append_ip_update()
-/* compile an ip update for updating the ip from ip_at to
-   inst_index+1, where both are indexes into ginstps */
+static Cell append_ip_update1(Label *target, Cell l, Cell u)
+/* compile an ip update for updating the ip from ip_at to [l,u] cells
+   before target; returns the remaining difference (in the range
+   [l,u]) */
 {
-  /* assert(ip_at <= inst_index+1); */
-  if (ip_at < inst_index+1) {
-    Cell cellsdiff = ginstps[inst_index+1]-ginstps[ip_at];
-    assert(opt_ip_updates > 0);
-    if (print_metrics)
-      record_ip_update(cellsdiff);
+  Cell cellsdiff = target-ip_at;
+  Label *old_ip_at=ip_at;
+  assert(opt_ip_updates > 0 || cellsdiff == 0);
+  if (cellsdiff < l || cellsdiff > u) {
     do {
       Cell cellsdiff1 = cellsdiff;
-      if (cellsdiff1 > MAX_IP_UPDATE)
-        cellsdiff1 = MAX_IP_UPDATE;
+      if (cellsdiff1 > max_ip_update)
+        cellsdiff1 = max_ip_update;
+      else if (cellsdiff < min_ip_update)
+        cellsdiff1 = min_ip_update;
       {
-        PrimNum p = N_noop-1+cellsdiff1;
+        PrimNum p = ip_update0+cellsdiff1;
         PrimInfo *pi = &priminfos[p];
         append_code(pi->start, pi->len1);
       }
       cellsdiff -= cellsdiff1;
-    } while (cellsdiff>0);
-    ip_at = inst_index+1;
+      ip_at += cellsdiff1;
+    } while (cellsdiff < l || cellsdiff > u);
+    if (print_metrics)
+      record_ip_update(ip_at-old_ip_at);
   }
+  return cellsdiff;
+}
+
+static Cell append_ip_update(Cell n)
+/* compile an ip update for updating the ip from ip_at to [0,n] cells
+   before ginstps[inst_index+1] (where it points without ip-update
+   optimization; returns the remaining difference (in the range [0,n]) */
+{
+  if (opt_ip_updates==0)
+    return 0;
+  return append_ip_update1(ginstps[inst_index+1],0,n);
 }
 
 static void append_jump(void)
@@ -1284,8 +1381,8 @@ static void append_jump(void)
   if (last_jump) {
     PrimInfo *pi = &priminfos[last_jump];
     /* debugp(stderr, "Copy code %p<=%p+%x,%d\n", code_here, pi->start, pi->length, pi->restlength); */
-    assert(ip_at > inst_index || !priminfos[last_jump].superend);
-    append_ip_update();
+    assert(ip_at > ginstps[inst_index] || !priminfos[last_jump].superend);
+    append_ip_update(0);
     append_code(pi->start+pi->length, pi->restlength);
     /* debugp(stderr, "Copy goto %p<=%p,%d\n", code_here, goto_start, goto_len); */
     append_code(goto_start, goto_len);
@@ -1311,9 +1408,6 @@ needed. */
 
 struct code_block_list {
   struct code_block_list *next;
-  /* long dynamicinfos; */
-     /* index into dynamicinfos for first primitive in block
-        intended for future faster implementation of dynamic_info() */
   Address block;
   Cell size;
 } *code_block_list=NULL, **next_code_blockp=&code_block_list;
@@ -1323,7 +1417,7 @@ static int reserve_code_space(UCell size)
   if(((Cell)size)<0) size=100;
   if (code_area+code_area_size < code_here+size) {
     struct code_block_list *p;
-    append_jump();
+    append_jump_previous();
     debugp(stderr,"Did not use %ld bytes in code block\n",
            (long)(code_area+code_area_size-code_here));
     flush_to_here();
@@ -1357,25 +1451,63 @@ static Address append_prim(PrimNum p)
   /* debugp(stderr, "Copy code %p<=%p,%d\n", code_here, pi->start, pi->length);*/
   old_code_here = code_here;
   if (opt_ip_updates>0) {
-    if (ci->imm_ops+1>ci->length || pi->superend) {
-      inst_index += ci->length-1; /* -1 to correct for the +1 in: */
-      if (opt_ip_updates>1) {
-        long i;
-        for (i=0; i<sizeof(ip_dead)/sizeof(ip_dead[0]); i++)
-          if (p==ip_dead[i]) {
-            ip_at = inst_index+1; /* suppress the ip update if ip is dead */
-            break;
-          }
+    int has_imm = ci->imm_ops+1>ci->length;
+    int superend = pi->superend;
+    int dead = 0;
+    if (opt_ip_updates_branch>0 && ci->length==1 && super2[ci->offset]==N_branch) {
+      Label *target = ((Label **)(ginstps[inst_index]))[1];
+      // fprintf(stderr, "target = %p\n", target);
+      if (ip_at+opt_ip_updates_branch*min_ip_update <= target &&
+          target <= ip_at+opt_ip_updates_branch*max_ip_update) {
+        append_ip_update1(target,0,0);
+        /* append_jump();*/
+        ip_at = ginstps[inst_index+1];
+        goto append_prim_done;
       }
-      append_ip_update();
     }
+    if (opt_ip_updates_branch>0 && branches_to_ip[p]!=0) {
+      Label *target = ((Label **)(ginstps[inst_index+ci->length-1]))[1];
+      if (ip_at+opt_ip_updates_branch*min_ip_update <= target &&
+          target <= ip_at+(opt_ip_updates_branch/2)*max_ip_update) {
+        append_ip_update1(target,0,0);
+        // fprintf(stderr, "%d -> %d\n",p, branches_to_ip[p]);
+        p = branches_to_ip[p];
+        pi = &priminfos[p];
+        ci = &super_costs[p];
+        has_imm = 0; /* necessary to suppress append_ip_update() below */
+        assert(superend == pi->superend);
+      } 
+    }
+    if (opt_ip_updates>1 && superend && !has_imm) {
+      long i;
+      for (i=0; i<sizeof(ip_dead)/sizeof(ip_dead[0]); i++)
+        if (p==ip_dead[i]) {
+          dead = 1;
+          break;
+        }
+    }
+    if (has_imm || (superend && !dead)) {
+      inst_index += ci->length-1; /* -1 to correct for the +1 in other places */
+      p += append_ip_update(pi->max_ip_offset);
+      pi = &priminfos[p];
+      ci = &super_costs[p];
+      dead = superend;
+    }
+    if (dead)
+      ip_at = ginstps[inst_index+1]; /* no (additional) ip update needed
+                                        before the primitive, make
+                                        sure that it isn't generated
+                                        behind it */
     append_code(pi->start+pi->len1, pi->length-pi->len1);
+    pi->uses++;
+    assert((!superend) || ip_at == ginstps[inst_index+1]);
   } else {
     if (print_metrics)
       record_ip_update(ci->imm_ops+1);
     append_code(pi->start, pi->length);
-    ip_at = inst_index + ci->length;
+    ip_at = ginstps[inst_index + ci->length];
   }
+ append_prim_done:
   last_jump = (pi->restlength == 0) ? 0 : p;
   return old_code_here;
 }
@@ -1404,14 +1536,15 @@ static void reserve_code_super(PrimNum origs[], int ninsts)
 }
 #endif
 
-int forget_dyncode(Address code)
+int forget_dyncode3(Label *tc)
 {
 #ifdef NO_DYNAMIC
   return -1;
 #else
   struct code_block_list *p, **pp;
+  Address code = *tc;
 
-  DynamicInfo *di = dynamic_info((Label)code);
+  DynamicInfo *di = dynamic_info3(tc);
   if (di != NULL)
     ndynamicinfos = di-dynamicinfos;
   for (pp=&code_block_list, p=*pp; p!=NULL; pp=&(p->next), p=*pp) {
@@ -1442,14 +1575,6 @@ static long dyncodesize(void)
   return 0;
 }
 
-Label decompile_code(Label _code)
-{
-  DynamicInfo *di = dynamic_info(_code);
-  if (di==NULL)
-    return _code;
-  return vm_prims[super2[super_costs[di->prim].offset]];
-}
-
 static Cell prim_index(Label code)
 /* !! use binary search or hashing instead */
 {
@@ -1460,18 +1585,19 @@ static Cell prim_index(Label code)
   return -1;
 }
 
-DynamicInfo *decompile_prim1(Label _code)
+DynamicInfo *decompile_prim3(Label *tcp)
 {
-  DynamicInfo *di = dynamic_info(_code);
+  DynamicInfo *di = dynamic_info3(tcp);
   /* fprintf(stderr,"\n%p n=%ld\n",di,ndynamicinfos);*/
   if (di==NULL) {
-    static DynamicInfo dyninfo; 
+    static DynamicInfo dyninfo;
+    Label _code = *tcp;
     Cell p = prim_index(_code);
     if (p<0)
-      dyninfo = (DynamicInfo){_code,-1,0,0,0,0};
+      dyninfo = (DynamicInfo){tcp,-1,0,0,0,0};
     else {
       struct cost *c = &super_costs[p];
-      dyninfo = (DynamicInfo){_code,0,p,c->state_in,c->state_out};
+      dyninfo = (DynamicInfo){tcp,0,p,c->state_in,c->state_out};
       assert(c->state_in  == CANONICAL_STATE);
       assert(c->state_out == CANONICAL_STATE);
     }
@@ -1480,11 +1606,24 @@ DynamicInfo *decompile_prim1(Label _code)
   return di;
 }
 
-void update_dynamic_info()
-/* after appending something, include it in the last dynamicinfo */
+Cell fetch_decompile_prim(Cell *a_addr)
+/* see documentation for @decompile-prim */
 {
-  DynamicInfo *di = &dynamicinfos[ndynamicinfos-1];
-  di->length = code_here - (Address)di->start;
+  DynamicInfo *di = dynamic_info3((Label *)a_addr);
+  int p;
+  struct cost *c;
+  if (di==NULL) {
+    Cell x = *a_addr;
+    p = prim_index((Label)x);
+    if (p<0) /* not a primitive */
+      return x;
+  } else
+    p = di->prim;
+  c = &super_costs[p];
+  p = c->offset;
+  if (c->length > 1)
+    p = super2[p];
+  return (Cell)(vm_prims[p]);
 }
 
 void finish_code(void)
@@ -1516,10 +1655,11 @@ static Cell compile_prim_dyn(PrimNum p)
 
   if (no_dynamic)
     return static_prim;
-  priminfos[p].uses++;
   if (p>=npriminfos || !is_relocatable(p)) {
     append_jump_previous();
-    ip_at = inst_index+1; /* advance to behind the non-relocatable inst */
+    ip_at = ginstps[inst_index+1]; /* advance to behind the non-relocatable inst */
+    if (!is_relocatable(p))
+      priminfos[p].uses++;
     return static_prim;
   }
   old_code_here = append_prim(p);
@@ -1865,11 +2005,12 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
     }
   }
   /* now rewrite the instructions */
+  inst_index=0;
   reserve_code_super(origs,ninsts);
   old_code_area = code_area;
   nextdyn=0;
   nextstate=CANONICAL_STATE;
-  ip_at = 0;
+  ip_at = ginstps[0];
   no_transition = ((!ts[0]->trans[nextstate].relocatable) 
 		   ||ts[0]->trans[nextstate].no_transition);
   for (i=0; i<ninsts; i++) {
@@ -1910,19 +2051,19 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	/* if the starter of a i<nextdyn sequence was non-relocatable,
 	 * the rest of the sequence needs to keep up ip_at */
 	if(no_relocatable)
-	  ip_at = nextdyn;
+	  ip_at = ginstps[nextdyn];
       }
       if (is_relocatable(p)) {
         di = add_dynamic_info();
         if (ndynamicinfos>1 &&
             ((UCell)(((Address)tc)-code_area)) < (UCell)code_area_size) {
-          di[-1].length = ((Address)tc) - (Address)di[-1].start;
+          di[-1].length = ((Address)tc) - (Address)*(di[-1].tcp);
           di[-1].end_state = startstate;
         }
         di->prim = p;
         di->seqlen = super_costs[p].length;
-        di->start = (Label)tc;
-        di->length = code_here - (Address)di->start;
+        di->tcp = (Label *)(instps[i]);
+        di->length = code_here - (Address)tc;
         di->start_state = startstate;
         di->end_state = nextstate;
       }
@@ -1936,7 +2077,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   }
   assert(inst_index == i-1);
   if (!no_dynamic)
-    append_ip_update();
+    append_ip_update(0);
   if (!no_transition) {
     PrimNum p = ts[i]->trans[nextstate].inst;
     struct cost *c = super_costs+p;
@@ -1945,7 +2086,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
     assert(i==nextdyn);
     (void)compile_prim_dyn(p);
     nextstate = c->state_out;
-    di->length = code_here - (Address)di->start;
+    di->length = code_here - (Address)*(di->tcp);
     di->end_state = nextstate;
   }
   assert(nextstate==CANONICAL_STATE);
@@ -2248,6 +2389,7 @@ ImageHeader* gforth_loader(char* imagename, char* path)
   vm_prims = gforth_engine(0 sr_call);
   check_prims(vm_prims);
   prepare_super_table();
+  ip_update_metrics_base = opt_ip_updates_branch*min_ip_update;
 #ifndef DOUBLY_INDIRECT
 #ifdef PRINT_SUPER_LENGTHS
   print_super_lengths();
@@ -2302,7 +2444,7 @@ ImageHeader* gforth_loader(char* imagename, char* path)
     if(fread(sections[i], 1, sizes[i], imagefile) != sizes[i]) break;
   }
   no_dynamic |= no_dynamic_image;
-  gforth_relocate(sections, reloc_bits, sizes, bases, vm_prims);
+  gforth_relocate(sections, reloc_bits, sizes, bases);
   no_dynamic = no_dynamic_orig;
 #if 0
   { /* let's see what the relocator did */
@@ -2516,6 +2658,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"code-block-size", required_argument, NULL, opt_code_block_size},
       {"opt-ip-updates", required_argument, NULL, opt_opt_ip_updates},
       {"print-metrics", no_argument, &print_metrics, 1},
+      {"print-nonreloc", no_argument, &print_nonreloc, 1},
       {"print-prims", no_argument, &print_prims, 1},
       {"print-sequences", no_argument, &print_sequences, 1},
       {"ss-number", required_argument, NULL, ss_number},
@@ -2555,7 +2698,11 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 'D': print_diag(); break;
     case 'v': fputs(PACKAGE_STRING" "ARCH"\n", stderr); exit(0);
     case opt_code_block_size: if((code_area_size = convsize(optarg,sizeof(Char)))==-1L) return 1; break;
-    case opt_opt_ip_updates: opt_ip_updates = atoi(optarg); break;
+    case opt_opt_ip_updates:
+      opt_ip_updates = atoi(optarg);
+      opt_ip_updates_branch = opt_ip_updates>>3;
+      opt_ip_updates &= 7;
+      break;
     case ss_number: static_super_number = atoi(optarg); break;
     case ss_states: maxstates = max(min(atoi(optarg),MAX_STATE),1); break;
 #ifndef NO_DYNAMIC
@@ -2592,8 +2739,10 @@ Engine Options:\n\
   --no-0rc			    do not load ~/.config/gforthrc0\n\
   --offset-image		    Load image at a different position\n\
   --opt-ip-updates=n                ip-update optimization (0=disabled)\n\
+  --opt-ip-updates-branch=n         ip-update branch optimization (0=disabled)\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   --print-metrics		    Print some code generation metrics on exit\n\
+  --print-nonreloc		    Print non-relocatable primitives at start\n\
   --print-prims			    Print primitives with usage counts on exit\n\
   --print-sequences		    Print primitive sequences for optimization\n\
   -r SIZE, --return-stack-size=SIZE Specify return stack size\n\
@@ -2653,7 +2802,7 @@ Cell const * gforth_pointers(Cell n)
 void gforth_printmetrics()
 {
   if (print_metrics) {
-    int i;
+    long i;
     fprintf(stderr, "code size = %8ld\n", dyncodesize());
 #ifndef STANDALONE
     for (i=0; i<sizeof(cost_sums)/sizeof(cost_sums[0]); i++)
@@ -2671,8 +2820,10 @@ void gforth_printmetrics()
     if (ip_update_metrics==NULL)
       fprintf(stderr, "no ip update metrics recorded\n");
     else
-      for (i=1; i<nip_update_metrics; i++)
-        fprintf(stderr,"%5ld ip update by %2d cells\n",ip_update_metrics[i],i);
+      for (i=0; i<nip_update_metrics; i++)
+        if (ip_update_metrics[i] > 0)
+          fprintf(stderr,"%5ld ip update by %2ld cells\n",
+                  ip_update_metrics[i],i+ip_update_metrics_base);
   }
   if (tpa_trace) {
     fprintf(stderr, "%ld %ld lb_states\n", lb_labeler_steps, lb_newstate_new);

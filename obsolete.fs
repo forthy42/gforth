@@ -1,7 +1,7 @@
 \ some obsolete code that is not needed anywhere else
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 2017,2019,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2017,2019,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -69,8 +69,9 @@
 : .strings ( addr u -- ) \ gforth-obsolete
     \G list the strings from an array of string descriptors at addr
     \G with u entries, one per line.
-    2* cells bounds ?DO
-	cr I 2@ type 2 cells +LOOP ;
+    2 cells MEM+DO
+        cr I 2@ type
+    LOOP ;
 
 \ WORD SWORD
 

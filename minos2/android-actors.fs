@@ -1,7 +1,7 @@
 \ MINOS2 actors on Android
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2017,2018,2019,2020,2021 Free Software Foundation, Inc.
+\ Copyright (C) 2017,2018,2019,2020,2021,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -125,6 +125,11 @@ Create actions
 : togglekb-0  togglekb 0 ;
 : aback-0     aback    0 ;
 
+: meta+shifts ( ekey -- ekey' )
+    meta-key# @ AMETA_CTRL_ON  and 0<> k-ctrl-mask  and or
+    meta-key# @ AMETA_SHIFT_ON and 0<> k-shift-mask and or
+    meta-key# @ AMETA_ALT_ON   and 0<> k-alt-mask   and or ;
+
 Create keycode>ekey
 AKEYCODE_HOME        , ' k-home   ,
 AKEYCODE_DPAD_UP     , ' k-up     ,
@@ -133,9 +138,9 @@ AKEYCODE_VOLUME_UP   , ' k-volup  ,
 AKEYCODE_VOLUME_DOWN , ' k-voldown ,
 AKEYCODE_DPAD_LEFT   , ' k-left   ,
 AKEYCODE_DPAD_RIGHT  , ' k-right  ,
-AKEYCODE_TAB         , ' #tab     ,
-AKEYCODE_ENTER       , ' #cr      ,
-AKEYCODE_DEL         , ' #bs      ,
+AKEYCODE_TAB         , ' k-tab    ,
+AKEYCODE_ENTER       , ' k-enter  ,
+AKEYCODE_DEL         , ' k-backspace ,
 AKEYCODE_FORWARD_DEL , ' k-delete ,
 AKEYCODE_PAGE_UP     , ' k-prior  ,
 AKEYCODE_PAGE_DOWN   , ' k-next   ,
@@ -157,7 +162,8 @@ AKEYCODE_F12         , ' k-f12    ,
 AKEYCODE_MENU        , ' togglekb-0 ,
 AKEYCODE_BACK        , ' aback-0  ,
 here >r DOES> ( akey -- ekey ) [ r> ]l swap DO
-    dup I @ = IF  drop I cell+ perform  UNLOOP  EXIT  THEN
+    dup I @ = IF  drop I cell+ perform  UNLOOP
+	?dup-IF  meta+shifts  THEN  EXIT  THEN
 [ 2 cells ]L +LOOP
 dup AKEYCODE_A AKEYCODE_Z 1+ within IF
     meta-key# @ AMETA_CTRL_ON and IF
@@ -187,25 +193,35 @@ previous
 
 : ctrls? ( addr u -- flag )
     false -rot bounds ?DO
-	I c@ bl < or \ all UTF-8 codepoints are > bl
+	I c@ bl < or \ all UTF-8 codepoints are >= bl
+	I c@ #del = or \ and <> del
     LOOP ;
 : u/ekeyed ( ekey -- )
     dup 0= IF  drop  EXIT  THEN
+    case
+	#del of  k-delete     meta+shifts  endof
+	#bs  of  k-backspace  meta+shifts  endof
+	#lf  of  k-enter      meta+shifts  endof
+	#cr  of  k-enter      meta+shifts  endof
+    dup endcase
     dup bl keycode-start within
     IF    >xstring top-act .ukeyed
     ELSE  ?dup-IF top-act .ekeyed THEN  THEN ;
+: string-u/ekeyed ( addr u -- )
+    2dup ctrls? IF
+	bounds ?DO  I xc@+ swap >r u/ekeyed  r> I -  +LOOP
+    ELSE
+	top-act .ukeyed
+    THEN ;
 : key>action ( event -- )
     dup to key-event >o
     ke_getMetaState meta-key# !
     getAction dup 2 = IF  drop
 	getKeyCode
 	?dup-IF  keycode>ekey u/ekeyed
-	ELSE  nostring getCharacters jstring>sstring
-	    2dup ctrls? IF
-		bounds ?DO  I xc@+ u/ekeyed  I -  +LOOP
-	    ELSE
-		top-act .ukeyed
-	    THEN  jfree
+	ELSE
+	    nostring getCharacters jstring>sstring
+	    string-u/ekeyed  jfree
 	THEN
     ELSE
 	0= IF
@@ -234,10 +250,10 @@ previous
     setstring$ @ { w^ s$ } setstring$ off
     s$ $@
     BEGIN  dup  WHILE  over c@ #del =  WHILE
-		2>r #bs top-act .ekeyed 2r> 1 /string  REPEAT  THEN
+		2>r k-backspace top-act .ekeyed 2r> 1 /string  REPEAT  THEN
     BEGIN  dup  WHILE  2dup "\e[3~" string-prefix?  WHILE
 		2>r k-delete top-act .ekeyed 2r> 4 /string  REPEAT  THEN
-    ?dup-IF  top-act .ukeyed  ELSE  drop  THEN
+    ?dup-IF  string-u/ekeyed  ELSE  drop  THEN
     s$ $free ;
 : edit-context-menu ( n -- )
     case
@@ -256,8 +272,7 @@ previous
     ['] edit-setstring    is android-setstring
     ['] edit-commit       is android-commit
     ['] edit-context-menu is android-context-menu ;
-: preserve ( "name" -- )
-    ' dup defer@ lit, 0 swap (to), ; immediate
+
 : leave-minos ( -- )
     edit-terminal edit-out !
     preserve android-touch

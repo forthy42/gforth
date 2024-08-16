@@ -1,7 +1,7 @@
 \ MINOS2 markdown viewer
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -514,12 +514,13 @@ md-presenter new Constant presenter-md-styler
 
 get-current also markdown definitions
 : ::presentation::
-    presentation-size
+    ['] presentation-size is rescaler  rescaler
     presenter-md-styler to md-style ;
 presenter-md-styler to md-style
 previous set-current
 
-84e update-size#
+:noname 84e update-size# ; is rescaler
+rescaler
 
 \ generic formatting
 

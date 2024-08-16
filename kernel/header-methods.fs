@@ -1,7 +1,7 @@
 \ header-methods.fs does the intelligent compile, vtable handling
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2012,2013,2014,2015,2016,2018,2019,2021 Free Software Foundation, Inc.
+\ Copyright (C) 2012,2013,2014,2015,2016,2018,2019,2021,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -25,7 +25,7 @@ defer does-check ( xt -- xt ) ' noop is does-check
 : constant, >body @ lit, ;
 : :, ( xt -- ) call-check >body ['] call peephole-compile, , ;
 : variable, >body lit, ;
-: user, >body @ ['] useraddr peephole-compile, , ;
+: user, >body @ ['] up@ peephole-compile, ['] lit+ peephole-compile, , ;
 : defer, >body ['] lit-perform peephole-compile, , ;
 : field+, >body @ lit, postpone + ;
 : abi-code, >body ['] abi-call peephole-compile, , ;
@@ -37,7 +37,7 @@ defer does-check ( xt -- xt ) ' noop is does-check
 
 : (uv) ( ip -- xt-addr ) 2@ next-task + @ cell- @ swap cells + ;
 :noname cell+ (uv) ;
-opt: ?fold-to cell+ lit, postpone (uv) ;
-defer-table to-method: is-umethod ( method-xt -- ) \ gforth-internal
+opt: ?fold1 cell+ lit, postpone (uv) ;
+defer-table to-class: is-umethod ( method-xt -- ) \ gforth-internal
 
 AVariable hm-list

@@ -1,7 +1,7 @@
 \ wrapper to load Swig-generated libraries
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2015,2016,2017,2018,2019,2021 Free Software Foundation, Inc.
+\ Copyright (C) 2015,2016,2017,2018,2019,2021,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -18,12 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-CS-Vocabulary opengl
-get-current also opengl definitions
-
 include unix/gl.fs
 e? os-type s" cygwin" str= 0= [IF]
     include unix/glx.fs
 [THEN]
-
-previous set-current

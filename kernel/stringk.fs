@@ -1,7 +1,7 @@
 \ dynamic string handling                              10aug99py
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2000,2005,2007,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2005,2007,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -117,13 +117,13 @@
     \G this you can take apart arguments -- separated with '&' -- at
     \G ease.
     >r >r
-    $@ BEGIN  dup  WHILE  r@ $split i' -rot >r >r execute r> r>
+    $@ BEGIN  dup  WHILE  r@ $split r'@ -rot >r >r execute r> r>
     REPEAT  2drop rdrop rdrop ;
 
 \ basics for string arrays
 
 : $room ( u $addr -- )
-    \G generate room for at least u bytes, erase when expanding
+    \G generate room for at least @i{u} bytes, erase when expanding
     >r dup r@ $@len tuck u<= IF  rdrop 2drop EXIT  THEN
     - dup r> $+!len swap 0 fill ;
 
@@ -131,6 +131,23 @@
     \G @i{Addr'} is the address of the @i{u}th element of the string
     \G array @i{$[]addr}.  The array is resized if needed.
     >r cells dup cell+ r@ $room r> $@ drop + ;
+
+\ bitstring access, used for compile-prims
+
+: $bit ( u $addr -- c-addr mask )
+    over 8 + 3 rshift over $room
+    swap >r $@ drop r@ 3 rshift +
+    $80 r> 7 and rshift ;
+
+: $+bit ( u $addr -- )
+    \G set bit @i{u} in the string
+    $bit over c@ or swap c! ;
+: $-bit ( u $addr -- )
+    \G clear bit @i{u} in the string
+    $bit invert over c@ and swap c! ;
+: $bit@ ( u $addr -- flag )
+    \G check bit @i{u} in the string
+    $bit swap c@ and 0<> ;
 
 \ auto-save and restore strings in images
 
@@ -190,4 +207,4 @@ AVariable boot[][] \ arrays to be booted
 
 Defer 'image ( -- )
 \G deferred word executed before saving an image
-:noname clear-paths clear-args save-strings ; IS 'image
+:noname clear-paths clear-args save-strings clear-leave-stack ; IS 'image

@@ -1,7 +1,7 @@
 /* Android activity for Gforth on Android
 
   Authors: Bernd Paysan, Anton Ertl
-  Copyright (C) 2013,2014,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+  Copyright (C) 2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -45,6 +45,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.hardware.usb.UsbManager;
 import android.content.Context;
 import android.view.View;
 import android.view.Window;
@@ -73,6 +74,7 @@ import android.app.PendingIntent;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.NotificationChannel;
+import android.app.slice.SliceManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.util.Log;
@@ -88,6 +90,9 @@ import java.io.InputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
+import androidx.core.content.pm.ShortcutManagerCompat;
+import androidx.core.content.pm.ShortcutInfoCompat;
+import androidx.core.graphics.drawable.IconCompat;
 import gnu.gforth.R;
 
 public class Gforth
@@ -115,11 +120,12 @@ public class Gforth
     private PendingIntent pintent, gforthintent;
     private PowerManager powerManager;
     private NotificationManager notificationManager;
+    private UsbManager usbManager;
     private NotificationChannel notificationChannel;
     private WakeLock wl, wl_cpu;
     private GforthView mView;
     private InputStream gforthfd;
-
+    private Intent intent;
     private boolean started=false;
     private boolean libloaded=false;
     private boolean surfaced=false;
@@ -145,8 +151,12 @@ public class Gforth
     public Runnable rsecurescreenoff;
     public Runnable notifyer;
     public Runnable startbrowser;
+    public Runnable addshortcut;
     public ProgressDialog progress;
     public String cameraPath;
+    public String shortcutname;
+    public String shortcutfile;
+    public String shortcuticon;
 
     private static final String META_DATA_LIB_NAME = "android.app.lib_name";
     private static final String META_DATA_STARTFILE = "android.app.startfile";
@@ -327,13 +337,17 @@ public class Gforth
 	@Override
 	public InputConnection onCreateInputConnection (EditorInfo outAttrs) {
 	    moutAttrs=outAttrs;
-	    outAttrs.inputType = (InputType.TYPE_CLASS_TEXT | /*
-				  InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE | */
-				  InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+	    outAttrs.inputType = (InputType.TYPE_CLASS_TEXT |
+				  InputType.TYPE_TEXT_VARIATION_LONG_MESSAGE |
+				  InputType.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT |
+				  InputType.TYPE_TEXT_FLAG_AUTO_CORRECT |
+				  InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 	    outAttrs.initialSelStart = mcurpos;
 	    outAttrs.initialSelEnd = mcurpos+mlen;
 	    outAttrs.packageName = "gnu.gforth";
-	    outAttrs.imeOptions = (EditorInfo.IME_FLAG_NO_FULLSCREEN);
+	    outAttrs.imeOptions = (EditorInfo.IME_FLAG_NO_FULLSCREEN |
+				   EditorInfo.IME_FLAG_NAVIGATE_NEXT |
+				   EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS);
 	    mInputConnection = new MyInputConnection(this, true);
 	    return mInputConnection;
 	}
@@ -444,12 +458,7 @@ public class Gforth
 	if(mView!=null) mView.restartIME();
     }
     public void showStatus() {
-	if (Build.VERSION.SDK_INT < 16) {
-	    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-	}
-	else {
-	    getWindow().getDecorView().setSystemUiVisibility(0);
-	}
+	getWindow().getDecorView().setSystemUiVisibility(0);
     }
     public void hideStatus() {
 	// Hide Status Bar
@@ -478,6 +487,8 @@ public class Gforth
     protected void onCreate(Bundle savedInstanceState) {
         ActivityInfo ai;
         String libname = "gforth";
+	intent = getIntent();
+	Log.v(TAG, "onCreate, intent.action="+intent.getAction()+" intent.data="+intent.getDataString());
 
 	gforth=this;
 	
@@ -495,12 +506,26 @@ public class Gforth
         mView.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
 	try {
-            ai = getPackageManager().getActivityInfo(getIntent().getComponent(), PackageManager.GET_META_DATA);
+            ai = getPackageManager().getActivityInfo(intent.getComponent(), PackageManager.GET_META_DATA);
             if (ai.metaData != null) {
+		for (String key : ai.metaData.keySet()) {
+		    Log.v(TAG, "metaData."+key+"="+ai.metaData.getString(key));
+		}
                 String ln = ai.metaData.getString(META_DATA_LIB_NAME);
-                if (ln != null) libname = ln;
+                if (ln != null) {
+		    libname = ln;
+		}
                 String sf = ai.metaData.getString(META_DATA_STARTFILE);
-                if (sf != null) startfile = sf;
+                if (sf != null) {
+		    startfile = sf;
+		}
+		Uri uri = intent.getData();
+		if (uri != null) {
+		    Log.v(TAG, "uri="+uri.toString());
+		    startfile = uri.toString().substring(7);
+		}
+		Log.v(TAG, "libname="+libname);
+		Log.v(TAG, "startfile="+startfile);
             }
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException("Error getting activity info", e);
@@ -523,6 +548,7 @@ public class Gforth
 	inputMethodManager=(InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 	powerManager=(PowerManager)getSystemService(Context.POWER_SERVICE);
 	notificationManager=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+	usbManager=(UsbManager) getSystemService(Context.USB_SERVICE);
 	if (Build.VERSION.SDK_INT >= 26) {
 	    notificationChannel=new NotificationChannel("gnu.gforth.notifications", "Messages", NotificationManager.IMPORTANCE_DEFAULT);
 	    notificationChannel.enableLights(true);
@@ -628,6 +654,24 @@ public class Gforth
 		    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(args0)));
 		}
 	    };
+	addshortcut=new Runnable() {
+		public void run() {
+		    Context context = getApplicationContext();
+		    if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+			IconCompat icon = (shortcuticon != null) ?
+			    IconCompat.createWithContentUri("file.//"+shortcuticon) :
+			    IconCompat.createWithResource(context, R.drawable.ic_launcher);
+			ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, shortcutfile)
+			    .setIntent(new Intent(context, Gforth.class)
+				       .setAction(Intent.ACTION_MAIN)
+				       .setData(Uri.parse("file://"+shortcutfile)))
+			    .setShortLabel(shortcutname)
+			    .setIcon(icon)
+			    .build();
+			ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
+		    }
+		}
+	    };
 	
 	recKeepalive = new BroadcastReceiver() {
 		@Override public void onReceive(Context context, Intent foo)
@@ -637,10 +681,12 @@ public class Gforth
 		    onEventNative(21, 0);
 		}
 	    };
-	registerReceiver(recKeepalive, new IntentFilter("gnu.gforth.keepalive") );
-	
-	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), PendingIntent.FLAG_MUTABLE);
+	if (Build.VERSION.SDK_INT >= 26) {
+	    registerReceiver(recKeepalive, new IntentFilter("gnu.gforth.keepalive"), RECEIVER_NOT_EXPORTED );
+	}
 
+	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), PendingIntent.FLAG_IMMUTABLE);
+	
 	// intent for notifications
 	gforthintent = PendingIntent.getActivity
 	    (this, 1,
@@ -677,6 +723,7 @@ public class Gforth
 	    String filedirs[] = {
 		Environment.getExternalStorageDirectory().toString(),
 		getExternalFilesDir(null).toString(),
+		getExternalCacheDir().toString(),
 		getFilesDir().toString() };
 	    for(int i=0; i<filedirs.length; i++) {
 		Log.v(TAG, "filedirs["+i+"]="+filedirs[i]);
@@ -894,6 +941,7 @@ public class Gforth
     public static String[] REQUEST_STRING_NEW = {
 	Manifest.permission.READ_MEDIA_IMAGES,
 	Manifest.permission.READ_MEDIA_VIDEO,
+	Manifest.permission.READ_MEDIA_AUDIO,
     };
     public boolean verifyStoragePermissions(Activity activity) {
 	// Check if we have write permission
@@ -920,6 +968,28 @@ public class Gforth
 		return false;
 	    } else {
 		Log.v(TAG, "Has External Storage Permission");
+	    }
+	} else if(Build.VERSION.SDK_INT >= 33) {
+	    int permission = PackageManager.PERMISSION_GRANTED;
+	    for(int i=0; i < REQUEST_STRING_NEW.length; i++) {
+		int new_perm = checkSelfPermission(REQUEST_STRING_NEW[i]);
+		if (new_perm != PackageManager.PERMISSION_GRANTED) {
+		    permission = new_perm;
+		}
+	    }
+
+	    if (permission != PackageManager.PERMISSION_GRANTED) {
+		// We don't have permission so prompt the user
+		Log.v(TAG, "Request External Storage Permission");
+		for(int i=0; i < REQUEST_STRING_NEW.length; i++) {
+		    if(shouldShowRequestPermissionRationale(REQUEST_STRING_NEW[i])) {
+			Log.v(TAG, "Requires Permission Rationale for " + REQUEST_STRING_NEW[i]);
+		    }
+		}
+		requestPermissions(REQUEST_STRING_NEW, REQUEST_EXTERNAL_STORAGE);
+		return false;
+	    } else {
+		Log.v(TAG, "Has External Media Files Permission");
 	    }
 	}
 	return true;

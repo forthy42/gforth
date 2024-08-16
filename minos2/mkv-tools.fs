@@ -1,7 +1,7 @@
 \ Matroska tools
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2014,2016,2017,2019,2021 Free Software Foundation, Inc.
+\ Copyright (C) 2014,2016,2017,2019,2021,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -226,7 +226,7 @@ Variable (float<>)
     2dup @float  f. cr ;
 : .utf8 ( addr u body -- addr u )  .mkvname tab '"' emit 2dup type '"' emit cr ;
 : .simpleblock ( addr u body -- addr u ) .mkvname tab
-    over track@+ . be-w@+ dup $8000 and negate or . count hex.
+    over track@+ . be-w@+ dup $8000 and negate or . count h.
     >r 2dup over r> swap - /string .dump8 cr ;
 
 ' .binary mkv-dump to do-binary
@@ -245,7 +245,7 @@ previous
     0= IF  !!ebml-id!! throw  THEN
     execute ;
 
-: dhex. ( d -- ) [: '$' emit d. ;] $10 base-execute ;
+: dh. ( d -- ) [: '$' emit d. ;] $10 base-execute ;
 
 : mkv-section ( addr u xt -- ) { xt } 1 mkvlevel +! over + >r
     BEGIN
@@ -260,8 +260,8 @@ previous
 : addr>pos ( addr -- pos ) mkvbuf - 0 mkvoff 2@ d+ ;
 
 : .mheader ( addr -- addr )
-    mkvlevel @ spaces dup addr>pos dhex. ." : "
-    dup id@+ hex. ds@+ dhex. drop ;
+    mkvlevel @ spaces dup addr>pos dh. ." : "
+    dup id@+ h. ds@+ dh. drop ;
 : .master ( addr u body -- addr u ) .mkvname cr
     2dup ['] .mheader mkv-section ;
 ' .master mkv-dump to do-master
@@ -470,14 +470,14 @@ Create aac-rates
 previous
 
 : .seekseg ( addr u -- ) bounds ?DO
-	." ID: " I @ hex.  ." Seek: " I cell+ 2@ dhex. cr
+	." ID: " I @ h.  ." Seek: " I cell+ 2@ dh. cr
     3 cells +LOOP ;
 
 : .seeks ( -- )
     seeks $[]# 0 ?DO  I seeks $[]@ .seekseg cr LOOP ;
 : .cues ( -- )
     cue-tags $@ bounds ?DO
-	." Time: " I @ . ." Track: " I cell+ @ . ." Pos: " I 2 cells + 2@ dhex. cr
+	." Time: " I @ . ." Track: " I cell+ @ . ." Pos: " I 2 cells + 2@ dh. cr
     4 cells +LOOP ;
 
 : .mkv-info ( -- )
@@ -572,8 +572,6 @@ Variable queue-used  \ queue is used
 
 : new-queue ( -- )  #0. queue-buf 2!  #0. queue-io 2! ;
 
-event: :>read-mkv ( addr u -- )  queue-buf 2! ;
-
 : wait-for-write ( -- )
     BEGIN   queue-buf @ 0= WHILE  stop  REPEAT ;
 : packet>queue ( addr u -- addr' u' )
@@ -589,7 +587,7 @@ event: :>read-mkv ( addr u -- )  queue-buf 2! ;
     u queue-buf @ - ;
 : pull-queue ( addr u -- u )
     dup queue-io cell+ +!
-    dup >r <event estring, :>read-mkv cue-task event>
+    dup >r [{: d: buf :}h1 buf queue-buf 2! ;] cue-task send-event
     r> wait-for-read ;
 
 : fill-mts-buf ( -- )
@@ -602,19 +600,22 @@ event: :>read-mkv ( addr u -- )  queue-buf 2! ;
 
 0 Value cue-cont?
 0 Value mkv-file-o
-event: :>open-mkv ( addr u -- ) new-mkv-file >o rdrop
-    o to mkv-file-o sdt, pat, codec-init pnt, ;
-event: :>close-mkv ( -- )  close-mkv 0 >o rdrop ;
-event: :>cues ( index -- )  cues>mts ;
-event: :>cue-abort ( -- )  false to cues>mts-run?
-    nothrow !!cueterm!! throw ;
-event: :>cue-pause ( -- )  false to cue-cont? BEGIN  stop cue-cont?  UNTIL ;
-event: :>cue-cont ( -- ) true to cue-cont? ;
+: open-mkv ( addr u -- )
+    [{: d: file :}h1 file new-mkv-file >o rdrop
+    o to mkv-file-o sdt, pat, codec-init pnt, ;] cue-task send-event ;
+: close-mkv ( -- ) [: close-mkv 0 >o rdrop ;] cue-task send-event ;
+: cues ( index -- ) [{: n :}h1 n cues>mts ;] cue-task send-event ;
+: cue-abort ( -- )
+    [: false to cues>mts-run? nothrow !!cueterm!! throw ;]
+    cue-task send-event ;
+: cue-pause ( -- )
+    [: false to cue-cont? BEGIN  stop cue-cont?  UNTIL ;]
+    cue-task send-event ;
+: cue-cont ( -- ) [: true to cue-cont? ;] cue-task send-event ;
 
 0 Value mts-fd
 
 : convert-mkv ( addr u addrmts umts -- )  r/w create-file throw to mts-fd
-    cue-converter
-    <event estring, :>open-mkv 0 elit, :>cues cue-task event>
+    cue-converter open-mkv 0 cues
     BEGIN  pad /packet 128 * pull-queue pad over mts-fd write-file throw
     0= UNTIL ;

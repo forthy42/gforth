@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NDK=${NDK-17c}
+NDK=${NDK-21c}
 LIBT=${LIBT-2.4.6}
 CPU=$(uname -p)
 CCVER=${CCVER-4.9}
@@ -83,7 +83,12 @@ function gen_toolchain {
 	mkdir -p ~/proj/android-toolchain-$ARCH
 	(cd ~/proj/android-toolchain-$ARCH
 	 ~/proj/android-ndk-r$NDK/build/tools/make_standalone_toolchain.py --arch $ARCHX --api $API --install-dir $PWD --force)
-	cp stddef.h ~/proj/android-toolchain-$ARCH/include/c++/4.9.x/*-linux-android*/
+	if [ "$i" = arm ]
+	then
+	    sed -e 's/#include_next <stddef.h>/#include <stddef.h>/g' <~/proj/android-toolchain-$ARCH/include/c++/4.9.x/cstddef >~/proj/android-toolchain-$ARCH/include/c++/4.9.x/cstddef+
+	    mv ~/proj/android-toolchain-$ARCH/include/c++/4.9.x/cstddef+ ~/proj/android-toolchain-$ARCH/include/c++/4.9.x/cstddef
+	fi
+	#cp stddef.h ~/proj/android-toolchain-$ARCH/include/c++/4.9.x/*-linux-android*/
     done
 }
 

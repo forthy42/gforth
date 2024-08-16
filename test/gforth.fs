@@ -1,7 +1,7 @@
 \ test some gforth extension words
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 2003,2004,2005,2006,2007,2009,2011,2015,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2003,2004,2005,2006,2007,2009,2011,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -28,32 +28,45 @@ T{ 3e x 1 cells 'a' fill -> 3e }T
 
 \ f>str-rdp (then f.rdp and f>buf-rdb should also be ok)
 
-{  12.3456789e 7 3 1 f>str-rdp s"  12.346" str= -> true }
-{  12.3456789e 7 4 1 f>str-rdp s" 12.3457" str= -> true }
-{ -12.3456789e 7 4 1 f>str-rdp s" -1.23E1" str= -> true }
-{      0.0996e 7 3 1 f>str-rdp s"   0.100" str= -> true }
-{      0.0996e 7 3 3 f>str-rdp s" 9.96E-2" str= -> true }
-{    999.9994e 7 3 1 f>str-rdp s" 999.999" str= -> true }
-{    999.9996e 7 3 1 f>str-rdp s" 1.000E3" str= -> true }
-{       -1e-20 5 2 1 f>str-rdp s" *****"   str= -> true }
+t{  12.3456789e 7 3 1 f>str-rdp s"  12.346" str= -> true }t
+t{  12.3456789e 7 4 1 f>str-rdp s" 12.3457" str= -> true }t
+t{ -12.3456789e 7 4 1 f>str-rdp s" -1.23E1" str= -> true }t
+t{      0.0996e 7 3 1 f>str-rdp s"   0.100" str= -> true }t
+t{      0.0996e 7 3 3 f>str-rdp s" 9.96E-2" str= -> true }t
+t{    999.9994e 7 3 1 f>str-rdp s" 999.999" str= -> true }t
+t{    999.9996e 7 3 1 f>str-rdp s" 1.000E3" str= -> true }t
+t{       -1e-20 5 2 1 f>str-rdp s" *****"   str= -> true }t
 
 \ 0x hex number conversion, or not
 
 decimal
-{ 0x10 -> 16 }
-{ 0X10 -> 16 }
+t{ 0x10 -> 16 }t
+t{ 0X10 -> 16 }t
 36 base !
-{ 0x10 -> x10 }
+t{ 0x10 -> x10 }t
 decimal
-{ 'a' -> 97 }
-{ 'A  -> 65 }
-{ 1. '1 -> 1. 49 }
+t{ 'a' -> 97 }t
+t{ 'A  -> 65 }t
+t{ 1. '1 -> 1. 49 }t
 
 \ REPRESENT has no trailing 0s even for inf and nan
 
-{  1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
-{  0e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
-{ -1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
+t{  1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }t
+t{  0e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }t
+t{ -1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }t
+
+\ safe/string
+
+TESTING safe/string
+
+[IFUNDEF] s1
+    T{ :  s1 S" abcdefghijklmnopqrstuvwxyz" ; -> }T
+[THEN]
+t{ s1 29 safe/string -> s1 + 0 }t
+T{ s1  5 safe/string -> s1 SWAP 5 + SWAP 5 - }T
+T{ s1 10 safe/string -4 safe/string -> s1 10 safe/string }T
+T{ s1  0 safe/string -> s1 }T
+T{ s1 -5 safe/string -> s1 }T
 
 \ TRY and friends
 
@@ -69,8 +82,8 @@ decimal
         1+
     endtry ;
 
-{ -5 try-test1 -> 26 }
-{ 5  try-test1 ->  6 }
+t{ -5 try-test1 -> 26 }t
+t{ 5  try-test1 ->  6 }t
 
 : try-test2 ( n1 -- n2 )
     try
@@ -79,8 +92,8 @@ decimal
         drop 1+ dup 0<-throw
     endtry ;
 
-{ -5 try-test2 -> 0 }
-{  5 try-test2 -> 6 }
+t{ -5 try-test2 -> 0 }t
+t{  5 try-test2 -> 6 }t
 
 : try-test3 ( n1 -- n2 )
     try
@@ -91,8 +104,8 @@ decimal
         1+
     then ;
 
-{ -5 try-test3 -> 10 }
-{  5 try-test3 ->  6 }
+t{ -5 try-test3 -> 10 }t
+t{  5 try-test3 ->  6 }t
 
 \ fcopysign
 
@@ -111,9 +124,9 @@ t{ -5e -1e fcopysign -> -5e }t
 	dup
     endcase ;
 
-t{  5 mysgn ->  1 }
-t{ -3 mysgn -> -1 }
-t{  0 mysgn ->  0 }
+t{  5 mysgn ->  1 }t
+t{ -3 mysgn -> -1 }t
+t{  0 mysgn ->  0 }t
 
 : myscan ( addr1 n1 char -- addr2 n2 )
     >r case
@@ -123,8 +136,8 @@ t{  0 mysgn ->  0 }
         next-case
     rdrop ;
 
-t{ s" dhfa;jfsdk" 2dup ';' myscan 2swap 4 /string d= -> true }
-t{ s" abcdef" 2dup 'g' myscan 2swap 6 /string d= -> true }
+t{ s" dhfa;jfsdk" 2dup ';' myscan 2swap 4 /string d= -> true }t
+t{ s" abcdef" 2dup 'g' myscan 2swap 6 /string d= -> true }t
 
 
 : gcd ( n1 n2 -- n )
@@ -133,8 +146,8 @@ t{ s" abcdef" 2dup 'g' myscan 2swap 6 /string d= -> true }
 	2dup < ?of over - contof
     endcase ;
 
-t{ 48 42 gcd -> 6 }
-t{ 42 48 gcd -> 6 }
+t{ 48 42 gcd -> 6 }t
+t{ 42 48 gcd -> 6 }t
 
 
 : x1 ( u -- u u1 ... un )
@@ -484,8 +497,64 @@ t{ ' drop compile, :noname 80 ; execute -> 80 }t
 t{ ' drop compile, [: 80 ;] execute -> 80 }t
 r> warnings !
 
+
+\ -loop
+
+t{ : test--loop do i swap dup -loop drop ; -> }t
+t{ 1 2 5 test--loop -> 5 4 3 }t
+t{ 2 2 5 test--loop -> 5 3 }t
+t{ -1 0 0 test--loop -> 0 1 }t
+t{ max-n 0 0 test--loop -> 0 max-n negate 2 }t
+t{ max-n 1+ 0 0 test--loop -> 0 max-n 1+ }t
+
+\ mem+loop mem-loop
+
+t{ create test-mem*a 3 , 5 , 1 , -3 , -> }t
+t{ : test-mem+3 test-mem*a 4 cell array>mem mem+do i @ loop ; -> }
+t{ test-mem+3 -> 3 5 1 -3 }t
+t{ : test-mem+2 4 cell array>mem mem+do i @ loop ; -> }
+t{ test-mem*a test-mem+2 -> 3 5 1 -3 }t
+t{ : test-mem+1 cell array>mem mem+do i @ loop ; -> }
+t{ test-mem*a 4 test-mem+1 -> 3 5 1 -3 }t
+t{ : test-mem+0 array>mem mem+do i @ loop ; -> }
+t{ test-mem*a 4 cell test-mem+0 -> 3 5 1 -3 }t
+t{ : test-mem-3 test-mem*a 4 cell array>mem mem-do i @ loop ; -> }
+t{ test-mem-3 -> -3 1 5 3 }t
+t{ : test-mem-2 4 cell array>mem mem-do i @ loop ; -> }
+t{ test-mem*a test-mem-2 -> -3 1 5 3 }t
+t{ : test-mem-1 cell array>mem mem-do i @ loop ; -> }
+t{ test-mem*a 4 test-mem-1 -> -3 1 5 3 }t
+t{ : test-mem-0 array>mem mem-do i @ loop ; -> }
+t{ test-mem*a 4 cell test-mem-0 -> -3 1 5 3 }t
+t{ test-mem*a 1 cell test-mem-0 -> 3 }t
+t{ test-mem*a 0 cell test-mem-0 -> }t
+t{ : test-mem-l 1 {: a :} array>mem mem-do 2 {: b :} i @ loop a ; -> }
+t{ test-mem*a 4 cell test-mem-l -> -3 1 5 3 1 }t
+
+\ -[do u-[do
+
+t{ : -[do-test -[do i -1 +loop ; -> }t
+t{ -1 1 -[do-test -> 1 0 -1 }t
+t{ 0 0 -[do-test -> 0 }t
+t{ 0 -1 -[do-test -> }t
+
+t{ : u-[do-test u-[do i -1 +loop ; -> }t
+t{ max-n max-n 1+ u-[do-test -> max-n 1+ max-n }t
+t{ 0 0 u-[do-test -> 0 }t
+t{ max-n 1+ max-n u-[do-test -> }t
+
+\ rpick
+
+: t-rpick ( n1 n2 n3 n4 -- n4 n3 n2 n1 )
+    >r >r >r >r
+    3 rpick 2 rpick 1 rpick 0 rpick
+    rdrop rdrop rdrop rdrop ;
+t{ 1 2 3 4 t-rpick -> 4 3 2 1 }t
+
 \ refill with&without newline at end of last line
 \ (do not add a newline to the end of this buffer!)
+\ This test absolutely has to be the last one in this file, don't add
+\ further tests after this, don't add a newline to this file!
 
 5 0 [DO]
     [I] .

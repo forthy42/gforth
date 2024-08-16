@@ -1,7 +1,7 @@
 /* Gforth virtual machine (aka inner interpreter)
 
   Authors: Anton Ertl, Bernd Paysan, David Kühling
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2010,2011,2012,2013,2014,2015,2016,2019,2020,2021,2022 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2010,2011,2012,2013,2014,2015,2016,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -207,6 +207,12 @@ static inline Cell slashfstage2(Cell n1, stagediv_t *stage1)
 #else
 #define ALIVE_DEBUGGING(x) ((void)0)
 #endif
+
+/* KILL is used just before NEXT (ideally just before the goto) to
+   make var dead in the preceding code; used for stack-cache registers
+   and cfa, to avoid having them appear alive during calls; this mean
+   that gcc can use caller-saved registers for them */
+#define KILL(var) asm("":"=X"(var))
 
 /* conversion on fetch */
 
