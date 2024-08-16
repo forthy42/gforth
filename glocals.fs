@@ -793,11 +793,11 @@ previous
 
 :noname ( locals-nt -- )
     dup name>interpret >does-code case
-	[ ' some-clocal  >does-code ] literal of name-compsem postpone lit, endof
-	[ ' some-dlocal  >does-code ] literal of name-compsem postpone 2lit, endof
-	[ ' some-flocal  >does-code ] literal of name-compsem postpone flit, endof
-	[ ' some-wlocal  >does-code ] literal of name-compsem postpone lit, endof
-	[ ' some-xtlocal >does-code ] literal of >body @ lp-offset compile-@local postpone compile, endof
+	[ comp' some-clocal  drop >does-code ] literal of name-compsem postpone lit, endof
+	[ comp' some-dlocal  drop >does-code ] literal of name-compsem postpone 2lit, endof
+	[ comp' some-flocal  drop >does-code ] literal of name-compsem postpone flit, endof
+	[ comp' some-wlocal  drop >does-code ] literal of name-compsem postpone lit, endof
+	[ comp' some-xtlocal drop >does-code ] literal of >body @ lp-offset compile-@local postpone compile, endof
 	no-post
     endcase ; is locals-post,
 ' locals-post, ' translate-locals >body 2 cells + ! \ replace stub

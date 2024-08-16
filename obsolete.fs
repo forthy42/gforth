@@ -47,6 +47,23 @@
 : [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth-obsolete bracket-paren-tick
     (') postpone Literal ; immediate restrict
 
+: code-address! ( c_addr xt -- ) \ gforth-obsolete
+    \G Change a code field with code address @i{c-addr} at @i{xt}.
+    next-section latestnt >r dup xt>name make-latest
+    over case
+        docon:     of ['] constant, endof
+        docol:     of ['] :,        endof
+        dovar:     of ['] variable, endof
+        douser:    of ['] user,     endof
+        dodefer:   of ['] defer,    endof
+        dofield:   of ['] field+,   endof
+        doabicode: of ['] abi-code, endof
+        drop ['] general-compile,
+    endcase
+    set-optimizer
+    r> make-latest previous-section
+    only-code-address! ;
+
 : definer! ( definer xt -- ) \ gforth-obsolete
     \G The word represented by @var{xt} changes its behaviour to the
     \G behaviour associated with @var{definer}.
@@ -112,5 +129,24 @@ inline:  le-ul@ ( c-addr -- u )  ]]  l@  lle [[ ;inline obsolete
 inline:  le-ux@ ( c-addr -- u )  ]]  x@  xle [[ ;inline obsolete
 [THEN]
 inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline obsolete
+
+\ legacy rectype stuff
+
+: rectype>int  ( rectype -- xt ) >body @ ;
+: rectype>comp ( rectype -- xt ) cell >body + @ ;
+: rectype>post ( rectype -- xt ) 2 cells >body + @ ;
+
+: rectype ( int-xt comp-xt post-xt -- rectype ) \ gforth-obsolete
+    \G create a new unnamed recognizer token
+    noname translate: latestxt ; 
+
+: rectype: ( int-xt comp-xt post-xt "name" -- ) \ gforth-obsolete
+    \G create a new recognizer table
+    rectype Constant ;
+
+' notfound AConstant rectype-null \ gforth-obsolete
+' translate-nt AConstant rectype-nt \ gforth-obsolete
+' translate-num AConstant rectype-num \ gforth-obsolete
+' translate-dnum AConstant rectype-dnum \ gforth-obsolete
 
 warnings !

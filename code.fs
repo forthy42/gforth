@@ -61,26 +61,15 @@ vocabulary assembler ( -- ) \ tools-ext
     defstart init-asm ;
 [endif]
 
-: code-address! ( c_addr xt -- ) \ gforth-obsolete
-    \G Change a code field with code address @i{c-addr} at @i{xt}.
+: native-code-address! ( c_addr xt -- )
     next-section latestnt >r dup xt>name make-latest
-    over case
-        docon:     of ['] constant, endof
-        docol:     of ['] :,        endof
-        dovar:     of ['] variable, endof
-        douser:    of ['] user,     endof
-        dodefer:   of ['] defer,    endof
-        dofield:   of ['] field+,   endof
-        doabicode: of ['] abi-code, endof
-        drop ['] general-compile,
-    endcase
-    set-optimizer
+    ['] general-compile, set-optimizer
     r> make-latest previous-section
     only-code-address! ;
-
+    
 : (;code) ( -- ) \ gforth-internal
     \ execution semantics of @code{;code}
-    r> latestnt code-address! ;
+    r> latestnt native-code-address! ;
 
 [ifundef] ?colon-sys
 : ?colon-sys  ( ... xt tag -- )
@@ -88,7 +77,7 @@ vocabulary assembler ( -- ) \ tools-ext
 [then]
 
 :noname ( -- colon-sys )
-    align here latestnt code-address!
+    align here latestnt native-code-address!
     defstart init-asm ;
 :noname ( colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
     ( create the [;code] part of a low level defining word )

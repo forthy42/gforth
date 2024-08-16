@@ -185,25 +185,6 @@ UValue $? ( -- n ) \ gforth dollar-question
     \G directory.  Throws an exception if the file cannot be opened.
     fpath file>path ;
 
-\ legacy rectype stuff
-
-: rectype>int  ( rectype -- xt ) >body @ ;
-: rectype>comp ( rectype -- xt ) cell >body + @ ;
-: rectype>post ( rectype -- xt ) 2 cells >body + @ ;
-
-: rectype ( int-xt comp-xt post-xt -- rectype ) \ gforth-obsolete
-    \G create a new unnamed recognizer token
-    noname translate: latestxt ; 
-
-: rectype: ( int-xt comp-xt post-xt "name" -- ) \ gforth-obsolete
-    \G create a new recognizer table
-    rectype Constant ;
-
-' notfound AConstant rectype-null \ gforth-obsolete
-' translate-nt AConstant rectype-nt \ gforth-obsolete
-' translate-num AConstant rectype-num \ gforth-obsolete
-' translate-dnum AConstant rectype-dnum \ gforth-obsolete
-
 : defers@ ( xt -- xt' )
     BEGIN  dup ['] defer@ catch 0= WHILE  nip  REPEAT  drop ;
 synonym >rec-stack >body ( xt -- stack )
