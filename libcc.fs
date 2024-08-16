@@ -441,7 +441,7 @@ create count-stacks-types
 : gen-par-sp ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
     ." x.spx[" .gen ." ]" ;
 
-0. 2Value r-cast
+#0. 2Value r-cast
 
 : *gen-par-sp++ ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
     r-cast type ." (x.spx[" 1+ .gen ." ])" 1+ ;

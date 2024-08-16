@@ -66,9 +66,11 @@ variable included-file-buffers
 : locate-next-line ( c-addr1 u1 lineno -- c-addr2 u2 lineno+1 )
     locate-line 2drop ;
 
-: type-prefix ( c-addr1 u1 u -- c-addr2 u2 )
-    \ type the u-len prefix of c-addr1 u1, c-addr2 u2 is the rest
-    >r 2dup r> umin tuck type safe/string ;
+[IFUNDEF] type-prefix
+    : type-prefix ( c-addr1 u1 u -- c-addr2 u2 )
+	\ type the u-len prefix of c-addr1 u1, c-addr2 u2 is the rest
+	>r 2dup r> umin tuck type safe/string ;
+[THEN]
 
 Variable locate-lines#
 

@@ -294,14 +294,14 @@ Variable ekey-buffer
     k-home   s" [1~" esc-sequence
     k-end    s" [4~" esc-sequence
 
-    s-k1 s" [25~" esc-sequence
-    s-k2 s" [26~" esc-sequence
-    s-k3 s" [28~" esc-sequence
-    s-k4 s" [29~" esc-sequence
-    s-k5 s" [31~" esc-sequence
-    s-k6 s" [32~" esc-sequence
-    s-k7 s" [33~" esc-sequence
-    s-k8 s" [34~" esc-sequence
+    k-f1 k-shift-mask or s" [25~" esc-sequence
+    k-f2 k-shift-mask or s" [26~" esc-sequence
+    k-f3 k-shift-mask or s" [28~" esc-sequence
+    k-f4 k-shift-mask or s" [29~" esc-sequence
+    k-f5 k-shift-mask or s" [31~" esc-sequence
+    k-f6 k-shift-mask or s" [32~" esc-sequence
+    k-f7 k-shift-mask or s" [33~" esc-sequence
+    k-f8 k-shift-mask or s" [34~" esc-sequence
 
     \ esc sequences for MacOS X iterm <e7a7c785-3bea-408b-94e9-4b59b008546f@x16g2000prn.googlegroups.com>
     k-left   s" OD" esc-sequence

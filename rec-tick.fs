@@ -24,7 +24,7 @@
 	[: ['] translate-nt = ;] try-recognize ;
 [THEN]
 
-: rec-tick ( addr u -- xt rectype-num | rectype-null ) \ gforth-experimental
+: rec-tick ( addr u -- xt translate-num | notfound ) \ gforth-experimental
     \G words prefixed with @code{`} return their xt.
     \G Example: @code{`dup} gives the xt of dup
     over c@ '`' = if
@@ -33,7 +33,7 @@
         ['] notfound exit  then
     2drop ['] notfound ;
 
-: rec-dtick ( addr u -- nt rectype-num | rectype-null ) \ gforth-experimental
+: rec-dtick ( addr u -- nt translate-num | notfound ) \ gforth-experimental
     \G words prefixed with @code{``} return their nt.
     \G Example: @code{``S"} gives the nt of @code{S"}
     2dup "``" string-prefix? if

@@ -65,7 +65,7 @@ defer .backtrace-pos ( addr -- )
 ' drop is .backtrace-pos
 
 : print-bt-entry ( return-stack-item -- )
-    >bt-entry ?dup-IF  .name  THEN ;
+    >bt-entry ?dup-IF  id.  THEN ;
 
 : print-backtrace ( addr1 addr2 -- ) \ gforth-internal
     \G print a backtrace for the return stack addr1..addr2

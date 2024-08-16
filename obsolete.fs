@@ -20,6 +20,8 @@
 
 \ list obsolete words
 
+-1 warnings !@ \ supress obsolete warnings
+
 [IFDEF] obsolete-mask
     : obsoletes ( -- ) \ gforth
 	\G show all obsolete words
@@ -196,3 +198,4 @@ inline:  le-ux@ ( c-addr -- u )  ]]  x@  xle [[ ;inline obsolete
 [THEN]
 inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline obsolete
 
+warnings !
