@@ -9,6 +9,8 @@ A        [ ]*Documentation review
   G      [x]*Allow for `#?include (c/)?stdio` Same structure as in C -> supported by posix repo
   G      [x] Hinweis auf SWIG für das C-interface Link auf https://github.com/GeraldWodni/posix
   G      [ ] Include posix in release (#include or friends?)
+  G      [ ] Use __attribute__((weak)) for functions, see https://steveyang.blog/en/2022/08/15/gnuc-c-weak-symbol-__atrribute__weak/
+             link against library, use if(<function-name>)...
 A    [ ] Recognizer Documentation & Examples
 A        [x] simplify API
  B       [x] examples
@@ -30,9 +32,9 @@ A        [x] where: interaction with editors - g can be used
  B       [x] implement ANSI control sequences in GL terminal
  B       [x] Handle long lines properly in AFTER-L
 AB       [x] switch between where or backtrace results with left and right keys
-B   [x] version comparison 001.000.000 -> upgrade path: 000.007.009
+B    [x] version comparison 001.000.000 -> upgrade path: 000.007.009
   G  [ ]*theforth.net - client: look for local version or use global version
- BG  [x]*SWIG: SWIG-forth rename as proper fork, create docker and flatpak
+ BG  [ ]*SWIG: SWIG-forth rename as proper fork, create docker and flatpak
   G  [x]*find out why GLforth stopped working
   G  [x] better vim support
 A    [ ] changelog
@@ -45,7 +47,7 @@ AB   [x] ~~ uses ... and prints floating stack
  B   [x] compare-image warnings überprüfen
 ABG  [ ]*fix warnings during compilation
 ABG  [ ] defaults
-         [ ] which recognizers should be included by default
+ABG      [ ]*which recognizers should be included by default
          [ ] which files should be in image
          [ ] documented words which are not included by default should state how they are included
 A    [ ] make file for all obsolete words
@@ -76,6 +78,10 @@ A        [ ]*backtrace os-commandline - saving backtraces
      [ ] autocomplete `foobar (equals to ' foobar)
      [x] allow tick of recogized words e.g.: ' foo:bar recognizer: wordlist foo, word bar
      [ ] List all user data words.
+ABGO [ ] Extensible ...
+ B       [ ] Allow a stack of recognizer-like scanners
+ B       [ ] Configurable: Allow different outputs (think about notation)
+ABGO     [ ] Document extensions
 
 -*- outline -*-
 
