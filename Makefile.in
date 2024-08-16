@@ -408,9 +408,9 @@ EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs csv.fs \
 
 MINOS_DOC = minos2/widgets.fs
 
-LIBCC_DIST_SRC = $(SWIG_SRC) unix/stat-fsi.c unix/pthread-types-fsi.c	\
-	unix/test.i unix/Makefile.in unix/wayland.i.in unix/doexec	\
-	unix/doprep unix/trygcc $(patsubst %, unix/%, $(SWIGDIST)	\
+LIBCC_DIST_SRC = $(SWIG_SRC) unix/stat-fsi.c unix/pthread-types-fsi.c	      \
+	unix/test.i unix/Makefile.in unix/wayland.i.in unix/vulkan.i.in	      \
+	unix/doexec unix/doprep unix/trygcc $(patsubst %, unix/%, $(SWIGDIST) \
 	@HAS_SWIG_FORTH@) Makefile.wayland
 
 LIBCC_FORTH_SRC = unix/libffi.fs unix/fflib.fs $(UNIXLIBS_SRC) $(LIBCC_SRC1)
@@ -683,10 +683,10 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in  \
 	$(patsubst %.fs,unix/%-fsi.c, $(SWIGDISTFSI)) m4/ax_gcc_builtin.m4   \
 	move-if-change nonreloc-canon $(DOCKER)
 
-CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen preforth	\
-	libforth gforthker engine/Makefile engine/gforth.h		\
-	doc/version.texi doc/Makefile unix/Makefile debian/changelog	\
-	debian/control debian/rules build-ec $(CONFIG_FORTH)
+CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen preforth libforth \
+	gforthker engine/Makefile engine/gforth.h doc/version.texi	    \
+	doc/Makefile unix/Makefile debian/changelog unix/vulkan.i	    \
+	unix/wayland.i debian/control debian/rules build-ec $(CONFIG_FORTH)
 
 CONFIG_FORTH = machpc.fs kernel/version.fs envos.fs
 
