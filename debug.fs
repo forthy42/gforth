@@ -94,7 +94,7 @@ CREATE DT 0 , 0 ,
 
 : set-bp        ( 0 n | 0 n n -- )
     \ !!! dependency: ITC
-                0. BP 2!
+                #0. BP 2!
                 ?dup-IF dup BP ! dup @ DT !
                         ['] Breaker swap !
                         ?dup-IF dup BP cell+ ! dup @ DT cell+ !

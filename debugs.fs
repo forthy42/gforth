@@ -258,7 +258,7 @@ Variable rec'[]
     LOOP ;
 
 : (view') ( addr u -- xt )
-    rec'[] $free  what's trace-recognizer >r
+    rec'[] $free  action-of trace-recognizer >r
     sp@ 2 cells + fp@ 2>r  name-too-short?
     [: rec-level @ rec'[] $[] ! ;] is trace-recognizer
     forth-recognize
@@ -348,7 +348,7 @@ Variable rec'[]
 : .name? ( xt -- )
     \ prints name of xt if named, otherwise prints xt as hex number
     dup >name if
-	.name
+	id.
     else
 	h.
     then ;

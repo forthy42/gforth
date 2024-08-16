@@ -22,9 +22,9 @@
 
 ' noop ' slit, :noname slit, postpone 2lit, ;
 translate: translate-string
-' translate-string Constant rectype-string
+' translate-string Constant rectype-string \ gforth-obsolete
 
-: rec-string ( addr u -- addr u' r:string | rectype-null ) \ gforth-experimental
+: rec-string ( addr u -- addr u' translate-string | notfound ) \ gforth-experimental
     \G Convert strings enclosed in double quotes into string literals,
     \G escapes are treated as in @code{S\"}.
     2dup s\" \"" string-prefix?
@@ -37,9 +37,9 @@ translate: translate-string
 0 [IF] \ dot-quoted strings, we don't need them
 : .slit slit, postpone type ;
 ' type ' .slit ' slit, >postponer translate: translate-."
-' translate-." Constant rectype-."
+' translate-." Constant rectype-." \ gforth-obsolete
 
-: rec-."  ( addr u -- addr u' r:." | addr u rectype-null )
+: rec-."  ( addr u -- addr u' translate-." | addr u notfound )
     2dup ".\"" string-prefix?
     IF    drop source drop - 2 + >in !  \"-parse save-mem ['] translate-."
     ELSE  ['] notfound  THEN ;

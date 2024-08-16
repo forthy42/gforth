@@ -488,8 +488,8 @@ defer compile, ( xt -- ) \ core-ext compile-comma
 	>f+c @ obsolete-mask and 0<>
     ELSE drop false THEN ;
 : ?obsolete ( nt -- nt )
-    dup obsolete? IF
-	<<# s" is obsolete" holds dup name>string holds #0. #>
+    dup obsolete? warnings @ abs 1 > and IF
+	<<# s"  is obsolete" holds dup name>string holds #0. #>
 	hold 1- c(warning") #>>
     THEN ;
 

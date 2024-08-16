@@ -199,10 +199,10 @@ UValue $? ( -- n ) \ gforth dollar-question
     \G create a new recognizer table
     rectype Constant ;
 
-' notfound AConstant rectype-null
-' translate-nt AConstant rectype-nt
-' translate-num AConstant rectype-num
-' translate-dnum AConstant rectype-dnum
+' notfound AConstant rectype-null \ gforth-obsolete
+' translate-nt AConstant rectype-nt \ gforth-obsolete
+' translate-num AConstant rectype-num \ gforth-obsolete
+' translate-dnum AConstant rectype-dnum \ gforth-obsolete
 
 : defers@ ( xt -- xt' )
     BEGIN  dup ['] defer@ catch 0= WHILE  nip  REPEAT  drop ;

@@ -63,7 +63,7 @@ does> 6 cell array>mem MEM+DO
 	h. ;] catch IF  drop r> h. nothrow  ELSE  rdrop  THEN ;
 
 : .var. ( addr -- )
-    dup body> >name dup IF  .name drop  ELSE  drop h.  THEN ;
+    dup body> >name dup IF  id. drop  ELSE  drop h.  THEN ;
 
 : .cs. ( x1 addr -- )
     '<' emit
@@ -92,28 +92,28 @@ debug: .string.( ( -- ) \ gforth-internal dot-string-dot-paren
 \ or it doesn't, and returns false
 \ The last item in the stack must consume and return true
 
-: .s.skip ( n depth -- t / n f )
+: .s.skip ( n depth -- t / n f ) \ gforth-experimental
     drop smart.s-skip @ dup 1- 0 max smart.s-skip !
     0<> dup IF  nip  THEN ;
-: .s.cs ( n depth -- t / n f )
+: .s.cs ( n depth -- t / n f ) \ gforth-experimental
     dup cs-item-size 1- < IF  drop false EXIT  THEN
     cs-item-size 2 - - pick dup cs?
     IF  .cs.  cs-item-size 1- smart.s-skip !  true  EXIT  THEN
     drop false ;
-: .s.string ( addr depth -- t / addr f )
+: .s.string ( addr depth -- t / addr f ) \ gforth-experimental
     dup 2 < IF  drop false  EXIT  THEN
     pick  2dup string?
     IF  .string. 1 smart.s-skip ! true EXIT THEN
     drop false ;
-: .s.smart ( n depth -- t )
+: .s.smart ( n depth -- t ) \ gforth-experimental
     drop smart. true ;
 
 \ This is actually a sequence, so the top of stack is executed last
-10 stack: smart<>
+10 stack: smart<> \ gforth-experimental
 
 ' .s.skip ' .s.cs ' .s.string ' .s.smart 4 smart<> set-stack
 
-: smart.s. ( total n -- total )
+: smart.s. ( total n -- total ) \ gforth-experimental
     over r> i swap >r - { dpth } \ i is the loop index of the calling .s
     smart<> $@ cell MEM+DO
 	dpth I perform ?LEAVE

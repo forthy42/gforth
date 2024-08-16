@@ -47,7 +47,7 @@ synonym macro: $value
     THEN ;
 
 : warn-hardcoded ( addr u xt1 xt2 -- )
-    true [: .name ." is a hard-coded macro" cr ;] ?warning  2drop drop ;
+    true [: id. ." is a hard-coded macro" cr ;] ?warning  2drop drop ;
 
 : replacer: ( "name" -- ) \ gforth-experimental
     \G create hardcoded macro, created word is in the macros wordlist
