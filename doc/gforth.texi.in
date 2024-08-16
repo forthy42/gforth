@@ -8818,6 +8818,463 @@ Both synonyms and aliases have a different nt than the original, but
 ticking it (or using @code{name>interpret}) produces the same xt as
 the original (@pxref{Tokens for Words}).
 
+@c ----------------------------------------------------------
+@node Structures, Object-oriented Forth, Locals, Words
+@section  Structures
+@cindex structures
+@cindex records
+
+A structure (aka record) is a collection of fields that are stored
+together.  The fields can have different types and are accessed by
+name.  There are typically several instances of a structure, otherwise
+programmers tend to prefer using a variable or somesuch for each
+field.
+
+In Forth you can use raw address arithmetic to access fields of
+structures, but using field names and defining field access words with
+the defining words described in this section makes the code more readable.
+
+@node Standard Structures,  , Structure Glossary, Structures
+@subsection Standard Structures
+@cindex Structures in Forth200x
+
+The Forth 2012 standard defines a number of words for defining fields
+and structures.
+
+A typical example of defining a structure with several fields is:
+
+@example
+0 \ offset of first field, 0 in the usual case
+  field: intlist-next ( intlist -- addr1 )
+  field: intlist-val  ( intlist -- addr2 )
+constant intlist ( -- u )
+@end example
+
+An equivalent alternative way of defining this structure is:
+
+@example
+begin-structure intlist ( -- u )
+  field: intlist-next ( intlist -- addr1 )
+  field: intlist-val  ( intlist -- addr2 )
+end-structure
+@end example
+
+@code{Intlist} returns the size of the structure.  The convention for
+the field names here is to prepend the structure name, so that you
+don't run into conflicts when several structures have @code{next} and
+@code{val} fields; in Forth, by default field names are in the same
+wordlist (i.e., the same name space) as the other words (including
+other field names), and trying to use the search order (@pxref{Word
+Lists}) for avoiding conflicts is rather cumbersome (unless you use
+the scope recognizer !! pxref).
+
+You can then use that to allocate an instance of that structure and
+then use the field words to access the fields of that instance:
+
+@example
+intlist allocate throw constant my-intlist1
+0 my-intlist1 intlist-next !
+5 my-intlist1 intlist-val  !
+
+intlist allocate throw constant my-intlist2
+my-intlist1 my-intlist2 intlist-next !
+7           my-intlist2 intlist-val !
+
+: intlist-sum ( intlist -- n )
+\ "intlist" is a pointer to the first element of a linked list
+\ "n" is the sum of the intlist-val fields in the linked list
+    0 BEGIN ( intlist1 n1 )
+        over
+    WHILE ( list1 n1 )
+        over intlist-val @@ +
+        swap intlist-next @@ swap
+    REPEAT
+    nip ;
+
+my-intlist2 intlist-sum . \ prints "12"
+@end example
+
+In addition to @code{field:} for cell-aligned and cell-sized fields,
+you can define fields sized and aligned for various types with:
+
+doc-cfield:
+doc-field:
+doc-2field:
+doc-ffield:
+doc-sffield:
+doc-dffield:
+doc-wfield:
+doc-lfield:
+doc-xfield:
+
+If you need something beyond these field types, you can use
+@code{+field} to define fields of arbitrary size.  You have to ensure
+the correct alignment yourself in this case.  E.g., if you want to put
+one struct inside another struct, you would do it with
+
+@example
+0
+  cfield:                nested-foo
+  aligned intlist +field nested-bar
+constant nested
+@end example
+
+In this example the field @code{nested-bar} contains an intlist
+structure, so the size of @code{intlist} is passed to @code{+field}.
+An @code{intlist} must be cell-aligned (it contains cell fields), and
+this is achieved by aligning the current field offset with
+@code{aligned} before the field definition.  Our recommendation is to
+always precede the usage of @code{+field} with an appropriate
+alignment word (except if character-alignment is good enough for the
+field); this ensures that the field will stay correctly aligned even
+if other fields are later inserted before the @code{+field}-defined
+field.
+
+doc-+field
+
+@cindex first field optimization
+The first field is at the base address of a structure and the word for
+this field (e.g., @code{list-next}) actually does not change the
+address on the stack. You may be tempted to leave it away in the
+interest of run-time and space efficiency. This is not necessary,
+because Gforth and other Forth systems optimize this case: If you
+compile a first-field word, no code is generated. So, in the interest
+of readability and maintainability you should include the word for the
+field when accessing the field.
+
+@node Varue-Flavoured and Defer-Flavoured Fields
+@subsection Value-Flavoured and Defer-Flavoured Fields
+
+In addition to the variable-flavoured fields that produce an address
+(@pxref{Standard Structures}), Gforth also provides varue-flavoured
+fields.  Like all fields, varue-flavoured fields consume the start
+address of the struct, but they produce their value and you can apply
+@code{to}, @code{+to} and @code{addr} on them.  E.g., we can do
+something like the @code{intlist} definition (@pxref{Standard
+Structures}):
+
+@example
+0
+  value: intlist>next ( intlista -- intlista1 )
+  value: intlist>val  ( intlista -- n )
+constant intlista ( -- u )
+@end example
+
+This means that there are the following ways of accessing
+@code{intlist>val}:
+
+@example
+intlist>val ( intlista -- n )
+->intlist>val ( n intlista -- ) \ aka  to intlist>val
++>intlist>val ( n intlista -- ) \ aka +to intlist>val
+addr intlist>val ( intlista -- addr )
+@end example
+
+And here's the earlier example (@pxref{Standard Structures}) rewritten
+to use @code{intlista}:
+
+@example
+intlista allocate throw constant my-intlista1
+0 my-intlista1 to intlist>next
+5 my-intlista1 to intlist>val
+
+intlista allocate throw constant my-intlista2
+my-intlista1 my-intlista2 to intlist>next
+7            my-intlista2 to intlist>val
+
+: intlista-sum ( intlista -- n )
+\ "intlista" is a pointer to the first element of a linked list
+\ "n" is the sum of the intlist>val fields in the linked list
+    0 BEGIN ( intlista1 n1 )
+        over
+    WHILE ( list1 n1 )
+        over intlist>val +
+        swap intlist>next swap
+    REPEAT
+    nip ;
+
+my-intlista2 intlista-sum . \ prints "12"
+@end example
+
+Depending on the type of the field, the value can be something
+different than a single cell.
+
+doc-value:
+doc-cvalue:
+doc-wvalue:
+doc-lvalue:
+doc-scvalue:
+doc-swvalue:
+doc-slvalue:
+doc-2value:
+doc-fvalue:
+doc-sfvalue:
+doc-dfvalue:
+doc-zvalue:
+doc-$value:
+
+Gforth also has field words for dealing with dynamically-sized arrays.
+A field for such an array contains just a cell that points to the
+actual data, and this cell has to be set to 0 before accessing the
+array the first time.  When accessing the field (without operator, or
+with @code{to} or @code{+to}), there has to be the index and the
+structure address on the stack, with the structure address on top.
+Any further items consumed by @code{to} or @code{+to} are below the
+index on the stack.  The array expands to the size given by the
+maximum access; any unset elements are 0; for @code{$value[]}
+accessing them produces a 0-length (i.e., empty) string.
+
+Here is a usage example:
+
+@example
+0
+  value[]:  bla>x[]
+  $value[]: bla>$y[]
+constant bla
+
+bla allocate throw constant mybla
+mybla bla erase \ set all fields to 0
+
+5 2 mybla to bla>x[] \ access at index 2
+7 0 mybla to bla>x[] \ access at index 0
+2 mybla bla>x[] . \ prints "5"
+3 mybla bla>x[] . \ prints "0"
+"foo" 2 mybla to bla>$y[]  \ access at index 2
+"bla" 1 mybla to bla>$y[]  \ access at index 1
+"bar" 2 mybla +to bla>$y[] \ access at index 2
+0 mybla bla>$y[] . . \ prints "0 0"
+1 mybla bla>$y[] type \ prints "bla"
+2 mybla bla>$y[] type \ prints "foobar"
+@end example
+
+doc-value[]:
+doc-$value[]:
+
+Finally, you can define defer-flavoured fields.  Here is a usage
+example:
+
+@example
+0
+  defer: foo'bar
+constant foo
+
+foo allocate throw constant my-foo
+:noname ." test" ; my-foo is foo'bar
+my-foo foo'bar                   \ prints "test"
+my-foo addr foo'bar @@ execute   \ prints "test"
+my-foo action-of foo'bar execute \ prints "test"
+my-foo `foo'bar defer@ execute   \ prints "test"
+:noname ." test1" ; my-foo `foo'bar defer!
+my-foo foo'bar                   \ prints "test1"
+@end example
+
+doc-defer:
+
+For documentation of @code{is}, @code{action-of}, @code{defer@},
+@code{defer!}, see @xref{Deferred Words}.  Note however, that when
+used on defer-flavoured fields, all these words consume the start
+address of the structure, unlike for words defined with @code{defer}.
+
+@node Structure Extension
+@subsection Structure Extension
+@cindex structure extension
+@cindex extended records
+
+You can create a new structure starting with an existing structure and
+its fields.  E.g., if we also want to define @code{floatlist}, we can
+factor out the @code{...-next} field into a general structure
+@code{list} without payload, and then define @code{intlist} and
+@code{floatlist} as extensions of @code{list}:@footnote{This feature
+is also known as @emph{extended records} in Oberon.}
+
+@example
+0
+  field: list-next ( list -- addr )
+constant list ( -- u )
+
+list
+  field: intlist-val ( intlist -- addr )
+constant intlist ( -- u )
+
+list
+  ffield: floatlist-val ( floatlist -- addr )
+constant floatlist ( -- u )
+@end example
+
+Note that in this variant there is no @code{intlist-next} nor a
+@code{floatlist-next}, just a @code{list-next}; so when you use, e.g.,
+a @code{floatlist}, the organization through extension of @code{list}
+is exposed.  This may make it harder to refactor things, so you may
+prefer to also introduce synonyms @code{intlist-next} and
+@code{floatlist-next}.
+
+If you prefer to use @code{begin-structure}...@code{end-structure},
+you can do the equivalent definition as follows:
+
+@example
+begin-structure list ( -- u )
+  field: list-next ( list -- addr )
+end-structure
+
+list extend-structure intlist
+  field: intlist-val  ( intlist -- addr )
+end-structure
+
+list extend-structure floatlist
+  ffield: floatlist-val  ( floatlist -- addr )
+end-structure
+@end example
+
+doc-extend-structure
+
+
+
+@node Gforth structs
+@subsection Gforth structs
+
+Gforth has had structs before the standard had them; they are a little
+different, and you can still use them.  One benefit of the Gforth
+structs is that they propagate knowledge of alignment requirements, so
+if you build the @code{nested} structure (@pxref{Standard
+Structures}), you do not need to look inside @code{intlist} to find
+out the proper alignment, and you also do not need to mention
+alignment at all.  Instead, this example would look like:
+
+@example
+struct
+  cell% field intlist-next
+  cell% field intlist-val
+end-struct intlist%
+
+struct
+  char%    field nested-foo
+  intlist% field nested-bar
+end-struct nested%
+@end example
+
+The fields are variable-flavoured, i.e., they work in the same way as
+those defined with @code{field:}, @code{+field} etc.
+
+A disadvantage of the Gforth structs is that, with the standard going
+for something else, you need to learn additional material to write and
+understand code that uses them.  Another disadvantage of the Gforth
+structs is that they do not support value-flavoured or defer-flavoured
+fields.  On the balance, in our opinion the disadvantages now outweigh
+the advantages, so we recommend using the standard structure words
+(@pxref{Standard Structures}).  Nevertheless, here is the
+documentation for Gforth's structs.
+@cindex @code{field} usage
+@cindex @code{struct} usage
+@cindex @code{end-struct} usage
+
+The @code{list} and @code{intlist} example looks like this with Gforth
+structs:
+
+@example
+struct
+  cell% field list-next
+end-struct list%
+
+list%
+  cell% field intlist-val
+end-struct intlist%
+@end example
+
+@code{Intlist%} contains information about size and alignment, and you
+use @code{%size} to get the size, e.g., for allocation:
+
+@example
+intlist% %size allocate throw constant my-intlist1
+@end example
+
+A shorthand for that is
+
+@example
+intlist% %alloc constant my-intlist1
+@end example
+
+The fields behave the same way, so the rest of the example works as
+with standard structures.
+
+In addition to specifying single cells with @code{cell%}, you can also
+specify an array of, e.g., 10 cells like this:
+
+@example
+  cell% 10 * field bla-blub
+@end example
+
+This is equivalent to the standard
+
+@example
+  aligned 10 cells +field bla-blub
+@end example
+
+You can use @code{cell% 10 *} not just with @code{field}, but also in
+other places where an alignment and size is expected, e.g., with
+@code{%alloc}.
+
+
+@node Structure Implementation, Structure Glossary, Structure Naming Convention, Structures
+@subsection Structure Implementation
+@cindex structure implementation
+@cindex implementation of structures
+
+The central idea in the implementation is to pass the data about the
+structure being built on the stack, not in some global
+variable. Everything else falls into place naturally once this design
+decision is made.
+
+The type description on the stack is of the form @emph{align
+size}. Keeping the size on the top-of-stack makes dealing with arrays
+very simple.
+
+@code{field} is a defining word that uses @code{Create}
+and @code{DOES>}. The body of the field contains the offset
+of the field, and the normal @code{DOES>} action is simply:
+
+@example
+@@ +
+@end example
+
+@noindent
+i.e., add the offset to the address, giving the stack effect
+@i{addr1 -- addr2} for a field.
+
+@cindex first field optimization, implementation
+This simple structure is slightly complicated by the optimization
+for fields with offset 0, which requires a different
+@code{DOES>}-part (because we cannot rely on there being
+something on the stack if such a field is invoked during
+compilation). Therefore, we put the different @code{DOES>}-parts
+in separate words, and decide which one to invoke based on the
+offset. For a zero offset, the field is basically a noop; it is
+immediate, and therefore no code is generated when it is compiled.
+
+@node Structure Glossary, Forth200x Structures, Structure Implementation, Structures
+@subsection Structure Glossary
+@cindex structure glossary
+
+
+doc-%align
+doc-%alignment
+doc-%alloc
+doc-%allocate
+doc-%allot
+doc-cell%
+doc-char%
+doc-dfloat%
+doc-double%
+doc-end-struct
+doc-field
+doc-float%
+doc-sfloat%
+doc-%size
+doc-struct
+
+
+
+
+@c ----------------------------------------------------------------
 @node Interpretation and Compilation Semantics, Tokens for Words, Defining Words, Words
 @section Interpretation and Compilation Semantics
 @cindex semantics, interpretation and compilation
@@ -12557,381 +13014,6 @@ standard stack comment notation, making programs harder to read, and
 easier to misread and miswrite. The only merit of this syntax is that
 it is easy to implement using the ANS Forth locals wordset, but then,
 so is the @code{@{:} syntax.
-
-@c ----------------------------------------------------------
-@node Structures, Object-oriented Forth, Locals, Words
-@section  Structures
-@cindex structures
-@cindex records
-
-This section presents the structure package that comes with Gforth. A
-version of the package implemented in Standard Forth is available in
-@file{compat/struct.fs}. This package was inspired by a posting on
-comp.lang.forth in 1989 (unfortunately I don't remember, by whom;
-possibly John Hayes). A version of this section has been published in
-M. Anton Ertl,
-@uref{https://www.complang.tuwien.ac.at/forth/objects/structs.html, Yet
-Another Forth Structures Package}, Forth Dimensions 19(3), pages
-13--16. Marcel Hendrix provided helpful comments.
-
-@menu
-* Why explicit structure support?::
-* Structure Usage::
-* Structure Naming Convention::
-* Structure Implementation::
-* Structure Glossary::
-* Forth200x Structures::
-@end menu
-
-@node Why explicit structure support?, Structure Usage, Structures, Structures
-@subsection Why explicit structure support?
-
-@cindex address arithmetic for structures
-@cindex structures using address arithmetic
-If we want to use a structure containing several fields, we could simply
-reserve memory for it, and access the fields using address arithmetic
-(@pxref{Address arithmetic}). As an example, consider a structure with
-the following fields
-
-@table @code
-@item a
-is a float
-@item b
-is a cell
-@item c
-is a float
-@end table
-
-Given the (float-aligned) base address of the structure we get the
-address of the field
-
-@table @code
-@item a
-without doing anything further.
-@item b
-with @code{float+}
-@item c
-with @code{float+ cell+ faligned}
-@end table
-
-It is easy to see that this can become quite tiring. 
-
-Moreover, it is not very readable, because seeing a
-@code{cell+} tells us neither which kind of structure is
-accessed nor what field is accessed; we have to somehow infer the kind
-of structure, and then look up in the documentation, which field of
-that structure corresponds to that offset.
-
-Finally, this kind of address arithmetic also causes maintenance
-troubles: If you add or delete a field somewhere in the middle of the
-structure, you have to find and change all computations for the fields
-afterwards.
-
-So, instead of using @code{cell+} and friends directly, how
-about storing the offsets in constants:
-
-@example
-0 constant a-offset
-0 float+ constant b-offset
-0 float+ cell+ faligned c-offset
-@end example
-
-Now we can get the address of field @code{x} with @code{x-offset
-+}. This is much better in all respects. Of course, you still
-have to change all later offset definitions if you add a field. You can
-fix this by declaring the offsets in the following way:
-
-@example
-0 constant a-offset
-a-offset float+ constant b-offset
-b-offset cell+ faligned constant c-offset
-@end example
-
-Since we always use the offsets with @code{+}, we could use a defining
-word @code{cfield} that includes the @code{+} in the action of the
-defined word:
-
-@example
-: cfield ( n "name" -- )
-    create ,
-does> ( name execution: addr1 -- addr2 )
-    @@ + ;
-
-0 cfield a
-0 a float+ cfield b
-0 b cell+ faligned cfield c
-@end example
-
-Instead of @code{x-offset +}, we now simply write @code{x}.
-
-The structure field words now can be used quite nicely. However,
-their definition is still a bit cumbersome: We have to repeat the
-name, the information about size and alignment is distributed before
-and after the field definitions etc.  The structure package presented
-here addresses these problems.
-
-@node Structure Usage, Structure Naming Convention, Why explicit structure support?, Structures
-@subsection Structure Usage
-@cindex structure usage
-
-@cindex @code{field} usage
-@cindex @code{struct} usage
-@cindex @code{end-struct} usage
-You can define a structure for a (data-less) linked list with:
-@example
-struct
-    cell% field list-next
-end-struct list%
-@end example
-
-With the address of the list node on the stack, you can compute the
-address of the field that contains the address of the next node with
-@code{list-next}. E.g., you can determine the length of a list
-with:
-
-@example
-: list-length ( list -- n )
-\ "list" is a pointer to the first element of a linked list
-\ "n" is the length of the list
-    0 BEGIN ( list1 n1 )
-        over
-    WHILE ( list1 n1 )
-        1+ swap list-next @@ swap
-    REPEAT
-    nip ;
-@end example
-
-You can reserve memory for a list node in the dictionary with
-@code{list% %allot}, which leaves the address of the list node on the
-stack. For the equivalent allocation on the heap you can use @code{list%
-%alloc} (or, for an @code{allocate}-like stack effect (i.e., with ior),
-use @code{list% %allocate}). You can get the the size of a list
-node with @code{list% %size} and its alignment with @code{list%
-%alignment}.
-
-Note that in Standard Forth the body of a @code{create}d word is
-@code{aligned} but not necessarily @code{faligned};
-therefore, if you do a:
-
-@example
-create @emph{name} foo% %allot drop
-@end example
-
-@noindent
-then the memory alloted for @code{foo%} is guaranteed to start at the
-body of @code{@emph{name}} only if @code{foo%} contains only character,
-cell and double fields.  Therefore, if your structure contains floats,
-better use
-
-@example
-foo% %allot constant @emph{name}
-@end example
-
-@cindex structures containing structures
-You can include a structure @code{foo%} as a field of
-another structure, like this:
-@example
-struct
-...
-    foo% field ...
-...
-end-struct ...
-@end example
-
-@cindex structure extension
-@cindex extended records
-Instead of starting with an empty structure, you can extend an
-existing structure. E.g., a plain linked list without data, as defined
-above, is hardly useful; You can extend it to a linked list of integers,
-like this:@footnote{This feature is also known as @emph{extended
-records}. It is the main innovation in the Oberon language; in other
-words, adding this feature to Modula-2 led Wirth to create a new
-language, write a new compiler etc.  Adding this feature to Forth just
-required a few lines of code.}
-
-@example
-list%
-    cell% field intlist-int
-end-struct intlist%
-@end example
-
-@code{intlist%} is a structure with two fields:
-@code{list-next} and @code{intlist-int}.
-
-@cindex structures containing arrays
-You can specify an array type containing @emph{n} elements of
-type @code{foo%} like this:
-
-@example
-foo% @emph{n} *
-@end example
-
-You can use this array type in any place where you can use a normal
-type, e.g., when defining a @code{field}, or with
-@code{%allot}.
-
-@cindex first field optimization
-The first field is at the base address of a structure and the word for
-this field (e.g., @code{list-next}) actually does not change the address
-on the stack. You may be tempted to leave it away in the interest of
-run-time and space efficiency. This is not necessary, because the
-structure package optimizes this case: If you compile a first-field
-words, no code is generated. So, in the interest of readability and
-maintainability you should include the word for the field when accessing
-the field.
-
-
-@node Structure Naming Convention, Structure Implementation, Structure Usage, Structures
-@subsection Structure Naming Convention
-@cindex structure naming convention
-
-The field names that come to (my) mind are often quite generic, and,
-if used, would cause frequent name clashes. E.g., many structures
-probably contain a @code{counter} field. The structure names
-that come to (my) mind are often also the logical choice for the names
-of words that create such a structure.
-
-Therefore, I have adopted the following naming conventions: 
-
-@itemize @bullet
-@cindex field naming convention
-@item
-The names of fields are of the form
-@code{@emph{struct}-@emph{field}}, where
-@code{@emph{struct}} is the basic name of the structure, and
-@code{@emph{field}} is the basic name of the field. You can
-think of field words as converting the (address of the)
-structure into the (address of the) field.
-
-@cindex structure naming convention
-@item
-The names of structures are of the form
-@code{@emph{struct}%}, where
-@code{@emph{struct}} is the basic name of the structure.
-@end itemize
-
-This naming convention does not work that well for fields of extended
-structures; e.g., the integer list structure has a field
-@code{intlist-int}, but has @code{list-next}, not
-@code{intlist-next}.
-
-@node Structure Implementation, Structure Glossary, Structure Naming Convention, Structures
-@subsection Structure Implementation
-@cindex structure implementation
-@cindex implementation of structures
-
-The central idea in the implementation is to pass the data about the
-structure being built on the stack, not in some global
-variable. Everything else falls into place naturally once this design
-decision is made.
-
-The type description on the stack is of the form @emph{align
-size}. Keeping the size on the top-of-stack makes dealing with arrays
-very simple.
-
-@code{field} is a defining word that uses @code{Create}
-and @code{DOES>}. The body of the field contains the offset
-of the field, and the normal @code{DOES>} action is simply:
-
-@example
-@@ +
-@end example
-
-@noindent
-i.e., add the offset to the address, giving the stack effect
-@i{addr1 -- addr2} for a field.
-
-@cindex first field optimization, implementation
-This simple structure is slightly complicated by the optimization
-for fields with offset 0, which requires a different
-@code{DOES>}-part (because we cannot rely on there being
-something on the stack if such a field is invoked during
-compilation). Therefore, we put the different @code{DOES>}-parts
-in separate words, and decide which one to invoke based on the
-offset. For a zero offset, the field is basically a noop; it is
-immediate, and therefore no code is generated when it is compiled.
-
-@node Structure Glossary, Forth200x Structures, Structure Implementation, Structures
-@subsection Structure Glossary
-@cindex structure glossary
-
-
-doc-%align
-doc-%alignment
-doc-%alloc
-doc-%allocate
-doc-%allot
-doc-cell%
-doc-char%
-doc-dfloat%
-doc-double%
-doc-end-struct
-doc-field
-doc-float%
-doc-sfloat%
-doc-%size
-doc-struct
-
-
-@node Forth200x Structures,  , Structure Glossary, Structures
-@subsection Forth200x Structures
-@cindex Structures in Forth200x
-
-The Forth 2012 standard defines a slightly less convenient form of
-structures.  In general (when using @code{field+}, you have to perform
-the alignment yourself, but there are a number of convenience words
-(e.g., @code{field:}) that include alignment.
-
-A typical usage example is:
-
-@example
-0
-  field:                   s-a
-  faligned 2 floats +field s-b
-constant s-struct
-@end example
-
-An alternative way of writing this structure is:
-
-@example
-begin-structure s-struct
-  field:                   s-a
-  faligned 2 floats +field s-b
-end-structure
-@end example
-
-You can define a structure that has the same fields and additional
-fields as follows:
-
-@example
-s-struct
-  cfield: t-c
-  cfield: t-d
-constant t-struct
-@end example
-
-or alternatively
-
-@example
-s-struct extend-structure t-struct
-  cfield: t-c
-  cfield: t-d
-end-structure
-@end example
-
-doc-begin-structure
-doc-extend-structure
-doc-end-structure
-doc-+field
-doc-cfield:
-doc-field:
-doc-2field:
-doc-ffield:
-doc-sffield:
-doc-dffield:
-doc-wfield:
-doc-lfield:
-doc-xfield:
 
 @c -------------------------------------------------------------
 @node Object-oriented Forth, Regular Expressions, Structures, Words
