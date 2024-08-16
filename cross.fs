@@ -61,8 +61,9 @@ definitions Forth
 forth definitions
 
 : T  previous Ghosts also Target ; immediate
+warnings @ 0 warnings !
 : G  Ghosts ; immediate
-
+warnings !
 
 : >cross  also Cross definitions previous ;
 : >target also Target definitions previous ;
