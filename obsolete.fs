@@ -75,86 +75,6 @@
         cr I 2@ type
     LOOP ;
 
-\ WORD SWORD
-
-: (word) ( addr1 n1 char -- addr2 n2 )
-  dup >r skip 2dup r> scan  nip - ; obsolete
-
-\ (word) should fold white spaces
-\ this is what (parse-white) does
-
-: place ( c-addr1 u c-addr2 ) \ gforth-obsolete place
-    \G create a counted string of length @var{u} at @var{c-addr2}
-    \G and copy the string @var{c-addr1 u} into that location.
-    over >r  rot over 1+  r> move c! ;
-
-: +place {: c-addr1 u1 c-addr2 -- :} \ gforth-obsolete plus-place
-    \G append the string @var{c-addr1 u} to counted string at @var{c-addr2}
-    \G and increase it's length by @var{u}.
-    c-addr2 count {: c-addr u2 :}
-    u2 u1 + $ff min {: u :}
-    c-addr1 c-addr u u2 /string move
-    u c-addr2 c! ;
-
-: sword  ( char -- addr len ) \ gforth-obsolete s-word
-\G Parses like @code{word}, but the output is like @code{parse} output.
-\G @xref{core-idef}.
-    \ this word was called PARSE-WORD until 0.3.0, but Open Firmware and
-    \ dpANS6 A.6.2.2008 have a word with that name that behaves
-    \ differently (like NAME).
-    source 2dup >r >r >in @ over min /string
-    rot dup bl = IF
-        drop (parse-white)
-    ELSE
-        (word)
-    THEN
-[ has? new-input [IF] ]
-    2dup input-lexeme!
-[ [THEN] ]
-    2dup + r> - 1+ r> min >in ! ;
-
-: word   ( char "<chars>ccc<char>-- c-addr ) \ core
-    \G Skip leading delimiters. Parse @i{ccc}, delimited by
-    \G @i{char}, in the parse area. @i{c-addr} is the address of a
-    \G transient region containing the parsed string in
-    \G counted-string format. If the parse area was empty or
-    \G contained no characters other than delimiters, the resulting
-    \G string has zero length. A program may replace characters within
-    \G the counted string. OBSOLESCENT: the counted string has a
-    \G trailing space that is not included in its length.
-    sword dup word-pno-size u>= IF  -18 throw  THEN
-    here place  bl here count + c!  here ; obsolete
-
-\ these transformations are used for legacy words like find
-
-: sfind ( c-addr u -- 0 / xt +-1  ) \ gforth-obsolete
-    find-name dup if
-	dup name>compile >r swap name>interpret state @ select
-	r> ['] execute = flag-sign
-    then ;
-
-: find ( c-addr -- xt +-1 | c-addr 0 ) \ core,search
-    \G Search all word lists in the current search order for the
-    \G definition named by the counted string at @i{c-addr}.  If the
-    \G definition is not found, return 0. If the definition is found
-    \G return 1 (if the definition has non-default compilation
-    \G semantics) or -1 (if the definition has default compilation
-    \G semantics).  The @i{xt} returned in interpret state represents
-    \G the interpretation semantics.  The @i{xt} returned in compile
-    \G state represented either the compilation semantics (for
-    \G non-default compilation semantics) or the run-time semantics
-    \G that the compilation semantics would @code{compile,} (for
-    \G default compilation semantics).  The ANS Forth standard does
-    \G not specify clearly what the returned @i{xt} represents (and
-    \G also talks about immediacy instead of non-default compilation
-    \G semantics), so this word is questionable in portable programs.
-    \G If non-portability is ok, @code{find-name} and friends are
-    \G better (@pxref{Name token}).
-    dup count sfind dup
-    if
-	rot drop
-    then ; obsolete
-
 \ memory words with u or s prefix
 
 ' w@  alias uw@  ( c-addr -- u  ) obsolete
@@ -163,11 +83,6 @@
 ' x@  alias ux@  ( c-addr -- u  ) obsolete
 [THEN]
 ' xd@ alias uxd@ ( c-addr -- ud ) obsolete
-inline: sw@  ( c-addr -- n ) ]]  w@  w>s [[ ;inline obsolete
-inline: sl@  ( c-addr -- n ) ]]  l@  l>s [[ ;inline obsolete
-[IFDEF] x@
-inline: sx@  ( c-addr -- n ) ]]  x@  x>s [[ ;inline obsolete
-[THEN]
 inline: sxd@ ( c-addr -- d ) ]] xd@ xd>s [[ ;inline obsolete
 
 \ various byte-order dependent memory words

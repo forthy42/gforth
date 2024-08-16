@@ -62,8 +62,12 @@ standard:field
 : l+! ( w addr -- ) dup >r l@ + r> l! ;
 : sf+! ( w addr -- ) dup sf@ f+ sf! ;
 : df+! ( w addr -- ) dup df@ f+ df! ;
-: sc@ ( addr -- c ) c@ c>s ;
-opt: drop ]] c@ c>s [[ ;
+inline: sc@  ( c-addr -- n ) ]]  c@  c>s [[ ;inline
+inline: sw@  ( c-addr -- n ) ]]  w@  w>s [[ ;inline
+inline: sl@  ( c-addr -- n ) ]]  l@  l>s [[ ;inline
+[IFDEF] x@
+inline: sx@  ( c-addr -- n ) ]]  x@  x>s [[ ;inline
+[THEN]
 : $[]-@ ( n addr -- x ) $[] @ ;
 : $[]-! ( n addr -- x ) $[] ! ;
 : $[]-+! ( n addr -- x ) $[] +! ;

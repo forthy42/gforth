@@ -324,6 +324,7 @@ GFORTH_FI_SRC2=\
 	tasker.fs \
 	table.fs \
 	to.fs \
+	unused.fs \
 	user-object.fs \
 	utf-8.fs \
 	varues.fs \

@@ -82,7 +82,6 @@ require dis-gdb.fs
 require gforthrc.fs
 require ansi.fs
 \ require colorize.fs
-require obsolete.fs
 require mwords.fs
 require locate1.fs
 require status-line.fs
@@ -94,6 +93,8 @@ require struct-val.fs
 require rec-env.fs
 require rec-scope.fs
 require rec-meta.fs
+require obsolete.fs
+require unused.fs
 \ require unix/pthread.fs
 
 \ define the environmental queries for all the loaded wordsets
