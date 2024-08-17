@@ -172,7 +172,7 @@ no-</>
 : name-set-located-view ( nt -- )
     dup name>view swap name>string nip set-located-view ;
 
-: xt-locate ( nt/xt -- )
+: xt-locate ( nt/xt -- ) \ gforth
     \g Show the source code of the word @i{xt} and set the current
     \g location there.
     name-set-located-view l ;

@@ -23,7 +23,7 @@
 ' getenv ' env$, ' slit, >postponer translate: translate-env
 ' translate-env Constant rectype-env \ gforth-obsolete
 
-: rec-env ( addr u -- addr u translate-env | notfound )
+: rec-env ( addr u -- addr u translate-env | notfound ) \ gforth
     \G words enclosed by @code{$@{} and @code{@}} are passed to @code{getenv}
     \G to get the OS-environment variable as string.
     \G Example: @code{$@{HOME@}} gives the home directory.

@@ -41,7 +41,8 @@
     \G puts down string as longcstring
     dup , mem, ;
 
-' latestxt alias lastxt \ gforth-obsolete
+' latestxt alias lastxt ( -- xt ) \ gforth-obsolete
+
 \G old name for @code{latestxt}.
 
 : [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth-obsolete bracket-paren-tick
