@@ -102,7 +102,8 @@ RM	= rm
 RMTREE	= rm -rf
 CP	= cp -pf
 MV	= mv
-TOUCH   = touch -c
+TOUCH   = touch
+TOUCH_C = touch -c
 TAR	= tar cf -
 MKDIR	= mkdir
 MKDIR_P = @MKDIR_P@
@@ -154,6 +155,14 @@ STARTUP	= exboot.fs startup.fs @asm_fs@ @disasm_fs@
 STARTUP_FULL = $(STARTUP) unix/pthread.fs
 STRIP	= strip
 DOSTRIP = true
+
+# logging
+LOGDIR = logs
+LOLCAT_SUCCESS = @LOLCAT_SUCCESS@
+LOLCAT_NEUTRAL = @LOLCAT_NEUTRAL@
+LOLCAT_FAIL = @LOLCAT_FAIL@
+COWSAY_SUCCESS = @COWSAY_SUCCESS@
+COWSAY_FAIL = @COWSAY_FAIL@
 
 # -------------	Compiler Flags
 
@@ -851,7 +860,7 @@ dist srcdist srconlydist docdist htmldist bindist binonlydist debdist setup-debd
 #HPUX make breaks the cycle differently when the dates are equal, so
 # touch some of the files if it acts up
 hpux-workaround:
-	$(TOUCH) $(FORTH_GEN_PRIMB)
+	$(TOUCH_C) $(FORTH_GEN_PRIMB)
 
 #strip gforth, because the debugging stuff is hardly useful once
 # gforth manages to execute more than a few primitives.
@@ -1054,11 +1063,11 @@ gforth.fi: $(buildccdir)/libgfpthread.la unix/pthread-types.fs
 $(buildccdir)/libgf%.la: unix/%.fs $(FORTH_GEN_LIGHT) $(GEN) $(LIBCC_LIB_SRC) libforth
 		@echo LIBFORTH $<
 		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
-		-$(TOUCH) $@
+		-$(TOUCH_C) $@
 
 $(buildccdir)/libgflibcc.la: test/libcc.fs $(FORTH_GEN_LIGHT) $(GEN) $(LIBCC_LIB_SRC) libforth
 		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
-		-$(TOUCH) $@
+		-$(TOUCH_C) $@
 
 build-libcc-named libcc: build-libcc-swig $(LIBCC_BUILD_LA) libccdir
 
@@ -1254,7 +1263,7 @@ kernl64b$(EC).fi-:	$(KERN_DEPS) mach64b.fs preforth
 kernl%$(EC).fi:	kernl%$(EC).fi-
 		-$(CP) $< $@+
 		-$(MV) $@+ $@
-		-$(TOUCH) $@
+		-$(TOUCH_C) $@
 
 #Solaris make does not like that:
 @GNUMAKE@kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0) preforth @kernel_fi@
@@ -1636,5 +1645,26 @@ config.status: configure
 
 ChangeLog.git: FORCE
 	git log --name-only --date=short --pretty=format:'%cd -%d %s <%an> %h%n%b' --abbrev-commit >ChangeLog.git
+
+start-summary:
+	$(RMTREE) $(LOGDIR)
+	$(MKDIR) $(LOGDIR)
+	$(TOUCH) $(LOGDIR)/more
+
+show-summary:
+	@echo "=== < Summary > ===" | $(LOLCAT_NEUTRAL)
+	@echo "Non critical errors:"
+	cat $(LOGDIR)/more
+	$(RMTREE) $(LOGDIR)
+
+show-success-message:
+	$(COWSAY_SUCCESS) "=== Yay, make succeeded ===" | $(LOLCAT_SUCCESS)
+
+show-fail-message:
+	$(COWSAY_FAIL) "=== Oh no, make failed ===" | $(LOLCAT_FAIL)
+
+show-success: show-summary show-success-message
+
+show-fail: show-summary show-fail-message
 
 @INCLUDE_WAYLAND@
