@@ -1091,12 +1091,12 @@ gforth.fi: $(buildccdir)/libgfpthread.la unix/pthread-types.fs
 
 $(buildccdir)/libgf%.la: unix/%.fs $(FORTH_GEN_LIGHT) $(GEN) $(LIBCC_LIB_SRC) libforth
 		@echo LIBFORTH $<
-		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
+		-./libforth $(package)$(libccdir) $< -e bye
 		-$(TOUCH_C) $@
 
 $(buildccdir)/libgflibcc.la: test/libcc.fs $(FORTH_GEN_LIGHT) $(GEN) $(LIBCC_LIB_SRC) libforth
 		@echo LIBFORTH $<
-		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
+		-./libforth $(package)$(libccdir) $< -e bye
 		-$(TOUCH_C) $@
 
 build-libcc-named libcc: build-libcc-swig $(LIBCC_BUILD_LA) libccdir
