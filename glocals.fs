@@ -119,8 +119,9 @@ latestxt optimizes !localn
 
 $Variable peephole-opts
 
-: 2compile, ( xt1 xt2 -- )
-    \G compile sequence of xt1 xt2, and apply peephole optimization
+: 2compile, ( xt1 xt2 -- ) \ gforth-experimental two-compile-comma
+    \G equivalent to @code{@i{xt1} compile, @i{xt2} compile,}, but
+    \G also applies peephole optimization.
     peephole-opts $@ bounds ?DO
 	2dup I 2@ d= IF
 	    2drop I 2 cells + @ opt-compile,  UNLOOP  EXIT
