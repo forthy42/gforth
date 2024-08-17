@@ -171,7 +171,7 @@ Create .disp ' noop ,  ' .8b ,   ' .32b ,
   cells .disp + perform  r> .[ .sib/reg .] ;
 \ Register display                                     29may10py
 
-: wcount ( addr -- addr' w ) dup uw@ 2 under+ ;
+: wcount ( addr -- addr' w ) dup w@ 2 under+ ;
 : wxcount ( addr -- addr' w ) dup sw@ 2 under+ ;
 : +8b  ( addr -- addr' )  count  .$bs ;
 : +16b ( addr -- addr' )  wcount .$ds ;
@@ -601,8 +601,10 @@ $FE $FE t, .grp4 "                $F8 $F8 t, .stcl "
 $00 $00 t, noop ???"
 \ addr! dis disw disline                               13may95py
 
+warnings @ warnings off
 : .86    1 .length !  .alength on  len! ;
 : .386   .length off  .alength off len! ;
+warnings !
 : .amd64 .386 .amd64mode on ;
 
 base !

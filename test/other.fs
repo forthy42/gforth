@@ -108,12 +108,12 @@ s" a     " 2 /string -trailing throw drop
 
 \ convert (has to skip first char)
 
-0. s" 123  " drop convert drop 23. d<> throw
+#0. s" 123  " drop convert drop #23. d<> throw
 
 \ search
 
-name abc 2dup name xyza search throw d<> throw
-name b 2dup name abc search throw d<> throw
+parse-name abc 2dup parse-name xyza search throw d<> throw
+parse-name b   2dup parse-name abc  search throw d<> throw
 
 \ only
 
