@@ -1323,12 +1323,8 @@ true DefaultValue standardthreading
 s" relocate" T environment? H 
 \ JAW why set NIL to this?!
 [IF]	drop \ SetValue NIL
-[ELSE]	>ENVIRON X NIL SetValue relocate
+[ELSE]  >ENVIRON X NIL SetValue relocate
 [THEN]
->TARGET
-
-0 Constant NIL
-
 >CROSS
 
 \ \ Create additional parameters                         19jan95py
@@ -1353,7 +1349,7 @@ check-address-unit-bits
 \ this sets byte size for the target machine, (probably right guess) jaw
 
 T
-NIL		   	Constant TNIL
+0		   	Constant TNIL
 cell               	Constant tcell
 cell<<             	Constant tcell<<
 cell>bit           	Constant tcell>bit
