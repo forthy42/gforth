@@ -121,9 +121,11 @@ require ./io.fs
     \G @var{n} characters are needed to display the number, all digits are displayed.
     0 swap ud.r ;
 
+base @ decimal \ suppress warning about d. being a literal
 : d. ( d -- ) \ double	d-dot
     \G Display (the signed double number) @var{d} in free-format. followed by a space.
     0 d.r space ;
+base !
 
 : ud. ( ud -- ) \ gforth	u-d-dot
     \G Display (the signed double number) @var{ud} in free-format, followed by a space.

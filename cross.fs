@@ -682,12 +682,9 @@ false DefaultValue create-forward-warn   \ warn on forward declaration of create
 
 previous >CROSS
 
-: .dec
-  base @ decimal swap . base ! ;
-
 : .sourcepos
   cr sourcefilename type ." :"
-  sourceline# .dec ;
+  sourceline# dec. ;
 
 : warnhead
 \G display error-message head
@@ -2149,7 +2146,7 @@ variable ResolveFlag
   WHILE	cr 5 spaces
 	dup >ghost @ .ghost
 	."  file " dup >file @ ?dup IF count type ELSE ." CON" THEN
-	."  line " dup >line @ .dec
+	."  line " dup >line @ dec.
   REPEAT 
   drop ;
 
