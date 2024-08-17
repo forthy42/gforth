@@ -151,15 +151,16 @@ drop
 
 : image-sections { image size sects -- }
     \ process the sections (in particular, compute offsets)
-    ."            start      size        dp" cr
-    image size bounds U+DO
+    ." section      start      size        dp" cr
+    0 image size bounds U+DO
+	dup . 1+
 	I sect-start @ #16 hex.r
 	I sect-size  @ #10 hex.r
 	I sect-size@   #10 hex.r cr
 	I sects >stack
 	I sect-size@ ?dup-0=-IF  LEAVE  THEN
 	dup I + s" Section." tuck str= 0= ?LEAVE
-    8 +  +LOOP ;
+    8 +  +LOOP drop ;
 
 : check-sections ( -- )
     im-sects1 stack# 0 ?do
