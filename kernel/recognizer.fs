@@ -35,13 +35,14 @@
 : lit, ( n -- ) postpone Literal ;
 : 2lit, ( n -- ) postpone 2literal ;
 
-: do-rec ( rectype -- ) state @ abs cells + @ execute-;s ;
+: do-translate ( ... translator -- ... ) \ gforth-internal
+    state @ abs cells + @ execute-;s ;
 : translate: ( int-xt comp-xt post-xt "name" -- ) \ gforth-experimental
     \G create a new recognizer table.  Items are in order of
     \G @var{STATE} value, which are 0 or negative.  Up to 7 slots
     \G are available for extensions.
     Create swap rot , , , 7 0 DO  ['] no.extensions ,  LOOP
-    ['] do-rec set-does> ;
+    ['] do-translate set-does> ;
 
 Create >postpone ( translator -- ) \ gforth-experimental
 \G perform postpone action of translator

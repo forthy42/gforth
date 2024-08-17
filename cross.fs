@@ -3639,13 +3639,13 @@ Build: ( xtint xtcomp xtpost --- )
     T rot A, swap A, A, H 7 0 DO [T'] no.extensions X A, LOOP ;Build
     by Create
 
-ghost do-rec drop
+ghost do-translate drop
 Builder translate:
 Build: ( xtint xtcomp xtpost --- )
     T rot A, swap A, A, H 7 0 DO [T'] no.extensions X A, LOOP ;Build
 by: :dodoes3 ;DO
 hm: [G'] does, gset-optimizer
-[G'] do-rec gset-extra  ;hm
+[G'] do-translate gset-extra  ;hm
 
 \ Peephole optimization					05sep01jaw
 

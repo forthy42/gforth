@@ -784,6 +784,7 @@ more:	$(ENGINES) $(FORTH_GEN) $(GEN) @libengines@ @build_libcc_named@
 # `realclean' also deletes everything that could be regenerated automatically."
 
 mostlyclean:	FORCE
+		@echo MOSTLYCLEAN
 		-$(RMTREE) engine/*.s gforth.fi gforth-light.fi *.fi~ *.fi- kernel/version.fs \
 		kernel/authors.fs *TAGS gforth~ \
 		doc/crossdoc.fd doc/doc.fd doc/gforth.texi doc/gforth.fns \
@@ -796,6 +797,7 @@ mostlyclean:	FORCE
 
 # Just the stuff needed to rebuild the documentation nac03feb1999
 docclean:	FORCE
+		@echo DOCCLEAN
 		-$(RMTREE) doc/crossdoc.fd doc/doc.fd doc/gforth.texi doc/gforth.fns \
 		doc/gforth.aux doc/gforth.cp doc/gforth.cps \
 		doc/gforth.dvi doc/gforth.fn doc/gforth.ky doc/gforth.log \
@@ -803,6 +805,7 @@ docclean:	FORCE
 		doc/gforth.toc doc/gforth.tp doc/gforth.vr html
 
 clean:		mostlyclean
+	@echo CLEAN
 	-$(RMTREE) $(GEN) *.o engine/*.o engine/*.lo engine/*.la \
 	engine/.libs engine/libgforth* libgforth* arch/*/*.o \
 	gforth-itc-noll$(EXT)  engine/gforth-itc-noll$(EXT)  \
@@ -814,6 +817,7 @@ clean:		mostlyclean
 	(cd unix; $(MAKE) clean)
 
 distclean:	clean
+		@echo DISTCLEAN
 		-$(RMTREE) config.cache config.log config.status	\
 		engine/config.h engine/gforth.h Makefile Makedist	\
 		engine/Makefile stamp-h engine/stamp-h doc/version.texi	\
@@ -823,15 +827,18 @@ distclean:	clean
 
 #realclean is useless, but dangerous, so it's commented out
 realclean:	distclean
+		@echo REALCLEAN
 		-$(RMTREE) $(GEN_PRECIOUS) `cat .cvsignore`
 
 kernel-clean:
+		@echo KERNEL-CLEAN
 		-$(RMTREE) $(KERNLS) $(BKERNLS)
 
 fresh: kernel-clean all
 
 #mostlyclean, but also remove some of the stuff that is distributed
 virtualclean:	mostlyclean
+		@echo VIRTUALCLEAN
 		-$(RMTREE) gforth.fns gforth.texi gforth.ps gforth.info* \
 		gforth-$(VERSION).tar.gz config.cache *~ */*~
 
@@ -846,6 +853,7 @@ debdist:
 setup-debdist docdist htmldist dist: doc
 
 dist srcdist srconlydist docdist htmldist bindist binonlydist debdist setup-debdist:		Makedist FORCE
+		@echo DIST
 		$(MAKE) -f Makedist d$@
 
 #HPUX make breaks the cycle differently when the dates are equal, so
@@ -869,6 +877,7 @@ INSTSCRIPTS=gforthmi vmgen
 INSTSUFFIX="" -$(VERSION) -$(machine) -$(VERSION)-$(machine)
 
 rm-install:
+		@echo RMINSTALL
 		-for i in $(INSTEXES); do \
 		    for j in $(INSTSUFFIX); do \
 		        $(RM) $(bindir)/$$i$$j$(EXT); \
@@ -881,6 +890,7 @@ rm-install:
 		done
 
 install-prog-bins:
+		@echo INSTALL-PROG-BINS
 		for i in $(INSTEXES); do \
 		    $(INSTALL_PROGRAM) $$i$(EXT) $(bindir)/`echo $$i | sed '$(transform)'`-$(VERSION)-$(machine)$(EXT); \
 		    $(MASSAGE_EXE) $(bindir)/`echo $$i | sed '$(transform)'`-$(VERSION)-$(machine)$(EXT) || true; \
@@ -889,6 +899,7 @@ install-prog-bins:
 		$(INSTALL_SCRIPT) vmgen $(bindir)/vmgen-$(VERSION)
 
 install-progs:
+		@echo INSTALL-PROGS
 		for i in $(INSTEXES) gforthmi; do \
 		    for j in "" -$(VERSION) -$(machine); do \
 		        (cd $(bindir) && $(LN_S) `echo $$i | sed '$(transform)'`-$(VERSION)-$(machine)$(EXT) `echo $$i | sed '$(transform)'`$$j$(EXT)); \
@@ -897,12 +908,14 @@ install-progs:
 		(cd $(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)
 
 install-sources:
+		@echo INSTALL-SOURCES
 		-for i in doc/gforth.info* doc/vmgen.info*; do $(INSTALL_DATA) $$i $(infodir); done
 		for i in $(FORTH_SRC) $(COMPAT) prim; do \
 			$(INSTALL_DATA) $(srcdir)/$$i $(dataverdir)/$$i; \
 		done
 
 install-gensources:
+		@echo INSTALL-GENSOURCES
 		for i in $(LIBCC_GEN_SRC) envos.fs machpc.fs; do \
 			$(INSTALL_DATA) $$i $(libdir)/gforth/$(VERSION)/$$i; \
 		done
@@ -912,17 +925,21 @@ install-gensources:
 		$(INSTALL_DATA) $(srcdir)/siteinit.fs $(siteforthdir)/siteinit.fs
 
 install-txt:	txt
+		@echo INSTALL-TXT
 		$(INSTALL_DATA) doc/gforth.txt $(dataverdir)/doc/gforth.txt
 
 install-md:
+		@echo INSTALL-MD
 		$(INSTALL_DATA) $(srcdir)/README.md $(dataverdir)/doc/README.md
 
 install-images:	install-md @INSTALLTXT@
+		@echo INSTALL-IMAGES
 		$(INSTALL_DATA) $(kernel_fi) $(libdir)/gforth/$(VERSION)
 		env GFORTH_IGNLIB=true GFORTH_COMPILELIB=no HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(dataverdir)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(dataverdir)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal --debug-mcheck -i $(kernel_fi) exboot.fs startup.fs" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi.install $(FORTHSIZES) $(STARTUP_FULL) fixfiles.fs
 		$(INSTALL_DATA) gforth.fi.install $(libdir)/gforth/$(VERSION)/gforth.fi
 
 install-include:
+		@echo INSTALL-INCLUDE
 		$(MKDIR_P) $(includedir)/gforth/$(VERSION)/$(machine) $(includedir)/freetype-gl $(includedir)/wayland $(dataverdir)/wayland
 		$(INSTALL_DATA) engine/config.h $(srcdir)/engine/libcc.h $(includedir)/gforth/$(VERSION)/$(machine)
 		$(INSTALL_DATA) engine/gforth.h $(includedir)
@@ -935,34 +952,41 @@ install-include:
 		#$(LN_S) $(includedir)/wayland $(dataverdir)
 
 install-libcc:
+		@echo INSTALL-LIBCC
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_SRC1) $(LIBCC_LIB_SRC); do \
 		   $(LIBTOOL) --mode=install $(INSTALL) $(buildccdir)/libgf`basename $$i .fs`.la `(cd $(package)$(libccdir); pwd)`/libgf`basename $$i .fs`.la; \
 		done; fi
 
 install-man:
+		@echo INSTALL-MAN
 		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(man1dir)
 
 install-info:	doc
+		@echo INSTALL-INFO
 		$(MKDIR_P) $(infodir)
 		$(INSTALL_INFO) --info-dir=$(infodir) doc/gforth.info $(infodir)/gforth.info
 		$(INSTALL_INFO) --info-dir=$(infodir) doc/vmgen.info $(infodir)/vmgen.info
 
 install-html:	html
+		@echo INSTALL-HTML
 		$(MKDIR_P) $(htmldir)/html
 		$(CP) doc/gforth/* $(htmldir)/html
 		$(MKDIR_P) $(htmldir)/../vmgen/html
 		$(CP) doc/vmgen/* $(htmldir)/../vmgen/html
 
 install-pdf:	pdf
+		@echo INSTALL-PDF
 		$(MKDIR_P) $(pdfdir)
 		$(MKDIR_P) $(pdfdir)/../vmgen
 		$(CP) doc/gforth.pdf $(pdfdir)
 		$(CP) doc/vmgen.pdf $(pdfdir)/../vmgen/
 
 install-tags:	install.TAGS
+		@echo INSTALL-TAGS
 		$(INSTALL_DATA) install.TAGS $(dataverdir)/TAGS
 
 install-elc:
+		@echo INSTALL-ELC
 		@if test -n "@lispdir@"; then \
 			$(MKDIR_P) $(lispdir); \
 			for i in gforth.el @gforth_elc@; do \
@@ -993,6 +1017,7 @@ RED = $(ESC)[0;31m
 RSTCOLOR = $(ESC)[0m
 
 post-inst:
+		@echo POST-INSTALL
 		$(RM) TAGS gforth.TAGS install.TAGS prim.TAGS gforth.fi.install start-gforth.el*
 		-$(RM) libgforth*
 		$(POST_INSTALL)
@@ -1009,6 +1034,7 @@ installnodep:	installdirs install-seq install-progs post-inst
 install-strip:	install
 
 libinstall:	$(ENGINES:%$(EXT)=lib%$(EXT)) $(ENGINES_FAST:%$(EXT)=lib%$(EXT))
+		@echo LIBINSTALL
 		for i in $(ENGINES:%$(EXT)=lib%$(EC)) $(ENGINES_FAST:%$(EXT)=lib%$(EC)); do \
 		   $(LIBTOOL) --silent --mode=install $(INSTALL) engine/$$i.la `(cd $(libdir); pwd)`/$$i.la; \
 		done
@@ -1016,6 +1042,7 @@ libinstall:	$(ENGINES:%$(EXT)=lib%$(EXT)) $(ENGINES_FAST:%$(EXT)=lib%$(EXT))
 installdirs:	installdirs-arch installdirs-indep
 
 installdirs-arch:
+		@echo INSTALLDIRS-ARCH
 		$(NORMAL_INSTALL)
 		for i in $(bindir) $(libdir)/gforth/$(VERSION) $(siteforthdir) $(siteforthdir) $(package)$(libccdir); do \
 			$(MKDIR_P) $$i; \
@@ -1025,6 +1052,7 @@ installdirs-arch:
 		done
 
 installdirs-indep:
+		@echo INSTALLDIRS-INDEP
 		$(NORMAL_INSTALL)
 		for i in $(man1dir) $(infodir) $(dataverdir) $(datadir)/gforth/site-forth; do \
 			$(MKDIR_P) $$i; \
@@ -1036,6 +1064,7 @@ installdirs-indep:
 #deinstall all files specific to this version of gforth
 #to uninstall version foo, type `make uninstall VERSION=foo'
 uninstall:	FORCE
+		@echo UNINSTALL
 		$(NORMAL_UNINSTALL)
 		-$(RMTREE) $(libdir)/gforth/$(VERSION) $(dataverdir) $(includedir)/gforth/$(VERSION)/$(machine)
 		-for i in "$(EXT)" -$(VERSION)$(EXT) -$(machine)$(EXT) -$(VERSION)-$(machine)$(EXT); do $(RM) $(bindir)/gforth$$i $(bindir)/gforth-fast$$i $(bindir)/gforth-itc$$i $(bindir)/gforth-ditc$$i $(bindir)/gforthmi$$i ; done
@@ -1057,6 +1086,7 @@ $(buildccdir)/libgf%.la: unix/%.fs $(FORTH_GEN_LIGHT) $(GEN) $(LIBCC_LIB_SRC) li
 		-$(TOUCH) $@
 
 $(buildccdir)/libgflibcc.la: test/libcc.fs $(FORTH_GEN_LIGHT) $(GEN) $(LIBCC_LIB_SRC) libforth
+		@echo LIBFORTH $<
 		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
 		-$(TOUCH) $@
 
@@ -1165,9 +1195,11 @@ test/prim%.fi: test/prim%.fs mach64l.fs cross.fs
 		$(TIMEOUT) $(PREFORTH) -e 's" mach64l.fs"' $< -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
 
 test/primtesta.fi: test/primtesta.fs mach64l.fs cross.fs
+		@echo TEST primtesta.fi
 		$(TIMEOUT) gforth-0.7.3 --die-on-signal -m 4M -p ".:~+:." -i /usr/lib/x86_64-linux-gnu/gforth/0.7.3/gforth.fi -e 'fpath= .|~+|.' -e 's" mach64l.fs"' ./test/primtesta.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
 
 primtest:	gforth test/primtest.fi FORCE
+		@echo TEST primtest
 		(echo rs|ENVVAR=bla ./gforth -i test/primtest.fi); echo $$?
 
 bench:		gforth-fast$(EXT) gforth.fi
@@ -1185,6 +1217,7 @@ threebench 3-bench:	onebench.fs
 	$(FORTH_FAST) $< -e "run-bench cr run-bench cr bye"
 
 all-bench allbench:	onebench.fs
+	@echo ALLBENCH
 	./gforth-fast$(EXT) --dynamic $<
 	@libbench@./libgforth-fast$(EXT) --dynamic $<
 	./gforth-fast$(EXT) --no-dynamic $<
@@ -1203,6 +1236,7 @@ EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "
 extras:	gforth-light.fi $(EXTRAS:%=%.extras)
 
 %.extras:
+	@echo EXTRAS
 	cd $(@:%.extras=%); \
 	$(MAKE) -f ./Makefile configs $(EXTRAVARS); \
 	$(MAKE) -f ./Makefile all $(EXTRAVARS);
@@ -1210,11 +1244,13 @@ extras:	gforth-light.fi $(EXTRAS:%=%.extras)
 extra-install:	gforth-light.fi $(EXTRAS:%=%.extrasinst)
 
 %.extrasinst:
+	@echo EXTRASINST
 	cd $(@:%.extrasinst=%); $(MAKE) -f ./Makefile extra-install $(EXTRAVARS)
 
 # -------------	Make forth images
 
 kernel/authors.fs:	AUTHORS Makefile.in
+	@echo AUTHORS
 	echo "\ generated file; source file: AUTHORS" >kernel/authors.fs
 	echo ": authors ( -- ) \ gforth" >>kernel/authors.fs
 	echo "  \G show the list of authors" >>kernel/authors.fs
@@ -1268,21 +1304,25 @@ kernl%$(EC).fi:	kernl%$(EC).fi-
 #arch/%/mach.fs:	arch/%/prim.fs arch/%/asm.fs
 
 gforth.fi:	$(kernel_fi) gforthmi gforth-ditc$(EXT) $(GFORTH_FI_SRC) comp-i.fs
+		@echo GFORTH.FI
 		env HOSTPREFIX="$(HOST)" GFORTH_IGNLIB=true GFORTHD="$(DITCENGINE)$(EXT) -p .$(PATHSEP)~+$(PATHSEP)$(srcdir)" GFORTH="$(DITCENGINE)$(EXT) --die-on-signal --debug-mcheck -p .$(PATHSEP)~+$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) bindir=`pwd` libccdir=`pwd`/$(buildccdir) ./gforthmi $@ $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP_FULL)
 
 # This image may not contain C bindings, as it is used to generate the
 # C libraries itself
 gforth-light.fi:	$(kernel_fi) gforthmi gforth-ditc$(EXT) $(GFORTH_FI_SRC) comp-i.fs
+		@echo GFORTH-LIGTH.FI
 		env HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p .$(PATHSEP)~+$(PATHSEP)$(srcdir)" GFORTH="$(DITCENGINE)$(EXT) --die-on-signal --debug-mcheck -p .$(PATHSEP)~+$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) bindir=`pwd` libccdir=`pwd`/$(buildccdir) ./gforthmi $@ $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
 
 # -------------	Make c-engine
 
 prim.b:		prim cache0.vmg Makefile.in preforth.in
+		@echo M4 $<
 		(cd $(srcdir) && $(M4) -Dcondbranch_opt=0 prim) >$@+
 		mv $@+ $@
 #		sleep 1 #should make hpux-workaround unnecessary
 
 prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CACHE_REGS).vmg peeprules.vmg Makefile.in preforth.in gforth$(EXT)
+		@echo M4 $<
 		(cd $(srcdir) && $(M4) -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -DSTACK_CACHE_REGS=cache-regs$(STACK_CACHE_REGS).vmg prim) >$@+
 		mv $@+ $@
 #		sleep 1 #should make hpux-workaround unnecessary
@@ -1402,6 +1442,7 @@ $(GFORTHOBJECTS) $(GFORTHLIBOBJECTS):
 gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h $(kernel_anti_dependence) $(GFORTHOBJECTS)
 
 gforth$(OPT)$(EXT): $(GFORTHOBJECTS) arch/$(machine)/machine.h
+	@echo GFORTH$(OPT)$(EXT)
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(RM) gforth$${i}$(EXT); $(MAKE) DOSTRIP=$(DOSTRIP) optgforth OPT=$$i && $(CP) gforth$${i}$(EXT) $@ && break; done; \
 	else \
@@ -1421,6 +1462,7 @@ optgforth: $(GFORTHOBJECTS)
 gforth-fast$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_FAST) engine/config.h $(GFORTHOBJECTS)
 
 gforth-fast$(OPT)$(EXT): $(GFORTHOBJECTS) arch/$(machine)/machine.h
+	@echo GFORTH-FAST$(OPT)$(EXT)
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(RM) gforth-fast$${i}$(EXT); $(MAKE) DOSTRIP=$(DOSTRIP) optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EXT) $@ && break; done; \
 	else \
@@ -1457,6 +1499,7 @@ gforths: $(GFORTHOBJECTS) $(ENGINES) $(ENGINES_FAST)
 libgforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h $(kernel_anti_dependence) $(GFORTHLIBOBJECTS)
 
 libgforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(GFORTHLIBOBJECTS) arch/$(machine)/machine.h
+	@echo LIBGFORTH$(OPT)$(EXT)
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optlibgforth OPT=$$i && $(MAKE) optlibgforth2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
 	else \
@@ -1473,6 +1516,7 @@ optlibgforth2: $(GFORTHLIBOBJECTS)
 libgforth-fast$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h $(GFORTHLIBOBJECTS)
 
 libgforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(GFORTHLIBOBJECTS) arch/$(machine)/machine.h
+	@echo LIBGFORTH-FAST$(OPT)$(EXT)
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optlibgforth-fast OPT=$$i && $(MAKE) optlibgforth-fast2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
 	else \
@@ -1505,6 +1549,7 @@ libgforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engi
 libgforths:	$(GFORTHLIBOBJECTS) $(LIBENGINES) $(LIBENGINES_FAST)
 
 nonreloc-actual: gforth
+	@echo GFORTH PRINT-NONRELOC
 	./gforth --print-nonreloc -e bye >$@
 
 # ------------- additional C primitives
@@ -1532,20 +1577,24 @@ install.TAGS:	TAGS install-tags.fs preforth @kernel_fi@
 MINOS_ROOT =	@NO_CROSS@ minos2/widgets.fs
 
 gforth.TAGS:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_BUILD_SRC) $(patsubst %, minos2/%, $(MINOS2_SRC)) prim.TAGS kernel.TAGS
+		@echo GFORTH.TAGS
 		-env GFORTH_IGNLIB=true includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) $(FORTHK) etags.fs exboot.fs startup.fs $(LIBCC_BUILD_NOEC) $(MINOS_ROOT) -e 'cr ." *** TAGS completed ***" cr bye'
 		cat TAGS prim.TAGS kernel.TAGS >gforth.TAGS
 		rm TAGS
 
 gforth.tags:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) $(patsubst %, minos2/%, $(MINOS2_SRC)) prim.tags kernel.tags
+		@echo GFORTH.tags
 		-env GFORTH_IGNLIB=true $(FORTHK) tags.fs exboot.fs startup.fs $(LIBCC_BUILD_NOEC) $(MINOS_ROOT) -e 'cr ." *** tags completed ***" cr bye'
 		cat tags prim.tags kernel.tags | sort >gforth.tags
 		rm tags
 
 prim.TAGS: 	prim.b prims2x.fs preforth @kernel_fi@
+		@echo PRIM.TAGS
 		$(PREFORTH) prims2x.fs -e "s\" prim.b\" ' output-tag dup process-file bye"|sed 's#^./prim#prim#' >$@-
 		$(MV) $@- $@
 
 prim.tags: 	prim.b prims2x.fs preforth @kernel_fi@
+		@echo PRIM.tags
 		$(PREFORTH) prims2x.fs -e "s\" prim.b\" ' output-vi-tag dup process-file bye" >$@-
 		$(MV) $@- $@
 
@@ -1555,32 +1604,39 @@ kernel.TAGS kernel.tags:
 
 #elc files
 gforth.elc:	gforth.el
+		@echo EMACS $<
 		-$(EMACS) --batch --no-site-file -f batch-byte-compile gforth.el
 
 start-gforth.el:	gforth.el
+		@echo EMACS $@
 		echo > $@
 		-$(EMACS) --batch -l autoload --eval "(setq generated-autoload-file \"$$PWD/$@\")" -f batch-update-autoloads $(dir $<)
 
 #Documentation
 
 standard-words.fs: doc/2012-words
+		@echo STANDARD-WORDS
 		echo "\\ generated automatically from "$<", which is cut and pasted from" >$@
 		echo "\\ https://forth-standard.org/standard/alpha" >>$@
 		awk -f $(srcdir)/doc/standard-words.awk $< >>$@
 
 doc/doc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_GEN_SRC)
+		@echo DOC.FD
 		$(FORTHK) -e "s\" doc/doc.fd.tmp\"" doc/makedoc.fs except.fs startup.fs -e bye
 		$(srcdir)/move-if-change doc/doc.fd.tmp $@
 
 doc/extradoc.fd:	doc/makedoc.fs gforth$(EXT) gforth-light.fi $(EXTRA_DOC) $(LIBCC_GEN_SRC) build-libcc-named
+		@echo EXTRADOC.FD
 		env GFORTH_IGNLIB=true GFORTH_COMPILELIB=no $(FORTHP) -i gforth-light.fi -e "s\" doc/extradoc.fd.tmp\"" doc/makedoc.fs -e "warnings off" $(EXTRA_DOC) -e bye
 		$(srcdir)/move-if-change doc/extradoc.fd.tmp $@
 
 doc/minosdoc.fd:	doc/makedoc.fs gforth$(EXT) gforth-light.fi $(MINOS_DOC) $(LIBCC_GEN_SRC) build-libcc-named
+		@echo MINOSDOC.FD
 		env GFORTH_IGNLIB=true GFORTH_COMPILELIB=no XDG_SESSION_TYPE=x11 $(FORTHP) -i gforth-light.fi -e "s\" doc/minosdoc.fd.tmp\"" doc/makedoc.fs $(MINOS_DOC) -e bye
 		$(srcdir)/move-if-change doc/minosdoc.fd.tmp $@
 
 doc/crossdoc.fd:	$(KERN_SRC) gforth$(EXT) kernel/version.fs $(FORTH_GEN0)
+		@echo CROSSDOC.FD
 		$(FORTHK) -e 's" mach32l.fs" include kernel/main.fs' -e bye
 		$(srcdir)/move-if-change doc/crossdoc.fd.tmp $@
 
@@ -1594,10 +1650,12 @@ DOC_GEN = doc/crossdoc.fd doc/doc.fd @NO_CROSS@doc/extradoc.fd @minosdoc@
 doc/gforth.texi doc/numuses: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
 		$(DOC_GEN) preforth @kernel_fi@ \
 		$(wildcard $(srcdir)/doc/words/0.*-words)
+		@echo DOC_GEN
 		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" $(DOC_GEN) -e "args-gforth-versions s\" $(srcdir)/doc/gforth.texi.in\" r/o open-file throw ds2texi s\" doc/numuses\" report-#uses-file bye" $(wildcard $(srcdir)/doc/words/*-words) >$@-
 		$(MV) $@- $@
 
 checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs $(DOC_GEN) answords.fs doc/gforth.texi
+		@echo CHECKDOC
 		$(FORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" $(DOC_GEN) -e 's" doc/2012-words" file-checkwords bye'
 		-grep unknown doc/gforth.texi
 		-grep doc- doc/gforth.texi| grep -v '^@c'
@@ -1613,25 +1671,31 @@ doc pdf ebook dvi txt ps html: $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
 #Note: no target "$(srcdir)/configure", because that does not trigger 
 #unless $(srcdir)!="."
 configure: configure.ac aclocal.m4
+	@echo AUTOCONF
 	cd $(srcdir) && autoconf
 
 $(srcdir)/aclocal.m4:	configure.ac
+	@echo ACLOCAL
 	cd $(srcdir) && aclocal $(ACLOCAL_AMFLAGS)
 
 # autoheader might not change config.h.in, so touch a stamp file.
 engine/config.h.in: stamp-h.in
 stamp-h.in: configure.ac aclocal.m4
+	@echo AUTOHEADER
 	cd $(srcdir) && autoheader
 	echo timestamp > $(srcdir)/stamp-h.in
 
 engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
+	@echo CONFIG.STATUS
 	./config.status
 
 $(CONFIG_GEN): Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/gforth.h.in gforthmi.sh.in kernel/version.fs.in engine/config.h.in
+	@echo CONFIG.STATUS
 	./config.status
 
 config.status: configure
+	@echo CONFIG.STATUS --recheck
 	./config.status --recheck
 
 ChangeLog.git: FORCE
