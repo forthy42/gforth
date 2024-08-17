@@ -21,9 +21,10 @@ ABGO [ ]*Documentation for Undocumented features
  B       [ ]*Document so far, that other programmers can understand the code and complete the documentation
 A        [d] Search changelogs for features
 A        [x] Document what is stable and what is not
-AB   [ ]* Only make words obsolete that are not used in Gforth and that are non-standard
- B       [ ]* Use of obsolete words in obsolete.fs is not reported
-A        [ ]* Move standard words from obsolete.fs to regular code
+AB   [x] Only make words obsolete that are not used in Gforth and that are non-standard
+A        [x] make file for all obsolete words
+ B       [x] Use of obsolete words in obsolete.fs is not reported
+A        [x] Move standard words from obsolete.fs to regular code
 AB   [x] "IDE" locate, view, where & edit
          [x] help or doc - get documentation of word
  B       [x] help for recognizer
@@ -54,8 +55,7 @@ ABG  [ ] defaults
 ABG      [x] which recognizers should be included by default
          [x] which files should be in image
 A        [ ]*documented words which are not included by default should state how they are included
-A    [*] make file for all obsolete words
-A    [*] see-code should work properly with zero-length primitives
+A    [x] see-code should work properly with zero-length primitives
  B   [ ] Build issues
  B       [ ] Build extra libs only on request
  B       [ ] Build text-only on request

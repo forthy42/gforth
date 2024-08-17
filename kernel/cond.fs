@@ -280,16 +280,6 @@ IS until-like
     POSTPONE again
     POSTPONE then ; immediate restrict
 
-\ not clear if this should really go into Gforth's kernel...
-
-: CONTINUE ( dest-sys j*sys -- dest-sys j*sys ) \ gforth-obsolete
-    \g jump to the next outer BEGIN
-    depth 0 ?DO  I pick dest = IF
-	    I cs-item-size / cs-pick postpone AGAIN
-	    UNLOOP  EXIT  THEN
-    cs-item-size +LOOP
-    true abort" no BEGIN found" ; immediate restrict
-
 \ counted loops
 
 \ leave poses a little problem here
@@ -392,14 +382,6 @@ Variable leave-stack
 : -LOOP ( compilation do-sys -- ; run-time loop-sys1 u -- | loop-sys2 )	\ gforth	minus-loop
     \G @xref{Counted Loops}.
  ['] (-loop) ['] (-loop)-lp+!# loop-like ; immediate restrict
-
-\ A symmetric version of "+LOOP". I.e., "-high -low ?DO -inc S+LOOP"
-\ will iterate as often as "high low ?DO inc S+LOOP". For positive
-\ increments it behaves like "+LOOP". Use S+LOOP instead of +LOOP for
-\ negative increments.
-: S+LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 )	\ gforth-obsolete	s-plus-loop
-    \G @xref{Counted Loops}.
- ['] (s+loop) ['] (s+loop)-lp+!# loop-like ; immediate restrict
 
 : NEXT ( compilation do-sys -- ; run-time loop-sys1 -- | loop-sys2 ) \ gforth
     \G @xref{Counted Loops}.

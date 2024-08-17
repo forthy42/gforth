@@ -299,7 +299,6 @@ GFORTH_FI_SRC2=\
 	hash.fs \
 	help.txt \
 	history.fs \
-	intcomp.fs \
 	iloops.fs \
 	libcc.fs \
 	locals.fs \

@@ -22,7 +22,6 @@
 
 ' noop ' slit, :noname slit, postpone 2lit, ;
 translate: translate-string
-' translate-string Constant rectype-string \ gforth-obsolete
 
 : rec-string ( addr u -- addr u' translate-string | notfound ) \ gforth-experimental
     \G Convert strings enclosed in double quotes into string literals,

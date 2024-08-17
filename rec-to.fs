@@ -21,7 +21,6 @@
 : post-to, ( nt -- )  swap lit, lit, ;
 
 ' (to) ' (to), ' post-to, >postponer translate: translate-to
-' translate-to Constant rectype-to \ gforth-obsolete
 
 : rec-to ( addr u -- xt n translate-to | notfound ) \ gforth-experimental
     \G words prefixed with @code{->} are treated as if preceeded by

@@ -176,9 +176,6 @@ Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
 ' id. alias .id ( nt -- ) \ gforth dot-i-d
 \G F83 name for @code{id.}.
 
-' id. alias .name ( nt -- ) \ gforth-obsolete  dot-name
-\G Gforth <=0.5.0 name for @code{id.}.
-
 [THEN]
 
 : .voc ( wid -- ) \ gforth  dot-voc
