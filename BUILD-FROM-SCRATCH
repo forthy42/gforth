@@ -38,6 +38,9 @@ rm -f kernl*.fi gforth.fi gforth gforth-ditc gforth-ll* gforth-fast* # remove so
 ./autogen.sh &&
 ./configure "$@" &&
 echo Running: make &&
+make start-summary &&
 make -j$nprocs && rm kernl*.fi- && make &&
 make -j$nprocs doc &&
-make -j$nprocs more
+make -j$nprocs more &&
+make show-success ||
+make show-fail

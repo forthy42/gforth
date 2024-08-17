@@ -67,9 +67,9 @@ User out ( -- addr ) \ gforth
 
 #-512 Constant EOK
 #-516 Constant EINTR \ error returned for window change
-\ base @ decimal \ suppress warning about EBADF being a literal
+unlock H base @ decimal lock T \ suppress warning about EBADF being a literal
 #-521 Constant EBADF
-\ base !
+unlock H base ! lock T
 
 : key-file ( fd -- key ) \ gforth
     \G Read one character @i{n} from @i{wfileid}.  This word disables

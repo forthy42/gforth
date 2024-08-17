@@ -43,3 +43,9 @@ else
   @GFORTHKER@ -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" exboot.fs startup.fs \
       -e "$EXTRAPATH" "$@"
 fi
+
+# if test -z
+if [ $? -ne "0" ]; then
+    echo "- $1" >> @LOGDIR@/more
+fi
+
