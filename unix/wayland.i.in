@@ -7,6 +7,7 @@
 #include <wayland-client-protocol.h>
 #include <wayland-cursor.h>
 @WAYLAND_INCLUDES@
+#define WAYLAND_MIN_VER(x, y) (WAYLAND_VERSION_MAJOR > x || (WAYLAND_VERSION_MAJOR == x && WAYLAND_VERSION_MINOR >= y))
 %}
 
 %apply int { int32_t, wl_fixed_t }
