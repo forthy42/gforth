@@ -236,6 +236,7 @@ Forth Words
 * Control Structures::
 * Defining Words::
 * Structures::
+* User-defined Stacks::
 * Interpretation and Compilation Semantics::
 * Tokens for Words::
 * Compiling words::
@@ -4795,6 +4796,7 @@ and pasting the output of @code{...} (@pxref{Examining data}).
 * Control Structures::
 * Defining Words::
 * Structures::
+* User-defined Stacks::
 * Interpretation and Compilation Semantics::
 * Tokens for Words::
 * Compiling words::
@@ -5545,7 +5547,9 @@ Special values in IEEE754 can be derived by for example dividing by zero.
 The most common ones are defined as floating point constants for easy usage.
 
 doc-infinity
+doc-inf
 doc--infinity
+doc--inf
 doc-nan
 
 @node Stack Manipulation, Memory, Arithmetic, Words
@@ -8817,7 +8821,7 @@ ticking it (or using @code{name>interpret}) produces the same xt as
 the original (@pxref{Tokens for Words}).
 
 @c ----------------------------------------------------------
-@node Structures, Interpretation and Compilation Semantics, Defining Words, Words
+@node Structures, User-defined Stacks, Defining Words, Words
 @section  Structures
 @cindex structures
 @cindex records
@@ -9231,7 +9235,39 @@ doc-%size
 doc-struct
 
 @c ----------------------------------------------------------------
-@node Interpretation and Compilation Semantics, Tokens for Words, Structures, Words
+@node User-defined Stacks, Interpretation and Compilation Semantics, Structures, Words
+@section User-defined Stacks
+@cindex stack, user-defined
+@cindex double-ended queue
+@cindex deque
+
+Gforth supports user-defined stacks.  They are used for implementing
+features such as recognizer sequences, but you can also define stacks
+for your own purposes.  And these stacks actually support inserting
+and deleting at both ends, so they are actually double-ended queues
+(deques).  In addition, they support inserting and deleting in the
+middle.
+
+In Gforth the stacks grow as necessary, but the interface is designed
+to also support resource-constrained systems that allocate fixed-size
+stacks, where exceeding the stack size results in an error.  So you
+should provide the size parameter accordingly.
+
+A stacks is represented on the data stack by a cell.
+
+doc-stack
+doc-stack:
+doc-stack>
+doc->stack
+doc->back
+doc-back>
+doc-+after
+doc--stack
+doc-set-stack
+doc-get-stack
+
+@c ----------------------------------------------------------------
+@node Interpretation and Compilation Semantics, Tokens for Words, User-defined Stacks, Words
 @section Interpretation and Compilation Semantics
 @cindex semantics, interpretation and compilation
 
@@ -9898,6 +9934,7 @@ pass an execution token and @code{compile,} it:
 @end example
 
 doc-compile,
+doc-2compile,
 
 An alternative available in Gforth, that allows you to pass the
 compilation semantics as parameters is to use the compilation token
@@ -14767,8 +14804,8 @@ primitive compiled for @code{;} in @code{foo}).  @code{;s} performs
 control flow (it returns), so it has to end with a NEXT.
 
 @node Examining data, Forgetting words, Examining compiled code, Programming Tools
-@subsection Examining data and code
-@cindex examining data and code
+@subsection Examining data
+@cindex examining data
 
 The following words inspect the stack non-destructively:
 

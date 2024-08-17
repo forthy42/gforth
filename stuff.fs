@@ -167,14 +167,15 @@ opt: @ 3 swap (to), ;
     ['] forth-recognize set-recognizer-sequence ;
 
 : -stack { x stack -- } \ gforth-experimental
-    \G delete x from a stack
+    \G Delete every occurence of @i{x} from anywhere in @i{stack}.
     stack get-stack  0 stack set-stack 0 ?DO
-	dup x <> IF  stack >back  ELSE  drop  THEN
+        dup x <> IF  stack >back  ELSE	drop  THEN
     LOOP ;
-: +after { y x stack -- } \ gforth-experimental
-    \G add @var{y} after @var{x} in stack
+
+: +after { x1 x2 stack -- } \ gforth-experimental
+    \G Insert @var{x1} below every occurence @var{x2} in @i{stack}.
     stack get-stack  0 stack set-stack 0 ?DO
-	dup stack >back x = IF  y stack >back  THEN
+	dup stack >back x2 = IF  x1 stack >back  THEN
     LOOP ;
 
 0 Value try-free
