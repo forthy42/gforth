@@ -23,7 +23,9 @@ true DefaultValue NIL  \ relocating
 
 >ENVIRON
 
+base @ decimal
 @EC_MODE@ DefaultValue ec
+base !
 
 T has? ec H 0= [IF]
 true DefaultValue file		\ controls the presence of the
