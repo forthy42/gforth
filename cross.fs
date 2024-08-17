@@ -61,8 +61,9 @@ definitions Forth
 forth definitions
 
 : T  previous Ghosts also Target ; immediate
+warnings @ 0 warnings !
 : G  Ghosts ; immediate
-
+warnings !
 
 : >cross  also Cross definitions previous ;
 : >target also Target definitions previous ;
@@ -681,12 +682,9 @@ false DefaultValue create-forward-warn   \ warn on forward declaration of create
 
 previous >CROSS
 
-: .dec
-  base @ decimal swap . base ! ;
-
 : .sourcepos
   cr sourcefilename type ." :"
-  sourceline# .dec ;
+  sourceline# dec. ;
 
 : warnhead
 \G display error-message head
@@ -1325,12 +1323,8 @@ true DefaultValue standardthreading
 s" relocate" T environment? H 
 \ JAW why set NIL to this?!
 [IF]	drop \ SetValue NIL
-[ELSE]	>ENVIRON X NIL SetValue relocate
+[ELSE]  >ENVIRON X NIL SetValue relocate
 [THEN]
->TARGET
-
-0 Constant NIL
-
 >CROSS
 
 \ \ Create additional parameters                         19jan95py
@@ -1355,7 +1349,7 @@ check-address-unit-bits
 \ this sets byte size for the target machine, (probably right guess) jaw
 
 T
-NIL		   	Constant TNIL
+0		   	Constant TNIL
 cell               	Constant tcell
 cell<<             	Constant tcell<<
 cell>bit           	Constant tcell>bit
@@ -2148,7 +2142,7 @@ variable ResolveFlag
   WHILE	cr 5 spaces
 	dup >ghost @ .ghost
 	."  file " dup >file @ ?dup IF count type ELSE ." CON" THEN
-	."  line " dup >line @ .dec
+	."  line " dup >line @ dec.
   REPEAT 
   drop ;
 

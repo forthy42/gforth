@@ -239,12 +239,12 @@ translate: translate-float
 0.e0 1/f fconstant infinity ( -- r ) \ gforth
 \G floating point infinity
 synonym inf infinity ( -- r ) \ gforth
-\G synonym for copy-paste from @code{...}, @xref{Examining data and code}.
+\G synonym of @code{infinity} for copy-paste from @code{...}, @xref{Examining data and code}.
 
 infinity fnegate fconstant -infinity ( -- r ) \ gforth
 \G floating point -infinity
-synonym -inf -infinity
-\G synonym for copy-paste from @code{...}, @xref{Examining data and code}.
+synonym -inf -infinity ( -- r ) \ gforth
+\G synonym of @code{-infinity} for copy-paste from @code{...}, @xref{Examining data and code}.
 
 0.e0 0.e0 f/ fconstant NaN ( -- r ) \ gforth
 \G floating point Not a Number

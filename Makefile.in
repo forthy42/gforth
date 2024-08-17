@@ -1582,7 +1582,7 @@ doc/doc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_GEN_SRC)
 		$(srcdir)/move-if-change doc/doc.fd.tmp $@
 
 doc/extradoc.fd:	doc/makedoc.fs gforth$(EXT) gforth-light.fi $(EXTRA_DOC) $(LIBCC_GEN_SRC) build-libcc-named
-		env GFORTH_IGNLIB=true GFORTH_COMPILELIB=no $(FORTHP) -i gforth-light.fi -e "s\" doc/extradoc.fd.tmp\"" doc/makedoc.fs $(EXTRA_DOC) -e bye
+		env GFORTH_IGNLIB=true GFORTH_COMPILELIB=no $(FORTHP) -i gforth-light.fi -e "s\" doc/extradoc.fd.tmp\"" doc/makedoc.fs -e "warnings off" $(EXTRA_DOC) -e bye
 		$(srcdir)/move-if-change doc/extradoc.fd.tmp $@
 
 doc/minosdoc.fd:	doc/makedoc.fs gforth$(EXT) gforth-light.fi $(MINOS_DOC) $(LIBCC_GEN_SRC) build-libcc-named

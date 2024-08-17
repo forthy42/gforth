@@ -22,7 +22,7 @@ VARIABLE PNT Names PNT !
               CharCount @ MaxChars U< 0= IF CR 9 SPACES 0 CharCount ! THEN
            ELSE DROP THEN ;
 
-: PLACE ( adr cnt adr -- ) 2DUP C! 1+ SWAP MOVE ;
+\ : PLACE ( adr cnt adr -- ) 2DUP C! 1+ SWAP MOVE ;
 
 : WS    INIT
         PNT @ 2 CELLS + PNT !
