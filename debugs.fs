@@ -148,7 +148,7 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 
 :noname ( f xt -- )
     \ if f, output a warning by EXECUTEing xt
-    swap warnings @ and if
+    swap warnings @ 0<> and if
 	[: cr warning-color current-view .sourceview ." : warning: " execute
 	default-color ;] do-debug
 	warnings @ abs 4 >= warning-error and throw
@@ -173,7 +173,7 @@ is ?warning
     \ prints a warning if the string is already present in the wordlist
     \ don't check 0-length names (as in noname-w:)
     over 0= warnings @ 0= or IF  drop 2drop  EXIT  THEN
-    >r 2dup r> find-name-in dup
+    >r 2dup r> find-name-in dup 0<>
     ['] shadow-warning ?warning IF  2drop  EXIT  THEN
     warnings @ >r warnings off
     sp@ fp@ 2>r 2dup warning-recs recognize 2r> rot >r
