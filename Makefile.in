@@ -1653,7 +1653,7 @@ start-summary:
 
 show-summary:
 	@echo "=== < Summary > ===" | $(LOLCAT_NEUTRAL)
-	@echo "Non critical errors:"
+	-[ -s $(LOGDIR)/more ] && echo "Non critical errors:"
 	cat $(LOGDIR)/more
 	$(RMTREE) $(LOGDIR)
 
