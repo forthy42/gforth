@@ -8906,6 +8906,8 @@ my-intlist2 intlist-sum . \ prints "12"
 In addition to @code{field:} for cell-aligned and cell-sized fields,
 you can define fields sized and aligned for various types with:
 
+doc-begin-structure
+doc-end-structure
 doc-cfield:
 doc-field:
 doc-2field:
@@ -10561,6 +10563,7 @@ doc-notfound
 doc-rec-nt
 doc-rec-num
 doc-rec-float
+doc-rec-complex
 doc-rec-string
 doc-rec-to
 doc-rec-tick
@@ -12195,6 +12198,7 @@ macro that just returns a string.
 
 doc-macros-wordlist
 doc-replaces
+doc-replacer:
 doc-.substitute
 doc-$substitute
 doc-substitute
@@ -12467,6 +12471,8 @@ doc-c^
 doc-f:
 doc-fa:
 doc-f^
+doc-z:
+doc-za:
 doc-xt:
 doc-xta:
 
@@ -15654,7 +15660,9 @@ of Gforth can even cross-compile these libraries, so that the libraries
 are available for plattforms on which build tools aren't installed.
 
 doc-c-library-name
+doc-c++-library-name
 doc-c-library
+doc-c++-library
 doc-end-c-library
 
 
