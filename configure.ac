@@ -2072,6 +2072,23 @@ AC_LANG([C])
 LIBTOOL_CXX=${CXX#$CROSS_PREFIX}
 AC_SUBST(LIBTOOL_CXX)
 
+# logging helpers
+LOGDIR=logs
+
+AC_CHECK_PROG(LOLCAT_SUCCESS, lolcat, lolcat -i --seed=40, cat)
+AC_CHECK_PROG(LOLCAT_NEUTRAL, lolcat, lolcat -i --seed=87, cat)
+AC_CHECK_PROG(LOLCAT_FAIL, lolcat, lolcat -i --seed=196, cat)
+
+AC_CHECK_PROG(COWSAY_SUCCESS, cowsay, cowsay -f tux, echo)
+AC_CHECK_PROG(COWSAY_FAIL, cowsay, cowsay -f mutilated, echo)
+
+AC_SUBST(LOGDIR)
+AC_SUBST(LOLCAT_SUCCESS)
+AC_SUBST(LOLCAT_NEUTRAL)
+AC_SUBST(LOLCAT_FAIL)
+AC_SUBST(COWSAY_SUCCESS)
+AC_SUBST(COWSAY_FAIL)
+
 # finally create config files
 
 AC_CONFIG_FILES([
