@@ -172,7 +172,7 @@ Defer locals-post,
 ' translate-nt >body 2@ swap
 ' locals-post,
 translate: translate-locals
-\G translate locals, which postpone to their value as literal
+\ undocumented for good reasons
 
 : locals-rec [ ' locals >wordlist ] Literal execute
     dup ['] translate-nt = IF  drop ['] translate-locals  THEN ;

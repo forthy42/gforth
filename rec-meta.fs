@@ -18,7 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: rec-meta ( addr u -- xt translate-to | notfound )
+: rec-meta ( addr u -- xt translate-to | notfound ) \ gforth
     \G words prefixed with @var{recognizer}@code{?} are processed by
     \G @code{rec-}@var{recognizer} to disambiguate recognizers.
     \G Example: @code{hex num?cafe num?add} will be parsed as number only
