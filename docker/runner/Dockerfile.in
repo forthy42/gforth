@@ -1,4 +1,4 @@
-FROM alpine:edge
+FROM alpine:latest
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
 ENV LANG C.UTF-8
 ENV VERSION @GFORTH_VERSION@
