@@ -478,7 +478,7 @@ types definitions
 
 : Fpostpone  postpone postpone ; immediate
 
-: : ( <methodname> -- ) \ oof- oof colon
+: : ( <methodname> -- )
     decl @ abort" HOW: missing! "
     bl word findo drop
     dup exec? over early? or over >body cell+ @ 0< or
@@ -487,7 +487,7 @@ types definitions
 
 Forth
 
-: ; ( xt colon-sys -- ) \ oof- oof
+: ; ( xt colon-sys -- )
     postpone ;
     m-name @ dup >body swap exec?
     IF    @ o@ +
@@ -533,7 +533,7 @@ Create object  immediate  0 (class \ do not create as subclass
 				immediate
 	 early     is  ( xt "name" -- ) \ oof-object- oof
 				immediate
-	 early     send ( xt -- ) \ oof-object- oof
+	 early     send ( xt -- )
 				immediate
 	 early     with ( o -- ) \ oof-object- oof
 				immediate
@@ -597,11 +597,11 @@ class; \ object
 
 Objects definitions
 
-: implement ( interface -- ) \ oof-interface- oof
+: implement ( interface -- )
     align here over , ob-interface @ , ob-interface !
     :ilist + @ >r get-order r> swap 1+ set-order  1 voc# +! ;
 
-: inter-method, ( interface -- ) \ oof-interface- oof
+: inter-method, ( interface -- )
     :ilist + @ bl word count 2dup s" '" str=
     dup >r IF  2drop bl word count  THEN
     rot search-wordlist
@@ -615,22 +615,22 @@ Variable inter#
 
 Vocabulary interfaces  interfaces definitions
 
-: method  ( -- ) \ oof-interface- oof
+: method  ( -- )
     mallot Create , inter# @ ,
 DOES> 2@ swap o@ + @ + @ execute ;
 
-: how: ( -- ) \ oof-interface- oof
+: how: ( -- )
     align
     here lastif @ !  0 decl !
     here  last-interface @ ,  last-interface !
     inter-list @ ,  methods @ ,  inter# @ ,
     methods @ :inum cell+ ?DO  ['] crash ,  LOOP ;
 
-: interface; ( -- ) \ oof-interface- oof
+: interface; ( -- )
     old-current @ set-current
     previous previous ;
 
-: : ( <methodname> -- ) \ oof-interface- oof colon
+: : ( <methodname> -- )
     decl @ abort" HOW: missing! "
     bl word count lastif @ @ :ilist + @
     search-wordlist 0= abort" not found"
@@ -639,7 +639,7 @@ DOES> 2@ swap o@ + @ + @ execute ;
 
 Forth
 
-: ; ( xt colon-sys -- ) \ oof-interface- oof
+: ; ( xt colon-sys -- )
   postpone ;
   m-name @ >body @ lastif @ @ + ! ; immediate
 
@@ -647,7 +647,7 @@ Forth definitions
 
 : interface-does>
     DOES>  @ decl @  IF  implement  ELSE  inter-method,  THEN ;
-: interface ( -- ) \ oof-interface- oof
+: interface ( -- )
     Create  interface-does>
     here lastif !  0 ,  get-current old-current !
     last-interface @ dup  IF  :inum + @  THEN  cell- inter# !
