@@ -22,6 +22,6 @@ script:
   - ./autogen.sh
   - export CC=gcc
   - if [ "${TRAVIS_OS_NAME}" = osx ]; then gcc -v; gcc-14 -v; export CC=gcc-14; fi
-  - ./configure --enable-lib CC="$CC $M32"
+  - ./configure --with-extra-libs --enable-lib CC="$CC $M32"
   - make
   - for i in misc r8c 8086 c165; do ./build-ec $i; done
