@@ -1,5 +1,5 @@
 -*- RoadMap for gforth 1.0 -*-
-ABGO Anton, Bernd, Gerald, Others welcome! * = work in progress, x = done, d = dropped
+ABGO Anton, Bernd, Gerald, Others welcome! * = work in progress, x = done, d = dropped, /=drop-candidate
  B   [x] Multithreading API
  B       [x] Documentation
 A        [ ]*Documentation review
@@ -9,7 +9,7 @@ A        [ ]*Documentation review
   G      [x]*Allow for `#?include (c/)?stdio` Same structure as in C -> supported by posix repo
   G      [x] Hinweis auf SWIG für das C-interface Link auf https://github.com/GeraldWodni/posix
   G      [ ] Include posix in release (#include or friends?)
-  G      [ ] Use __attribute__((weak)) for functions, see https://steveyang.blog/en/2022/08/15/gnuc-c-weak-symbol-__atrribute__weak/
+  G      [ ]*Use __attribute__((weak)) for functions, see https://steveyang.blog/en/2022/08/15/gnuc-c-weak-symbol-__atrribute__weak/
              link against library, use if(<function-name>)...
 A    [ ] Recognizer Documentation & Examples
 A        [x] simplify API
@@ -18,7 +18,7 @@ AB       [x] Documentation in manual
   G      [x] Modify env-recognizer to use ${HOME} instead of $HOME to avoid collision with hex-numbers like $BEEF
  B       [ ]*update to current word names etc.
 ABGO [ ]*Documentation for Undocumented features
- B       [ ]*Document so far, that other programmers can understand the code and complete the documentation
+ B       [x] Document so far, that other programmers can understand the code and complete the documentation
 A        [d] Search changelogs for features
 A        [x] Document what is stable and what is not
 AB   [x] Only make words obsolete that are not used in Gforth and that are non-standard
@@ -38,29 +38,29 @@ A        [x] where: interaction with editors - g can be used
  B       [x] Handle long lines properly in AFTER-L
 AB       [x] switch between where or backtrace results with left and right keys
 B    [x] version comparison 001.000.000 -> upgrade path: 000.007.009
-  G  [ ]*theforth.net - client: look for local version or use global version
- BG  [ ]*SWIG: SWIG-forth rename as proper fork, create docker and flatpak
-  G  [x]*find out why GLforth stopped working
+  G  [/]*theforth.net - client: look for local version or use global version
+ BG  [x] SWIG: SWIG-forth rename as proper fork, create docker and flatpak
+  G  [x] find out why GLforth stopped working
   G  [x] better vim support
-A    [ ] changelog
-A    [ ] news-file
+A    [ ]*changelog
+A    [ ]*news-file
 A    [ ]*update this ToDo file
- BG  [x]*implement smart .s "..."
+ BG  [x] implement smart .s "..."
  B   [x] Extensible ... : Allow a stack of recognizer-like scanners
- B   [ ]*Configurable ... : Allow different outputs (think about notation)
+ B   [/]*Configurable ... : Allow different outputs (think about notation)
 AB   [x] ~~ uses ... and prints floating stack
  B   [x] compare-image warnings überprüfen
-ABG  [ ]*fix warnings during compilation
+ABG  [x]*fix warnings during compilation
 ABG  [ ] defaults
 ABG      [x] which recognizers should be included by default
          [x] which files should be in image
-A        [ ]*documented words which are not included by default should state how they are included
+A        [x] documented words which are not included by default should state how they are included
 A    [x] see-code should work properly with zero-length primitives
  B   [ ] Build issues
  B       [ ] Build extra libs only on request
  B       [ ] Build text-only on request
  B       [ ] configure stops if gcc is really LLVM
-  G      [ ] Hints for errors
+  G      [x] Summary for BUILD-FROM-SCRATCH 
 AB       [ ] Try building on non-Linux machines (cfarm)
 
 -*- RoadMap for gforth post 1.0 -*-
