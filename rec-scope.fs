@@ -19,7 +19,8 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : nosplit? ( addr1 u1 addr2 u2 --  addr1 u1 addr2 u2 flag ) \ gforth-experimental
-    \G is true if it didn't split
+    \G Used on the result of @code{$split}, flag is true iff the
+    \G separator does not occur in the input string of @code{$split}.
     dup 0= IF  over >r 2over + r> =  ELSE  false  THEN ;
 
 : scope-split ( addr u wid -- nt rectype-nt | notfound )

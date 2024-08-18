@@ -455,7 +455,6 @@ The @file{oof.fs} model
 * Basic OOF Usage::
 * The OOF base class::
 * Class Declaration::
-* Class Implementation::
 
 The @file{mini-oof.fs} model
 
@@ -6211,6 +6210,8 @@ doc-search
 doc-scan
 doc-scan-back
 doc-skip
+doc-$split
+doc-nosplit?
 doc--trailing
 doc-/string
 doc-safe/string
@@ -6272,7 +6273,6 @@ doc-$+!
 doc-c$+!
 doc-$free
 doc-$init
-doc-$split
 doc-$iter
 doc-$over
 doc-$exec
@@ -9351,7 +9351,9 @@ Note that ticking (@code{'}) a compile-only word gives a warning
 @cindex combined words
 
 Gforth allows you to define @dfn{combined words} -- words that have an
-arbitrary combination of interpretation and compilation semantics.
+arbitrary combination of interpretation and compilation semantics
+(some people call them NDCS words, and mean words with non-default and
+non-immediate compilation semantics).
 
 doc-interpret/compile:
 
@@ -9364,60 +9366,67 @@ part, and one that embodies the compilation part.  Once you have done
 that, you can define a combined word with @code{interpret/compile:} for
 the convenience of your users.
 
-You might try to use this feature to provide an optimizing
-implementation of the default compilation semantics of a word. For
-example, by defining:
-@example
-:noname
-   foo bar ;
-:noname
-   POSTPONE foo POSTPONE bar ;
-interpret/compile: opti-foobar
-@end example
-
-@noindent
-as an optimizing version of:
+A typical usage example is:
 
 @example
-: foobar
-    foo bar ;
+: s"-int ( -- c-addr u )
+  '"' parse save-mem ;
+: s"-comp ( -- ; run-time: -- c-addr u )
+  '"' parse postpone sliteral ;
+' s"-int ' s"-comp interpret/compile: s"
 @end example
 
-Unfortunately, this does not work correctly with @code{[compile]},
-because @code{[compile]} assumes that the compilation semantics of all
-@code{interpret/compile:} words are non-default. I.e., @code{[compile]
-opti-foobar} would compile compilation semantics, whereas
-@code{[compile] foobar} would compile interpretation semantics.
+Some people are not happy with the looks of the definition above, so
+Gforth also provides additional ways to write this kind of definition:
+
+doc-set-compsem
+doc-compsem:
+doc-intsem:
+
+Note that there are and should be only few combined words, ideally
+none, and their definitions don't need to be pretty (on the contrary,
+their uglyness may provide a warning that ``here be dragons'').  So
+our recommendation is to use @code{interpret/compile:}.
+
+It is a bad idea to try to use combined words for optimization of
+words with default compilation semantics: Gforth has a better
+mechanism for that (@code{set-optimizer} and @code{opt:},
+@pxref{User-defined compile-comma}), @code{[compile]} treats
+combined words as having non-default compilation semantics, and the
+intended optimization does not happen when the combined word is ticked
+and @code{compile,}d.
 
 @cindex state-smart words (are a bad idea)
-@anchor{state-smartness}
-Some people try to use @dfn{state-smart} words to emulate the feature provided
-by @code{interpret/compile:} (words are state-smart if they check
+@anchor{state-smartness} Some people try to use @dfn{state-smart}
+words to emulate combined words (words are state-smart if they check
 @code{STATE} during execution). E.g., they would try to code
-@code{foobar} like this:
+@code{s"} like this:
 
 @example
 : foobar
-  STATE @@
-  IF ( compilation state )
-    POSTPONE foo POSTPONE bar
+  STATE @@ IF ( compilation state )
+    comp-s"
   ELSE
-    foo bar
-  ENDIF ; immediate
+    int-s"
+  THEN ; immediate
 @end example
 
-Although this works if @code{foobar} is only processed by the text
+Although this works if @code{s"} is only processed by the text
 interpreter, it does not work in other contexts (like @code{'} or
-@code{POSTPONE}). E.g., @code{' foobar} will produce an execution token
-for a state-smart word, not for the interpretation semantics of the
-original @code{foobar}; when you execute this execution token (directly
-with @code{EXECUTE} or indirectly through @code{COMPILE,}) in compile
-state, the result will not be what you expected (i.e., it will not
-perform @code{foo bar}). State-smart words are a bad idea. Simply don't
-write them@footnote{For a more detailed discussion of this topic, see
-M. Anton Ertl,
+@code{POSTPONE}). E.g., @code{' foobar} will produce an execution
+token for a state-smart word, not for the interpretation semantics of
+the original @code{foobar}; when you execute this execution token
+(directly with @code{EXECUTE} or indirectly through @code{COMPILE,})
+in compile state, the result will not be what you expected (i.e., it
+will not call @code{int-s"}). State-smart words are a bad idea. Simply
+don't write them@footnote{For a more detailed discussion of this
+topic, see M. Anton Ertl,
 @cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl98.ps.gz,@code{State}-smartness---Why
-it is Evil and How to Exorcise it}}, EuroForth '98.}!
+it is Evil and How to Exorcise it}}, EuroForth '98.}!  Gforth provides
+better alternatives: @code{interpret/compile:} and @code{set->comp}
+for implementing combined words, and @code{set-optimizer} for
+implementing optimizations of words with default compilation
+semantics.
 
 @c -------------------------------------------------------------
 @node Tokens for Words, Compiling words, Interpretation and Compilation Semantics, Words
@@ -10569,6 +10578,9 @@ doc-rec-to
 doc-rec-tick
 doc-rec-dtick
 doc-rec-body
+doc-rec-env
+doc-rec-scope
+doc-rec-meta
 doc-get-recognizers
 doc-set-recognizers
 doc-recognize
@@ -10701,6 +10713,8 @@ doc-forth-wordlist
 doc-definitions
 doc-get-current
 doc-set-current
+doc-in-wordlist
+doc-in
 doc-get-order
 doc-set-order
 doc-wordlist
@@ -13881,7 +13895,6 @@ oriented bigFORTH} by Bernd Paysan, published in @cite{Vierte Dimension}
 * Basic OOF Usage::
 * The OOF base class::
 * Class Declaration::
-* Class Implementation::
 @end menu
 
 @node Properties of the OOF model, Basic OOF Usage, OOF, OOF
@@ -14094,7 +14107,7 @@ doc---oof-object-endwith
 
 @end itemize
 
-@node Class Declaration, Class Implementation, The OOF base class, OOF
+@node Class Declaration,  , The OOF base class, OOF
 @subsubsection Class Declaration
 @cindex class declaration
 
@@ -14140,10 +14153,11 @@ doc---oof-class;
 
 @end itemize
 
-@c -------------------------------------------------------------
-@node Class Implementation,  , Class Declaration, OOF
-@subsubsection Class Implementation
-@cindex class implementation
+
+@c @c -------------------------------------------------------------
+@c @node Class Implementation,  , Class Declaration, OOF
+@c @subsubsection Class Implementation
+@c @cindex class implementation
 
 @c -------------------------------------------------------------
 @node Mini-OOF, Mini-OOF2, OOF, Object-oriented Forth

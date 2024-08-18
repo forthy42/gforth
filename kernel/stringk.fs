@@ -105,10 +105,14 @@
 
 \ dynamic string handling                              12dec99py
 
-: $split ( addr u char -- addr1 u1 addr2 u2 ) \ gforth string-split
-    \G divides a string into two, with one char as separator (e.g. '?'
-    \G for arguments in an HTML query)
-    >r 2dup r> scan dup >r dup IF  1 /string  THEN
+: $split ( c-addr u char -- c-addr u1 c-addr2 u2 ) \ gforth string-split
+    \G Divides a string @i{c-addr u} into two, with @i{char} as
+    \G separator.  @i{U1} is the length of the string up to, but
+    \G excluding the first occurence of the separator, @i{c-addr2 u2}
+    \G is the part of the input string behind the separator.  If the
+    \G separator does not occur in the string, @i{u1}=@i{u}, @i{u2}=0
+    \G and @i{c-addr2}=@i{c-addr}+@i{u}.
+    >r 2dup r> scan dup >r dup IF 1 /string THEN
     2swap r> - 2swap ;
 
 : $iter ( .. $addr char xt -- .. ) \ gforth string-iter

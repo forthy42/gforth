@@ -23,7 +23,7 @@
 -1 warnings !@ \ supress obsolete warnings
 
 [IFDEF] obsolete-mask
-    : obsoletes ( -- ) \ gforth
+    : obsoletes ( -- ) \ gforth-internal
 	\G show all obsolete words
 	cr 0 [: dup >f+c @ obsolete-mask and
 	    IF  .word  ELSE  drop  THEN  true ;]
