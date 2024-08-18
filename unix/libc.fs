@@ -125,15 +125,15 @@ $010 Constant POLLHUP
     over $@len over 1+ pollfd * umax third $!len
     pollfd * swap $@ drop + tuck events w! fd l! ;
 
-: errno-throw ( errno -- ) \ gforth
+: errno-throw ( errno -- ) \ gforth-internal
     \G throws code from a C error code on the stack (if not 0)
     ?dup-IF  -512 swap - throw  THEN ;
 : ?errno-throw ( f -- ) \ gforth
-    \G throw code computed from errno if f!=0
+    \G If @i{f}<>0, throws an error code based on the value of @code{errno}.
     IF  errno errno-throw  THEN ;
 
 : ?ior ( x -- ) \ gforth
-    \G use errno to generate throw when failing
+    \G If @i{f}=-1, throws an error code based on the value of @code{errno}.
     -1 = ?errno-throw ;
 
 [defined] int-execute [if]

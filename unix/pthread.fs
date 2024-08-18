@@ -227,7 +227,7 @@ Defer thread-init
     \G @i{name} execution: ( -- @i{task} )
     newtask constant ;
 
-: (activate) ( task -- ) \ gforth-experimental
+: (activate) ( task -- ) \ gforth-internal
     \G activates task, the current procedure will be continued there
     r> swap >r  save-task r@ 's !
     pthread-id r@ 's pthread_detach_attr thread_start r> pthread_create drop ; compile-only
@@ -239,7 +239,7 @@ Defer thread-init
     \G terminates itself.
     ]] (activate) up! thread-init [[ ; immediate compile-only
 
-: (pass) ( x1 .. xn n task -- ) \ gforth-experimental
+: (pass) ( x1 .. xn n task -- ) \ gforth-internal
     r> swap >r  save-task r@ 's !
     1+ dup cells negate  sp0 r@ 's @ -rot  sp0 r@ 's +!
     sp0 r@ 's @ swap 0 ?DO  tuck ! cell+  LOOP  drop
@@ -289,7 +289,7 @@ synonym sema semaphore
     { sema } try sema lock execute 0 restore sema unlock endtry throw ;
 synonym c-section critical-section
 
-: >pagealign-stack ( n addr -- n' ) \ gforth-experimental
+: >pagealign-stack ( n addr -- n' ) \ gforth-internal
     -1 under+ 1- pagesize negate mux 1+ ;
 : stacksize ( -- u ) \ gforth-experimental
     \G @i{u} is the data stack size of the main task.
@@ -330,6 +330,7 @@ synonym c-section critical-section
 \G Stop with timeout (in nanoseconds), better replacement for ms
     epiper @ swap 0 1000000000 um/mod wait_read 0> IF  stop  THEN ;
 : stop-dns ( dtimeout -- ) \ gforth-experimental
+\G Stop with timeout (in nanoseconds), better replacement for ms
     epiper @ -rot 1000000000 um/mod wait_read 0> IF  stop  THEN ;
 \G Stop with dtimeout (in nanoseconds), better replacement for ms
 
@@ -347,8 +348,9 @@ synonym c-section critical-section
     \G for some reason).  This also checks for events in the queue.
     sched_yield ?events ;
 : thread-deadline ( d -- ) \ gforth-experimental
-    \G wait until absolute time @var{d} in nanoseconds, base is 1970-1-1 0:00
-    \G UTC
+    \G stop until absolute time @var{d} in nanoseconds, base is
+    \G 1970-1-1 0:00 UTC, but you usually will want to base your
+    \G deadlines on a time you get with @code{ntime}.
     BEGIN  2dup ntime d- 2dup d0> WHILE  stop-dns  REPEAT
     2drop 2drop ;
 ' thread-deadline is deadline
@@ -356,16 +358,18 @@ synonym c-section critical-section
 : (restart) ( task wake# -- )
     [{: n :}h1 n wake# ! ;] swap send-event ;
 : restart ( task -- ) \ gforth-experimental
-    \G Wake a task
+    \G Wake @i{task} (no difference from @code{wake})
     0 (restart) ;
 synonym wake restart ( task -- ) \ gforth-experimental
+    \G Wake @i{task}
 
 : halt ( task -- ) \ gforth-experimental
-    \G Stop a task
+    \G Stop @i{task} (no difference from @code{sleep})
     ['] stop swap send-event ;
 synonym sleep halt ( task -- ) \ gforth-experimental
+    \G Stop @i{task} (no difference from @code{halt})
 
-: event-block ( task -- ) \ gforth-experimental
+: event-block ( task -- ) \ gforth-internal
     \G send an event and wait for the answer
     dup up@ = IF \ don't block, just eval what we sent to ourselves
 	drop ?events

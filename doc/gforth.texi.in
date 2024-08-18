@@ -7144,10 +7144,21 @@ could tie @code{strerror} in as follows:
   errno errno-base over - swap 0<> and ;
 @end example
 
-When you call a C function (with the C interface) and its return value
-indictes that an error happened, you can then perform @code{errno-ior
-throw} to produce an exception with the proper error message (such as
-``Permission denied'').
+When you call a C function that can set @code{errno} (with the C
+interface, @pxref{C Interface}), you can use one of the following
+words for converting that error into a @code{throw}:
+
+doc-?errno-throw
+doc-?ior
+
+Which of these you should use depends on how the C function indicates
+that an error has happened.  When the system then catches a throw
+performed by one of these words, it produces the proper error message
+(such as ``Permission denied'').
+
+Note that the errno numbers are not directly used as throw codes
+(because the Forth standard specifies that positive throw codes must
+not be system-defined), but maps them into a different number range.
 
 A common idiom to @code{THROW} a specific @i{err#} if a
 flag is true is this:
@@ -15115,10 +15126,6 @@ doc-.coverage
 doc-annotate-cov
 doc-cov%
 doc-.cover-raw
-@c commented out because the included-file index is not a
-@c   user-friendly way to pass a file (yet).
-@c doc-.cover-file
-@c doc-covered?
 
 By default, the counts are shown in colour (using ANSI escape
 sequences), but you can use @code{bw-cover} to show them in
@@ -15128,10 +15135,12 @@ doc-bw-cover
 doc-color-cover
 
 You can save and reload the coverage counters in binary format, to
-aggregate coverage counters across several test runs.
+aggregate coverage counters across several test runs of the same
+program.
 
 doc-save-cov
 doc-load-cov
+doc-cover-filename
 
 @c -------------------------------------------------------------
 @node Multitasker, C Interface, Programming Tools, Words
@@ -15221,12 +15230,20 @@ doc-kill
 Tasks can also temporarily stop themselves or be stopped:
 
 doc-halt
+doc-sleep
 doc-stop
 doc-stop-ns
+doc-stop-dns
+doc-thread-deadline
+
+Using @code{stop-dns} is easier to code, but if you want your task to
+wake up at regular intervals rather than some time after it finished
+its last piece of work, the way to go is to work with deadlines.
 
 A task restarts when the timeout is over or when another task wakes it
 with:
 
+doc-wake
 doc-restart
 
 There is also:
@@ -15328,7 +15345,7 @@ using @code{:@}h1}, @pxref{Closures}) to achieve that, e.g., with
 : .-in-task ( n task -- )
   >r [@{: n :@}h1 n . ;] r> send-event ;
 
-5 my-task .-in-task
+5 my-task .-in-task \ my-task prints 5
 @end example
 
 doc-send-event
