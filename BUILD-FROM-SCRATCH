@@ -36,7 +36,7 @@ nprocs=`nproc || echo 1`
 
 rm -f kernl*.fi gforth.fi gforth gforth-ditc gforth-ll* gforth-fast* # remove some debris
 ./autogen.sh &&
-./configure "$@" &&
+./configure --with-extra-libs "$@" &&
 echo Running: make &&
 make start-summary &&
 make -j$nprocs && rm kernl*.fi- && make &&
