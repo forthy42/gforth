@@ -589,6 +589,7 @@ int gf_ungottenc(FILE *stream);
 /* signal handler stuff */
 void install_signal_handlers(void);
 void throw(int code);
+void gforth_fail();
 /* throw codes */
 #define BALL_DIVZERO     -10
 #define BALL_RESULTRANGE -11

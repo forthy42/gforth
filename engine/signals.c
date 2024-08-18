@@ -125,6 +125,11 @@ void throw(int code)
   longjmp(*throw_jmp_handler,code); /* !! or use siglongjmp ? */
 }
 
+void gforth_fail()
+{
+  throw(-21);
+}
+
 static void 
 signal_throw(int sig)
 {

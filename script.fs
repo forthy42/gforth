@@ -20,7 +20,7 @@
 
 : >system ( addr u -- ) cr system ;
 : system, slit, postpone >system ;
-' >system ' system, ' slit, >postponer recognized: recognized-eval
+' >system ' system, ' slit, >postponer translate: translate-eval
 ' translate-eval Constant rectype-eval \ gforth-obsolete
 
 : rec-shell ( addr u -- addr u' translate-eval | notfound )

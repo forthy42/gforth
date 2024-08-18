@@ -33,7 +33,7 @@ c-library libc
     \c #elif PAGESIZE
     \c #define getpagesize() PAGESIZE
     \c #endif
-    \c #define set_errno(n) (errno=n)
+    \c #define set_errno(n) (errno=(n))
     \c extern char ** environ;
     c-value errno errno -- n ( -- value )
     c-value FIONREAD FIONREAD -- n ( -- value )

@@ -101,6 +101,7 @@ extern user_area *gforth_main_UP;
 extern Cell gforth_go(Xt *ip);
 extern void gforth_sigset(sigset_t* set, ...);
 extern void gforth_setstacks(user_area*);
+extern void gforth_fail();
   /* #define GFORTH_ARGS gforth_stackpointers x, void* cdesc */
 #define GFORTH_ARGS gforth_stackpointers x
 gforth_stackpointers gforth_libcc_init(GFORTH_ARGS)

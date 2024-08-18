@@ -377,6 +377,7 @@ drop
     s" a" libcc-type c, 0 c, 0 c, ;
 
 0 Value is-funptr?
+0 Value is-weak?
 
 : type-letter ( n -- c )
     chars s" nuadUrfvsSt" drop + c@ ;
@@ -633,20 +634,24 @@ create gen-wrapped-types
     count 2dup { d: pars }
     + count 2dup to r-cast
     + count { d: c-name }
+    is-weak? IF  ." #pragma weak " c-name type cr  THEN
     .externc ." gforth_stackpointers " .prefix
     descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n{\n"
     pars c-name 2over count-stacks
     .\"   ARGN(" dup 1- .nb .\" ," over 1- .nb .\" );\n  "
     is-funptr? IF  ." Cell ptr = " c-name >ptr-declare type .\" ;\n  "  THEN
+    is-weak? IF  ." if(" c-name type .\" ) {\n    "  THEN
     ret gen-wrapped-stmt .\" ;\n"
+    is-weak? IF  .\" } else { gforth_fail(); }\n"  THEN
     dup is-funptr? or if
 	."   x.spx += " dup .nb .\" ;\n"
     endif drop
     ?dup-if
 	."   x.fpx += "     .nb .\" ;\n"
     endif
-    .\"   return x;\n}\n" ;
+    .\"   return x;\n}\n"
+    0 to is-weak? ;
 
 \ callbacks
 
@@ -1058,6 +1063,10 @@ latestnt Constant ft-vtable
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
     \G specified stack effect and calls the C function @code{c-name}.
     ['] parse-function-types (c-function) ;
+
+: c-weak-function ( "forth-name" "c-name" "@{type@}" "---" "type" -- ) \ gforth
+    \G Same as c-function, but defines a weak function that compiles anyways
+    true to is-weak? c-function ;
 
 : c-value ( "forth-name" "c-name" "---" "type" -- ) \ gforth
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
