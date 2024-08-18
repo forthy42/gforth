@@ -27,13 +27,13 @@ require rec-sequence.fs
 
 0 recognizer-sequence: search-order
 
-: >back ( x stack -- ) \ gforth-internal
-    \G push to bottom of stack
+: >back ( x stack -- ) \ gforth-experimental to-back
+    \G Insert @i{x} at the bottom of @i{stack}.
     dup >r $@len cell+ r@ $!len
     r@ $@ cell- over cell+ swap move
     r> $@ drop ! ;
-: back> ( stack -- x ) \ gforth-internal
-    \G pop from bottom of stack
+: back> ( stack -- x ) \ gforth-experimental back-from
+    \G Remove item @i{x} from bottom of @i{stack}.
     dup >r $@ IF  @ r@ 0 cell $del  ELSE  drop 0  THEN
     rdrop ;
 
@@ -175,9 +175,6 @@ Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
 
 ' id. alias .id ( nt -- ) \ gforth dot-i-d
 \G F83 name for @code{id.}.
-
-' id. alias .name ( nt -- ) \ gforth-obsolete  dot-name
-\G Gforth <=0.5.0 name for @code{id.}.
 
 [THEN]
 

@@ -50,8 +50,9 @@ synonym macro: $value
     true [: id. ." is a hard-coded macro" cr ;] ?warning  2drop drop ;
 
 : replacer: ( "name" -- ) \ gforth-experimental
-    \G create hardcoded macro, created word is in the macros wordlist
-    \G and must have the stack effect @var{( -- addr u )}.
+    \G Start a colon definition @i{name} in @code{macros-wordlist},
+    \G i.e. this colon definition is a macro.  It must have the stack
+    \G effect @var{( -- addr u )}.
     get-current >r macros-wordlist set-current
     : ['] warn-hardcoded set-to
     r> set-current ;

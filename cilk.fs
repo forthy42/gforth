@@ -55,7 +55,7 @@ semaphore workers-sema
 	task cell [: workers $+! ;] workers-sema c-section
 	-1 sync# +! ;] swap send-event ;
 
-: worker-thread ( invoker -- ) \ cilk
+: worker-thread ( invoker -- )
     1 stacksize4 newtask4 pass invoker !
     BEGIN  invoker @ +worker stop  AGAIN ;
 

@@ -236,6 +236,7 @@ Forth Words
 * Control Structures::
 * Defining Words::
 * Structures::
+* User-defined Stacks::
 * Interpretation and Compilation Semantics::
 * Tokens for Words::
 * Compiling words::
@@ -454,7 +455,6 @@ The @file{oof.fs} model
 * Basic OOF Usage::
 * The OOF base class::
 * Class Declaration::
-* Class Implementation::
 
 The @file{mini-oof.fs} model
 
@@ -4795,6 +4795,7 @@ and pasting the output of @code{...} (@pxref{Examining data}).
 * Control Structures::
 * Defining Words::
 * Structures::
+* User-defined Stacks::
 * Interpretation and Compilation Semantics::
 * Tokens for Words::
 * Compiling words::
@@ -5545,7 +5546,9 @@ Special values in IEEE754 can be derived by for example dividing by zero.
 The most common ones are defined as floating point constants for easy usage.
 
 doc-infinity
+doc-inf
 doc--infinity
+doc--inf
 doc-nan
 
 @node Stack Manipulation, Memory, Arithmetic, Words
@@ -6207,6 +6210,8 @@ doc-search
 doc-scan
 doc-scan-back
 doc-skip
+doc-$split
+doc-nosplit?
 doc--trailing
 doc-/string
 doc-safe/string
@@ -6268,7 +6273,6 @@ doc-$+!
 doc-c$+!
 doc-$free
 doc-$init
-doc-$split
 doc-$iter
 doc-$over
 doc-$exec
@@ -7140,10 +7144,21 @@ could tie @code{strerror} in as follows:
   errno errno-base over - swap 0<> and ;
 @end example
 
-When you call a C function (with the C interface) and its return value
-indictes that an error happened, you can then perform @code{errno-ior
-throw} to produce an exception with the proper error message (such as
-``Permission denied'').
+When you call a C function that can set @code{errno} (with the C
+interface, @pxref{C Interface}), you can use one of the following
+words for converting that error into a @code{throw}:
+
+doc-?errno-throw
+doc-?ior
+
+Which of these you should use depends on how the C function indicates
+that an error has happened.  When the system then catches a throw
+performed by one of these words, it produces the proper error message
+(such as ``Permission denied'').
+
+Note that the errno numbers are not directly used as throw codes
+(because the Forth standard specifies that positive throw codes must
+not be system-defined), but maps them into a different number range.
 
 A common idiom to @code{THROW} a specific @i{err#} if a
 flag is true is this:
@@ -8817,7 +8832,7 @@ ticking it (or using @code{name>interpret}) produces the same xt as
 the original (@pxref{Tokens for Words}).
 
 @c ----------------------------------------------------------
-@node Structures, Interpretation and Compilation Semantics, Defining Words, Words
+@node Structures, User-defined Stacks, Defining Words, Words
 @section  Structures
 @cindex structures
 @cindex records
@@ -8902,6 +8917,8 @@ my-intlist2 intlist-sum . \ prints "12"
 In addition to @code{field:} for cell-aligned and cell-sized fields,
 you can define fields sized and aligned for various types with:
 
+doc-begin-structure
+doc-end-structure
 doc-cfield:
 doc-field:
 doc-2field:
@@ -9231,7 +9248,39 @@ doc-%size
 doc-struct
 
 @c ----------------------------------------------------------------
-@node Interpretation and Compilation Semantics, Tokens for Words, Structures, Words
+@node User-defined Stacks, Interpretation and Compilation Semantics, Structures, Words
+@section User-defined Stacks
+@cindex stack, user-defined
+@cindex double-ended queue
+@cindex deque
+
+Gforth supports user-defined stacks.  They are used for implementing
+features such as recognizer sequences, but you can also define stacks
+for your own purposes.  And these stacks actually support inserting
+and deleting at both ends, so they are actually double-ended queues
+(deques).  In addition, they support inserting and deleting in the
+middle.
+
+In Gforth the stacks grow as necessary, but the interface is designed
+to also support resource-constrained systems that allocate fixed-size
+stacks, where exceeding the stack size results in an error.  So you
+should provide the size parameter accordingly.
+
+A stacks is represented on the data stack by a cell.
+
+doc-stack
+doc-stack:
+doc-stack>
+doc->stack
+doc->back
+doc-back>
+doc-+after
+doc--stack
+doc-set-stack
+doc-get-stack
+
+@c ----------------------------------------------------------------
+@node Interpretation and Compilation Semantics, Tokens for Words, User-defined Stacks, Words
 @section Interpretation and Compilation Semantics
 @cindex semantics, interpretation and compilation
 
@@ -9313,7 +9362,9 @@ Note that ticking (@code{'}) a compile-only word gives a warning
 @cindex combined words
 
 Gforth allows you to define @dfn{combined words} -- words that have an
-arbitrary combination of interpretation and compilation semantics.
+arbitrary combination of interpretation and compilation semantics
+(some people call them NDCS words, and mean words with non-default and
+non-immediate compilation semantics).
 
 doc-interpret/compile:
 
@@ -9326,60 +9377,67 @@ part, and one that embodies the compilation part.  Once you have done
 that, you can define a combined word with @code{interpret/compile:} for
 the convenience of your users.
 
-You might try to use this feature to provide an optimizing
-implementation of the default compilation semantics of a word. For
-example, by defining:
-@example
-:noname
-   foo bar ;
-:noname
-   POSTPONE foo POSTPONE bar ;
-interpret/compile: opti-foobar
-@end example
-
-@noindent
-as an optimizing version of:
+A typical usage example is:
 
 @example
-: foobar
-    foo bar ;
+: s"-int ( -- c-addr u )
+  '"' parse save-mem ;
+: s"-comp ( -- ; run-time: -- c-addr u )
+  '"' parse postpone sliteral ;
+' s"-int ' s"-comp interpret/compile: s"
 @end example
 
-Unfortunately, this does not work correctly with @code{[compile]},
-because @code{[compile]} assumes that the compilation semantics of all
-@code{interpret/compile:} words are non-default. I.e., @code{[compile]
-opti-foobar} would compile compilation semantics, whereas
-@code{[compile] foobar} would compile interpretation semantics.
+Some people are not happy with the looks of the definition above, so
+Gforth also provides additional ways to write this kind of definition:
+
+doc-set-compsem
+doc-compsem:
+doc-intsem:
+
+Note that there are and should be only few combined words, ideally
+none, and their definitions don't need to be pretty (on the contrary,
+their uglyness may provide a warning that ``here be dragons'').  So
+our recommendation is to use @code{interpret/compile:}.
+
+It is a bad idea to try to use combined words for optimization of
+words with default compilation semantics: Gforth has a better
+mechanism for that (@code{set-optimizer} and @code{opt:},
+@pxref{User-defined compile-comma}), @code{[compile]} treats
+combined words as having non-default compilation semantics, and the
+intended optimization does not happen when the combined word is ticked
+and @code{compile,}d.
 
 @cindex state-smart words (are a bad idea)
-@anchor{state-smartness}
-Some people try to use @dfn{state-smart} words to emulate the feature provided
-by @code{interpret/compile:} (words are state-smart if they check
+@anchor{state-smartness} Some people try to use @dfn{state-smart}
+words to emulate combined words (words are state-smart if they check
 @code{STATE} during execution). E.g., they would try to code
-@code{foobar} like this:
+@code{s"} like this:
 
 @example
 : foobar
-  STATE @@
-  IF ( compilation state )
-    POSTPONE foo POSTPONE bar
+  STATE @@ IF ( compilation state )
+    comp-s"
   ELSE
-    foo bar
-  ENDIF ; immediate
+    int-s"
+  THEN ; immediate
 @end example
 
-Although this works if @code{foobar} is only processed by the text
+Although this works if @code{s"} is only processed by the text
 interpreter, it does not work in other contexts (like @code{'} or
-@code{POSTPONE}). E.g., @code{' foobar} will produce an execution token
-for a state-smart word, not for the interpretation semantics of the
-original @code{foobar}; when you execute this execution token (directly
-with @code{EXECUTE} or indirectly through @code{COMPILE,}) in compile
-state, the result will not be what you expected (i.e., it will not
-perform @code{foo bar}). State-smart words are a bad idea. Simply don't
-write them@footnote{For a more detailed discussion of this topic, see
-M. Anton Ertl,
+@code{POSTPONE}). E.g., @code{' foobar} will produce an execution
+token for a state-smart word, not for the interpretation semantics of
+the original @code{foobar}; when you execute this execution token
+(directly with @code{EXECUTE} or indirectly through @code{COMPILE,})
+in compile state, the result will not be what you expected (i.e., it
+will not call @code{int-s"}). State-smart words are a bad idea. Simply
+don't write them@footnote{For a more detailed discussion of this
+topic, see M. Anton Ertl,
 @cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl98.ps.gz,@code{State}-smartness---Why
-it is Evil and How to Exorcise it}}, EuroForth '98.}!
+it is Evil and How to Exorcise it}}, EuroForth '98.}!  Gforth provides
+better alternatives: @code{interpret/compile:} and @code{set->comp}
+for implementing combined words, and @code{set-optimizer} for
+implementing optimizations of words with default compilation
+semantics.
 
 @c -------------------------------------------------------------
 @node Tokens for Words, Compiling words, Interpretation and Compilation Semantics, Words
@@ -9898,6 +9956,7 @@ pass an execution token and @code{compile,} it:
 @end example
 
 doc-compile,
+doc-2compile,
 
 An alternative available in Gforth, that allows you to pass the
 compilation semantics as parameters is to use the compilation token
@@ -10524,11 +10583,15 @@ doc-notfound
 doc-rec-nt
 doc-rec-num
 doc-rec-float
+doc-rec-complex
 doc-rec-string
 doc-rec-to
 doc-rec-tick
 doc-rec-dtick
 doc-rec-body
+doc-rec-env
+doc-rec-scope
+doc-rec-meta
 doc-get-recognizers
 doc-set-recognizers
 doc-recognize
@@ -10661,6 +10724,8 @@ doc-forth-wordlist
 doc-definitions
 doc-get-current
 doc-set-current
+doc-in-wordlist
+doc-in
 doc-get-order
 doc-set-order
 doc-wordlist
@@ -12158,6 +12223,7 @@ macro that just returns a string.
 
 doc-macros-wordlist
 doc-replaces
+doc-replacer:
 doc-.substitute
 doc-$substitute
 doc-substitute
@@ -12430,6 +12496,8 @@ doc-c^
 doc-f:
 doc-fa:
 doc-f^
+doc-z:
+doc-za:
 doc-xt:
 doc-xta:
 
@@ -13838,7 +13906,6 @@ oriented bigFORTH} by Bernd Paysan, published in @cite{Vierte Dimension}
 * Basic OOF Usage::
 * The OOF base class::
 * Class Declaration::
-* Class Implementation::
 @end menu
 
 @node Properties of the OOF model, Basic OOF Usage, OOF, OOF
@@ -14051,7 +14118,7 @@ doc---oof-object-endwith
 
 @end itemize
 
-@node Class Declaration, Class Implementation, The OOF base class, OOF
+@node Class Declaration,  , The OOF base class, OOF
 @subsubsection Class Declaration
 @cindex class declaration
 
@@ -14097,10 +14164,11 @@ doc---oof-class;
 
 @end itemize
 
-@c -------------------------------------------------------------
-@node Class Implementation,  , Class Declaration, OOF
-@subsubsection Class Implementation
-@cindex class implementation
+
+@c @c -------------------------------------------------------------
+@c @node Class Implementation,  , Class Declaration, OOF
+@c @subsubsection Class Implementation
+@c @cindex class implementation
 
 @c -------------------------------------------------------------
 @node Mini-OOF, Mini-OOF2, OOF, Object-oriented Forth
@@ -14767,8 +14835,8 @@ primitive compiled for @code{;} in @code{foo}).  @code{;s} performs
 control flow (it returns), so it has to end with a NEXT.
 
 @node Examining data, Forgetting words, Examining compiled code, Programming Tools
-@subsection Examining data and code
-@cindex examining data and code
+@subsection Examining data
+@cindex examining data
 
 The following words inspect the stack non-destructively:
 
@@ -15058,10 +15126,6 @@ doc-.coverage
 doc-annotate-cov
 doc-cov%
 doc-.cover-raw
-@c commented out because the included-file index is not a
-@c   user-friendly way to pass a file (yet).
-@c doc-.cover-file
-@c doc-covered?
 
 By default, the counts are shown in colour (using ANSI escape
 sequences), but you can use @code{bw-cover} to show them in
@@ -15071,10 +15135,12 @@ doc-bw-cover
 doc-color-cover
 
 You can save and reload the coverage counters in binary format, to
-aggregate coverage counters across several test runs.
+aggregate coverage counters across several test runs of the same
+program.
 
 doc-save-cov
 doc-load-cov
+doc-cover-filename
 
 @c -------------------------------------------------------------
 @node Multitasker, C Interface, Programming Tools, Words
@@ -15164,12 +15230,20 @@ doc-kill
 Tasks can also temporarily stop themselves or be stopped:
 
 doc-halt
+doc-sleep
 doc-stop
 doc-stop-ns
+doc-stop-dns
+doc-thread-deadline
+
+Using @code{stop-dns} is easier to code, but if you want your task to
+wake up at regular intervals rather than some time after it finished
+its last piece of work, the way to go is to work with deadlines.
 
 A task restarts when the timeout is over or when another task wakes it
 with:
 
+doc-wake
 doc-restart
 
 There is also:
@@ -15271,7 +15345,7 @@ using @code{:@}h1}, @pxref{Closures}) to achieve that, e.g., with
 : .-in-task ( n task -- )
   >r [@{: n :@}h1 n . ;] r> send-event ;
 
-5 my-task .-in-task
+5 my-task .-in-task \ my-task prints 5
 @end example
 
 doc-send-event
@@ -15617,7 +15691,9 @@ of Gforth can even cross-compile these libraries, so that the libraries
 are available for plattforms on which build tools aren't installed.
 
 doc-c-library-name
+doc-c++-library-name
 doc-c-library
+doc-c++-library
 doc-end-c-library
 
 

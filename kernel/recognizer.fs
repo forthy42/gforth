@@ -96,29 +96,32 @@ translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
 \ generic stack get/set; actually, we don't need this for
 \ the recognizer any more, but other parts of the kernel use it.
 
-: get-stack ( stack -- x1 .. xn n )
-    \G fetch everything from the generic stack to the data stack
+: get-stack ( stack -- x1 .. xn n ) \ gforth-experimental
+    \G Push the contents of @i{stack} on the data stack, with the top
+    \G element in @i{stack} being pushed as @i{xn}.
     $@ dup cell/ >r bounds ?DO  I @  cell +LOOP  r> ;
-: set-stack ( x1 .. xn n stack -- )
-    \G set the generic stack with values from the data stack
+
+: set-stack ( x1 .. xn n stack -- ) \ gforth-experimental
+    \G Overwrite the contents of @i{stack} with @i{n} elements from
+    \G the data stack, with @i{xn} becoming the top of @i{stack}.
     >r cells r@ $!len
     r> $@ bounds cell- swap cell- U-DO  I !  cell -LOOP ;
 
-: stack: ( n "name" -- )
-    \G create a named stack with at least @var{n} cells space
+: stack: ( n "name" -- ) \ gforth-experimental stack-colon
+    \G Create a named stack with at least @var{n} cells space.
     drop $Variable ;
 : do-stack: ( x1 .. xn n xt "name" -- )
     >r dup stack: r> set-does> latest >body set-stack ;
-: stack ( n -- addr )
-    \G create an unnamed stack with at least @var{n} cells space
+: stack ( n -- stack ) \ gforth-experimental
+    \G Create an unnamed stack with at least @var{n} cells space.
     drop align here 0 , ;
 
-: >stack ( x stack -- )
-    \G push to top of stack
+: >stack ( x stack -- ) \ gforth-experimental to-stack
+    \G Push @i{x} to top of @i{stack}.
     dup >r $@len cell+ r@ $!len
     r> $@ + cell- ! ;
-: stack> ( stack -- x )
-    \G pop from top of stack
+: stack> ( stack -- x ) \ gforth-experimental stack-from
+    \G Pop item @i{x} from top of @i{stack}.
     dup >r $@ ?dup-IF  + cell- @ r@ $@len cell- r> $!len
     ELSE  drop rdrop  THEN ;
 : stack# ( stack -- elements )

@@ -104,48 +104,6 @@ UValue $? ( -- n ) \ gforth dollar-question
 : in-return-stack? ( addr -- f )
     rp0 @ [ forthstart 9 cells + ]L @ - $FFF + -$1000 and rp0 @ within ;
 
-\ const-does>
-
-: compile-literals ( w*u u -- ; run-time: -- w*u ) recursive
-    \ compile u literals, starting with the bottommost one
-    ?dup-if
-	swap >r 1- compile-literals
-	r> POSTPONE literal
-    endif ;
-
-: compile-fliterals ( r*u u -- ; run-time: -- w*u ) recursive
-    \ compile u fliterals, starting with the bottommost one
-    ?dup-if
-	{ F: r } 1- compile-fliterals
-	r POSTPONE fliteral
-    endif ;
-
-[IFUNDEF] in-colon-def?
-    0 Value in-colon-def?
-[THEN]
-
-: (const-does>) ( w*uw r*ur uw ur target "name" -- )
-    \ define a colon definition "name" containing w*uw r*ur as
-    \ literals and a call to target.
-    { uw ur target }
-    ['] on create-from \ start colon def without stack junk
-    true to in-colon-def?
-    ur compile-fliterals uw compile-literals
-    target compile, POSTPONE exit flush-code reveal
-    false to in-colon-def? ;
-
-: const-does> ( run-time: w*uw r*ur uw ur "name" -- ) \ gforth-obsolete const-does
-    \G Defines @var{name} and returns.
-    \G  
-    \G @var{name} execution: pushes @var{w*uw r*ur}, then performs the
-    \G code following the @code{const-does>}.
-    basic-block-end here >r 0 POSTPONE literal
-    POSTPONE (const-does>)
-    POSTPONE ;
-    noname : POSTPONE rdrop
-    latestnt r> cell+ ! \ patch the literal
-; immediate
-
 \ !! rewrite slurp-file using slurp-fid
 : slurp-file ( c-addr1 u1 -- c-addr2 u2 ) \ gforth
     \G @var{c-addr1 u1} is the filename, @var{c-addr2 u2} is the file's contents
@@ -209,14 +167,15 @@ opt: @ 3 swap (to), ;
     ['] forth-recognize set-recognizer-sequence ;
 
 : -stack { x stack -- } \ gforth-experimental
-    \G delete x from a stack
+    \G Delete every occurence of @i{x} from anywhere in @i{stack}.
     stack get-stack  0 stack set-stack 0 ?DO
-	dup x <> IF  stack >back  ELSE  drop  THEN
+        dup x <> IF  stack >back  ELSE	drop  THEN
     LOOP ;
-: +after { y x stack -- } \ gforth-experimental
-    \G add @var{y} after @var{x} in stack
+
+: +after { x1 x2 stack -- } \ gforth-experimental
+    \G Insert @var{x1} below every occurence @var{x2} in @i{stack}.
     stack get-stack  0 stack set-stack 0 ?DO
-	dup stack >back x = IF  y stack >back  THEN
+	dup stack >back x2 = IF  x1 stack >back  THEN
     LOOP ;
 
 0 Value try-free
@@ -452,10 +411,7 @@ constant mem*do-noconstant
 3 to: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
 \G @i{Xt} is the XT that is currently assigned to @i{name}.
 
-synonym what's action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth-obsolete
-\G Old name of @code{action-of}
-
-
+    
 : typewhite ( addr n -- ) \ gforth
 \G Like type, but white space is printed instead of the characters.
     \ bounds u+do
@@ -690,15 +646,6 @@ synonym hex. h. ( u -- ) \ gforth
     0  BEGIN  dup n <  WHILE  r> swap 1+  REPEAT
     ret >r endscope ;
 
-\ x:traverse-wordlist words
-
-' name>interpret alias name>int ( nt -- xt|0 ) \ gforth-obsolete name-to-int
-    \G @i{xt} represents the interpretation semantics @i{nt}; returns
-    \G 0 if @i{nt} has no interpretation semantics
-
-' name>compile alias name>comp ( nt -- w xt ) \ gforth-obsolete name-to-comp
-\G @i{w xt} is the compilation token for the word @i{nt}.
-
 \ 2value
 
 : 2value-compile, ( xt -- )  >body postpone Literal postpone 2@ ;
@@ -864,14 +811,8 @@ fold1:
     endcase ;
 
 : place ( c-addr1 u c-addr2 ) \ gforth-experimental place
-    \G create a counted string of length @var{u} at @var{c-addr2}
-    \G and copy the string @var{c-addr1 u} into that location.
+    \G Create a counted string of length @var{u} at @var{c-addr2} and
+    \G copy the string @var{c-addr1 u} into that location.  Up to
+    \G 256 bytes starting at @var{c-addr2} will be written.
+    swap $ff min swap
     over >r  rot over 1+  r> move c! ;
-
-: +place {: c-addr1 u1 c-addr2 -- :} \ gforth-experimental plus-place
-    \G append the string @var{c-addr1 u} to counted string at @var{c-addr2}
-    \G and increase it's length by @var{u}.
-    c-addr2 count {: c-addr u2 :}
-    u2 u1 + $ff min {: u :}
-    c-addr1 c-addr u u2 /string move
-    u c-addr2 c! ;

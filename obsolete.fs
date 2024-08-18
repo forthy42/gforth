@@ -23,7 +23,7 @@
 -1 warnings !@ \ supress obsolete warnings
 
 [IFDEF] obsolete-mask
-    : obsoletes ( -- ) \ gforth
+    : obsoletes ( -- ) \ gforth-internal
 	\G show all obsolete words
 	cr 0 [: dup >f+c @ obsolete-mask and
 	    IF  .word  ELSE  drop  THEN  true ;]
@@ -93,6 +93,16 @@
         cr I 2@ type
     LOOP ;
 
+: +place {: c-addr1 u1 c-addr2 -- :} \ gforth-obsolete plus-place
+    \G append the string @var{c-addr1 u} to counted string at
+    \G @var{c-addr2} and increase it's length by @var{u}.  Only write
+    \G up to the maximum string length (255 bytes, plus the count
+    \G byte).
+    c-addr2 count {: c-addr u2 :}
+    u2 u1 + $ff min {: u :}
+    c-addr1 c-addr u u2 /string move
+    u c-addr2 c! ;
+
 \ memory words with u or s prefix
 
 ' w@  alias uw@  ( c-addr -- u  ) obsolete
@@ -149,5 +159,157 @@ inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline obsolete
 ' translate-nt AConstant rectype-nt \ gforth-obsolete
 ' translate-num AConstant rectype-num \ gforth-obsolete
 ' translate-dnum AConstant rectype-dnum \ gforth-obsolete
+' translate-to Constant rectype-to \ gforth-obsolete
+[ifdef] translate-eval
+    ' translate-eval Constant rectype-eval \ gforth-obsolete
+[then]
+' translate-env Constant rectype-env \ gforth-obsolete
+' translate-string Constant rectype-string \ gforth-obsolete
+
+
+\ from ekey.fs
+' k-f1  alias k1  ( -- u ) \ gforth-obsolete
+' k-f2  alias k2  ( -- u ) \ gforth-obsolete
+' k-f3  alias k3  ( -- u ) \ gforth-obsolete
+' k-f4  alias k4  ( -- u ) \ gforth-obsolete
+' k-f5  alias k5  ( -- u ) \ gforth-obsolete
+' k-f6  alias k6  ( -- u ) \ gforth-obsolete
+' k-f7  alias k7  ( -- u ) \ gforth-obsolete
+' k-f8  alias k8  ( -- u ) \ gforth-obsolete
+' k-f9  alias k9  ( -- u ) \ gforth-obsolete
+' k-f10 alias k10 ( -- u ) \ gforth-obsolete
+' k-f11 alias k11 ( -- u ) \ gforth-obsolete
+' k-f12 alias k12 ( -- u ) \ gforth-obsolete
+\ shifted fuinction keys (don't work in xterm (same as unshifted, but
+\ s-k1..s-k8 work in the Linux console)
+k-f1  k-shift-mask or constant s-k1  ( -- u ) \ gforth-obsolete 
+k-f2  k-shift-mask or constant s-k2  ( -- u ) \ gforth-obsolete 
+k-f3  k-shift-mask or constant s-k3  ( -- u ) \ gforth-obsolete 
+k-f4  k-shift-mask or constant s-k4  ( -- u ) \ gforth-obsolete 
+k-f5  k-shift-mask or constant s-k5  ( -- u ) \ gforth-obsolete 
+k-f6  k-shift-mask or constant s-k6  ( -- u ) \ gforth-obsolete 
+k-f7  k-shift-mask or constant s-k7  ( -- u ) \ gforth-obsolete 
+k-f8  k-shift-mask or constant s-k8  ( -- u ) \ gforth-obsolete 
+k-f9  k-shift-mask or constant s-k9  ( -- u ) \ gforth-obsolete 
+k-f10 k-shift-mask or constant s-k10 ( -- u ) \ gforth-obsolete 
+k-f11 k-shift-mask or constant s-k11 ( -- u ) \ gforth-obsolete
+k-f12 k-shift-mask or constant s-k12 ( -- u ) \ gforth-obsolete
+
+\ from intcomp.fs
+
+\ used like
+\ : <name> create-interpret/compile ...
+\     interpretation> ... <interpretation
+\     compilation> ... <compilation ;
+
+require rec-tick.fs
+
+synonym create-interpret/compile create ( "name" -- ) \ gforth-obsolete
+
+: interpretation> ( compilation. -- orig colon-sys ) \ gforth-obsolete
+    postpone [: ; immediate restrict
+
+: <interpretation ( compilation. orig colon-sys -- ) \ gforth-obsolete
+    ]] ;] set-does> [[ ; immediate restrict
+
+: compilation> ( compilation. -- orig colon-sys ) \ gforth-obsolete
+    \G use a anonymous closure on the heap, acceptable leakage
+    ]] [: >body [n:h [[ ; immediate restrict
+
+: <compilation ( orig colon-sys -- ) \ gforth-obsolete
+    ]] ;] `execute ;] set->comp [[ ; immediate restrict
+
+\ example
+\ : constant ( n "name" -- )
+\     create-interpret/compile
+\     ,
+\ interpretation>    @                    <interpretation
+\ compilation>       @ postpone literal   <compilation ;
+\ 
+\ 5 constant five
+\ 
+\ cr
+\ five . cr
+\ : fuenf five ;
+\ see fuenf cr
+
+
+\ from stuff.fs
+
+\ const-does>
+
+: compile-literals ( w*u u -- ; run-time: -- w*u ) recursive
+    \ compile u literals, starting with the bottommost one
+    ?dup-if
+	swap >r 1- compile-literals
+	r> POSTPONE literal
+    endif ;
+
+: compile-fliterals ( r*u u -- ; run-time: -- w*u ) recursive
+    \ compile u fliterals, starting with the bottommost one
+    ?dup-if
+	{ F: r } 1- compile-fliterals
+	r POSTPONE fliteral
+    endif ;
+
+[IFUNDEF] in-colon-def?
+    0 Value in-colon-def?
+[THEN]
+
+: (const-does>) ( w*uw r*ur uw ur target "name" -- )
+    \ define a colon definition "name" containing w*uw r*ur as
+    \ literals and a call to target.
+    { uw ur target }
+    ['] on create-from \ start colon def without stack junk
+    true to in-colon-def?
+    ur compile-fliterals uw compile-literals
+    target compile, POSTPONE exit flush-code reveal
+    false to in-colon-def? ;
+
+: const-does> ( run-time: w*uw r*ur uw ur "name" -- ) \ gforth-obsolete const-does
+    \G Defines @var{name} and returns.
+    \G  
+    \G @var{name} execution: pushes @var{w*uw r*ur}, then performs the
+    \G code following the @code{const-does>}.
+    basic-block-end here >r 0 POSTPONE literal
+    POSTPONE (const-does>)
+    POSTPONE ;
+    noname : POSTPONE rdrop
+    latestnt r> cell+ ! \ patch the literal
+; immediate
+
+
+synonym what's action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth-obsolete
+\G Old name of @code{action-of}
+
+
+' name>interpret alias name>int ( nt -- xt|0 ) \ gforth-obsolete name-to-int
+    \G @i{xt} represents the interpretation semantics @i{nt}; returns
+    \G 0 if @i{nt} has no interpretation semantics
+
+' name>compile alias name>comp ( nt -- w xt ) \ gforth-obsolete name-to-comp
+\G @i{w xt} is the compilation token for the word @i{nt}.
+
+\ from kernel/cond.fs
+
+: CONTINUE ( dest-sys j*sys -- dest-sys j*sys ) \ gforth-obsolete
+    \g jump to the next outer BEGIN
+    depth 0 ?DO  I pick dest = IF
+	    I cs-item-size / cs-pick postpone AGAIN
+	    UNLOOP  EXIT  THEN
+    cs-item-size +LOOP
+    true abort" no BEGIN found" ; immediate restrict
+
+\ A symmetric version of "+LOOP". I.e., "-high -low ?DO -inc S+LOOP"
+\ will iterate as often as "high low ?DO inc S+LOOP". For positive
+\ increments it behaves like "+LOOP". Use S+LOOP instead of +LOOP for
+\ negative increments.
+: S+LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 )	\ gforth-obsolete	s-plus-loop
+    \G @xref{Counted Loops}.
+ ['] (s+loop) ['] (s+loop)-lp+!# loop-like ; immediate restrict
+
+\ from search.fs
+' id. alias .name ( nt -- ) \ gforth-obsolete  dot-name
+\G Gforth <=0.5.0 name for @code{id.}.
 
 warnings !

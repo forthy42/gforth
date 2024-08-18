@@ -97,7 +97,7 @@ color-cover
 	s" ) " string-prefix? IF  r> 2 +  ELSE  rdrop  0  THEN
     ELSE  2drop  0  THEN ;
 
-: .cover-file { fn -- } \ gforth-experimental
+: .cover-file { fn -- } \ gforth-internal
     \G Print coverage in included file with index @var{fn}.
     fn included-buffer 0 locate-line 0 { d: buf lpos d: line cpos }
     cover-end cover-start U+DO
@@ -115,7 +115,7 @@ color-cover
     2 cells +LOOP
     line cpos safe/string type cr  default-color  buf type ;
 
-: covered? ( fn -- flag ) \ gforth-experimental
+: covered? ( fn -- flag ) \ gforth-internal
     \G Check if included file with index @var{fn} has coverage information.
     false cover-end cover-start U+DO 
 	over I @ view>filename# = or
@@ -153,14 +153,17 @@ color-cover
 
 $10 buffer: cover-hash
 
-: hash-cover ( -- addr u ) \ gforth-experimental
+: hash-cover ( -- addr u ) \ gforth-internal
     cover-hash $10 erase
     cover-end cover-start U+DO
 	I cell false cover-hash hashkey2
     2 cells +LOOP
     cover-hash $10 ;
 
-: cover-filename ( -- addr u ) \ gforth-experimental
+: cover-filename ( -- c-addr u ) \ gforth-experimental
+    \G @i{C-addr u} is the file name of the file that is used by
+    \G @code{save-cov} and @code{load-cov}.  The file name depends on
+    \G the code compiled since @file{coverage.fs} was loaded.
     "~/.cache/gforth/" 2dup $1ff mkdir-parents drop
     [: type
 	hash-cover bounds ?DO  I c@ 0 <# # # #> type LOOP ." .covbin" ;]

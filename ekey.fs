@@ -116,33 +116,6 @@ keycode k-eof ( -- u ) \ gforth
 \ always the last gforth-specific keycode
 drop
 
-' k-f1  alias k1  ( -- u ) \ gforth-obsolete
-' k-f2  alias k2  ( -- u ) \ gforth-obsolete
-' k-f3  alias k3  ( -- u ) \ gforth-obsolete
-' k-f4  alias k4  ( -- u ) \ gforth-obsolete
-' k-f5  alias k5  ( -- u ) \ gforth-obsolete
-' k-f6  alias k6  ( -- u ) \ gforth-obsolete
-' k-f7  alias k7  ( -- u ) \ gforth-obsolete
-' k-f8  alias k8  ( -- u ) \ gforth-obsolete
-' k-f9  alias k9  ( -- u ) \ gforth-obsolete
-' k-f10 alias k10 ( -- u ) \ gforth-obsolete
-' k-f11 alias k11 ( -- u ) \ gforth-obsolete
-' k-f12 alias k12 ( -- u ) \ gforth-obsolete
-\ shifted fuinction keys (don't work in xterm (same as unshifted, but
-\ s-k1..s-k8 work in the Linux console)
-k-f1  k-shift-mask or constant s-k1  ( -- u ) \ gforth-obsolete 
-k-f2  k-shift-mask or constant s-k2  ( -- u ) \ gforth-obsolete 
-k-f3  k-shift-mask or constant s-k3  ( -- u ) \ gforth-obsolete 
-k-f4  k-shift-mask or constant s-k4  ( -- u ) \ gforth-obsolete 
-k-f5  k-shift-mask or constant s-k5  ( -- u ) \ gforth-obsolete 
-k-f6  k-shift-mask or constant s-k6  ( -- u ) \ gforth-obsolete 
-k-f7  k-shift-mask or constant s-k7  ( -- u ) \ gforth-obsolete 
-k-f8  k-shift-mask or constant s-k8  ( -- u ) \ gforth-obsolete 
-k-f9  k-shift-mask or constant s-k9  ( -- u ) \ gforth-obsolete 
-k-f10 k-shift-mask or constant s-k10 ( -- u ) \ gforth-obsolete 
-k-f11 k-shift-mask or constant s-k11 ( -- u ) \ gforth-obsolete
-k-f12 k-shift-mask or constant s-k12 ( -- u ) \ gforth-obsolete
-
 \ helper word
 \ print a key sequence:
 0 [IF]
