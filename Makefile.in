@@ -412,7 +412,7 @@ FREETYPE_GL_C_SRC = freetype-gl/ftgl-utils.c freetype-gl/platform.c	      \
 FREETYPE_GL_SRC = $(FREETYPE_GL_C_SRC) $(FREETYPE_GL_INCLUDE)	\
 	$(FREETYPE_GL_LICENSES)
 
-EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs csv.fs \
+EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	i18n.fs @NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_LIB_SRC)
 
 MINOS_DOC = minos2/widgets.fs

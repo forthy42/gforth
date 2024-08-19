@@ -93,6 +93,7 @@ require struct-val.fs
 require rec-env.fs
 require rec-scope.fs
 require rec-meta.fs
+require csv.fs
 require obsolete.fs
 require unused.fs
 \ require unix/pthread.fs
