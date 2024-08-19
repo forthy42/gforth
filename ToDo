@@ -57,8 +57,8 @@ ABG      [x] which recognizers should be included by default
 A        [x] documented words which are not included by default should state how they are included
 A    [x] see-code should work properly with zero-length primitives
  B   [ ] Build issues
- B       [ ] Build extra libs only on request
- B       [ ] Build text-only on request
+ B       [x] Build extra libs only on request
+ B       [x] Build text-only on request
  B       [ ] configure stops if gcc is really LLVM
   G      [x] Summary for BUILD-FROM-SCRATCH 
 AB       [ ] Try building on non-Linux machines (cfarm)
