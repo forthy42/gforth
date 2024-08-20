@@ -1183,8 +1183,8 @@ checkone test: prim.b gforth-light.fi engine/prim-s.i
 		@@NO_UTF8@echo TEST $(ENGINE) utf8
 		@NO_UTF8@$(TIMEOUT) $(UTF8) $(FORTHS) -i gforth-light.fi test/xchar.fs -e bye
 		@echo TEST $(ENGINE) checkans
-		$(TIMEOUT) $(FORTH) -i gforth-light.fi code.fs test/checkans.fs -e bye | tr -d '\015' | diff -u $(srcdir)/test/checkans.out -
-		@echo TEST $(FORTHS) prims2x
+		$(TIMEOUT) $(FORTH) -i gforth-light.fi test/checkans.fs -e bye | tr -d '\015' | diff -u $(srcdir)/test/checkans.out -
+		@echo TEST $(ENGINE) prims2x
 		$(TIMEOUT) $(FORTH) -i gforth-light.fi prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $<\" ' output-c ' output-c-combined process-file bye"| \
 		  tr -d '\015' | grep -v '^#line '|diff -u engine/prim-s.i -

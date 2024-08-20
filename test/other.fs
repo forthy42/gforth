@@ -129,6 +129,7 @@ test-only
 \ create-interpret/compile
 
 [IFDEF] interpretation>
+-1 warnings !@
 
 : my-constant ( n "name" -- )
     create-interpret/compile
@@ -139,6 +140,8 @@ interpretation>
 compilation>
     @ postpone literal
 <compilation ;
+
+warnings !
 
 5 my-constant five
 five 5 <> throw
