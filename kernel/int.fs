@@ -991,7 +991,8 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 ;
 
 has? os [IF]
-Defer bye
+Defer bye ( -- ) \ tools-ext
+\G Exit Gforth (with exit status 0).    
 : kernel-bye ( -- ) \ gforth-internal
 [ has? file [IF] ]
     script? 0= IF  .unstatus cr  THEN
