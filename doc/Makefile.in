@@ -99,7 +99,8 @@ txt:		gforth.txt vmgen.txt
 
 html:		gforth vmgen
 
-doc:		info html ps txt
+.PHONY: doc
+doc:		info html ps pdf txt
 
 Makefile: Makefile.in ../config.status ../configure.ac
 	cd .. && $(MAKE) doc/Makefile.in

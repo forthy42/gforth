@@ -408,7 +408,7 @@ Other I/O
 * Xchars and Unicode::          Non-ASCII characters
 * i18n and l10n::               Internationalization and Localization
 * Substitute::                  Text macro substitution
-* CSV Reader::                  Data import facility
+* CSV reading and writing::
 
 Locals
 
@@ -11588,7 +11588,7 @@ doc-block-included
 * Xchars and Unicode::          Non-ASCII characters
 * i18n and l10n::               Internationalization and Localization
 * Substitute::                  Text macro substitution
-* CSV Reader::                  Data import facility
+* CSV reading and writing::
 @end menu
 
 @node Simple numeric output, Formatted numeric output, Other I/O, Other I/O
@@ -12210,7 +12210,7 @@ doc-locale-csv
 doc-.locale-csv
 doc-locale-csv-out
 
-@node Substitute, CSV Reader, i18n and l10n, Other I/O
+@node Substitute, CSV reading and writing, i18n and l10n, Other I/O
 @subsection Substitute
 
 This is a simple text macro replacement facility.  Texts in the form
@@ -12230,13 +12230,17 @@ doc-substitute
 doc-unescape
 doc-$unescape
 
-@node CSV Reader,  , Substitute, Other I/O
+@node CSV reading and writing,  , Substitute, Other I/O
 @subsection CSV Reader
 
 Comma-separated values (CSV) are a popular text format to interchange
-data.  Gforth provides an reader in @file{csv.fs}.
+data.  Gforth provides words for reading CSV files (with all features,
+including newlines in quoted strings).
 
 doc-read-csv
+doc-csv-separator
+doc-csv-quote
+doc-.quoted-csv
 
 @node OS command line arguments, Locals, Other I/O, Words
 @section OS command line arguments
@@ -12810,7 +12814,6 @@ the output of @code{see}, so they are documented here:
 doc-@localn
 doc-f@localn
 doc-lp+!
-doc-lp+!#
 doc-lp!
 doc->l
 doc-f>l
@@ -19574,7 +19577,6 @@ present the Forth command line to the user.
 
 doc-'cold
 doc-bootmessage
-doc-'quit
 doc-process-option
 
 @c ******************************************************************

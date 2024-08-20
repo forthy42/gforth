@@ -18,7 +18,10 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: save-mem-dict ( addr1 u -- addr2 u )
+: save-mem-dict ( addr1 u -- addr2 u ) \ gforth
+    \G Copy the memory block @i{addr1 u} to a newly @code{allot}ed
+    \G memory block of size @i{u}; the target memory block starts at
+    \G @i{addr2}.
     here over 2swap mem, ;
 
 require glocals.fs
@@ -221,7 +224,8 @@ translate: translate-[[
 s" mem+do and mem-do currently require a constant stride" exception
 constant mem*do-noconstant
 
-: array>mem ( uelements uelemsize -- ubytes uelemsize )
+: array>mem ( uelements uelemsize -- ubytes uelemsize ) \ gforth-experimental
+    \G @i{ubytes}=@i{uelements}*@i{uelemsize}
     tuck * swap ;
 
 : const-mem+loop ( +nstride xt do-sys -- )
@@ -810,9 +814,12 @@ fold1:
 	postpone rpick# dup ,
     endcase ;
 
-: place ( c-addr1 u c-addr2 ) \ gforth-experimental place
+: place ( c-addr1 u c-addr2 -- ) \ gforth-experimental place
     \G Create a counted string of length @var{u} at @var{c-addr2} and
-    \G copy the string @var{c-addr1 u} into that location.  Up to
-    \G 256 bytes starting at @var{c-addr2} will be written.
+    \G copy the string @var{c-addr1 u} into that location.  Up to 256
+    \G bytes starting at @var{c-addr2} will be written, so make sure
+    \G that the buffer at @i{c-addr2} has that much space (or check
+    \G that @i{u}+1 does not exceed the buffer size before calling
+    \G @code{place})
     swap $ff min swap
     over >r  rot over 1+  r> move c! ;

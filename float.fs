@@ -206,8 +206,8 @@ si-prefixes count 2/ + Constant zero-exp
     :noname r> r> compile, lit, postpone compile, postpone ; ;
 
 ' noop ' fliteral ' fliteral >postponer
-translate: translate-float
-\ undocumented for good reasons
+translate: translate-float ( r -- | r ) \ gforth-experimental
+\G A translator for a float number.
 ' translate-float Constant rectype-float
 
 : rec-float ( addr u -- r translate-float | notfound ) \ gforth-experimental
