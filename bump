@@ -11,7 +11,7 @@ dvcs tag add $V
 git remote | xargs -L 1 git push --follow-tags --all
 if [ -d build ]
 then
-    ./autogen.sh && ./configure
+    ./autogen.sh && ./configure --with-extra-libs
 fi
 make -j`nproc` dist
 if [ -d build ]
