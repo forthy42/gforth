@@ -16,6 +16,9 @@
 #define PA_GCC_PRINTF_ATTR(x, y)
 
 %apply long long { int64_t }
+%apply unsigned long long { uint64_t }
+%apply unsigned int { size_t, pa_usec_t, uint32_t }
+%apply unsigned char { uint8_t }
 
 // exec: sed -e 's/^c-library/cs-vocabulary pulse``get-current also pulse definitions``c-library/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/add-lib/add-lib`s" ((struct pa_:x.spx[arg0]" ptr-declare $+[]!/g' -e 's/\(c-function .*_autoload\)/\\ \1/g' -e 's/c-function pa_proplist_setf /\\ c-function pa_proplist_setf /g' | tr '`' '\n'
 // prep: sed -e 's/swigFunctionPointer.*{((\([^*]*\)\*)ptr)->\([^}]*\)}.*/if(offsetof(\1, \2) >= 0) \0/g'
