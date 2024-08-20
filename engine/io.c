@@ -665,7 +665,6 @@ int gf_ungottenc(FILE *stream)
 long key_avail (FILE *stream)
 {
   int tty = fileno (stream);
-  struct pollfd fds = { tty, POLLIN, 0 };
   int chars_avail;
 
   if (gf_ungottenc(stream))
@@ -680,6 +679,7 @@ long key_avail (FILE *stream)
   } else
 #endif
   {
+    struct pollfd fds = { tty, POLLIN, 0 };
     chars_avail = poll(&fds, 1, 0);
   }
 #ifndef __ANDROID__
@@ -687,7 +687,7 @@ long key_avail (FILE *stream)
     /* getc won't block */
     int c = getc(stream);
     if (c==EOF)
-      return 0;
+      return 1;
     gf_ungetc(c, stream);
   }
 #endif

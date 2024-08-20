@@ -70,7 +70,7 @@ AB   [x] marker für sections
 ABG  [ ] bin-utils disassembler
 AB   [ ]*documented view>* (internal words) in IDE
 AB   [x] locate of nested recognizers
- B       [ ] print information about recognizer
+ B       [x] print information about recognizer
 A    [x] Gforth words are documented with release
   G  [ ] Klaut
 AB   [ ] sections
