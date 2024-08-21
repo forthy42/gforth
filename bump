@@ -1,9 +1,20 @@
 #!/bin/bash
 
-#Usage ./bump major.minor.patch
+#Usage ./bump [major.minor.patch]
+#If no release is used, reuse old release number and just add a date tag
 
 RELEASE=$1
-V="${RELEASE}_$(date +%Y%m%d)"
+OLDRELEASE=$(grep AC_INIT configure.ac | cut -f3 -d'[' | cut -f1 -d'_' | cut -f1 -d']')
+if test -z "$RELEASE"
+then
+    RELEASE=$OLDRELEASE
+fi
+if [ "$RELEASE" = "$OLDRELEASE" ]
+then
+    V="${RELEASE}_$(date +%Y%m%d)"
+else
+    V="${RELEASE}"
+fi
 U=$(env LANG=en_US.UTF-8 date +'%B %d, %Y')
 sed -e "s/AC_INIT(\([^ ,]*, *\[\)[0-9._\-]*/AC_INIT(\1$V/g" -e "s/UPDATED=\".*\"/UPDATED=\"$U\"/g" configure.ac >configure.ac+ && mv configure.ac+ configure.ac
 dvcs ci -m "Bump version number"
