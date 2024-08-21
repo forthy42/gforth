@@ -919,7 +919,11 @@ static struct super_state **lookup_super(PrimNum *start, int length)
 static PrimNum lookup_ss(PrimNum *start, int length,
                               unsigned state_in, unsigned state_out)
 {
-  struct super_state *ss = *lookup_super(start, length);
+  struct super_state *ss;
+  struct super_state **ss_listp = lookup_super(start, length);
+  if (ss_listp == NULL)
+    return -1;
+  ss = *ss_listp;
   for (; ss!=NULL; ss = ss->next) {
     struct cost *c = &super_costs[ss->super];
     if (c->state_in == state_in && c->state_out == state_out)
