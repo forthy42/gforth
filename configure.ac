@@ -102,14 +102,14 @@ EXTRA_LIBS=""
 AC_ARG_WITH(extra-libs,
 [  --with-extra-libs	  Compile all swig-supported libraries, even not needed
   --without-extra-libs	  disable unnecessary libs (default)],
-if test "$withval" = "yes"; then EXTRA_LIBS="yes"; fi)
+if test "$withval" = "yes"; then EXTRA_LIBS="yes"; echo "Building with extra libs"; fi)
 
 MINOS2_LIBS="yes"
 
 AC_ARG_WITH(minos2,
 [  --with-minos2	  Compile all libraries necessary for MINOS2 (default)
   --without-minos2	  disables compiling MINOS2],
-if test "$withval" = "no"; then MINOS2_LIBS=""; fi)
+if test "$withval" = "no"; then MINOS2_LIBS=""; echo "Building a text-only Gforth without MINOS2 libs"; fi)
 
 AC_ARG_VAR(check_option, [pass engine additional options for check])
 AC_SUBST(check_option)
@@ -1672,12 +1672,12 @@ if test x$MINOS2_LIBS = xyes; then
        if test x$has_swig = xyes || test -f $srcdir/unix/user32-fsi.c; then
           AC_CHECK_HEADER(w32api/wtypes.h,
           AC_CHECK_HEADER(w32api/winuser.h, SWIGMODULES="$SWIGMODULES user32.fs"
-      				            SWIGLIBS="$SWIGLIBS user32.fs", ,
+      				            SWIGLIBS="$SWIGLIBS user32.fs", MINOSFLAG=false,
 #include <w32api/wtypes.h>
 ) ,)
        fi
        AC_CHECK_HEADER(w32api/wtypes.h,
-       AC_CHECK_HEADER(w32api/winbase.h, SWIGLIBS="$SWIGLIBS win32.fs", ,
+       AC_CHECK_HEADER(w32api/winbase.h, SWIGLIBS="$SWIGLIBS win32.fs", MINOSFLAG=false,
 #include <w32api/wtypes.h>
 ) ,)
        if test x$has_swig = xyes || (test -f $srcdir/unix/gl-fsi.c && test -f $srcdir/unix/glx-fsi.c); then
@@ -1761,12 +1761,6 @@ if test x$MINOS2_LIBS = xyes; then
    if test x$has_swig = xyes || test -f $srcdir/unix/opensles-fsi.c; then
       AC_CHECK_HEADER(SLES/OpenSLES_Android.h, SWIGMODULES="$SWIGMODULES opensles.fs"
 		      SWIGLIBS="$SWIGLIBS opensles.fs", ,)
-   fi
-   if test x$has_swig = xyes || test -f $srcdir/unix/png16-fsi.c; then
-      AC_CHECK_HEADER(libpng16/png.h, SWIGMODULES="$SWIGMODULES png16.fs"
-		      SWIGLIBS="$SWIGLIBS png16.fs"
-		      SWIGDISTFSI="$SWIGDISTFSI png16.fs"
-		      , ,)
    fi
    AC_CHECK_HEADER(stb/stb_image.h, LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/stb-image.fs", MINOSFLAG=false, )
    AC_CHECK_HEADER(stb/stb_image_write.h, LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/stb-image-write.fs", MINOSFLAG=false, )
@@ -1855,6 +1849,12 @@ else
 fi
 
 if test x$EXTRA_LIBS = xyes; then
+   if test x$has_swig = xyes || test -f $srcdir/unix/png16-fsi.c; then
+      AC_CHECK_HEADER(libpng16/png.h, SWIGMODULES="$SWIGMODULES png16.fs"
+		      SWIGLIBS="$SWIGLIBS png16.fs"
+		      SWIGDISTFSI="$SWIGDISTFSI png16.fs"
+		      , ,)
+   fi
    if test x$has_swig = xyes || test -f $srcdir/unix/sdl-fsi.c; then
       AC_CHECK_HEADER(SDL2/SDL.h, SWIGMODULES="$SWIGMODULES SDL.fs"
 		      SWIGLIBS="$SWIGLIBS SDL.fs", ,)
