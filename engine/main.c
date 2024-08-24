@@ -182,7 +182,7 @@ static int map_noreserve=MAP_NORESERVE;
 #endif
 static int prot_exec=PROT_EXEC;
 
-#define CODE_BLOCK_SIZE (512*1024) /* !! overflow handling for -native */
+#define CODE_BLOCK_SIZE (2*1024*1024) /* !! overflow handling for -native */
 Address code_area=0;
 Cell code_area_size = CODE_BLOCK_SIZE;
 Address code_here; /* does for code-area what HERE does for the dictionary */
@@ -1013,8 +1013,8 @@ static void prepare_super_table()
        to use an automaton without state equivalence, but that costs
        significant space so we only do it if the user explicitly
        disables state equivalence. */
-    debugp(stderr, "Disabling tpa-automaton, because nsupers>0 and state equivalence is enabled.\n");
-    tpa_noautomaton = 1;
+    debugp(stderr, "Disabling tpa equivalence, because nsupers>0 and tpa automaton is enabled.\n");
+    tpa_noequiv = 1;
   }
 }
 
@@ -2743,7 +2743,6 @@ Engine Options:\n\
   --no-0rc			    do not load ~/.config/gforthrc0\n\
   --offset-image		    Load image at a different position\n\
   --opt-ip-updates=n                ip-update optimization (0=disabled)\n\
-  --opt-ip-updates-branch=n         ip-update branch optimization (0=disabled)\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   --print-metrics		    Print some code generation metrics on exit\n\
   --print-nonreloc		    Print non-relocatable primitives at start\n\

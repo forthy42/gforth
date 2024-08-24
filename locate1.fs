@@ -623,11 +623,10 @@ included-files $[]# 1- constant doc-file#
     \G If no name is given, show basic help.  If a documentation node
     \G name is given followed by "::", show the start of the node.  If
     \G the name of a word is given, show the documentation of the word
-    \G if it exists, or its source code if not.  Use @code{g} to enter
-    \G the editor at the point shown by @code{help}.  @code{Help} sets
-    \G the current location, so you can use @code{n} and @code{b} to
-    \G show more of the text, or @code{g} to visit the documentation
-    \G in an editor (@pxref{Locating source code definitions}).
+    \G if it exists, or its source code if not.  If something else is
+    \G given that is recognized, shows help on the recognizer.  You
+    \G can then use the same keys and commands as after using
+    \G @code{locate} (@pxref{Locating source code definitions}).
     >in @ >r parse-name dup 0= if
         rdrop 2drop basic-help exit then
     drop 0 parse + over - -trailing 2dup s" ::" string-suffix? if

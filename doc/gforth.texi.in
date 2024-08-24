@@ -78,8 +78,8 @@ a fast and portable implementation of the Standard Forth language.  It
 serves as reference manual, but it also contains an introduction to
 Forth and a Forth tutorial.
 
-Authors: Bernd Paysan, Anton Ertl, Gerald Wodni
-Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
+Authors: Bernd Paysan, Anton Ertl, Gerald Wodni, Neal Crook, David Kuehling, Jend Wilke
+Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Free Software Foundation, Inc.
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -709,18 +709,30 @@ Free.
 Available on many machines/easy to port.
 @end itemize
 
-Have we achieved these goals? Gforth conforms to the Forth-94 (ANS
-Forth) and Forth-2012 standards.  We have changed some of the internal
-data structures (in particular, the headers) over time, so Gforth
-cannot be considered a stable model.  It certainly has not yet become
-a de facto standard, but it appears to be quite popular. It has some
-similarities to and some differences from previous models. It has some
-powerful features, but not yet everything that we envisioned. We
-certainly have achieved our execution speed goals
+Have we achieved these goals?
+
+Gforth conforms to the Forth-94 (ANS Forth) and Forth-2012 standards.
+
+We have changed some of the internal data structures (in particular,
+the headers) over time, so Gforth does not provide the stability of
+implementation details that we originally aimed for; they were too
+constraining for a long-term project like Gforth.  However, we still
+aim for a high level of stability.
+
+Gforth is quite popular and is treated by some like a de-facto standard.
+
+It has some similarities to and some differences from previous models.
+
+It has powerful features, and the version 1.0 indicates that it can do
+everything (and more) that we originally envisioned.  That does not
+mean that we will stop development.
+
+We certainly have achieved and exceeded our execution speed goals
 (@pxref{Performance})@footnote{However, in 1998 the bar was raised
 when the major commercial Forth vendors switched to native code
-compilers.}.  It is free and available on many machines.
+compilers.}.
 
+Gforth is free and available on many platforms.
 
 @menu
 * Stability Goals::
@@ -739,21 +751,33 @@ Internal data structures (including the representation of code) of
 Gforth may change between versions, unless they are documented.
 
 Moreover, we only feel obliged to keep standard words (i.e., with
-standard wordset names) and words documented as permanent Gforth
+standard wordset names) and words documented as stable Gforth
 extensions (with wordset name @code{gforth} or
 @code{gforth-@i{<version>}}, @pxref{Notation}).  Other words may be
 removed in newer releases.
 
 In particular, you may find a word by using @code{locate} or otherwise
 inspecting Gforth's source code.  You can see the wordset in a comment
-right after the stack-effect comment.  If there is no wordset for a
-word, it is an internal factor and may be removed in a future version.
-If the wordset is @code{gforth-experimental}, @code{gforth-internal},
-or @code{gforth-obsolete}, the word may also be removed in a future
-version.
+right after the stack-effect comment.  E.g., in
 
-If you want to use a particular word that is not marked as permanent,
-please let us know, and we will consider to add the word as permanent
+@example
+: execute-parsing ( ... addr u xt -- ... ) \ gforth
+@end example
+
+the wordset is @code{gforth}.
+
+If there is no wordset for a word, it is an internal factor and may be
+removed in a future version.  If the wordset is
+@code{gforth-experimental}, @code{gforth-internal}, or
+@code{gforth-obsolete}, the word may also be removed in a future
+version.  In particular, @code{gforth-experimental} indicates that
+this is a featured word that we do not consider stable yet;
+@code{gforth-obsolete} indicates an intent to remove the word in the
+next version; and @code{gforth-internal} (or no wordset) indicates
+that we may remove the word as soon as we no longer use it in Gforth.
+
+If you want to use a particular word that is not marked as stable,
+please let us know, and we will consider to add the word as stable
 word (or we may suggest an alternative to using this word).
 
 @c ******************************************************************
@@ -834,6 +858,11 @@ to the image (instead of processing them as engine options).  This is
 useful for building executable application images on Unix, built with
 @code{gforthmi --application ...}.
 
+@cindex --no-0rc, command-line option
+@item --no-0rc
+Do not load @file{~/.config/gforthrc0} nor the file specified by
+@code{GFORTH_ENV}.
+
 @cindex --path, command-line option
 @cindex -p, command-line option
 @item --path @i{path}
@@ -854,10 +883,10 @@ it is @samp{:} everywhere).
 @item --dictionary-size @i{size}
 @itemx -m @i{size}
 Allocate @i{size} space for the Forth dictionary space instead of
-using the default specified in the image (typically 256K). The
+using the default specified in the image (default: 8M). The
 @i{size} specification for this and subsequent options consists of
 an integer and a unit (e.g.,
-@code{4M}). The unit can be one of @code{b} (bytes), @code{e} (element
+@code{1G}). The unit can be one of @code{b} (bytes), @code{e} (element
 size, in this case Cells), @code{k} (kilobytes), @code{M} (Megabytes),
 @code{G} (Gigabytes), and @code{T} (Terabytes). If no unit is specified,
 @code{e} is used.
@@ -867,21 +896,21 @@ size, in this case Cells), @code{k} (kilobytes), @code{M} (Megabytes),
 @item --data-stack-size @i{size}
 @itemx -d @i{size}
 Allocate @i{size} space for the data stack instead of using the
-default specified in the image (typically 16K).
+default specified in the image (default: 16K).
 
 @cindex --return-stack-size, command-line option
 @cindex -r, command-line option
 @item --return-stack-size @i{size}
 @itemx -r @i{size}
 Allocate @i{size} space for the return stack instead of using the
-default specified in the image (typically 15K).
+default specified in the image (default: 15K).
 
 @cindex --fp-stack-size, command-line option
 @cindex -f, command-line option
 @item --fp-stack-size @i{size}
 @itemx -f @i{size}
 Allocate @i{size} space for the floating point stack instead of
-using the default specified in the image (typically 15.5K). In this case
+using the default specified in the image (default: 15.5K). In this case
 the unit specifier @code{e} refers to floating point numbers.
 
 @cindex --locals-stack-size, command-line option
@@ -889,7 +918,13 @@ the unit specifier @code{e} refers to floating point numbers.
 @item --locals-stack-size @i{size}
 @itemx -l @i{size}
 Allocate @i{size} space for the locals stack instead of using the
-default specified in the image (typically 14.5K).
+default specified in the image (default: 14.5K).
+
+@cindex --map_32bit, command-line option
+@item --map_32bit
+Allocate the dictionary and some other areas in the lower 2GB of the
+address space, if possible.  The purpose of this option is debugging
+convenience.
 
 @cindex --vm-commit, command-line option
 @cindex overcommit memory for dictionary and stacks
@@ -918,9 +953,20 @@ Print a message about the command-line options
 @itemx -v
 Print version and exit
 
+@cindex --diag, command-line option
+@cindex -D, command-line option
+@item --diag
+@item -D
+Checks for and reports some performance problems.
+
 @cindex --debug, command-line option
 @item --debug
 Print some information useful for debugging on startup.
+
+@cindex --debug-mcheck, command-line option
+@item --debug-mcheck
+Try to find and report erroneous usage of @code{allocate},
+@code{free}, and the C functions @code{malloc()}, @code{free()}, etc.
 
 @cindex --offset-image, command-line option
 @item --offset-image
@@ -946,12 +992,29 @@ signal. This option is useful when the engine and/or the image might be
 severely broken (such that it causes another signal before recovering
 from the first); this option avoids endless loops in such cases.
 
+@cindex --ignore-async-signals, command-line-option
+@item --ignore-async-signals
+Ignore asynchronous signals (e.g., @code{SIGINT} generated with
+@kbd{Ctrl-c}).
+
+@end table
+
+@subsection Code generation options
+
+@table @code
+
 @cindex --no-dynamic, command-line option
 @cindex --dynamic, command-line option
 @item --no-dynamic
 @item --dynamic
 Disable or enable dynamic superinstructions with replication
-(@pxref{Dynamic Superinstructions}).
+(@pxref{Dynamic Superinstructions}).  Default enabled.
+
+@cindex --no-dynamic-image, command-line option
+@item --no-dynamic-image
+Disable dynamic native-code generation when loading the Gforth image,
+but generate dynamic native code afterwards.  This option is useful
+when debugging Gforth's code generator.
 
 @cindex --no-super, command-line option
 @item --no-super
@@ -994,17 +1057,117 @@ superinstruction available at the moment.  E.g., if there are
 superinstructions AB and BCD, then for the sequence A B C D the optimal
 algorithm will select A BCD and the greedy algorithm will select AB C D.
 
+@cindex --opt-ip-updates, command-line option
+@item --opt-ip-updates=@i{n}
+Set the level of IP-update optimization (default: 31 (7+3*8)).  @i{n}
+is computed as @i{n1}+8*@i{n2}.
+
+@i{n1} indicates the use of IP-update optimization in straight-line
+code: 0 means no IP-update optimization, 1 combines IP-update
+optimizations of primitives without inline arguments, 2 also
+eliminates the dead IP updates of @code{;s}, @code{execute-;s} and
+@i{fast-throw}, >2 eliminates the IP updates in front of several
+frequently-used primitives with inline arguments.
+
+@i{n2} is the number of ip-updates that can replace a load in a
+backwards or unconditional branch; for conditional forward branches
+only @i{n2}/2 ip-updates replace a load (to avoid too many additional
+updates in the fall-through path).
+
+@cindex --code-block-size, command-line option
+@item --code-block-size=@i{size}
+Size of native-code blocks (default: 2M).  Gforth allocates as many
+blocks of this size as necessary.
+
 @cindex --print-metrics, command-line option
 @item --print-metrics
-Prints some metrics used during static superinstruction selection:
-@code{code size} is the actual size of the dynamically generated code.
-@code{Metric codesize} is the sum of the codesize metrics as seen by
-static superinstruction selection; there is a difference from @code{code
-size}, because not all primitives and static superinstructions are
-compiled into dynamically generated code, and because of markers.  The
-other metrics correspond to the @option{ss-min-...} options.  This
-option is useful for evaluating the effects of the @option{--ss-...}
-options.
+On exit from Gforth: Print some metrics used during static
+superinstruction selection: @code{code size} is the actual size of the
+dynamically generated code.  @code{Metric codesize} is the sum of the
+codesize metrics as seen by static superinstruction selection; there
+is a difference from @code{code size}, because not all primitives and
+static superinstructions are compiled into dynamically generated code,
+and because of markers.  The other metrics correspond to the
+@option{ss-min-...} options.  This option is useful for evaluating the
+effects of the @option{--ss-...}  options.
+
+@cindex --print-prims, command-line option
+@item --print-prims
+When exiting GforthL: Print the primitives with static usage counts.
+E.g., one line might look like:
+
+@example
+?branch           1-1  0   21 1575   73 0x5573e4048c33 len= 4+ 25+ 3 send=0
+@end example
+
+The colums are, from left to right: name of the primitive,
+stack-caching state transition (from a state with 1 stack item in a
+register to the same state in the example), IP offset for this version
+of the primitive (0 for most primitives, but, e.g., for @code{?branch}
+there are also versions with 0-zero offset), index of the primitive,
+index of the corresponding branch-to-IP variant (in case of a branch),
+static number of occurences of the primitive in the loaded/compiled
+code, address of the code of the primitive (or @code{(nil)} if the
+primitive is not relocatable), length of the parts of this code:
+ip-update+main+dispatch, and whether the primitive ends a superblock
+(i.e., an unconditional branch or the like).
+
+@cindex --print-nonreloc, command-line option
+@item --print-nonreloc
+When starting Gforth: Print the non-relocatable primitives.
+
+@cindex --print-sequences, command-line option
+@item --print-sequences
+When loading the image: For each superblock in the image, print the
+sequence of primitives.
+
+@cindex --tpa-noequiv, command-line option
+@cindex --tpa-noautomaton, command-line option
+@item --tpa-noautomaton
+@item --tpa-noequiv
+These options are about using an automaton for speeding up startup and
+compilation, in particular the shortest-path algorithm used for
+selecting static superinstructions and stack caching variants; tpa
+stands for for ``tree-parsing automaton'' (although we only have
+sequences, not trees).  In the @code{gforth} engine the default is to
+use an automaton with state equivalence (state equivalence reduces the
+number of states compared to having one state for every sequence
+prefix), which is the fastest option and requires the least memory.
+
+@code{--tpa-noequiv} turns off state equivalence, which costs memory
+and compiles a little slower; with static superinstructions state
+equivalence does not work correctly, so Gforth falls back to
+@code{--tpa-noequiv} in that case unless you ask for
+@code{--tpa-noautomaton} (@code{gforth-fast} uses static
+superinstructions and therefore @code{--tpa-noequiv} by default).
+
+@code{--tpa-noautomaton} turns off using the automaton.  This consumes
+quite a bit more compile time, and should in theory use less memory
+than using an automaton, but apparently there is a bug in Gforth, and
+it consumes more memory.
+
+The following shows the startup speed and memory consumption of Gforth
+0.7.9_20240821 run with @code{gforth-fast -e bye} (plus the options
+given in the table) on a Core-i5 6600K (Skylake):
+
+@c for i in --ss-number=0 "--ss-number=0 --tpa-noequiv" "--ss-number=0 --tpa-noautomaton" "" --tpa-noequiv --tpa-noautomaton; do LC_NUMERIC=prog perf stat -e cycles:u -e instructions:u gforth-fast $i -e bye |& awk '/cycles|instructions/ {printf("%s ",$1)} END {print}'; done
+@c for i in --ss-number=0 "--ss-number=0 --tpa-noequiv" "--ss-number=0 --tpa-noautomaton" "" --tpa-noequiv --tpa-noautomaton; do setarch -R /usr/bin/time -v gforth-fast $i -e "bye" |& grep "Maximum resident set size"; done
+
+@example
+ cycles    instructions KB(RSS) other options
+23_309_239  43_534_167   9228   --ss-number=0
+26_399_456  51_895_687  11316   --ss-number=0 --tpa-noequiv
+40_427_672  93_709_354  10988   --ss-number=0 --tpa-noautomaton
+27_599_969  53_126_621  11320
+27_732_944  53_128_381  11320   --tpa-noequiv
+42_960_520  95_466_840  11044   --tpa-noautomaton
+@end example
+
+@cindex --tpa-trace, command-line option
+@item --tpa-trace
+This option produces data about the number of states generated during
+startup and compilation.
+
 
 @end table
 
@@ -1031,13 +1194,17 @@ invokes a specific version. If your environment contains the variable
 @code{--path} option.
 
 On startup, before processing any of the image option, the user
-initialization file either specified in the environment variable
-@code{GFORTH_ENV} or, if not set, @file{~/.config/gforthrc0} is included, if
-it exists.  If @code{GFORTH_ENV} is ``@code{off},'' nothing is
-included.  After processing all the image options and just before
-printing the boot message, the user initialization file
-@file{~/.config/gforthrc} from your home directory is included, unless the
-option @code{--no-rc} is given.
+initialization file is included, if it exists.  The user
+initialization file is @file{~/.config/gforthrc0}, or, if the
+environment variable @code{GFORTH_ENV} is set, it contains the name of
+the user initialization file.  You can suppress loading this file with
+by setting @code{GFORTH_ENV} to @code{off}, or with the option
+@code{--no-0rc}.
+
+After processing all the image options and just before printing the
+boot message, the user initialization file @file{~/.config/gforthrc}
+from your home directory is included, unless the option @code{--no-rc}
+is given.
 
 Warning levels can be set with
 
@@ -1346,39 +1513,39 @@ speedup and costs quite a bit of time at startup.  @code{gforth-fast
 system time.
 
 The next option is @code{--no-dynamic} which has a substantial impact
-on run-time (about a factor of 2 on several platforms), but still
+on run-time (about a factor of 2-4 on several platforms), but still
 makes startup speed a little faster: @code{gforth-fast --ss-number=0
 --ss-states=1 --no-dynamic -e bye} consumes about 2.6ms user and 1.2ms
 system time.
 
-@c !! check
-The next step to improve startup speed is to use a data-relocatable
-image (@pxref{Data-Relocatable Image Files}).  This avoids the
-relocation cost for the code in the image (but not for the data).
-Note that the image is then specific to the particular binary you are
-using (i.e., whether it is @code{gforth}, @code{gforth-fast}, and even
-the particular build).  You create the data-relocatable image that
-works with @code{./gforth-fast} with @code{GFORTHD="./gforth-fast
---no-dynamic" gforthmi gforthdr.fi} (the @code{--no-dynamic} is
-required here or the image will not work).  And you run it with
-@code{gforth-fast -i gforthdr.fi ... -e bye} (the flags discussed
-above don't matter here, because they only come into play on
-relocatable code).  @code{gforth-fast -i gforthdr.fi -e bye} takes
-about 1.1ms user and 1.2ms system time.
-
-One step further is to avoid all relocation cost and part of the
-copy-on-write cost through using a non-relocatable image
-(@pxref{Non-Relocatable Image Files}).  However, this has the
-disadvantage that it does not work on operating systems with address
-space randomization (the default in, e.g., Linux nowadays), or if the
-dictionary moves for any other reason (e.g., because of a change of
-the OS kernel or an updated library), so we cannot really recommend
-it.  You create a non-relocatable image with @code{gforth-fast
---no-dynamic -e "savesystem gforthnr.fi bye"} (the @code{--no-dynamic}
-is required here, too).  And you run it with @code{gforth-fast -i
-gforthnr.fi ... -e bye} (again the flags discussed above don't
-matter).  @code{gforth-fast -i gforthdr.fi -e bye} takes
-about 0.9ms user and 0.9ms system time.
+@c did not work when I checked it on 2024-08-24
+@c The next step to improve startup speed is to use a data-relocatable
+@c image (@pxref{Data-Relocatable Image Files}).  This avoids the
+@c relocation cost for the code in the image (but not for the data).
+@c Note that the image is then specific to the particular binary you are
+@c using (i.e., whether it is @code{gforth}, @code{gforth-fast}, and even
+@c the particular build).  You create the data-relocatable image that
+@c works with @code{./gforth-fast} with @code{GFORTHD="./gforth-fast
+@c --no-dynamic" gforthmi gforthdr.fi} (the @code{--no-dynamic} is
+@c required here or the image will not work).  And you run it with
+@c @code{gforth-fast -i gforthdr.fi ... -e bye} (the flags discussed
+@c above don't matter here, because they only come into play on
+@c relocatable code).  @code{gforth-fast -i gforthdr.fi -e bye} takes
+@c about 1.1ms user and 1.2ms system time.
+@c 
+@c One step further is to avoid all relocation cost and part of the
+@c copy-on-write cost through using a non-relocatable image
+@c (@pxref{Non-Relocatable Image Files}).  However, this has the
+@c disadvantage that it does not work on operating systems with address
+@c space randomization (the default in, e.g., Linux nowadays), or if the
+@c dictionary moves for any other reason (e.g., because of a change of
+@c the OS kernel or an updated library), so we cannot really recommend
+@c it.  You create a non-relocatable image with @code{gforth-fast
+@c --no-dynamic -e "savesystem gforthnr.fi bye"} (the @code{--no-dynamic}
+@c is required here, too).  And you run it with @code{gforth-fast -i
+@c gforthnr.fi ... -e bye} (again the flags discussed above don't
+@c matter).  @code{gforth-fast -i gforthdr.fi -e bye} takes
+@c about 0.9ms user and 0.9ms system time.
 
 If the script you want to execute contains a significant amount of
 code, it may be profitable to compile it into the image to avoid the
@@ -4593,9 +4760,9 @@ To push an integer number on the data stack, you write the number in
 source code, e.g., @code{123}.  You can prefix the digits with
 @code{-} to indicate a negative number, e.g. @code{-123}.  This works
 both inside colon definitions and outside.  The number is interpreted
-according to the value of @code{base} (@pxref{Number Conversion}).
+according to the value in @code{base} (@pxref{Number Conversion}).
 The digits are @code{0} to @code{9} and @code{a} (decimal 10) to
-@code{z} (decimal 35), but only digits smaller than the base are
+@code{z} (decimal 35), but only digits smaller than @code{base @} are
 recognized.  The conversion is case-insensitive, so @code{A} and
 @code{a} are the same digit.
 
@@ -4638,8 +4805,9 @@ base prefix (e.g., @code{#-123.})
 Here are some examples, with the equivalent decimal number shown after
 in braces:
 
-@code{$-41} (-65), @code{%1001101} (205), @code{%1001.0001} (145 - a double-precision number),
-@code{#905} (905), @code{$abc} (2478), @code{$ABC} (2478).
+@code{$-41} (-65), @code{%1001101} (205), @code{%1001.0001} (145, a
+double-precision number), @code{#905} (905), @code{$abc} (2478),
+@code{$ABC} (2478).
 
 @cindex '-prefix for characters/code points
 @cindex input format for characters/code points
@@ -4724,6 +4892,14 @@ decimal point instead of the scaling symbol and appending the
 exponential notation at the end.  Examples of scaled notation:
 @code{6k5} (6500e) @code{23%} (0.23e).
 
+@cindex complex numbers, input format
+You can input a complex number with @code{@i{real}+@i{imaginary}i},
+where both @code{@i{real}} and @code{@i{imaginary}} are strings that
+are recognized as floating-point numbers.  E.g., @code{1e+2ei}.  This
+pushes the values @code{1e} and @code{2e} on the floating-point stack,
+so one might just as well have written @code{1e 2e}, but @code{1e+2ei}
+makes the intent obvious.
+
 @cindex String input format
 @cindex input format for strings
 You can input a string by surrounding it with @code{"}
@@ -4739,23 +4915,22 @@ programs, use @code{s\"} instead.
 
 @cindex environment variable input format
 @cindex input format for environment variables
-You can input an environment variable by first loading
-@file{rec-env.fs} and then prefixing the environment variable with
-@code{$}, e.g., @code{$HOME}; the result is a string descriptor on the
-data stack in the format described above.  This is equivalent to
-@code{"HOME" getenv}, i.e., the environment variable is resolved at
-run-time.
+You can input an environment variable by surrounding its name with
+@code{$@{}...@code{@}}, e.g., @code{$@{HOME@}}; the result is a string
+descriptor on the data stack in the format described above.  This is
+equivalent to @code{"HOME" getenv}, i.e., the environment variable is
+resolved at run-time.
 
 @cindex xt input format
 @cindex execution token input format
 @cindex input format for execution tokens
 @cindex @code{`} prefix of word
 You can input an execution token (xt) of a word by prefixing the name
-of the word with @code{`} (e.g., @code{`dup}).  An advantage over
-using @code{'} or @code{[']} is you do not need to switch between them
-when copying and pasting code from inside to outside a colon
-definition or vice versa.  A disadvantage is that this syntax is
-non-standard.
+of the word with the backquote @code{`} (e.g., @code{`dup}).  An
+advantage over using @code{'} or @code{[']} is you do not need to
+switch between them when copying and pasting code from inside to
+outside a colon definition or vice versa.  A disadvantage is that this
+syntax is non-standard.
 
 @cindex nt input format
 @cindex nt token input format
@@ -4772,11 +4947,24 @@ and @code{>} (e.g., @code{<spaces>}).  You can also input an address
 that is at a positive offset from the body address (typically an
 address in that body), by putting @code{+} and a number (see syntax
 above) between the word name and the closing @code{>} (e.g.,
-@code{<spaces+$15>}, @code{spaces+-3}).  You will get the body address
+@code{<spaces+$15>}, @code{<spaces+-3>}).  You will get the body address
 plus the number.  This non-standard feature exists to allow copying
 and pasting the output of @code{...} (@pxref{Examining data}).
 
-@c !! rec-scope rec-meta rec-to
+@cindex meta regognizer
+In some cases where two recognizers match the same string, you can
+specify which recognizer you want to use, with
+@code{@i{recognizer}?@i{string}}, where @code{@i{recognizer} is the
+name of the recognizer without the @code{rec-} prefix, and
+@code{@i{string}} is the string you want to recognize.  E.g.,
+@code{float?1.} uses @code{rec-float} to recognize a string that would
+otherwise be recognized as a double-cell integer number (because
+@code{rec-num} is earlier in the recognizer sequence than
+@code{rec-float}).
+
+@c !! rec-scope rec-to
+
+
 
 @c ******************************************************************
 @node Words, Error messages, Literals in source code, Top
@@ -14676,6 +14864,7 @@ to finish editing to continue with your Forth session), terminal
 editors in the foreground (default for editors not known to Gforth is
 foreground).  If you have not set @code{EDITOR}, the default editor is
 @file{vi}.
+@c !! cursor keys
 
 doc-locate
 doc-xt-locate
