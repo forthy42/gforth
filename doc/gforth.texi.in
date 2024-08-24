@@ -4762,7 +4762,7 @@ source code, e.g., @code{123}.  You can prefix the digits with
 both inside colon definitions and outside.  The number is interpreted
 according to the value in @code{base} (@pxref{Number Conversion}).
 The digits are @code{0} to @code{9} and @code{a} (decimal 10) to
-@code{z} (decimal 35), but only digits smaller than @code{base @} are
+@code{z} (decimal 35), but only digits smaller than @code{base @@} are
 recognized.  The conversion is case-insensitive, so @code{A} and
 @code{a} are the same digit.
 
@@ -4951,10 +4951,10 @@ above) between the word name and the closing @code{>} (e.g.,
 plus the number.  This non-standard feature exists to allow copying
 and pasting the output of @code{...} (@pxref{Examining data}).
 
-@cindex meta regognizer
+@cindex meta recognizer
 In some cases where two recognizers match the same string, you can
 specify which recognizer you want to use, with
-@code{@i{recognizer}?@i{string}}, where @code{@i{recognizer} is the
+@code{@i{recognizer}?@i{string}}, where @code{@i{recognizer}} is the
 name of the recognizer without the @code{rec-} prefix, and
 @code{@i{string}} is the string you want to recognize.  E.g.,
 @code{float?1.} uses @code{rec-float} to recognize a string that would
