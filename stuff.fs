@@ -514,15 +514,25 @@ alias xdle ( ud1 -- ud2 ) \ gforth
 alias xd>s ( xd -- d ) \ gforth
 \g Sign-extend the 64-bit value in @var{xd} to double-ceel @var{d}.
 
-: w, ( w -- ) \ gforth w-comma
+: w, ( x -- ) \ gforth w-comma
+    \G Reserve 2 bytes of data space and store the least significant
+    \G 16 bits of @i{x} there.
     here w!  2 allot ;
+
 : l, ( l -- ) \ gforth l-comma
+    \G Reserve 4 bytes of data space and store the least significant
+    \G 32 bits of @i{x} there.
     here l!  4 allot ;
 [IFDEF] x!
     : x, ( x -- ) \ gforth x-comma
+    \G Reserve 8 bytes of data space and store (the least significant
+    \G 64 bits) of @i{x} there.
+        \G Reserve 8 bytes of data space and store @i{w} there.
         here x!  8 allot ;
 [THEN]
 : xd, ( xd -- ) \ gforth x-d-comma
+    \G Reserve 8 bytes of data space and store the least significant
+    \G 64 bits of @i{x} there.
     here 8 allot xd! ;
 
 ' naligned alias *aligned ( addr1 n -- addr2 ) \ gforth
@@ -641,11 +651,11 @@ synonym hex. h. ( u -- ) \ gforth
 
 \ multiple values to and from return stack
 
-: n>r ( x1 .. xn n -- r:xn..x1 r:n ) \ tools-ext n-to-r
+: n>r ( x1 .. xn n -- R:xn..R:x1 R:n ) \ tools-ext n-to-r
     scope r> { n ret }
     0  BEGIN  dup n <  WHILE  swap >r 1+  REPEAT  >r
     ret >r endscope ;
-: nr> ( r:xn..x1 r:n -- x1 .. xn n ) \ tools-ext n-r-from
+: nr> ( R:xn..R:x1 R:n -- x1 .. xn n ) \ tools-ext n-r-from
     scope r> r> { ret n }
     0  BEGIN  dup n <  WHILE  r> swap 1+  REPEAT
     ret >r endscope ;
@@ -803,7 +813,7 @@ end-struct buffer% ( u1 u2 -- ) \ gforth-experimental
 
 \ rpick
 
-: rpick ( u -- wu ; R: wu ... w0 -- wu ... w0 ) \ gforth
+: rpick ( R:wu ... R:w0 u -- R:wu ... R:w0 wu ) \ gforth
     \G @i{wu} is the @i{u}th element on the return stack; @code{0
     \G rpick} is equivalent to @code{r@@}.
     1+ cells rp@ + @ ;

@@ -37,7 +37,7 @@
 : allot ( n -- ) \ core
     \G Reserve @i{n} address units of data space without
     \G initialization. @i{n} is a signed number, passing a negative
-    \G @i{n} releases memory.  In ANS Forth you can only deallocate
+    \G @i{n} releases memory.  In Forth-2012 you can only deallocate
     \G memory from the current contiguous region in this way.  In
     \G Gforth you can deallocate anything in this way but named words.
     \G The system does not check this restriction.
@@ -82,7 +82,7 @@
     here dup maxaligned >align ;
 
 \ the code field is aligned if its body is maxaligned
-' maxalign Alias cfalign ( -- ) \ gforth
+' maxalign Alias cfalign ( -- ) \ gforth-internal
 \G Align data-space pointer for code field requirements (i.e., such
 \G that the corresponding body is maxaligned).
 
@@ -101,7 +101,9 @@
 \ with existing/independent defining words
 
 : mem, ( addr u -- ) \ gforth
-    \ allot the memory block HERE (do alignment yourself)
+    \g Reserve @i{u} bytes of dictionary space and copy @i{u} bytes
+    \g starting at @i{addr} there.  If you want the memory to be
+    \g aligned, precede @code{mem,} with an alignment word.
     here over allot swap move ;
 
 : string, ( c-addr u -- ) \ gforth

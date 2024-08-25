@@ -90,7 +90,7 @@ AConstant image-header
 \ primitive aliases must be before first use, because resolving
 \ forward references works only for high level words
 [IFUNDEF] r@
-' i Alias r@ ( -- w ; R: w -- w ) \ core r-fetch
+' i Alias r@ ( R:w -- R:w w ) \ core r-fetch
 [THEN]
 [IFUNDEF] /
     ' /f     alias /      ( n1 n2 -- n ) \ core slash

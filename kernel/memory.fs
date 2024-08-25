@@ -40,7 +40,7 @@ umethod allocate ( u -- a_addr wior )	\ memory
 umethod free	( a_addr -- wior )	\ memory
     \G Return the region of data space starting at @i{a-addr} to the
     \G system.  The region must originally have been obtained using
-    \G @code{allocate} or @code{resize}. If the operational is
+    \G @code{allocate} or @code{resize}. If the operation is
     \G successful, @i{wior} is 0.  If the operation fails, @i{wior} is
     \G a non-zero I/O result code.
 

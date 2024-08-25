@@ -986,7 +986,8 @@ n2 = 2*n1;
 
 2/	( n1 -- n2 )		core		two_slash
 ""Arithmetic shift right by 1.  For signed numbers this is a floored
-division by 2 (note that @code{/} not necessarily floors).""
+division by 2 (note that @code{/} is symmetric on some systems, but
+@code{2/} always floors).""
 n2 = n1>>1;
 :
  dup MINI and IF 1 ELSE 0 THEN
@@ -2631,7 +2632,7 @@ f/	( r1 r2 -- r3 )	floating	f_slash
 r3 = r1/r2;
 
 f**	( r1 r2 -- r3 )	floating-ext	f_star_star
-""@i{r3} is @i{r1} raised to the @i{r2}th power.""
+""@i{r3} = @i{r1}@sup{@i{r2}}""
 CLOBBER_TOS_WORKAROUND_START;
 r3 = pow(r1,r2);
 CLOBBER_TOS_WORKAROUND_END;
@@ -2768,8 +2769,8 @@ r2 = atan(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
 fatan2	( r1 r2 -- r3 )	floating-ext	f_a_tan_two
-""@i{r1/r2}=tan(@i{r3}). ANS Forth does not require, but probably
-intends this to be the inverse of @code{fsincos}. In gforth it is.""
+""@i{r1/r2}=tan(@i{r3}). Forth-2012 does not require, but probably
+intends this to be the inverse of @code{fsincos}. In Gforth it is.""
 CLOBBER_TOS_WORKAROUND_START;
 r3 = atan2(r1,r2);
 CLOBBER_TOS_WORKAROUND_END;
@@ -2780,12 +2781,13 @@ r2 = cos(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
 fexp	( r1 -- r2 )	floating-ext	f_e_x_p
+""@i{r2} = e@sup{@i{r1}}""
 CLOBBER_TOS_WORKAROUND_START;
 r2 = exp(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
 fexpm1	( r1 -- r2 )	floating-ext	f_e_x_p_m_one
-""@i{r2}=@i{e}**@i{r1}@minus{}1""
+""@i{r2}=e@sup{@i{r1}}@minus{}1""
 #ifdef HAVE_EXPM1
 extern double
 #ifdef NeXT
@@ -2800,12 +2802,13 @@ r2 = exp(r1)-1.;
 CLOBBER_TOS_WORKAROUND_END;
 
 fln	( r1 -- r2 )	floating-ext	f_l_n
+""Natural logarithm: @i{r1} = e@sup{@i{r2}}""
 CLOBBER_TOS_WORKAROUND_START;
 r2 = log(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
 flnp1	( r1 -- r2 )	floating-ext	f_l_n_p_one
-""@i{r2}=ln(@i{r1}+1)""
+""Inverse of @code{fexpm1}: @i{r1}+1 = e@sup{r2}""
 #ifdef HAVE_LOG1P
 extern double
 #ifdef NeXT
@@ -2820,13 +2823,13 @@ r2 = log(r1+1.);
 CLOBBER_TOS_WORKAROUND_END;
 
 flog	( r1 -- r2 )	floating-ext	f_log
-""The decimal logarithm.""
+""The decimal logarithm: @i{r1} = 10@sup{@i{r2}}""
 CLOBBER_TOS_WORKAROUND_START;
 r2 = log10(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
 falog	( r1 -- r2 )	floating-ext	f_a_log
-""@i{r2}=10**@i{r1}""
+""@i{r2}=10@sup{@i{r1}}""
 extern double exp10(double);
 CLOBBER_TOS_WORKAROUND_START;
 r2 = exp10(r1);
@@ -2933,7 +2936,10 @@ r = v_star(f_addr1, nstride1, f_addr2, nstride2, ucount);
  LOOP 2drop 2drop ; 
 
 faxpy	( ra f_x nstridex f_y nstridey ucount -- )	gforth
-""vy=ra*vx+vy""
+""vy=ra*vx+vy, where @i{vy} is the vector starting at @i{f_y} with
+stride @i{nstridey} bytes, and @i{vx} is the vector starting at
+@i{f_x} with stride @i{nstridex}, and both vectors contain @i{ucount
+elements}.""
 faxpy(ra, f_x, nstridex, f_y, nstridey, ucount);
 :
  >r swap 2swap swap r> 0 ?DO

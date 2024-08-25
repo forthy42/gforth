@@ -333,7 +333,7 @@ forth-wordlist current !
     \G not found, return 0. If the definition is found return 1 (if
     \G the definition is immediate) or -1 (if the definition is not
     \G immediate) together with the @i{xt}.  In Gforth, the @i{xt}
-    \G returned represents the interpretation semantics.  ANS Forth
+    \G returned represents the interpretation semantics.  Forth-2012
     \G does not specify clearly what @i{xt} represents.
     find-name-in dup if
 	(name>intn)
@@ -676,7 +676,8 @@ defer int-execute ( ... xt -- ... )
 \ save-mem extend-mem
 
 : save-mem	( addr1 u -- addr2 u ) \ gforth
-    \g Copy a memory block into a newly allocated region in the heap.
+    \g Copy the memory block @i{addr u} to @i{addr2}, which is the
+    \g start of a newly heap allocated @i{u}-byte region.
     swap >r
     dup dfaligned allocate throw
     swap 2dup r> -rot move ;

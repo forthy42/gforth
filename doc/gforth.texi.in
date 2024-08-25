@@ -5513,7 +5513,7 @@ implement this is:
   drop ;
 @end example
 
-A more efficient version looks like this:
+A possibly more efficient version looks like this:
 
 @example
 : array/ ( addr u n -- )
@@ -5523,7 +5523,6 @@ A more efficient version looks like this:
     i @@ reci[ /f-stage2m i !
   1 cells +loop ;
 @end example
-
 
 This example first creates a local buffer @code{reci[} with size
 @code{staged/-size} for storing the reciprocal data.  Then
@@ -5541,6 +5540,20 @@ between the first stage and the second stage; basically, don't treat
 it as a memory buffer, but as something that is only mutable by the
 first stage; the point of this rule is that future versions of Gforth
 will not consider aliasing of this buffer.
+
+@c measurements with bench/stagediv.fs in 0.7.9_20240821
+Measurements show that staged division is not always beneficial:
+
+@example
+break  100 elem 
+even   speedup  core
+  7      2.09   Skylake (Core i5-6600K)
+  -      0.94   Rocket Lake (Xeon E-2388G)
+ 40      1.09   Golden Cove (Core i3-1315U P-core)
+  -      0.85   Gracemont (Core i3-1315U E-core)
+  6      1.68   Zen2 (Ryzen 9 3900X)
+  -      0.56   Zen3 (Ryzen 7 5800X)
+@end example
 
 The words are:
 
@@ -5633,8 +5646,10 @@ doc-dror
 @subsection Numeric comparison
 @cindex numeric comparison words
 
-Note that the words that compare for equality (@code{= <> 0= 0<> d= d<>
-d0= d0<>}) work for for both signed and unsigned numbers.
+All these comparison words produce -1 (all bits set) if the condition
+is true, otherwise 0.  Note that the words that compare for equality
+(@code{= <> 0= 0<> d= d<> d0= d0<>}) work for for both signed and
+unsigned numbers.
 
 doc-<
 doc-<=
@@ -5700,12 +5715,13 @@ r3 )}.}
 Floating point numbers have a number of unpleasant surprises for the
 unwary (e.g., floating point addition is not associative) and even a
 few for the wary. You should not use them unless you know what you are
-doing or you don't care that the results you get are totally bogus. If
-you want to learn about the problems of floating point numbers (and
-how to avoid them), you might start with @cite{David Goldberg,
-@uref{https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html,What Every
-Computer Scientist Should Know About Floating-Point Arithmetic}, ACM
-Computing Surveys 23(1):5@minus{}48, March 1991}.
+doing or you don't care that the results you get may be totally
+bogus. If you want to learn about the problems of floating point
+numbers (and how to avoid them), you might start with @cite{David
+Goldberg,
+@uref{https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html,What
+Every Computer Scientist Should Know About Floating-Point Arithmetic},
+ACM Computing Surveys 23(1):5@minus{}48, March 1991}.
 
 Conversion between integers and floating-point:
 
@@ -5850,20 +5866,20 @@ doc-dup
 doc-over
 doc-third
 doc-fourth
-doc-tuck
 doc-swap
-doc-pick
 doc-rot
 doc--rot
-doc-?dup
+doc-tuck
+doc-pick
 doc-roll
+doc-?dup
 doc-2drop
 doc-2nip
 doc-2dup
 doc-2over
-doc-2tuck
 doc-2swap
 doc-2rot
+doc-2tuck
 
 
 @node Floating point stack, Return stack, Data stack, Stack Manipulation
@@ -5877,26 +5893,28 @@ doc-fdup
 doc-fover
 doc-fthird
 doc-ffourth
-doc-ftuck
 doc-fswap
-doc-fpick
 doc-frot
 doc-f-rot
+doc-ftuck
+doc-fpick
 
 
 @node Return stack, Locals stack, Floating point stack, Stack Manipulation
 @subsection Return stack
 @cindex return stack manipulation words
 @cindex stack manipulation words, return stack
-
 @cindex return stack and locals
 @cindex locals and return stack
-A Forth system is allowed to keep local variables on the
-return stack. This is reasonable, as local variables usually eliminate
-the need to use the return stack explicitly. So, if you want to produce
-a standard compliant program and you are using local variables in a
-word, forget about return stack manipulations in that word (refer to the
-standard document for the exact rules).
+
+In Gforth you can use the return stack for storing data while you also
+keep and access data in locals.  However, the standard puts
+restrictions on mixing return stack and locals usage, for easy locals
+implementations, and there are systems that actually rely on these
+restrictions. So, if you want to produce a standard compliant program
+and you are using local variables in a definition, forget about return
+stack manipulations in that word (refer to the standard document for
+the exact rules).
 
 doc->r
 doc-r>
@@ -5914,12 +5932,15 @@ doc-nr>
 @node Locals stack, Stack pointer manipulation, Return stack, Stack Manipulation
 @subsection Locals stack
 
-Gforth uses an extra locals stack.  It is described, along with the
+Gforth uses a separate locals stack.  It is described, along with the
 reasons for its existence, in @ref{Locals implementation}.
 
 @node Stack pointer manipulation,  , Locals stack, Stack Manipulation
 @subsection Stack pointer manipulation
 @cindex stack pointer manipulation words
+
+In the stack effects of the following words, ignore the occurences of
+``...''  in the stack-pointer fetching words.
 
 @c removed s0 r0 l0 -- they are obsolete aliases for sp0 rp0 lp0
 doc-sp0
@@ -5976,12 +5997,12 @@ buffers.
 
 Gforth provides one big address space, and address arithmetic can be
 performed between any addresses. However, in the dictionary headers or
-code are interleaved with data, so almost the only contiguous data space
-regions there are those described by Standard Forth as contiguous; but you
-can be sure that the dictionary is allocated towards increasing
-addresses even between contiguous regions.  The memory order of
-allocations in the heap is platform-dependent (and possibly different
-from one run to the next).
+code are interleaved with data, so almost the only contiguous data
+space regions there are those described by Standard Forth as
+contiguous; but you can be sure that, within a section the dictionary
+is allocated towards increasing addresses even between contiguous
+regions.  The memory order of allocations in the heap is
+platform-dependent (and possibly different from one run to the next).
 
 
 @node Dictionary allocation, Heap Allocation, Memory model, Memory
@@ -5994,10 +6015,12 @@ you want to deallocate X, you also deallocate everything
 allocated after X.
 
 @cindex contiguous regions in dictionary allocation
-The allocations using the words below are contiguous and grow the region
-towards increasing addresses.  Other words that allocate dictionary
-memory of any kind (i.e., defining words including @code{:noname}) end
-the contiguous region and start a new one.
+The allocations using the words below are contiguous and grow the
+region towards increasing addresses.  Other words that allocate
+dictionary memory of any kind (i.e., defining words including
+@code{:noname}) in the same section end the contiguous region and
+start a new one, but allocating memory in a different section does not
+end a contiguous region.
 
 In Standard Forth only @code{create}d words are guaranteed to produce an
 address that is the start of the following contiguous region.  In
@@ -6027,7 +6050,7 @@ doc-save-mem-dict
 
 Memory accesses have to be aligned (@pxref{Address arithmetic}). So of
 course you should allocate memory in an aligned way, too. I.e., before
-allocating allocating a cell, @code{here} must be cell-aligned, etc.
+allocating a cell, @code{here} must be cell-aligned, etc.
 The words below align @code{here} if it is not already.  Basically it is
 only already aligned for a type, if the last allocation was a multiple
 of the size of this type and if @code{here} was aligned for this type
@@ -6041,9 +6064,7 @@ doc-falign
 doc-sfalign
 doc-dfalign
 doc-maxalign
-doc-cfalign
-
-
+@c cfalign is now internal, and actually obsolete given the new header structure
 
 
 @node Heap Allocation, Memory Access, Dictionary allocation, Memory
@@ -6077,11 +6098,13 @@ doc-extend-mem
 The $tring words can also be used for dealing with memory blocks,
 @xref{$tring words}.
 
-For growable memory buffers you can use $trings, or the following
-words.  Because the allocated memory of a buffer managed with
-@code{adjust-buffer} does not shrink, there is no heap-management
-overhead when adjusting the buffer for a size smaller than the largest
-one seen yet.
+The following words are useful for growable memory buffers.  One can
+alternatively use $trings (@pxref{$tring words}), and the differences
+are: When the used memory in the buffer shrinks, $trings may resize
+the buffer, while @code{adjust-buffer} does not, which may be
+preferable for a buffer that gets new sizes a lot.  However, $strings
+have one cell less memory overhead, and for longer-term storage the
+shrinking may be worthwhile.
 
 doc-buffer%
 doc-init-buffer
@@ -13283,14 +13306,14 @@ The Standard Forth locals wordset itself consists of two words:
 
 doc-(local)
 
-The ANS Forth locals extension wordset defines a syntax using
+The Forth-2012 locals extension wordset also defines a syntax using
 @code{locals|}, but it is so awful that we strongly recommend not to
 use it. We have implemented this syntax to make porting to Gforth
 easy, but do not document it here. The problem with this syntax is
 that the locals are defined in an order reversed with respect to the
 standard stack comment notation, making programs harder to read, and
 easier to misread and miswrite. The only merit of this syntax is that
-it is easy to implement using the ANS Forth locals wordset, but then,
+it is easy to implement using the Forth-2012 locals wordset, but then,
 so is the @code{@{:} syntax.
 
 @c -------------------------------------------------------------

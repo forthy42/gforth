@@ -79,9 +79,9 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
     udividend addr u/-stage2m udividend over addr staged/-divisor @ * - swap ;
 [then]
 
-: u/-stage1m ( u addr-reci -- ) \ gforth u-slash-stage1m
+: u/-stage1m ( u a-reci -- ) \ gforth u-slash-stage1m
     \G Compute the reciprocal of @i{u} and store it in the buffer
-    \G @i{addr-reci} of size @code{staged/-size}.  Throws an error if
+    \G @i{a-reci} of size @code{staged/-size}.  Throws an error if
     \G @i{u}<2.
     {: udivisor addr :}
     udivisor 2 u< -24 and throw
@@ -149,9 +149,9 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
     ndividend addr /f-stage2m ndividend over addr staged/-divisor @ * - swap ;
 [then]
 
-: /f-stage1m ( n addr-reci -- ) \ gforth slash-f-stage1m
+: /f-stage1m ( n a-reci -- ) \ gforth slash-f-stage1m
     \G Compute the reciprocal of @i{n} and store it in the buffer
-    \G @i{addr-reci} of size @code{staged/-size}.  Throws an error if
+    \G @i{a-reci} of size @code{staged/-size}.  Throws an error if
     \G @i{n}<1.
     {: ndivisor addr -- :}
     ndivisor 1 < -24 and throw

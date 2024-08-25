@@ -59,7 +59,7 @@
 \G @code{1 dfloats +}.
     1 dfloats ,
     
-: f, ( f -- ) \ gforth
+: f, ( f -- ) \ gforth f-comma
     \G Reserve data space for one floating-point number and store
     \G @i{f} in the space.
     1 floats small-allot f! ;
@@ -278,7 +278,7 @@ set-current
 	f- fabs frot frot f* f< ;
 
 : f~ ( r1 r2 r3 -- flag ) \ floating-ext f-proximate
-    \G ANS Forth medley for comparing r1 and r2 for equality: r3>0:
+    \G Forth-2012 medley for comparing r1 and r2 for equality: r3>0:
     \G @code{f~abs}; r3=0: bitwise comparison; r3<0: @code{fnegate f~rel}.
     fdup f0=
     IF \ bitwise comparison

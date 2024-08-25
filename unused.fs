@@ -74,7 +74,7 @@
     \G state represented either the compilation semantics (for
     \G non-default compilation semantics) or the run-time semantics
     \G that the compilation semantics would @code{compile,} (for
-    \G default compilation semantics).  The ANS Forth standard does
+    \G default compilation semantics).  The Forth-2012 standard does
     \G not specify clearly what the returned @i{xt} represents (and
     \G also talks about immediacy instead of non-default compilation
     \G semantics), so this word is questionable in portable programs.

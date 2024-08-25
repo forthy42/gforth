@@ -47,7 +47,7 @@ decimal
 
 : m*/ ( d1 n2 u3 -- dquot ) \ double m-star-slash
     \G dquot=(d1*n2)/u3, with the intermediate result being triple-precision.
-    \G In ANS Forth u3 can only be a positive signed number.
+    \G In Forth-2012 u3 is only allowed to be a positive signed number.
     >r s>d >r abs -rot
     s>d r> xor r> swap >r >r dabs rot tuck um* 2swap um*
     swap >r 0 d+ r> -rot r@ um/mod -rot r> um/mod
