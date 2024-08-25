@@ -846,7 +846,7 @@ if ((Cell)((n1^n2) < 0) && (Cell)(n != 0))
  /modf drop ;
 
 /modf	( n1 n2 -- n3 n4 )		gforth		slash_mod_f
-""n3 is the modulus, n4 the quotient""
+""n1=n2*n4+n3; n3 is the modulus, n4 the quotient""
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 if (CHECK_DIVISION_SW && n2 == 0)
@@ -930,7 +930,7 @@ n = n1%n2;
  /mods drop ;
 
 /mods	( n1 n2 -- n3 n4 )		gforth		slash_mod_s
-""n3 is the remainder, n4 the quotient""
+""n1=n2*n4+n3; n3 is the remainder, n4 the quotient""
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 if (CHECK_DIVISION_SW && n2 == 0)
@@ -1366,7 +1366,7 @@ u = u1%u2;
  u/mod drop ;
 
 u/mod	( u1 u2 -- u3 u4 )		gforth		u_slash_mod
-""u3 is the modulus, u4 the quotient""
+""u1=u2*u4+u3; u3 is the modulus, u4 the quotient""
 if (CHECK_DIVISION_SW && u2 == 0)
   throw(BALL_DIVZERO);
 SAVE_DIVISOR(u2);

@@ -215,8 +215,10 @@ Defer ?warn#  ' noop is ?warn#
     compare 0= IF  obsolete  THEN ; immediate
 
 : \G ( compilation 'ccc<newline>' -- ; run-time -- ) \ gforth backslash-gee
-    \G Equivalent to @code{\} but used as a tag to annotate definition
-    \G comments into documentation.
+    \G Equivalent to @code{\}.  Used right below the start of a
+    \G definition to describe the behaviour of a word.  In Gforth's
+    \G source code these comments are those that are then inserted in
+    \G the documentation.
     POSTPONE \ ; immediate
 
 \ \ object oriented search list                         17mar93py

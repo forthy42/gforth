@@ -771,7 +771,7 @@ removed in a future version.  If the wordset is
 @code{gforth-experimental}, @code{gforth-internal}, or
 @code{gforth-obsolete}, the word may also be removed in a future
 version.  In particular, @code{gforth-experimental} indicates that
-this is a featured word that we do not consider stable yet;
+this is a supported word that we do not consider stable yet;
 @code{gforth-obsolete} indicates an intent to remove the word in the
 next version; and @code{gforth-internal} (or no wordset) indicates
 that we may remove the word as soon as we no longer use it in Gforth.
@@ -4962,9 +4962,10 @@ otherwise be recognized as a double-cell integer number (because
 @code{rec-num} is earlier in the recognizer sequence than
 @code{rec-float}).
 
-@c !! rec-scope rec-to
-
-
+In addition, by default Gforth recognizes words with @code{rec-nt} and
+@code{rec-scope}, and stores in or adds to value-flavoured words with
+@code{rec-to}, but these do not recognize literals, so they are
+discussed elsewhere (@pxref{Default Recognizers}).
 
 @c ******************************************************************
 @node Words, Error messages, Literals in source code, Top
@@ -5033,23 +5034,54 @@ The stack effect is written in the notation @code{@i{before} --
 @i{after}}, where @i{before} and @i{after} describe the top of
 stack entries before and after the execution of the word. The rest of
 the stack is not touched by the word. The top of stack is rightmost,
-i.e., a stack sequence is written as it is typed in. Note that Gforth
-uses a separate floating point stack, but a unified stack
-notation. Also, return stack effects are not shown in @i{stack
-effect}, but in @i{Description}. The name of a stack item describes
-the type and/or the function of the item. See below for a discussion of
-the types.
+i.e., a stack sequence is written as it is typed in.
 
-All words have two stack effects: A compile-time stack effect and a
-run-time stack effect. The compile-time stack-effect of most words is
-@i{ -- }. If the compile-time stack-effect of a word deviates from
-this standard behaviour, or the word does other unusual things at
-compile time, both stack effects are shown; otherwise only the run-time
-stack effect is shown.
+Gforth has several stacks, in particular, the data stack, return stack
+and floating-point stack.  However, it uses a unified stack effect
+notation, where one stack effect description describes all three stack
+effects, and the name of the item indicates which stack the item is
+on: floating-point stack items start with @i{r}.  Return stack items
+are prefixed with @i{R:}, but are otherwise the same as data stack
+items.  E.g., in the stack effect @code{( @i{w1 w2} -- @i{R:w1 R:w2}
+)} @i{w1} is a cell on the data stack, and @i{R:w1} is a cell on the
+return stack with the same value.  So a unified stack effect
+
+@example
+( @i{r1 n1 R:n2} -- @i{R:n3 n4 r2} )
+@end example
+
+is equivalent to the separated stack effect notation
+
+@example
+( @i{n1} -- @i{n4} ) ( R: @i{n2} -- @i{n3} ) ( F: @i{r1} -- @i{r2} )
+@end example
+
+The name of a stack item describes the type and/or the function of the
+item. See below for a discussion of the types.
+
+Words generally have different stack effects in different contexts.
+If only one stack effect is shown, it's the stack effect for the
+execution/interpretation semantics.@footnote{Gforth 1.0 does not make
+a difference between interpretation and execution semantics.}  The
+stack effect of default compilation semantics is @code{( -- )} and is
+not shown.
+
+The stack-effects of non-default compilation semantics are shown if
+they are other than @code{( -- )}.  Such words usually also have a
+run-time semantics, and their stack effects are then shown as in this
+example
+
+@example
+; ( compilation @i{colon-sys} -- ; run-time @i{nest-sys} -- )
+@end example
+
+Further stack effects, such as those of defined words, of passed
+xts, are shown in the description part of the glossary entry.
 
 Also note that in code templates or examples there can be comments in
 parentheses that display the stack picture at this point; there is no
-@code{--} in these places, because there is no before-after situation.
+@code{--} in these places, because there is no before-after
+situation.
 
 @cindex pronounciation of words
 @item pronunciation
@@ -5058,11 +5090,10 @@ How the word is pronounced.
 @cindex wordset
 @cindex environment wordset
 @item wordset
-The wordset specifies whether a word has been standardized, it is an
-environmental query string, or if it is a Gforth-specific word.  In
-the latter case the wordset contains the string @code{gforth}, other
-wordset names are either @code{environment} of refer to standard word
-sets.
+The wordset specifies if a word has been standardized (indicated by a
+capitalized wordset name), it is an environmental query string
+(indicated by ``environment''), or if it is a Gforth-specific word
+(lower case).
 
 The Forth standard is divided into several word sets. In theory, a
 standard system need not support all of them, but in practice, serious
@@ -5077,12 +5108,27 @@ For the Gforth-specific words, we have the following categories:
 @item gforth
 @item gforth-@i{<version>}
 We intend to permanently support this word in Gforth and it has been
-available since Gforth @i{<version>} (possibly not as supported word at
+available since Gforth @i{<version>} (possibly not as stable word at
 that time).
+
+@item @i{library}
+The word belongs to a library that is independent of Gforth, but is
+delivered with Gforth and documented in this manual.  Gforth 1.0
+includes libraries with the following wordset names:
+mini-oof
+mini-oof2
+minos2
+minos2-bidi
+objects
+oof
+regexp-cg
+regexp-pattern
+regexp-replace
+cilk
 
 @item gforth-experimental
 This word is available in the present version and may turn into a
-permanent word or may be removed in a future release of Gforth.
+stable word or may be removed in a future release of Gforth.
 Feedback welcome.
 
 @item gforth-internal
@@ -5100,8 +5146,7 @@ A description of the behaviour of the word.
 
 @cindex types of stack items
 @cindex stack item types
-The type of a stack item is specified by the character(s) the name
-starts with:
+The type of a stack item is specified by the prefix of the name:
 
 @table @code
 @item f
@@ -5111,7 +5156,9 @@ Boolean flags, i.e. @code{false} or @code{true}.
 @cindex @code{c}, stack item type
 Char
 @item w
+@item x
 @cindex @code{w}, stack item type
+@cindex @code{x}, stack item type
 Cell, can contain an integer or an address
 @item n
 @cindex @code{n}, stack item type
@@ -5121,19 +5168,22 @@ signed integer
 unsigned integer
 @item d
 @cindex @code{d}, stack item type
-double sized signed integer
+signed double-cell integer
 @item ud
 @cindex @code{ud}, stack item type
-double sized unsigned integer
+unsigned double-cell integer
 @item r
 @cindex @code{r}, stack item type
 Float (on the FP stack)
+@item addr
+Address without further information
 @item a-
 @cindex @code{a_}, stack item type
 Cell-aligned address
 @item c-
 @cindex @code{c_}, stack item type
-Char-aligned address (note that a Char may have two bytes in Windows NT)
+Char-aligned address, address used to point to a character or start of
+a string.
 @item f-
 @cindex @code{f_}, stack item type
 Float-aligned address
@@ -5146,6 +5196,9 @@ Address aligned for IEEE single precision float
 @item xt
 @cindex @code{xt}, stack item type
 Execution token, same size as Cell
+@cindex @code{nt}, stack item type
+@item nt
+Name token, same size as Cell
 @item wid
 @cindex @code{wid}, stack item type
 Word list ID, same size as Cell
@@ -5153,14 +5206,15 @@ Word list ID, same size as Cell
 @cindex ior type description
 @cindex wior type description
 I/O result code, cell-sized.  In Gforth, you can @code{throw} iors.
-@item f83name
-@cindex @code{f83name}, stack item type
-Pointer to a name structure
 @item "
 @cindex @code{"}, stack item type
-string in the input stream (not on the stack). The terminating character
-is a blank by default. If it is not a blank, it is shown in @code{<>}
-quotes.
+String in the input stream (not on the stack), typically space-delimited.
+@item '
+@cindex @code{'}, stack item type
+String in the input stream, delimited by the last character before the
+closing @code{'}.  E.g., @code{'ccc"'} indicates a string in the input
+stream that is terminated by @code{"}.
+
 @end table
 
 @comment ----------------------------------------------
@@ -5169,33 +5223,33 @@ quotes.
 @cindex case sensitivity
 @cindex upper and lower case
 
-Gforth is case-insensitive; you can enter definitions and invoke
-Standard words using upper, lower or mixed case (however,
-@pxref{core-idef, Implementation-defined options, Implementation-defined
-options}).
+Gforth is case-insensitive for ASCII characters and case-insensitive
+for non-ASCII characters.  I.e., you can invoke Standard words using
+upper, lower or mixed case.
 
-Standard Forth only @i{requires} implementations to recognise Standard words
-when they are typed entirely in upper case. Therefore, a Standard
-program must use upper case for all Standard words. You can use whatever
-case you like for words that you define, but in a Standard program you
-have to use the words in the same case that you defined them.
+For now, standard Forth only @i{requires} implementations to recognise
+Standard words when they are typed entirely in upper case.  You can
+use whatever case you like for words that you define, but in a
+Standard program you have to use the words in the same case that you
+defined them.
 
 Gforth supports case sensitivity through @code{cs-wordlist}s (case-sensitive
 wordlists, @pxref{Word Lists}).
 
-Two people have asked how to convert Gforth to be case-sensitive; while
-we think this is a bad idea, you can change all wordlists into tables
-like this:
-
-@example
-' table-find forth-wordlist wordlist-map @ !
-@end example
-
-Note that you now have to type the predefined words in the same case
-that we defined them, which are varying.  You may want to convert them
-to your favourite case before doing this operation (I won't explain how,
-because if you are even contemplating doing this, you'd better have
-enough knowledge of Forth systems to know this already).
+@c does not work in 0.7.9_20240821
+@c Two people have asked how to convert Gforth to be case-sensitive; while
+@c we think this is a bad idea, you can change all wordlists into tables
+@c like this:
+@c 
+@c @example
+@c ' table-find forth-wordlist wordlist-map @ !
+@c @end example
+@c 
+@c Note that you now have to type the predefined words in the same case
+@c that we defined them, which are varying.  You may want to convert them
+@c to your favourite case before doing this operation (I won't explain how,
+@c because if you are even contemplating doing this, you'd better have
+@c enough knowledge of Forth systems to know this already).
 
 @node Comments, Boolean Flags, Case insensitivity, Words
 @section Comments
@@ -5236,11 +5290,7 @@ Forth arithmetic is not checked, i.e., you will not hear about integer
 overflow on addition or multiplication, you may hear about division by
 zero if you are lucky. The operator is written after the operands, but
 the operands are still in the original order. I.e., the infix
-@code{2-1} corresponds to @code{2 1 -}. Forth offers a variety of
-division operators. If you perform division with potentially negative
-operands, you do not want to use @code{/} or @code{/mod} with its
-implementation-defined behaviour, but, e.g., @code{/f}, @code{/modf}
-or @code{fm/mod} (@pxref{Integer division}).
+@code{2-1} corresponds to @code{2 1 -}.
 
 @menu
 * Single precision::
@@ -5258,15 +5308,15 @@ or @code{fm/mod} (@pxref{Integer division}).
 @cindex single precision arithmetic words
 
 @c !! cell undefined
+By default, numbers in Forth are single-precision integers that are
+one cell (a machine word, e.g., 64 bits on a 64-bit system) in
+size. They can be signed or unsigned, depending upon how you treat
+them. For the rules used by the text interpreter for recognising
+single-precision integers see @ref{Literals}.
 
-By default, numbers in Forth are single-precision integers that are one
-cell in size. They can be signed or unsigned, depending upon how you
-treat them. For the rules used by the text interpreter for recognising
-single-precision integers see @ref{Number Conversion}.
-
-These words are all defined for signed operands, but some of them also
-work for unsigned numbers: @code{+}, @code{1+}, @code{-}, @code{1-},
-@code{*}.
+@code{+}, @code{1+}, @code{under+}, @code{-}, @code{1-}, @code{*} are
+defined for signed operands, but they also work for unsigned numbers.
+For division words see @ref{Integer division}.
 
 doc-+
 doc-1+
@@ -5286,19 +5336,22 @@ doc-umax
 @cindex double precision arithmetic words
 
 For the rules used by the text interpreter for
-recognising double-precision integers, see @ref{Number Conversion}.
+recognising double-precision integers, see @ref{Literals}.
 
 A double precision number is represented by a cell pair, with the most
-significant cell at the TOS. It is trivial to convert an unsigned single
-to a double: simply push a @code{0} onto the TOS. Since numbers are
-represented by Gforth using 2's complement arithmetic, converting a
-signed single to a (signed) double requires sign-extension across the
-most significant cell. This can be achieved using @code{s>d}. The moral
-of the story is that you cannot convert a number without knowing whether
-it represents an unsigned or a signed number.
+significant cell at the top-of-stack (TOS). It is trivial to convert
+an unsigned single to a double: simply push a @code{0} onto the
+TOS. Numbers are represented by Gforth using 2's complement
+arithmetic, so converting a signed single to a (signed) double
+requires sign-extension across the most significant cell. This can be
+achieved using @code{s>d}. You cannot convert a number from
+single-cell to double-cell without knowing whether it represents an
+unsigned or a signed number.  By contrast, in 2's complement
+arithmetic the conversion from double to single just @code{drop}s the
+most significant cell, and @code{d>s} just documents the intent.
 
-These words are all defined for signed operands, but some of them also
-work for unsigned numbers: @code{d+}, @code{d-}.
+@code{D+} and @code{d-} are defined for signed operands, but also work
+for unsigned numbers.
 
 doc-s>d
 doc-d>s
@@ -5329,20 +5382,20 @@ doc-um*
 
 Below you find a considerable number of words for dealing with
 divisions.  A major difference between them is in dealing with signed
-division: Do the words support signed division (those with the
-@code{U} prefix do not)?
+division: Do the words support signed division? Those with the
+@code{u} prefix do not.
 
 @cindex floored division
 @cindex symmetric division
-If they do, do they round towards negative infinity (floored division,
-suffix @code{F}), or towards 0 (symmetric division, suffix @code{S}).
-The standard leaves the issue implementation-defined for most standard
-words (@code{/ mod /mod */ */mod m*/}), and different systems have
-made different choices.  Gforth implements these words as floored
-(since Gforth 0.7).  There is only a difference between floored and
-symmetric division if the dividend and the divisor have different
-signs, and the dividend is not a multiple of the divisor.  The
-following table illustrates the results:
+Do signed division words round towards negative infinity (floored
+division, suffix @code{F}), or towards 0 (symmetric division, suffix
+@code{S}).  The standard leaves the issue implementation-defined for
+most standard words (@code{/ mod /mod */ */mod m*/}).  Gforth
+implements these words as floored (since Gforth 0.7), but there are
+systems that implement them as symmetric.  There is only a difference
+between floored and symmetric division if the dividend and the divisor
+have different signs, and the dividend is not a multiple of the
+divisor.  The following table illustrates the results:
 
 @example
                       floored          symmetric
@@ -5367,7 +5420,11 @@ difference, you should think about which variant is the right one for
 you, and then use either the appropriately suffixed Gforth words, or
 the standard words @code{fm/mod} or @code{sm/rem}.
 
-Single-by-single-cell division:
+In the following, ``remainder'' (symmetric) has the same sign as the
+dividend or is 0, while ``modulus'' (floored) has the same sign as the
+divisor or is 0.
+
+The following words perform single-by-single-cell division:
 
 doc-/
 doc-/s
@@ -5382,10 +5439,10 @@ doc-/mods
 doc-/modf
 doc-u/mod
 
-Double-by-single-cell division with single-cell results; these words
-are roughly as fast as the words above on some architectures (e.g.,
-AMD64), but much slower on others (e.g., an order of magnitude on
-various Aarch64 CPUs).
+The following words perform double-by-single-cell division with
+single-cell results; these words are roughly as fast as the words
+above on some architectures (e.g., AMD64), but much slower on others
+(e.g., an order of magnitude on various ARM A64 CPUs).
 
 doc-fm/mod
 doc-sm/rem
@@ -5400,15 +5457,17 @@ doc-*/mods
 doc-*/modf
 doc-u*/mod
 
-Division with double-cell results; these words are much slower than
-the words above.
+The following words perform division with double-cell results; these
+words are much slower than the words above.
 
 doc-ud/mod
 doc-m*/
 
-You can use the following environmental query @code{floored}
+You can use the environmental query @code{floored}
 (@pxref{Environmental Queries}) to learn whether @code{/ mod /mod */
-*/mod m*/} use floored or symmetric division.
+*/mod m*/} use floored or symmetric division on the system your
+program is being loaded on; alternatively, @code{-1 3 /} also produces
+-1 on floored and 0 on symmetric systems.
 
 @cindex Floating-point unidentified fault (on integer division)
 @cindex Division by zero
@@ -5435,9 +5494,12 @@ bet on such conditions being thrown, but for quicker debugging
 On most hardware, multiplication is significantly faster than
 division.  So if you have to divide many numbers by the same divisor,
 it is usually faster to determine the reciprocal of the divisor once
-and multiply the numbers with the reciprocal.  For integers, this is
-tricky, so Gforth packages this work into the words described in this
-section.
+and multiply the numbers with the reciprocal.  If you divide by a
+constant, Gforth performs this optimization automatically.
+
+However, for cases where the divisor is not known during compilation,
+Gforth provides words that allow you to implement this optimization
+without to much fuss.
 
 Let's start with an example: You want to divide all elements of an
 array of cells by the same number n.  A straightforward way to
@@ -5461,6 +5523,7 @@ A more efficient version looks like this:
     i @@ reci[ /f-stage2m i !
   1 cells +loop ;
 @end example
+
 
 This example first creates a local buffer @code{reci[} with size
 @code{staged/-size} for storing the reciprocal data.  Then
@@ -5515,12 +5578,12 @@ column shows the normal division word (e.g., @code{u/}), while the
 @example
  Skylake              Zen2
 norm stg2           norm stg2
-41.3 15.8 u/	    35.2 21.4 u/	   
-39.8 19.7 umod	    36.9 25.8 umod	   
-44.0 25.3 u/mod	    43.0 33.9 u/mod	   
-48.7 16.9 /f	    36.2 22.5 /f	   
-47.9 20.5 modf	    37.9 27.1 modf	   
-53.0 24.6 /modf	    45.8 35.4 /modf	   
+41.3 15.8 u/        35.2 21.4 u/           
+39.8 19.7 umod      36.9 25.8 umod         
+44.0 25.3 u/mod     43.0 33.9 u/mod        
+48.7 16.9 /f        36.2 22.5 /f           
+47.9 20.5 modf      37.9 27.1 modf         
+53.0 24.6 /modf     45.8 35.4 /modf        
     227.2 u/stage1      101.9 u/stage1
     159.8 /fstage1       97.7 /fstage1
 @end example
