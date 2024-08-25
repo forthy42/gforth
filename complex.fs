@@ -128,7 +128,10 @@ previous
 : z0=      ( z -- flag ) f0= >r f0= r> and ;
 : zsqrt    ( z -- sqrt[z] )
     zdup z0= 0= IF
-	fdup f0= IF  fdrop fsqrt 0e  EXIT  THEN
+        fdup f0= IF
+            fdrop fdup f0< if
+                fnegate fsqrt 0e fswap exit then
+            fsqrt 0e  EXIT  THEN
 	zln z2/ zexp  THEN ;
 : z**      ( z1 z2 -- z1**z2 ) zswap zln z* zexp ;
 \ Test: Fibonacci-Zahlen
