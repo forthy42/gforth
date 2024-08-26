@@ -1,5 +1,5 @@
 DEVICES=$(find /dev/dri -type c | sed -e 's/^.*$/--device=\0:\0/g' | tr '\n' ' ')
-USERMAP="$(id -u):$(grep render /etc/group | cut -f3 -d:)"
+USERMAP="$(id -u):$(\ls -ng /dev/dri/render* | head -1 | sed -e 's/  */ /g' | cut -f3 -d' ')"
 
 alias swigdk="docker run -ti -v `pwd`:/workdir -v /usr/include:/usr/include --rm forthy42/swig"
 alias gforthdk="docker run -ti --user $USERMAP -v `pwd`:/workdir --rm forthy42/gforth"
