@@ -109,26 +109,19 @@ create \-escape-table
 
 :noname \"-parse save-mem ;
 :noname \"-parse save-mem 2dup postpone sliteral drop free throw ;
-interpret/compile: s\" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core-ext,file-ext s-backslash-quote
-\G Like @code{S"}, but translates C-like \-escape-sequences, as follows:
-\G @code{\a} BEL (alert), @code{\b} BS, @code{\e} ESC (not in C99), @code{\f}
-\G FF, @code{\n} newline, @code{\r} CR, @code{\t} HT, @code{\v} VT, @code{\"}
-\G ", @code{\\} \, @code{\}[0-7]@{1,3@} octal numerical character value
-\G (non-standard), @code{\x}[0-9a-f]@{0,2@} hex numerical character value
-\G (standard only with two digits), @code{\u}[0-9a-f]@{4@} for unicode
-\G codepoints (auto-merges surrogate pairs), @code{\U}[0-9a-f]@{8@} for
-\G extended unicode code points; a @code{\} before any other character is
-\G reserved.
+interpret/compile: s\" ( Interpretation 'ccc"' -- c-addr u )	\ core-ext,file-ext s-backslash-quote
+\G Interpretation: Parse the string @i{ccc} delimited by a @code{"}
+\G (but not @code{\"}), and convert escaped characters as described
+\G above.  Store the resulting string in newly allocated heap memory,
+\G and push its descriptor @i{c-addr u}.
 \G @*
-\G Note that @code{\x}XX produces raw bytes, while @code{\u}XXXX and
-\G @code{\U}XXXXXXXX produce code points for the current encoding.
-\G E.g., if we use UTF-8 encoding and want to encode @"a (code point
-\G U+00E4), you can write the letter @"a itself, or write @code{\xc3\xa4}
-\G (the UTF-8 bytes for this code point), @code{\u00e4}, or @code{\U000000e4}.
+\G Compilation @code{( '@i{ccc}"' -- )}: Parse the string @i{ccc}
+\G delimited by a @code{"} (but not @code{\"}), and convert escaped
+\G characters as described above.  Append the run-time semantics below
+\G to the current definition.
 \G @*
-\G Note that, unlike in C, @code{\n} produces the preferred newline
-\G sequence for the host OS, which may consist of several chars.  I.e.,
-\G @code{"\n"} is equivalent to @code{newline}.
+\G Run-time @code{( -- c-addr u )}: Push a descriptor for the
+\G resulting string.
 
 :noname \"-parse type ;
 :noname postpone s\" postpone type ;

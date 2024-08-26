@@ -40,13 +40,13 @@ hex
     \G all alignment restrictions.
     [ /maxalign 1 - ] Literal + [ 0 /maxalign - ] Literal and ;
 \ !! machine-dependent and won't work if "0 >body" <> "0 >body
-    \G maxaligned"
-' maxaligned Alias cfaligned ( addr1 -- addr2 ) \ gforth
+
+' maxaligned Alias cfaligned ( addr1 -- addr2 ) \ gforth-internal
 \G @i{addr2} is the first address after @i{addr1} that is aligned for
 \G a code field (i.e., such that the corresponding body is maxaligned).
 
 : chars ( n1 -- n2 ) \ core
-\G @i{n2} is the number of address units of @i{n1} chars.""
+\G @i{n2} is the number of address units of @i{n1} chars.
 ; immediate
 
 

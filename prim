@@ -679,9 +679,8 @@ memset(c_addr,c,u);
 compare	( c_addr1 u1 c_addr2 u2 -- n )	string
 ""Compare two strings lexicographically, based on the values of the
 bytes in the strings (i.e., case-sensitive and without locale-specific
-collation order orderings). If they are equal, @i{n} is 0; if the first string is
-smaller, @i{n} is -1; if the first string is larger, @i{n} is 1.""
-/* close ' to keep fontify happy */ 
+collation order). If they are equal, @i{n} is 0; if the string in
+@i{c_addr1 u1} is smaller, @i{n} is -1; if it is larger, @i{n} is 1.""
 n = compare(c_addr1, u1, c_addr2, u2);
 :
  rot 2dup swap - >r min swap -text dup
@@ -1836,7 +1835,8 @@ c_addr2 = c_addr1+1;
  dup 1+ swap c@ ;
 
 cell/ ( n1 -- n2 )	gforth cell_divide
-""@i{n2} is the number of cells that fit into @i{n1}""
+""@i{N2} is the number of cells that fit into @i{n1} aus, rounded
+towards negative infinity.""
 n2 = n1 >> (sizeof(Cell) == 8 ? 3 : 2);
 :
  [ cell
@@ -2020,7 +2020,7 @@ u2 = (c_addr1+u1)-c_addr2;
     rdrop ;
 
 aligned	( c_addr -- a_addr )	core
-"" @i{a-addr} is the first aligned address greater than or equal to @i{c-addr}.""
+"" @i{a-addr} is the smallest aligned address greater than or equal to @i{c-addr}.""
 a_addr = (Cell *)((((Cell)c_addr)+(sizeof(Cell)-1))&(-sizeof(Cell)));
 :
  [ cell 1- ] Literal + [ -1 cells ] Literal and ;
@@ -2962,13 +2962,22 @@ if (flag) {
 }
 
 float/ ( n1 -- n2 )	gforth	float_divide
-n2 = n1 / sizeof(Float);
+""@i{N2} is the number of floats that fit into @i{n1} aus, rounded
+towards negative infinity.""
+BUILD_BUG_ON(sizeof(Float)!=8);
+n2 = n1 >> 3;
 
-dfloat/ ( n1 -- n2 )	gforth	sfloat_divide
-n2 = n1 / sizeof(DFloat);
+dfloat/ ( n1 -- n2 )	gforth	d_float_divide
+""@i{N2} is the number of dfloats that fit into @i{n1} aus, rounded
+towards negative infinity.""
+BUILD_BUG_ON(sizeof(DFloat)!=8);
+n2 = n1 >> 3;
 
-sfloat/ ( n1 -- n2 )	gforth	dfloat_divide
-n2 = n1 / sizeof(SFloat);
+sfloat/ ( n1 -- n2 )	gforth	s_float_divide
+""@i{N2} is the number of sfloats that fit into @i{n1} aus, rounded
+towards negative infinity.""
+BUILD_BUG_ON(sizeof(SFloat)!=4);
+n2 = n1 >> 2;
 
 f-rot	( r1 r2 r3 -- r3 r1 r2 )	floating	f_not_rote
 

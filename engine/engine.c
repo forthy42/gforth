@@ -84,6 +84,12 @@ extern int debug;
 # define debugp(x...) do { if (debug) fprintf(x); } while (0)
 #endif
 
+/* produce a compilation error if condition (evaluable during
+   compilation) is not true; explanation:
+   https://scaryreasoner.wordpress.com/2009/02/28/checking-sizeof-at-compile-time/
+*/
+#define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
+
 #ifndef SEEK_SET
 /* should be defined in stdio.h, but some systems don't have it */
 #define SEEK_SET 0

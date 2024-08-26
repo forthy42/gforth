@@ -682,23 +682,6 @@ defer int-execute ( ... xt -- ... )
     dup dfaligned allocate throw
     swap 2dup r> -rot move ;
 
-: free-mem-var ( addr -- ) \ gforth-experimental
-    \g Addr is the address of a 2variable containing address and size
-    \g of a memory range; frees memory and clears the 2variable.
-    dup 2@ drop dup
-    if ( addr mem-start )
-	free throw
-	0 0 rot 2!
-    else
-	2drop
-    then ;
-
-: extend-mem	( addr1 u1 u -- addr addr2 u2 ) \ gforth-experimental
-    \g Extend memory block addr1 u1 allocated from the heap by u aus.
-    \g The (possibly reallocated) piece is addr2 u2, the extension is at addr.
-    over >r + dup >r resize throw
-    r> over r> + -rot ;
-
 \ \ Quit                                            	13feb93py
 
 Defer 'quit

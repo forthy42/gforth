@@ -18,14 +18,18 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: delete   ( buffer size u -- ) \ gforth
-    \G deletes the first @var{u} bytes from a buffer and fills the
-    \G rest at the end with blanks.
+: delete   ( c-addr u u1 -- ) \ gforth
+    \G In the memory block @i{c-addr u}, delete the first @i{u1} chars
+    \G by copying the contents of the block starting at
+    \G @i{c-addr}+@i{u1} there; fill the @i{u1} characters at the end
+    \G of the block with blanks.
     over umin dup  >r - ( left over )
     2dup swap dup  r@ +  -rot swap move  + r> bl fill ;
-: insert   ( string length buffer size -- ) \ gforth
-    \G inserts a string at the front of a buffer. The remaining
-    \G bytes are moved on.
+
+: insert   ( c-addr1 u1 c-addr2 u2 -- ) \ gforth
+    \G Move the contents of the buffer @i{c-addr2 u2} towards higher
+    \G addresses by @i{u1} chars, and copy the string @i{c-addr1 u1}
+    \G into the first @i{u1} chars of the buffer.
     rot over umin dup  >r - ( left over )
     over dup r@ +  rot move   r> move  ;
 

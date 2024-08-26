@@ -72,6 +72,30 @@ AUser CSP
 	dup negate and log2 exit then
     drop 8 cells ;
 
+\ extend-mem free-mem-var
+
+: extend-mem	( addr1 u1 u -- addr addr2 u2 ) \ gforth-experimental
+    \g @i{Addr1 u1} is a memory block in heap memory.  Increase the
+    \g size of this memory block by @i{u} aus, possibly reallocating
+    \g it.  @i{C-addr2 u2} is the resulting memory block
+    \g (@i{u2}=@i{u1}+@i{u}), @i{addr} is the start of the @i{u}
+    \g additional aus (@i{addr}=@i{addr2}+@i{u1}).
+    over >r + dup >r resize throw
+    r> over r> + -rot ;
+
+: free-mem-var ( addr -- ) \ gforth-experimental
+    \g @i{Addr} is the address of a 2variable containing a memory
+    \g block descriptor @i{c-addr u} in heap memory;
+    \g @code{free-mem-var} frees the memory block and stores 0 0 in
+    \g the 2variable.
+    dup 2@ drop dup
+    if ( addr mem-start )
+	free throw
+	0 0 rot 2!
+    else
+	2drop
+    then ;
+
 \ shell commands
 
 UValue $? ( -- n ) \ gforth dollar-question
@@ -512,7 +536,7 @@ alias xdle ( ud1 -- ud2 ) \ gforth
     [then]
 [then]
 alias xd>s ( xd -- d ) \ gforth
-\g Sign-extend the 64-bit value in @var{xd} to double-ceel @var{d}.
+\g Sign-extend the 64-bit value in @var{xd} to double-cell @var{d}.
 
 : w, ( x -- ) \ gforth w-comma
     \G Reserve 2 bytes of data space and store the least significant
@@ -535,10 +559,10 @@ alias xd>s ( xd -- d ) \ gforth
     \G 64 bits of @i{x} there.
     here 8 allot xd! ;
 
-' naligned alias *aligned ( addr1 n -- addr2 ) \ gforth
+' naligned alias *aligned ( addr1 n -- addr2 ) \ gforth star-aligned
 \g @var{addr2} is the aligned version of @var{addr1} with respect to the
 \g alignment @var{n}.
-: *align ( n -- ) \ gforth
+: *align ( n -- ) \ gforth star-align
     \G Align @code{here} with respect to the alignment @var{n}.
     here swap naligned ->here ;
 : walign ( -- ) \ gforth

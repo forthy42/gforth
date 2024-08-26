@@ -64,18 +64,17 @@ Defer previous-section \ end that part
 [ [THEN] ]
 ;
 :noname '"' parse postpone SLiteral ;
-interpret/compile: s" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,file	s-quote
-  \G Compilation: Parse a string @i{ccc} delimited by a @code{"}
-  \G (double quote). At run-time, return the length, @i{u}, and the
-  \G start address, @i{c-addr} of the string. Interpretation: parse
-  \G the string as before, and return @i{c-addr}, @i{u}. Gforth
-  \G @code{allocate}s the string. The resulting memory leak is usually
-  \G not a problem; the exception is if you create strings containing
-  \G @code{S"} and @code{evaluate} them; then the leak is not bounded
-  \G by the size of the interpreted files and you may want to
-  \G @code{free} the strings.  Forth-2012 only guarantees two buffers of
-  \G 80 characters each, so in standard programs you should assume that the
-  \G string lives only until the next-but-one @code{s"}.
+interpret/compile: s" ( Interpretation 'ccc"' -- c-addr u )	\ core,file	s-quote
+\G Interpretation: Parse the string @i{ccc} delimited by a @code{"}
+\G (double quote).  Store the resulting string in newly allocated heap
+\G memory, and push its descriptor @i{c-addr u}.
+\G @*
+\G Compilation @code{( '@i{ccc}"' -- )}: Parse the string @i{ccc}
+\G delimited by a @code{"} (double quote).  Append the run-time
+\G semantics below to the current definition.
+\G @*
+\G Run-time @code{( -- c-addr u )}: Push a descriptor for the
+\G parsed string.
 
 :noname '"' parse type ;
 :noname '"' parse postpone SLiteral postpone type ;

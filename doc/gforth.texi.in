@@ -289,6 +289,11 @@ Memory
 * Address arithmetic::
 * Memory Blocks::
 
+Heap allocation
+
+* Memory blocks and heap allocation::
+* Growable memory buffers::
+
 Strings and Characters
 
 * Characters::
@@ -5907,6 +5912,19 @@ doc-fpick
 @cindex return stack and locals
 @cindex locals and return stack
 
+In Gforth 1.0 you can use the return stack during text interpretation.
+The only limitation here is that you cannot pass data on the return
+stack into or out of an included file, block, or @code{evaluate}d
+string.  This interpretive usage of return-stack words is
+non-standard, and many other Forth systems do not have support this
+usage, or limit it to within one line.  Example:
+
+@example
+1 >r
+: foo [ r> ] literal ;
+foo . \ prints 1
+@end example
+
 In Gforth you can use the return stack for storing data while you also
 keep and access data in locals.  However, the standard puts
 restrictions on mixing return stack and locals usage, for easy locals
@@ -6088,23 +6106,43 @@ doc-allocate
 doc-free
 doc-resize
 
-The following words are useful for dealing with memory blocks:
+@menu
+* Memory blocks and heap allocation::
+* Growable memory buffers::
+@end menu
+
+@node Memory blocks and heap allocation, , Heap Allocation, Heap Allocation
+@subsubsection Memory blocks and heap allocation
+
+Additional words for dealing with memory blocks are described in
+@ref{Memory Blocks}.  An alternative to the following words are among
+the $tring words (@pxref{$tring words}).
 
 doc-save-mem
-doc-free-mem-var
 doc-extend-mem
+doc-free-mem-var
 
+Usage example:
 
-The $tring words can also be used for dealing with memory blocks,
-@xref{$tring words}.
+@example
+2variable myblock
+"foo" save-mem myblock 2!
+myblock 2@@ "bar" tuck >r >r extend-mem myblock 2! r> swap r> move
+myblock 2@@ type \ prints "foobar"
+myblock free-mem-var
+@end example
+
+@node Growable memory buffers,  , Memory blocks and heap allocation, Heap Allocation
+@subsubsection Growable memory buffers
 
 The following words are useful for growable memory buffers.  One can
 alternatively use $trings (@pxref{$tring words}), and the differences
 are: When the used memory in the buffer shrinks, $trings may resize
 the buffer, while @code{adjust-buffer} does not, which may be
-preferable for a buffer that gets new sizes a lot.  However, $strings
+preferable for a buffer that is reused all the time.  However, $strings
 have one cell less memory overhead, and for longer-term storage the
 shrinking may be worthwhile.
+
 
 doc-buffer%
 doc-init-buffer
@@ -6116,7 +6154,7 @@ You can get the current address and length of such a buffer with
 Typical usage:
 
 @example
-create mybuf  buffer% %size allot  mybuf init-buffer
+create mybuf  buffer% %allot  mybuf init-buffer
 s" frobnicate" mybuf adjust-buffer  mybuf 2@@ move
 mybuf 2@@ type
 s" foo"        mybuf adjust-buffer  mybuf 2@@ move
@@ -6205,8 +6243,9 @@ doc-xle
 doc-xdbe
 doc-xdle
 
-For signed fetches with a specific byte order, you have to perform a
-sign-extension word after an unsigned fetch and a byte-order correction:
+For signed fetches with a specific byte order, you have first have to
+perform an unsigned fetch and a byte-order correction, and finally use
+a sign-extension word:
 
 doc-c>s
 doc-w>s
@@ -6229,14 +6268,20 @@ Address arithmetic is the foundation on which you can build data
 structures like arrays, records (@pxref{Structures}) and objects
 (@pxref{Object-oriented Forth}).
 
+Standard Forth does not specify the sizes of the data types. Instead,
+it offers a number of words (e.g., @code{cells}) for computing sizes
+and doing address arithmetic.
+
 @cindex address unit
 @cindex au (address unit)
-Standard Forth does not specify the sizes of the data types. Instead, it
-offers a number of words for computing sizes and doing address
-arithmetic. Address arithmetic is performed in terms of address units
-(aus); on most systems the address unit is one byte. Note that a
-character may have more than one au, so @code{chars} is no noop (on
-platforms where it is a noop, it compiles to nothing).
+Address arithmetic is performed in terms of address units (aus); on
+most systems the address unit is one byte.  There is also
+word-addressed@footnote{In Forth terminology: cell-addressed.}
+hardware in some embedded systems, and on these systems the au is one
+cell.  Finally, Forth-2012 also supports systems where a char needs
+more than one au.  However, the common practice is that @code{1 chars}
+produces 1, and this will be standardized in the next release of the
+standard.
 
 The basic address arithmetic words are @code{+} and @code{-}.  E.g., if
 you have the address of a cell, perform @code{1 cells +}, and you will
@@ -6244,17 +6289,17 @@ have the address of the next cell.
 
 @cindex alignment of addresses for types
 Standard Forth also defines words for aligning addresses for specific
-types. Many computers require that accesses to specific data types
-must only occur at specific addresses; e.g., that cells may only be
-accessed at addresses divisible by 4. Even if a machine allows unaligned
-accesses, it can usually perform aligned accesses faster. 
+types. Some hardware requires that accesses to specific data types
+must only occur at specific addresses; e.g., that (4-byte) cells may
+only be accessed at addresses divisible by 4. Even if a machine allows
+unaligned accesses, it can usually perform aligned accesses faster.
 
 For the performance-conscious: alignment operations are usually only
 necessary during the definition of a data structure, not during the
 (more frequent) accesses to it.
 
-Standard Forth defines no words for character-aligning addresses; in
-Forth-2012 all addresses are character-aligned.
+Standard Forth defines no words for character-aligning addresses, but
+given that @code{1 chars}=1 is common practice, that's not a big loss.
 
 @cindex @code{CREATE} and alignment
 Standard Forth guarantees that addresses returned by @code{CREATE}d words
@@ -6288,7 +6333,6 @@ doc-dfloat+
 doc-dfloat/
 doc-dfaligned
 doc-maxaligned
-doc-cfaligned
 doc-*aligned
 doc-*align
 doc-waligned
@@ -6315,10 +6359,11 @@ Memory blocks often represent character strings; For ways of storing
 character strings in memory see @ref{String representations}.  For other
 string-processing words see @ref{Displaying characters and strings}.
 
-A few of these words work on address unit blocks.  In that case, you
-usually have to insert @code{CHARS} before the word when working on
-character strings.  Most words work on character blocks, and expect a
-char-aligned address.
+In case you want to write a program that is portable to systems with
+@code{1 chars}>1 (not recommended), you have to note the difference
+between words that take a number of aus (e.g., @code{erase}) and words
+that take a number of chars (e.g., @code{blank}), and insert
+@code{chars} as appropriate.
 
 When copying characters between overlapping memory regions, use
 @code{move}.  @code{Cmove} and @code{cmove>} tend to be slower than a
@@ -6330,9 +6375,6 @@ doc-cmove>
 doc-fill
 doc-erase
 doc-blank
-doc-insert
-doc-delete
-doc-compare
 doc-pad
 
 @comment TODO examples
@@ -6414,12 +6456,76 @@ of words.  @xref{Counted string words}.
 @cindex literals for characters and strings
 
 The nicest way to write a string literal is to write it as
-@code{"@i{STRING}"}.  You can use the same \-escapes inside as for
-@code{s\"}.  However, this way is non-standard, so you may want
-to use one of the following words for improved portability:
+@code{"@i{STRING}"}.  For these kinds of string literals as well as
+for @code{s\"} some sequences are not put in the resulting string as
+is, but are replaced as shown below.  The sequences are mostly the
+same as in C (exceptions noted):
+
+@table @code
+@item \a
+7 BEL (alert)
+@item \b
+8 @code{#bs} (backspace)
+@item \e
+27 @code{#esc} (escape, not in C99)
+@item \f
+12 @code{#ff} (form feed)
+@item \l
+10 @code{#lf} (line feed, not in C)
+@item \m
+13 10  CR LF (not in C)
+@item \n
+sequence produced by @code{newline} (in C this produces a LF)
+@item \q
+34 @code{"} (double quote, not in C)
+@item \r
+13 @code{#cr} (carriage return)
+@item \t
+9 @code{#tab} (horizontal tab)
+@item \u@i{XXXX}
+Unicode code point @i{XXXX} (in hex); auto-merges surrogate pairs (not in Forth-2012 nor C)
+@item \U@i{XXXXXXXX}
+Unicode code point @i{XXXXXXXX} (in hex, not in Forth-2012 nor C)
+@item \v
+11 VT (vertical tab)
+@item \x@i{XX}
+raw byte (not code point) @i{XX} (in hex)
+@item \z
+0 NUL (not in C)
+@item \\
+@code{\}
+@item \"
+@code{"} (the @code{\"} does not terminate the string; not in Forth-2012)
+@item \@i{XXX}
+raw byte; @i{XXX} is 1-3 octal digits (not in Forth-2012).
+@end table
+
+A @code{\} before any other character is reserved.
+
+Note that @code{\x}XX produces raw bytes, while @code{\u}XXXX and
+@code{\U}XXXXXXXX produce code points for the current encoding.
+E.g., if we use UTF-8 encoding and want to encode @"a (code point
+U+00E4), you can write the letter @"a itself, or write @code{\xc3\xa4}
+(the UTF-8 bytes for this code point), @code{\u00e4}, or @code{\U000000e4}.
+
+The @code{"@i{STRING}"} syntax is non-standard, so for portability you
+may want to use one of the following words:
 
 doc-s\"
 doc-s"
+
+All these ways of interpreting strings consume heap memory; normally
+you can just live with the string consuming memory until the end of
+the Gforth session, but if that is a problem for some reason, you can
+@code{free} the string when you no longer need it.  Forth-2012 only
+guarantees two buffers of 80 characters each, so in standard programs
+you should assume that the string lives only until the next-but-one
+@code{s"}.
+
+On the other hand, the compilation semantics of string literals of any
+form allocates the string in the dictionary, and you cannot
+@code{free} it, and it lives as long as the word it is compiled into
+(also in Forth-2012).
 
 Likewise, You can get the code @i{xc} of a character
 @i{C} with @code{'@i{C}'}.  This way has been standardized since
@@ -6476,6 +6582,7 @@ Blocks}. For words that display characters and strings, see
 
 The following words work on previously existing strings:
 
+doc-compare
 doc-str=
 doc-str<
 doc-string-prefix?
@@ -6489,6 +6596,8 @@ doc-nosplit?
 doc--trailing
 doc-/string
 doc-safe/string
+doc-insert
+doc-delete
 doc-cstring>sstring
 
 The following words compare case-insensitively for ASCII characters,
