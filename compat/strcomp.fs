@@ -16,6 +16,7 @@ s" gforth" environment? [if]
 0= [if]
 
 : str= ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth str-equals
+    \G Bytewise equality
     compare 0= ;
 
 : string-prefix? ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth string-prefix-question
@@ -27,6 +28,7 @@ s" gforth" environment? [if]
     2>r tuck + swap r@ umin tuck - swap 2r> str= ;
 
 : str< ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth str-less-than
+    \G Bytewise lexicographic comparison.
     compare 0< ;
 
 [then]

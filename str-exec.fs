@@ -43,10 +43,10 @@ variable  >string-len    \ actual string length
 
 ' >string-type ' >string-emit ' >string-cr ' >string-form output: >string-out
 
-: >string-execute ( ... xt -- ... addr u ) \ gforth
-    \G execute xt while the standard output (@code{type}, @code{emit},
+: >string-execute ( ... xt -- ... c-addr u ) \ gforth
+    \G Execute @i{xt} while the standard output (@code{type}, @code{emit},
     \G and everything that uses them) is redirected to a string.  The
-    \G resulting string is addr u, which is in @code{allocate}d
+    \G resulting string is @i{c-addr u}, which is in heap
     \G memory; it is the responsibility of the caller of
     \G @code{>string-execute} to @code{free} this string.
     >string-buffer 2@ >string-len @ op-vector @
@@ -65,7 +65,7 @@ variable  >string-len    \ actual string length
     endtry
     throw ;
 
-\ altenative interface (for systems without memory allocation wordset):
+\ alternative interface (for systems without memory allocation wordset):
 
 \ >buffer-execute ( ... c-addr u1 xt -- ... u2 ) execute xt while the
 \ standard output (TYPE, EMIT, and everything that uses them) is

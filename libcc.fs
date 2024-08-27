@@ -136,8 +136,8 @@ require string.fs
 \ these words are generally useful and used by at least one user
 
 : scan-back { c-addr u1 c -- c-addr u2 } \ gforth
-    \ the last occurence of c in c-addr u1 is at u2-1; if it does not
-    \ occur, u2=0.
+    \G The last occurence of @i{c} in @i{c-addr u1} is at
+    \G @i{c-addr}+@i{u2}@minus{}1; if it does not occur, @i{u2}=0.
     c-addr u1 1 mem-do
 	i c@ c = if
 	    c-addr i over - 1+ unloop exit endif

@@ -120,10 +120,9 @@
     2swap r> - 2swap ;
 
 : $iter ( .. $addr char xt -- .. ) \ gforth string-iter
-    \G takes a string apart piece for piece, also with a character as
-    \G separator. For each part a passed token will be called. With
-    \G this you can take apart arguments -- separated with '&' -- at
-    \G ease.
+    \G Splits the string in @i{$addr} using @i{char} as separator.
+    \G For each part, its descriptor @i{c-addr u} is pushed and @i{xt}
+    \G @code{( @i{... c-addr u} -- @i{...} )} is executed.
     >r >r
     $@ BEGIN  dup  WHILE  r@ $split r'@ -rot >r >r execute r> r>
     REPEAT  2drop rdrop rdrop ;
@@ -160,8 +159,8 @@
 \ auto-save and restore strings in images
 
 : $boot ( $addr -- ) \ gforth string-boot
-    \G take string from dictionary to allocated memory.
-    \G clean dictionary afterwards.
+    \G Take string from dictionary to allocated memory.
+    \G Clean dictionary afterwards.
     dup >r $@ 2dup r> dup off $! 0 fill ;
 : $save ( $addr -- ) \ gforth string-save
     \G push string to dictionary for savesys
