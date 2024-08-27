@@ -133,7 +133,10 @@ previous
                 fnegate fsqrt 0e fswap exit then
             fsqrt 0e  EXIT  THEN
 	zln z2/ zexp  THEN ;
-: z**      ( z1 z2 -- z1**z2 ) zswap zln z* zexp ;
+: z**      ( z1 z2 -- z1**z2 )
+    zswap zln fover -inf f= IF
+	zdrop z0= IF nan ELSE 0e THEN fdup
+    ELSE  z* zexp  THEN ;
 \ Test: Fibonacci-Zahlen
 1e 5e fsqrt f+ f2/ fconstant phi
 : zfib     ( z1 -- fib[z1] )
@@ -181,7 +184,7 @@ Defer fc.       ' f. IS fc.
            fdup f0= IF  fdrop fc. exit  THEN   fswap
            fdup f0= IF    fdrop
                     ELSE  fc.  1 backspaces
-                          fdup f0> IF  ." +"  THEN  THEN
+                          fdup f0< 0= IF  ." +"  THEN  THEN
            fc. 1 backspaces ." i " ;
 : z.s ( z1 .. zn -- z1 .. zn )
 	   zdepth 0 ?DO  i zpick zswap z>r z. zr>  LOOP ;

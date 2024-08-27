@@ -132,11 +132,15 @@ create dummy-fvalue
     scratch represent 0=
     IF  2drop  scratch -trailing type  rdrop  EXIT  THEN
     IF  '- emit  THEN ;
+: f$space ( f -- n )
+    scratch represent 0=
+    IF  2drop  scratch -trailing type space  rdrop  EXIT  THEN
+    IF  '- emit  THEN ;
 
 : f.  ( r -- ) \ floating-ext f-dot
 \G Display (the floating-point number) @i{r} without exponent,
 \G followed by a space.
-  f$ dup >r 0<=
+  f$space dup >r 0<=
   IF    '0 emit
   ELSE  scratch r@ min type  r@ precision - zeros  THEN
   '. emit r@ negate zeros
