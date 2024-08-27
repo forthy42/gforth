@@ -135,7 +135,7 @@ previous
 	zln z2/ zexp  THEN ;
 : z**      ( z1 z2 -- z1**z2 )
     zswap zln fover -inf f= IF
-	zdrop z0= IF nan ELSE 0e THEN fdup
+	zdrop z0= IF 1e 0e ELSE 0e fdup THEN
     ELSE  z* zexp  THEN ;
 \ Test: Fibonacci-Zahlen
 1e 5e fsqrt f+ f2/ fconstant phi
