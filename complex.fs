@@ -178,14 +178,14 @@ pi f2/ FConstant pi/2
 
 \ Ausgabe                                              24sep05py
 
-Defer fc.       ' f. IS fc.
+Defer fc.       :noname f. 1 backspaces ; IS fc.
 : z. ( z -- )
            zdup z0= IF  zdrop ." 0 "  exit  THEN
-           fdup f0= IF  fdrop fc. exit  THEN   fswap
+           fdup f0= IF  fdrop fc. space exit  THEN   fswap
            fdup f0= IF    fdrop
-                    ELSE  fc.  1 backspaces
+                    ELSE  fc.
                           fdup f0< 0= IF  ." +"  THEN  THEN
-           fc. 1 backspaces ." i " ;
+           fc. ." i " ;
 : z.s ( z1 .. zn -- z1 .. zn )
 	   zdepth 0 ?DO  i zpick zswap z>r z. zr>  LOOP ;
 
