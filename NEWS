@@ -1,5 +1,8 @@
 User-visible changes between 0.7.0 and 1.0:
 
+You can use the return stack interpretively (except for passing data
+into or out of INCLUDED, EVALUATE etc.
+
 Words for accessing memory in 16-bit (w), 32-bit (l), and 64-bit (x, xd) units:
   w@ w! l@ l! x@ x! xd@ xd!
  for dealing with different byte orders: wbe wle lbe lle xbe xle xdbe xdle
