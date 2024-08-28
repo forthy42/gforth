@@ -134,9 +134,10 @@ previous
             fsqrt 0e  EXIT  THEN
 	zln z2/ zexp  THEN ;
 : z**      ( z1 z2 -- z1**z2 )
-    zswap zln fover -inf f= IF
-	zdrop z0= IF 1e 0e ELSE 0e fdup THEN
-    ELSE  z* zexp  THEN ;
+    zover z0= IF
+	z0= IF zdrop 1e 0e ELSE zdrop 0e fdup THEN  EXIT
+    THEN
+    zswap zln z* zexp ;
 \ Test: Fibonacci-Zahlen
 1e 5e fsqrt f+ f2/ fconstant phi
 : zfib     ( z1 -- fib[z1] )
