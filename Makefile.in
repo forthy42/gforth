@@ -454,14 +454,14 @@ MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	   \
 MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png     \
 	net2o-minos2.png lbubble.png rbubble.png white.png thumb.png logo.png
 
-TEST_SRC = tester.fs ttester.fs checkans.fs coretest.fs dbltest.fs float.fs \
-	gforth.fs forward.fs other.fs postpone.fs read-line.fs search.fs    \
-	signals.fs stagediv.fs string.fs primtest.fs primmin.fs coreext.fs  \
-	deferred.fs coremore.fs gforth-nofast.fs libcc.fs macros.fs	    \
-	regexp-test.fs fp/ak-fp-test.fth fp/fatan2-test.fs fp/fpio-test.4th \
-	fp/fpzero-test.4th fp/ieee-arith-test.fs fp/ieee-fprox-test.fs	    \
-	fp/paranoia.4th fp/readme-fp.txt fp/runfptests.fth		    \
-	fp/to-float-test.4th fp/ttester.fs xchar.fs
+TEST_SRC = tester.fs ttester.fs checkans.fs complex.fs coretest.fs dbltest.fs	\
+	float.fs gforth.fs forward.fs other.fs postpone.fs read-line.fs		\
+	search.fs signals.fs stagediv.fs string.fs primtest.fs primmin.fs	\
+	coreext.fs deferred.fs coremore.fs gforth-nofast.fs libcc.fs		\
+	macros.fs regexp-test.fs fp/ak-fp-test.fth fp/fatan2-test.fs		\
+	fp/fpio-test.4th fp/fpzero-test.4th fp/ieee-arith-test.fs		\
+	fp/ieee-fprox-test.fs fp/paranoia.4th fp/readme-fp.txt			\
+	fp/runfptests.fth fp/to-float-test.4th fp/ttester.fs xchar.fs
 
 UNIX_SRC = terminal-server.fs jni-helper.fs jni-tools.fs jni-media.fs	\
 	jni-location.fs sensors.fs win32.fs wayland-interfaces.fs
@@ -1174,7 +1174,7 @@ checkgfd:
 
 checkone test: prim.b gforth-light.fi engine/prim-s.i
 		@echo TEST $(ENGINE) coretests
-		$(TIMEOUT) $(FORTH) -i gforth-light.fi test/tester.fs -e 'warnings off' test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -r -u - $(srcdir)/test/coretest.out
+		$(TIMEOUT) $(FORTH) -i gforth-light.fi test/tester.fs -e 'warnings off' test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/complex.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -r -u - $(srcdir)/test/coretest.out
 		@echo TEST $(ENGINE) others
 		$(TIMEOUT) $(FORTH) -i gforth-light.fi test/other.fs -e bye
 		@echo TEST $(ENGINE) signals
