@@ -111,13 +111,14 @@ previous
 : zsqabs   ( z -- |z|² ) fdup f* fswap fdup f* f+ ;
 : 1/z      ( z -- 1/z ) zconj zdup zsqabs 1/f zscale ;
 : z/       ( z1 z2 -- z1/z2 ) 1/z z* ;
+: pyth ( a b c -- r ) f/ fdup f* 1e f+ fsqrt  f* ;
 : |z| ( z -- r )	\ compute sqrt(a^2+b^2) without overflow
     fabs fswap fabs
     fover fover f> IF
-	fover ( f: a b a -- ) f/ fdup f* 1e f+ fsqrt  f*  exit
+	fover ( f: a b a -- ) pyth  exit
     THEN
     fdup f0= IF  fnip
-    ELSE  ftuck ( f: b a b -- ) f/ fdup f* 1e f+ fsqrt  f*
+    ELSE  ftuck ( f: b a b -- ) pyth
     ENDIF ;
 \ : |z|      ( z -- r ) zsqabs fsqrt ;
 : zabs     ( z -- |z| ) |z| 0e ;
