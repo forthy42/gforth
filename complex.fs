@@ -111,7 +111,15 @@ previous
 : zsqabs   ( z -- |z|² ) fdup f* fswap fdup f* f+ ;
 : 1/z      ( z -- 1/z ) zconj zdup zsqabs 1/f zscale ;
 : z/       ( z1 z2 -- z1/z2 ) 1/z z* ;
-: |z|      ( z -- r ) zsqabs fsqrt ;
+: |z| ( z -- r )	\ compute sqrt(a^2+b^2) without overflow
+    fabs fswap fabs
+    fover fover f> IF
+	fover ( f: a b a -- ) f/ fdup f* 1e f+ fsqrt  f*  exit
+    THEN
+    fdup f0= IF  fnip
+    ELSE  ftuck ( f: b a b -- ) f/ fdup f* 1e f+ fsqrt  f*
+    ENDIF ;
+\ : |z|      ( z -- r ) zsqabs fsqrt ;
 : zabs     ( z -- |z| ) |z| 0e ;
 : z2/      ( z -- z/2 ) f2/ f>l f2/ fl> ;
 : z2*      ( z -- z*2 ) f2* f>l f2* fl> ;
@@ -134,10 +142,10 @@ previous
             fsqrt 0e  EXIT  THEN
 	zln z2/ zexp  THEN ;
 : z**      ( z1 z2 -- z1**z2 )
-    zover z0= IF
-	z0= IF zdrop 1e 0e ELSE zdrop 0e fdup THEN  EXIT
-    THEN
-    zswap zln z* zexp ;
+  zdup z0=         if              zdrop zdrop 1e  0e exit then
+  fover f0>        if zover z0= if zdrop ( 0+0i )     exit then then
+  zdup f0= f0< and if zover z0= if zdrop zdrop Inf 0e exit then then
+  zswap zln z* zexp ;
 \ Test: Fibonacci-Zahlen
 1e 5e fsqrt f+ f2/ fconstant phi
 : zfib     ( z1 -- fib[z1] )
