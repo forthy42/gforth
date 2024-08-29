@@ -192,8 +192,7 @@ Defer fc.       :noname f. 1 backspaces ; IS fc.
            zdup z0= IF  zdrop ." 0 "  exit  THEN
            fdup f0= IF  fdrop fc. space exit  THEN   fswap
            fdup f0= IF    fdrop
-                    ELSE  fc.
-                          fdup f0< 0= IF  ." +"  THEN  THEN
+                    ELSE  fc. ." +"  THEN
            fc. ." i " ;
 : z.s ( z1 .. zn -- z1 .. zn )
 	   zdepth 0 ?DO  i zpick zswap z>r z. zr>  LOOP ;
