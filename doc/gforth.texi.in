@@ -1139,12 +1139,13 @@ use an automaton with state equivalence (state equivalence reduces the
 number of states compared to having one state for every sequence
 prefix), which is the fastest option and requires the least memory.
 
+With static superinstructions the automaton does not work correctly,
+so Gforth falls back to @code{--tpa-noautomaton} in that case unless
+you ask for @code{--tpa-noequiv} (@code{gforth-fast} uses static
+superinstructions and therefore @code{--tpa-noautomaton} by default).
+
 @code{--tpa-noequiv} turns off state equivalence, which costs memory
-and compiles a little slower; with static superinstructions state
-equivalence does not work correctly, so Gforth falls back to
-@code{--tpa-noequiv} in that case unless you ask for
-@code{--tpa-noautomaton} (@code{gforth-fast} uses static
-superinstructions and therefore @code{--tpa-noequiv} by default).
+and compiles a little slower than using an automaton.
 
 @code{--tpa-noautomaton} turns off using the automaton.  This consumes
 quite a bit more compile time, and should in theory use less memory
