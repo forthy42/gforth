@@ -1013,8 +1013,8 @@ static void prepare_super_table()
        to use an automaton without state equivalence, but that costs
        significant space so we only do it if the user explicitly
        disables state equivalence. */
-    debugp(stderr, "Disabling tpa equivalence, because nsupers>0 and tpa automaton is enabled.\n");
-    tpa_noequiv = 1;
+    debugp(stderr, "Disabling tpa-automaton, because nsupers>0 and state equivalence is enabled.\n");
+    tpa_noautomaton = 1;
   }
 }
 
