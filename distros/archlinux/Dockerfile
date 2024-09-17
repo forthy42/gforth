@@ -16,5 +16,9 @@ RUN git clone https://aur.archlinux.org/yay.git && \
 
 # get gforth tarball
 RUN wget https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz && \
-    tar xzf gforth-0.7.3.tar.gz
-
+    wget https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.patch && \
+    tar xzf gforth-0.7.3.tar.gz && \
+    (cd gforth-0.7.3; patch -p0 <../gforth-0.7.3.patch) && \
+    (cd gforth-0.7.3; CFLAGS='-std=gnu99' ./configure --prefix=/usr) && \
+    (cd gforth-0.7.3; make PREFIX=/usr -j1) && \
+    (cd gforth-0.7.3; make PREFIX=/usr -j1 install)
