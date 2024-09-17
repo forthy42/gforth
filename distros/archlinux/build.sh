@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+echo "Sorry, this file is for automation only"
+exit 42
+
 # list of aur repos to build for
 REPOS=gforth-git
 
