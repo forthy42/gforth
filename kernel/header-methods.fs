@@ -30,7 +30,7 @@ defer does-check ( xt -- xt ) ' noop is does-check
 : field+, >body @ lit, postpone + ;
 : abi-code, >body ['] abi-call peephole-compile, , ;
 : ;abi-code, ['] ;abi-code-exec peephole-compile, , ;
-: does, ( xt -- ) does-check ['] does-xt peephole-compile, , ;
+: does, ( xt -- ) does-check dup >body lit, >extra @ compile, ;
 : umethod, >body cell+ 2@ ['] u#exec peephole-compile, , , ;
 : uvar, >body cell+ 2@ ['] u#+ peephole-compile, , , ;
 \ : :loc, >body ['] call-loc peephole-compile, , ;
