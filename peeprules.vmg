@@ -219,7 +219,7 @@ csswaplstore = >r l>< r> l!
 \ \E prim-states /mods
 \E prim-states >r                   \ 145247
 \E prim-states r>                   \ 133792
-\E S1 S1 state-offset-prim does-xt  \ 120944 
+\ \E S1 S1 state-offset-prim does-xt  \ 120944 \ new DOES, reduces executions
 \E prim-states cell+                \ 116183
 \E prim-states lp+!                 \ 106697 \ --
 \E prim-states -                    \ 106245
