@@ -10,7 +10,7 @@
 %apply unsigned long { size_t }
 %apply SWIGTYPE * { va_list }
 
-// exec: sed -e 's/" xkbcommon" add-lib/" xkbcommon" add-lib/g' -e 's/^c-library/cs-vocabulary xkbcommon``get-current also xkbcommon definitions``c-library/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/\(_from_buffer .*\) s u /\1 a u /g' | grep -v '^#[1-9][0-9]	constant XKB_KEY' | grep -v '^#[1-9][0-9][0-9]	constant XKB_KEY' | grep -v '^#[1-9][0-9][0-9][0-9]	constant XKB_KEY' | tr '`' '\n'
+// exec: sed -e 's/" xkbcommon" add-lib/" xkbcommon" add-lib/g' -e 's/^c-library/cs-vocabulary xkbcommon\n\nget-current also xkbcommon definitions\n\nc-library/g' -e 's/^end-c-library/end-c-library\nprevious set-current/g' -e 's/\(_from_buffer .*\) s u /\1 a u /g' | grep -v '^#[1-9][0-9]	constant XKB_KEY' | grep -v '^#[1-9][0-9][0-9]	constant XKB_KEY' | grep -v '^#[1-9][0-9][0-9][0-9]	constant XKB_KEY'
 
 %include <xkbcommon/xkbcommon.h>
 %include <xkbcommon/xkbcommon-keysyms.h>

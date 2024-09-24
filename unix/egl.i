@@ -21,6 +21,7 @@ extern struct _IO_FILE *stderr;
 #define EGLAPIENTRY
 #define EGLAPIENTRYP void *
 %apply SWIGTYPE * { EGLNativeDisplayType, EGLNativeWindowType, EGLNativePixmapType };
+%apply long long { EGLTime };
 #endif
 #if defined(host_os_linux_gnu) || defined(host_os_linux_gnueabi) || defined(host_os_linux_gnueabihf) || defined(host_os_linux_gnux32)
 #define __unix__
@@ -29,6 +30,7 @@ extern struct _IO_FILE *stderr;
 #define EGLAPIENTRYP *
 %apply SWIGTYPE * { EGLNativeDisplayType };
 %apply long { EGLNativeWindowType, EGLNativePixmapType };
+%apply long long { EGLTime };
 #endif
 #ifdef host_os_darwin
 #define __unix__
@@ -37,6 +39,7 @@ extern struct _IO_FILE *stderr;
 #define EGLAPIENTRYP *
 %apply SWIGTYPE * { EGLNativeDisplayType };
 %apply long { EGLNativeWindowType, EGLNativePixmapType };
+%apply long long { EGLTime };
 #endif
 #ifdef host_os_cygwin
 #define EGLAPI
@@ -44,8 +47,9 @@ extern struct _IO_FILE *stderr;
 #define EGLAPIENTRYP *
 %apply SWIGTYPE * { EGLNativeDisplayType };
 %apply long { EGLNativeWindowType, EGLNativePixmapType };
+%apply long long { EGLTime };
 #endif
 
-// exec: sed -e 's/^c-library\( .*\)/[IFUNDEF] opengl cs-vocabulary opengl [THEN]``get-current also opengl definitions``c-library\1`/g' -e 's/^end-c-library/end-c-library`previous set-current/g' | tr '`' '\n'
+// exec: sed -e 's/^c-library\( .*\)/[IFUNDEF] opengl cs-vocabulary opengl [THEN]\n\nget-current also opengl definitions\n\nc-library\1\n/g' -e 's/^end-c-library/end-c-library\nprevious set-current/g'
 
 %include <EGL/egl.h>

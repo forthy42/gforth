@@ -20,7 +20,7 @@
 %apply unsigned int { size_t, pa_usec_t, uint32_t }
 %apply unsigned char { uint8_t }
 
-// exec: sed -e 's/^c-library/cs-vocabulary pulse``get-current also pulse definitions``c-library/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/add-lib/add-lib`s" ((struct pa_:x.spx[arg0]" ptr-declare $+[]!/g' -e 's/\(c-function .*_autoload\)/\\ \1/g' -e 's/c-function pa_proplist_setf /\\ c-function pa_proplist_setf /g' | tr '`' '\n'
+// exec: sed -e 's/^c-library/cs-vocabulary pulse\n\nget-current also pulse definitions\n\nc-library/g' -e 's/^end-c-library/end-c-library\nprevious set-current/g' -e 's/add-lib/add-lib\ns" ((struct pa_:x.spx[arg0]" ptr-declare $+[]!/g' -e 's/\(c-function .*_autoload\)/\\ \1/g' -e 's/c-function pa_proplist_setf /\\ c-function pa_proplist_setf /g'
 // prep: sed -e 's/swigFunctionPointer.*{((\([^*]*\)\*)ptr)->\([^}]*\)}.*/if(offsetof(\1, \2) >= 0) \0/g'
 
 %include <pulse/direction.h>

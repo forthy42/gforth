@@ -29,7 +29,7 @@
 %apply long long { int64_t, size_t }
 %apply SWIGTYPE * { spa_invoke_func_t, va_list }
 
-// exec: sed -e 's/" pipewire" add-lib/" pipewire-0.3" add-lib/g' -e 's/^c-library/cs-vocabulary pipewire``get-current also pipewire definitions``c-library/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/add-lib/add-lib`s" ((struct pw_:x.spx[arg0]" ptr-declare $+[]!/g' | tr '`' '\n'
+// exec: sed -e 's/" pipewire" add-lib/" pipewire-0.3" add-lib/g' -e 's/^c-library/cs-vocabulary pipewire\n\nget-current also pipewire definitions\n\nc-library/g' -e 's/^end-c-library/end-c-library\nprevious set-current/g' -e 's/add-lib/add-lib\ns" ((struct pw_:x.spx[arg0]" ptr-declare $+[]!/g'
 
 %include <pipewire/array.h>
 %include <pipewire/client.h>

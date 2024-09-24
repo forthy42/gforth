@@ -9,7 +9,7 @@
 %apply long long { int64_t };
 %apply float { GLfloat };
 
-// exec: sed -e 's/^c-library\( .*\)/[IFUNDEF] opengl cs-vocabulary opengl [THEN]``get-current also opengl definitions``c-library\1`/g' -e 's/^end-c-library/end-c-library`previous set-current/g' | tr '`' '\n'
+// exec: sed -e 's/^c-library\( .*\)/[IFUNDEF] opengl cs-vocabulary opengl [THEN]\n\nget-current also opengl definitions\n\nc-library\1\n/g' -e 's/^end-c-library/end-c-library\nprevious set-current/g'
 
 #define SWIG_FORTH_GFORTH_LIBRARY "GLX"
 

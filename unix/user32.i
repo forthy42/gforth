@@ -174,7 +174,7 @@
      DRAWSTATEPROC, FARPROC, SENDASYNCPROC, PDWORD_PTR, PSECURITY_DESCRIPTOR,
      PSECURITY_INFORMATION, HWINSTA, LPSECURITY_ATTRIBUTES, HDESK, va_list };
 
-// exec: sed -e 's/^c-library/cs-vocabulary user32``get-current also user32 definitions``c-library/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/add-lib/add-lib`s" imm32" add-lib`/g' -e 's/c-function \(.*Shutdown\|DisableProcessWindowsGhosting\|IsWow64Message\|GetWindowRgnBox\|RegisterShellHookWindow\)/\\ &/' -e 's/c-function .*A /\\ &/' -e 's/\(c-function [^ ]*\)W /\1 /g' | tr '`' '\n'
+// exec: sed -e 's/^c-library/cs-vocabulary user32\n\nget-current also user32 definitions\n\nc-library/g' -e 's/^end-c-library/end-c-library\nprevious set-current/g' -e 's/add-lib/add-lib\ns" imm32" add-lib\n/g' -e 's/c-function \(.*Shutdown\|DisableProcessWindowsGhosting\|IsWow64Message\|GetWindowRgnBox\|RegisterShellHookWindow\)/\\ &/' -e 's/c-function .*A /\\ &/' -e 's/\(c-function [^ ]*\)W /\1 /g'
 
 %include <w32api/minwindef.h>
 %include <w32api/windef.h>

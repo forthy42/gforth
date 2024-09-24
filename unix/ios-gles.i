@@ -16,7 +16,7 @@
 #define GL_APIENTRY
 #define __OSX_AVAILABLE_STARTING(x, y)
 
-// exec: sed -e 's/^c-library\( .*\)/cs-vocabulary opengl``get-current also opengl definitions``c-library\1`/g' -e 's/^end-c-library/end-c-library`previous set-current/g' | tr '`' '\n'
+// exec: sed -e 's/^c-library\( .*\)/cs-vocabulary opengl\n\nget-current also opengl definitions\n\nc-library\1\n/g' -e 's/^end-c-library/end-c-library\nprevious set-current/g'
 
 %include <OpenGLES.framework/Headers/ES2/gl.h>
 %include <OpenGLES.framework/Headers/ES2/glext.h>
