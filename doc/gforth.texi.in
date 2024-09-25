@@ -12302,6 +12302,7 @@ doc-info-color
 doc-success-color
 doc-input-color
 doc-status-color
+doc-compile-color
 @c !! Commented out, because it makes no sense to document attr! without
 @c    documenting how to produce an attr
 @c doc-attr!
