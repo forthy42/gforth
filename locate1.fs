@@ -110,7 +110,7 @@ Variable locate-lines#
     view>filename# loadfilename#>str ;
 
 : print-locate-header ( -- )
-    status-attr attr!
+    status-color
     located-view @ view>filename
     [: type ': emit located-top @ 0 dec.r ;] $tmp
     2dup cols x-lines dup 0> IF

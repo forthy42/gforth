@@ -242,7 +242,9 @@ theme-color: error-hl-ul ( -- ) \ gforth
 theme-color: error-hl-inv ( -- ) \ gforth
 \G color mod for error highlight inverse
 theme-color: status-color ( -- ) \ gforth
-\G color mod for error highlight inverse
+\G color mod for status bar
+theme-color: compile-color ( -- ) \ gforth
+\G color mod for status bar in compile mode
 
 \ space spaces		                                21mar93py
 

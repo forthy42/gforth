@@ -20,11 +20,10 @@
 
 0 Value status-offset
 
-blue >bg white >fg or bold or Value status-attr
 : redraw-status ( addr u -- )
     save-cursor-position
     0 rows 1 - at-xy
-    status-color
+    state @ IF  compile-color  ELSE  status-color  THEN
     type
     default-color
     restore-cursor-position ;
