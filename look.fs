@@ -133,7 +133,7 @@ has? rom
 
 \ print recognizer stack
 
-[IFDEF] forth-recognizer
+[IFDEF] forth-recognize
     : .recognizer-sequence ( recognizer -- )
 	get-recognizer-sequence 0 ?DO
 	    dup defers@ >does-code ['] recognize =

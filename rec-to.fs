@@ -42,4 +42,4 @@
     dup >namehm @ >hmto @ ['] no-to = IF  2drop ['] notfound EXIT  THEN
     name>interpret ['] translate-to ;
 
-' rec-to forth-recognizer >back
+' rec-to action-of forth-recognize >back

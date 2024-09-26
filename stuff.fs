@@ -96,6 +96,16 @@ AUser CSP
 	2drop
     then ;
 
+\ defer stuff
+
+: preserve ( "name" -- ) \ gforth
+    \G emit code that reverts a deferred word to the state at
+    \G compilation
+    ' dup defer@ lit, 4 swap (to), ; immediate
+
+3 to: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
+\G @i{Xt} is the XT that is currently assigned to @i{name}.
+
 \ shell commands
 
 UValue $? ( -- n ) \ gforth dollar-question
@@ -178,13 +188,16 @@ synonym >rec-stack >body ( xt -- stack )
 : set-recognizer-sequence ( x1 .. xtn n recs-xt -- )
     defers@ >rec-stack set-stack ;
 
-Create forth-recognizer ( -- xt ) \ gforth-experimental
+Create forth-recognizer ( -- xt ) \ gforth-obsolete
 \G backward compatible to Matthias Trute recognizer API.
 \G This construct turns a deferred word into a value-like word.
 ' forth-recognize ,
 DOES> @ defer@ ;
 opt: @ 3 swap (to), ;
 ' s-to set-to
+: set-forth-recognize ( xt -- ) \ gforth-obsolete
+    \G Change the system recognizer
+    is forth-recognize ;
 
 : get-recognizers ( -- xt1 .. xtn n ) \ gforth-experimental
     \G push the content on the recognizer stack
@@ -226,7 +239,7 @@ opt: @ 3 swap (to), ;
 \ ]] ... [[
 
 ' noop ' noop
-:noname  ] forth-recognizer stack> drop ;
+:noname  ] action-of forth-recognize stack> drop ;
 translate: translate-[[
 ' translate-[[ Constant rectype-[[
 
@@ -238,7 +251,7 @@ translate: translate-[[
     \G Switch into postpone state: All words and recognizers are
     \G processed as if they were preceded by @code{postpone}.
     \G Postpone state ends when @code{[[} is recognized.
-    ['] rec-[[ forth-recognizer >stack
+    ['] rec-[[ action-of forth-recognize >stack
     ['] >postpone translate-state ; immediate restrict
 
 \ mem+do...mem+loop mem-do...mem-loop array>mem
@@ -429,17 +442,6 @@ constant mem*do-noconstant
 	f.s-precision 7 max dup 0 f.rdp space LOOP
     drop ; 
 
-\ defer stuff
-
-: preserve ( "name" -- ) \ gforth
-    \G emit code that reverts a deferred word to the state at
-    \G compilation
-    ' dup defer@ lit, 4 swap (to), ; immediate
-
-3 to: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
-\G @i{Xt} is the XT that is currently assigned to @i{name}.
-
-    
 : typewhite ( addr n -- ) \ gforth
 \G Like type, but white space is printed instead of the characters.
     \ bounds u+do

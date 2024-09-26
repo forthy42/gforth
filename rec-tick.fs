@@ -41,5 +41,5 @@
         ['] notfound exit  then
     2drop ['] notfound ;
 
-' rec-dtick forth-recognizer >back
-' rec-tick forth-recognizer >back
+' rec-dtick action-of forth-recognize >back
+' rec-tick action-of forth-recognize >back

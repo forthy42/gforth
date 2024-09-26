@@ -31,4 +31,4 @@
     THEN
     2drop ['] notfound ;
 
-' rec-meta forth-recognizer >back
+' rec-meta action-of forth-recognize >back

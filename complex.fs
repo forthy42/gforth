@@ -221,4 +221,4 @@ translate: translate-complex
 	['] translate-complex ['] notfound rot select
     ELSE  2drop ['] notfound  THEN ;
 
-' rec-complex ' rec-float forth-recognizer +after
+' rec-complex ' rec-float action-of forth-recognize +after

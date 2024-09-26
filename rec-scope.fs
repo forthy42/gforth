@@ -44,8 +44,8 @@
     \G last (rightmost) wordlist.
     ['] search-order scope-split ;
 
-' forth-recognize defer@ get-stack 1+ ' rec-scope -rot
-' forth-recognize defer@ set-stack
+action-of forth-recognize get-stack 1+ ' rec-scope -rot
+action-of forth-recognize set-stack
 
 : in ( "voc" "defining-word" -- ) \ gforth-experimental
     \G execute @var{defining-word} with @var{voc} as one-shot current

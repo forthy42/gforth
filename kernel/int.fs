@@ -210,7 +210,7 @@ Defer ?warn#  ' noop is ?warn#
 	EXIT
     THEN
     [ [THEN] ]
-    source >in @ over >in ! safe/string
+    #lf parse \ source >in @ over >in ! safe/string
     $10 umin s" gforth-obsolete " third $0F = +
     compare 0= IF  obsolete  THEN ; immediate
 

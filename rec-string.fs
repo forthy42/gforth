@@ -31,7 +31,7 @@ translate: translate-string
 	save-mem over to try-free ['] translate-string
     ELSE  2drop ['] notfound  THEN ;
 
-' rec-string forth-recognizer >back
+' rec-string action-of forth-recognize >back
 
 0 [IF] \ dot-quoted strings, we don't need them
 : .slit slit, postpone type ;
@@ -43,5 +43,5 @@ translate: translate-string
     IF    drop source drop - 2 + >in !  \"-parse save-mem ['] translate-."
     ELSE  ['] notfound  THEN ;
 
-' rec-." forth-recognizer >back
+' rec-." action-of forth-recognize >back
 [THEN]

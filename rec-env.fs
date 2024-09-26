@@ -31,5 +31,5 @@
     IF  2drop  ['] notfound  EXIT  THEN
     2 /string 1- ['] translate-env ;
 
-' rec-env forth-recognizer >back
+' rec-env action-of forth-recognize >back
 

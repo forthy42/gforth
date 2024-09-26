@@ -136,9 +136,6 @@ translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
 Defer forth-recognize ( c-addr u -- ... translate-xt ) \ recognizer
 \G The system recognizer
 ' minimal-recognize is forth-recognize
-: set-forth-recognize ( xt -- ) \ recognizer
-    \G Change the system recognizer
-    is forth-recognize ;
 
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.

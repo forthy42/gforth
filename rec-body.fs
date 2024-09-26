@@ -38,4 +38,4 @@
     ['] translate-num  of       + ['] translate-num   endof
     swap  endcase ;
 
-' rec-body forth-recognizer >back
+' rec-body action-of forth-recognize >back
