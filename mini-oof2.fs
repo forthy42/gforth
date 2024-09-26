@@ -143,7 +143,7 @@ dynamic-a to allocater
 	ELSE r> sp!  2drop ['] notfound THEN
     ELSE 2drop ['] notfound THEN ;
 
-' rec-moof2 get-recognizers 1+ set-recognizers
+' rec-moof2 action-of forth-recognize >back
 
 standard:field
 

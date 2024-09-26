@@ -199,10 +199,10 @@ opt: @ 3 swap (to), ;
     \G Change the system recognizer
     is forth-recognize ;
 
-: get-recognizers ( -- xt1 .. xtn n ) \ gforth-experimental
+: get-recognizers ( -- xt1 .. xtn n ) \ gforth-obsolete
     \G push the content on the recognizer stack
     ['] forth-recognize get-recognizer-sequence ;
-: set-recognizers ( xt1 .. xtn n -- ) \ gforth-experimental
+: set-recognizers ( xt1 .. xtn n -- ) \ gforth-obsolete
     \G set the recognizer stack from content on the stack
     ['] forth-recognize set-recognizer-sequence ;
 
