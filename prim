@@ -1619,6 +1619,22 @@ ALIVE_DEBUGGING(w1);
 :
  r> r> drop r> drop >r ;
 
+f>r	( r -- )    gforth-experimental	f_to_r
+Float rval[1] = { r };
+rp -= sizeof(Float)/sizeof(Cell);
+memcpy(rp, rval, sizeof(Float));
+
+fr>	( -- r )    gforth-experimental	f_r_from
+Float rval[1];
+memcpy(rval, rp, sizeof(Float));
+rp += sizeof(Float)/sizeof(Cell);
+r = rval[0];
+
+fr@	( -- r )    gforth-experimental	f_r_fetch
+Float rval[1];
+memcpy(rval, rp, sizeof(Float));
+r = rval[0];
+
 over	( w1 w2 -- w1 w2 w1 )		core
 :
  sp@ cell+ @ ;
