@@ -93,15 +93,15 @@ create \-escape-table
 \G for the supported @code{\-escapes}.
     here >r
     >in @ chars source chars over + >r + begin ( parse-area R: here parse-end )
-	dup r@ < while
-	    dup c@ '" <> while
-		dup c@ dup '\ = if ( parse-area c R: here parse-end )
-		    drop char+ dup r@ = abort" unfinished \-escape"
-		    \-escape,
-		else
-		    c, char+
-		endif
-	repeat then
+	dup r@ u>= abort" no quote at the end"
+	dup c@ '" <> while
+	    dup c@ dup '\ = if ( parse-area c R: here parse-end )
+		drop char+ dup r@ = abort" unfinished \-escape"
+		\-escape,
+	    else
+		c, char+
+	    endif
+    repeat
     char+ source >r - r> min char/ >in !
     r> drop
     here r> - dup negate allot

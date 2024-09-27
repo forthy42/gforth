@@ -27,8 +27,9 @@ translate: translate-string
     \G Convert strings enclosed in double quotes into string literals,
     \G escapes are treated as in @code{S\"}.
     2dup s\" \"" string-prefix?
-    IF    drop source drop - 1+ >in !  \"-parse
-	save-mem over to try-free ['] translate-string
+    IF  >in @ >r  drop source drop - 1+ >in !
+	['] \"-parse catch IF  r> >in !  ['] notfound  EXIT  THEN
+	rdrop  save-mem over to try-free ['] translate-string
     ELSE  2drop ['] notfound  THEN ;
 
 ' rec-string action-of forth-recognize >back
