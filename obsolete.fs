@@ -164,8 +164,9 @@ inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline obsolete
     ' translate-eval Constant rectype-eval \ gforth-obsolete
 [then]
 ' translate-env Constant rectype-env \ gforth-obsolete
-' translate-string Constant rectype-string \ gforth-obsolete
-
+[IFDEF] translate-string
+    ' translate-string Constant rectype-string \ gforth-obsolete
+[THEN]
 
 \ from ekey.fs
 ' k-f1  alias k1  ( -- u ) \ gforth-obsolete

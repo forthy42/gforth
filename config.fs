@@ -40,8 +40,8 @@ s" Config error" exception Value config-throw
     ?dup-IF  execute r> execute rdrop
     ELSE rdrop r> execute .config-err THEN ;
 
-:noname '$' ['] $! [: drop free throw ;] exec-config ;
-' translate-string is >config
+:noname 2swap scan-string 2swap '$' ['] $! [: drop free throw ;] exec-config ;
+' scan-translate-string is >config
 :noname '#' ['] !  ['] drop exec-config ;
 ' translate-num    is >config
 :noname '&' ['] 2! ['] 2drop exec-config ;

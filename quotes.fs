@@ -93,7 +93,12 @@ create \-escape-table
 \G for the supported @code{\-escapes}.
     here >r
     >in @ chars source chars over + >r + begin ( parse-area R: here parse-end )
-	dup r@ u>= abort" no quote at the end"
+	dup r@ u>= IF
+	    #lf c, drop rdrop
+	    source-id 0= IF  success-color ."  string" default-color cr  THEN
+	    refill  IF  source  ELSE  [ s" ." over '"' swap c! ] SLiteral drop  THEN
+	    over + >r
+	THEN
 	dup c@ '" <> while
 	    dup c@ dup '\ = if ( parse-area c R: here parse-end )
 		drop char+ dup r@ = abort" unfinished \-escape"

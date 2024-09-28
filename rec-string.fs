@@ -18,31 +18,36 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+: scan-string ( addr u -- addr' u' )
+    drop source drop - 1+ >in ! \"-parse  save-mem ;
+
 : slit,  postpone sliteral ;
 
-' noop ' slit, :noname slit, postpone 2lit, ;
-translate: translate-string
+' scan-string
+:noname scan-string slit, ;
+:noname scan-string slit, postpone 2lit, ;
+translate: scan-translate-string
 
-: rec-string ( addr u -- addr u' translate-string | notfound ) \ gforth-experimental
+: rec-string ( addr u -- addr u' scan-translate-string | notfound ) \ gforth-experimental
     \G Convert strings enclosed in double quotes into string literals,
     \G escapes are treated as in @code{S\"}.
     2dup s\" \"" string-prefix?
-    IF  >in @ >r  drop source drop - 1+ >in !
-	['] \"-parse catch IF  r> >in !  ['] notfound  EXIT  THEN
-	rdrop  save-mem over to try-free ['] translate-string
+    IF    ['] scan-translate-string
     ELSE  2drop ['] notfound  THEN ;
 
 ' rec-string action-of forth-recognize >back
 
 0 [IF] \ dot-quoted strings, we don't need them
 : .slit slit, postpone type ;
-' type ' .slit ' slit, >postponer translate: translate-."
+:noname scan-string type ;
+:noname scan-string .slit ;
+:noname scan-string slit, ]] 2lit, type [[ ; >postponer translate: translate-."
 ' translate-." Constant rectype-." \ gforth-obsolete
 
-: rec-."  ( addr u -- addr u' translate-." | addr u notfound )
+: rec-."  ( addr u -- addr u' translate-." | notfound )
     2dup ".\"" string-prefix?
-    IF    drop source drop - 2 + >in !  \"-parse save-mem ['] translate-."
-    ELSE  ['] notfound  THEN ;
+    IF    ['] scan-translate-."
+    ELSE  2drop ['] notfound  THEN ;
 
 ' rec-." action-of forth-recognize >back
 [THEN]

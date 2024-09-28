@@ -218,23 +218,18 @@ opt: @ 3 swap (to), ;
 	dup stack >back x2 = IF  x1 stack >back  THEN
     LOOP ;
 
-0 Value try-free
-
 : try-recognize ( addr u xt -- results | false ) \ gforth-experimental
     \G For nested recognizers: try to recognize @var{addr u}, and execute
     \G @var{xt} to check if the result is desired.  If @var{xt} returns false,
     \G clean up all side effects of the recognizer, and return false.
     \G Otherwise return the results of the call to @var{xt}, of which the
     \G topmost is non-zero.
-    { xt: xt }  0 to try-free  sp@ fp@ 2>r >in @ >r
+    { xt: xt }  sp@ fp@ 2>r
     forth-recognize xt dup
-    if    rdrop 2rdrop
+    if    2rdrop
     else
-	try-free ?dup-if  free throw  then
-	r> >in ! 2r> fp! sp! 2drop false
+	2r> fp! sp! 2drop false
     then ;
-
-:noname defers 'image   0 to try-free ; is 'image
 
 \ ]] ... [[
 
