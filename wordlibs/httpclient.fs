@@ -162,7 +162,7 @@ Create ReasonPhrase 100 chars allot
   stderr to outfile-id
   dup -2 =
   IF 
-     "error @ ?dup
+     abort-string @ ?dup
      IF
         cr count type 
      THEN

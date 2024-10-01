@@ -17853,7 +17853,7 @@ terminated using the @kbd{Return} key, a space is typed.
 @item exception abort sequence of @code{ABORT"}:
 @cindex exception abort sequence of @code{ABORT"}
 @cindex @code{ABORT"}, exception abort sequence
-The error string is stored into the variable @code{"error} and a
+The error string is stored into the variable @code{abort-string} and a
 @code{-2 throw} is performed.
 
 @item input line terminator:

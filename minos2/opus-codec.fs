@@ -117,17 +117,9 @@ Variable opus-out
 : $alloc ( u string -- addr u )
     over >r $+!len r> ;
 
-[IFDEF] exceptions
-    :noname negate opus_strerror ; #10 exceptions \ really only 7, but allow more
-    >r : ?opus-ior ( n -- )
-	dup 0< IF  [ r> ]L + throw  THEN drop ;
-[ELSE]
-    $100 buffer: opus-error$
-    : ?opus-ior ( n -- n )
-	dup 0< IF  [: opus_strerror opus-error$ place
-		opus-error$ "error ( " ( meh ) ! -2  throw ;] do-debug
-	THEN ;
-[THEN]
+:noname negate opus_strerror ; #10 exceptions \ really only 7, but allow more
+>r : ?opus-ior ( n -- )
+    dup 0< IF  [ r> ]L + throw  THEN drop ;
 
 : in-idx-block ( pos -- addr len )
     idx-block $@ rot safe/string ;

@@ -18,7 +18,14 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+s" Scanned string not in input buffer" exception >r
+
+: ?in-inbuf ( addr u -- )
+    bounds source bounds swap 1+ 2tuck within >r within r> and
+    0= IF  [ r> ]L throw  THEN ;
+
 : scan-string ( addr u -- addr' u' )
+    2dup ?in-inbuf
     drop source drop - 1+ >in ! \"-parse  save-mem ;
 
 : slit,  postpone sliteral ;

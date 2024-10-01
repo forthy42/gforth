@@ -284,12 +284,12 @@ is throw
 \ (abort")
 
 : c(abort") ( c-addr -- )
-    "error ! -2 throw ;
+    abort-string ! -2 throw ;
 
 : (abort")
     "lit >r
     IF
-	r> "error ! -2 throw
+	r> abort-string ! -2 throw
     THEN
     rdrop ;
 

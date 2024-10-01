@@ -28,15 +28,13 @@ debug: va( \ )
 
 $100 buffer: va-error$
 
-: ?va-ior ( n -- )
-    dup IF  [: vaErrorStr va-error$ place
-	    va-error$ "error \ "
-	    ! -2  throw ;] do-debug
-    THEN drop ;
+:noname vaErrorStr ; $40 exceptions
+>r : ?va-ior ( n -- )
+    ?dup-IF  negate [ r> ]L + throw  THEN ;
 
 0 Value va-dpy
 0 Value profile-list
-0 Value profiles#
+0 Varue profiles#
 #0. 2Value profile-mask
 
 : >profile-mask ( -- )

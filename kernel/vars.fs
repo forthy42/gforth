@@ -180,7 +180,7 @@ AUser backtrace-rp0 \ rp at last call of interpret
 
 AUser errorhandler
 
-AUser "error            0 "error !
+AUser abort-string            0 abort-string !
 
 AUser holdbufptr
 here word-pno-size chars allot dup holdbufptr !

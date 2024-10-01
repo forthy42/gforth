@@ -761,7 +761,7 @@ Defer dobacktrace ( -- )
 
 : .error-string ( throw-code -- )
   dup -2 = 
-  IF 	"error @ ?dup-IF count type  THEN drop
+  IF 	abort-string @ ?dup-IF count type  THEN drop
   ELSE	.error
   THEN ;
 
