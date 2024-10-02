@@ -147,13 +147,13 @@ cb> wl-shell-surface-listener
     scale*fixed 1/256 fm* ;
 
 : wl-out-geometry { data out x y pw ph subp d: make d: model transform -- }
-    wayland( cr ." metrics: " pw . ph . )
+    wayland( pw ph [: cr ." metrics: " . . ;] do-debug )
     pw ph wl-metrics 2! transform to screen-orientation ;
 : wl-out-mode { data out flags w h r -- }
     w h dpy-wh 2! ;
 : wl-out-done { data out -- } ;
 : wl-out-scale { data out scale -- }
-    wayland( cr ." scale: " scale . )
+    wayland( scale [: cr ." scale: " . ;] do-debug )
     scale to wl-scale ;
 : wl-out-name { data out d: name -- }
     wayland( name [: cr ." output name: " type ;] do-debug )
@@ -201,7 +201,7 @@ Defer rescaler ' noop is rescaler
 [IFDEF] wp_fractional_scale_v1_listener
     <cb
     :noname { data fscale scale -- }
-	wayland( cr ." fractional scale: " scale . )
+	wayland( scale [: cr ." fractional scale: " . ;] do-debug )
 	scale to fractional-scale  rescaler
 	dpy-unscaled-wh 2@ rescale-win
     ; ?cb wp_fractional_scale_v1_listener-preferred_scale:
@@ -696,11 +696,11 @@ cb> primary-selection-source-listener
 
 \ registry listeners: the interface string is searched in a table
 
-$Variable cursor-theme$ "Breeze_Snow" cursor-theme$ $!
+$Variable cursor-theme$ "Breeze_Light" cursor-theme$ $!
 Variable cursor-size #24 cursor-size !
 
 : read-kde-cursor-theme ( -- )
-    "~/.config/kcminputrc" r/o open-file IF  drop  EXIT  THEN
+    "~/.config/kcminputrc" r/o open-file IF  EXIT  THEN
     [: BEGIN  refill  WHILE
 		source "cursorTheme=" string-prefix? IF
 		    source #12 safe/string cursor-theme$ $!
@@ -806,6 +806,7 @@ wl-registry set-current
 1 wl: wl_shm
 :trigger-on( wl-shm )
     cursor-theme$ $@ cursor-size @
+    wayland( [: cr ." load cursor theme " third third type ."  size " dup . ;] do-debug )
     wl-shm wl_cursor_theme_load dup to cursor-theme
     s" default" wl_cursor_theme_get_cursor to cursor ;
 1 wl: zwp_text_input_manager_v3
