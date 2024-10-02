@@ -1965,7 +1965,12 @@ wayland protocols not found."
 		then
 		    WAYLAND_PROTOCOLS="$WAYLAND_PROTOCOLS $i"
 		else
-		    echo "wayland protocol $i not found"
+		    if test -f $srcdir/wayland/$i.c && test -f $srcdir/wayland/$i-client.h
+		    then
+		    	WAYLAND_PROTOCOLS="$WAYLAND_PROTOCOLS $i"
+		    else
+			echo "wayland protocol $i not found"
+		    fi
 		fi
 	    done
 	    for i in $WAYLAND_PROTOCOLS
