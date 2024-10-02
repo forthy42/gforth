@@ -955,12 +955,12 @@ install-include:
 		for i in $(FREETYPE_GL_INCLUDE); do \
 		$(INSTALL_DATA) $(srcdir)/$$i $(includedir)/freetype-gl; done
 		for i in $(WAYLAND_INCLUDE); do \
-		$(INSTALL_DATA) $$i $(includedir)/wayland || \
-		$(INSTALL_DATA) $(srcdir)/$$i $(includedir)/wayland; \
+		(test -f $$i && $(INSTALL_DATA) $$i $(includedir)/wayland) || \
+		(test -f $(srcdir)/$$i && $(INSTALL_DATA) $(srcdir)/$$i $(includedir)/wayland); \
 		done
 		for i in $(WAYLAND_INCLUDE); do \
-		$(INSTALL_DATA) $$i $(dataverdir)/wayland || \
-		$(INSTALL_DATA) $(srcdir)/$$i $(dataverdir)/wayland; \
+		(test -f $$i && $(INSTALL_DATA) $$i $(dataverdir)/wayland) || \
+		(test -f $(srcdir)/$$i && $(INSTALL_DATA) $(dataverdir)/$$i $(includedir)/wayland); \
 		done
 		#$(LN_S) $(includedir)/wayland $(dataverdir)
 
