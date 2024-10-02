@@ -35,20 +35,28 @@ l"  " >r
 
 : include-tutorials ( -- )  false >r
     BEGIN
-	next-arg 2dup d0<> WHILE
+	script? IF  next-arg  ELSE  parse-name  THEN
+	dup 0<> WHILE
 	    required
 	    r@ IF  /flip  THEN  dup >slides
 	    rdrop true >r
     REPEAT  2drop rdrop ;
 
-{{
-    {{
-	glue-left @ }}glue
-	include-tutorials
-	glue-right @ }}glue
-    }}h box[]
-}}z box[] slide[] to top-widget
-
 light-gui
-presentation
-bye
+
+: tutorials ( "name1" .. "namen" -- )
+    [ sourcefilename extractpath ] SLiteral fpath also-path
+
+    {{
+	{{
+	    glue-left @ }}glue
+	    include-tutorials
+	    glue-right @ }}glue
+	}}h box[]
+    }}z box[] slide[] to top-widget
+
+    fpath $@ 0 -scan fpath $!
+    
+    presentation ;
+
+script? [IF]  tutorials bye  [THEN]
