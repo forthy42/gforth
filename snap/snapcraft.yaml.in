@@ -39,7 +39,7 @@ apps:
       - x11
       - wayland
       - opengl
-      - unity7
+      - unity8
       - locale-control
       - audio-playback
       - audio-record
@@ -59,7 +59,7 @@ apps:
       - x11
       - wayland
       - opengl
-      - unity7
+      - unity8
       - locale-control
       - audio-playback
       - audio-record
@@ -79,7 +79,7 @@ apps:
       - x11
       - wayland
       - opengl
-      - unity7
+      - unity8
       - locale-control
       - audio-playback
       - audio-record
@@ -99,7 +99,7 @@ apps:
       - x11
       - wayland
       - opengl
-      - unity7
+      - unity8
       - locale-control
       - audio-playback
       - audio-record

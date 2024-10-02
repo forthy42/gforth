@@ -347,8 +347,9 @@ Variable prev-preedit$
 ; ?cb wl_keyboard_listener-enter:
 :noname { data wl_keyboard format fd size -- }
     \ sp@ sp0 !
+    wayland( fd size [: cr ." xkbd mmap file: " swap . h. ;] do-debug )
     0 size PROT_READ MAP_PRIVATE fd 0 mmap { buf }
-    \ wayland( buf size [: cr ." xkbd map:" cr type ;] do-debug )
+    wayland( buf size [: cr ." xkbd map: " swap h. h. ;] do-debug )
     XKB_CONTEXT_NO_FLAGS xkb_context_new dup to xkb-ctx
     buf size 1- XKB_KEYMAP_FORMAT_TEXT_V1 XKB_KEYMAP_COMPILE_NO_FLAGS
     xkb_keymap_new_from_buffer to keymap
