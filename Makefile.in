@@ -960,7 +960,7 @@ install-include:
 		done
 		for i in $(WAYLAND_INCLUDE); do \
 		$(INSTALL_DATA) $$i $(dataverdir)/wayland || \
-		$(INSTALL_DATA) $(srcdir)/$$i $(dataverdir)/wayland;; \
+		$(INSTALL_DATA) $(srcdir)/$$i $(dataverdir)/wayland; \
 		done
 		#$(LN_S) $(includedir)/wayland $(dataverdir)
 
