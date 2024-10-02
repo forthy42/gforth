@@ -955,9 +955,13 @@ install-include:
 		for i in $(FREETYPE_GL_INCLUDE); do \
 		$(INSTALL_DATA) $(srcdir)/$$i $(includedir)/freetype-gl; done
 		for i in $(WAYLAND_INCLUDE); do \
-		$(INSTALL_DATA) $$i $(includedir)/wayland; done
+		$(INSTALL_DATA) $$i $(includedir)/wayland || \
+		$(INSTALL_DATA) $(srcdir)/$$i $(includedir)/wayland; \
+		done
 		for i in $(WAYLAND_INCLUDE); do \
-		$(INSTALL_DATA) $$i $(dataverdir)/wayland; done
+		$(INSTALL_DATA) $$i $(dataverdir)/wayland || \
+		$(INSTALL_DATA) $(srcdir)/$$i $(dataverdir)/wayland;; \
+		done
 		#$(LN_S) $(includedir)/wayland $(dataverdir)
 
 install-libcc:
