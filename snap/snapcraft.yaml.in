@@ -201,6 +201,9 @@ parts:
       - libdrm-intel1
       - libdrm-radeon1
       - libdrm-nouveau2
+      - libdrm-amdgpu1
+      - libdrm-common
+      - libdrm2
       - libharfbuzz0b
       - libxkbcommon0
       - xkb-data
