@@ -952,10 +952,10 @@ install-images:	install-md @INSTALLTXT@
 		$(INSTALL_DATA) gforth.fi.install $(libdir)/gforth/$(VERSION)/gforth.fi
 
 install-wayland-include: $(WAYLAND_INCLUDE)
-		@echo INSTALL-WAYLAND-PROTOCOLS $(WAYLAND_PROTOCOLS)
-		@echo INSTALL-WAYLAND-INCLUDES $^
-		$(INSTALL_DATA) $^ $(includedir)/wayland
-		$(INSTALL_DATA) $^ $(dataverdir)/wayland
+		@test -z "$^" || echo INSTALL-WAYLAND-PROTOCOLS $(WAYLAND_PROTOCOLS)
+		@test -z "$^" || echo INSTALL-WAYLAND-INCLUDES $^
+		test -z "$^" || $(INSTALL_DATA) $^ $(includedir)/wayland
+		test -z "$^" || $(INSTALL_DATA) $^ $(dataverdir)/wayland
 
 install-include:
 		@echo INSTALL-INCLUDE

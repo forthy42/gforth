@@ -186,6 +186,7 @@ parts:
       - libegl1
       - libgles2
       - libgl1
+      - libglvnd0
       - libx11-6
       - libxau6
       - libxcb1
