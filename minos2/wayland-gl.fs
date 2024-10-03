@@ -700,7 +700,7 @@ $Variable cursor-theme$ "Breeze_Light" cursor-theme$ $!
 Variable cursor-size #24 cursor-size !
 
 : read-kde-cursor-theme ( -- )
-    "~/.config/kcminputrc" r/o open-file IF  EXIT  THEN
+    "~/.config/kcminputrc" r/o open-file IF  drop  EXIT  THEN
     [: BEGIN  refill  WHILE
 		source "cursorTheme=" string-prefix? IF
 		    source #12 safe/string cursor-theme$ $!
