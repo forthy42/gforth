@@ -102,14 +102,26 @@ EXTRA_LIBS=""
 AC_ARG_WITH(extra-libs,
 [  --with-extra-libs	  Compile all swig-supported libraries, even not needed
   --without-extra-libs	  disable unnecessary libs (default)],
-if test "$withval" = "yes"; then EXTRA_LIBS="yes"; echo "Building with extra libs"; fi)
+[if test "$withval" = "yes"
+then
+    EXTRA_LIBS="yes"
+    echo "Building with extra libs"
+fi])
 
 MINOS2_LIBS="yes"
+NO_MINOS2=""
 
 AC_ARG_WITH(minos2,
 [  --with-minos2	  Compile all libraries necessary for MINOS2 (default)
   --without-minos2	  disables compiling MINOS2],
-if test "$withval" = "no"; then MINOS2_LIBS=""; echo "Building a text-only Gforth without MINOS2 libs"; fi)
+[if test "$withval" = "no"
+then
+    MINOS2_LIBS=""
+    NO_MINOS2="#"
+    echo "Building a text-only Gforth without MINOS2 libs"
+fi])
+
+AC_SUBST(NO_MINOS2)
 
 AC_ARG_VAR(check_option, [pass engine additional options for check])
 AC_SUBST(check_option)
