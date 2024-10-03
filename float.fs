@@ -77,7 +77,6 @@
     \G on the (floating-point) stack. Interpretation semantics are undefined.
     flit, ;  immediate
 
-: opt-fval ( xt -- )  >body postpone Literal postpone f@ ;
 : opt-fcon ( xt -- )  >body f@ postpone FLiteral ;
 
 : fconstant  ( r "name" -- ) \ floating f-constant
@@ -94,7 +93,6 @@ to-table: f!-table f! f+!
 create dummy-fvalue
 ' f@ set-does>
 ' fvalue-to set-to
-' opt-fval set-optimizer
 
 : fvalue ( r "name" -- ) \ floating-ext f-value
     \g Define @i{name} @code{( -- r1 )} where @i{r1} initially is

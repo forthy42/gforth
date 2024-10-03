@@ -683,13 +683,10 @@ synonym hex. h. ( u -- ) \ gforth
 
 \ 2value
 
-: 2value-compile, ( xt -- )  >body postpone Literal postpone 2@ ;
-
 ' >body 2!-table to-class: 2value-to ( addr -- ) \ gforth-internal
 
 create dummy-2value
 ' 2@ set-does>
-' 2value-compile, set-optimizer
 ' 2value-to set-to
 
 : 2Value ( d "name" -- ) \ double-ext two-value
