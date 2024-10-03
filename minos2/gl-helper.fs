@@ -21,6 +21,8 @@
 require ../unix/mmap.fs
 require ../mini-oof2.fs
 
+debug: egl( \ )
+
 [IFUNDEF] dpy-wh
     2Variable dpy-wh
 [THEN]
@@ -151,11 +153,14 @@ Variable eglformat
 	0 eglGetDisplay to egldpy
 	egldpy 0 0 eglInitialize drop
 	egldpy attribs3 configs 1 numconfigs eglChooseConfig drop
+	egl( [: cr ." attrib3 configs: " numconfigs ? ;] do-debug )
 	numconfigs @ 0= IF
 	    egldpy attribs2 configs 1 numconfigs eglChooseConfig drop
+	    egl( [: cr ." attrib2 configs: " numconfigs ? ;] do-debug )
 	    numconfigs @ 0= IF
 		egldpy attribs configs 1 numconfigs eglChooseConfig drop
-		." default config only" EXIT
+		egl( [: cr ." attribs configs: " numconfigs ? ;] do-debug )
+		numconfigs @ 0= abort" no EGL config found" EXIT
 	    THEN
 	THEN ;
     
@@ -180,13 +185,15 @@ Variable eglformat
 	    egldpy 0 0 eglInitialize drop
 	    EGL_OPENGL_ES_API eglBindAPI drop
 	    egldpy attribs3 configs 1 numconfigs eglChooseConfig drop
+	    egl( [: cr ." attrib3 configs: " numconfigs ? ;] do-debug )
 	    numconfigs @ 0= IF
 		egldpy attribs2 configs 1 numconfigs eglChooseConfig drop
+		egl( [: cr ." attrib2 configs: " numconfigs ? ;] do-debug )
 		numconfigs @ 0= IF
 		    egldpy attribs configs 1 numconfigs eglChooseConfig drop
-		    ." default config only" cr EXIT
+		    egl( [: cr ." attribs configs: " numconfigs ? ;] do-debug )
+		    numconfigs @ 0= abort" no EGL config found" EXIT
 		THEN
-		." simple config only" cr
 	    THEN ;
 
 	[IFUNDEF] window-title$

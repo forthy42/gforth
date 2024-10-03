@@ -39,10 +39,10 @@ BINONLYDIST = config.status $(ENGINES) $(ENGINES_FAST) $(LIBENGINES)	\
 	install.TAGS $(KERNLS) unix/Makefile gforth.elc
 
 #use dist targets only when srcdir=.
-ddist:		$(SOURCES) $(FORTH_GEN0) @GKERNEL@ $(DOCDIST)
+ddist:		$(SOURCES) $(FORTH_GEN0) $(WAYLAND_INCLUDE) @GKERNEL@ $(DOCDIST)
 		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
-		$(TAR) $(SOURCES) $(FORTH_GEN0) @GKERNEL@ $(DOCDIST) | \
+		$(TAR) $(SOURCES) $(FORTH_GEN0) $(WAYLAND_INCLUDE) @GKERNEL@ $(DOCDIST) | \
 			(cd gforth-$(VERSION); tar xf -)
 		$(TAR) gforth-$(VERSION)|$(COMPRESS) >gforth-$(VERSION).tar$(COMPEXT)
 		-$(RMTREE) gforth-$(VERSION)

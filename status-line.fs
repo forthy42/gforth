@@ -68,7 +68,7 @@
 	    r> I - +LOOP  drop
 	THEN
     THEN
-    cr edit-linew @ screenw @ mod -1 at-deltaxy
+    cr edit-linew @ screenw @ dup 0= IF  $100 +  THEN  mod -1 at-deltaxy
     status$ $@ redraw-status
     status$ $free
     1 to status-offset ;

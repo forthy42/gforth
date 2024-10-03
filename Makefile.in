@@ -120,9 +120,13 @@ LN_S	= @LN_S@ -f
 M4      = @M4@
 GCC	= @CC@
 EMACS   = @EMACS@
+
 WAYLAND_SCANNER = @WAYLAND_SCANNER@
 WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
 WAYLAND_PROTOCOLS = @WAYLAND_PROTOCOLS@
+WAYLAND_INCLUDE = $(patsubst %, wayland/%-client.h, $(WAYLAND_PROTOCOLS)) \
+	$(patsubst %, wayland/%.c, $(WAYLAND_PROTOCOLS))
+
 LIBTOOL = @GNU_LIBTOOL@ --silent
 PREFORTH	= ./preforth -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 CC	= $(GCC)
@@ -947,6 +951,12 @@ install-images:	install-md @INSTALLTXT@
 		env GFORTH_IGNLIB=true GFORTH_COMPILELIB=no HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(dataverdir)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(dataverdir)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal --debug-mcheck -i $(kernel_fi) exboot.fs startup.fs" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi.install $(FORTHSIZES) $(STARTUP_FULL) fixfiles.fs
 		$(INSTALL_DATA) gforth.fi.install $(libdir)/gforth/$(VERSION)/gforth.fi
 
+install-wayland-include: $(WAYLAND_INCLUDE)
+		@echo INSTALL-WAYLAND-PROTOCOLS $(WAYLAND_PROTOCOLS)
+		@echo INSTALL-WAYLAND-INCLUDES $^
+		$(INSTALL_DATA) $^ $(includedir)/wayland
+		$(INSTALL_DATA) $^ $(dataverdir)/wayland
+
 install-include:
 		@echo INSTALL-INCLUDE
 		$(MKDIR_P) $(includedir)/gforth/$(VERSION)/$(machine) $(includedir)/freetype-gl $(includedir)/wayland $(dataverdir)/wayland
@@ -954,10 +964,6 @@ install-include:
 		$(INSTALL_DATA) engine/gforth.h $(includedir)
 		for i in $(FREETYPE_GL_INCLUDE); do \
 		$(INSTALL_DATA) $(srcdir)/$$i $(includedir)/freetype-gl; done
-		for i in $(WAYLAND_INCLUDE); do \
-		$(INSTALL_DATA) $$i $(includedir)/wayland; done
-		for i in $(WAYLAND_INCLUDE); do \
-		$(INSTALL_DATA) $$i $(dataverdir)/wayland; done
 		#$(LN_S) $(includedir)/wayland $(dataverdir)
 
 install-libcc:
@@ -1017,7 +1023,7 @@ installdeps:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 
 
 install-indep:	installdeps installdirs-indep install-sources install-man install-elc
 
-install-arch:	installdeps installdirs-arch normal-install rm-install install-prog-bins install-gensources install-libcc install-images install-include install-tags @libinstall@ extra-install
+install-arch:	installdeps installdirs-arch normal-install rm-install install-prog-bins install-gensources install-libcc install-images install-include install-wayland-include install-tags @libinstall@ extra-install
 
 install-seq:	install-indep install-arch @INSTALLTXT@ @INSTALLINFO@
 
