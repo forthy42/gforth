@@ -117,7 +117,7 @@ AC_ARG_WITH(minos2,
 [if test "$withval" = "no"
 then
     MINOS2_LIBS=""
-    NO_MINOS2="#"
+    MINOSFLAG=false
     echo "Building a text-only Gforth without MINOS2 libs"
 fi])
 
@@ -1640,7 +1640,7 @@ GLXFLAG=false
 GLESFLAG=false
 MINOSFLAG=false
 HAS_SWIG_FORTH=
-if $SWIG -forth $srcdir/unix/test.i; then
+if test -n "$SWIG" && $SWIG -forth $srcdir/unix/test.i; then
     echo "Swig works in Forth mode"
     has_swig=yes
     MINOSFLAG=true
@@ -2015,8 +2015,11 @@ AC_SUBST(MINOSFLAG)
 if test x$MINOSFLAG = xtrue
 then
    minosdoc=doc/minosdoc.fd
+else
+   NO_MINOS2="#"
 fi
 AC_SUBST(minosdoc)
+AC_SUBST(NO_MINOS2)
 
 if test x$has_swig = xno; then
    AC_MSG_WARN([*** Swig without -forth. Building library buildings $SWIGMODULES from tarball.])
