@@ -8,7 +8,7 @@ summary: gforth snap # 79 char long summary
 description: |
   This is the weekly development snapshot of Gforth in snap format. Building
   for snap has made considerable progress, all SWIG-generated libraries load,
-  OpenGL via GLX works.
+  OpenGL via GLX and EGL works.
 
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
@@ -26,6 +26,7 @@ apps:
   gforth:
     command: usr/bin/gforth
     environment:
+      __EGL_VENDOR_LIBRARY_DIRS: \$SNAP/usr/share/glvnd/egl_vendor.d:\$SNAP/etc/glvnd/egl_vendor.d
       GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
       GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
@@ -47,6 +48,7 @@ apps:
   gforth-fast:
     command: usr/bin/gforth-fast
     environment:
+      __EGL_VENDOR_LIBRARY_DIRS: \$SNAP/usr/share/glvnd/egl_vendor.d:\$SNAP/etc/glvnd/egl_vendor.d
       GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
       GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
@@ -68,6 +70,7 @@ apps:
   gforth-itc:
     command: usr/bin/gforth-itc
     environment:
+      __EGL_VENDOR_LIBRARY_DIRS: \$SNAP/usr/share/glvnd/egl_vendor.d:\$SNAP/etc/glvnd/egl_vendor.d
       GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
       GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
@@ -89,6 +92,7 @@ apps:
   gforth-ditc:
     command: usr/bin/gforth-ditc
     environment:
+      __EGL_VENDOR_LIBRARY_DIRS: \$SNAP/usr/share/glvnd/egl_vendor.d:\$SNAP/etc/glvnd/egl_vendor.d
       GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
       GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
@@ -133,7 +137,6 @@ parts:
     plugin: autotools
     autotools-configure-parameters:
       - --prefix=/usr
-      - --with-install=swig
       - --disable-lib
       - --with-siteinit=":noname defers 'cold s\" /\" s\" SNAP\" getenv s\" /\" S+ repl-included-files ; is 'cold"
     build-packages:
