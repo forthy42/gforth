@@ -463,8 +463,10 @@ $[]Variable ds-mime-types[]
 $[]Variable liked-mime[]
 
 $Variable clipboard$
-$Variable primary$
 $Variable dnd$
+clipboard$ Value data$
+
+$Variable primary$
 
 false Value my-clipboard
 false Value my-primary
@@ -497,12 +499,12 @@ Variable psout-offset
 
 : eof-clipin ( -- )
     clipin-fd 0 to clipin-fd close-file throw
-    0 clipin$ !@ clipboard$ !@ ?dup-IF  free throw  THEN
-    wayland( [: cr ." read clipboard$ with '" clipboard$ $@ type ." '" ;] do-debug ) ;
+    0 clipin$ !@ data$ !@ ?dup-IF  free throw  THEN
+    wayland( [: cr ." read data$ with '" data$ $@ type ." '" ;] do-debug ) ;
 
 : read-clipin ( -- )
     clipin-fd check_read dup 0> IF \ data available
-	dup clipboard$ $+!len swap dup >r clipin-fd
+	dup clipin$ $+!len swap dup >r clipin-fd
 	read-file throw
 	r> - dup 0< IF  clipin$ $+!len  THEN  drop
     ELSE
@@ -553,13 +555,6 @@ Variable psout-offset
 : write-psout ( -- )
     psout$ psout-offset psout-fd write-out to psout-fd ;
 
-: master-task send-event ( xt -- )
-    wayland( [: cr ." queue clipin: " dup h. ;] do-debug )
-    master-task send-event ;
-: queue-clipout ( xt -- )
-    wayland( [: cr ." queue clipout: " dup h. ;] do-debug )
-    master-task send-event ;
-
 : accept+receive { offer d: mime-type | fds[ 2 cells ] -- }
     offer current-serial mime-type wl_data_offer_accept
     fds[ create_pipe
@@ -584,7 +579,7 @@ Variable psout-offset
     wayland( source-actions [: cr ." source-actions: " h. ;] do-debug )
     my-clipboard 0= IF
 	offer source-actions [{: offer actions :}l offer -rot
-	    actions IF  dnd$  ELSE  clipboard$  THEN
+	    actions IF  dnd$  ELSE  clipboard$  THEN  to data$
 	    accept+receive ;] >liked-mime
     THEN
 ; ?cb wl_data_offer_listener-source_actions:
