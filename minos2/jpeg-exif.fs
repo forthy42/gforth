@@ -191,11 +191,21 @@ DOES> + c@ ;
 
 \ search for thumbnail image
 
+debug: exif( \ )
+
 : >thumb ( -- )
     exw 0 ?DO
 	exw exw exl exl { cmd typ len offset }
-	\ cmd h. typ h. len h. offset h. cr
-	offset  case cmd \ len ~~ drop
+	exif( offset len typ cmd [: cr h. h. h. h. ;] do-debug )
+	offset
+	case typ
+	    #1    of  $18 rshift      endof
+	    #3    of  $10 rshift      endof
+	    #6    of  $18 rshift c>s  endof
+	    #8    of  $10 rshift w>s  endof
+	    #9    of             l>s  endof
+	endcase
+	case cmd \ len ~~ drop
 	    $100  of  img-w      !  endof
 	    $101  of  img-h      !  endof
 	    $112  of  img-orient !  endof

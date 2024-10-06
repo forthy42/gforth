@@ -91,6 +91,7 @@ actor class
 end-class simple-actor
 
 debug: event( \ +db event( \ )
+debug: dnd(
 
 :noname { f: rx f: ry b n -- }
     click( o h. caller-w .name$ type space caller-w h. ." simple click: " rx f. ry f. b . n . cr ) ; simple-actor is clicked
@@ -897,6 +898,7 @@ edit-terminal edit-out !
 ; edit-actor is clicked
 [IFDEF] dnd@
     :noname ( o:actor rx ry addr u -- )
+	dnd( [: cr ." Editor dnd drop '" dnd@ type ." '" ;] do-debug )
 	['] setstring> edit-xt
 	fdrop edit>curpos
 	[: dnd@
@@ -904,6 +906,7 @@ edit-terminal edit-out !
 		REPEAT 2drop type ;] $tmp edit-ins$ ;] edit-xt
     ; edit-actor is dnddrop
     :noname ( o:actor rx ry -- )
+	dnd( [: cr ." Editor dnd move '" fover f. fdup f. ;] do-debug )
 	fdrop fdrop
     ; edit-actor is dndmove
 [THEN]
