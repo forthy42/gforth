@@ -464,8 +464,6 @@ $[]Variable liked-mime[]
 
 $Variable clipboard$
 $Variable dnd$
-clipboard$ Value data$
-
 $Variable primary$
 
 false Value my-clipboard
@@ -486,6 +484,8 @@ false Value my-dnd
 
 0 Value clipin-fd
 0 Value clipout-fd
+0 Value dndin-fd
+0 Value dndout-fd
 0 Value psin-fd
 0 Value psout-fd
 
@@ -493,14 +493,28 @@ $Variable clipin$
 $Variable clipout$
 Variable clipout-offset
 
+$Variable dndin$
+$Variable dndout$
+Variable dndout-offset
+
 $Variable psin$
 $Variable psout$
 Variable psout-offset
 
 : eof-clipin ( -- )
     clipin-fd 0 to clipin-fd close-file throw
-    0 clipin$ !@ data$ !@ ?dup-IF  free throw  THEN
-    wayland( [: cr ." read data$ with '" data$ $@ type ." '" ;] do-debug ) ;
+    0 clipin$ !@ clipboard$ !@ ?dup-IF  free throw  THEN
+    wayland( [: cr ." read clipboard$ with '" clipboard$ $@ type ." '" ;] do-debug ) ;
+
+: eof-dndin ( -- )
+    dndin-fd 0 to dndin-fd close-file throw
+    0 dndin$ !@ dnd$ !@ ?dup-IF  free throw  THEN
+    wayland( [: cr ." read dnd$ with '" dnd$ $@ type ." '" ;] do-debug ) ;
+
+: eof-psin ( -- )
+    psin-fd 0 to psin-fd close-file throw
+    0 psin$ !@ primary$ !@ ?dup-IF  free throw  THEN
+    wayland( [: cr ." read primary$ with '" primary$ $@ type ." '" ;] do-debug ) ;
 
 : read-clipin ( -- )
     clipin-fd check_read dup 0> IF \ data available
@@ -508,13 +522,17 @@ Variable psout-offset
 	read-file throw
 	r> - dup 0< IF  clipin$ $+!len  THEN  drop
     ELSE
-	drop \ eof-clipin
+	drop
     THEN ;
 
-: eof-psin ( -- )
-    psin-fd 0 to psin-fd close-file throw
-    0 psin$ !@ primary$ !@ ?dup-IF  free throw  THEN
-    wayland( [: cr ." read primary$ with '" primary$ $@ type ." '" ;] do-debug ) ;
+: read-dndin ( -- )
+    dndin-fd check_read dup 0> IF \ data available
+	dup dndin$ $+!len swap dup >r dndin-fd
+	read-file throw
+	r> - dup 0< IF  dndin$ $+!len  THEN  drop
+    ELSE
+	drop
+    THEN ;
 
 : read-psin ( -- )
     psin-fd check_read dup 0> IF \ data available
@@ -522,7 +540,7 @@ Variable psout-offset
 	read-file throw
 	r> - dup 0< IF  psin$ $+!len  THEN  drop
     ELSE
-	drop \ eof-psin
+	drop
     THEN ;
 
 [IFUNDEF] FIONBIO
@@ -552,15 +570,27 @@ Variable psout-offset
 
 : write-clipout ( -- )
     clipout$ clipout-offset clipout-fd write-out to clipout-fd ;
+: write-dndout ( -- )
+    dndout$ dndout-offset dndout-fd write-out to dndout-fd ;
 : write-psout ( -- )
     psout$ psout-offset psout-fd write-out to psout-fd ;
 
-: accept+receive { offer d: mime-type | fds[ 2 cells ] -- }
+: accept+receive { offer d: mime-type | fds[ 2 cells ] -- fd }
     offer current-serial mime-type wl_data_offer_accept
     fds[ create_pipe
     offer mime-type fds[ cell+ @ fileno wl_data_offer_receive
     fds[ cell+ @ close-file throw
-    fds[ @ to clipin-fd ;
+    fds[ @ ;
+: dnd-accept+receive ( offer mime-type -- )
+    accept+receive to dndin-fd ;
+: clip-accept+receive ( offer mime-type -- )
+    accept+receive to clipin-fd ;
+
+: ps-accept+receive { offer d: mime-type | fds[ 2 cells ] -- }
+    fds[ create_pipe
+    offer mime-type fds[ cell+ @ fileno zwp_primary_selection_offer_v1_receive
+    fds[ cell+ @ close-file throw
+    fds[ @ to psin-fd ;
 
 : >liked-mime { xt: xt -- }
     liked-mime[] $[]# 0 ?DO
@@ -579,8 +609,8 @@ Variable psout-offset
     wayland( source-actions [: cr ." source-actions: " h. ;] do-debug )
     my-clipboard 0= IF
 	offer source-actions [{: offer actions :}l offer -rot
-	    actions IF  dnd$  ELSE  clipboard$  THEN  to data$
-	    accept+receive ;] >liked-mime
+	    actions IF  dnd-accept+receive
+	    ELSE  clip-accept+receive  THEN ;] >liked-mime
     THEN
 ; ?cb wl_data_offer_listener-source_actions:
 :noname { data offer d: mime-type -- }
@@ -600,6 +630,7 @@ Defer dnd-drop
 <cb
 :noname { data data-device id -- }
     wayland( id [: cr ." selection id: " h. ;] do-debug )
+    id  [{: id :}l id -rot clip-accept+receive ;] >liked-mime
 ; ?cb wl_data_device_listener-selection:
 :noname { data data-device -- }
     wayland( [: cr ." drop" ;] do-debug )
@@ -629,12 +660,6 @@ Defer dnd-drop
 cb> data-device-listener
 
 \ primary selection offer listener
-
-: ps-accept+receive { offer d: mime-type | fds[ 2 cells ] -- }
-    fds[ create_pipe
-    offer mime-type fds[ cell+ @ fileno zwp_primary_selection_offer_v1_receive
-    fds[ cell+ @ close-file throw
-    fds[ @ to psin-fd ;
 
 <cb
 :noname { data offer d: mime-type -- }
@@ -939,8 +964,8 @@ previous set-current
 User xptimeout  cell uallot drop
 #16 Value looper-to# \ 16ms, don't sleep too long
 looper-to# #1000000 um* xptimeout 2!
-7 Value xpollfd#
-\ events, wayland, clip read, clip write, ps read, ps write, infile
+9 Value xpollfd#
+\ events, wayland, clip read, clip write, ps read, ps write, dnd read, dnd write, infile
 User xpollfds
 xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
@@ -952,6 +977,8 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
     clipout-fd ?dup-IF  POLLOUT  r> fds!+ >r  THEN
     psin-fd ?dup-IF  fileno POLLIN POLLHUP or  r> fds!+ >r  THEN
     psout-fd ?dup-IF  POLLOUT  r> fds!+ >r  THEN
+    dndin-fd ?dup-IF  fileno POLLIN POLLHUP or  r> fds!+ >r  THEN
+    dndout-fd ?dup-IF  POLLOUT  r> fds!+ >r  THEN
     infile-id fileno POLLIN  r> fds!+ >r
     r> xpollfds - pollfd / ;
 
@@ -991,6 +1018,16 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 	THEN
 	psout-fd IF
 	    r@ w@ POLLOUT POLLHUP or and IF  write-psout  THEN
+	    r> pollfd + >r
+	THEN
+	dndin-fd IF
+	    wayland( r@ [: cr ." dndin: " w@ h. ;] do-debug )
+	    r@ w@ POLLIN and IF  read-dndin  THEN
+	    r@ w@ POLLHUP and IF  eof-dndin  THEN
+	    r> pollfd + >r
+	THEN
+	dndout-fd IF
+	    r@ w@ POLLOUT POLLHUP or and IF  write-dndout  THEN
 	    r> pollfd + >r
 	THEN
 	rdrop
