@@ -577,12 +577,13 @@ rescaler
 
 : markdown-loop ( -- )
     BEGIN  refill-empty  WHILE  reset-emph >in off
-	    ?md-token  IF  hang-read typeset
-	    ELSE  reset-hang
-		source "    " string-prefix?
-		source "	" string-prefix? or IF
-		    read-pre pre-typeset  ELSE
-		    read-par typeset  THEN
+	    source "    " string-prefix?
+	    source "	" string-prefix? or IF
+		reset-hang read-pre pre-typeset
+	    ELSE
+		?md-token
+		IF     hang-read typeset
+		ELSE   read-par typeset  THEN
 	    THEN
     REPEAT ;
 
