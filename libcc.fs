@@ -322,7 +322,7 @@ const+ c-var
 drop
 
 : libcc-type ( c-addr u -- u2 )
-    libcc-types search-wordlist 0= -13 and throw execute ;
+    libcc-types find-name-in ?found execute ;
 
 : >libcc-type ( c-addr u -- u2 )
     2dup '{' scan-back

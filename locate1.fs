@@ -197,7 +197,7 @@ no-</>
 : locate ( "name" -- ) \ gforth
     \g Show the source code of the word @i{name} and set the current
     \g location there.
-    view' .rec'-stack dup 0= #-13 and throw  xt-locate ;
+    view' .rec'-stack ?found xt-locate ;
 
 ' locate alias view ( "name" -- )
 

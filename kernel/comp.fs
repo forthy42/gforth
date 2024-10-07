@@ -482,7 +482,7 @@ $BF000000. 1 cells 8 = [IF] #32 dlshift [THEN] dValue synonym-mask \ do not copy
     \G interpretation semantics, same compilation semantics, same
     \G @code{to}/@code{defer!} and @code{defer@@} semantics.
     ['] parse-name create-from
-    ?parse-name find-name dup 0= #-13 and throw
+    ?parse-name find-name ?found
     dup >f+c @ synonym-mask and latest >f+c +!
     ['] s>int ['] s>comp synonym, reveal ;
 
