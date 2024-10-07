@@ -1580,7 +1580,7 @@ defer reprocess-prim
 ' reprocess-simple is reprocess-prim
 
 : lookup-prim ( c-addr u -- prim )
-    primitives find-name-in ?found execute ;
+    primitives search-wordlist 0= -13 and throw execute ;
 
 : state-prim2 { in-state out-state prim -- }
     in-state state-enabled? out-state state-enabled? and 0= ?EXIT
@@ -1662,7 +1662,7 @@ defer reprocess-prim
 \ doesn't work yet: stack caching for super instructions
 \ : lookup-combinations ( c-addr u -- prim )
 \     combined-prims num-combined @ cells
-\     combinations find-name-in ?found execute ;
+\     combinations search-wordlist 0= -13 and throw execute ;
 
 \ : super-states ( "name1" .. "name_n" -- )
 \     0 num-combined !
