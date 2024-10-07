@@ -48,13 +48,13 @@ s" Config error" exception Value config-throw
 ' translate-dnum   is >config
 :noname '%' ['] f! ['] fdrop exec-config ;
 ' translate-float  is >config
-' .config-err ' notfound is >config
 
 : config-line ( -- )
 \    current-sourceview .sourceview ." : config line='" source type ." '" cr
     source nip 0= ?EXIT
     '=' parse -trailing 2>r
-    parse-name config-recognize 2r> rot >config
+    parse-name config-recognize 2r> rot
+    ?dup-IF  >config  ELSE  2drop .config-err  THEN
     postpone \ ;
 
 : read-config-loop ( -- )

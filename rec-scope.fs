@@ -23,16 +23,15 @@
     \G separator does not occur in the input string of @code{$split}.
     dup 0= IF  over >r 2over + r> =  ELSE  false  THEN ;
 
-: scope-split ( addr u wid -- nt rectype-nt | notfound )
+: scope-split ( addr u wid -- nt rectype-nt | 0 )
     BEGIN  >r
 	':' $split nosplit? IF  2drop r> execute  EXIT  THEN
-	2swap r> execute
-	['] notfound <> WHILE
+	2swap r> execute  WHILE
 	    dup >does-code [ ' forth >does-code ]L = WHILE
 		>wordlist  REPEAT  drop  THEN
-    2drop ['] notfound ;
+    2drop 0 ;
 
-: rec-scope ( addr u -- nt rectype-nt | notfound ) \ gforth-experimental
+: rec-scope ( addr u -- nt rectype-nt | 0 ) \ gforth-experimental
     \G Recognizes strings of the form (simplified)
     \G @code{@i{wordlist}:@i{word}}, where wordlist is found in the
     \G search order.  The result is the same as for @code{rec-nt} for
@@ -71,8 +70,7 @@ action-of forth-recognize set-stack
 	2dup ':' $split nosplit? IF
 	    2drop 2drop r> ?search-prefix  EXIT
 	THEN
-	2swap r> ?dup-0=-IF  ['] search-order  THEN  execute
-	['] notfound <>  WHILE
+	2swap r> ?dup-0=-IF  ['] search-order  THEN  execute  WHILE
 	    dup >does-code [ ' forth >does-code ]L =  WHILE
 		>wordlist >r 2nip r>  REPEAT  drop  THEN
     2drop simple-search-prefix ;

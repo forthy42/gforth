@@ -83,7 +83,7 @@ Defer hash-alloc ( addr -- addr )
 
 : hash-find ( addr len wordlist -- nfa / false )
     >r 2dup r> bucket @ (hashlfind) ;
-: hash-rec ( addr len wordlist-id -- nfa translate-nt / notfound )
+: hash-rec ( addr len wordlist-id -- nfa translate-nt / 0 )
     ( 0 wordlist-id - ) \ this cancels out, optimizer is not available yet
     hash-find nt>rec ;
 

@@ -26,7 +26,7 @@
 \ The "design pattern" used here is the *factory*, even though
 \ the recognizer does not return a full-blown object.
 \ A recognizer has the stack effect
-\ ( addr u -- token table | addr u notfound )
+\ ( addr u -- token table | addr u 0 )
 \ where the token is the result of the parsing action (can be more than
 \ one stack or live on other stacks, e.g. on the FP stack)
 \ and the table contains three actions (as array of three xts):
@@ -77,21 +77,22 @@ translate: translate-num ( x -- | x ) \ gforth-experimental
 translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
 \G translate a double number
 
+: ?found ( token | 0 -- token | 0 ) \ gforth-experimental
+    dup 0= IF  #-13 throw  THEN ;
 : translate-nt? ( token -- flag )
     \G check if name token; postpone action may differ
-    >body 2@ ['] translate-nt >body 2@ d= ;
-: nt>rec ( nt / 0 -- nt translate-nt / notfound )
-    dup IF  dup where, ['] translate-nt  ELSE  drop ['] notfound  THEN ;
+    dup IF  >body 2@ ['] translate-nt >body 2@ d=  THEN ;
+: nt>rec ( nt / 0 -- nt translate-nt / 0 )
+    dup IF  dup where, ['] translate-nt  THEN ;
 
 \ snumber? should be implemented as recognizer stack
 
-: rec-num ( addr u -- n/d table | notfound ) \ gforth-experimental
+: rec-num ( addr u -- n/d table | 0 ) \ gforth-experimental
     \G converts a number to a single/double integer
     snumber?  dup
     IF
 	0> IF  ['] translate-dnum  ELSE  ['] translate-num  THEN  EXIT
-    THEN
-    drop ['] notfound ;
+    THEN ;
 
 \ generic stack get/set; actually, we don't need this for
 \ the recognizer any more, but other parts of the kernel use it.
@@ -127,9 +128,9 @@ translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
 : stack# ( stack -- elements )
     $@len cell/ ;
 
-: minimal-recognize ( addr u -- ... translate-xt / notfound ) \ gforth-internal
+: minimal-recognize ( addr u -- ... translate-xt / 0 ) \ gforth-internal
     \g Sequence of @code{rec-nt} and @code{rec-num}
-    2>r 2r@ rec-nt dup ['] notfound = IF  drop 2r@ rec-num  THEN  2rdrop ;
+    2>r 2r@ rec-nt dup 0= IF  drop 2r@ rec-num  THEN  2rdrop ;
 
 ( ' rec-num ' rec-nt 2 combined-recognizer: default-recognize ) \ see pass.fs
 \G The system recognizer
@@ -147,7 +148,7 @@ Defer forth-recognize ( c-addr u -- ... translate-xt ) \ recognizer
 
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
-    parse-name forth-recognize >postpone
+    parse-name forth-recognize ?found >postpone
     \ -2 state !@ >r parse-name forth-recognize execute
     \ r> state !
 ; immediate restrict

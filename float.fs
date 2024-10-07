@@ -212,9 +212,9 @@ translate: translate-float ( r -- | r ) \ gforth-experimental
 \G A translator for a float number.
 ' translate-float Constant rectype-float
 
-: rec-float ( addr u -- r translate-float | notfound ) \ gforth-experimental
+: rec-float ( addr u -- r translate-float | 0 ) \ gforth-experimental
     \G recognize floating point numbers
-    prefix-number ['] translate-float ['] notfound rot select ;
+    prefix-number ['] translate-float and ;
 
 ' rec-float ' forth-recognize defer@ >back
 

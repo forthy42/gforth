@@ -24,13 +24,13 @@
 	[: ['] translate-nt = ;] try-recognize ;
 [THEN]
 
-: rec-body ( addr u -- xt translate-num | notfound ) \ gforth-experimental
+: rec-body ( addr u -- xt translate-num | 0 ) \ gforth-experimental
     \G words bracketed with @code{'<'} @code{'>'} return their body.
     \G Example: @code{<dup>} gives the body of dup
     over c@ '<' <> >r  2dup + 1- c@ '>' <> r> or
-    if 2drop ['] notfound exit then
+    if 2drop 0 exit then
     1 /string 1- '+' $split 2>r ?rec-nt
-    0= if  2rdrop ['] notfound exit then
+    0= if  2rdrop 0 exit then
     name>interpret >body
     2r> dup 0= if  2drop ['] translate-num  exit  then
     case  rec-num

@@ -177,7 +177,7 @@ is ?warning
     ['] shadow-warning ?warning IF  2drop  EXIT  THEN
     warnings @ >r warnings off
     sp@ fp@ 2>r 2dup warning-recs recognize 2r> rot >r
-    fp! sp! r> ['] notfound <>  r> dup warnings ! 0<> and
+    fp! sp! r> 0<>  r> dup warnings ! 0<> and
     ['] shadow-num-warning ?warning  2drop
 ; is check-shadow
 [then]
@@ -261,15 +261,14 @@ Variable rec'[]
     rec'[] $free  action-of trace-recognizer >r
     sp@ 2 cells + fp@ 2>r  name-too-short?
     [: rec-level @ rec'[] $[] ! ;] is trace-recognizer
-    forth-recognize
+    forth-recognize ?found
     dup translate-nt? IF  drop rec'[] $free
     ELSE
 	dup ['] translate-num = IF
 	    drop dup xt? 0= IF  drop rec'@  THEN
 	ELSE  drop  rec'@  THEN
     THEN
-    2r> rot >r fp! sp! r>  r> is trace-recognizer
-    dup ['] notfound = -#13 and throw ;
+    2r> rot >r fp! sp! r>  r> is trace-recognizer ;
 
 : view' ( "name" -- xt ) \ gforth-internal
     \G @var{xt} is either the word to view if it is a word

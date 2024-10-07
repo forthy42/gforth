@@ -44,8 +44,8 @@ s" quotation.db" ' included ' brackets-recognizer recognize-execute
 
 ' bracket( >wordlist ' )bracket >wordlist 2 recognizer-sequence: brackets
 
-: ?notfound ( nt rectype-nt / notfound -- value )
-    ['] notfound = IF  0  ELSE  execute  THEN ;
+: ?notfound ( nt rectype-nt / 0 -- value )
+    0= IF  0  ELSE  execute  THEN ;
 
 : bracket<> ( xchar -- xchar' / 0 )
     ['] xemit $tmp brackets ?notfound ;

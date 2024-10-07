@@ -155,7 +155,7 @@ inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline obsolete
     \G create a new recognizer table
     rectype Constant ;
 
-' notfound AConstant rectype-null \ gforth-obsolete
+0 Constant rectype-null \ gforth-obsolete
 ' translate-nt AConstant rectype-nt \ gforth-obsolete
 ' translate-num AConstant rectype-num \ gforth-obsolete
 ' translate-dnum AConstant rectype-dnum \ gforth-obsolete

@@ -249,7 +249,7 @@ struct
     cell% field wordlist-extend \ wordlist extensions (eg bucket offset)
 end-struct wordlist-struct
 
-: rec-f83 ( addr len wordlist-id-addr -- nt translate-nt / notfound )
+: rec-f83 ( addr len wordlist-id-addr -- nt translate-nt / 0 )
     @ (listlfind) nt>rec ;
 
 \ : initvoc		( wid -- )
@@ -318,14 +318,11 @@ forth-wordlist current !
 : no.extensions  ( -- )
     -&13 throw ;
 
-' no.extensions dup dup translate: notfound ( state -- ) \ gforth-experimental
-\G If a recognizer fails, it returns @code{notfound}
-
 : find-name-in  ( c-addr u wid -- nt | 0 ) \ gforth
     \G search the word list identified by @i{wid} for the definition
     \G named by the string at @i{c-addr u}. Return its @i{nt}, if
     \G found, otherwise 0.
-    execute ['] notfound = IF  0  THEN ;
+    execute dup IF  drop  THEN ;
 
 : search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
     \G Search the word list identified by @i{wid} for the definition
@@ -339,7 +336,7 @@ forth-wordlist current !
 	(name>intn)
     then ;
 
-Defer rec-nt ( addr u -- nt translate-nt | notfound ) \ gforth-experimental
+Defer rec-nt ( addr u -- nt translate-nt | 0 ) \ gforth-experimental
 \G recognize a name token
 
 : find-name ( c-addr u -- nt | 0 ) \ gforth
@@ -608,8 +605,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 \ ticks in interpreter
 
 : '-error ( nt -- nt )
-    dup ['] notfound = #-13 and throw
-    translate-nt? 0= #-2053 and throw ;
+    ?found translate-nt? 0= #-2053 and throw ;
 
 : (') ( "name" -- nt ) \ gforth-internal
     parse-name name-too-short? forth-recognize '-error ;
@@ -648,7 +644,7 @@ defer int-execute ( ... xt -- ... )
     BEGIN
 	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
     WHILE
-	forth-recognize execute
+	forth-recognize ?found execute
     REPEAT
     2drop @local0 >r lp+ ;
 

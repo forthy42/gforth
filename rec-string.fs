@@ -35,12 +35,12 @@ s" Scanned string not in input buffer" exception >r
 :noname scan-string slit, postpone 2lit, ;
 translate: scan-translate-string
 
-: rec-string ( addr u -- addr u' scan-translate-string | notfound ) \ gforth-experimental
+: rec-string ( addr u -- addr u' scan-translate-string | 0 ) \ gforth-experimental
     \G Convert strings enclosed in double quotes into string literals,
     \G escapes are treated as in @code{S\"}.
     2dup s\" \"" string-prefix?
     IF    ['] scan-translate-string
-    ELSE  2drop ['] notfound  THEN ;
+    ELSE  2drop 0  THEN ;
 
 ' rec-string action-of forth-recognize >back
 
@@ -51,10 +51,10 @@ translate: scan-translate-string
 :noname scan-string slit, ]] 2lit, type [[ ; >postponer translate: translate-."
 ' translate-." Constant rectype-." \ gforth-obsolete
 
-: rec-."  ( addr u -- addr u' translate-." | notfound )
+: rec-."  ( addr u -- addr u' translate-." | 0 )
     2dup ".\"" string-prefix?
     IF    ['] scan-translate-."
-    ELSE  2drop ['] notfound  THEN ;
+    ELSE  2drop 0  THEN ;
 
 ' rec-." action-of forth-recognize >back
 [THEN]

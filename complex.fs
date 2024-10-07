@@ -212,13 +212,13 @@ translate: translate-complex
     ELSE  defers locals-post,
     THEN ; is locals-post,
 
-: rec-complex ( addr u -- z translate-complex | notfound ) \ gforth
+: rec-complex ( addr u -- z translate-complex | 0 ) \ gforth
     \G Complex numbers are always in the format a+bi, where a and b are
     \G floating point numbers including their signs
     2dup + 1- c@ 'i' = IF
 	1- '+' $split 2swap prefix-number >r prefix-number r>
 	2dup <> IF  fdrop  THEN  and
-	['] translate-complex ['] notfound rot select
-    ELSE  2drop ['] notfound  THEN ;
+	['] translate-complex and
+    ELSE  2drop 0  THEN ;
 
 ' rec-complex ' rec-float action-of forth-recognize +after

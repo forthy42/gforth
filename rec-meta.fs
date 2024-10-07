@@ -18,7 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: rec-meta ( addr u -- xt translate-to | notfound ) \ gforth
+: rec-meta ( addr u -- xt translate-to | 0 ) \ gforth
     \G words prefixed with @var{recognizer}@code{?} are processed by
     \G @code{rec-}@var{recognizer} to disambiguate recognizers.
     \G Example: @code{hex num?cafe num?add} will be parsed as number only
@@ -29,6 +29,6 @@
 	    name?int execute  EXIT
 	THEN
     THEN
-    2drop ['] notfound ;
+    2drop 0 ;
 
 ' rec-meta action-of forth-recognize >back

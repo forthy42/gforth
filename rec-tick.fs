@@ -24,22 +24,22 @@
 	[: ['] translate-nt = ;] try-recognize ;
 [THEN]
 
-: rec-tick ( addr u -- xt translate-num | notfound ) \ gforth-experimental
+: rec-tick ( addr u -- xt translate-num | 0 ) \ gforth-experimental
     \G words prefixed with @code{`} return their xt.
     \G Example: @code{`dup} gives the xt of dup
     over c@ '`' = if
         1 /string ?rec-nt if
             ?compile-only name>interpret ['] translate-num exit  then
-        ['] notfound exit  then
-    2drop ['] notfound ;
+        0 exit  then
+    2drop 0 ;
 
-: rec-dtick ( addr u -- nt translate-num | notfound ) \ gforth-experimental
+: rec-dtick ( addr u -- nt translate-num | 0 ) \ gforth-experimental
     \G words prefixed with @code{``} return their nt.
     \G Example: @code{``S"} gives the nt of @code{S"}
     2dup "``" string-prefix? if
 	2 /string ?rec-nt if  ['] translate-num exit then  0
-        ['] notfound exit  then
-    2drop ['] notfound ;
+        0 exit  then
+    2drop 0 ;
 
 ' rec-dtick action-of forth-recognize >back
 ' rec-tick action-of forth-recognize >back

@@ -27,7 +27,7 @@ Defer trace-recognizer  ' drop is trace-recognizer
     1 rec-level +!  -rot >l >l
     $@ bounds cell- swap cell- U-DO
 	@local0 @local1 I perform
-	dup ['] notfound <>  IF
+	dup  IF
 	    -1 rec-level +!
 	    I @ trace-recognizer  UNLOOP  [ cell 8 = ] [IF] lp+2 [ELSE] lp+ [THEN] EXIT  THEN  drop
 	cell [ 2 cells ] Literal I cell- 2@ <> select \ skip double entries
@@ -35,7 +35,7 @@ Defer trace-recognizer  ' drop is trace-recognizer
 	\ has a very likely hit.  So doubles will be skipped, tripples not
     -loop
     -1 rec-level +!
-    ['] notfound [ cell 8 = ] [IF] lp+2 [ELSE] lp+ [THEN] ;
+    0 [ cell 8 = ] [IF] lp+2 [ELSE] lp+ [THEN] ;
 
 : recognizer-sequence: ( xt1 .. xtn n "name" -- ) \ gforth-experimental
     \G concatenate a stack of recognizers to one recognizer with the
@@ -46,7 +46,7 @@ Defer trace-recognizer  ' drop is trace-recognizer
 \ : rec-sequence ( xt1 .. xtn n "name" -- ) \ gforth
 \     n>r : nr> ]] 2>r [[ 0 ?DO
 \ 	]] 2r@ [[ compile,
-\ 	]] dup ['] notfound <> IF 2rdrop EXIT THEN drop [[
+\ 	]] dup IF 2rdrop EXIT THEN drop [[
 \     LOOP ]] 2rdrop ; [[ ;
 
 ' rec-num ' rec-nt 2 recognizer-sequence: default-recognize

@@ -10939,8 +10939,7 @@ avoid a conflict by using @code{to myvalue} or @code{to?->myvalue}
 A recognizer is a word to which you pass a string.  If the recognizer
 recognizes the string, it typically returns some data and the xt of a
 word for processing the data; this word is called the translator.  If
-the recognizer does not recognize the string, it returns the xt of
-@code{notfound}.
+the recognizer does not recognize the string, it returns 0.
 
 All recognizers have the stack effect ( c-addr u -- ... xt ).
 
@@ -10963,7 +10962,6 @@ recognizers in the same way as the vocabulary stack.  Recognizer stacks
 are themselves recognizers, i.e. they are executable, take a string and
 return a translator.
 
-doc-notfound
 doc-rec-nt
 doc-rec-num
 doc-rec-float

@@ -24,7 +24,7 @@ require hash.fs
 
 : table-find ( addr len wordlist -- nfa / false )
     >r 2dup r> bucket @ (tablelfind) ;
-: table-rec ( addr len wordlist-id -- nfa translate-nt / notfound )
+: table-rec ( addr len wordlist-id -- nfa translate-nt / 0 )
     0 wordlist-id - table-find nt>rec ;
 
 ' tablevoc-to  ' table-rec wordlist-class

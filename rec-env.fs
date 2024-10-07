@@ -22,13 +22,13 @@
 
 ' getenv ' env$, ' slit, >postponer translate: translate-env
 
-: rec-env ( addr u -- addr u translate-env | notfound ) \ gforth
+: rec-env ( addr u -- addr u translate-env | 0 ) \ gforth
     \G words enclosed by @code{$@{} and @code{@}} are passed to @code{getenv}
     \G to get the OS-environment variable as string.
     \G Example: @code{$@{HOME@}} gives the home directory.
     2dup s" ${" string-prefix? 0= >r
     2dup + 1- c@ '}' <> r> or
-    IF  2drop  ['] notfound  EXIT  THEN
+    IF  2drop  0  EXIT  THEN
     2 /string 1- ['] translate-env ;
 
 ' rec-env action-of forth-recognize >back

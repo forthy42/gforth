@@ -22,8 +22,7 @@
     \G special defer word to recover the input lexeme
     Create ['] no.extensions ,
     [: >r input-lexeme 2@ r> @ execute-;s ;] set-does>
-    ['] defer-defer@ set-defer@
-    ['] value-to set-to ;
+    ['] defer-is set-to ;
 
 notfound: interpret-notfound1 ( addr u -- )
 \g Legacy hook for words not found during interpretation
@@ -32,6 +31,12 @@ notfound: compiler-notfound1 ( addr u -- )
 notfound: postpone-notfound1 ( addr u -- )
 \g Legacy hook for words not found during postpone
 
-' interpret-notfound1 ' notfound >body !
-' compiler-notfound1  ' notfound >body cell+ !
-' postpone-notfound1  ' notfound >body 2 cells + !
+' interpret-notfound1
+' compiler-notfound1
+' postpone-notfound1
+translate: notfound
+
+: old-?found ( token | 0 -- token | 0 )
+    dup 0= IF  drop input-lexeme 2@ notfound  THEN ;
+
+' old-?found ' ?found replace-word

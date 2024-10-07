@@ -240,7 +240,7 @@ translate: translate-[[
 
 : rec-[[ ( addr u -- token ) \ gforth-internal rec-left-bracket-bracket
     \ recognizer for "[["; when it is recognized, postpone state ends.
-    s" [[" str=  ['] translate-[[ ['] notfound rot select ;
+    s" [[" str=  ['] translate-[[ and ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G Switch into postpone state: All words and recognizers are

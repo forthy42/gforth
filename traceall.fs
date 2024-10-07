@@ -23,7 +23,7 @@
 	sourceline# .
 	depth  IF            .s  THEN
 	fdepth IF  'F' emit f.s  THEN
-	." | " r> source + over - type cr ;] do-debug ['] notfound ;
+	." | " r> source + over - type cr ;] do-debug 0 ;
 
 : traceall  get-recognizers ['] rec-trace swap 1+ set-recognizers ;
 : notrace   get-recognizers over ['] rec-trace = IF  nip 1-  THEN

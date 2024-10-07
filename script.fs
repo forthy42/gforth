@@ -22,12 +22,12 @@
 : system, slit, postpone >system ;
 ' >system ' system, ' slit, >postponer translate: translate-eval
 
-: rec-shell ( addr u -- addr u' translate-eval | notfound )
+: rec-shell ( addr u -- addr u' translate-eval | 0 )
     \G evaluate string + rest of command line
     over source drop = IF
 	drop source drop - >in ! source >in @ /string dup >in +!
 	['] translate-eval
-    ELSE  2drop ['] notfound  THEN ;
+    ELSE  2drop 0  THEN ;
 ' rec-shell get-recognizers 1+ set-recognizers
 
 User sh$  cell uallot drop
