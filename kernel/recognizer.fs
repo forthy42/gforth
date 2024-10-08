@@ -77,7 +77,8 @@ translate: translate-num ( x -- | x ) \ gforth-experimental
 translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
 \G translate a double number
 
-: ?found ( token | 0 -- token | 0 ) \ gforth-experimental
+: ?found ( token|0 -- token|never ) \ gforth-experimental
+    \G performs an undefined word @code{throw} if the @var{token} is 0.
     dup 0= IF  #-13 throw  THEN ;
 : translate-nt? ( token -- flag )
     \G check if name token; postpone action may differ

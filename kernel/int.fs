@@ -604,8 +604,8 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 
 \ ticks in interpreter
 
-: '-error ( nt -- nt )
-    ?found translate-nt? 0= #-2053 and throw ;
+: '-error ( translate-nt|x -- translate-nt|never ) \ gforth-internal
+    ?found translate-nt? 0= #-32 and throw ;
 
 : (') ( "name" -- nt ) \ gforth-internal
     parse-name name-too-short? forth-recognize '-error ;

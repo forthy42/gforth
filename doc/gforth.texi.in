@@ -10941,17 +10941,17 @@ recognizes the string, it typically returns some data and the xt of a
 word for processing the data; this word is called the translator.  If
 the recognizer does not recognize the string, it returns 0.
 
-All recognizers have the stack effect ( c-addr u -- ... xt ).
+All recognizers have the stack effect ( c-addr u -- i*x xt | 0 ).
 
 
 
-Recognizers take a string and return some data and a translator for
-interpreting that data.  Gforth implements that translator as xt
-(executing it will perform the appropriate action to handle the token in
-the current state), but other Forth systems may implement it as actual
-table, with three xts inside.  The first xt is the
-interpretation/run-time xt, it performs the interpretation semantics on
-the data (usually, this means it just leaves the data on the stack).
+Recognizers take a string and on success return some data and a
+translator for interpreting that data.  Gforth implements that
+translator as xt (executing it will perform the appropriate action to
+handle the token in the current state), but other Forth systems may
+implement it as actual table, with three xts inside.  The first xt is
+the interpretation/run-time xt, it performs the interpretation semantics
+on the data (usually, this means it just leaves the data on the stack).
 The second xt performs the compilation semantics, it gets the data and
 the run-time semantics xt.  The third xt perfoms the postpone semantics,
 it also gets the data and the run-time semantics xt.  You can use
@@ -10981,6 +10981,7 @@ doc-recognizer-sequence:
 doc-forth-recognize
 doc-forth-recognizer
 doc-set-forth-recognize
+doc-?found
 doc-translate:
 doc-translate-nt
 doc-translate-num
