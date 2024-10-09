@@ -604,7 +604,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 
 \ ticks in interpreter
 
-: '-error ( translate-nt|x -- translate-nt|never ) \ gforth-internal
+: '-error ( nt translate-nt -- nt | translate-some -- never ) \ gforth-internal
     ?found translate-nt? 0= #-32 and throw ;
 
 : (') ( "name" -- nt ) \ gforth-internal
