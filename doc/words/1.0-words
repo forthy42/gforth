@@ -847,12 +847,12 @@ tmp$# tmp$[] $+[]! $[]@ $[]# $[]+! $[]! $off $over place rpick open-warp
 time&date (xparse) string-parse [char] char append s+ traverse-matched-dir 
 traverse-dir try-read-dir adjust-buffer init-buffer buffer% buffer-maxlength 
 buffer-address buffer-length buffer-descriptor rectype-word translate-word 
-basic-help 2Value dummy-2value 2value-to 2value-compile, nr> n>r \\\ th dump 
-hex.r hex. h. dec. base-execute derived-output: derived-input: 
-execute-theme-color theme-color infile-execute outfile-execute xaligned xalign 
-laligned lalign waligned walign *align *aligned xd, x, l, w, xd>s x>s xdle xle 
-lle wle xdbe xbe lbe wbe /x /l /w typewhite f.s f.s-precision f.rdp f>str-rdp 
-f>buf-rdp f>buf-rdp-try push-right mem+do mem-do u-[do -[do general-mem+loop 
+basic-help 2Value dummy-2value 2value-to nr> n>r \\\ th dump hex.r hex. h. 
+dec. base-execute derived-output: derived-input: execute-theme-color 
+theme-color infile-execute outfile-execute xaligned xalign laligned lalign 
+waligned walign *align *aligned xd, x, l, w, xd>s x>s xdle xle lle wle xdbe 
+xbe lbe wbe /x /l /w typewhite f.s f.s-precision f.rdp f>str-rdp f>buf-rdp 
+f>buf-rdp-try push-right mem+do mem-do u-[do -[do general-mem+loop 
 const-mem+loop array>mem mem*do-noconstant ]] rec-[[ rectype-[[ translate-[[ 
 try-recognize +after -stack set-recognizers get-recognizers 
 set-forth-recognize forth-recognizer set-recognizer-sequence 
@@ -881,7 +881,7 @@ NaN -inf -infinity inf infinity 1/f f2/ f2* pi fvariable rec-float
 rectype-float translate-float >postponer fp. prefix-number zero-exp 
 si-prefixes sfnumber fs. fe. f. f$space f$ -zeros zeros scratch set-precision 
 precision fclearstack fdepth fvalue dummy-fvalue fvalue-to f!-table f+! 
-fconstant opt-fcon opt-fval FLiteral flit, f, dfloat+ sfloat+ dfalign sfalign 
+fconstant opt-fcon FLiteral flit, f, dfloat+ sfloat+ dfalign sfalign 
 dump-sections extra-section >extra-sections #>section section# lits<> 
 new-section create-section which-section? sections-execute section-execute 
 set-section extra-section-error first-section-error image-offset 
@@ -969,7 +969,7 @@ defer-default (Field) to-table-size# AValue Value AConstant Constant (Value)
 synonym? Synonym synonym-mask alias? Alias synonym, s-compile, s-to s>comp 
 s>int a>comp a>int obsolete compile-only restrict immediate imm>comp lastflags 
 or! ," postpone ] [ forth-recognize minimal-recognize stack# stack> >stack 
-stack do-stack: stack: set-stack get-stack rec-num nt>rec translate-nt? 
+stack do-stack: stack: set-stack get-stack rec-num nt>rec translate-nt? ?found 
 translate-dnum translate-num translate-nt name-compsem >postpone translate: 
 do-translate 2lit, lit, postpone, [COMP'] COMP' ['] default-i/c 
 default-name>comp flush-code peephole-compile, prim-check name>view addr>view 
@@ -997,9 +997,9 @@ initwl defer@ hmsize name>link name>string name>compile name>interpret (to)
 opt-compile, >namehm >cfa >link >f+c >hm>link >hm>string >hm>comp >hm>int 
 >hmextra >hmto >hmcompile, >hmlink ((name>)) (x>int) compile-only-error 
 ticking-compile-only-error flag-sign lcount-mask obsolete-mask restrict-mask 
-find-name rec-nt search-wordlist find-name-in notfound no.extensions (where,) 
-where, where-struct where-loc where-nt wheres context voclink current 
-f83search forth-wordlist rec-f83 wordlist-struct wordlist-extend wordlist-link 
+find-name rec-nt search-wordlist find-name-in no.extensions (where,) where, 
+where-struct where-loc where-nt wheres context voclink current f83search 
+forth-wordlist rec-f83 wordlist-struct wordlist-extend wordlist-link 
 wordlist-id wordlist-map wordlist-exec wordlist-start \G \ ( number (number?) 
 snumber? s>number s>number? s>unumber? ?warn# s'>unumber? ?dnegate sign? 
 getbase bases name-too-long? name-too-short? (name) parse (parse) 
