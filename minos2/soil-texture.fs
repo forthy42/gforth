@@ -20,13 +20,9 @@
 
 require gl-helper.fs
 require unix/stb-image.fs
-\ s" unix/soil2.fs" open-fpath-file 0= [IF]
-\     \ prefer soil2 over soil
-\     2drop close-file throw
-\     require ../unix/soil2lib.fs
-\ [ELSE]
-\     require ../unix/soillib.fs
-\ [THEN]
+"unix/webp.fs" ' file>fpath catch nip nip 0= [IF]
+    require unix/webp.fs
+[THEN]
 require jpeg-exif.fs
 
 \ also soil

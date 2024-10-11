@@ -26,6 +26,7 @@ require mini-oof2.fs
 s" Invalid JPEG file" exception Constant !!no-jpeg!!
 s" Exif exhausted"    exception Constant !!oo-exif!!
 s" Not an Exif chunk" exception Constant !!no-exif!!
+s" Invalid WEBP file" exception Constant !!no-webp!!
 
 user-o exif-o
 
@@ -44,6 +45,7 @@ object uclass exif-o
     cell uvar img-h
     cell uvar ©-notice
     cell uvar artist
+    cell uvar exif-pad
 
     umethod exb
     umethod ex-seek? ( -- u )
@@ -63,8 +65,9 @@ exif-class ' new static-a with-allocater dup constant file-exif-o exif-o !
 : file-ex-seek ( u -- )
     0 jpeg-fd @ reposition-file throw ;
 : file-exif-read ( n -- addr u )
-    pad swap jpeg-fd @ read-file throw
-    pad swap ;
+    exif-pad $free exif-pad $!len
+    exif-pad $@ jpeg-fd @ read-file throw
+    exif-pad $@ drop swap ;
 : file-exif>read ( addr u -- u' )
     jpeg-fd @ read-file throw ;
 : file>exif-open ( addr u -- )
@@ -96,7 +99,8 @@ exif-mem-class new exif-o !
 : mem-ex-seek ( u -- )
     exif-pos ! ;
 : mem-exif-read ( u -- addr u )
-    >r mem-exif/ r@ umin pad swap 2dup 2>r move 2r>
+    exif-pad $free dup exif-pad $!len
+    >r mem-exif/ r@ umin exif-pad $@ 2dup 2>r move 2r>
     r> exif-pos +! ;
 : mem-exif>read ( addr u -- u' )
     2>r mem-exif/ r> umin dup exif-pos +! r> swap dup >r move r> ;
@@ -117,7 +121,7 @@ exif-mem-class new exif-o !
 
 exif>
 
-: jpeg+seek ( n -- )  ex-seek? + ex-seek ;
+: +seek ( n -- )  ex-seek? + ex-seek ;
 
 : ?tag ( -- )
     exb $FF <> IF  !!no-jpeg!! throw  THEN ;
@@ -128,15 +132,23 @@ exif>
 
 : ?soi ( -- )  read-tag $D8 <> IF  !!no-jpeg!! throw  THEN ;
 
-: search-exif ( -- len )
+: search-exif.jpeg ( -- len )
     BEGIN  read-tag dup $D9 $DB within IF  drop 0  EXIT  THEN
-	$E1 <>  WHILE  read-len jpeg+seek  REPEAT
+	$E1 <>  WHILE  read-len +seek  REPEAT
     read-len ;
+: search-exif.webp ( -- len )
+    BEGIN  4 exif-read "EXIF" str= 0= WHILE
+	    4 exif-read 4 = WHILE   l@ lle +seek  REPEAT
+	drop 0  EXIT  THEN
+    4 exif-read 4 = IF  l@ lle  ELSE  drop 0  THEN ;
 
-: >exif-st ( -- flag )
-    ?soi search-exif  dup 0= ?EXIT  ex-seek? + exif-end !  true ;
-: >exif ( addr u -- flag )
-    >exif-open  >exif-st ;
+: >exif-st.jpeg ( -- flag )
+    ?soi search-exif.jpeg  dup 0= ?EXIT  ex-seek? + exif-end !  true ;
+: >exif-st.webp ( -- flag )
+    4 exif-read "RIFF" str= 0= IF  !!no-webp!! throw  THEN
+    4 exif-read 2drop
+    4 exif-read "WEBP" str= 0= IF  !!no-webp!! throw  THEN
+    search-exif.webp dup 0= ?EXIT  ex-seek? + exif-end !  true ;
 
 \ exif tags
 
@@ -156,12 +168,13 @@ exif>
 : exl ( -- long )
     exw exw ex>< 16 lshift or ;
 
-: >exif-start ( -- )
-    ex-seek? exif-start ! ;
+: ?exif-jpeg ( -- )
+    6 exif-read "Exif\0\0" str= 0= IF  !!no-exif!! throw  THEN ;
 
+: exif-start! ( -- )
+    ex-seek? exif-start ! ;
 : ?exif ( -- )
-    6 exif-read "Exif\0\0" str= 0= IF  !!no-exif!! throw  THEN
-    >exif-start
+    exif-start!
     8 exif-read 2dup "II*\0\10\0\0\0" str= IF
 	2drop exif-endian off  EXIT  THEN
     "MM\0*\0\0\0\10" str= IF
@@ -225,13 +238,26 @@ debug: exif( \ )
 
 : thumbnail@ ( -- addr u )
     thumb-off @ thumb-len @ dup IF  exif-slurp  THEN ;
-: >thumb-scan ( fn-addr u1 -- )
-    >exif-open
+: exif-init ( -- )
     img-orient off  thumb-off off  thumb-len off
-    exif-idf off  intop-idf off  exif-gps off
-    >exif-st IF  ?exif >thumb  exl exif-seek >thumb
-\	exif-idf @ ?dup-IF  exif-seek >thumb  THEN
-\	exif-gps @ ?dup-IF  exif-seek >thumb  THEN
+    exif-idf off  intop-idf off  exif-gps off ;
+: suffix ( addr u -- addr' u' )
+    2dup '.' scan-back nip /string ;
+: >exif ( addr u -- flag )
+    2dup suffix 2>r
+    >exif-open
+    2r@ "JPG" capscompare 0= 2r@ "JPEG" capscompare 0= or
+    IF	>exif-st.jpeg
+	?exif-jpeg
+    ELSE
+	2r@ "WEBP" capscompare 0=
+	IF    >exif-st.webp
+	ELSE  false  THEN
+    THEN  2rdrop ;
+: >thumb-scan ( fn-addr u1 -- )
+    exif-init >exif
+    IF
+	?exif >thumb  exl exif-seek >thumb
     THEN ;
 
 : exif-close ( -- )

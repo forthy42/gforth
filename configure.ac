@@ -1856,6 +1856,13 @@ fi
 				   SWIGDISTFSI="$SWIGDISTFSI opus.fs"
 		      ,), ,)
    fi
+   if test x$has_swig = xyes || test -f $srcdir/unix/webp-fsi.c; then
+      AC_CHECK_LIB(webp,WebPDecodeRGBA,
+      AC_CHECK_HEADER(webp/decode.h, SWIGMODULES="$SWIGMODULES webp.fs"
+      				     SWIGLIBS="$SWIGLIBS webp.fs"
+				     SWIGDISTFSI="$SWIGDISTFSI webp.fs"
+		      ,), ,)
+   fi
 else
    MINOSFLAG=false
 fi
