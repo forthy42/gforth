@@ -105,6 +105,8 @@ function gen_brotli {
       done))
 }
 
+#make and install webp
+
 function gen_webp {
     (cd ~/Downloads 
      test -f $WEBP.tar.gz || wget https://storage.googleapis.com/downloads.webmproject.org/releases/webp/$WEBP.tar.gz)
@@ -113,7 +115,8 @@ function gen_webp {
      ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr CC="$TARGET-gcc" CFLAGS="-D__ANDROID_API__=21 -fPIC"
      make -j$nprocs
      make install)
-     
+}
+
 #make and install freetype, part 1 (no harfbuzz)
 
 function gen_freetype {
