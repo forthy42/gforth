@@ -13,7 +13,7 @@ RUN apt-get -y update \
      libgl1-mesa-dev libwayland-dev wayland-protocols libvulkan-dev libpng-dev \
      libfreetype-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
      libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
-     libxkbcommon-dev emacs-nox \
+     libxkbcommon-dev libwebp-dev emacs-nox \
   && if [ "`lsb_release -sc`" = "trixie" -a "`gcc -v 2>&1 | tr ' ' '\n' | grep -- --host | cut -f2 -d= | cut -f1 -d-`" = "x86_64" ]; then apt-get -y install texlive-base texlive-latex-base; fi \
   && apt-get clean
 RUN cd /tmp/ \
