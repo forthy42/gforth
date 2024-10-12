@@ -40,6 +40,7 @@ LIBPNG=libpng-1.6.37
 BZIP2=bzip2-1.0.8
 OPUS=opus-1.3.1
 BROTLI=brotli-1.0.9
+WEBP=libwebp-1.4.0
 
 fine=yes
 for i in git wget
@@ -104,6 +105,15 @@ function gen_brotli {
       done))
 }
 
+function gen_webp {
+    (cd ~/Downloads 
+     test -f $WEBP.tar.gz || wget https://storage.googleapis.com/downloads.webmproject.org/releases/webp/$WEBP.tar.gz)
+    tar zxvf ~/Downloads/$WEBP.tar.gz
+    (cd lib$WEBP
+     ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr CC="$TARGET-gcc" CFLAGS="-D__ANDROID_API__=21 -fPIC"
+     make -j$nprocs
+     make install)
+     
 #make and install freetype, part 1 (no harfbuzz)
 
 function gen_freetype {
