@@ -170,6 +170,7 @@ parts:
       - libboost-dev
       - libstb-dev
       - libxkbcommon-dev
+      - libwebp-dev
     stage-packages:
       - locales-all
       - locales
@@ -211,4 +212,5 @@ parts:
       - libxkbcommon0
       - xkb-data
       - breeze-cursor-theme
+      - libwebp7
 EOF
