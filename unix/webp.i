@@ -12,6 +12,9 @@ extern struct _IO_FILE *stderr;
 
 // exec: sed -e 's/^c-library\( .*\)/cs-vocabulary webp\n\nget-current also webp definitions\n\nc-library\1\n/g' -e 's/^end-c-library/end-c-library\nprevious set-current/g'
 
+%apply unsigned long { size_t }
+%apply unsigned int { uint32_t }
+
 %include <webp/types.h>
 %include <webp/decode.h>
 %include <webp/encode.h>

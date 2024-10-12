@@ -1,7 +1,7 @@
 FROM forthy42/gforth:latest
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
-ENV LANG C.UTF-8
-ENV XAUTHORITY /home/gforth/.Xauthority
+ENV LANG=C.UTF-8
+ENV XAUTHORITY=/home/gforth/.Xauthority
 
 USER root
 

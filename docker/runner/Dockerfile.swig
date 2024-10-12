@@ -1,6 +1,6 @@
 FROM alpine:latest
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
-ENV LANG C.UTF-8
+ENV LANG=C.UTF-8
 
 RUN apk add --no-cache pcre libstdc++ && apk add --no-cache --virtual \
     .build-deps build-base autoconf automake git coreutils gcc bison pcre-dev \

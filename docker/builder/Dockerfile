@@ -2,7 +2,7 @@ ARG VERSION=unstable
 ARG ARCH=amd64
 FROM $ARCH/debian:$VERSION
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
-ENV LANG C.UTF-8
+ENV LANG=C.UTF-8
 
 RUN apt-get -y update \
   && apt-get upgrade -y \

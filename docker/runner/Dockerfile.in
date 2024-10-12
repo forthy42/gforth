@@ -1,7 +1,7 @@
 FROM alpine:latest
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
-ENV LANG C.UTF-8
-ENV VERSION @GFORTH_VERSION@
+ENV LANG=C.UTF-8
+ENV VERSION=@GFORTH_VERSION@
 
 RUN adduser -D gforth \
     && apk add --no-cache libltdl libffi \
