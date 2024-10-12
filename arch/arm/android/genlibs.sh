@@ -111,7 +111,7 @@ function gen_webp {
     (cd ~/Downloads 
      test -f $WEBP.tar.gz || wget https://storage.googleapis.com/downloads.webmproject.org/releases/webp/$WEBP.tar.gz)
     tar zxvf ~/Downloads/$WEBP.tar.gz
-    (cd lib$WEBP
+    (cd $WEBP
      ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr CC="$TARGET-gcc" CFLAGS="-D__ANDROID_API__=21 -fPIC"
      make -j$nprocs
      make install)
