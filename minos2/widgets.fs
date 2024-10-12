@@ -974,11 +974,6 @@ atlas-region buffer: (ar)
 
 also freetype-gl
 
-: img>mem ( addr u -- memimg w h )
-    0 0 0 { w^ w w^ h w^ ch# }
-    w h ch# 4 stbi_load_from_memory ( memimg-addr )
-\    w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory ( memimg-addr )
-    w @ h @ ;
 : rgba>style { memimg w h atlas | ar[ atlas-region ] -- ivec4-addr }
     BEGIN
 	ar[ atlas w 1+ h 1+ texture_atlas_get_region

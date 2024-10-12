@@ -29,20 +29,29 @@ require jpeg-exif.fs
 
 : >texture ( addr w h -- )
     third >r rgba-texture mipmap linear-mipmap r> free throw ;
+: mem-webp? ( addr u -- flag )
+    8 safe/string "WEBP" string-prefix? ;
+: img>mem ( addr u -- memimg w h )
+    { | w^ w w^ h w^ ch# }
+    [IFDEF] webp [ also webp ]
+	2dup mem-webp?
+	IF
+	    w h WebPDecodeRGBA
+	ELSE
+	    w h ch# 4 stbi_load_from_memory
+	THEN [ previous ]
+    [ELSE]
+	w h ch# 4 stbi_load_from_memory
+    [THEN]
+    w @ h @ ;
 : mem>texture ( addr u -- w h )
-    over >r  { | w^ w w^ h w^ ch# }
-    w h ch# 4 stbi_load_from_memory
-\    w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory
-    r> free throw w @ h @  2dup 2>r >texture 2r> ;
+    over >r img>mem r> free throw 2dup 2>r >texture 2r> ;
 : load-texture ( addr u -- w h )
     open-fpath-file throw 2drop slurp-fid mem>texture ;
 : >subtex ( addr x y w h -- )
     4 pick >r rgba-subtex wrap-texture mipmap linear-mipmap r> free throw ;
 : mem>subtex ( x y addr u -- w h )
-    over >r  { | w^ w w^ h w^ ch# }
-    w h ch# 4 stbi_load_from_memory
-\    w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory
-    r> free throw -rot w @ h @  2dup 2>r >subtex 2r> ;
+    over >r img>mem r> free throw 2>r -rot 2r@ >subtex 2r> ;
 : load-subtex ( x y addr u -- w h )
     open-fpath-file throw 2drop slurp-fid mem>subtex ;
 

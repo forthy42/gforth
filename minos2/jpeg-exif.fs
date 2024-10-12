@@ -243,14 +243,18 @@ debug: exif( \ )
     exif-idf off  intop-idf off  exif-gps off ;
 : suffix ( addr u -- addr' u' )
     2dup '.' scan-back nip /string ;
+: jpeg? ( addr u -- flag )
+    suffix 2dup "JPG" capscompare 0= >r "JPEG" capscompare 0= r> or ;
+: webp? ( addr u -- flag )
+    suffix "WEBP" capscompare 0= ;
 : >exif ( addr u -- flag )
-    2dup suffix 2>r
+    2dup 2>r
     >exif-open
-    2r@ "JPG" capscompare 0= 2r@ "JPEG" capscompare 0= or
+    2r@ jpeg?
     IF	>exif-st.jpeg
 	?exif-jpeg
     ELSE
-	2r@ "WEBP" capscompare 0=
+	2r@ webp?
 	IF    >exif-st.webp
 	ELSE  false  THEN
     THEN  2rdrop ;

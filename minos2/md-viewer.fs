@@ -141,10 +141,8 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
     /source IF  c@ '(' =  IF  1 >in +! ')' parse link[]  THEN
     ELSE  drop  THEN ;
 
-: jpeg? ( addr u -- flag )
-    dup 4 - 0 max safe/string ".jpg" str= ;
 : img-orient? ( addr u -- flag )
-    2dup jpeg? IF
+    2dup jpeg? >r 2dup webp? r> or IF
 	>thumb-scan  img-orient @ 1- 0 max
     ELSE  2drop 0  THEN ;
 
