@@ -47,7 +47,8 @@
 Create >postpone ( translator -- ) \ gforth-experimental
 \G perform postpone action of translator
 2 cells ,
-DOES> @ + @ execute-;s ;
+DOES> @ over >does-code ['] do-translate <> #-32 and throw
+  + @ execute-;s ;
 
 \ for combined translators better use:
 \   -2 state !@ >r execute r> state ! ;

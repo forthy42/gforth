@@ -28,9 +28,9 @@ apps:
     environment:
       __EGL_VENDOR_LIBRARY_DIRS: \$SNAP/usr/share/glvnd/egl_vendor.d:\$SNAP/etc/glvnd/egl_vendor.d
       GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
-      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
+      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/\$SNAP_ARCH/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
-      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/x86_64-linux-gnu/dri
+      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/\$SNAP_LAUNCHER_ARCH_TRIPLET/dri
       LOCPATH: \$SNAP/usr/lib/locale
       XKB_CONFIG_ROOT: \$SNAP/usr/share/X11/xkb
       PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
@@ -50,9 +50,9 @@ apps:
     environment:
       __EGL_VENDOR_LIBRARY_DIRS: \$SNAP/usr/share/glvnd/egl_vendor.d:\$SNAP/etc/glvnd/egl_vendor.d
       GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
-      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
+      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/\$SNAP_ARCH/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
-      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/x86_64-linux-gnu/dri
+      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/\$SNAP_LAUNCHER_ARCH_TRIPLET/dri
       LOCPATH: \$SNAP/usr/lib/locale
       XKB_CONFIG_ROOT: \$SNAP/usr/share/X11/xkb
       PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
@@ -72,9 +72,9 @@ apps:
     environment:
       __EGL_VENDOR_LIBRARY_DIRS: \$SNAP/usr/share/glvnd/egl_vendor.d:\$SNAP/etc/glvnd/egl_vendor.d
       GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
-      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
+      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/\$SNAP_ARCH/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
-      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/x86_64-linux-gnu/dri
+      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/\$SNAP_LAUNCHER_ARCH_TRIPLET/dri
       LOCPATH: \$SNAP/usr/lib/locale
       XKB_CONFIG_ROOT: \$SNAP/usr/share/X11/xkb
       PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
@@ -94,9 +94,9 @@ apps:
     environment:
       __EGL_VENDOR_LIBRARY_DIRS: \$SNAP/usr/share/glvnd/egl_vendor.d:\$SNAP/etc/glvnd/egl_vendor.d
       GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
-      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
+      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/\$SNAP_ARCH/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
-      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/x86_64-linux-gnu/dri
+      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/\$SNAP_LAUNCHER_ARCH_TRIPLET/dri
       LOCPATH: \$SNAP/usr/lib/locale
       XKB_CONFIG_ROOT: \$SNAP/usr/share/X11/xkb
       PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
