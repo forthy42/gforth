@@ -22,17 +22,27 @@ package-repositories:
     key-id: 60E71A159357533099A0AAF9CAF021DB3B7FA946
     url: https://net2o.de/debian
 
+layout:
+  /usr/lib/\$CRAFT_ARCH_TRIPLET_BUILD_FOR/pulseaudio:
+    bind: \$SNAP/usr/lib/\$CRAFT_ARCH_TRIPLET_BUILD_FOR/pulseaudio
+  /usr/lib/\$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri:
+    bind: \$SNAP/usr/lib/\$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri
+  /usr/lib/gforth:
+    bind: \$SNAP/usr/lib/gforth
+  /usr/share/gforth:
+    bind: \$SNAP/usr/share/gforth
+  /usr/share/X11/xkb:
+    bind: \$SNAP/usr/share/X11/xkb
+  /usr/share/glvnd:
+    bind: \$SNAP/usr/share/glvnd
+  /etc/glvnd:
+    bind: \$SNAP/etc/glvnd
+
 apps:
   gforth:
     command: usr/bin/gforth
     environment:
-      __EGL_VENDOR_LIBRARY_DIRS: \$SNAP/usr/share/glvnd/egl_vendor.d:\$SNAP/etc/glvnd/egl_vendor.d
-      GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
-      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/\$SNAP_ARCH/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
-      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/\$SNAP_LAUNCHER_ARCH_TRIPLET/dri
-      LOCPATH: \$SNAP/usr/lib/locale
-      XKB_CONFIG_ROOT: \$SNAP/usr/share/X11/xkb
       PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
     plugs:
       - home
@@ -48,13 +58,7 @@ apps:
   gforth-fast:
     command: usr/bin/gforth-fast
     environment:
-      __EGL_VENDOR_LIBRARY_DIRS: \$SNAP/usr/share/glvnd/egl_vendor.d:\$SNAP/etc/glvnd/egl_vendor.d
-      GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
-      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/\$SNAP_ARCH/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
-      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/\$SNAP_LAUNCHER_ARCH_TRIPLET/dri
-      LOCPATH: \$SNAP/usr/lib/locale
-      XKB_CONFIG_ROOT: \$SNAP/usr/share/X11/xkb
       PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
     plugs:
       - home
@@ -70,13 +74,7 @@ apps:
   gforth-itc:
     command: usr/bin/gforth-itc
     environment:
-      __EGL_VENDOR_LIBRARY_DIRS: \$SNAP/usr/share/glvnd/egl_vendor.d:\$SNAP/etc/glvnd/egl_vendor.d
-      GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
-      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/\$SNAP_ARCH/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
-      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/\$SNAP_LAUNCHER_ARCH_TRIPLET/dri
-      LOCPATH: \$SNAP/usr/lib/locale
-      XKB_CONFIG_ROOT: \$SNAP/usr/share/X11/xkb
       PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
     plugs:
       - home
@@ -92,13 +90,7 @@ apps:
   gforth-ditc:
     command: usr/bin/gforth-ditc
     environment:
-      __EGL_VENDOR_LIBRARY_DIRS: \$SNAP/usr/share/glvnd/egl_vendor.d:\$SNAP/etc/glvnd/egl_vendor.d
-      GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
-      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/\$SNAP_ARCH/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
-      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/\$SNAP_LAUNCHER_ARCH_TRIPLET/dri
-      LOCPATH: \$SNAP/usr/lib/locale
-      XKB_CONFIG_ROOT: \$SNAP/usr/share/X11/xkb
       PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
     plugs:
       - home
@@ -138,7 +130,6 @@ parts:
     autotools-configure-parameters:
       - --prefix=/usr
       - --disable-lib
-      - --with-siteinit=":noname defers 'cold s\" /\" s\" SNAP\" getenv s\" /\" S+ repl-included-files ; is 'cold"
     build-packages:
       - libtool-bin
       - libltdl-dev
