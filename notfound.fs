@@ -37,6 +37,6 @@ notfound: postpone-notfound1 ( addr u -- )
 translate: notfound
 
 : ?notfound ( token | 0 -- token | ... )
-    dup 0= IF  drop input-lexeme 2@ notfound  THEN ;
+    dup 0= IF  drop input-lexeme 2@ ['] notfound  THEN ;
 
 ' bt-rp0-catch ' interpret [DO] [I] @ ' ?found = [IF] ' ?notfound [I] ! [THEN] cell [+LOOP]
