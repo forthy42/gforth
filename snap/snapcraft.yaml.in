@@ -50,11 +50,10 @@ apps:
       - x11
       - wayland
       - opengl
-      - unity8
+      - unity7
       - locale-control
       - audio-playback
       - audio-record
-      - shared-memory
   gforth-fast:
     command: usr/bin/gforth-fast
     environment:
@@ -66,11 +65,10 @@ apps:
       - x11
       - wayland
       - opengl
-      - unity8
+      - unity7
       - locale-control
       - audio-playback
       - audio-record
-      - shared-memory
   gforth-itc:
     command: usr/bin/gforth-itc
     environment:
@@ -82,11 +80,10 @@ apps:
       - x11
       - wayland
       - opengl
-      - unity8
+      - unity7
       - locale-control
       - audio-playback
       - audio-record
-      - shared-memory
   gforth-ditc:
     command: usr/bin/gforth-ditc
     environment:
@@ -98,11 +95,10 @@ apps:
       - x11
       - wayland
       - opengl
-      - unity8
+      - unity7
       - locale-control
       - audio-playback
       - audio-record
-      - shared-memory
 
 parts:
   prepare:
