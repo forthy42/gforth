@@ -604,7 +604,9 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 
 \ ticks in interpreter
 
-: '-error ( nt translate-nt -- nt | translate-some -- never ) \ gforth-internal
+: '-error ( nt translate-nt | ... translate-some -- nt | never ) \ gforth-internal
+    \G check if there is a name token on the stack, return the corresponding
+    \G @var{nt} or throw @code{wrong argument name} if not.
     ?found translate-nt? 0= #-32 and throw ;
 
 : (') ( "name" -- nt ) \ gforth-internal
