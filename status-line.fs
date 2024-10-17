@@ -53,8 +53,9 @@
 ' .base ' .stacks ' .order 3 status-xts set-stack
 
 : .status-line ( -- ) { | w^ status$ }
-    nothrow  cols #100 > to wide?
+    0 first-throw !@ >r  cols #100 > to wide?
     [: status-xts $@ cell MEM+DO  I perform  LOOP ;] status$ $exec
+    r> first-throw !
     #lf '|' status$ $@ replace-char
     cols status$ $@ x-width - dup 0> IF
 	['] spaces $tmp
