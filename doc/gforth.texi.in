@@ -2428,6 +2428,7 @@ Write @code{min} without @code{if}.
 For reference, see @ref{Boolean Flags}, @ref{Numeric comparison}, and
 @ref{Bitwise operations}.
 
+@c !! case ?
 
 @node General Loops Tutorial, Counted loops Tutorial, Flags and Comparisons Tutorial, Tutorial
 @section General Loops
@@ -2508,6 +2509,7 @@ Write a definition for computing the greatest common divisor.
 
 Reference: @ref{Simple Loops}.
 
+@c !! extended case; change file example to use the extended case
 
 @node Counted loops Tutorial, Recursion Tutorial, General Loops Tutorial, Tutorial
 @section Counted loops
