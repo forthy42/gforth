@@ -32,6 +32,7 @@ $[]Variable included-files
 
 : included-filename[] ( index -- c-addr u ) \ gforth-internal
     \G convert a file name index to a file name
+    dup -4 = IF  drop s" *args*"  EXIT  THEN
     dup -3 = IF  drop s" *a block*"           EXIT  THEN
     dup -2 = IF  drop s" *evaluated string*"  EXIT  THEN
     dup 0<   IF  drop s" *the terminal*"      EXIT  THEN
@@ -51,6 +52,7 @@ $[]Variable included-files
 	    2drop I included-files $@ drop - cell/ unloop exit
 	endif
     cell +loop
+    2dup s" *args*"             str= IF  2drop -4  EXIT  THEN
     2dup s" *a block*"          str= IF  2drop -3  EXIT  THEN
     2dup s" *evaluated string*" str= IF  2drop -2  EXIT  THEN
     2drop -1 ;

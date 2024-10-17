@@ -113,10 +113,10 @@ include kernel/kernel.fs                  \ kernel
 \ include ./errore.fs
 include kernel/doers.fs
 has? file [IF]
-    include kernel/args.fs
     include kernel/files.fs               \ file words
     include kernel/paths.fs
     include kernel/require.fs
+    include kernel/args.fs
 [THEN]
 
 has? compiler [IF]

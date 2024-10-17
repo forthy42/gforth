@@ -29,7 +29,7 @@ Vocabulary options
 
 options also definitions
 
-: --evaluate ( -- ) next-arg args-evaluate ;
+: --evaluate ( -- ) refill IF  interpret  THEN ;
 ' --evaluate alias -e
 
 : --help ( -- )
@@ -46,8 +46,8 @@ options also definitions
 
 previous forth definitions
 
-' args-required constant args-required-xt
+' required constant `required
 
-' args-required-xt ' options >wordlist 2 recognizer-sequence: process-voc-option ( addr u -- ... xt | 0 )
+' `required ' options >wordlist 2 recognizer-sequence: process-voc-option ( addr u -- ... xt | 0 )
 
 ' process-voc-option is process-option

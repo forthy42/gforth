@@ -77,20 +77,17 @@ Variable argc ( -- addr ) \ gforth
 \g there is no argument left, return @code{0 0}.
     1 arg shift-args ;
 
+terminal-input 4 cells + @ \ terminal::save-input
+terminal-input 3 cells + @ \ terminal::restore-input
+:noname -4 ; \ source-id
+:noname ( -- flag )
+    argc @ 1 u> dup IF  next-arg #tib ! tib ! >in off  THEN
+    1 loadline +! ;     \ refill
+evaluate-input 0 cells + @ \ terminal::restore-input
+| Create arg-input   A, A, A, A, A,
+
 \ processing args on Gforth startup
 \ helper words
-
-: os-execute-parsing ( ... addr u xt -- ... )
-    s" *OS command line*" execute-parsing-wrapper ;
-
-: args-required1 ( addr u -- )
-    2dup input-lexeme! required ;
-
-: args-required ( i*x addr u -- i*x ) \ gforth-internal
-    2dup ['] args-required1 os-execute-parsing ;
-
-: args-evaluate ( i*x addr u -- j*x ) \ gforth-internal
-    ['] interpret2 os-execute-parsing ;
 
 \ main words
 
@@ -98,8 +95,8 @@ Variable argc ( -- addr ) \ gforth
     \ process option, possibly consuming further arguments
     2dup s" -e"         str= >r
     2dup s" --evaluate" str= r> or if
-	2drop next-arg ['] args-evaluate exit endif
-    ['] args-required ;
+	2drop refill IF  ['] interpret  ELSE  ['] noop  THEN exit endif
+    ['] required ;
 
 Defer process-option ( addr u -- ... xt | 0 ) \ gforth
 \G Recognizer that processes an option, returns an execute-only
@@ -107,13 +104,15 @@ Defer process-option ( addr u -- ... xt | 0 ) \ gforth
 ' (process-option) IS process-option
 
 : process-args ( -- )
+    arg-input cell new-tib  -4 loadfilename# !
     true to script?
     BEGIN
-	argc @ 1 > WHILE
-	    next-arg 2dup input-lexeme!
+	refill WHILE
+	    source 2dup input-lexeme!
 	    process-option ?found execute
     REPEAT
-    false to script? ;
+    false to script?
+    0 pop-file drop ;
 
 : os-boot ( path n **argv argc -- )
     stdin  UTO infile-id
