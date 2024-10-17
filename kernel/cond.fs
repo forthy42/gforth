@@ -319,9 +319,13 @@ Variable leave-stack
     repeat  >leave  then
     rdrop after-cs-pop ; immediate restrict
 
+: unresolved-leave ( -- )
+    true abort" LEAVE unresolved (used outside DO..LOOP ?)" ;
+
 : LEAVE ( compilation -- ; run-time loop-sys -- ) \ core
     \G @xref{Counted Loops}.
-    POSTPONE ahead >leave ; immediate compile-only
+    POSTPONE ahead ['] unresolved-leave >body here cell- ! >leave
+; immediate compile-only
 
 : ?LEAVE ( compilation -- ; run-time f | f loop-sys -- ) \ gforth	question-leave
     \G @xref{Counted Loops}.
