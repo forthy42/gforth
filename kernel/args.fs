@@ -94,25 +94,23 @@ Variable argc ( -- addr ) \ gforth
 
 \ main words
 
-: (process-option) ( addr u -- true / addr u false )
+: (process-option) ( addr u -- addr u run-args )
     \ process option, possibly consuming further arguments
     2dup s" -e"         str= >r
     2dup s" --evaluate" str= r> or if
-	2drop next-arg args-evaluate  true  exit endif
-    false ;
+	2drop next-arg ['] args-evaluate exit endif
+    ['] args-required ;
 
-Defer process-option ( addr u -- true / addr u false ) \ gforth
-\G Process an option @var{addr u}, return true, if the option is
-\G processed; unprocessed options are loaded as files throu @code{required}.
+Defer process-option ( addr u -- ... xt | 0 ) \ gforth
+\G Recognizer that processes an option, returns an execute-only
+\G xt to process the option
 ' (process-option) IS process-option
 
 : (process-args) ( -- )
     true to script?
     BEGIN
 	argc @ 1 > WHILE
-	    next-arg process-option 0= IF
-                args-required
-	    then
+	    next-arg process-option execute
     repeat
     false to script? ;
 

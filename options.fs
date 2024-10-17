@@ -46,11 +46,8 @@ options also definitions
 
 previous forth definitions
 
-: process-voc-option ( addr u -- true / addr u false )
-    2dup [ ' options >wordlist ] Literal find-name-in dup if
-	nip nip name>interpret execute true then ;
+' args-required constant args-required-xt
 
-
-
+' args-required-xt ' options >wordlist 2 recognizer-sequence: process-voc-option ( addr u -- ... xt | 0 )
 
 ' process-voc-option is process-option
