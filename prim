@@ -1675,8 +1675,8 @@ tuck	( w1 w2 -- w2 w1 w2 )	core-ext
  swap over ;
 
 ?dup	( w -- S:... w )	core	question_dupe
-""Actually the stack effect is: @code{( w -- 0 | w w )}.  It performs a
-@code{dup} if w is nonzero.""
+""Actually the stack effect is: @code{( 0 -- 0  |  x\0 -- x x )}.  It performs a
+@code{dup} if x is nonzero.""
 if (w!=0) {
   *--sp = w;
 }

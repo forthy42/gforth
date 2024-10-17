@@ -19,7 +19,6 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 Variable load-rc?
-:noname  defers 'image load-rc? on ; is 'image
 
 get-current also options definitions
 : --no-rc ( -- )  load-rc? off ;
@@ -45,9 +44,13 @@ previous set-current
     open-fpath-file 0= IF  included1  ELSE  drop  THEN ;
 
 :noname  load-rc  defers bootmessage  ; is bootmessage
+
 :noname
-    [:  2>r load-rc0 action-of process-option stack> drop
-	2r> process-option ?found execute ;]
-; >r
-:noname [ r> ]L action-of process-option >stack
+    \ one-shot recognizer that loads gforthrc0 and removes itself from
+    \ the stack without moving that stack around.  By loading load-rc0
+    \ and then failing, the rest of the process-option recognizer stack
+    \ is tried as well.
+    [:  2drop load-rc0
+	cell negate action-of process-option @ +!
+	false ;] action-of process-option >stack  load-rc? on
     defers 'image ; is 'image

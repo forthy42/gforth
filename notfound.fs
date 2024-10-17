@@ -36,7 +36,7 @@ notfound: postpone-notfound1 ( addr u -- )
 ' postpone-notfound1
 translate: notfound
 
-: ?notfound ( token | 0 -- token | addr u notfound )
+: ?notfound ( token -- token  |  0 -- addr u notfound )
     \G if your code relies on @code{notfound} returned instead of 0, you can
     \G use @code{forth-recognize ?notfound}, which will deliver the historical
     \G stack effect
