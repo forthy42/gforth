@@ -45,4 +45,9 @@ previous set-current
     open-fpath-file 0= IF  included1  ELSE  drop  THEN ;
 
 :noname  load-rc  defers bootmessage  ; is bootmessage
-:noname  load-rc0 defers process-args ; is process-args
+:noname
+    [:  2>r load-rc0 action-of process-option stack> drop
+	2r> process-option ?found execute ;]
+; >r
+:noname [ r> ]L action-of process-option >stack
+    defers 'image ; is 'image

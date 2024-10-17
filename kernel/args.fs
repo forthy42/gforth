@@ -106,12 +106,13 @@ Defer process-option ( addr u -- ... xt | 0 ) \ gforth
 \G xt to process the option
 ' (process-option) IS process-option
 
-: (process-args) ( -- )
+: process-args ( -- )
     true to script?
     BEGIN
 	argc @ 1 > WHILE
-	    next-arg process-option execute
-    repeat
+	    next-arg 2dup input-lexeme!
+	    process-option ?found execute
+    REPEAT
     false to script? ;
 
 : os-boot ( path n **argv argc -- )
@@ -119,5 +120,3 @@ Defer process-option ( addr u -- ... xt | 0 ) \ gforth
     stdout UTO outfile-id
     stderr UTO debug-fid
     argc ! argv ! pathstring 2! ;
-
-' (process-args) IS process-args

@@ -900,10 +900,6 @@ defer bootmessage ( -- ) \ gforth
 \G command-line arguments.  Normally prints the Gforth startup
 \G message.
 
-has? file [IF]
-defer process-args
-[THEN]
-
 ' gforth IS bootmessage
 
 Defer 'cold ( -- ) \ gforth  tick-cold
