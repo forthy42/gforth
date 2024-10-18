@@ -315,9 +315,6 @@ Defer where,
 
 forth-wordlist current !
 
-: no.extensions  ( -- )
-    -&13 throw ;
-
 : find-name-in  ( c-addr u wid -- nt | 0 ) \ gforth
     \G search the word list identified by @i{wid} for the definition
     \G named by the string at @i{c-addr u}. Return its @i{nt}, if

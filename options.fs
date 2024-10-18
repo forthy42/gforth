@@ -29,7 +29,7 @@ Vocabulary options
 
 options also definitions
 
-: --evaluate ( -- ) refill IF  interpret  THEN ;
+: --evaluate ( -- ) refill IF  interpret  ELSE  #-2053 throw  THEN ;
 ' --evaluate alias -e
 
 : --help ( -- )

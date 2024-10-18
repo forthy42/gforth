@@ -137,9 +137,9 @@ s" Write to broken pipe" exception constant broken-pipe-error ( -- n ) \ gforth
 s" Double free error" exception drop
 s" Data before memory block was modified" exception drop
 s" Data after memory block was modified" exception drop
-s" Can't tick literal" exception drop
+s" option requires an argument" exception drop
 s" Warning treated as error" exception constant warning-error ( -- n )
-s" Can't defer@ from this xt" exception drop
+s" Can't DEFER@ from this type" exception drop
 s" Can't ADDR on this type" exception drop
 s" wrong file type" exception drop
 s" locals stack overflow" exception drop

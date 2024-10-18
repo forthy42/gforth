@@ -39,9 +39,9 @@ require ./io.fs
 	drop 0 0
     endif ;
 
-: #! ( -- ) \ gforth   hash-bang
-    \g An alias for @code{\}
-    postpone \ ; immediate
+' \ alias #! ( -- ) \ gforth   hash-bang
+\g An alias for @code{\}
+immediate
 
 Create pathstring 2 cells allot \ string
 Create pathdirs   2 cells allot \ dir string array, pointer and count
@@ -81,9 +81,10 @@ terminal-input 4 cells + @ \ terminal::save-input
 terminal-input 3 cells + @ \ terminal::restore-input
 :noname -4 ; \ source-id
 :noname ( -- flag )
-    argc @ 1 u> dup IF  next-arg #tib ! tib ! >in off  THEN
-    1 loadline +! ;     \ refill
-evaluate-input 0 cells + @ \ terminal::restore-input
+    argc @ 1 u> dup IF
+	next-arg #tib ! tib ! >in off  1 loadline +!
+    THEN ;     \ refill
+evaluate-input 0 cells + @ \ evaluate::source
 | Create arg-input   A, A, A, A, A,
 
 \ processing args on Gforth startup
