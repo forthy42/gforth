@@ -22,7 +22,7 @@ Defer image-options
 :noname ( -- )
     ."   FILE				    load FILE (with `require')" cr
     ."   -e STRING, --evaluate STRING	    interpret STRING (with `EVALUATE')" cr
-    ."   -Werror|pedantic|all|on|           set warning levels" cr
+    ."   -Werror|pedantic|all|on|	    set warning levels" cr
 ; is image-options
 
 Vocabulary options
