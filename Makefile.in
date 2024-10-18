@@ -1707,7 +1707,7 @@ stamp-h: engine/config.h.in config.status stamp-h.in
 	@echo CONFIG.STATUS
 	./config.status
 
-$(CONFIG_GEN): Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/gforth.h.in gforthmi.sh.in kernel/version.fs.in engine/config.h.in
+$(CONFIG_GEN): Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/gforth.h.in gforthmi.sh.in kernel/version.fs.in engine/config.h.in unix/vulkan.i.in unix/wayland.i.in
 	@echo CONFIG.STATUS
 	./config.status
 

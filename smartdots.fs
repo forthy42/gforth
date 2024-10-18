@@ -23,9 +23,9 @@
 User smart.s-skip
 
 : addr? ( addr -- flag )
-    ['] c@ catch  IF  drop  false nothrow  ELSE  drop  true  THEN ;
+    ['] c@ catch  IF  drop  false  ELSE  drop  true  THEN ;
 : .var? ( addr -- flag )
-    TRY  body> >code-address dovar: <> throw  IFERROR  2drop false nothrow
+    TRY  body> >code-address dovar: <> throw  IFERROR  2drop false
 	ELSE  true  THEN   ENDTRY ;
 
 : string? ( addr u -- flag )
@@ -33,7 +33,7 @@ User smart.s-skip
     TRY  dup #80 #1 within throw  bounds ?DO
 	    I xc@+ dup invalid-char = swap bl < or IF  -1 throw  THEN
 	I - +LOOP
-	IFERROR  2drop drop false nothrow ELSE  true  THEN  ENDTRY ;
+	IFERROR  2drop drop false  ELSE  true  THEN  ENDTRY ;
 Create cs? ( addr -- flag )
 defstart , live-orig , dead-orig , dest , do-dest , scopestart ,
 does> 6 cell array>mem MEM+DO
@@ -60,7 +60,7 @@ does> 6 cell array>mem MEM+DO
 		then
 	    [ 1 maxaligned ]L -LOOP
 	then
-	h. ;] catch IF  drop r> h. nothrow  ELSE  rdrop  THEN ;
+	h. ;] catch IF  drop r> h.  ELSE  rdrop  THEN ;
 
 : .var. ( addr -- )
     dup body> >name dup IF  id. drop  ELSE  drop h.  THEN ;

@@ -59,10 +59,12 @@ all: $(GENWRAPPERS) $(TARGETS) $(HELPERS)
 wrappers: $(WRAPPERS)
 
 build-libcc-named: $(LIBRARY) $(TARGETS)
-		$(RMTREE) lib/gforth$(ARCH)/$(VERSION)/libcc-named/
-		-for i in $(LIBRARY); do echo $$i:; (cd ..; ./libforth -e "also c-lib s\" `pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath previous" $(srcdir)/$$i -e bye); done
+	@echo BUILD-LIBCC-NAMED $(LIBRARY)
+	$(RMTREE) lib/gforth$(ARCH)/$(VERSION)/libcc-named/
+	-for i in $(LIBRARY); do echo $$i:; (cd ..; ./libforth -e "also c-lib s\" `pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath previous" $(srcdir)/$$i -e bye); done
 
 libs: build-libcc-named $(LIBRARY)
+	@echo LIBS $(LIBRARY)
 	for i in $(LIBRARY); do \
 	    $(LIBTOOL) --mode=install $(INSTALL) lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf`basename $$i .fs`.la $(DESTDIR)$(libccdir)libgf`basename $$i .fs`.la; \
 	done
@@ -74,10 +76,12 @@ libs: build-libcc-named $(LIBRARY)
 	./$@x -gforth | $(ENV) $(EXECENV) $(srcdir)/doexec $@ $(srcdir) > $@
 
 stat.fs: stat-fsi.c
+	@echo STAT
 	$(CC) -o $@x $<
 	./$@x -gforth > $@
 
 pthread-types.fs: pthread-types-fsi.c
+	@echo PTHREAD-TYPES
 	$(CC) -o $@x $<
 	./$@x -gforth > $@
 
@@ -111,3 +115,13 @@ example: example.o example.fs
 
 example-fast: example.o example.fs
 	$(CC) -o $@ -rdynamic -lgforth-fast $(CFLAGS) $(LDFLAGS) example.o
+
+# generate special .i files
+
+wayland.i: ../config.status ../unix/wayland.i.in
+	@echo CONFIG.STATUS $@
+	(cd ..; ./config.status unix/$@)
+
+vulkan.i: ../config.status ../unix/vulkan.i.in
+	@echo CONFIG.STATUS $@
+	(cd ..; ./config.status unix/$@)
