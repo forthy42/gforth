@@ -566,7 +566,7 @@ c_op = op;
 f_fp = fp;
 c_lp = lp;
 SPs->handler = rp-6;
-SPs->first_throw = ~0;
+SPs->first_throw |= -(Cell)(SPs->first_throw == 0);
 
 uncatch ( R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler -- ) gforth-internal
 SPs->handler = a_oldhandler;

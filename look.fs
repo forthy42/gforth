@@ -35,11 +35,9 @@ decimal
 
 : xt= ( ca xt -- flag )
     \ compare threaded-code cell with the primitive xt
-    first-throw @ >r first-throw off
     >code-address swap threading-method IF
-	['] >code-address catch drop
-    THEN  =
-    r> first-throw ! ;
+	['] >code-address catch-nothrow drop
+    THEN  = ;
 
 : threaded>xt ( ca -- xt|0 )
     \ Given the static code address of a primitive (i.e., coming from

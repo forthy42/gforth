@@ -41,8 +41,6 @@ User stored-backtrace ( addr -- )
     \G backtrace.
     first-throw on ;
 
-' nothrow is .status
-
 : try ( compilation  -- orig ; run-time  -- R:sys1 ) \ gforth
     \G Start an exception-catching region.
     POSTPONE (try) >mark
@@ -85,6 +83,10 @@ User stored-backtrace ( addr -- )
 	nip
     then endtry ;
 is catch
+
+: catch-nothrow ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ gforth-experimental
+    \G perform a catch that is not meant to be thrown later
+    1 first-throw !@ >r catch r> first-throw ! ;
 
 Defer kill-task ( -- ) \ gforth-experimental
 \G Terminate the current task.
@@ -132,7 +134,7 @@ variable located-bottom \ last line to display with l
     ?DUP-IF
 	[ here forthstart #13 cells + ! ]
 	[ here throw-entry ! ]
-	first-throw @ IF
+	first-throw @ 0< IF
 	    store-backtrace
 	THEN
 	handler @ IF

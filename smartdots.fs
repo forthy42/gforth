@@ -23,7 +23,7 @@
 User smart.s-skip
 
 : addr? ( addr -- flag )
-    ['] c@ catch  IF  drop  false  ELSE  drop  true  THEN ;
+    ['] c@ catch-nothrow  IF  drop  false  ELSE  drop  true  THEN ;
 : .var? ( addr -- flag )
     TRY  body> >code-address dovar: <> throw  IFERROR  2drop false
 	ELSE  true  THEN   ENDTRY ;
@@ -60,7 +60,7 @@ does> 6 cell array>mem MEM+DO
 		then
 	    [ 1 maxaligned ]L -LOOP
 	then
-	h. ;] catch IF  drop r> h.  ELSE  rdrop  THEN ;
+	h. ;] catch-nothrow IF  drop r> h.  ELSE  rdrop  THEN ;
 
 : .var. ( addr -- )
     dup body> >name dup IF  id. drop  ELSE  drop h.  THEN ;
@@ -131,12 +131,9 @@ debug: .string.( ( -- ) \ gforth-internal dot-string-dot-paren
 
 : ... ( x1 .. xn -- x1 .. xn ) \ gforth
     \G smart version of @code{.s}
-    0 first-throw !@ >r
     smart.s-skip off
-    ['] smart.s. ['] .s. ['] .s wrap-xt
-    fdepth IF
-	cr ." F:" f.s THEN
-    r> first-throw ! ;
+    ['] smart.s. ['] .s. ['] .s
+    ['] wrap-xt catch-nothrow drop
+    fdepth IF  cr ." F:" f.s  THEN ;
 
 ' ... IS printdebugdata
-

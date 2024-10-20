@@ -84,7 +84,7 @@ Defer flush-blocks ( -- ) \ gforth-internal
 	>r 2drop r>
     endtry-iferror ( c-addr u ior )
 	>r 2dup file-status nip 0= r> and throw \ does it really not exist?
-	nothrow r/w bin create-file throw
+	r/w bin create-file throw
     then
     block-fid @ IF
 	flush-blocks block-fid @ close-file throw

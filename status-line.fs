@@ -53,9 +53,8 @@
 ' .base ' .stacks ' .order 3 status-xts set-stack
 
 : .status-line ( -- ) { | w^ status$ }
-    0 first-throw !@ >r  cols #100 > to wide?
+    cols #100 > to wide?
     [: status-xts $@ cell MEM+DO  I perform  LOOP ;] status$ $exec
-    r> first-throw !
     #lf '|' status$ $@ replace-char
     cols status$ $@ x-width - dup 0> IF
 	['] spaces $tmp
@@ -75,7 +74,7 @@
     1 to status-offset ;
 
 : +status ['] .status-line is .status ['] .unstatus-line is .unstatus ;
-: -status ['] nothrow is .status ['] noop is .unstatus ;
+: -status ['] noop is .status ['] noop is .unstatus ;
 
 :noname
     defers bootmessage
