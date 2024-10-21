@@ -22,7 +22,7 @@ require ./libc.fs
 require ./os-name.fs
 
 : file>abspath ( file u path -- addr u )
-    0 first-throw !@ >r ['] file>path catch IF
+    0 first-throw !@ >r ['] file>path catch-nothrow IF
 	drop 2drop #0.
     ELSE
 	over c@ '/' <> IF
