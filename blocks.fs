@@ -279,10 +279,10 @@ set-current
 ' bye defered? [IF]
     :noname ( -- ) \ tools-ext
 	\ Return control to the host operating system (if any).
-	['] flush catch drop defers bye ; is bye
+	['] flush catch-nothrow drop defers bye ; is bye
 [ELSE]
     0 warnings !@
     : bye ( -- ) \ tools-ext
-	['] flush catch drop bye ;
+	['] flush catch-nothrow drop bye ;
     warnings !
 [THEN]

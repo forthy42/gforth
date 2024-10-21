@@ -181,7 +181,7 @@ UValue $? ( -- n ) \ gforth dollar-question
     fpath file>path ;
 
 : defers@ ( xt -- xt' )
-    BEGIN  dup ['] defer@ catch 0= WHILE  nip  REPEAT  drop ;
+    BEGIN  dup ['] defer@ catch-nothrow 0= WHILE  nip  REPEAT  drop ;
 synonym >rec-stack >body ( xt -- stack )
 : get-recognizer-sequence ( recs-xt -- x1 .. xtn n )
     defers@ >rec-stack get-stack ;

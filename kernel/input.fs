@@ -146,7 +146,7 @@ terminal-input @       \ source -> terminal-input::source
     \G everything is allowed.
     current-input @ >r swap current-input ! 1- dup >r
     ['] (restore-input) catch
-    dup IF  r> 0 ?DO  nip  LOOP  r> current-input ! 0<>  EXIT  THEN
+    dup IF  r> 0 ?DO  nip  LOOP  r> current-input ! first-throw on 0<>  EXIT  THEN
     rdrop rdrop ;
 
 \ create terminal input block
