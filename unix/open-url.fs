@@ -22,7 +22,7 @@ require ./libc.fs
 require ./os-name.fs
 
 : file>abspath ( file u path -- addr u )
-    0 first-throw !@ >r ['] file>path catch-nothrow IF
+    ['] file>path catch-nothrow IF
 	drop 2drop #0.
     ELSE
 	over c@ '/' <> IF
@@ -30,7 +30,7 @@ require ./os-name.fs
 		type '/' emit type ;] $tmp
 	    compact-filename
 	THEN
-    THEN r> first-throw ! ;
+    THEN ;
 
 : >upath ( addr u -- ) { | w^ upath }
     "PATH" getenv upath $!
