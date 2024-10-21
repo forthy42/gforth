@@ -140,6 +140,11 @@ c-library pthread
     c-function wait_read wait_read a n n -- n ( pipefd timeoutns timeouts -- n )
     c-function stick-to-core stick_to_core n -- n ( core -- n )
     c-function pthread_self pthread_self -- t{*(pthread_t*)} ( pthread-id -- )
+    c-function pthread_atfork pthread_atfork a a a -- n ( prepare parent child -- errorflag )
+    callback# >r
+    6 to callback#
+    c-callback atfork: -- void ( -- )
+    r> to callback#
 end-c-library
 
 require unix/pthread-types.fs
