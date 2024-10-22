@@ -142,7 +142,7 @@ c-library pthread
     c-function pthread_self pthread_self -- t{*(pthread_t*)} ( pthread-id -- )
     c-function pthread_atfork pthread_atfork a a a -- n ( prepare parent child -- errorflag )
     callback# >r
-    6 to callback#
+    3 to callback#
     c-callback atfork: -- void ( -- )
     r> to callback#
 end-c-library
@@ -203,11 +203,28 @@ s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
     tmp$[] $[]free 0 (bye) ;
 IS kill-task
 
+Defer prepare-fork  ' noop is prepare-fork
+Defer parent-fork   ' noop is parent-fork
+Defer child-fork    ' noop is child-fork
+
+0 Value prepare-cb#
+0 Value parent-cb#
+0 Value child-cb#
+
+: atfork-cbs ( -- )
+    [ ' atfork: >body @ ]L ['] atfork: >body !
+    [: prepare-fork ;] atfork: to prepare-cb#
+    [: parent-fork ;]  atfork: to parent-cb#
+    [: child-fork ;]   atfork: to child-cb# ;
+: atfork-init ( -- )
+    prepare-cb# parent-cb# child-cb# pthread_atfork errno-throw ;
+
 Defer thread-init
 :noname ( -- )
     rp@ cell+ backtrace-rp0 !  tmp$[] off  ofile off  tfile off
     [IFDEF] sh$ #0. sh$ 2! [THEN]
-    current-input off create-input ; IS thread-init
+    current-input off create-input
+    host? IF  atfork-init  THEN ; IS thread-init
 
 : newtask4 ( u-data u-return u-fp u-locals -- task ) \ gforth-experimental
     \G creates @i{task} with data stack size @i{u-data}, return stack
@@ -438,9 +455,12 @@ User keypollfds pollfd 2* cell- uallot drop
 
 :noname defers 'cold
     host? IF
+	atfork-cbs atfork-init
 	pthread-id pthread_self epiper create_pipe
 	preserve key-ior  preserve deadline
     THEN ; is 'cold
+
+host? [IF] atfork-cbs atfork-init [THEN]
 
 \ a simple test (not commented in)
 
