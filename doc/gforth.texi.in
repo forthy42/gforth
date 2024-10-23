@@ -7564,6 +7564,7 @@ mode (i.e., while processing the shell command line), leaves Gforth).
 The Standard Forth way to catch exceptions is @code{catch}:
 
 doc-catch
+doc-catch-nobt
 doc-nothrow
 
 The most common use of exception handlers is to clean up the state when

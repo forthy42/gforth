@@ -84,8 +84,8 @@ User stored-backtrace ( addr -- )
     then endtry ;
 is catch
 
-: catch-nothrow ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ gforth-experimental
-    \G perform a catch that is not meant to be thrown later
+: catch-nobt ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ gforth-experimental
+    \G perform a catch that does not record backtraces on errors
     1 first-throw !@ >r catch r> first-throw ! ;
 
 Defer kill-task ( -- ) \ gforth-experimental

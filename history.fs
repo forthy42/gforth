@@ -518,7 +518,7 @@ xchar-history
 \ initializing history
 
 : get-history ( addr len -- )
-    ['] force-open catch-nothrow
+    ['] force-open catch-nobt
     ?dup-if
 	\ !! >stderr
         \ history-file type ." : " .error cr

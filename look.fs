@@ -36,7 +36,7 @@ decimal
 : xt= ( ca xt -- flag )
     \ compare threaded-code cell with the primitive xt
     >code-address swap threading-method IF
-	['] >code-address catch-nothrow drop
+	['] >code-address catch-nobt drop
     THEN  = ;
 
 : threaded>xt ( ca -- xt|0 )

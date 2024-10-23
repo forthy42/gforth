@@ -31,7 +31,7 @@
     \ xt-pop pops m items from literal stack to data stack, xt-push
     \ pushes l items from data stack to literal stack.
     lits# m u>= if
-	pop xt catch-nothrow 0= if
+	pop xt catch-nobt 0= if
 	    push exit then
 	unpop then
     xt dup >code-address docol: = if

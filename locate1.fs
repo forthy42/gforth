@@ -42,7 +42,7 @@ variable included-file-buffers
     dup >r included-file-buffers $[] dup
     >r $@ dup IF  rdrop rdrop  EXIT  THEN  2drop
     r'@ included-files $[]@ r@
-    [: >r open-fpath-file throw 2drop r> $slurp ;] catch-nothrow IF
+    [: >r open-fpath-file throw 2drop r> $slurp ;] catch-nobt IF
 	drop 2drop 0 0  r> $free rdrop  EXIT  THEN
     r> $@ rdrop ;
 
