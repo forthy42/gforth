@@ -84,8 +84,12 @@ semaphore workers-sema
 
 : cilk-bye ( -- ) \ cilk
     \G Terminate all workers.
-    cilk-sync workers $@len cell/ 0 ?DO [: 0 (bye) ;] spawn LOOP
-    #10000. ns workers $free  sync# off ;
+    cilk-sync workers $@len cell/ 0 ?DO
+	worker@ dup user' pthread-id + >r
+	[: 0 (bye) ;] send-event
+	r> 0 pthread_join drop
+    LOOP
+    workers $free  sync# off ;
 
 s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
     :noname ( -- )

@@ -507,55 +507,55 @@ GTypeValueCollectFunc: GTypeValuePeekPointerFunc: GTypeValueCopyFunc:
 GTypeValueFreeFunc: GTypeValueInitFunc: GTypeInterfaceCheckFunc: 
 GTypeClassCacheFunc: GInterfaceFinalizeFunc: GInterfaceInitFunc: 
 GInstanceInitFunc: GClassFinalizeFunc: GClassInitFunc: GBaseFinalizeFunc: 
-GBaseInitFunc: GClearHandleFunc: GSourceDummyMarshal: GSourceDisposeFunc: 
-GChildWatchFunc: GSourceOnceFunc: GSourceFunc: GThreadFunc: GTranslateFunc: 
-GFreeFunc: GCopyFunc: GHFunc: GHashFunc: GFunc: GDestroyNotify: 
-GEqualFuncFull: GEqualFunc: GCompareDataFunc: GCompareFunc: 
-_GObjectClass-constructed() _GObjectClass-notify() 
-_GObjectClass-dispatch_properties_changed() _GObjectClass-finalize() 
-_GObjectClass-dispose() _GObjectClass-get_property() 
+GBaseInitFunc: GClearHandleFunc: GSourceFuncsFinalizeFunc: 
+GSourceFuncsDispatchFunc: GSourceFuncsCheckFunc: GSourceFuncsPrepareFunc: 
+GSourceDummyMarshal: GSourceDisposeFunc: GChildWatchFunc: GSourceOnceFunc: 
+GSourceFunc: GThreadFunc: GTranslateFunc: GFreeFunc: GCopyFunc: GHFunc: 
+GHashFunc: GFunc: GDestroyNotify: GEqualFuncFull: GEqualFunc: 
+GCompareDataFunc: GCompareFunc: _GObjectClass-constructed() 
+_GObjectClass-notify() _GObjectClass-dispatch_properties_changed() 
+_GObjectClass-finalize() _GObjectClass-dispose() _GObjectClass-get_property() 
 _GObjectClass-set_property() _GObjectClass-constructor() 
-_GSourceFuncs-finalize() _GSourceFuncs-dispatch() _GSourceFuncs-check() 
-_GSourceFuncs-prepare() _GSourceCallbackFuncs-get() 
-_GSourceCallbackFuncs-unref() _GSourceCallbackFuncs-ref() 
-_GSignalQuery-signal_name _GSignalQuery-n_params _GSignalQuery-signal_flags 
-_GSignalQuery-itype _GSignalQuery-param_types _GSignalQuery-signal_id 
-_GSignalQuery-return_type _GSignalQuery _GSignalInvocationHint-run_type 
-_GSignalInvocationHint-detail _GSignalInvocationHint-signal_id 
-_GSignalInvocationHint GWeakRef_priv-p GWeakRef_priv GWeakRef-priv GWeakRef 
-_GObjectConstructParam-value _GObjectConstructParam-pspec 
-_GObjectConstructParam _GObjectClass-dispose _GObjectClass-set_property 
-_GObjectClass-get_property _GObjectClass-constructed 
-_GObjectClass-dispatch_properties_changed _GObjectClass-pdummy 
-_GObjectClass-construct_properties _GObjectClass-n_construct_properties 
-_GObjectClass-flags _GObjectClass-finalize _GObjectClass-constructor 
-_GObjectClass-n_pspecs _GObjectClass-g_type_class _GObjectClass-notify 
-_GObjectClass-pspecs _GObjectClass _GObject-qdata _GObject-ref_count 
-_GObject-g_type_instance _GObject _GTypeValueTable-value_copy 
-_GTypeValueTable-value_init _GTypeValueTable-lcopy_format 
-_GTypeValueTable-collect_format _GTypeValueTable-collect_value 
-_GTypeValueTable-value_peek_pointer _GTypeValueTable-lcopy_value 
-_GTypeValueTable-value_free _GTypeValueTable _GInterfaceInfo-interface_data 
-_GInterfaceInfo-interface_init _GInterfaceInfo-interface_finalize 
-_GInterfaceInfo _GTypeFundamentalInfo-type_flags _GTypeFundamentalInfo 
-_GTypeInfo-class_data _GTypeInfo-instance_init _GTypeInfo-class_init 
-_GTypeInfo-base_init _GTypeInfo-instance_size _GTypeInfo-class_size 
-_GTypeInfo-n_preallocs _GTypeInfo-value_table _GTypeInfo-class_finalize 
-_GTypeInfo-base_finalize _GTypeInfo _GTypeQuery-type _GTypeQuery-instance_size 
-_GTypeQuery-class_size _GTypeQuery-type_name _GTypeQuery 
-_GTypeInterface-g_instance_type _GTypeInterface-g_type _GTypeInterface 
-_GTypeInstance-g_class _GTypeInstance _GTypeClass-g_type _GTypeClass 
-_GSourceFuncs-dispatch _GSourceFuncs-closure_callback 
-_GSourceFuncs-closure_marshal _GSourceFuncs-prepare _GSourceFuncs-check 
-_GSourceFuncs-finalize _GSourceFuncs _GSourceCallbackFuncs-ref 
-_GSourceCallbackFuncs-get _GSourceCallbackFuncs-unref _GSourceCallbackFuncs 
-_GSource-next _GSource-flags _GSource-context _GSource-source_id 
-_GSource-callback_data _GSource-priv _GSource-poll_fds _GSource-name 
-_GSource-prev _GSource-ref_count _GSource-source_funcs _GSource-callback_funcs 
-_GSource-priority _GSource _GOnce-retval _GOnce-status _GOnce _GPrivate-notify 
-_GPrivate-future _GPrivate-p _GPrivate _GRecMutex-i _GRecMutex-p _GRecMutex 
-_GCond-i _GCond-p _GCond _GRWLock-i _GRWLock-p _GRWLock _GMutex-i _GMutex-p 
-_GMutex _GTimeVal-tv_sec _GTimeVal-tv_usec _GTimeVal G_SIGNAL_MATCH_UNBLOCKED 
+_GSourceCallbackFuncs-get() _GSourceCallbackFuncs-unref() 
+_GSourceCallbackFuncs-ref() _GSignalQuery-signal_name _GSignalQuery-n_params 
+_GSignalQuery-signal_flags _GSignalQuery-itype _GSignalQuery-param_types 
+_GSignalQuery-signal_id _GSignalQuery-return_type _GSignalQuery 
+_GSignalInvocationHint-run_type _GSignalInvocationHint-detail 
+_GSignalInvocationHint-signal_id _GSignalInvocationHint GWeakRef_priv-p 
+GWeakRef_priv GWeakRef-priv GWeakRef _GObjectConstructParam-value 
+_GObjectConstructParam-pspec _GObjectConstructParam _GObjectClass-dispose 
+_GObjectClass-set_property _GObjectClass-get_property 
+_GObjectClass-constructed _GObjectClass-dispatch_properties_changed 
+_GObjectClass-pdummy _GObjectClass-construct_properties 
+_GObjectClass-n_construct_properties _GObjectClass-flags 
+_GObjectClass-finalize _GObjectClass-constructor _GObjectClass-n_pspecs 
+_GObjectClass-g_type_class _GObjectClass-notify _GObjectClass-pspecs 
+_GObjectClass _GObject-qdata _GObject-ref_count _GObject-g_type_instance 
+_GObject _GTypeValueTable-value_copy _GTypeValueTable-value_init 
+_GTypeValueTable-lcopy_format _GTypeValueTable-collect_format 
+_GTypeValueTable-collect_value _GTypeValueTable-value_peek_pointer 
+_GTypeValueTable-lcopy_value _GTypeValueTable-value_free _GTypeValueTable 
+_GInterfaceInfo-interface_data _GInterfaceInfo-interface_init 
+_GInterfaceInfo-interface_finalize _GInterfaceInfo 
+_GTypeFundamentalInfo-type_flags _GTypeFundamentalInfo _GTypeInfo-class_data 
+_GTypeInfo-instance_init _GTypeInfo-class_init _GTypeInfo-base_init 
+_GTypeInfo-instance_size _GTypeInfo-class_size _GTypeInfo-n_preallocs 
+_GTypeInfo-value_table _GTypeInfo-class_finalize _GTypeInfo-base_finalize 
+_GTypeInfo _GTypeQuery-type _GTypeQuery-instance_size _GTypeQuery-class_size 
+_GTypeQuery-type_name _GTypeQuery _GTypeInterface-g_instance_type 
+_GTypeInterface-g_type _GTypeInterface _GTypeInstance-g_class _GTypeInstance 
+_GTypeClass-g_type _GTypeClass _GSourceFuncs-dispatch 
+_GSourceFuncs-closure_callback _GSourceFuncs-closure_marshal 
+_GSourceFuncs-prepare _GSourceFuncs-check _GSourceFuncs-finalize _GSourceFuncs 
+_GSourceCallbackFuncs-ref _GSourceCallbackFuncs-get 
+_GSourceCallbackFuncs-unref _GSourceCallbackFuncs _GSource-next _GSource-flags 
+_GSource-context _GSource-source_id _GSource-callback_data _GSource-priv 
+_GSource-poll_fds _GSource-name _GSource-prev _GSource-ref_count 
+_GSource-source_funcs _GSource-callback_funcs _GSource-priority _GSource 
+_GOnce-retval _GOnce-status _GOnce _GPrivate-notify _GPrivate-future 
+_GPrivate-p _GPrivate _GRecMutex-i _GRecMutex-p _GRecMutex _GCond-i _GCond-p 
+_GCond _GRWLock-i _GRWLock-p _GRWLock _GMutex-i _GMutex-p _GMutex 
+_GTimeVal-tv_sec _GTimeVal-tv_usec _GTimeVal G_SIGNAL_MATCH_UNBLOCKED 
 G_SIGNAL_MATCH_DATA G_SIGNAL_MATCH_FUNC G_SIGNAL_MATCH_CLOSURE 
 G_SIGNAL_MATCH_DETAIL G_SIGNAL_MATCH_ID G_CONNECT_SWAPPED G_CONNECT_AFTER 
 G_CONNECT_DEFAULT G_SIGNAL_ACCUMULATOR_FIRST_RUN G_SIGNAL_DEPRECATED 
@@ -678,8 +678,9 @@ event-block sleep halt wake restart (restart) thread-deadline pause event-loop
 stop-dns stop-ns stop ?events event? send-event (stop) execute-task stacksize4 
 stacksize >pagealign-stack c-section critical-section unlock lock cond sema 
 semaphore initiate pass (pass) activate (activate) task newtask newtask4 
-thread-init 's user' wake# epipew epiper pthread-id compsem: intsem: 
-set-compsem to-errno errno-table fork+exec fpid fork() getpid fd>file 
+thread-init atfork-init atfork-cbs child-cb# parent-cb# prepare-cb# child-fork 
+parent-fork prepare-fork 's user' wake# epipew epiper pthread-id compsem: 
+intsem: set-compsem to-errno errno-table fork+exec fpid fork() getpid fd>file 
 int-errno-exec saved-errno ?ior ?errno-throw errno-throw fds[]! fds!+ 
 LC_IDENTIFICATION LC_MEASUREMENT LC_TELEPHONE LC_ADDRESS LC_NAME LC_PAPER 
 LC_ALL LC_MESSAGES LC_MONETARY LC_COLLATE LC_TIME LC_NUMERIC LC_CTYPE POLLHUP 
@@ -689,72 +690,73 @@ symlink exit() execvp (fork) (getpid) setlocale close write read open ioctl2
 ioctl fcntl freopen fdopen posix_spawnp epoll_wait epoll_ctl epoll_create 
 ppoll poll fileno getpagesize ->errno FIONBIO FIONREAD errno pthread-conds 
 pthread-mutexes pthreads pthread-cond+ pthread-mutex+ pthread+ pthread_cond_t 
-pthread_mutex_t pthread_t pthread_self stick-to-core wait_read check_read 
-create_pipe pthread_cond_timedwait pthread_cond_wait pthread_cond_broadcast 
-pthread_cond_signal pthread_cond_destroy pthread_cond_init pthread_detach_attr 
-sched_yield pthread_mutex_unlock pthread_mutex_lock pthread_mutex_destroy 
-pthread_mutex_init pthread_cancel pthread_kill pthread_exit pthread_create 
-gforth_create_thread thread_start disasm disline disassembler find sfind word 
-sword (word) .name S+LOOP CONTINUE name>comp name>int what's const-does> 
-(const-does>) compile-fliterals compile-literals <compilation compilation> 
-<interpretation interpretation> create-interpret/compile s-k12 s-k11 s-k10 
-s-k9 s-k8 s-k7 s-k6 s-k5 s-k4 s-k3 s-k2 s-k1 k12 k11 k10 k9 k8 k7 k6 k5 k4 k3 
-k2 k1 rectype-env rectype-to rectype-dnum rectype-num rectype-nt rectype-null 
-rectype: rectype rectype>post rectype>comp rectype>int le-uxd@ le-ux@ le-ul@ 
-le-uw@ be-uxd@ be-ux@ be-ul@ be-uw@ le-xd! le-x! le-l! le-w! be-xd! be-x! 
-be-l! be-w! sxd@ uxd@ ux@ ul@ uw@ +place .strings name parse-word comp: 
-definer! code-address! [(')] lastxt longstring, header, obsoletes .quoted-csv 
-read-csv csv-read-loop csv-line next-csv $csv-item next-field un-dquote 
-unquote unquote-end unquote-start csv-line-number quote-state csv-quote 
-csv-separator rec-meta scope-search-prefix ?search-prefix in-wordlist in 
-rec-scope scope-split nosplit? rec-env translate-env env$, $value[]: 
-$value[]-dummy value[]: value[]-dummy defer: defer-dummy $value: $value-dummy 
-zvalue: zvalue-dummy dfvalue: dfvalue-dummy sfvalue: sfvalue-dummy fvalue: 
-fvalue-dummy 2value: 2value-dummy slvalue: slvalue-dummy swvalue: 
-swvalue-dummy scvalue: scvalue-dummy lvalue: lvalue-dummy wvalue: wvalue-dummy 
-cvalue: cvalue-dummy value: value-dummy $[]-!a-table $[]!a-table $!a-table 
-df!a-table sf!a-table l!a-table w!a-table $[]-+! $[]-! $[]-@ sx@ sl@ sw@ sc@ 
-df+! sf+! l+! w+! wrap+value: wrapper-xts field-to-class: field-to:, 
-field-to:exec create+value vfield-comp, vfield-int, +field, rec-complex 
-translate-complex zliteral z.s z. fc. zacot zatan zacos zasin pi/2 zacoth 
-zatanh zacosh zasinh Im Re Imag Real ztan zcos zsin ztanh zcosh zsinh zfib phi 
-z** zsqrt z0= zln pln zexp polar> >polar z2* z2/ zabs |z| pyth z/ 1/z zsqabs 
-z/i z*i zconj znegate zscale z* x- x+ zr- z- z+ ZVarue za-to ZValue z-to 
-ZVariable some-zalocal some-zlocal compile-z@local compile-pushlocal-z to-za: 
-to-z: z!a-table z!-table z+! z! z@ z-rot zrot zdepth zpick zswap zr> z>r zover 
-zdrop zdup fl> complex+ complex' &of addr default-w: default-wa: to-fa: to-ca: 
-to-da: to-xta: to-wa: fvarue dummy-fvarue fvarue-to 2varue dummy-2varue 
-2varue-to Varue dummy-varue varue-to f!a-table c!a-table 2!a-table 
-defera-table !a-table marker marker! marker, sections-marker! sections-marker, 
-included-files-mark .unresolved auto-resolve is-forward? forward 
-unfixed-forward unresolved-forward-error forward-needs-: unresolved-forward 
-fancy-after-l whereg delete-whereg whereg-filename s` sh-get sh$ plain-output 
-plain-out plain-form help help-section help-word open-doc set-help-view 
-count-lfs doc-file# unused-words unused-wordlist unused@ unmark-used 
-unused-all -unused +unused .wids unused-mask usage# browse (browse) 
-browse-results bw nw ww where-</> where-index-- where-index++ (ww) where 
-prepend-where expand-where short-where where-reset where-setup (where) 
-forwheres .whereview1 .whereline .wheretype1 width-type type-notabs unbounds 
-bt nt tt bt-</> backtrace-- backtrace++ backtrace# bt-location gg g-once ll 
-l-once next-l|g l|g edit g extern-g b n view locate .rec'-stack xt-locate 
-name-set-located-view l l1 no-</> index-- index++ after-l append-locate-lines 
-prepend-locate-lines display-locate-lines located-erase l2 print-locate-header 
-view>filename current-location? current-location?1 located-buffer 
-locate-print-line locate-type located-diff locate-lines+ locate-lines# 
-locate-next-line locate-line set-bn-view view>buffer included-buffer 
-included-file-buffers backtrace-index where-index where-results -status 
-+status .status-line status-xts .order .stacks .base wide? replace-char 
-.unstatus-line redraw-status status-offset mwords wordlist-mwords .mwords[] 
-wid>words[] mword-filename-match mword-search-match mword-match words[] 
-scroll-down scroll-up cursor-previous-line cursor-next-line erase-display 
-insert-lines cursor-down cursor-up control-sequence: restore-cursor-position 
-save-cursor-position (control-sequence) auto-color magenta-input dark-mode 
-light-mode uncolored-mode default-bg rgb-split term-bg? term-fg? term-color? 
-term-rgb@ is-xterm? is-color-terminal? is-terminal? term-rgb$ <<<m m>>> 
-mark-attr BlackSpace (theme-color!) white? theme-color@ theme: current-theme 
-(Attr!) Attr A> <A FG> BG> >FG >BG Dim Invisible Italic Strikethrough Invers 
-Blink Underline Bold defaultcolor White Cyan Magenta Blue Yellow Green Red 
-Black load-rc0 load-rc load-rc? disasm-gdb 0x. ppid append-extend-string 
+pthread_mutex_t pthread_t atfork: pthread_atfork pthread_self stick-to-core 
+wait_read check_read create_pipe pthread_cond_timedwait pthread_cond_wait 
+pthread_cond_broadcast pthread_cond_signal pthread_cond_destroy 
+pthread_cond_init pthread_detach_attr sched_yield pthread_mutex_unlock 
+pthread_mutex_lock pthread_mutex_destroy pthread_mutex_init pthread_cancel 
+pthread_kill pthread_exit pthread_create gforth_create_thread thread_start 
+disasm disline disassembler find sfind word sword (word) .name S+LOOP CONTINUE 
+name>comp name>int what's const-does> (const-does>) compile-fliterals 
+compile-literals <compilation compilation> <interpretation interpretation> 
+create-interpret/compile s-k12 s-k11 s-k10 s-k9 s-k8 s-k7 s-k6 s-k5 s-k4 s-k3 
+s-k2 s-k1 k12 k11 k10 k9 k8 k7 k6 k5 k4 k3 k2 k1 rectype-env rectype-to 
+rectype-dnum rectype-num rectype-nt rectype-null rectype: rectype rectype>post 
+rectype>comp rectype>int le-uxd@ le-ux@ le-ul@ le-uw@ be-uxd@ be-ux@ be-ul@ 
+be-uw@ le-xd! le-x! le-l! le-w! be-xd! be-x! be-l! be-w! sxd@ uxd@ ux@ ul@ uw@ 
++place .strings name parse-word comp: definer! code-address! [(')] lastxt 
+longstring, header, obsoletes .quoted-csv read-csv csv-read-loop csv-line 
+next-csv $csv-item next-field un-dquote unquote unquote-end unquote-start 
+csv-line-number quote-state csv-quote csv-separator rec-meta 
+scope-search-prefix ?search-prefix in-wordlist in rec-scope scope-split 
+nosplit? rec-env translate-env env$, $value[]: $value[]-dummy value[]: 
+value[]-dummy defer: defer-dummy $value: $value-dummy zvalue: zvalue-dummy 
+dfvalue: dfvalue-dummy sfvalue: sfvalue-dummy fvalue: fvalue-dummy 2value: 
+2value-dummy slvalue: slvalue-dummy swvalue: swvalue-dummy scvalue: 
+scvalue-dummy lvalue: lvalue-dummy wvalue: wvalue-dummy cvalue: cvalue-dummy 
+value: value-dummy $[]-!a-table $[]!a-table $!a-table df!a-table sf!a-table 
+l!a-table w!a-table $[]-+! $[]-! $[]-@ sx@ sl@ sw@ sc@ df+! sf+! l+! w+! 
+wrap+value: wrapper-xts field-to-class: field-to:, field-to:exec create+value 
+vfield-comp, vfield-int, +field, rec-complex translate-complex zliteral z.s z. 
+fc. zacot zatan zacos zasin pi/2 zacoth zatanh zacosh zasinh Im Re Imag Real 
+ztan zcos zsin ztanh zcosh zsinh zfib phi z** zsqrt z0= zln pln zexp polar> 
+>polar z2* z2/ zabs |z| pyth z/ 1/z zsqabs z/i z*i zconj znegate zscale z* x- 
+x+ zr- z- z+ ZVarue za-to ZValue z-to ZVariable some-zalocal some-zlocal 
+compile-z@local compile-pushlocal-z to-za: to-z: z!a-table z!-table z+! z! z@ 
+z-rot zrot zdepth zpick zswap zr> z>r zover zdrop zdup fl> complex+ complex' 
+&of addr default-w: default-wa: to-fa: to-ca: to-da: to-xta: to-wa: fvarue 
+dummy-fvarue fvarue-to 2varue dummy-2varue 2varue-to Varue dummy-varue 
+varue-to f!a-table c!a-table 2!a-table defera-table !a-table marker marker! 
+marker, sections-marker! sections-marker, included-files-mark .unresolved 
+auto-resolve is-forward? forward unfixed-forward unresolved-forward-error 
+forward-needs-: unresolved-forward fancy-after-l whereg delete-whereg 
+whereg-filename s` sh-get sh$ plain-output plain-out plain-form help 
+help-section help-word open-doc set-help-view count-lfs doc-file# unused-words 
+unused-wordlist unused@ unmark-used unused-all -unused +unused .wids 
+unused-mask usage# browse (browse) browse-results bw nw ww where-</> 
+where-index-- where-index++ (ww) where prepend-where expand-where short-where 
+where-reset where-setup (where) forwheres .whereview1 .whereline .wheretype1 
+width-type type-notabs unbounds bt nt tt bt-</> backtrace-- backtrace++ 
+backtrace# bt-location gg g-once ll l-once next-l|g l|g edit g extern-g b n 
+view locate .rec'-stack xt-locate name-set-located-view l l1 no-</> index-- 
+index++ after-l append-locate-lines prepend-locate-lines display-locate-lines 
+located-erase l2 print-locate-header view>filename current-location? 
+current-location?1 located-buffer locate-print-line locate-type located-diff 
+locate-lines+ locate-lines# locate-next-line locate-line set-bn-view 
+view>buffer included-buffer included-file-buffers backtrace-index where-index 
+where-results -status +status .status-line status-xts .order .stacks .base 
+wide? replace-char .unstatus-line redraw-status status-offset mwords 
+wordlist-mwords .mwords[] wid>words[] mword-filename-match mword-search-match 
+mword-match words[] scroll-down scroll-up cursor-previous-line 
+cursor-next-line erase-display insert-lines cursor-down cursor-up 
+control-sequence: restore-cursor-position save-cursor-position 
+(control-sequence) auto-color magenta-input dark-mode light-mode 
+uncolored-mode default-bg rgb-split term-bg? term-fg? term-color? term-rgb@ 
+is-xterm? is-color-terminal? is-terminal? term-rgb$ <<<m m>>> mark-attr 
+BlackSpace (theme-color!) white? theme-color@ theme: current-theme (Attr!) 
+Attr A> <A FG> BG> >FG >BG Dim Invisible Italic Strikethrough Invers Blink 
+Underline Bold defaultcolor White Cyan Magenta Blue Yellow Green Red Black 
+load-rc0 load-rc load-rc? disasm-gdb 0x. ppid append-extend-string 
 >string-execute >string-out >string-form >string-cr >string-emit >string-type 
 >string-len >string-buffer >string-initial-buflen end-c-library c++-library 
 c-library reopen-libs .libs map-libs prefetch-lib c-lib host? get-host? 
@@ -896,21 +898,21 @@ exception next-exception errstring linked minos? glx? gles? getrandom?
 getentropy? include-ffi.h-string libffi-present ffcall-present libtool-flags 
 libtool-cxx libtool-cc libtool-command machine lib-suffix has? $has? e? 
 environment? environment-wordlist environment version-string>internal (0s) 
-process-voc-option options image-options vocs map-vocs order .voc .id id. seal 
-set-order get-order Only Root Forth previous also >order >voc >wordlist 
-Vocabulary wordlist mappedwordlist wordlist-class set-wordlist wl, slowvoc 
-definitions set-current back> >back search-order %alloc %allocate %allot 
-%align %size %alignment double% sfloat% dfloat% float% char% cell% struct 
-end-struct field create-field field, nalign naligned default-recognize 
+process-voc-option `required options image-options vocs map-vocs order .voc 
+.id id. seal set-order get-order Only Root Forth previous also >order >voc 
+>wordlist Vocabulary wordlist mappedwordlist wordlist-class set-wordlist wl, 
+slowvoc definitions set-current back> >back search-order %alloc %allocate 
+%allot %align %size %alignment double% sfloat% dfloat% float% char% cell% 
+struct end-struct field create-field field, nalign naligned default-recognize 
 recognizer-sequence: recognize trace-recognizer set-current-view 
 set-located-view view>line view>filename# after-locate before-locate 
 located-slurped located-bottom located-top bn-view located-len located-view 
-kill-task catch-frame endtry-iferror endtry restore iferror try nothrow 
-stored-backtrace store-backtrace resize free allocate current-memory-words 
-heap-words do;abicode, doabicode, dodoes: dofield, dodefer, douser, dovar, 
-docol, dovalue, docon, do;abicode: (;abi-code-dummy) doabicode: 
-(abi-code-dummy) dodoes: (does-dummy) dofield: dodefer: douser: dovar: docol: 
-dovalue: docon: vlist words wordlist-words .word word-colorize 
+kill-task catch-nobt catch-frame endtry-iferror endtry restore iferror try 
+nothrow stored-backtrace store-backtrace resize free allocate 
+current-memory-words heap-words do;abicode, doabicode, dodoes: dofield, 
+dodefer, douser, dovar, docol, dovalue, docon, do;abicode: (;abi-code-dummy) 
+doabicode: (abi-code-dummy) dodoes: (does-dummy) dofield: dodefer: douser: 
+dovar: docol: dovalue: docon: vlist words wordlist-words .word word-colorize 
 traverse-wordlist map-wordlist cols rows ? dump .line .chars .4 /dump .s 
 maxdepth-.s .s. [ENDIF] [THEN] [ELSE] [IFUNDEF] [IFDEF] [IF] scanif 
 [undefined] defined [defined] scanning? ?if scanif-r [struct]-voc 
@@ -918,17 +920,20 @@ maxdepth-.s .s. [ENDIF] [THEN] [ELSE] [IFUNDEF] [IFDEF] [IF] scanif
 CLiteral previous-section next-section ;inline inline: ;] [: comp-[: int-[: 
 (;]) (int-;]) wrap! wrap@ wrap!-kernel wrap@-kernel endscope 
 adjust-locals-list scope execute-exit ?EXIT EXIT exit-like NEXT -LOOP +LOOP 
-LOOP loop-like FOR U-DO -DO U+DO +DO ?DO ?do-like DO ?LEAVE LEAVE DONE leave> 
->leave leave-empty? clear-leave-stack leave-stack REPEAT WHILE UNTIL 
-until-like AGAIN again-like BEGIN begin-like ELSE ENDIF THEN cs>addr then-like 
-?DUP-0=-IF ?DUP-IF IF AHEAD NOPE YET BUT <resolve >resolve >mark? >mark 
-?colon-sys ?struc if-like other-control-flow cs-push-orig cs-push-part CS-DROP 
-CS-ROLL CS-PICK cs-item-size cs-item? non-orig? scope? do-dest? dest? orig? 
-scopestart do-dest dest dead-orig live-orig pop-stack-state pop-stack-state1 
-push-stack-state push-stack-state1 after-cs-pop before-cs-push cs-depth1-- 
-cs-depth1++ update-backedge-locals-default ASSUME-LIVE UNREACHABLE ;-hook21 
-:-hook1 cs-floor cs-depth1 backedge-locals-default backedge-locals dead-code 
-locals-list .included require include required included 
+LOOP loop-like FOR U-DO -DO U+DO +DO ?DO ?do-like DO ?LEAVE LEAVE 
+unresolved-leave DONE leave> >leave leave-empty? clear-leave-stack leave-stack 
+REPEAT WHILE UNTIL until-like AGAIN again-like BEGIN begin-like ELSE ENDIF 
+THEN cs>addr then-like ?DUP-0=-IF ?DUP-IF IF AHEAD NOPE YET BUT <resolve 
+>resolve >mark? >mark ?colon-sys ?struc if-like other-control-flow 
+cs-push-orig cs-push-part CS-DROP CS-ROLL CS-PICK cs-item-size cs-item? 
+non-orig? scope? do-dest? dest? orig? scopestart do-dest dest dead-orig 
+live-orig pop-stack-state pop-stack-state1 push-stack-state push-stack-state1 
+after-cs-pop before-cs-push cs-depth1-- cs-depth1++ 
+update-backedge-locals-default ASSUME-LIVE UNREACHABLE ;-hook21 :-hook1 
+cs-floor cs-depth1 backedge-locals-default backedge-locals dead-code 
+locals-list os-boot process-args process-option (process-option) arg-input 
+next-arg shift-args clear-args script? argc argv pathdirs pathstring #! arg 
+cstring>sstring .included require include required included 
 >include-auto-extension include-auto-extension-filename >include >included 
 included1 add-included-file included? str>loadfilename# sourceline# 
 included-filename[] sourcefilename included-files open-fpath-file 
@@ -940,12 +945,9 @@ clear-paths tfile ofile fpath 'image save-strings boot-strings $[]Variable
 $Variable $[]saved $saved boot[][] boot$[] $[]save $[]boot $save $boot $bit@ 
 $-bit $+bit $bit $[] $room $iter $split $init $del $ins c$+! $+! $+!len $@ $! 
 $!len $@len $make $!buf $free $padding insert delete ( write-line +fmode bin 
-r/o r/w w/o os-boot (process-args) process-option (process-option) 
-args-evaluate args-required args-required1 os-execute-parsing next-arg 
-shift-args clear-args script? argc argv pathdirs pathstring #! arg 
-cstring>sstring set-encoding-fixed-width set-encoding fixed-width ca-size 
-c-size c@+? invalid-char c!+? c!+ string- +string char- xc, xhold x@+/string 
-xc@+? -trailing-garbage x-width x-size xc-size xc@+ xc!+? xc!+ xc@ x\string- 
+r/o r/w w/o set-encoding-fixed-width set-encoding fixed-width ca-size c-size 
+c@+? invalid-char c!+? c!+ string- +string char- xc, xhold x@+/string xc@+? 
+-trailing-garbage x-width x-size xc-size xc@+ xc!+? xc!+ xc@ x\string- 
 +x/string xchar- xchar+ xkey xemit xc-vector authors license include-file 
 execute-parsing-file execute-parsing-named-file ?set-current-view 
 get-input-colored get-input read-loop read-loop1 line-end-hook query 
@@ -971,7 +973,7 @@ s>int a>comp a>int obsolete compile-only restrict immediate imm>comp lastflags
 or! ," postpone ] [ forth-recognize minimal-recognize stack# stack> >stack 
 stack do-stack: stack: set-stack get-stack rec-num nt>rec translate-nt? ?found 
 translate-dnum translate-num translate-nt name-compsem >postpone translate: 
-do-translate 2lit, lit, postpone, [COMP'] COMP' ['] default-i/c 
+do-translate no.extensions 2lit, lit, postpone, [COMP'] COMP' ['] default-i/c 
 default-name>comp flush-code peephole-compile, prim-check name>view addr>view 
 xt-location1 xt-location bt-pos-width +target basic-block-end cfa, 
 clear-litstack lits, lits# lits> >lits litstack ?parse-name ALiteral 2Literal 
@@ -983,11 +985,11 @@ current-sourceview replace-sourceview encode-view current-sourcepos3
 encode-pos get-current string, mem, const A, cfalign maxalign falign align 
 >align 2, c, small-allot allot hm-list is-umethod (uv) uvar, umethod, does, 
 ;abi-code, abi-code, field+, defer, user, variable, :, constant, value, 
-does-check call-check kernel-bye bye boot xt, cold 'cold process-args 
-bootmessage gforth (c) do-find do-execute quit (DoError) rec-level reset-dpp 
-.error-frame (.error-level) .error-level .error-line part-type mark-end 
-mark-start .error-string dobacktrace DOERROR -trailing dec.r input-error-data 
->error error> error-stack /error (quit) (quit1) (prompt) prompt .status 'quit 
+does-check call-check kernel-bye bye boot xt, cold 'cold bootmessage gforth 
+(c) do-find do-execute quit (DoError) rec-level reset-dpp .error-frame 
+(.error-level) .error-level .error-line part-type mark-end mark-start 
+.error-string dobacktrace DOERROR -trailing dec.r input-error-data >error 
+error> error-stack /error (quit) (quit1) (prompt) prompt .status 'quit 
 save-mem interpret2 bt-rp0-wrapper bt-rp0-catch interpret int-execute 
 before-line before-word parse-name ' (') '-error any-code! only-code-address! 
 >does-code xt>name >code-address body> >body >head-noprim xt? hm? ??? 
@@ -997,33 +999,32 @@ initwl defer@ hmsize name>link name>string name>compile name>interpret (to)
 opt-compile, >namehm >cfa >link >f+c >hm>link >hm>string >hm>comp >hm>int 
 >hmextra >hmto >hmcompile, >hmlink ((name>)) (x>int) compile-only-error 
 ticking-compile-only-error flag-sign lcount-mask obsolete-mask restrict-mask 
-find-name rec-nt search-wordlist find-name-in no.extensions (where,) where, 
-where-struct where-loc where-nt wheres context voclink current f83search 
-forth-wordlist rec-f83 wordlist-struct wordlist-extend wordlist-link 
-wordlist-id wordlist-map wordlist-exec wordlist-start \G \ ( number (number?) 
-snumber? s>number s>number? s>unumber? ?warn# s'>unumber? ?dnegate sign? 
-getbase bases name-too-long? name-too-short? (name) parse (parse) 
-version-string .error error$ errlink>string do-debug >stderr >exec c(warning") 
-.warning ErrRanges ErrLink u. . ud. d. u.r .r ud.r d.r holds #s # sign #>> <<# 
-#> <# hold +hold pad ms ns kernel-deadline deadline backspaces spaces 
-spaces-loop compile-color status-color error-hl-inv error-hl-ul input-color 
-success-color info-color warning-color error-color default-color theme-color: 
-theme-color# theme-to theme-table theme@ theme! space bell #lf #ff #cr #del 
-#esc #tab #bs #bell #eof output: input: default-in debug-vector debug-out 
-default-out key (cr) key? key-ior ip-vector theme-color! control-sequence 
-attr! at-deltaxy at-xy page form cr emit type op-vector (key?) (key) key-file 
-EBADF EINTR EOK (err-emit) (err-type) (emit) (type) out debug-fid outfile-id 
-infile-id hex decimal "lit clearstacks clearstack depth ?stack abort ?warning 
-(abort") c(abort") throw catch ud/mod s>d >number_ >number accumulate digit? 
-stick roll dabs off on ->here here dpp in-dictionary1? in-dictionary? unused 
-usable-dictionary-end usable-dictionary-end1 dictionary-end section-desc 
-codestart targets primbits locs[] section-name section-dp section-size 
-section-start current-section A! chars cfaligned maxaligned NIL str< 
-string-suffix? string-prefix? str= no-to >comp tib+ tib loadfilename# 
-#fill-bytes blk loadfile loadline old-input max#tib #tib new-where 
-input-lexeme >in (restore-input) (save-input) source-id refill source 
-current-input warnings Last dp state >num-state dpl base holdend holdptr 
-holdbuf-end holdbuf holdbufptr abort-string errorhandler backtrace-rp0 
+find-name rec-nt search-wordlist find-name-in (where,) where, where-struct 
+where-loc where-nt wheres context voclink current f83search forth-wordlist 
+rec-f83 wordlist-struct wordlist-extend wordlist-link wordlist-id wordlist-map 
+wordlist-exec wordlist-start \G \ ( number (number?) snumber? s>number 
+s>number? s>unumber? ?warn# s'>unumber? ?dnegate sign? getbase bases 
+name-too-long? name-too-short? (name) parse (parse) version-string .error 
+error$ errlink>string do-debug >stderr >exec c(warning") .warning ErrRanges 
+ErrLink u. . ud. d. u.r .r ud.r d.r holds #s # sign #>> <<# #> <# hold +hold 
+pad ms ns kernel-deadline deadline backspaces spaces spaces-loop compile-color 
+status-color error-hl-inv error-hl-ul input-color success-color info-color 
+warning-color error-color default-color theme-color: theme-color# theme-to 
+theme-table theme@ theme! space bell #lf #ff #cr #del #esc #tab #bs #bell #eof 
+output: input: default-in debug-vector debug-out default-out key (cr) key? 
+key-ior ip-vector theme-color! control-sequence attr! at-deltaxy at-xy page 
+form cr emit type op-vector (key?) (key) key-file EBADF EINTR EOK (err-emit) 
+(err-type) (emit) (type) out debug-fid outfile-id infile-id hex decimal "lit 
+clearstacks clearstack depth ?stack abort ?warning (abort") c(abort") throw 
+catch ud/mod s>d >number_ >number accumulate digit? stick roll dabs off on 
+->here here dpp in-dictionary1? in-dictionary? unused usable-dictionary-end 
+usable-dictionary-end1 dictionary-end section-desc codestart targets primbits 
+locs[] section-name section-dp section-size section-start current-section A! 
+chars cfaligned maxaligned NIL str< string-suffix? string-prefix? str= no-to 
+>comp tib+ tib loadfilename# #fill-bytes blk loadfile loadline old-input 
+max#tib #tib new-where input-lexeme >in (restore-input) (save-input) source-id 
+refill source current-input warnings Last dp state >num-state dpl base holdend 
+holdptr holdbuf-end holdbuf holdbufptr abort-string errorhandler backtrace-rp0 
 wraphandler first-throw handler throw-entry lp0 fp0 rp0 sp0 save-task 
 prev-task next-task udp main-task def#tib pad-minsize word-pno-size 
 chars/block l/s c/l /line bl float false true 2Constant 2constant, UValue 

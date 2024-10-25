@@ -119,6 +119,7 @@ c-library pthread
     c-function gforth_create_thread gforth_stacks n n n n -- a ( dsize fsize rsize lsize -- task )
     c-function pthread_create pthread_create a{(pthread_t*)} a a a -- n ( thread attr start arg )
     c-function pthread_exit pthread_exit a -- void ( retaddr -- )
+    c-function pthread_join pthread_join a{*(pthread_t*)} a -- n ( thread retval -- errno )
     c-function pthread_kill pthread_kill a{*(pthread_t*)} n -- n ( id sig -- rvalue )
     e? os-type s" linux-android" string-prefix? 0= [IF]
 	c-function pthread_cancel pthread_cancel a{*(pthread_t*)} -- n ( addr -- r )
@@ -403,12 +404,13 @@ synonym sleep halt ( task -- ) \ gforth-experimental
 
 : kill ( task -- ) \ gforth-experimental
     \G Terminate @i{task}.
-    user' pthread-id +
+    user' pthread-id + dup >r
     [IFDEF] pthread_cancel
 	pthread_cancel drop
     [ELSE]
 	15 pthread_kill drop
-    [THEN] ;
+    [THEN]
+    r> 0 pthread_join drop ;
 
 \ User deferred words, user values
 
