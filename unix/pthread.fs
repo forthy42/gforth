@@ -402,15 +402,19 @@ synonym sleep halt ( task -- ) \ gforth-experimental
 	BEGIN  stop  wake# @ r@ =  UNTIL  rdrop
     THEN ;
 
-: kill ( task -- ) \ gforth-experimental
+: (kill) ( task xt -- ) \ gforth-experimental
     \G Terminate @i{task}.
-    user' pthread-id + dup >r
-    [IFDEF] pthread_cancel
-	pthread_cancel drop
-    [ELSE]
-	15 pthread_kill drop
-    [THEN]
-    r> 0 pthread_join drop ;
+    { xt: xt | thread-id[ 0 pthread+ ] }
+    dup user' pthread-id + thread-id[ 0 pthread+ move
+    xt  thread-id[ 0 pthread_join drop ;
+
+: kill ( task -- )
+    [: user' pthread-id +
+	[IFDEF] pthread_cancel
+	    pthread_cancel drop
+	[ELSE]
+	    15 pthread_kill drop
+	[THEN] ;] (kill) ;
 
 \ User deferred words, user values
 

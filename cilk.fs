@@ -85,9 +85,7 @@ semaphore workers-sema
 : cilk-bye ( -- ) \ cilk
     \G Terminate all workers.
     cilk-sync workers $@len cell/ 0 ?DO
-	worker@ dup user' pthread-id + >r
-	[: 0 (bye) ;] send-event
-	r> 0 pthread_join drop
+	worker@ [: [: 0 (bye) ;] send-event ;] (kill)
     LOOP
     workers $free  sync# off ;
 
