@@ -404,8 +404,7 @@ synonym sleep halt ( task -- ) \ gforth-experimental
 
 : (kill) ( task xt -- ) \ gforth-experimental
     \G Terminate @i{task}.
-    { xt: xt | thread-id[ 0 pthread+ ] }
-    dup user' pthread-id + thread-id[ 0 pthread+ move
+    over user' pthread-id + { xt: xt thread-id[ 0 pthread+ ] }
     xt  thread-id[ 0 pthread_join drop ;
 
 : kill ( task -- )
