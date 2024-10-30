@@ -152,7 +152,9 @@ $Variable term-rgb$
     s" TERM" getenv
     2dup s" xterm" search nip nip >r
     2dup s" linux" search nip nip >r
-         s" rxvt"  search nip nip r> r> or or ;
+    2dup s" rxvt"  search nip nip >r
+         s" foot"  search nip nip
+    r> r> r> or or or ;
 
 : is-xterm? ( -- f )
     s" TERM" getenv

@@ -674,14 +674,14 @@ allocater static-a dynamic-alloc static-alloc storage :free :allocate object
 end-class class var method >methods >osize current-o method-xt var-xt m m-to 
 m>body ?valid-method !!inv-method!! o# opt-sf@on opt-sf!on opt-@on opt-!on 
 opt-on default-method thread-key prep-key keypollfds UDefer udefer-to kill 
-event-block sleep halt wake restart (restart) thread-deadline pause event-loop 
-stop-dns stop-ns stop ?events event? send-event (stop) execute-task stacksize4 
-stacksize >pagealign-stack c-section critical-section unlock lock cond sema 
-semaphore initiate pass (pass) activate (activate) task newtask newtask4 
-thread-init atfork-init atfork-cbs child-cb# parent-cb# prepare-cb# child-fork 
-parent-fork prepare-fork 's user' wake# epipew epiper pthread-id compsem: 
-intsem: set-compsem to-errno errno-table fork+exec fpid fork() getpid fd>file 
-int-errno-exec saved-errno ?ior ?errno-throw errno-throw fds[]! fds!+ 
+(kill) event-block sleep halt wake restart (restart) thread-deadline pause 
+event-loop stop-dns stop-ns stop ?events event? send-event (stop) execute-task 
+stacksize4 stacksize >pagealign-stack c-section critical-section unlock lock 
+cond sema semaphore initiate pass (pass) activate (activate) task newtask 
+newtask4 thread-init atfork-init atfork-cbs child-cb# parent-cb# prepare-cb# 
+child-fork parent-fork prepare-fork 's user' wake# epipew epiper pthread-id 
+compsem: intsem: set-compsem to-errno errno-table fork+exec fpid fork() getpid 
+fd>file int-errno-exec saved-errno ?ior ?errno-throw errno-throw fds[]! fds!+ 
 LC_IDENTIFICATION LC_MEASUREMENT LC_TELEPHONE LC_ADDRESS LC_NAME LC_PAPER 
 LC_ALL LC_MESSAGES LC_MONETARY LC_COLLATE LC_TIME LC_NUMERIC LC_CTYPE POLLHUP 
 POLLOUT POLLPRI POLLIN revents events fd pollfd pagesize environ unsetenv 
@@ -695,19 +695,19 @@ wait_read check_read create_pipe pthread_cond_timedwait pthread_cond_wait
 pthread_cond_broadcast pthread_cond_signal pthread_cond_destroy 
 pthread_cond_init pthread_detach_attr sched_yield pthread_mutex_unlock 
 pthread_mutex_lock pthread_mutex_destroy pthread_mutex_init pthread_cancel 
-pthread_kill pthread_exit pthread_create gforth_create_thread thread_start 
-disasm disline disassembler find sfind word sword (word) .name S+LOOP CONTINUE 
-name>comp name>int what's const-does> (const-does>) compile-fliterals 
-compile-literals <compilation compilation> <interpretation interpretation> 
-create-interpret/compile s-k12 s-k11 s-k10 s-k9 s-k8 s-k7 s-k6 s-k5 s-k4 s-k3 
-s-k2 s-k1 k12 k11 k10 k9 k8 k7 k6 k5 k4 k3 k2 k1 rectype-env rectype-to 
-rectype-dnum rectype-num rectype-nt rectype-null rectype: rectype rectype>post 
-rectype>comp rectype>int le-uxd@ le-ux@ le-ul@ le-uw@ be-uxd@ be-ux@ be-ul@ 
-be-uw@ le-xd! le-x! le-l! le-w! be-xd! be-x! be-l! be-w! sxd@ uxd@ ux@ ul@ uw@ 
-+place .strings name parse-word comp: definer! code-address! [(')] lastxt 
-longstring, header, obsoletes .quoted-csv read-csv csv-read-loop csv-line 
-next-csv $csv-item next-field un-dquote unquote unquote-end unquote-start 
-csv-line-number quote-state csv-quote csv-separator rec-meta 
+pthread_kill pthread_join pthread_exit pthread_create gforth_create_thread 
+thread_start disasm disline disassembler find sfind word sword (word) .name 
+S+LOOP CONTINUE name>comp name>int what's const-does> (const-does>) 
+compile-fliterals compile-literals <compilation compilation> <interpretation 
+interpretation> create-interpret/compile s-k12 s-k11 s-k10 s-k9 s-k8 s-k7 s-k6 
+s-k5 s-k4 s-k3 s-k2 s-k1 k12 k11 k10 k9 k8 k7 k6 k5 k4 k3 k2 k1 rectype-env 
+rectype-to rectype-dnum rectype-num rectype-nt rectype-null rectype: rectype 
+rectype>post rectype>comp rectype>int le-uxd@ le-ux@ le-ul@ le-uw@ be-uxd@ 
+be-ux@ be-ul@ be-uw@ le-xd! le-x! le-l! le-w! be-xd! be-x! be-l! be-w! sxd@ 
+uxd@ ux@ ul@ uw@ +place .strings name parse-word comp: definer! code-address! 
+[(')] lastxt longstring, header, obsoletes .quoted-csv read-csv csv-read-loop 
+csv-line next-csv $csv-item next-field un-dquote unquote unquote-end 
+unquote-start csv-line-number quote-state csv-quote csv-separator rec-meta 
 scope-search-prefix ?search-prefix in-wordlist in rec-scope scope-split 
 nosplit? rec-env translate-env env$, $value[]: $value[]-dummy value[]: 
 value[]-dummy defer: defer-dummy $value: $value-dummy zvalue: zvalue-dummy 
