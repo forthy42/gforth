@@ -150,16 +150,18 @@ $Variable term-rgb$
 
 : is-color-terminal? ( -- flag )
     s" TERM" getenv
-    2dup s" xterm" search nip nip >r
-    2dup s" linux" search nip nip >r
-    2dup s" rxvt"  search nip nip >r
-         s" foot"  search nip nip
-    r> r> r> or or or ;
+    2dup s" xterm" string-prefix? >r
+    2dup s" linux" string-prefix? >r
+    2dup s" rxvt"  string-prefix? >r
+         s" foot"  string-prefix?
+    r> or r> or r> or ;
 
 : is-xterm? ( -- f )
     s" TERM" getenv
     2dup s" xterm" string-prefix? >r
-         s" rxvt"  string-prefix? r> or \ rxvt behaves like xterm
+    2dup s" rxvt"  string-prefix? >r
+         s" foot"  string-prefix?
+    r> or r> or \ rxvt and foot behave like xterm
     \ OSX' terminal claims to be a full xterm-256color, but isn't
     s" TERM_PROGRAM" getenv s" Apple_Terminal" str= 0= and
     is-terminal? and ;
