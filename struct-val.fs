@@ -46,11 +46,11 @@ standard:field
 : wrapper-xts ( xt@ !-table "name" -- dummy-xt ) { xt@ xt! }
     :noname xt@ >lits ]] vfield-int, [[ postpone ; >r \ xt-does
     :noname xt@ >lits ]] >lits vfield-comp, [[ postpone ; >r \ xt-comp,
-    xt! noname field-to-class: latestxt >r \ xt-to
+    xt! noname field-to-class: latestnt >r \ xt-to
     \ create a dummy word with these methods
     >in @ >r parse-name r> >in ! 2dup + 1- c@ ':' = +
     [: type ." -dummy" ;] $tmp
-    nextname Create r> r> r> set-does> set-optimizer set-to latestxt
+    nextname Create r> r> r> set-does> set-optimizer set-to latestnt
 ;
 
 : wrap+value: ( n2 xt-align xt@ !-table "name" -- )

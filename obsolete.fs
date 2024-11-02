@@ -149,7 +149,7 @@ inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline obsolete
 
 : rectype ( int-xt comp-xt post-xt -- rectype ) \ gforth-obsolete
     \G create a new unnamed recognizer token
-    noname translate: latestxt ; 
+    noname translate: latestnt ; 
 
 : rectype: ( int-xt comp-xt post-xt "name" -- ) \ gforth-obsolete
     \G create a new recognizer table

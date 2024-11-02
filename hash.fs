@@ -179,7 +179,7 @@ Create tablevoc-table ' table-reveal , ' drop , ' n/a , ' n/a , ' table-reveal ,
 forth-wordlist noname-from
 ' hashvoc-to set-to
 ' hash-rec set-does>
-hm, latestxt >namehm @ to hashsearch-map
+hm, latestnt >namehm @ to hashsearch-map
 
 \ hash allocate and vocabulary initialization          10oct94py
 

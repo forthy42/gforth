@@ -617,10 +617,10 @@ User theme-color  0 theme-color !
 
 : derived-input: ( "name" -- )
     ['] noop dup input:
-    op-vector @ latestxt >body cell+ 2 cells move ;
+    op-vector @ latestnt >body cell+ 2 cells move ;
 : derived-output: ( "name" -- )
     ['] noop dup 2dup output:
-    op-vector @ latestxt >body cell+ #10 cells move ;
+    op-vector @ latestnt >body cell+ #10 cells move ;
 
 \ safe BASE wrapper
 
