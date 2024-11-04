@@ -233,14 +233,9 @@ opt: @ 3 swap (to), ;
 
 \ ]] ... [[
 
-' noop ' noop
-:noname  ] action-of forth-recognize stack> drop ;
-translate: translate-[[
-' translate-[[ Constant rectype-[[
-
-: rec-[[ ( addr u -- token ) \ gforth-internal rec-left-bracket-bracket
+: rec-[[ ( addr u -- token | 0 ) \ gforth-internal rec-left-bracket-bracket
     \ recognizer for "[["; when it is recognized, postpone state ends.
-    s" [[" str=  ['] translate-[[ and ;
+    s" [[" str=  [: ] action-of forth-recognize stack> drop ;] and ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G Switch into postpone state: All words and recognizers are
