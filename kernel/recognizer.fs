@@ -49,11 +49,10 @@
 Create >postpone ( translator -- ) \ gforth-experimental
 \G perform postpone action of translator
 2 cells ,
-DOES> @ over >does-code ['] do-translate <> #-32 and throw
-  + @ execute-;s ;
-
-\ for combined translators better use:
-\   -2 state !@ >r execute r> state ! ;
+DOES> @ over >does-code ['] do-translate = IF
+      + @ execute-;s  THEN
+  \ fallback for combined translators
+  cell/ negate state !@ >r execute r> state ! ;
 
 : name-compsem ( ... nt -- ... )
     \ perform compilation semantics of nt
