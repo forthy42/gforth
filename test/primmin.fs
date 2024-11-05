@@ -35,12 +35,15 @@ here 1802 over
     0 A,                \ image dp (without tags)
     0 A,                \ section name
     0 A,                \ locs[]
+    NIL A,              \ primbits
+    NIL A,              \ targets
+    NIL A,              \ codestart
+\    NIL A,              \ last-header
     has? stack-size ,   \ data stack size
     has? fstack-size ,  \ FP stack size
     has? rstack-size ,  \ return stack size
     has? lstack-size ,  \ locals stack size
     0 A,                \ boot entry point
-    0 A,                \ throw entry point
     0 A,                \ quit entry point
     0 A,                \ execute entry point
     0 A,                \ find entry point
@@ -100,7 +103,7 @@ AConstant image-header
 here image-header + image-header #02 cells + !
 .( set image entry point) cr
 \ the minimal viable system only boots, and terminates from there
-' boot       >body  image-header #09 cells + !
+' boot >body  image-header #12 cells + A!
 
 .unresolved                          \ how did we do?
 

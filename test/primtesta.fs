@@ -96,6 +96,10 @@ here 1802 over
     0 A,                \ image dp (without tags)
     0 A,                \ section name
     0 A,                \ locs[]
+    NIL A,              \ primbits
+    NIL A,              \ targets
+    NIL A,              \ codestart
+\    NIL A,              \ last-header
     has? stack-size ,   \ data stack size
     has? fstack-size ,  \ FP stack size
     has? rstack-size ,  \ return stack size
@@ -419,7 +423,7 @@ has? header [IF]
     \ set image size
     here image-header 2 cells + !         
     \ set image entry point
-    ' boot >body  image-header section-desc + #4 cells + A!         
+    ' boot >body  image-header #12 cells + A!         
 [ELSE]
     >boot
 [THEN]
