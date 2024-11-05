@@ -132,7 +132,6 @@ variable located-bottom \ last line to display with l
 
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP-IF
-	[ here forthstart #13 cells + ! ]
 	[ here throw-entry ! ]
 	first-throw @ 0< IF
 	    store-backtrace

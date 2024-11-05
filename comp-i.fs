@@ -99,7 +99,7 @@ drop
 0 Value xbase  0 Value xoffset
 0 Value lbase  0 Value loffset
 
-section-desc 8 cells + >r
+#16 cells >r
 
 : set-image-offsets ( -- )
     ."  code" [ r@           ]L 26 cells image-data to coffset to cbase
@@ -112,11 +112,18 @@ section-desc 8 cells + >r
     reloc-size allocate throw to reloc-bits
     reloc-bits reloc-size erase ;
 
+Variable reloc-addrs
+Variable reloc-c
+Variable reloc-x
+Variable reloc-l
+Variable reloc-errs
+
 : compare-section { sect1 sect2 size file-id -- }
     \G compares sect1 and sect2 (of size cells) and sets reloc-bits.
     \G offset is the difference for relocated addresses
     \ this definition is certainly to long and too complex, but is
     \ hard to factor.
+    reloc-addrs off  reloc-c off  reloc-x off  reloc-l off  reloc-errs off
     size alloc-reloc-bits
     size 0 u+do
 	sect1 i th @ sect2 i th @ { cell1 cell2 }
@@ -125,17 +132,22 @@ section-desc 8 cells + >r
 		cell1 file-id write-cell throw endof
 	    cell1 im-sects1 sect-reloc cell2 im-sects2 sect-reloc over = ?of
 		file-id write-cell throw
-		i reloc-bits set-bit endof
+		i reloc-bits set-bit
+		1 reloc-addrs +! endof
 	    drop
 	    cell1 coffset + cell2 = ?of
-		cell1 cbase - >cfa $4000 file-id i write-symbol endof
+		cell1 cbase - >cfa $4000 file-id i write-symbol
+		1 reloc-c +!  endof
 	    cell1 xoffset + cell2 = ?of
-		cell1 xbase -     0 file-id i write-symbol endof
+		cell1 xbase -     0 file-id i write-symbol
+		1 reloc-x +!  endof
 	    cell1 loffset + cell2 = ?of
-		cell1 lbase - $8000 file-id i write-symbol endof
+		cell1 lbase - $8000 file-id i write-symbol
+		1 reloc-l +!  endof
 	    cell1 file-id write-cell throw
 	    cell1 cell2 <> if
 		0 i th 9 u.r cell1 17 u.r cell2 17 u.r cr
+		1 reloc-errs +!
 	    endif
 	0 endcase
     loop
@@ -149,6 +161,11 @@ section-desc 8 cells + >r
 	dup sect-size@ aligned cell/
 	." Compare section " I . cr
 	file-id compare-section
+	." stats: addr=" reloc-addrs ?
+	." code=" reloc-c ?
+	." xts=" reloc-x ?
+	." labels=" reloc-l ?
+	." errs=" reloc-errs ? cr
     LOOP ;
 
 : image-sections { image size sects -- }

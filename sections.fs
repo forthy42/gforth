@@ -75,6 +75,7 @@ is addr>view
     ['] noname section-name !
     locs[] dup off $saved
     primbits off  targets off
+    [IFDEF] last-header  last-header off  [THEN]
     current-section @ r> current-section ! ;
 
 : new-section ( -- )

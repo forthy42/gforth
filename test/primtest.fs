@@ -464,7 +464,7 @@ has? header [IF]
     \ set image size
     here image-header 2 cells + !         
     \ set image entry point
-    ' boot >body  image-header 8 cells + A!         
+    ' boot >body  image-header section-desc + #4 cells + A!         
 [ELSE]
     >boot
 [THEN]
