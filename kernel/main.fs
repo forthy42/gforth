@@ -59,12 +59,12 @@ here 1802 over
     NIL A,              \ primbits
     NIL A,              \ targets
     NIL A,              \ codestart
+\    NIL A,              \ last-header
     has? stack-size ,   \ data stack size
     has? fstack-size ,  \ FP stack size
     has? rstack-size ,  \ return stack size
     has? lstack-size ,  \ locals stack size
     0 A,                \ boot entry point
-    0 A,                \ throw entry point, obsolete
     0 A,                \ quit entry point
     0 A,                \ execute entry point
     0 A,                \ find entry point
@@ -137,10 +137,11 @@ has? header [IF]
     \ set image size
     here image-header + image-header #02 cells + !
     .( set image entry point) cr
-    ' boot       >body  image-header #12 cells + !
-    ' quit       >body  image-header #14 cells + !
-    ' do-execute >body  image-header #15 cells + !
-    ' do-find    >body  image-header #16 cells + !
+    image-header section-desc + #4 cells +
+    ' boot       >body  over ! cell+
+    ' quit       >body  over ! cell+
+    ' do-execute >body  over ! cell+
+    ' do-find    >body  over ! drop
 [ELSE]
     >boot
 [THEN]

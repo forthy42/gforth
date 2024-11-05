@@ -69,6 +69,7 @@ cell uvar locs[]
 cell uvar primbits
 cell uvar targets
 cell uvar codestart
+\ cell uvar last-header
 
 Constant section-desc
 drop

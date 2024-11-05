@@ -99,10 +99,12 @@ drop
 0 Value xbase  0 Value xoffset
 0 Value lbase  0 Value loffset
 
+section-desc 8 cells + >r
+
 : set-image-offsets ( -- )
-    ."  code" 17 cells 26 cells image-data to coffset to cbase
-    ."    xt" 18 cells 22 cells image-data to xoffset to xbase
-    ." label" 19 cells 18 cells image-data to loffset to lbase ;
+    ."  code" [ r@           ]L 26 cells image-data to coffset to cbase
+    ."    xt" [ r@ cell+     ]L 22 cells image-data to xoffset to xbase
+    ." label" [ r> 2 cells + ]L 18 cells image-data to loffset to lbase ;
 
 : alloc-reloc-bits ( size -- )
     reloc-bits ?dup-IF  free throw  THEN
