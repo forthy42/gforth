@@ -295,9 +295,9 @@ Defer locals-list!
 
 (field) locals-name-size+ hmsize cell+ , \ fields + wiggle room, name size must be added
 
-: create-local1 ( "name" -- a-addr )
+: create-local1 ( does-xt to-xt "name" -- a-addr )
     create
-    immediate restrict
+    immediate restrict  set-to set-does>
     here 0 , ( place for the offset ) ;
 
 16384 extra-section locals-headers
@@ -309,7 +309,7 @@ Defer locals-list!
     ' locals-where, is where,
 [THEN]
 
-: create-local ( "name" -- a-addr )
+: create-local ( does-xt to-xt "name" -- a-addr )
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr
     nextname$ $@ d0= IF
@@ -358,26 +358,26 @@ locals-types definitions
 
 : W: ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth w-colon
     \G Define value-flavoured cell local @i{name} @code{( -- x1 )}
-    create-local ['] to-w: set-to
+    [: ( Compilation: -- ) ( Run-time: -- w )
+	\ compiles a local variable access
+	@ lp-offset compile-@local ;]
+    ['] to-w: create-local
     \ xt produces the appropriate locals pushing code when executed
-    ['] compile-pushlocal-w
-  does> ( Compilation: -- ) ( Run-time: -- w )
-    \ compiles a local variable access
-    @ lp-offset compile-@local ;
+    ['] compile-pushlocal-w ;
 
 : W^ ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth w-caret
     \G Define variable-flavoured cell local @i{name} @code{( -- a-addr )}
-    create-local
-    ['] compile-pushlocal-w
-  does> ( Compilation: -- ) ( Run-time: -- w )
-    @ laddr#, ;
+    [: ( Compilation: -- ) ( Run-time: -- w )
+	@ laddr#, ;]
+    ['] no-to create-local
+    ['] compile-pushlocal-w ;
 
 : F: ( compilation "name" -- a-addr xt; run-time r -- ) \ gforth f-colon
     \G Define value-flavoured float local @i{name} @code{( -- r1 )}
-    create-local ['] to-f: set-to
-    ['] compile-pushlocal-f
-  does> ( Compilation: -- ) ( Run-time: -- r1 )
-    @ lp-offset compile-f@local ;
+    [: ( Compilation: -- ) ( Run-time: -- r1 )
+	@ lp-offset compile-f@local ;]
+    ['] to-f: create-local
+    ['] compile-pushlocal-f ;
 
 : F^ ( compilation "name" -- a-addr xt; run-time r -- ) \ gforth f-caret
     \G Define variable-flavoured float local @i{name} @code{( -- f-addr )}
@@ -385,10 +385,10 @@ locals-types definitions
 
 : D: ( compilation "name" -- a-addr xt; run-time x1 x2 -- ) \ gforth d-colon
     \G Define value-flavoured double local @i{name} @code{( -- x3 x4 )}
-    create-local ['] to-d: set-to
-    ['] compile-pushlocal-d
-  does> ( Compilation: -- ) ( Run-time: -- x3 x4 )
-    @ laddr#, postpone 2@ ;
+    [: ( Compilation: -- ) ( Run-time: -- x3 x4 )
+	@ laddr#, postpone 2@ ;]
+    ['] to-d: create-local
+    ['] compile-pushlocal-d ;
 
 : D^ ( compilation "name" -- a-addr xt; run-time x1 x2 -- ) \ gforth d-caret
     \G Define variable-flavoured double local @i{name} @code{( -- a-addr )}
@@ -396,10 +396,10 @@ locals-types definitions
 
 : C: ( compilation "name" -- a-addr xt; run-time c -- ) \ gforth c-colon
     \G Define value-flavoured char local @i{name} @code{( -- c1 )}
-    create-local ['] to-c: set-to
-    ['] compile-pushlocal-c
-  does> ( Compilation: -- ) ( Run-time: -- c1 )
-    @ laddr#, postpone c@ ;
+    [: ( Compilation: -- ) ( Run-time: -- c1 )
+	@ laddr#, postpone c@ ;]
+    ['] to-c: create-local
+    ['] compile-pushlocal-c ;
 
 : C^ ( compilation "name" -- a-addr xt; run-time c -- ) \ gforth c-caret
     \G Define variable-flavoured char local @i{name} @code{( -- c-addr )}
@@ -407,10 +407,10 @@ locals-types definitions
 
 : XT: ( compilation "name" -- a-addr xt; run-time xt1 -- ) \ gforth x-t-colon
     \G Define defer-flavoured cell local @i{name} @code{( ... -- ... )}
-    create-local  ['] to-xt: set-to
-    ['] compile-pushlocal-w
-  does> ( Compilation: -- ) ( Run-time: .. -- .. )
-    @ lp-offset compile-@local postpone execute ;
+    [: ( Compilation: -- ) ( Run-time: .. -- .. )
+	@ lp-offset compile-@local postpone execute ;]
+    ['] to-xt: create-local
+    ['] compile-pushlocal-w ;
 
 Defer default: ' W: is default:
 
@@ -468,7 +468,7 @@ previous
     \G Start locals definitions.  The Forth-2012 standard name for this
     \G word is @code{@{:}.
     ( >docolloc ) hmsave \ as locals will mess with their own hmtemplate
-    latest latestnt get-current
+    latest get-current
     ['] new-locals ['] forth-recognize defer@ >stack
     ['] locals >wordlist set-current
     val-part off
@@ -491,7 +491,7 @@ locals-types definitions
     repeat
     drop hm,
     maxalign-lp
-    set-current lastnt ! last !
+    set-current last !
     hmrestore
     activate-locals ;
 
@@ -605,7 +605,7 @@ is adjust-locals-list
 : locals-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
     DEFERS :-hook
-    ['] here locals-headers latest latestnt
+    ['] here locals-headers latest
     clear-leave-stack
     0 locals-size !
     0 locals-list!
@@ -619,7 +619,7 @@ is adjust-locals-list
 : locals-;-hook ( sys addr xt sys -- sys )
     ?struc
     deactivate-locals
-    lastnt ! last ! ['] ->here locals-headers
+    last ! ['] ->here locals-headers
     DEFERS ;-hook ;
 
 \ THEN (another control flow from before joins the current one):
@@ -699,7 +699,7 @@ is adjust-locals-list
     :noname 0 adjust-locals-size ; is 0-adjust-locals-size
 [then]
 [ifdef] colon-sys-xt-offset
-colon-sys-xt-offset 4 + to colon-sys-xt-offset
+3 +to colon-sys-xt-offset
 [then]
 
 ' (then-like)  IS then-like
@@ -761,7 +761,7 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
 also locals-types
 : noname-w: ( -- n )
     \ generate local; its offset is n
-    POSTPONE { 0 0 nextname W: latestnt >r } r> @ ;
+    POSTPONE { 0 0 nextname W: ['] latestnt locals-headers >r } r> @ ;
 previous
 
 [ifundef] >extra

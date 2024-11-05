@@ -34,7 +34,7 @@
     \G then call @code{immediate}, the compilation semantics are
     \G changed to perform the word's new interpretation semantics.
     [: ['] execute ;] set->comp
-    int-[: [: nip >r hm, wrap! r> [n:d nip ;] set->int ;]
+    int-[: [: nip >r hm, previous-section wrap! r> [n:d nip ;] set->int ;]
     colon-sys-xt-offset stick ;
 
 \ silly example:
@@ -43,7 +43,7 @@
 : compsem: ( -- ) \ gforth-experimental
     \G Changes the compilation semantics of the current definition to
     \G perform the definition starting at the @code{compsem:}.
-    int-[: [: nip >r hm, wrap! r> set-compsem ;] colon-sys-xt-offset stick ;
+    int-[: [: nip >r hm, previous-section wrap! r> set-compsem ;] colon-sys-xt-offset stick ;
 
 \ silly example
 \ : foo ." interpreting" ; compsem: ." compiling" ;

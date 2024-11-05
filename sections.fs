@@ -110,8 +110,9 @@ is reset-dpp
 
 : extra-section ( size "name" -- )
     create-section dup >extra-sections
-    [: create , latest section-name ! ;] over section-execute
-  does> ( xt -- ) @ section-execute ;
+    [: create , latest section-name !
+      does> ( xt -- ) @ section-execute ;]
+    over section-execute ;
     
 \ initialization
 

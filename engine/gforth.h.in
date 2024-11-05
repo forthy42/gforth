@@ -50,13 +50,16 @@ typedef struct {
   Float* fp0;
   Address lp0;
   Xt *throw_entry;
-  Cell *handler;
-  Cell first_throw;
-  Cell *wraphandler; /* experimental */
 } user_area;
 
 typedef struct {
   Cell magic;
+  /* exception parts here, not in user area */
+  Cell *handler;
+  Cell first_throw;
+  Cell *wraphandler; /* experimental */
+  jmp_buf * throw_jumpptr;
+  /* pointers and user area */
   Cell *spx;
   Cell *rpx;
   Address lpx;
@@ -64,22 +67,23 @@ typedef struct {
   user_area* upx;
   Xt *s_ip;
   Cell *s_rp;
-  jmp_buf * throw_jumpptr;
 } stackpointers;
 
 typedef struct {
   Address base;		/* base address of image (0 if relocatable) */
-  UCell checksum;	/* checksum of ca's to protect against some
-			   incompatible	binary/executable combinations
-			   (0 if relocatable) */
-  UCell image_size;	/* all sizes in bytes */
   UCell dict_size;
+  Address image_dp;	/* all sizes in bytes */
+  Address sect_name;
+  Address sect_locs;
+  Address sect_primbits;
+  Address sect_targets;
+  Address sect_codestart;
+  Address sect_last_header;
   UCell data_stack_size;
   UCell fp_stack_size;
   UCell return_stack_size;
   UCell locals_stack_size;
   Xt *boot_entry;	/* initial ip for booting (in BOOT) */
-  Xt *throw_entry;	/* ip after signal (in THROW) */
   Xt *quit_entry;
   Xt *execute_entry;
   Xt *find_entry;

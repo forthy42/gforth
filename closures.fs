@@ -98,7 +98,7 @@ forth definitions
 : dummy-local, ( n -- )
     locals-size +!
     get-current >r  0 warnings !@ >r  [ ' locals >wordlist ]l set-current
-    s" " nextname create-local locals-size @ locals,
+    s" " nextname ['] no-to dup create-local locals-size @ locals,
     r> warnings !  r> set-current ;
 
 locals-types definitions
@@ -132,7 +132,7 @@ forth definitions
 : closure-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
     :-hook1
-    ['] here locals-headers latest latestnt
+    ['] here locals-headers latest
     clear-leave-stack
     dead-code off
     defstart
@@ -163,7 +163,7 @@ forth definitions
     false to 1t-closure?
     ['] (closure-;]) colon-sys-xt-offset stick ;
 
-: [{: ( -- hmaddr u latest latestnt wid 0 ) \ gforth-experimental start-closure
+: [{: ( -- hmaddr u latest wid 0 ) \ gforth-experimental start-closure
     \G starts a closure.  Closures first declare the locals frame they are
     \G going to use, and then the code that is executed with those locals.
     \G Closures end like quotations with a @code{;]}.  The locals declaration

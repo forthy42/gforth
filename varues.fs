@@ -67,16 +67,30 @@ f!a-table locals-to-class: to-fa:
 get-current also locals-types definitions
 : WA: ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth w-a-colon
     \G Define varue-flavoured cell local @i{name} @code{( -- x1 )}
-    w:  ['] to-wa: set-to ;
+    [: ( Compilation: -- ) ( Run-time: -- w )
+	\ compiles a local variable access
+	@ lp-offset compile-@local ;]
+    ['] to-wa: create-local
+    \ xt produces the appropriate locals pushing code when executed
+    ['] compile-pushlocal-w ;
 : DA: ( compilation "name" -- a-addr xt; run-time x1 x2 -- ) \ gforth w-a-colon
     \G Define varue-flavoured double local @i{name} @code{( -- x3 x4 )}
-    d:  ['] to-wa: set-to ;
+    [: ( Compilation: -- ) ( Run-time: -- x3 x4 )
+	@ laddr#, postpone 2@ ;]
+    ['] to-da: create-local
+    ['] compile-pushlocal-d ;
 : CA: ( compilation "name" -- a-addr xt; run-time c -- ) \ gforth c-a-colon
     \G Define varue-flavoured char local @i{name} @code{( -- c1 )}
-    c:  ['] to-wa: set-to ;
+    [: ( Compilation: -- ) ( Run-time: -- c1 )
+	@ laddr#, postpone c@ ;]
+    ['] to-ca: create-local
+    ['] compile-pushlocal-c ;
 : FA: ( compilation "name" -- a-addr xt; run-time f -- ) \ gforth f-a-colon
     \G Define varue-flavoured float local @i{name} @code{( -- r1 )}
-    f:  ['] to-wa: set-to ;
+    [: ( Compilation: -- ) ( Run-time: -- r1 )
+	@ lp-offset compile-f@local ;]
+    ['] to-fa: create-local
+    ['] compile-pushlocal-f ;
 : XTA: ( compilation "name" -- a-addr xt; run-time ... -- ... ) \ gforth x-t-a-colon
     \G Define a defer-flavoured local @i{name} on which @code{addr}
     \G can be used.

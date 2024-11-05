@@ -436,14 +436,14 @@ defer adjust-locals-list ( wid -- )
 
 \ quotations
 : wrap@-kernel ( -- wrap-sys )
-    hmsave latest latestnt 0 leave-stack !@
+    hmsave latest 0 leave-stack !@
     cs-floor backedge-locals-default @
     ( unlocal-state @ ) ;
 
 : wrap!-kernel ( wrap-sys -- )
     ( unlocal-state ! )
     backedge-locals-default ! to cs-floor
-    leave-stack ! lastnt ! last ! hmrestore ;
+    leave-stack ! last ! hmrestore ;
 
 Defer wrap@ ( -- wrap-sys ) ' wrap@-kernel is wrap@
 Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
@@ -456,7 +456,7 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
     r> postpone Literal ;
 
 : int-[: ( -- flag colon-sys )
-    wrap@ ['] (int-;]) :noname ;
+    wrap@  next-section  ['] (int-;]) :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
     wrap@  next-section
     postpone SCOPE locals-list off

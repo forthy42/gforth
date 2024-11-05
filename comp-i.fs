@@ -99,7 +99,7 @@ drop
 0 Value xbase  0 Value xoffset
 0 Value lbase  0 Value loffset
 
-#16 cells >r
+section-desc #8 cells + >r
 
 : set-image-offsets ( -- )
     ."  code" [ r@           ]L 26 cells image-data to coffset to cbase

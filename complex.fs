@@ -60,11 +60,14 @@ z!a-table locals-to-class: to-za:
 also locals-types definitions
 : z: ( compilation "name" -- a-addr xt; run-time z -- ) \ gforth w-colon
     \G Define value-flavoured complex local @i{name} @code{( -- z1 )}
-    create-local  ['] to-z: set-to ['] compile-pushlocal-z
-  does> @ lp-offset compile-z@local ;
+    [: @ lp-offset compile-z@local ;]
+    ['] to-z: create-local
+    ['] compile-pushlocal-z ;
 : za: ( compilation "name" -- a-addr xt; run-time z -- ) \ gforth z-a-colon
     \G Define varue-flavoured complex local @i{name} @code{( -- z1 )}
-    z:  ['] to-za: set-to ;
+    [: @ lp-offset compile-z@local ;]
+    ['] to-za: create-local
+    ['] compile-pushlocal-z ;
 : z^ ( "name" -- a-addr xt )
     w^ drop  ['] compile-pushlocal-z ;
 previous definitions

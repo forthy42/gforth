@@ -143,10 +143,10 @@ variable next-prelude
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
 
+:noname drop lastnt @ ;
 ' noop Alias recurse ( ... -- ... ) \ core
 \g Alias to the current definition.
-
-unlock tlastcfa @ lock >body AConstant lastnt
+unlock set->int lock
 \ this is the alias pointer in the recurse header, named lastnt.
 \ changing lastnt now changes where recurse aliases to
 \ it's always an alias of the current definition
@@ -724,7 +724,7 @@ Create hmtemplate
  ?hm hmtemplate >hm>link ! ;
 
 : int-opt; ( flag lastxt -- )
-    nip >r hm, wrap! r> set-optimizer ;
+    nip >r hm,  previous-section wrap! r> set-optimizer ;
 
 : opt: ( compilation -- colon-sys2 ; run-time -- nest-sys ) \ gforth
     \G Starts a nameless colon definition; when it is complete, this
@@ -870,7 +870,7 @@ Create defstart
 ; immediate
 
 : int-does>; ( flag lastxt -- )
-    nip >r hm, wrap! r> set-does> ;
+    nip >r hm, previous-section wrap! r> set-does> ;
 
 : int-does> ( -- colon-sys )
     int-[:

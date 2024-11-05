@@ -454,11 +454,11 @@ t{ :noname -20 -3 /modf ; execute ->  -2 6 }t
 
 \ t{ 1 2 3 homeloc >r @ swap @ rot @ r> free -> 1 2 3 0 }t
 
-: combiner [{: a b xt: do-it | c :}h a b do-it ;] ;
+: combiner [{: a b xt: do-it | c :}h1 a b do-it ;] ;
 
-t{ 1 2 ' + combiner dup execute swap >addr free -> 3 0 }t
-t{ #1234 #5678 ' xor combiner dup execute swap >addr free -> #4860 0 }t
-t{ 0 0 ' + combiner #1234 #5678 third >body 2! dup execute swap >addr free -> #6912 0 }t
+t{ 1 2 ' + combiner execute -> 3 }t
+t{ #1234 #5678 ' xor combiner execute -> #4860 }t
+t{ 0 0 ' + combiner #1234 #5678 third >body 2! execute -> #6912 }t
 
 : A {: w^ k x1 x2 x3 xt: x4 xt: x5 | w^ B :} recursive
     k @ 0<= IF  x4 x5 +  ELSE
