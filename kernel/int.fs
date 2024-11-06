@@ -596,8 +596,9 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
     \ for implementing DOES> and ;ABI-CODE: code-address is
     \ stored at cfa of xt1, xt2 at >hmextra; set-optimizer is called in
     \ the caller.
-    dup xt>name make-latest
-    over only-code-address!  >extra ! ;
+    swap make-latest
+    latestnt only-code-address!
+    0 >hmextra hm! ;
 
 \ ticks in interpreter
 
