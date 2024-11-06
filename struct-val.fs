@@ -35,19 +35,16 @@ standard:field
     >r r@ 2 cells + perform
     r> 2@ create-from reveal over , + action-of +field, , ;
 
-: field-to:exec ( .. u xt1 xt2 -- .. )
+Create (field-to-class)
+DOES> ( .. u xt1 xt2 -- .. )
     rot >r @ r> cells + @ vfield-int, ;
-: field-to:,  ( u xt2 -- )
+opt: ( u xt2 -- )
     @ swap cells + @ lits> swap >lits vfield-comp, ;
-
-: field-to-class ( !-table -- xt )
-    noname Create , ['] field-to:exec set-does> ['] field-to:, set-optimizer
-    latestnt ;
 
 : wrapper-xts ( xt@ !-table "name" -- dummy-xt ) { xt@ xt! }
     :noname xt@ >lits ]] vfield-int, [[ postpone ; >r \ xt-does
     :noname xt@ >lits ]] >lits vfield-comp, [[ postpone ; >r \ xt-comp,
-    xt! field-to-class >r \ xt-to
+    xt! ['] (field-to-class) noname-from , latestnt >r \ xt-to
     \ create a dummy word with these methods
     >in @ >r parse-name r> >in ! 2dup + 1- c@ ':' = +
     [: type ." -dummy" ;] $tmp
