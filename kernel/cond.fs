@@ -448,7 +448,7 @@ defer adjust-locals-list ( wid -- )
 Defer wrap@ ( -- wrap-sys ) ' wrap@-kernel is wrap@
 Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 
-: (int-;]) ( some-sys lastxt -- ) >r hm, wrap! r> ;
+: (int-;]) ( some-sys lastxt -- ) >r hm, previous-section wrap! r> ;
 : (;]) ( some-sys lastxt -- )
     >r
     ] postpone UNREACHABLE postpone ENDSCOPE
