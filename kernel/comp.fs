@@ -181,7 +181,8 @@ unlock set->int lock
 
 : noname, ( -- ) \ gforth-internal
     \G create an empty header for an unnamed word
-    0name, namehm, ;
+    0 dup , , \ dummy we have to figure out why it is needed
+    0name, ;
 
 defer record-name ( -- )
 ' noop is record-name
@@ -640,13 +641,13 @@ Create hmtemplate
     \G not consistent between Gforth engines and versions.
     hm, lastnt ! ;
 
-: ?hm ( -- )
-    \ check if deduplicated, duplicate if necessary
-    lastnt @ >namehm @ hmtemplate <> IF
-	lastnt @
-	dup >namehm @ hmtemplate hmsize move
-	hm-activate
-    THEN ;
+: hm! ( xt offset -- )
+    latestnt >namehm @ >r
+    2dup r@ + @ = IF  rdrop 2drop  EXIT  THEN
+    r@ hmtemplate <> IF
+	r@ hmtemplate hmsize move  latestnt hm-activate
+    THEN  rdrop
+    hmtemplate + ! ;
 
 : !namehm ( addr -- )  latestnt >namehm ! ;
 
@@ -661,7 +662,7 @@ Create hmtemplate
     \G with @code{execute}, so you must use @code{set-optimizer} only
     \G to install a more efficient implementation of the same
     \G behaviour.
-    ?hm hmtemplate >hmcompile, ! ;
+    0 >hmcompile, hm! ;
 
 : set-execute ( ca -- ) \ gforth
     \G Changes the current word such that it jumps to the native code
@@ -683,31 +684,31 @@ Create hmtemplate
     \G implementation accordingly.  Call @code{set-optimizer}
     \G afterwards if you want a more efficient implementation.
     ['] does, set-optimizer
-    hmtemplate >hmextra !
+    0 >hmextra hm!
     dodoes: latestnt only-code-address! ;
 
 : set-to ( to-xt -- ) \ gforth
     \G Changes the implementations of the to-class methods of the most
     \G recently defined word to come from the to-class that has the xt
     \G @i{to-xt}.
-    ?hm hmtemplate >hmto ! ;
+    0 >hmto hm! ;
 
 : set->int ( xt -- ) \ gforth set-to-int
     \G Sets the implementation of the @code{name>interpret ( nt -- xt2 )}
     \G method of the current word to @i{xt}.
-    ?hm hmtemplate >hm>int ! ;
+    0 >hm>int hm! ;
 : set->comp ( xt -- ) \ gforth set-to-comp
     \G Sets the implementation of the @code{name>compile ( nt -- w xt2 )}
     \G method of the current word to @i{xt}.
-    ?hm hmtemplate >hm>comp ! ;
+    0 >hm>comp hm! ;
 : set-name>string ( xt -- ) \ gforth set-name-to-string
     \G Sets the implementation of the @code{name>string ( nt -- addr u )}
     \G method of the current word to @i{xt}.
-    ?hm hmtemplate >hm>string ! ;
+    0 >hm>string hm! ;
 : set-name>link ( xt -- ) \ gforth set-name-to-link
     \G Sets the implementation of the @code{name>link ( nt1 -- nt2|0 )}
     \G method of the current word to @i{xt}.
- ?hm hmtemplate >hm>link ! ;
+    0 >hm>link hm! ;
 
 : int-opt; ( flag lastxt -- )
     nip >r hm,  previous-section wrap! r> set-optimizer ;

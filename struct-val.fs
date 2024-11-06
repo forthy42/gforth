@@ -40,13 +40,14 @@ standard:field
 : field-to:,  ( u xt2 -- )
     @ swap cells + @ lits> swap >lits vfield-comp, ;
 
-: field-to-class: ( !-table -- )
-    Create , ['] field-to:exec set-does> ['] field-to:, set-optimizer ;
+: field-to-class ( !-table -- xt )
+    noname Create , ['] field-to:exec set-does> ['] field-to:, set-optimizer
+    latestnt ;
 
 : wrapper-xts ( xt@ !-table "name" -- dummy-xt ) { xt@ xt! }
     :noname xt@ >lits ]] vfield-int, [[ postpone ; >r \ xt-does
     :noname xt@ >lits ]] >lits vfield-comp, [[ postpone ; >r \ xt-comp,
-    xt! noname field-to-class: latestnt >r \ xt-to
+    xt! field-to-class >r \ xt-to
     \ create a dummy word with these methods
     >in @ >r parse-name r> >in ! 2dup + 1- c@ ':' = +
     [: type ." -dummy" ;] $tmp
