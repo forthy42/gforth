@@ -464,22 +464,22 @@ previous
 ' new-locals-rec  ' locals-types >wordlist 2 recognizer-sequence: new-locals
 
 \ and now, finally, the user interface words
-: { ( -- hmaddr u latest latestnt wid 0 ) \ gforth open-brace
+: { ( -- hmaddr u wid 0 ) \ gforth open-brace
     \G Start locals definitions.  The Forth-2012 standard name for this
     \G word is @code{@{:}.
     ( >docolloc ) hmsave \ as locals will mess with their own hmtemplate
-    latest get-current
+    get-current
     ['] new-locals ['] forth-recognize defer@ >stack
     ['] locals >wordlist set-current
     val-part off
     0 postpone [ ; immediate
 
-synonym {: { ( -- hmaddr u latest latestnt wid 0 ) \ local-ext open-brace-colon
+synonym {: { ( -- hmaddr u wid 0 ) \ local-ext open-brace-colon
 \G Start locals definitions.
 
 locals-types definitions
 
-: } ( hmaddr u latest latestnt wid 0 xt1 ... xtn -- ) \ gforth close-brace
+: } ( hmaddr u wid 0 xt1 ... xtn -- ) \ gforth close-brace
     \G Ends locals definitions.  The Forth-2012 standard name for this
     \G word is @code{:@}}.
     ]
@@ -491,14 +491,14 @@ locals-types definitions
     repeat
     drop hm,
     maxalign-lp
-    set-current last !
+    set-current
     hmrestore
     activate-locals ;
 
-synonym :} } ( hmaddr u latest latestnt wid 0 xt1 ... xtn -- ) \ gforth colon-close-brace
+synonym :} } ( hmaddr u wid 0 xt1 ... xtn -- ) \ gforth colon-close-brace
 \g Ends locals definitions.
 
-: -- ( hmaddr u latest latestnt wid 0 ... -- ) \ locals- gforth dash-dash
+: -- ( hmaddr u wid 0 ... -- ) \ locals- gforth dash-dash
     \G During locals definitions everything from @code{--} to
     \G @code{:@}} is ignored.  This is typically used when you want to
     \G make a locals definition serve double duty as a stack effect
@@ -605,7 +605,7 @@ is adjust-locals-list
 : locals-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
     DEFERS :-hook
-    ['] here locals-headers latest
+    ['] here locals-headers
     clear-leave-stack
     0 locals-size !
     0 locals-list!
@@ -619,7 +619,7 @@ is adjust-locals-list
 : locals-;-hook ( sys addr xt sys -- sys )
     ?struc
     deactivate-locals
-    last ! ['] ->here locals-headers
+    ['] ->here locals-headers
     DEFERS ;-hook ;
 
 \ THEN (another control flow from before joins the current one):
@@ -699,7 +699,7 @@ is adjust-locals-list
     :noname 0 adjust-locals-size ; is 0-adjust-locals-size
 [then]
 [ifdef] colon-sys-xt-offset
-3 +to colon-sys-xt-offset
+2 +to colon-sys-xt-offset
 [then]
 
 ' (then-like)  IS then-like

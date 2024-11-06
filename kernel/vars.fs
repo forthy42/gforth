@@ -227,7 +227,6 @@ UValue dp               \ initialized at boot time with section-dp
 			\ the pointer to the current dictionary pointer
 			\ is reset to section-dp on (doerror)
                         \ (i.e. any throw caught by quit)
-AUser Last
 
 Variable warnings ( -- addr ) \ gforth
 \G set warnings level to
