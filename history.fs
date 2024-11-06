@@ -291,7 +291,7 @@ synonym setstring-color info-color
     ELSE  .rest  THEN ;
 
 : xhide ( max span addr pos1 -- max span addr pos1 f )
-    over 0 tuck edit-update .unstatus 2drop drop  false ;
+    over 0 tuck default-color edit-update .unstatus 2drop drop  false ;
 
 \ In the following, addr max is the buffer, addr span is the current
 \ string in the buffer, and pos1 is the cursor position in the buffer.
@@ -435,7 +435,7 @@ Variable setsel# \ size of selection relative to the end
     delete
     swap setstring$ $@len - swap r> xretype ;
 : xreformat ( max span addr pos1 -- max span addr pos1 0 )
-    .unstatus xedit-startpos
+    .unstatus xedit-startpos input-color
     edit-linew @ screenw @ /mod cols dup screenw ! * +
     dup spaces dup edit-curpos ! edit-linew !
     .resizeline .all 2>r 2>r .status 2r> 2r> .rest false ;
