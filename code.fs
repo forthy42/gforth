@@ -42,7 +42,7 @@ vocabulary assembler ( -- ) \ tools-ext
     \G @code{abi-code} instead of @code{code}.  You have to end a
     \G @code{code} definition with a dispatch to the next virtual
     \G machine instruction.
-    header ['] noop hmcopy,
+    ['] noop create-from
     here latest only-code-address!
     defstart init-asm ;
 
@@ -56,8 +56,7 @@ vocabulary assembler ( -- ) \ tools-ext
    \G The FP stack pointer is passed in by providing a reference to a
    \G memory location containing the FP stack pointer and is passed
    \G out by storing the changed FP stack pointer there (if necessary).
-    header  ['] (abi-code-dummy) hmcopy,
-    doabicode: latest only-code-address!
+    ['] (abi-code-dummy) create-from
     defstart init-asm ;
 [endif]
 

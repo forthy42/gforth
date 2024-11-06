@@ -18,6 +18,12 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+: hmcopy,     ( xt -- )  \ gforth-experimental hmcopy-comma
+    \g While constructing a header, allocate the code field, and use
+    \g @i{xt} as prototype for setting the code field and the header
+    \g methods.
+    dup hmcopy here >r dup >code-address cfa, cell+ @ r> cell+ ! ;
+
 doer? :docon [IF]
 : docon, ( -- )	\ gforth
     \G The code address of a @code{CONSTANT}.

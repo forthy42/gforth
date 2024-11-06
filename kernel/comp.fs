@@ -608,12 +608,6 @@ Create hmtemplate
     >namehm @ hmtemplate 0 >hm>int move
     here hm-activate ;
 
-: hmcopy,     ( xt -- )  \ gforth-experimental hmcopy-comma
-    \g While constructing a header, allocate the code field, and use
-    \g @i{xt} as prototype for setting the code field and the header
-    \g methods.
-    dup hmcopy here >r dup >code-address cfa, cell+ @ r> cell+ ! ;
-
 : hmsave ( -- addr u ) \ gforth-internal
     \g save hmtemplate for nested definitions
     hmtemplate hmsize save-mem  hmtemplate off ;
