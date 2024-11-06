@@ -436,14 +436,14 @@ defer adjust-locals-list ( wid -- )
 
 \ quotations
 : wrap@-kernel ( -- wrap-sys )
-    hmsave latest 0 leave-stack !@
+    hmsave 0 leave-stack !@
     cs-floor backedge-locals-default @
     ( unlocal-state @ ) ;
 
 : wrap!-kernel ( wrap-sys -- )
     ( unlocal-state ! )
     backedge-locals-default ! to cs-floor
-    leave-stack ! last ! hmrestore ;
+    leave-stack ! hmrestore ;
 
 Defer wrap@ ( -- wrap-sys ) ' wrap@-kernel is wrap@
 Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!

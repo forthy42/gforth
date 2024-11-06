@@ -153,24 +153,6 @@ unlock set->int lock
 \ it won't work in a flash/rom environment, therefore for Gforth EC
 \ we stick to the traditional implementation
 
-: name, ( c-addr u -- ) \ gforth-internal
-    \G compile the named part of a header
-    name-too-long?
-    dup here + dup cfaligned >align
-    tuck mem, ,
-    get-current 1 or A,
-    here xt-location drop
-    \ link field; before revealing, it contains the
-    \ tagged reveal-into wordlist
-    [ has? new-cfa [IF] ] 0 A, [ [THEN] ]
-    here cell+ dup last ! lastnt ! ; \ set last header
-: 0name, ( -- )
-    cfalign 0 last ! 0 lastnt !
-    here xt-location drop
-    [ has? new-cfa [IF] ] 0 A, [ [THEN] ] ;
-: namehm, ( namehm -- )
-    , here lastnt ! ; \ add location stamps on hm+cf
-
 : noname-hm ( -- )
     \G modify hm for noname words
     default-i/c
@@ -181,11 +163,26 @@ unlock set->int lock
     default-i/c
     ['] named>string set-name>string
     ['] named>link set-name>link ;
-: ?noname-hm ( -- ) last @ 0= IF  noname-hm  ELSE  named-hm  THEN ;
+
+: namehm, ( -- )
+    here xt-location drop
+    0 A, hmtemplate , here lastnt ! ; \ add location stamps on hm+cf
+: name, ( c-addr u -- ) \ gforth-internal
+    \G compile the named part of a header
+    name-too-long?
+    dup here + dup cfaligned >align
+    tuck mem, ,
+    get-current 1 or A,
+    \ link field; before revealing, it contains the
+    \ tagged reveal-into wordlist
+    namehm, named-hm ; \ set last header
+: 0name, ( -- )
+    cfalign 0 lastnt !
+    namehm, noname-hm ;
 
 : noname, ( -- ) \ gforth-internal
     \G create an empty header for an unnamed word
-    hm, 0name, cell negate allot  hmtemplate namehm, noname-hm ;
+    hm, 0name, namehm, ;
 
 defer record-name ( -- )
 ' noop is record-name
@@ -194,7 +191,7 @@ defer header-name,
 defer header-extra ' noop is header-extra
 : header ( -- ) \ gforth-internal
     \G create a header for a word
-    hm, header-name, hmtemplate namehm, ?noname-hm header-extra ;
+    hm, header-name, header-extra ;
 
 : create-from ( nt "name" -- ) \ gforth
     \G Create a word @i{name} that behaves like @i{nt}, but with an
@@ -205,17 +202,14 @@ defer header-extra ' noop is header-extra
     \G faster than if you create a word using @code{set-} words,
     \G @code{immediate}, or @code{does>}.  You can use @code{noname}
     \G with @code{create-from}.
-    hm, header-name,
-    [ has? new-cfa [IF] ] >cfa 2@ swap [ [ELSE] ] >namehm 2@ [ [THEN] ]
-    , cfa, last @ 0= IF  here hmcopy noname-hm  THEN
+    hm, header-name, >cfa 2@ swap
+    here >namehm ! cfa, latest 0= IF  here hmcopy noname-hm  THEN
     header-extra ;
 
 : noname-from ( xt -- ) \ gforth
     \G Create a nameless word that behaves like @i{xt}, but with an
     \G empty body.  @i{xt} must be the nt of a nameless word.
-    hm, 0name,
-    [ has? new-cfa [IF] ] >cfa 2@ swap [ [ELSE] ] >namehm 2@ [ [THEN] ]
-    , cfa, ;
+    hm, 0name, >cfa 2@ swap here >namehm ! cfa, ;
 
 : input-stream-header ( "name" -- )
     ?parse-name name, ;
@@ -260,7 +254,7 @@ variable nextname$
 : latest ( -- nt ) \ gforth
 \G @var{nt} is the name token of the last word defined; it is 0 if the
 \G last word has no name.
-    last @ ;
+    lastnt @ dup name>string d0<> and ;
 
 \ \ literals							17dec92py
 
@@ -651,8 +645,7 @@ Create hmtemplate
     \G not change the behaviour of the word (only its implementation),
     \G otherwise you may get a surprising mix of behaviours that is
     \G not consistent between Gforth engines and versions.
-    hm, dup lastnt !
-    dup name>string nip 0<> and last !  ;
+    hm, lastnt ! ;
 
 : ?hm ( -- )
     \ check if deduplicated, duplicate if necessary

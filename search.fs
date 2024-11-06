@@ -63,7 +63,7 @@ Variable slowvoc   0 slowvoc !
     noname-hm  set-does>  set-to ;
 
 : wordlist-class ( reveal-xt rec-xt -- wid )
-    hmsave 2>r last @ >r
+    hmsave 2>r latestnt >r
     forth-wordlist noname-from here body> >r wl,
     set-wordlist  r@ initwl r>  hm,
     r> make-latest 2r> hmrestore ;

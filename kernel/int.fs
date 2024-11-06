@@ -500,7 +500,7 @@ defer compile, ( xt -- ) \ core-ext compile-comma
     >link @ ;
 
 : noname>string ( nt -- cfa 0 ) \ gforth-internal    noname-to-string
-    cell- cell- 0 ;
+    drop 0 dup ;
 : noname>link ( nt -- 0 ) \ gforth-internal    noname-to-link
     drop 0 ;
 
