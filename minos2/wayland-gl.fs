@@ -630,7 +630,7 @@ Defer dnd-drop
 <cb
 :noname { data data-device id -- }
     wayland( id [: cr ." selection id: " h. ;] do-debug )
-    id  [{: id :}l id -rot clip-accept+receive ;] >liked-mime
+    id ?dup-IF  [{: id :}l id -rot clip-accept+receive ;] >liked-mime  THEN
 ; ?cb wl_data_device_listener-selection:
 :noname { data data-device -- }
     wayland( [: cr ." drop" ;] do-debug )
@@ -655,7 +655,7 @@ Defer dnd-drop
     old-id ?dup-IF  wl_data_offer_destroy  THEN
     id to old-id
     mime-types[] $[]free
-    id data-offer-listener 0 wl_data_offer_add_listener drop
+    id ?dup-IF  data-offer-listener 0 wl_data_offer_add_listener drop  THEN
 ; ?cb wl_data_device_listener-data_offer:
 cb> data-device-listener
 
@@ -676,7 +676,7 @@ cb> primary-selection-offer-listener
 :noname { data data-device id -- }
     wayland( id [: cr ." primary selection id: " h. ;] do-debug )
     my-primary 0= IF
-	id  [{: id :}l id -rot ps-accept+receive ;] >liked-mime
+	id ?dup-IF  [{: id :}l id -rot ps-accept+receive ;] >liked-mime  THEN
     THEN
 ; ?cb zwp_primary_selection_device_v1_listener-selection:
 :noname { data data-device id -- }
@@ -684,7 +684,8 @@ cb> primary-selection-offer-listener
     old-ps-id ?dup-IF  zwp_primary_selection_offer_v1_destroy  THEN
     id to old-ps-id
     mime-types[] $[]free  0 to my-primary
-    id primary-selection-offer-listener 0 zwp_primary_selection_offer_v1_add_listener
+    id ?dup-IF  primary-selection-offer-listener 0
+	zwp_primary_selection_offer_v1_add_listener  THEN
 ; ?cb zwp_primary_selection_device_v1_listener-data_offer:
 cb> primary-selection-listener
 
