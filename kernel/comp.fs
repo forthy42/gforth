@@ -181,7 +181,6 @@ unlock set->int lock
 
 : noname, ( -- ) \ gforth-internal
     \G create an empty header for an unnamed word
-    0 dup , , \ dummy we have to figure out why it is needed
     0name, ;
 
 defer record-name ( -- )
@@ -202,8 +201,9 @@ defer header-extra ' noop is header-extra
     \G faster than if you create a word using @code{set-} words,
     \G @code{immediate}, or @code{does>}.  You can use @code{noname}
     \G with @code{create-from}.
-    hm, header-name, >cfa 2@ swap here >namehm ! cfa,
-    latest 0= IF  here hmcopy noname-hm  THEN
+    hm, header-name, latest 0= >r
+    >cfa 2@ swap here >namehm ! cfa,
+    r> IF  here hmcopy noname-hm  THEN
     header-extra ;
 
 : noname-from ( xt -- ) \ gforth

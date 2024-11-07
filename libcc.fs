@@ -1039,15 +1039,13 @@ tmp$ $execstr-ptr !
 
 cfalign 0 , 0 , noname Create
 \ can not be named due to rebind-libcc
-#0. latestnt 4 cells - 2!
 named-hm \ but has actually a named hm
 ' call-c@ set-does>
 ' cfun, set-optimizer
 
 latestnt to rt-vtable
 
-cfalign 0 , 0 , noname Create
-#0. latestnt 4 cells - 2!
+hm, cfalign 0 , 0 , noname Create
 named-hm
 ' ft-does> set-does>
 ' cfun, set-optimizer

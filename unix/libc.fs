@@ -92,7 +92,7 @@ c-library libc
     c-value environ environ -- a ( -- env )
 end-c-library
 
-host? [IF] getpagesize [ELSE] $400 [THEN] Value pagesize
+host? [IF] getpagesize [ELSE] $1000 [THEN] Value pagesize
 
 begin-structure pollfd
     lfield: fd
