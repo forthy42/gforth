@@ -115,7 +115,7 @@ translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
     \G Create a named stack with at least @var{n} cells space.
     drop $Variable ;
 : do-stack: ( x1 .. xn n xt "name" -- )
-    >r dup stack: r> set-does> latest >body set-stack ;
+    >r dup stack: r> set-does> latestnt >body set-stack ;
 : stack ( n -- stack ) \ gforth-experimental
     \G Create an unnamed stack with at least @var{n} cells space.
     drop align here 0 , ;

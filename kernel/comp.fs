@@ -293,17 +293,8 @@ Variable litstack
 : clear-litstack ( -- )
     0 litstack set-stack ;
 
-has? new-cfa [IF]
-    : cfa,     ( code-address -- )  \ gforth-internal	cfa-comma
-	here  dup lastnt !
-	only-code-address! ;
-[ELSE]
-    : cfa,     ( code-address -- )  \ gforth-internal	cfa-comma
-	here
-	dup lastnt !
-	0 A,
-	only-code-address! ;
-[THEN]
+: cfa,     ( code-address -- )  \ gforth-internal	cfa-comma
+    here only-code-address! ;
 
 defer basic-block-end ( -- )
 

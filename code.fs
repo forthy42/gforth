@@ -43,7 +43,7 @@ vocabulary assembler ( -- ) \ tools-ext
     \G @code{code} definition with a dispatch to the next virtual
     \G machine instruction.
     ['] noop create-from
-    here latest only-code-address!
+    here latestnt only-code-address!
     defstart init-asm ;
 
 [ifdef] doabicode:

@@ -40,7 +40,7 @@ create keycode-table keycode-limit keycode-start - cells allot
 : keycode ( u1 "name" -- u2 ; name execution: -- u )
     dup keycode-limit keycode-start within -11 and throw
     dup constant
-    dup latest keycode-table rot keycode-start - th !
+    dup latestnt keycode-table rot keycode-start - th !
     1+ ;
 
 \ most of the keys are also in pfe, except:
