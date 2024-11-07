@@ -1037,7 +1037,7 @@ tmp$ $execstr-ptr !
     THEN
     postpone call-c# , ;
 
-cfalign 0 , 0 , noname Create
+hm, cfalign 0 , 0 , noname Create
 \ can not be named due to rebind-libcc
 named-hm \ but has actually a named hm
 ' call-c@ set-does>
