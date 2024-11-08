@@ -25,5 +25,5 @@
 
 int main(int argc, char **argv, char **env)
 {
-  return gforth_main(argc, argv, env);
+  return !!gforth_main(argc, argv, env);
 }
