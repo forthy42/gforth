@@ -959,7 +959,7 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 [ [THEN] ]
 [ has? os [IF] ]
     handler off
-    ['] cold catch dup -&2049 <> if \ broken pipe?
+    ['] cold catch dup -&2049 <> over -1 <> and if \ broken pipe?
 	dup >r DoError cr r>
     endif
     (bye) \ determin exit code from throw code
