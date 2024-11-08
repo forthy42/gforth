@@ -22,8 +22,9 @@
 
 #include "config.h"
 #include "forth.h"
+#include <stdlib.h>
 
 int main(int argc, char **argv, char **env)
 {
-  return !!gforth_main(argc, argv, env);
+  return gforth_main(argc, argv, env) ? EXIT_FAILURE : EXIT_SUCCESS;
 }
