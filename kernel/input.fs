@@ -211,12 +211,12 @@ defer line-end-hook ( -- ) \ gforth
 
 : get-input ( -- flag ) \ gforth-internal
     \G read a line of input
-    ['] refill catch dup -56 = IF  bye  THEN  throw ;
+    ['] refill catch dup -56 = over -28 = or IF  bye  THEN  throw ;
 
 : get-input-colored ( -- flag ) \ gforth-internal
     \G perform get-input colored with input-color
     input-color ['] refill catch default-color
-    dup -56 = IF  bye  THEN  throw ;
+    dup -56 = over -28 = or IF  bye  THEN  throw ;
 
 Defer ?set-current-view ( -- )
 ' noop is ?set-current-view
