@@ -60,9 +60,7 @@ typedef struct sigaltstack stack_t;
 UCell cols=DEFAULTCOLS;
 UCell rows=DEFAULTROWS;
 
-UCell sigcount=0; /* count the number of signal received */
-
-#define SIGPP(sig) { if(sigcount++ && die_on_signal) graceful_exit(sig); }
+#define SIGPP(sig) { if(die_on_signal && !--die_on_signal) graceful_exit(sig); }
 
 #ifndef SA_NODEFER
 #define SA_NODEFER 0

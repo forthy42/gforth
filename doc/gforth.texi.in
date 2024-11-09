@@ -989,13 +989,15 @@ Initialize all bytes in the dictionary to 0 before loading the image
 (@pxref{Data-Relocatable Image Files}).
 
 @cindex --die-on-signal, command-line-option
-@item --die-on-signal
+@item --die-on-signal [@i{number}]
 Normally Gforth handles most signals (e.g., the user interrupt SIGINT,
 or the segmentation violation SIGSEGV) by translating it into a Forth
 @code{THROW}. With this option, Gforth exits if it receives such a
 signal. This option is useful when the engine and/or the image might be
 severely broken (such that it causes another signal before recovering
-from the first); this option avoids endless loops in such cases.
+from the first); this option avoids endless loops in such cases.  The
+optional number set the number of signals to be handled; only the last
+one will cause Gforth to exit.
 
 @cindex --ignore-async-signals, command-line-option
 @item --ignore-async-signals

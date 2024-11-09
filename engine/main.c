@@ -2541,6 +2541,7 @@ enum {
   ss_min_nexts,
   opt_code_block_size,
   opt_opt_ip_updates,
+  die_on_signal_param
 };
 
 static void print_diag()
@@ -2652,7 +2653,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"debug-mcheck", no_argument, &debug_mcheck, 1},
       {"no-debug-prim", no_argument, &debug_prim, 0},
       {"diag", no_argument, NULL, 'D'},
-      {"die-on-signal", no_argument, &die_on_signal, 1},
+      {"die-on-signal", optional_argument, NULL, die_on_signal_param},
       {"ignore-async-signals", no_argument, &ignore_async_signals, 1},
       {"no-super", no_argument, &no_super, 1},
       {"no-dynamic", no_argument, &no_dynamic, 1},
@@ -2681,7 +2682,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       /* no-init-file, no-rc? */
     };
     
-    c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:vhoncsxD", opts, &option_index);
+    c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:vhoncs::xD", opts, &option_index);
     
     switch (c) {
     case EOF: return 0;
@@ -2697,7 +2698,17 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 'o': offset_image = 1; break;
     case 'n': offset_image = 0; break;
     case 'c': clear_dictionary = 1; break;
-    case 's': die_on_signal = 1; break;
+    case 's':
+      die_on_signal = (optarg == NULL) ? 1 : atoi(optarg+(optarg[0]=='='));
+      break;
+    case die_on_signal_param:
+      if(!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
+	const char *tmp_optarg = argv[optind++];
+	die_on_signal = atoi(tmp_optarg);
+      } else {
+	die_on_signal = (optarg == NULL) ? 1 : atoi(optarg+(optarg[0]=='='));
+      }
+      break;
     case 'x': debug = 1; break;
     case 'D': print_diag(); break;
     case 'v': fputs(PACKAGE_STRING" "ARCH"\n", stderr); exit(0);

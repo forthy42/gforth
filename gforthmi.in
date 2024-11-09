@@ -28,8 +28,8 @@ then
 else
   helper="$startup"
 fi
-test "x$GFORTHD" != x || GFORTHD="@bindir@/gforth-ditc-@PACKAGE_VERSION@-@machine@ --die-on-signal"
-test "x$GFORTH" != x || GFORTH="@bindir@/gforth-@PACKAGE_VERSION@-@machine@ --die-on-signal $helper"
+test "x$GFORTHD" != x || GFORTHD="@bindir@/gforth-ditc-@PACKAGE_VERSION@-@machine@ --die-on-signal=2"
+test "x$GFORTH" != x || GFORTH="@bindir@/gforth-@PACKAGE_VERSION@-@machine@ --die-on-signal=2 $helper"
 if test $# = 0 || test $1 = --help || test $1 = -h; then
   echo "usage: `basename $0` [--application] target-name [gforth-options]"
   echo "creates a relocatable image 'target-name'"
@@ -65,11 +65,11 @@ fi
 export HOSTPREFIX="@HOSTPREFIX@"
 tmpfile=./temp-image.fi
 if test x$system = xyes; then
-    $GFORTHD --clear-dictionary --no-offset-im --die-on-signal $startup -e "savesystem $tmpfile"1+$$""
-    $GFORTHD --clear-dictionary --offset-image --die-on-signal $startup -e "savesystem $tmpfile"2+$$""
+    $GFORTHD --clear-dictionary --no-offset-im --die-on-signal=2 $startup -e "savesystem $tmpfile"1+$$""
+    $GFORTHD --clear-dictionary --offset-image --die-on-signal=2 $startup -e "savesystem $tmpfile"2+$$""
 else
-    $GFORTHD --clear-dictionary --no-offset-im --die-on-signal "$@" -e "savesystem $tmpfile"1+$$""
-    $GFORTHD --clear-dictionary --offset-image --die-on-signal "$@" -e "savesystem $tmpfile"2+$$""
+    $GFORTHD --clear-dictionary --no-offset-im --die-on-signal=2 "$@" -e "savesystem $tmpfile"1+$$""
+    $GFORTHD --clear-dictionary --offset-image --die-on-signal=2 "$@" -e "savesystem $tmpfile"2+$$""
 fi
 $GFORTH comp-i.fs -e "comp-image $tmpfile"1+$$" $tmpfile"2+$$" $outfile"$$" bye" || exit 1
 @no_chmod@chmod +x $outfile$$ || exit 1
