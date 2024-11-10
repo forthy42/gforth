@@ -60,7 +60,12 @@ typedef struct sigaltstack stack_t;
 UCell cols=DEFAULTCOLS;
 UCell rows=DEFAULTROWS;
 
-#define SIGPP(sig) { if(die_on_signal && !--die_on_signal) graceful_exit(sig); }
+#define SIGPP(sig) { switch(die_on_signal) {		\
+    case 0: break;					\
+    case 1: graceful_exit(sig); break;			\
+    default: die_on_signal--;				\
+    }							\
+  }
 
 #ifndef SA_NODEFER
 #define SA_NODEFER 0
