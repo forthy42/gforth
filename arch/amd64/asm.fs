@@ -474,6 +474,8 @@ $B5 mod0F: LGS ( m reg -- )
 : rdmsr ( -- )  0F, $32 [A] , [F] ;
 : wrmsr ( -- )  0F, $30 [A] , [F] ;
 : rsm ( -- )  0F, $AA [A] , [F] ;
+: ud0 ( -- )  0F, $FF [A] , [F] ;
+: ud2 ( -- )  0F, $0B [A] , [F] ;
 
 \ Floating point instructions                          22dec93py
 

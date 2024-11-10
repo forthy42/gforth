@@ -638,7 +638,7 @@ extern Cell fetch_decompile_prim(Cell *a_addr);
 int state_map(int);
 
 extern int offset_image;
-extern int die_on_signal;
+extern Cell die_on_signal;
 extern int ignore_async_signals;
 extern UCell pagesize;
 extern Address dictguard;

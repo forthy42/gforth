@@ -153,7 +153,7 @@ static UCell rsize=0;
 static UCell fsize=0;
 static UCell lsize=0;
 int offset_image=0;
-int die_on_signal=0;
+Cell die_on_signal=0;
 int ignore_async_signals=0;
 #ifndef INCLUDE_IMAGE
 static int clear_dictionary=0;
@@ -2699,12 +2699,17 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 'n': offset_image = 0; break;
     case 'c': clear_dictionary = 1; break;
     case 's':
-      die_on_signal = (optarg == NULL) ? 1 : atoi(optarg+(optarg[0]=='='));
-      break;
     case die_on_signal_param:
       if(!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
-	const char *tmp_optarg = argv[optind++];
-	die_on_signal = atoi(tmp_optarg);
+	const char *tmp_optarg = argv[optind];
+	char * endptr;
+	Cell number = strtol(tmp_optarg, &endptr, 10);
+	if(*endptr == '\0') {
+	  optind++;
+	  die_on_signal = number;
+	} else {
+	  die_on_signal = 1;
+	}
       } else {
 	die_on_signal = (optarg == NULL) ? 1 : atoi(optarg+(optarg[0]=='='));
       }

@@ -23,8 +23,20 @@
 #include "config.h"
 #include "forth.h"
 #include <stdlib.h>
+#include <signal.h>
 
 int main(int argc, char **argv, char **env)
 {
-  return gforth_main(argc, argv, env) ? EXIT_FAILURE : EXIT_SUCCESS;
+  int retval=gforth_main(argc, argv, env);
+  switch(retval) {
+  case 0: return EXIT_SUCCESS;
+  case -9:  return 0x80|SIGSEGV;
+  case -28: return 0x80|SIGINT;
+  case -55: return 0x80|SIGFPE;
+#ifdef SIGPIPE
+  case -2049: return 0x80|SIGPIPE;
+#endif
+  case -0x120 ... -0x100: return 0x80|((-retval) & 0x1F);
+  default: return EXIT_FAILURE;
+  }
 }

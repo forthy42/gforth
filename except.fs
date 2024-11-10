@@ -86,7 +86,9 @@ is catch
 
 : catch-nobt ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ gforth-experimental
     \G perform a catch that does not record backtraces on errors
-    1 first-throw !@ >r catch r> first-throw ! ;
+    1 first-throw !@ >r
+    die-on-signal @ dup >r IF  1 die-on-signal +!  THEN
+    catch r> die-on-signal ! r> first-throw ! ;
 
 Defer kill-task ( -- ) \ gforth-experimental
 \G Terminate the current task.

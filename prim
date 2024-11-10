@@ -2074,6 +2074,9 @@ n=0;
 :
  0 ;
 
+die-on-signal	( -- a_addr )	gforth-internal die_on_signal
+a_addr = &die_on_signal;
+
 \f[THEN]
 
 \g hostos
