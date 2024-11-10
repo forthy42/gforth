@@ -7,7 +7,7 @@ require unix/socket.fs
 : term-cr "\x0d\x0a" type outfile-id flush-file throw ;
 
 ' (type) ' (emit) ' term-cr ' (form)  output: out>term
-what's at-xy what's at-deltaxy what's page what's attr!
+action-of at-xy action-of at-deltaxy action-of page action-of attr!
 out>term
 IS attr! IS page IS at-deltaxy IS at-xy
 default-out op-vector !

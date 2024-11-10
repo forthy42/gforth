@@ -161,13 +161,13 @@ Create ]ref-table ' drop , ' ]ref , ' ]gref , ' ]wgref ,
     dup 4 < and cells ]ref-table + perform ;
 
 : ref> ( object -- ) o ]ref r> o> >r ;
-comp: drop ]] o ]ref o> [[ ;
+opt: drop ]] o ]ref o> [[ ;
 : gref> ( object -- ) o ]gref r> o> >r ;
-comp: drop ]] o ]gref o> [[ ;
+opt: drop ]] o ]gref o> [[ ;
 : wgref> ( object -- ) o ]wgref r> o> >r ;
-comp: drop ]] o ]wgref o> [[ ;
+opt: drop ]] o ]wgref o> [[ ;
 : xref> ( object -- ) o ]xref r> o> >r ;
-comp: drop ]] o ]xref o> [[ ;
+opt: drop ]] o ]xref o> [[ ;
 
 : xref! ( xref addr -- )  dup @ ?dup-IF  ]xref  THEN ! ;
 to-table: xref!-table xref!

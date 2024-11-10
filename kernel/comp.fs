@@ -143,10 +143,12 @@ variable next-prelude
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
 
+:noname drop lastnt @ (to) ;
+opt: ?fold1 drop lastnt @ (to), ;
 :noname drop lastnt @ ;
 ' noop Alias recurse ( ... -- ... ) \ core
 \g Alias to the current definition.
-unlock set->int lock
+unlock set->int set-to lock
 \ this is the alias pointer in the recurse header, named lastnt.
 \ changing lastnt now changes where recurse aliases to
 \ it's always an alias of the current definition
