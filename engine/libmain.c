@@ -37,6 +37,7 @@ int main(int argc, char **argv, char **env)
   case -2049: return 0x80|SIGPIPE;
 #endif
   case -0x11F ... -0x100: return 0x80|((-retval) & 0x1F);
+  case 1 ... 0xFF: return retval;
   default: return EXIT_FAILURE;
   }
 }
