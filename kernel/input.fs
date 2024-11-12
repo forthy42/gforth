@@ -209,14 +209,19 @@ defer line-end-hook ( -- ) \ gforth
     ['] read-loop1 bt-rp0-wrapper
     state @ warning" EOF reached while compiling" ;
 
+Variable second-ctrl-c 0 second-ctrl-c !
+
+: ?end-input ( throwcode -- throwcode )
+    dup -56 =
+    over -28 = dup second-ctrl-c !@ and or IF  bye  THEN  throw ;
+
 : get-input ( -- flag ) \ gforth-internal
     \G read a line of input
-    ['] refill catch dup -56 = over -28 = or IF  bye  THEN  throw ;
+    ['] refill catch ?end-input ;
 
 : get-input-colored ( -- flag ) \ gforth-internal
     \G perform get-input colored with input-color
-    input-color ['] refill catch default-color
-    dup -56 = over -28 = or IF  bye  THEN  throw ;
+    input-color ['] refill catch default-color ?end-input ;
 
 Defer ?set-current-view ( -- )
 ' noop is ?set-current-view
