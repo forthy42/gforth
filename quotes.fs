@@ -95,7 +95,9 @@ create \-escape-table
     >in @ chars source chars over + >r + begin ( parse-area R: here parse-end )
 	dup r@ u>= IF
 	    #lf c, drop rdrop
-	    source-id 0= IF  success-color ."  string" default-color cr  THEN
+	    source-id 0= IF
+		success-color ."  string" default-color cr
+		input-color  THEN
 	    refill  IF  source  ELSE  [ s" ." over '"' swap c! ] SLiteral drop  THEN
 	    over + >r
 	THEN
