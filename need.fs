@@ -95,7 +95,12 @@ $Variable last-require
 	UNTIL  ELSE  2drop  THEN ;
 
 : require-needs ( -- )
-    $require[] [: required ;] $[]map ;
+    $require[] ['] required $[]map ;
+
+: check-needs ( -- )
+    \ checks don't work if words are burried in other
+    \ vocabularies
+    $need[] [: find-name 0= -13 and throw ;] $[]map ;
 
 : need( ( "need1" .. "needn" "close-paren" -- )
     init-need
