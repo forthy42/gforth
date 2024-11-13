@@ -18,42 +18,13 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-\ create database for what sources provide
+\ read povides database matching need query
 
-2variable last-loadfilename
-0 Value provides.fd
-
-: provides-header ( -- )
-    provides.fd 0= latest 0= or get-current >voc xt? 0= or ?EXIT
-    [:  sourcefilename last-loadfilename 2@ d<>
-	IF
-	    sourcefilename last-loadfilename 2!
-	    cr sourcefilename type ':' emit
-	THEN
-	space
-	get-current forth-wordlist <> IF
-	    get-current >voc name>string type ':' emit
-	THEN
-	latest name>string type
-    ;] provides.fd outfile-execute ;
-
-: provides-file ( -- addr u )
-    ${XDG_DATA_HOME} dup 0= IF  2drop "~/.local/share"  THEN
-    [: type ." /gforth/provides" ;] $tmp ;
-
-\ to generate the database, call
-\ gforth need.fs -e 'provides' <files>
-\ and to add more infos to the data base
-\ gforth need.fs -e 'provides+' <more-files>
-
-: provides ( -- )
-    provides-file w/o create-file throw to provides.fd
-    ['] provides-header IS header-extra ;
-: provides+ ( -- )
-    provides-file w/o open-file throw to provides.fd
-    ['] provides-header IS header-extra ;
-
-\ read said database matching need query
+[IFUNDEF] provides-file
+    : provides-file ( -- addr u )
+	${XDG_DATA_HOME} dup 0= IF  2drop "~/.local/share"  THEN
+	[: type ." /gforth/provides" ;] $tmp ;
+[THEN]
 
 $[]variable $need[]
 $[]variable $require[]
@@ -84,10 +55,15 @@ $Variable last-require
 : checkneeds ( addr u -- nt )
     rec-checkneeds dup IF drop THEN ;
 
-: read-needs ( -- )
-    provides-file r/o open-file throw
+: (read-needs) ( fd -- )
     [: ['] rec-needs ['] forth-recognize ['] read-loop wrap-xt ;]
     execute-parsing-file ;
+
+: read-needs ( -- )
+    "provides" [: ofile $@ r/o open-file
+	IF  drop  ELSE  (read-needs)  THEN false ;]
+    fpath execute-path-file
+    provides-file r/o open-file throw (read-needs) ;
 
 : parse-needs ( "need1" .. "needn" "close-paren" -- )
     BEGIN   parse-name 2dup ")" str= 0= WHILE

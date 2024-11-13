@@ -20,9 +20,10 @@
 
 \ Description: https://unicode.org/reports/tr9/
 
+require set-compsem.fs
+[IFDEF] <provides <provides [THEN]
 require unicode/bidi-db.fs
 require unicode/brackets.fs
-require set-compsem.fs
 
 : (b') ( "name" -- n )
     parse-name [: ." .." type ;] $tmp
@@ -550,3 +551,4 @@ Defer skip-bidi? ' (skip-bidi?) is skip-bidi?
     x1-rest x1-start bidi-rest ;
 
 previous
+[IFDEF] provides> provides> [THEN]

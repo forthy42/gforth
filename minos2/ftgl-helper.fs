@@ -23,6 +23,8 @@
 require unix/freetype_gl.fs
 require unix/harfbuzz.fs
 
+debug: time(    \ +db time( \ )
+
 also freetype-gl
 also opengl
 

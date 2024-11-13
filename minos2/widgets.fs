@@ -21,23 +21,24 @@
 \ A MINOS2 widget is composed of drawable elements, boxes and actors.
 \ to make things easier, neither drawable elements nor boxes need an actor.
 
-debug: time(    \ +db time( \ )
-debug: gui(     \ +db gui( \ )
-debug: click(   \ +db click( \ )
-debug: click-o( \ +db click-o( \ )
-debug: resize(  \ +db resize( \ )
-debug: dispose( \ +db dispose( \ )
+require ../i18n.fs \ localization
+require ../mini-oof2.fs
+require ../config.fs
+require gl-terminal.fs
+require ftgl-helper.fs
+
+[IFDEF] <provides <provides [THEN]
 
 [IFUNDEF] no-file#
     2 Constant ENOENT
     #-512 ENOENT - Constant no-file#
 [THEN]
 
-require ../i18n.fs \ localization
-require gl-terminal.fs
-require ftgl-helper.fs
-require ../mini-oof2.fs
-require ../config.fs
+debug: gui(     \ +db gui( \ )
+debug: click(   \ +db click( \ )
+debug: click-o( \ +db click-o( \ )
+debug: resize(  \ +db resize( \ )
+debug: dispose( \ +db dispose( \ )
 
 Variable minos2-debug$
 ${MINOS2_DEBUGS} minos2-debug$ $!
@@ -1917,3 +1918,5 @@ previous
 
 previous previous previous
 set-current
+
+[IFDEF] provides> provides> [THEN]
