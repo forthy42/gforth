@@ -20,21 +20,25 @@
 
 \ create database for what sources provide
 
-2variable last-provider
-2variable provider-file
-0 Value provides.fd
+$variable provider-file
+10 stack: providers
 
-: <provides ( -- ) ." <provides " sourcefilename type cr
-    sourcefilename provider-file 2! ;
-: provides> ( -- ) ." provides>" cr #0. provider-file 2! ;
+: <provides ( -- )
+    0 provider-file !@ providers >stack
+    sourcefilename provider-file $! ;
+: provides> ( -- )
+    provider-file $free providers stack> provider-file ! ;
 : source-provider ( -- addr u )
-    provider-file 2@ 2dup d0= IF  2drop sourcefilename  THEN ;
+    provider-file $@ 2dup d0= IF  2drop sourcefilename  THEN ;
 
 [IFUNDEF] provides-file
     : provides-file ( -- addr u )
 	${XDG_DATA_HOME} dup 0= IF  2drop "~/.local/share"  THEN
 	[: type ." /gforth/provides" ;] $tmp ;
 [THEN]
+
+2variable last-provider
+0 Value provides.fd
 
 : provides-header ( -- )
     provides.fd 0= latest 0= or get-current >voc xt? 0= or ?EXIT

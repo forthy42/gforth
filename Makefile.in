@@ -458,37 +458,38 @@ MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	   \
 MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png     \
 	net2o-minos2.png lbubble.png rbubble.png white.png thumb.png logo.png
 
-TEST_SRC = tester.fs ttester.fs checkans.fs complex.fs coretest.fs dbltest.fs	\
-	float.fs gforth.fs forward.fs other.fs postpone.fs read-line.fs		\
-	search.fs signals.fs stagediv.fs string.fs primtest.fs primmin.fs	\
-	coreext.fs deferred.fs coremore.fs gforth-nofast.fs libcc.fs		\
-	macros.fs regexp-test.fs fp/ak-fp-test.fth fp/fatan2-test.fs		\
-	fp/fpio-test.4th fp/fpzero-test.4th fp/ieee-arith-test.fs		\
-	fp/ieee-fprox-test.fs fp/paranoia.4th fp/readme-fp.txt			\
+TEST_SRC = tester.fs ttester.fs checkans.fs complex.fs coretest.fs dbltest.fs \
+	float.fs gforth.fs forward.fs other.fs postpone.fs read-line.fs	      \
+	search.fs signals.fs stagediv.fs string.fs primtest.fs primmin.fs     \
+	coreext.fs deferred.fs coremore.fs gforth-nofast.fs libcc.fs	      \
+	macros.fs regexp-test.fs fp/ak-fp-test.fth fp/fatan2-test.fs	      \
+	fp/fpio-test.4th fp/fpzero-test.4th fp/ieee-arith-test.fs	      \
+	fp/ieee-fprox-test.fs fp/paranoia.4th fp/readme-fp.txt		      \
 	fp/runfptests.fth fp/to-float-test.4th fp/ttester.fs xchar.fs
 
 UNIX_SRC = terminal-server.fs jni-helper.fs jni-tools.fs jni-media.fs	\
 	jni-location.fs sensors.fs win32.fs wayland-interfaces.fs
 
-FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(F_SRC)		\
-	$(LIBCC_FORTH_SRC) $(patsubst %, minos2/%, $(MINOS2_SRC)) $(patsubst	\
-	%, minos2/%, $(MINOS2_BIN)) ans-report.fs ansi.fs answords.fs		\
-	colorize.fs comp-i.fs depth-changes.fs dosekey.fs doskey.fs		\
-	ds2texi.fs envos.dos envos.os2 etags.fs fft.fs filedump.fs fi2c.fs	\
-	forward.fs fsl-util.4th fsl-util.fs glosgen.fs gray.fs httpd.fs		\
-	i18n.fs install-tags.fs make-app.fs doc/makedoc.fs locate.fs		\
-	locate1.fs more.fs onebench.fs fft-bench.fs other.fs prims2x.fs		\
-	prims2x0.6.2.fs proxy.fs random.fs regexp.fs sokoban.fs string.fs	\
-	table.fs tags.fs tt.fs unbuffer.fs wordsets.fs 2012words.fs		\
-	$(patsubst %, test/%, $(TEST_SRC)) bubble.fs siev.fs matrix.fs fib.fs	\
-	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs	\
-	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs scope.fs		\
-	callable.fs add.fs lib.fs oldlib.fs sieve.fs list.fs			\
-	endtry-iferror.fs recover-endtry.fs $(patsubst %, unix/%,		\
-	$(UNIX_SRC)) date.fs i18n-date.fs script.fs wf.fs traceall.fs		\
-	notfound.fs utf16.fs archive.fs cilk.fs fixfiles.fs bits.fs		\
-	reverse-words.fs config.fs set-compsem.fs coverage.fs tokenize.fs	\
-	unix/opensles-vals.fs recognizer2.fs trigger-value.fs
+FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(F_SRC)	      \
+	$(LIBCC_FORTH_SRC) $(patsubst %, minos2/%, $(MINOS2_SRC)) $(patsubst  \
+	%, minos2/%, $(MINOS2_BIN)) ans-report.fs ansi.fs answords.fs	      \
+	colorize.fs comp-i.fs depth-changes.fs dosekey.fs doskey.fs	      \
+	ds2texi.fs envos.dos envos.os2 etags.fs fft.fs filedump.fs fi2c.fs    \
+	forward.fs fsl-util.4th fsl-util.fs glosgen.fs gray.fs httpd.fs	      \
+	i18n.fs install-tags.fs make-app.fs doc/makedoc.fs locate.fs	      \
+	locate1.fs more.fs onebench.fs fft-bench.fs other.fs prims2x.fs	      \
+	prims2x0.6.2.fs proxy.fs random.fs regexp.fs sokoban.fs string.fs     \
+	table.fs tags.fs tt.fs unbuffer.fs wordsets.fs 2012words.fs	      \
+	$(patsubst %, test/%, $(TEST_SRC)) bubble.fs siev.fs matrix.fs fib.fs \
+	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs     \
+	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs scope.fs	      \
+	callable.fs add.fs lib.fs oldlib.fs sieve.fs list.fs		      \
+	endtry-iferror.fs recover-endtry.fs $(patsubst %, unix/%,	      \
+	$(UNIX_SRC)) date.fs i18n-date.fs script.fs wf.fs traceall.fs	      \
+	notfound.fs utf16.fs archive.fs cilk.fs fixfiles.fs bits.fs	      \
+	reverse-words.fs config.fs set-compsem.fs coverage.fs tokenize.fs     \
+	unix/opensles-vals.fs recognizer2.fs trigger-value.fs need.fs	      \
+	provides.fs
 
 GEN_SRC = standard-words.fs
 
