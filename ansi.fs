@@ -150,14 +150,16 @@ $Variable term-rgb$
 
 : is-color-terminal? ( -- flag )
     s" TERM" getenv
+    2dup s" screen." string-prefix? IF  7 /string  THEN
     2dup s" xterm" string-prefix? >r
-    2dup s" linux" string-prefix? >r
     2dup s" rxvt"  string-prefix? >r
-         s" foot"  string-prefix?
+    2dup s" foot"  string-prefix? >r
+         s" linux" string-prefix?
     r> or r> or r> or ;
 
 : is-xterm? ( -- f )
     s" TERM" getenv
+    2dup s" screen." string-prefix? IF  7 /string  THEN
     2dup s" xterm" string-prefix? >r
     2dup s" rxvt"  string-prefix? >r
          s" foot"  string-prefix?
