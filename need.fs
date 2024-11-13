@@ -90,7 +90,7 @@ $Variable last-require
 		    input-color  THEN
 		refill 0=
 	    ELSE
-		$need[] $+[]! false
+		2dup find-name 0= IF  $need[] $+[]!  ELSE  2drop  THEN false
 	    THEN
 	UNTIL  ELSE  2drop  THEN ;
 
