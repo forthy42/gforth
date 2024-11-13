@@ -24,13 +24,17 @@
 0 Value provides.fd
 
 : provides-header ( -- )
-    provides.fd 0= latest 0= or ?EXIT
+    provides.fd 0= latest 0= or get-current >voc xt? 0= or ?EXIT
     [:  sourcefilename last-loadfilename 2@ d<>
 	IF
 	    sourcefilename last-loadfilename 2!
 	    cr sourcefilename type ':' emit
 	THEN
-	space latest name>string type
+	space
+	get-current forth-wordlist <> IF
+	    get-current >voc name>string type ':' emit
+	THEN
+	latest name>string type
     ;] provides.fd outfile-execute ;
 
 : provides-file ( -- addr u )
@@ -75,6 +79,10 @@ $Variable last-require
     ;] ;
 
 ' rec-provide ' rec-require 2 recognizer-sequence: rec-needs
+' rec-scope ' rec-nt 2 recognizer-sequence: rec-checkneeds
+
+: checkneeds ( addr u -- nt )
+    rec-checkneeds dup IF drop THEN ;
 
 : read-needs ( -- )
     provides-file r/o open-file throw
@@ -90,7 +98,7 @@ $Variable last-require
 		    input-color  THEN
 		refill 0=
 	    ELSE
-		2dup find-name 0= IF  $need[] $+[]!  ELSE  2drop  THEN false
+		2dup checkneeds IF  2drop  ELSE  $need[] $+[]!  THEN false
 	    THEN
 	UNTIL  ELSE  2drop  THEN ;
 
@@ -100,7 +108,7 @@ $Variable last-require
 : check-needs ( -- )
     \ checks don't work if words are burried in other
     \ vocabularies
-    $need[] [: find-name 0= -13 and throw ;] $[]map ;
+    $need[] [: checkneeds 0= -13 and throw ;] $[]map ;
 
 : need( ( "need1" .. "needn" "close-paren" -- )
     init-need

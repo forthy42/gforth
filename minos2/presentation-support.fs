@@ -18,6 +18,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+require minos2/text-style.fs
+
 uval-o slide-deck
 
 Variable album-imgs[]
