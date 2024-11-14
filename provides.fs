@@ -23,13 +23,27 @@
 $variable provider-file
 10 stack: providers
 
+: <no-provides ( -- )
+    \G lines that aren't provided by some upper level
+    0 provider-file !@ providers >stack ;
 : <provides ( -- )
-    0 provider-file !@ providers >stack
-    sourcefilename provider-file $! ;
+    \G lines that are provided by the current file
+    <no-provides  sourcefilename provider-file $! ;
 : provides> ( -- )
+    \G end of a provides/no-provides block
     provider-file $free providers stack> provider-file ! ;
+[IFUNDEF] >abspath
+    : >abspath ( addr u -- addr' u' )
+	over c@ '/' <> IF
+	    [: {: | pwd[ $1000 ] :} pwd[ $1000 get-dir
+		type '/' emit type ;] $tmp
+	    compact-filename
+	THEN ;
+[THEN]
 : source-provider ( -- addr u )
-    provider-file $@ 2dup d0= IF  2drop sourcefilename  THEN ;
+    \G what's the source provider's file name?
+    provider-file $@ 2dup d0= IF  2drop sourcefilename  THEN
+    >abspath ;
 
 [IFUNDEF] provides-file
     : provides-file ( -- addr u )
@@ -37,15 +51,16 @@ $variable provider-file
 	[: type ." /gforth/provides" ;] $tmp ;
 [THEN]
 
-2variable last-provider
+$variable last-provider
 0 Value provides.fd
 
 : provides-header ( -- )
     provides.fd 0= latest 0= or get-current >voc xt? 0= or ?EXIT
-    [:  source-provider last-provider 2@ d<>
+    [:  source-provider 2dup last-provider $@ str= 0=
 	IF
-	    source-provider last-provider 2!
-	    cr source-provider type ':' emit
+	    2dup last-provider $!
+	    cr type ':' emit
+	ELSE  2drop
 	THEN
 	space
 	get-current forth-wordlist <> IF

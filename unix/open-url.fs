@@ -21,15 +21,20 @@
 require ./libc.fs
 require ./os-name.fs
 
-: file>abspath ( file u path -- addr u )
-    ['] file>path catch-nobt IF
-	drop 2drop #0.
-    ELSE
+[IFUNDEF] >abspath
+    : >abspath ( addr u -- addr' u' )
 	over c@ '/' <> IF
 	    [: {: | pwd[ $1000 ] :} pwd[ $1000 get-dir
 		type '/' emit type ;] $tmp
 	    compact-filename
-	THEN
+	THEN ;
+[THEN]
+
+: file>abspath ( file u path -- addr u )
+    ['] file>path catch-nobt IF
+	drop 2drop #0.
+    ELSE
+	>abspath
     THEN ;
 
 : >upath ( addr u -- ) { | w^ upath }
