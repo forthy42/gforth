@@ -121,11 +121,9 @@
 [ifundef] parse-name
     ' parse-word alias parse-name
 [then]
-[ifundef] defer!
-: defer! ( xt xt-deferred -- ) \ gforth  defer-store
+?: defer! ( xt xt-deferred -- ) \ gforth  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
     >body [ has? rom [IF] ] @ [ [THEN] ] ! ;
-[then]
 
 \ : delete-file 2drop 0 ;
 

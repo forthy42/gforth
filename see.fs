@@ -274,7 +274,7 @@ ACONSTANT MaxTable
     ELSE
 	2drop true THEN ;
 
-[IFUNDEF] cell- : cell- ( addr1 -- addr2 ) cell - ; [THEN]
+?: cell- ( addr1 -- addr2 ) cell - ;
     
 : MyBranch      ( a-addr -- a-addr a-addr2 )
 \ finds branch table entry for branch at a-addr

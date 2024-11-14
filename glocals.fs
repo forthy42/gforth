@@ -612,9 +612,7 @@ is adjust-locals-list
     dead-code off
     defstart ;
 
-[ifundef] ->here
-    : ->here dp ! ;
-[then]
+?: ->here dp ! ;
 
 : locals-;-hook ( sys addr xt sys -- sys )
     ?struc
@@ -764,10 +762,9 @@ also locals-types
     POSTPONE { 0 0 nextname W: ['] latestnt locals-headers >r } r> @ ;
 previous
 
-[ifundef] >extra
-    : >extra ( nt -- addr )
-        >namehm @ >hmextra ;
-[endif]
+
+?: >extra ( nt -- addr )
+>namehm @ >hmextra ;
 
 : >definer ( xt -- definer ) \ gforth
     \G @var{Definer} is a unique identifier for the way the @var{xt}

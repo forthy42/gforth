@@ -30,10 +30,8 @@ vocabulary assembler ( -- ) \ tools-ext
 \g Pushes the assembler wordlist on the search order.
     also assembler ;
     
-[ifundef] only-code-address!
-    : only-code-address! ( c_addr xt -- )
-        >cfa ! ;
-[endif]
+?: only-code-address! ( c_addr xt -- )
+    >cfa ! ;
 
 : code ( "name" -- colon-sys )	\ tools-ext
     \G Start a native code definition that runs in the context of the
@@ -70,10 +68,8 @@ vocabulary assembler ( -- ) \ tools-ext
     \ execution semantics of @code{;code}
     r> latestnt native-code-address! ;
 
-[ifundef] ?colon-sys
-: ?colon-sys  ( ... xt tag -- )
+?: ?colon-sys  ( ... xt tag -- )
     ?struc execute ;
-[then]
 
 :noname ( -- colon-sys )
     align here latestnt native-code-address!

@@ -133,10 +133,8 @@ UValue $? ( -- n ) \ gforth dollar-question
     \G equivalent to @code{] literal}
     ] postpone literal ;
 
-[ifundef] in-dictionary?
-: in-dictionary? ( x -- f )
+?: in-dictionary? ( x -- f )
     forthstart dictionary-end within ;
-[endif]
 
 : in-return-stack? ( addr -- f )
     rp0 @ [ forthstart 9 cells + ]L @ - $FFF + -$1000 and rp0 @ within ;
@@ -461,13 +459,13 @@ previous
 
 [IFUNDEF] xd><
     1 cells 4 = [if]
-        : xd>< ( xd1 -- xd2 ) \ gforth
+        ?: xd>< ( xd1 -- xd2 ) \ gforth
             \g Convert 64-bit value in \code{xd1} from native byte
             \g order to big-endian or from big-endian to native byte
             \g order (the same operation)
             l>< swap l>< ;
     [else] 1 cells 8 = [if]
-            : xd>< ( xd1 -- xd2 ) \ gforth
+            ?: xd>< ( xd1 -- xd2 ) \ gforth
                 \g Convert 64-bit value in \code{xd1} from native byte
                 \g order to big-endian or from big-endian to native byte
                 \g order (the same operation)
@@ -836,6 +834,8 @@ fold1:
 	1 of  postpone r'@  endof
 	postpone rpick# dup ,
     endcase ;
+
+\ obsolete place
 
 : place ( c-addr1 u c-addr2 -- ) \ gforth-experimental place
     \G Create a counted string of length @var{u} at @var{c-addr2} and

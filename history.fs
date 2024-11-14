@@ -76,11 +76,9 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 2Variable end^
 Variable vt100-modifier \ shift, ctrl, alt
 
-[IFUNDEF] -scan
-    : -scan ( addr u char -- addr' u' )
-	>r  BEGIN  dup  WHILE  1- 2dup + c@ r@ =  UNTIL  THEN
-	rdrop ;
-[THEN]
+?: -scan ( addr u char -- addr' u' )
+    >r  BEGIN  dup  WHILE  1- 2dup + c@ r@ =  UNTIL  THEN
+    rdrop ;
 
 : force-open ( addr len -- fid )
     2dup r/w open-file
@@ -384,11 +382,9 @@ synonym setstring-color info-color
 	>r - >edit-rest over r@ + -rot move
 	rot r> - -rot  THEN ;
 
-[IFUNDEF] insert
-: insert   ( string length buffer size -- )
+?: insert   ( string length buffer size -- )
     rot over min dup  >r - ( left over )
     over dup r@ +  rot move   r> move  ;
-[THEN]
 
 : (xtab-expand) ( max span addr pos1 -- max span addr pos2 0 )
     xkill-expand 2dup extract-word dup 0= IF  nip EXIT  THEN

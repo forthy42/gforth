@@ -103,15 +103,13 @@ $10 stack: cov-stack
 
 \ launch a debug shell, quit with emtpy line
 
-[ifundef] bt-rp0-catch
-: bt-rp0-catch ( ... xt -- ... ball )
+?: bt-rp0-catch ( ... xt -- ... ball )
     backtrace-rp0 @ >r	
     catch
     r> backtrace-rp0 ! ;
 
-: bt-rp0-wrapper ( ... xt -- ... )
+?: bt-rp0-wrapper ( ... xt -- ... )
     bt-rp0-catch throw ;
-[then]
 
 : ???-loop ( ... -- ... )
     BEGIN

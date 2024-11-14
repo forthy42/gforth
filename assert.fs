@@ -106,9 +106,7 @@ debug: profile(
 2Variable timer-tick
 2Variable last-tick
 
-[IFUNDEF] 2+!
-: 2+! ( d addr -- )  dup >r 2@ d+ r> 2! ;
-[THEN]
+?: 2+! ( d addr -- )  dup >r 2@ d+ r> 2! ;
 : +t ( addr -- )
     ntime 2dup last-tick dup 2@ 2>r 2! 2r> d- rot 2+! ;
 

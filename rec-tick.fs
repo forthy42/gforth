@@ -19,10 +19,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-[IFUNDEF] ?rec-nt
-    : ?rec-nt ( addr u -- nt true / 0 )
-	[: ['] translate-nt = ;] try-recognize ;
-[THEN]
+?: ?rec-nt ( addr u -- nt true / 0 )
+    [: ['] translate-nt = ;] try-recognize ;
 
 : rec-tick ( addr u -- xt translate-num | 0 ) \ gforth-experimental
     \G words prefixed with @code{`} return their xt.

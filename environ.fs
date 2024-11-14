@@ -18,8 +18,16 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-[IFUNDEF] cell/ : cell/ 1 cells / ; [THEN]
-[IFUNDEF] float/ : float/ 1 floats / ; [THEN]
+: ?: ( "name" -- ) \ query-colon gforth-experimental
+    \G check if @var{"name"} exists.  If it does, scan the input until
+    \G @code{;} is found.  Otherwise, define @var{"name"} with @code{:}
+    \G and continue compiling the code following
+    >in @ >r parse-name find-name 0= IF  r> >in ! :  EXIT  THEN  rdrop
+    BEGIN  parse-name dup 0= IF  2drop refill 0=  ELSE   s" ;" str=  THEN
+    UNTIL ;
+
+?: cell/ 1 cells / ;
+?: float/ 1 floats / ;
 
 \ wordlist constant environment-wordlist
 

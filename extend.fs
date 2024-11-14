@@ -36,12 +36,12 @@ decimal
 
 \ !! 2value
 
-[ifundef] 2literal
+[IFUNDEF] 2Literal
 : 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal
     \G Compile appropriate code such that, at run-time, cell pair @i{w1, w2} are
     \G placed on the stack. Interpretation semantics are undefined.
     swap postpone Literal  postpone Literal ; immediate restrict
-[then]
+[THEN]
 
 ' drop alias d>s ( d -- n ) \ double		d_to_s
 
@@ -130,59 +130,6 @@ decimal
     repeat
     2drop 2r> 2drop false ;
 
-\ SOURCE-ID SAVE-INPUT RESTORE-INPUT                    11jun93jaw
-
-[IFUNDEF] source-id
-: source-id ( -- 0 | -1 | fileid ) \ core-ext,file source-i-d
-    \G Return 0 (the input source is the user input device), -1 (the
-    \G input source is a string being processed by @code{evaluate}) or
-    \G a @i{fileid} (the input source is the file specified by
-    \G @i{fileid}).
-    loadfile @ dup 0= IF  drop sourceline# 0 min  THEN ;
-
-: save-input ( -- xn .. x1 n ) \ core-ext
-    \G The @i{n} entries @i{xn - x1} describe the current state of the
-    \G input source specification, in some platform-dependent way that can
-    \G be used by @code{restore-input}.
-    >in @
-    loadfile @
-    if
-	loadfile @ file-position throw
-	[IFDEF] #fill-bytes #fill-bytes @ [ELSE] #tib @ 1+ [THEN] 0 d-
-    else
-	blk @
-	linestart @
-    then
-    sourceline#
-    >tib @
-    source-id
-    6 ;
-
-: restore-input ( xn .. x1 n -- flag ) \ core-ext
-    \G Attempt to restore the input source specification to the state
-    \G described by the @i{n} entries @i{xn - x1}. @i{flag} is
-    \G true if the restore fails.  In Gforth it fails pretty often
-    \G (and sometimes with a @code{throw}).
-    6 <> -12 and throw
-    source-id <> -12 and throw
-    >tib !
-    >r ( line# )
-    loadfile @ 0<>
-    if
-	loadfile @ reposition-file throw
-	refill 0= -36 and throw \ should never throw
-    else
-	linestart !
-	blk !
-	sourceline# r@ <> blk @ 0= and loadfile @ 0= and
-	if
-	    drop rdrop true EXIT
-	then
-    then
-    r> loadline !
-    >in !
-    false ;
-[THEN]
 \ This things we don't need, but for being complete... jaw
 
 \ EXPECT SPAN                                           17may93jaw

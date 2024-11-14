@@ -23,14 +23,12 @@
 $variable provider-file
 10 stack: providers
 
-[IFUNDEF] >abspath
-    : >abspath ( addr u -- addr' u' )
-	over c@ '/' <> IF
-	    [: {: | pwd[ $1000 ] :} pwd[ $1000 get-dir
-		type '/' emit type ;] $tmp
-	    compact-filename
-	THEN ;
-[THEN]
+?: >abspath ( addr u -- addr' u' )
+    over c@ '/' <> IF
+	[: {: | pwd[ $1000 ] :} pwd[ $1000 get-dir
+	    type '/' emit type ;] $tmp
+	compact-filename
+    THEN ;
 : <no-provides ( -- )
     \G lines that aren't provided by some upper level
     0 provider-file !@ providers >stack ;

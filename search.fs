@@ -167,7 +167,6 @@ Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
   \G list that is currently on the top of the search order stack.
   context @ 1 set-order ;
 
-[IFUNDEF] .name
 : id. ( nt -- ) \ gforth  i-d-dot
     \G Print the name of the word represented by @var{nt}.
     \ this name comes from fig-Forth
@@ -175,8 +174,6 @@ Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
 
 ' id. alias .id ( nt -- ) \ gforth dot-i-d
 \G F83 name for @code{id.}.
-
-[THEN]
 
 : .voc ( wid -- ) \ gforth  dot-voc
     \G print the name of the wordlist represented by @var{wid}.  Can
