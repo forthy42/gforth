@@ -23,15 +23,6 @@
 $variable provider-file
 10 stack: providers
 
-: <no-provides ( -- )
-    \G lines that aren't provided by some upper level
-    0 provider-file !@ providers >stack ;
-: <provides ( -- )
-    \G lines that are provided by the current file
-    <no-provides  sourcefilename provider-file $! ;
-: provides> ( -- )
-    \G end of a provides/no-provides block
-    provider-file $free providers stack> provider-file ! ;
 [IFUNDEF] >abspath
     : >abspath ( addr u -- addr' u' )
 	over c@ '/' <> IF
@@ -40,10 +31,18 @@ $variable provider-file
 	    compact-filename
 	THEN ;
 [THEN]
+: <no-provides ( -- )
+    \G lines that aren't provided by some upper level
+    0 provider-file !@ providers >stack ;
+: <provides ( -- )
+    \G lines that are provided by the current file
+    <no-provides  sourcefilename >abspath provider-file $! ;
+: provides> ( -- )
+    \G end of a provides/no-provides block
+    provider-file $free providers stack> provider-file ! ;
 : source-provider ( -- addr u )
     \G what's the source provider's file name?
-    provider-file $@ 2dup d0= IF  2drop sourcefilename  THEN
-    >abspath ;
+    provider-file $@ 2dup d0= IF  2drop sourcefilename >abspath  THEN ;
 
 [IFUNDEF] provides-file
     : provides-file ( -- addr u )
