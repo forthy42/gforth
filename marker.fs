@@ -36,6 +36,7 @@
     #extra-sections @ ,
     sections $@ dup , cell mem+do
 	['] section-dp i @ section-execute @ ,
+	['] lastnt     i @ section-execute @ ,
     loop ;
 
 : sections-marker! ( addr1 -- addr2 )
@@ -48,8 +49,8 @@
     cell +loop
     assert( sections $@len over @ = )
     cell+ sections $@ cell mem+do
-	dup @ ['] section-dp i @ section-execute !
-	cell+
+	dup @ ['] section-dp i @ section-execute ! cell+
+	dup @ ['] lastnt     i @ section-execute ! cell+
     loop ;
     
 \ hmm, most of the saving appears to be pretty unnecessary: we could
