@@ -52,6 +52,7 @@ Create >postpone ( translator -- ) \ gforth-experimental
 DOES> @ over >does-code ['] do-translate = IF
       + @ execute-;s  THEN
   \ fallback for combined translators
+  true warning" translator not defined by translate:"
   cell/ negate state !@ >r execute r> state ! ;
 
 : name-compsem ( ... nt -- ... )

@@ -52,7 +52,7 @@
 	dup @ ['] section-dp i @ section-execute ! cell+
 	dup @ ['] lastnt     i @ section-execute ! cell+
     loop ;
-    
+
 \ hmm, most of the saving appears to be pretty unnecessary: we could
 \ derive the wordlists and the words that have to be kept from the
 \ saved value of dp value. - anton
