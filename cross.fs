@@ -2220,6 +2220,7 @@ constant obsolete-mask
 : restrict      restrict-mask flag! ;
 : compile-only  restrict-mask flag! ;
 : obsolete      obsolete-mask flag! ;
+: >code-address t>cfa T @ H ;
 
 : isdoer	
 \G define a forth word as doer, this makes obviously only sense on

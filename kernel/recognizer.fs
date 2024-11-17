@@ -46,13 +46,16 @@
     Create swap rot , , , 7 0 DO  ['] no.extensions ,  LOOP
     ['] do-translate set-does> ;
 
+0 Value translate-fallback-error \ set to true to prevent fallback
+
 Create >postpone ( translator -- ) \ gforth-experimental
 \G perform postpone action of translator
 2 cells ,
 DOES> @ over >does-code ['] do-translate = IF
       + @ execute-;s  THEN
   \ fallback for combined translators
-  true warning" translator not defined by translate:"
+  translate-fallback-error IF  #-21 throw
+  ELSE  true warning" translator not defined by translate:"  THEN
   cell/ negate state !@ >r execute r> state ! ;
 
 : name-compsem ( ... nt -- ... )
@@ -153,6 +156,4 @@ Defer forth-recognize ( c-addr u -- ... translate-xt ) \ recognizer
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
     parse-name forth-recognize ?found >postpone
-    \ -2 state !@ >r parse-name forth-recognize execute
-    \ r> state !
 ; immediate restrict

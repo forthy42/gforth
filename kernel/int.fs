@@ -582,11 +582,12 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
     \G executing @i{xt1} (but first the body address of @i{xt1} is
     \G pushed).  If @i{xt1} does not belong to a
     \G @code{set-does>}-defined word, @i{xt2} is 0.
-    dup >code-address dodoes: = if
-	>extra @
-    else
-	drop 0
-    then ;
+    dup >namehm @ >hmextra @ swap >cfa @ dodoes: = and ;
+\    dup >code-address dodoes: = if
+\	>extra @
+\    else
+\	drop 0
+\    then ;
 
 : only-code-address! ( c_addr xt -- )
     \ like code-address!, but does not change opt-compile,

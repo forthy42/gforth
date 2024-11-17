@@ -19,71 +19,59 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 doer? :docon [IF]
-: docon: ( -- addr )	\ gforth
+    ' bl >code-address AConstant docon: ( -- addr )	\ gforth
     \G The code address of a @code{CONSTANT}.
-    ['] bl >code-address ;
 [THEN]
 
 doer? :dovalue [IF]
-: dovalue: ( -- addr )	\ gforth
+    ' def#tib >code-address AConstant dovalue: ( -- addr )	\ gforth
     \G The code address of a @code{CONSTANT}.
-    ['] def#tib >code-address ;
 [THEN]
 
-: docol: ( -- addr )	\ gforth
-    \G The code address of a colon definition.
-    ['] on >code-address ;
+' on >code-address AConstant docol: ( -- addr )	\ gforth
+\G The code address of a colon definition.
 \ !! mark on
 
 doer? :dovar [IF]
-: dovar: ( -- addr )	\ gforth
+    ' udp >code-address AConstant dovar: ( -- addr )	\ gforth
     \G The code address of a @code{CREATE}d word.
     \ in rom-applications variable might be implemented with constant
     \ use really a created word!
-    ['] udp >code-address ;
 [THEN]
 
 doer? :douser [IF]
-: douser: ( -- addr )	\ gforth
+    ' sp0 >code-address AConstant douser: ( -- addr )	\ gforth
     \G The code address of a @code{USER} variable.
-    ['] sp0 >code-address ;
 [THEN]
 
 doer? :dodefer [IF]
-: dodefer: ( -- addr )	\ gforth
+    ' parse-name >code-address AConstant dodefer: ( -- addr )	\ gforth
     \G The code address of a @code{defer}ed word.
-    ['] parse-name >code-address ;
 [THEN]
 
 doer? :dofield [IF]
-
-: dofield: ( -- addr )	\ gforth
+    ' >body >code-address AConstant dofield: ( -- addr )	\ gforth
     \G The code address of a @code{field}.
-    ['] >body >code-address ;
 [THEN]
 
 doer? :dodoes [IF]
-does>-dummy (does-dummy)
-: dodoes: ( -- addr )	\ gforth
-\G The code address of a @code{DOES>}-defined word.
-    ['] (does-dummy) >code-address ;
+    does>-dummy (does-dummy)
+    ' (does-dummy) >code-address AConstant dodoes: ( -- addr )	\ gforth
+    \G The code address of a @code{DOES>}-defined word.
 [THEN]
 
 doer? :doabicode [IF]
-(ABI-CODE) (abi-code-dummy)
-: doabicode: ( -- addr )	\ gforth
+    (ABI-CODE) (abi-code-dummy)
+    ' (abi-code-dummy) >code-address AConstant doabicode: ( -- addr )	\ gforth
     \G The code address of a @code{ABI-CODE} definition.
-    ['] (abi-code-dummy) >code-address ;
 [THEN]
 
 doer? :do;abicode [IF]
-(;abi-code) (;abi-code-dummy)
-: do;abicode: ( -- addr )
-    ['] (;abi-code-dummy) >code-address ;
+    (;abi-code) (;abi-code-dummy)
+    ' (;abi-code-dummy) >code-address AConstant do;abicode: ( -- addr )
 [THEN]
 
 doer? :doextraxt [IF]
-extraxt>-dummy (doextraxt-dummy)
-: doextraxt: ( -- addr )
-    ['] (doextraxt-dummy) >code-address ;
+    extraxt>-dummy (doextraxt-dummy)
+    ' (doextraxt-dummy) >code-address AConstant doextraxt: ( -- addr )
 [THEN]
