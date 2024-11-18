@@ -133,7 +133,6 @@ then
 	if [ "$1" != "--no-config" ]; then make extras || exit 1; fi
 	echo -n " debdist" 1>&3
 	mkdir -p debian/sdcard/gforth/current/doc
-	cp `gforth provides.fs -e '"doc/gforth.txt" >abspath type bye'` doc
 	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]
     then
@@ -142,6 +141,7 @@ then
     
     mkdir -p res/raw
     cp *.{fs,fi,png,jpg} build/debian/sdcard/gforth/$machine/gforth/site-forth
+    cp `gforth provides.fs -e '"doc/gforth.txt" >abspath type bye'`  build/debian/sdcard/gforth/current/doc
     (cd build/debian/sdcard
      mkdir -p gforth/home gforth/site-forth gforth/current/minos2/fonts
      cp /usr/share/fonts/truetype/emoji/fa-merged-900.ttf gforth/current/minos2/fonts
