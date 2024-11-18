@@ -133,7 +133,7 @@ then
 	if [ "$1" != "--no-config" ]; then make extras || exit 1; fi
 	echo -n " debdist" 1>&3
 	mkdir -p debian/sdcard/gforth/current/doc
-	cp doc/gforth.txt debian/sdcard/gforth/current/doc
+	cp `gforth provides.fs -e '"doc/gforth.txt" >abspath type bye'` debian/sdcard/gforth/current/doc
 	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]
     then

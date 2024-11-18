@@ -42,12 +42,6 @@ $variable provider-file
     \G what's the source provider's file name?
     provider-file $@ 2dup d0= IF  2drop sourcefilename >abspath  THEN ;
 
-[IFUNDEF] provides-file
-    : provides-file ( -- addr u )
-	${XDG_DATA_HOME} dup 0= IF  2drop "~/.local/share"  THEN
-	[: type ." /gforth/provides" ;] $tmp ;
-[THEN]
-
 $variable last-provider
 0 Value provides.fd
 
