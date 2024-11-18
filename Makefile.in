@@ -139,7 +139,7 @@ ENGINE = ./gforth
 DITCENGINE = @DITCENGINE@
 FORTH	= $(ENGINE) $(FORTH_ARGS)
 FORTHS	= $(ENGINE) $(FORTHS_ARGS)
-FORTHP	= $(ENGINE) -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
+FORTHP	= ./gforthp -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 # the (existing) forth system to use for cross compiling and primitives tables
 # per default we use the one in this directory for a rebuild. It is also
 # possible to override this variable at the command line for an initial build (jaw)
@@ -677,10 +677,10 @@ DOCKER = docker/runner/Dockerfile.in docker/runner/build.sh	\
 
 SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in  \
 	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in	     \
-	gforthker.in README.vmgen NEWS.vmgen autogen.sh configure.ac	     \
-	configure config.sub config.guess elisp-comp stamp-h.in envos.fs.in  \
-	kernel/version.fs.in iss.sh wininst.sh modpath.iss firewall.iss	     \
-	install-sh INSTALL.md NEWS README README.md ToDo BUGS		     \
+	gforthker.in gforthp.in README.vmgen NEWS.vmgen autogen.sh	     \
+	configure.ac configure config.sub config.guess elisp-comp stamp-h.in \
+	envos.fs.in kernel/version.fs.in iss.sh wininst.sh modpath.iss	     \
+	firewall.iss install-sh INSTALL.md NEWS README README.md ToDo BUGS   \
 	BUILD-FROM-SCRATCH model COPYING COPYING.LIB COPYING.DOC AUTHORS     \
 	ChangeLog Benchres aclocal.m4 ltmain.sh doc/Makefile.in		     \
 	doc/gforth.texi.in $(wildcard $(srcdir)/doc/words/*-words)	     \

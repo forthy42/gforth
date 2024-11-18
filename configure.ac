@@ -1609,6 +1609,7 @@ else
   kernel_anti_dependence='gforth.fi'
 fi
 AC_SUBST(PREFORTH)
+AC_SUBST(GFORTH)
 AC_SUBST(GFORTHKER)
 AC_SUBST(kernel_anti_dependence)
 AC_MSG_RESULT($PREFORTH)
@@ -2141,6 +2142,7 @@ envos.fs
 preforth
 libforth
 gforthker
+gforthp
 engine/Makefile
 engine/gforth.h
 doc/version.texi
@@ -2160,6 +2162,7 @@ chmod +x build-ec
 chmod +x preforth
 chmod +x libforth
 chmod +x gforthker
+chmod +x gforthp
 chmod +x debian/rules
 test -f $srcdir/unix/wayland-fsi.c&&touch $srcdir/unix/wayland-fsi.c
 test -d kernel||mkdir kernel

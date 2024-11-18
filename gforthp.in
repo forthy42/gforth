@@ -1,0 +1,38 @@
+#!/bin/sh
+
+#Authors: Bernd Paysan, Anton Ertl
+#Copyright (C) 2008,2011,2012,2016,2017,2018,2019,2023 Free Software Foundation, Inc.
+
+#This file is part of Gforth.
+
+#Gforth is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation, either version 3
+#of the License, or (at your option) any later version.
+
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+
+#You should have received a copy of the GNU General Public License
+#along with this program. If not, see http://www.gnu.org/licenses/.
+
+machine=@machine@
+VERSION=@PACKAGE_VERSION@
+export HOSTPREFIX="@HOSTPREFIX@"
+@NO_CROSS@test -z "$ENGINE" && ENGINE=./gforth
+@NO_CROSS@test -f "@srcdir@/@kernel_fi@" && KERNEL="@srcdir@/@kernel_fi@"
+@NO_CROSS@test -f "@kernel_fi@" && KERNEL="@kernel_fi@"
+export libccdir="$PWD/lib/gforth/$VERSION/$machine/libcc-named/"
+export libccnameddir="$libccdir"
+if test -n "$C_INCLUDE_PATH"; then
+    export C_INCLUDE_PATH="@srcdir@/include/gforth/$VERSION/$machine:@srcdir@/engine:$C_INCLUDE_PATH"
+else
+    export C_INCLUDE_PATH="@srcdir@/include/gforth/$VERSION/$machine:@srcdir@/engine"
+fi
+if test -f "$ENGINE" -a -f "$KERNEL"; then 
+  $ENGINE --die-on-signal "$@" || (printf "\e[31m*** Gforth kernel failed ***\e[0m\n"; exit 1) >&2
+else
+    @GFORTH@ "$@" || (printf "\e[31m*** Gforth kernel failed ***\e[0m\n"; exit 1) >&2
+fi
