@@ -4,18 +4,18 @@ require unix/jni-tools.fs
 
 also android also jni definitions
 
-app obj @ Value clazz
+host? [IF] app obj @ [ELSE] 0 [THEN] Value clazz
 
 : gforth-class: ( -- )
-    clazz env swap JNIEnv-getObjectClass() to jniclass  0 to gjniclass ;
+    clazz env swap JNIEnv-GetObjectClass() to jniclass  0 to gjniclass ;
 
-gforth-class:
+host? [IF] gforth-class: [THEN]
 
 \ jni-sfield: INPUT_METHOD_SERVICE INPUT_METHOD_SERVICE Ljava/lang/String;
 \ jni-sfield: POWER_SERVICE POWER_SERVICE Ljava/lang/String;
 
 jni-method: get_SDK get_SDK ()I
-: SDK_INT clazz .get_SDK ;
+: SDK_INT host? IF  clazz .get_SDK  ELSE  30  THEN ;
 
 jni-method: getSystemService getSystemService (Ljava/lang/String;)Ljava/lang/Object;
 jni-method: getWindow getWindow ()Landroid/view/Window;
@@ -252,7 +252,7 @@ SDK_INT 23 >= [IF]
     jni-method: requestPermissions requestPermissions ([Ljava/lang/String;I)V
 [THEN]
 
-jvalue res clazz .getResources to res
+JValue res host? [IF] clazz .getResources to res [THEN]
 : R.id ( addr u -- id ) make-jstring 0 0 res .getIdentifier ;
 
 : l[] ( n list -- object )  .l-get ;

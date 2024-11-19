@@ -620,7 +620,7 @@ default-out op-vector !
 
 ' term-init window-init,
 
-[IFDEF] android >dark [THEN] \ make black default
+[IFDEF] android host? [IF] >dark [THEN] [THEN] \ make black default
 
 \ window-init
 

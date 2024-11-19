@@ -217,21 +217,28 @@ Variable iscopy
 : ?javanf ( id -- id )  dup 0= !!javanf!! and throw ;
 
 : jni-class: ( "name" -- )
-    env cstr" JNIEnv-FindClass() ?javanf to jniclass  0 to gjniclass ;
+    host? IF  env cstr" JNIEnv-FindClass() ?javanf
+    ELSE  parse-name 2drop 0  THEN  to jniclass  0 to gjniclass ;
 : jniclass@ ( -- class )
-    gjniclass 0= IF
-	env jniclass JNIEnv-NewGlobalRef() to gjniclass  THEN
-    gjniclass ;
+    host? IF
+	gjniclass 0= IF
+	    env jniclass JNIEnv-NewGlobalRef() to gjniclass  THEN
+    THEN  gjniclass ;
 : jni-mid ( "name" "signature" -- methodid )
-    env jniclass cstr" cstr1" JNIEnv-GetMethodID() ?javanf ;
+    host? IF  env jniclass cstr" cstr1" JNIEnv-GetMethodID() ?javanf
+    ELSE  parse-name 2drop parse-name cstring1 $! 0  THEN ;
 : jni-smid ( "name" "signature" -- methodid )
-    env jniclass@ cstr" cstr1" JNIEnv-GetStaticMethodID() ?javanf ;
+    host? IF  env jniclass@ cstr" cstr1" JNIEnv-GetStaticMethodID() ?javanf
+    ELSE  parse-name 2drop parse-name cstring1 $! 0  THEN ;
 : jni-new ( "signatur" -- methodid )
-    env jniclass s" <init>" cstr1" JNIEnv-GetMethodID() ?javanf ;
+    host? IF  env jniclass s" <init>" cstr1" JNIEnv-GetMethodID() ?javanf
+    ELSE  parse-name 2drop parse-name cstring1 $! 0  THEN ;
 : jni-fid ( "name" "signature" -- methodid )
-    env jniclass cstr" cstr1" JNIEnv-GetFieldID() ?javanf ;
+    host? IF  env jniclass cstr" cstr1" JNIEnv-GetFieldID() ?javanf
+    ELSE  parse-name 2drop parse-name cstring1 $! 0  THEN ;
 : jni-sfid ( "name" "signature" -- methodid )
-    env jniclass@ cstr" cstr1" JNIEnv-GetStaticFieldID() ?javanf ;
+    host? IF  env jniclass@ cstr" cstr1" JNIEnv-GetStaticFieldID() ?javanf
+    ELSE  parse-name 2drop parse-name cstring1 $! 0  THEN ;
 
 Variable argstring
 : >argstring ( addr1 u1 -- addr2 u2 )

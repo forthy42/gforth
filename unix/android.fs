@@ -190,11 +190,11 @@ also jni
 
 0 Value screen-orientation
 JValue psize
-newPoint to psize
+host? [IF] newPoint to psize [THEN]
 JValue dmetrics
-newDisplayMetrics to dmetrics
+host? [IF] newDisplayMetrics to dmetrics [THEN]
 JValue screenrect
-newRect to screenrect
+host? [IF] newRect to screenrect [THEN]
 
 : screen-orientation@ ( -- 0..3 )
     clazz >o getWindowManager >o getDefaultDisplay >o

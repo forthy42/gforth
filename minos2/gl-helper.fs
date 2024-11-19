@@ -274,7 +274,7 @@ Variable eglformat
 : init-opengl ( -- )
     choose-config create-context sync getwh ;
 
-?looper \ init-opengl ." Screen size: " dpy-w ? dpy-h ? cr
+host? [IF] ?looper [THEN] \ init-opengl ." Screen size: " dpy-w ? dpy-h ? cr
 
 \ gl shader program
 
