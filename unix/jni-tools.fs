@@ -29,7 +29,7 @@ User callargs
     vm JavaVM-DetachCurrentThread() drop
     callargs @ free throw ;
 
-host? [IF] attach [THEN] \ attach this thread
+host? [IF] attach .( attach this thread) cr [THEN] \ attach this thread
 
 \ call java
 
@@ -216,29 +216,35 @@ Variable iscopy
 
 : ?javanf ( id -- id )  dup 0= !!javanf!! and throw ;
 
+host? [IF]
 : jni-class: ( "name" -- )
-    host? IF  env cstr" JNIEnv-FindClass() ?javanf
-    ELSE  parse-name 2drop 0  THEN  to jniclass  0 to gjniclass ;
+    env cstr" JNIEnv-FindClass() ?javanf to jniclass  0 to gjniclass ;
 : jniclass@ ( -- class )
-    host? IF
-	gjniclass 0= IF
-	    env jniclass JNIEnv-NewGlobalRef() to gjniclass  THEN
-    THEN  gjniclass ;
+    gjniclass 0= IF
+	env jniclass JNIEnv-NewGlobalRef() to gjniclass  THEN
+    gjniclass ;
 : jni-mid ( "name" "signature" -- methodid )
-    host? IF  env jniclass cstr" cstr1" JNIEnv-GetMethodID() ?javanf
-    ELSE  parse-name 2drop parse-name cstring1 $! 0  THEN ;
+    env jniclass cstr" cstr1" JNIEnv-GetMethodID() ?javanf ;
 : jni-smid ( "name" "signature" -- methodid )
-    host? IF  env jniclass@ cstr" cstr1" JNIEnv-GetStaticMethodID() ?javanf
-    ELSE  parse-name 2drop parse-name cstring1 $! 0  THEN ;
+    env jniclass@ cstr" cstr1" JNIEnv-GetStaticMethodID() ?javanf ;
 : jni-new ( "signatur" -- methodid )
-    host? IF  env jniclass s" <init>" cstr1" JNIEnv-GetMethodID() ?javanf
-    ELSE  parse-name 2drop parse-name cstring1 $! 0  THEN ;
+    env jniclass s" <init>" cstr1" JNIEnv-GetMethodID() ?javanf ;
 : jni-fid ( "name" "signature" -- methodid )
-    host? IF  env jniclass cstr" cstr1" JNIEnv-GetFieldID() ?javanf
-    ELSE  parse-name 2drop parse-name cstring1 $! 0  THEN ;
+    env jniclass cstr" cstr1" JNIEnv-GetFieldID() ?javanf ;
 : jni-sfid ( "name" "signature" -- methodid )
-    host? IF  env jniclass@ cstr" cstr1" JNIEnv-GetStaticFieldID() ?javanf
-    ELSE  parse-name 2drop parse-name cstring1 $! 0  THEN ;
+    env jniclass@ cstr" cstr1" JNIEnv-GetStaticFieldID() ?javanf ;
+[ELSE]
+    : jni-class: ( "name" -- )
+	parse-name 2drop 0 to jniclass  0 to gjniclass ;
+    : jniclass@ ( -- class ) 0 ;
+    : jni-mid ( "name" "signature" -- methodid )
+	parse-name 2drop parse-name cstring1 $! 0 ;
+    synonym jni-smid jni-mid
+    synonym jni-fid jni-mid
+    synonym jni-sfid jni-mid
+    : jni-new ( "signatur" -- methodid )
+	parse-name cstring1 $! 0 ;
+[THEN]
 
 Variable argstring
 : >argstring ( addr1 u1 -- addr2 u2 )
