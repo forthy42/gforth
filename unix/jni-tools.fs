@@ -37,19 +37,19 @@ host? [IF] attach .( attach this thread) cr [THEN] \ attach this thread
 
 -1 floats 0 +field arg-  drop
 
-: >z ( c addr -- addr )  arg- tuck c! ;
-: >b ( c addr -- addr )  arg- tuck c! ;
-: >c ( utf16 addr -- addr )  arg- tuck w! ;
-: >s ( n addr -- addr )  arg- tuck w! ;
-: >i ( n addr -- addr )  arg- tuck l! ;
-: >j ( d addr -- addr )  arg- dup >r xd! r> ;
-: >f ( r addr -- addr )  arg- dup sf! ;
-: >d ( r addr -- addr )  arg- dup df! ;
-: >l ( object addr -- addr )  arg- tuck ! ;
+: >Z ( c addr -- addr )  arg- tuck c! ;
+: >B ( c addr -- addr )  arg- tuck c! ;
+: >C ( utf16 addr -- addr )  arg- tuck w! ;
+: >S ( n addr -- addr )  arg- tuck w! ;
+: >I ( n addr -- addr )  arg- tuck l! ;
+: >J ( d addr -- addr )  arg- dup >r xd! r> ;
+: >F ( r addr -- addr )  arg- dup sf! ;
+: >D ( r addr -- addr )  arg- dup df! ;
+: >L ( object addr -- addr )  arg- tuck ! ;
 : >[ ( array addr -- addr ) arg- tuck ! ;
 
 Create 'args '[' 1+ 'A'
-[DO] ">x" 2dup + 1- [i] swap c! current @ search-wordlist 0= [IF] ' nip [THEN] , [LOOP]
+[DO] ">X" 2dup + 1- [i] swap c! current @ search-wordlist 0= [IF] ' nip [THEN] , [LOOP]
 
 : >args ( x1 .. xn addr u -- )
     dup floats callargs @ + -rot
@@ -74,78 +74,78 @@ s" Java Exception" exception Constant !!jni!!
 	env JNIEnv-ExceptionClear()  !!jni!! throw
     THEN ;
 
-: z() ( jobject jmid -- c )  callenv JNIEnv-CallBooleanMethodA() ?jnithrow ;
-: b() ( jobject jmid -- c )  callenv JNIEnv-CallByteMethodA() ?jnithrow ;
-: c() ( jobject jmid -- utf16 )  callenv JNIEnv-CallCharMethodA() ?jnithrow ;
-: s() ( jobject jmid -- n )  callenv JNIEnv-CallShortMethodA() ?jnithrow ;
-: i() ( jobject jmid -- n )  callenv JNIEnv-CallIntMethodA() ?jnithrow ;
-: j() ( jobject jmid -- d )  callenv JNIEnv-CallLongMethodA() ?jnithrow ;
-: f() ( jobject jmid -- r )  callenv JNIEnv-CallFloatMethodA() ?jnithrow ;
-: d() ( jobject jmid -- r )  callenv JNIEnv-CallDoubleMethodA() ?jnithrow ;
-: l() ( jobject jmid -- object )  callenv JNIEnv-CallObjectMethodA() ?jnithrow ;
-: v() ( jobject jmid -- )  callenv JNIEnv-CallVoidMethodA() ?jnithrow ;
+: Z() ( jobject jmid -- c )  callenv JNIEnv-CallBooleanMethodA() ?jnithrow ;
+: B() ( jobject jmid -- c )  callenv JNIEnv-CallByteMethodA() ?jnithrow ;
+: C() ( jobject jmid -- utf16 )  callenv JNIEnv-CallCharMethodA() ?jnithrow ;
+: S() ( jobject jmid -- n )  callenv JNIEnv-CallShortMethodA() ?jnithrow ;
+: I() ( jobject jmid -- n )  callenv JNIEnv-CallIntMethodA() ?jnithrow ;
+: J() ( jobject jmid -- d )  callenv JNIEnv-CallLongMethodA() ?jnithrow ;
+: F() ( jobject jmid -- r )  callenv JNIEnv-CallFloatMethodA() ?jnithrow ;
+: D() ( jobject jmid -- r )  callenv JNIEnv-CallDoubleMethodA() ?jnithrow ;
+: L() ( jobject jmid -- object )  callenv JNIEnv-CallObjectMethodA() ?jnithrow ;
+: V() ( jobject jmid -- )  callenv JNIEnv-CallVoidMethodA() ?jnithrow ;
 
 Create 'calls '[' 1+ 'A'
-[DO] "x()" over [i] swap c! current @ search-wordlist 0= [IF] ' 2drop [THEN] , [LOOP]
+[DO] "X()" over [i] swap c! current @ search-wordlist 0= [IF] ' 2drop [THEN] , [LOOP]
 
-: z()s ( jclass jmid -- c )  callenv JNIEnv-CallStaticBooleanMethodA() ?jnithrow ;
-: b()s ( jclass jmid -- c )  callenv JNIEnv-CallStaticByteMethodA() ?jnithrow ;
-: c()s ( jclass jmid -- utf16 )  callenv JNIEnv-CallStaticCharMethodA() ?jnithrow ;
-: s()s ( jclass jmid -- n )  callenv JNIEnv-CallStaticShortMethodA() ?jnithrow ;
-: i()s ( jclass jmid -- n )  callenv JNIEnv-CallStaticIntMethodA() ?jnithrow ;
-: j()s ( jclass jmid -- d )  callenv JNIEnv-CallStaticLongMethodA() ?jnithrow ;
-: f()s ( jclass jmid -- r )  callenv JNIEnv-CallStaticFloatMethodA() ?jnithrow ;
-: d()s ( jclass jmid -- r )  callenv JNIEnv-CallStaticDoubleMethodA() ?jnithrow ;
-: l()s ( jclass jmid -- object )  callenv JNIEnv-CallStaticObjectMethodA() ?jnithrow ;
-: v()s ( jclass jmid -- )  callenv JNIEnv-CallStaticVoidMethodA() ?jnithrow ;
+: Z()S ( jclass jmid -- c )  callenv JNIEnv-CallStaticBooleanMethodA() ?jnithrow ;
+: B()S ( jclass jmid -- c )  callenv JNIEnv-CallStaticByteMethodA() ?jnithrow ;
+: C()S ( jclass jmid -- utf16 )  callenv JNIEnv-CallStaticCharMethodA() ?jnithrow ;
+: S()S ( jclass jmid -- n )  callenv JNIEnv-CallStaticShortMethodA() ?jnithrow ;
+: I()S ( jclass jmid -- n )  callenv JNIEnv-CallStaticIntMethodA() ?jnithrow ;
+: J()S ( jclass jmid -- d )  callenv JNIEnv-CallStaticLongMethodA() ?jnithrow ;
+: F()S ( jclass jmid -- r )  callenv JNIEnv-CallStaticFloatMethodA() ?jnithrow ;
+: D()S ( jclass jmid -- r )  callenv JNIEnv-CallStaticDoubleMethodA() ?jnithrow ;
+: L()S ( jclass jmid -- object )  callenv JNIEnv-CallStaticObjectMethodA() ?jnithrow ;
+: V()S ( jclass jmid -- )  callenv JNIEnv-CallStaticVoidMethodA() ?jnithrow ;
 
 Create 's-calls '[' 1+ 'A'
-[DO] "x()s" over [i] swap c! current @ search-wordlist 0= [IF] ' 2drop [THEN] , [LOOP]
+[DO] "X()S" over [i] swap c! current @ search-wordlist 0= [IF] ' 2drop [THEN] , [LOOP]
 
 : new() ( jclass jmid -- )  callenv JNIEnv-NewObjectA() ;
 
 : fieldenv ( jobject jfid -- env jobject jmid )  env -rot ;
 
-: z@f ( jobject jfid -- c )  fieldenv JNIEnv-GetBooleanField() ;
-: b@f ( jobject jfid -- c )  fieldenv JNIEnv-GetByteField() ;
-: c@f ( jobject jfid -- utf16 )  fieldenv JNIEnv-GetCharField() ;
-: s@f ( jobject jfid -- n )  fieldenv JNIEnv-GetShortField() ;
-: i@f ( jobject jfid -- n )  fieldenv JNIEnv-GetIntField() ;
-: j@f ( jobject jfid -- d )  fieldenv JNIEnv-GetLongField() ;
-: f@f ( jobject jfid -- r )  fieldenv JNIEnv-GetFloatField() ;
-: d@f ( jobject jfid -- r )  fieldenv JNIEnv-GetDoubleField() ;
-: l@f ( jobject jfid -- object )  fieldenv JNIEnv-GetObjectField() ;
-' l@f alias [@f
+: Z@F ( jobject jfid -- c )  fieldenv JNIEnv-GetBooleanField() ;
+: B@F ( jobject jfid -- c )  fieldenv JNIEnv-GetByteField() ;
+: C@F ( jobject jfid -- utf16 )  fieldenv JNIEnv-GetCharField() ;
+: S@F ( jobject jfid -- n )  fieldenv JNIEnv-GetShortField() ;
+: I@F ( jobject jfid -- n )  fieldenv JNIEnv-GetIntField() ;
+: J@F ( jobject jfid -- d )  fieldenv JNIEnv-GetLongField() ;
+: F@F ( jobject jfid -- r )  fieldenv JNIEnv-GetFloatField() ;
+: D@F ( jobject jfid -- r )  fieldenv JNIEnv-GetDoubleField() ;
+: L@F ( jobject jfid -- object )  fieldenv JNIEnv-GetObjectField() ;
+' L@F alias [@F
 
-: z!f ( c jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetBooleanField() ;
-: b!f ( c jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetByteField() ;
-: c!f ( utf16 jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetCharField() ;
-: s!f ( n jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetShortField() ;
-: i!f ( n jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetIntField() ;
-: j!f ( d jobject jfid -- )  2swap 2>r fieldenv 2r> JNIEnv-SetLongField() ;
-: f!f ( r jobject jfid -- )  fieldenv JNIEnv-SetFloatField() ;
-: d!f ( r jobject jfid -- )  fieldenv JNIEnv-SetDoubleField() ;
-: l!f ( object jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetObjectField() ;
-' l!f alias [!f
+: Z!F ( c jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetBooleanField() ;
+: B!F ( c jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetByteField() ;
+: C!F ( utf16 jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetCharField() ;
+: S!F ( n jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetShortField() ;
+: I!F ( n jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetIntField() ;
+: J!F ( d jobject jfid -- )  2swap 2>r fieldenv 2r> JNIEnv-SetLongField() ;
+: F!F ( r jobject jfid -- )  fieldenv JNIEnv-SetFloatField() ;
+: D!F ( r jobject jfid -- )  fieldenv JNIEnv-SetDoubleField() ;
+: L!F ( object jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetObjectField() ;
+' L!F alias [!F
 
 Create 'field@ '[' 1+ 'A'
-[DO] "x@f" over [i] swap c! current @ search-wordlist 0= [IF] ' 2drop [THEN] , [LOOP]
+[DO] "X@F" over [i] swap c! current @ search-wordlist 0= [IF] ' 2drop [THEN] , [LOOP]
 
 Create 'field! '[' 1+ 'A'
-[DO] "x!f" over [i] swap c! current @ search-wordlist 0= [IF] ' 2drop [THEN] , [LOOP]
+[DO] "X!F" over [i] swap c! current @ search-wordlist 0= [IF] ' 2drop [THEN] , [LOOP]
 
-: z@' ( jclass jfid -- c )  fieldenv JNIEnv-GetStaticBooleanField() ;
-: b@' ( jclass jfid -- c )  fieldenv JNIEnv-GetStaticByteField() ;
-: c@' ( jclass jfid -- utf16 )  fieldenv JNIEnv-GetStaticCharField() ;
-: s@' ( jclass jfid -- n )  fieldenv JNIEnv-GetStaticShortField() ;
-: i@' ( jclass jfid -- n )  fieldenv JNIEnv-GetStaticIntField() ;
-: j@' ( jclass jfid -- d )  fieldenv JNIEnv-GetStaticLongField() ;
-: f@' ( jclass jfid -- r )  fieldenv JNIEnv-GetStaticFloatField() ;
-: d@' ( jclass jfid -- r )  fieldenv JNIEnv-GetStaticDoubleField() ;
-: l@' ( jclass jfid -- object )  fieldenv JNIEnv-GetStaticObjectField() ;
+: Z@' ( jclass jfid -- c )  fieldenv JNIEnv-GetStaticBooleanField() ;
+: B@' ( jclass jfid -- c )  fieldenv JNIEnv-GetStaticByteField() ;
+: C@' ( jclass jfid -- utf16 )  fieldenv JNIEnv-GetStaticCharField() ;
+: S@' ( jclass jfid -- n )  fieldenv JNIEnv-GetStaticShortField() ;
+: I@' ( jclass jfid -- n )  fieldenv JNIEnv-GetStaticIntField() ;
+: J@' ( jclass jfid -- d )  fieldenv JNIEnv-GetStaticLongField() ;
+: F@' ( jclass jfid -- r )  fieldenv JNIEnv-GetStaticFloatField() ;
+: D@' ( jclass jfid -- r )  fieldenv JNIEnv-GetStaticDoubleField() ;
+: L@' ( jclass jfid -- object )  fieldenv JNIEnv-GetStaticObjectField() ;
 
 Create 'sfield@ '[' 1+ 'A'
-[DO] "x@'" over [i] swap c! current @ search-wordlist 0= [IF] ' 2drop [THEN] , [LOOP]
+[DO] "X@'" over [i] swap c! current @ search-wordlist 0= [IF] ' 2drop [THEN] , [LOOP]
 
 \ global ref handling - you should ]gref every global ref after usage
 

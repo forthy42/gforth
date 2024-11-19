@@ -15,7 +15,7 @@ host? [IF] gforth-class: [THEN]
 \ jni-sfield: POWER_SERVICE POWER_SERVICE Ljava/lang/String;
 
 jni-method: get_SDK get_SDK ()I
-host? [IF] : SDK_INT  clazz .get_SDK ; [ELSE] #30 Value SDK_INT [THEN]
+host? [IF] : SDK_INT clazz .get_SDK ~~ ; [ELSE] #30 Value SDK_INT [THEN]
 
 jni-method: getSystemService getSystemService (Ljava/lang/String;)Ljava/lang/Object;
 jni-method: getWindow getWindow ()Landroid/view/Window;
