@@ -17355,21 +17355,18 @@ Gforth-1.0 the behaviour or at least implementation of words like
 independently as described in @ref{Header methods}.
 
 The following words for create a code field and at the same time
-initialize the header methods:
+initialize the header methods are obsolete:
+@code{hmcopy,}, 
+@code{docol,}, 
+@code{docon,}, 
+@code{dovar,}, 
+@code{douser,}, 
+@code{dodefer,}, 
+@code{dofield,}, 
+@code{dovalue,}, and
+@code{doabicode,}.
 
-doc-hmcopy,
-doc-docol,
-doc-docon,
-doc-dovar,
-doc-douser,
-doc-dodefer,
-doc-dofield,
-doc-dovalue,
-doc-doabicode,
-
-For @code{does>}-defined words, use @code{hmcopy,}.
-
-Or you use a higher-level word like @code{create-from}
+Use a higher-level word like @code{create-from}
 (@pxref{Creating from a prototype}).
 
 The following words were designed before the introduction of header
