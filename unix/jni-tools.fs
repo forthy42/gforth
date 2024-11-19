@@ -1,6 +1,6 @@
 \ Java Native Interface toolkit
 
-require unix/jnilib.fs
+require unix/jni.fs
 require mini-oof2.fs \ we only need o for now
 require set-compsem.fs
 
@@ -12,9 +12,9 @@ JNI_VERSION_1_6        vmAA JavaVMAttachArgs-version !
 "NativeThread\0" drop  vmAA JavaVMAttachArgs-name !
 0                      vmAA JavaVMAttachArgs-group !
 
-app app-vm @ value vm
+host? [IF] app app-vm @ [ELSE] 0 [THEN] value vm
 uvalue env
-app app-env @ to env
+host? [IF] app app-env @ [ELSE] 0 [THEN] to env
 
 16 Constant maxargs#
 
@@ -29,7 +29,7 @@ User callargs
     vm JavaVM-DetachCurrentThread() drop
     callargs @ free throw ;
 
-attach \ attach this thread
+host? [IF] attach [THEN] \ attach this thread
 
 \ call java
 
