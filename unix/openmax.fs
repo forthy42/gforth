@@ -725,7 +725,8 @@ c-library openmax
 -2147481666	constant XA_DATALOCATOR_ANDROIDBUFFERQUEUE
 -2147481668	constant XA_DATALOCATOR_ANDROIDFD
 $FFFFFFFF.FFFFFFFF 2constant XA_DATALOCATOR_ANDROIDFD_USE_FILE_SIZE
-: XA_ANDROID_MIME_MP2TS ( --- addr ) "video/mp2ts\0" drop ;
+: XA_ANDROID_MIME_MP2TS ( -- addr ) \ gforth-internal
+    "video/mp2ts\0" drop ;
 
 \ ------===< values >===-------
 c-value XA_IID_NULL XA_IID_NULL -- a
