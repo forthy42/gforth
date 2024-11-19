@@ -92,7 +92,7 @@ end-structure
 
 include unix/androidlib.fs
 
-s" APP_STATE" getenv s>number drop Value app
+s" APP_STATE" getenv dup [IF] s>number drop [ELSE] 2drop 0 [THEN] Value app
 
 Defer >looper
 
