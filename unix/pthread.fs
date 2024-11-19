@@ -403,11 +403,12 @@ synonym sleep halt ( task -- ) \ gforth-experimental
     THEN ;
 
 : (kill) ( task xt -- ) \ gforth-experimental
-    \G Terminate @i{task}.
+    \G Terminate @i{task} by executing @i{xt}.
     over user' pthread-id + { xt: xt thread-id[ 0 pthread+ ] }
     xt  thread-id[ 0 pthread_join drop ;
 
-: kill ( task -- )
+: kill ( task -- ) \ gforth-experimental
+    \G Terminate @i{task}.
     [: user' pthread-id +
 	[IFDEF] pthread_cancel
 	    pthread_cancel drop
