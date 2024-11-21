@@ -49,20 +49,9 @@ Redefinitions-start
 : ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
     loadfile @ 0= IF  postpone (  EXIT  THEN
     BEGIN
-	>in @
-	')' parse nip
-	>in @ rot - = \ is there no delimter?
-    WHILE
-	refill 0=
-	IF
-	    warnings @
-	    IF
-		>stderr warning-color
-		." warning: ')' missing" cr
-		default-color
-	    THEN
-	    EXIT
-	THEN
-    REPEAT ; immediate
+	')' parse + source + = \ is there no delimter?
+    WHILE  refill 0=  UNTIL
+	true warning" ')' missing"
+    THEN ; immediate
 
 Redefinitions-end

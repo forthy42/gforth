@@ -895,7 +895,7 @@ to-table: to-class: never-happens warning-error broken-pipe-error exceptions
 exception next-exception errstring linked minos? glx? gles? getrandom? 
 getentropy? include-ffi.h-string libffi-present ffcall-present libtool-flags 
 libtool-cxx libtool-cc libtool-command machine lib-suffix has? $has? e? 
-environment? environment-wordlist environment version-string>internal (0s) 
+environment? environment-wordlist environment version-string>internal (0s) ?: 
 process-voc-option `required options image-options vocs map-vocs order .voc 
 .id id. seal set-order get-order Only Root Forth previous also >order >voc 
 >wordlist Vocabulary wordlist mappedwordlist wordlist-class set-wordlist wl, 
@@ -970,52 +970,52 @@ synonym-mask alias? Alias synonym, s-compile, s-to s>comp s>int a>comp a>int
 obsolete compile-only restrict immediate imm>comp lastflags or! ," postpone ] 
 [ forth-recognize minimal-recognize stack# stack> >stack stack do-stack: 
 stack: set-stack get-stack rec-num nt>rec translate-nt? ?found translate-dnum 
-translate-num translate-nt name-compsem >postpone translate: do-translate 
-no.extensions 2lit, lit, postpone, [COMP'] COMP' ['] default-i/c 
-default-name>comp flush-code peephole-compile, prim-check name>view addr>view 
-xt-location1 xt-location bt-pos-width +target basic-block-end cfa, 
-clear-litstack lits, lits# lits> >lits litstack ?parse-name ALiteral 2Literal 
-Literal latest latestxt latestnt noname noname-header nextname nextname-header 
-nextname$ input-stream input-stream-header noname-from create-from header 
-header-extra header-name, record-name noname, 0name, name, namehm, named-hm 
-noname-hm recurse check-shadow current-view current-sourceview 
-replace-sourceview encode-view current-sourcepos3 encode-pos get-current 
-string, mem, const A, cfalign maxalign falign align >align 2, c, small-allot 
-allot hm-list is-umethod (uv) uvar, umethod, does, ;abi-code, abi-code, 
-field+, defer, user, variable, :, constant, value, does-check call-check 
-kernel-bye bye boot xt, cold 'cold bootmessage gforth (c) do-find do-execute 
-quit (DoError) rec-level reset-dpp .error-frame (.error-level) .error-level 
-.error-line part-type mark-end mark-start .error-string dobacktrace DOERROR 
--trailing dec.r input-error-data >error error> error-stack /error (quit) 
-(quit1) (prompt) prompt .status 'quit save-mem interpret2 bt-rp0-wrapper 
-bt-rp0-catch interpret int-execute before-line before-word parse-name ' (') 
-'-error any-code! only-code-address! >does-code xt>name >code-address body> 
->body >head-noprim xt? hm? ??? (name>intn) noname>link noname>string 
-named>link named>string name?int ?obsolete obsolete? ?compile-only 
-compile-only? immediate? , compile, >extra initwl defer@ hmsize name>link 
-name>string name>compile name>interpret (to) opt-compile, >namehm >cfa >link 
->f+c >hm>link >hm>string >hm>comp >hm>int >hmextra >hmto >hmcompile, >hmlink 
-((name>)) (x>int) compile-only-error ticking-compile-only-error flag-sign 
-lcount-mask obsolete-mask restrict-mask find-name rec-nt search-wordlist 
-find-name-in (where,) where, where-struct where-loc where-nt wheres context 
-voclink current f83search forth-wordlist rec-f83 wordlist-struct 
-wordlist-extend wordlist-link wordlist-id wordlist-map wordlist-exec 
-wordlist-start \G \ ( number (number?) snumber? s>number s>number? s>unumber? 
-?warn# s'>unumber? ?dnegate sign? getbase bases name-too-long? name-too-short? 
-(name) parse (parse) version-string .error error$ errlink>string do-debug 
->stderr >exec c(warning") .warning ErrRanges ErrLink u. . ud. d. u.r .r ud.r 
-d.r holds #s # sign #>> <<# #> <# hold +hold pad ms ns kernel-deadline 
-deadline backspaces spaces spaces-loop compile-color status-color error-hl-inv 
-error-hl-ul input-color success-color info-color warning-color error-color 
-default-color theme-color: theme-color# theme-to theme-table theme@ theme! 
-space bell #lf #ff #cr #del #esc #tab #bs #bell #eof output: input: default-in 
-debug-vector debug-out default-out key (cr) key? key-ior ip-vector 
-theme-color! control-sequence attr! at-deltaxy at-xy page form cr emit type 
-op-vector (key?) (key) key-file EBADF EINTR EOK (err-emit) (err-type) (emit) 
-(type) out debug-fid outfile-id infile-id hex decimal "lit clearstacks 
-clearstack depth ?stack abort ?warning (abort") c(abort") throw catch ud/mod 
-s>d >number_ >number accumulate digit? stick roll dabs off on ->here here dpp 
-in-dictionary1? in-dictionary? unused usable-dictionary-end 
+translate-num translate-nt name-compsem >postpone translate-fallback-error 
+translate: do-translate no.extensions 2lit, lit, postpone, [COMP'] COMP' ['] 
+default-i/c default-name>comp flush-code peephole-compile, prim-check 
+name>view addr>view xt-location1 xt-location bt-pos-width +target 
+basic-block-end cfa, clear-litstack lits, lits# lits> >lits litstack 
+?parse-name ALiteral 2Literal Literal latest latestxt latestnt noname 
+noname-header nextname nextname-header nextname$ input-stream 
+input-stream-header noname-from create-from header header-extra header-name, 
+record-name noname, 0name, name, namehm, named-hm noname-hm recurse 
+check-shadow current-view current-sourceview replace-sourceview encode-view 
+current-sourcepos3 encode-pos get-current string, mem, const A, cfalign 
+maxalign falign align >align 2, c, small-allot allot hm-list is-umethod (uv) 
+uvar, umethod, does, ;abi-code, abi-code, field+, defer, user, variable, :, 
+constant, value, does-check call-check kernel-bye bye boot xt, cold 'cold 
+bootmessage gforth (c) do-find do-execute quit (DoError) rec-level reset-dpp 
+.error-frame (.error-level) .error-level .error-line part-type mark-end 
+mark-start .error-string dobacktrace DOERROR -trailing dec.r input-error-data 
+>error error> error-stack /error (quit) (quit1) (prompt) prompt .status 'quit 
+save-mem interpret2 bt-rp0-wrapper bt-rp0-catch interpret int-execute 
+before-line before-word parse-name ' (') '-error any-code! only-code-address! 
+>does-code xt>name >code-address body> >body >head-noprim xt? hm? ??? 
+(name>intn) noname>link noname>string named>link named>string name?int 
+?obsolete obsolete? ?compile-only compile-only? immediate? , compile, >extra 
+initwl defer@ hmsize name>link name>string name>compile name>interpret (to) 
+opt-compile, >namehm >cfa >link >f+c >hm>link >hm>string >hm>comp >hm>int 
+>hmextra >hmto >hmcompile, >hmlink ((name>)) (x>int) compile-only-error 
+ticking-compile-only-error flag-sign lcount-mask obsolete-mask restrict-mask 
+find-name rec-nt search-wordlist find-name-in (where,) where, where-struct 
+where-loc where-nt wheres context voclink current f83search forth-wordlist 
+rec-f83 wordlist-struct wordlist-extend wordlist-link wordlist-id wordlist-map 
+wordlist-exec wordlist-start \G \ ( number (number?) snumber? s>number 
+s>number? s>unumber? ?warn# s'>unumber? ?dnegate sign? getbase bases 
+name-too-long? name-too-short? (name) parse (parse) version-string .error 
+error$ errlink>string do-debug >stderr >exec c(warning") .warning ErrRanges 
+ErrLink u. . ud. d. u.r .r ud.r d.r holds #s # sign #>> <<# #> <# hold +hold 
+pad ms ns kernel-deadline deadline backspaces spaces spaces-loop compile-color 
+status-color error-hl-inv error-hl-ul input-color success-color info-color 
+warning-color error-color default-color theme-color: theme-color# theme-to 
+theme-table theme@ theme! space bell #lf #ff #cr #del #esc #tab #bs #bell #eof 
+output: input: default-in debug-vector debug-out default-out key (cr) key? 
+key-ior ip-vector theme-color! control-sequence attr! at-deltaxy at-xy page 
+form cr emit type op-vector (key?) (key) key-file EBADF EINTR EOK (err-emit) 
+(err-type) (emit) (type) out debug-fid outfile-id infile-id hex decimal "lit 
+clearstacks clearstack depth ?stack abort ?warning (abort") c(abort") throw 
+catch ud/mod s>d >number_ >number accumulate digit? stick roll dabs off on 
+->here here dpp in-dictionary1? in-dictionary? unused usable-dictionary-end 
 usable-dictionary-end1 dictionary-end section-desc lastnt codestart targets 
 primbits locs[] section-name section-dp section-size section-start 
 current-section A! chars cfaligned maxaligned NIL str< string-suffix? 
