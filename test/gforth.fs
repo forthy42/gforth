@@ -348,8 +348,8 @@ t{ 5e 6e 7e 8e 9e fpick-test -> 5e 6e 7e 8e 9e 5e 7e 9e 7e 7e }t
 
 \ `<word> and ``<word>
 
-t{ `to -> ' to }t
-t{ ``to -> "to" find-name }t
+t{ `needs -> ' needs }t
+t{ ``needs -> "needs" find-name }t
 
 \ division words
 
