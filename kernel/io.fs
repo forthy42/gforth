@@ -245,6 +245,8 @@ theme-color: status-color ( -- ) \ gforth
 \G color mod for status bar
 theme-color: compile-color ( -- ) \ gforth
 \G color mod for status bar in compile mode
+theme-color: postpone-color ( -- ) \ gforth
+\G color mod for status bar in compile mode
 
 \ space spaces		                                21mar93py
 

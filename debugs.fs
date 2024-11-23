@@ -333,7 +333,12 @@ Variable rec'[]
     rp0 @ rp@ - cell/ 22 - ?dup-if
         ."  r:" 0 dec.r then ;
 
-: prompt-text    state @ IF ."  compiled" EXIT THEN  prompt-ok ;
+: prompt-text
+    case state @ abs
+	0 of  prompt-ok  endof
+	1 of  ." compiled"  endof
+	2 of  ." postponed"  endof
+    endcase ;
 
 : color-prompt ( -- )
     success-color prompt-text default-color ;

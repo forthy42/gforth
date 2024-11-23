@@ -44,15 +44,19 @@ translate-method: >interpret ( translator -- ) \ gforth-experimental
 \G perform interpreter action of translator
 translate-method: >compile ( translator -- ) \ gforth-experimental
 \G perform compile action of translator
-0 warnings !@ \ we already have this, but this version is better
 \ we already have defined this in the kernel
 \ translate-method: >postpone ( translator -- ) \ gforth-experimental
 \ \G perform postpone action of translator
 cell +to translator-offset
-warnings !
 
 : translate-state ( xt -- ) \ gforth-experimental
     \G change the current state of the system so that executing
     \G a translator matches the translate-method passsed as @var{xt}
     dup >does-code [ ' >postpone >does-code ] Literal <> #-12 and throw
     >body @ cell/ negate state ! ;
+
+: translate-state? ( xt -- flag ) \ gforth-experimental
+    \G change the current state of the system so that executing
+    \G a translator matches the translate-method passsed as @var{xt}
+    dup >does-code [ ' >postpone >does-code ] Literal <> #-12 and throw
+    >body @ cell/ state @ abs = ;

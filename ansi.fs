@@ -220,6 +220,7 @@ false to error-hl-ul
 false to error-hl-inv
 <a invers a> to status-color
 <a invers a> to compile-color
+<a invers a> to postpone-color
 
 theme: light-mode ( -- ) \ gforth
 \G color theme for white background
@@ -236,6 +237,7 @@ true  to white?
 <a red >fg defaultcolor >bg invers a> to error-hl-inv
 <a white >fg blue >bg bold a> to status-color
 <a white >fg magenta >bg bold a> to compile-color
+<a white >fg red >bg bold a> to postpone-color
 
 theme: dark-mode ( -- ) \ gforth
 \G color theme for black background
@@ -252,6 +254,7 @@ false to white?
 <a red >fg defaultcolor >bg invers bold a> to error-hl-inv
 <a white >fg blue >bg bold a> to status-color
 <a white >fg magenta >bg bold a> to compile-color
+<a white >fg red >bg bold a> to postpone-color
 
 uncolored-mode
 

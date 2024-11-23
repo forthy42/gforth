@@ -23,7 +23,12 @@
 : redraw-status ( addr u -- )
     save-cursor-position
     0 rows 1 - at-xy
-    state @ IF  compile-color  ELSE  status-color  THEN
+    case state @ abs
+	0 of  status-color    endof
+	1 of  compile-color   endof
+	2 of  postpone-color  endof
+	error-color
+    endcase
     type
     default-color
     restore-cursor-position ;
