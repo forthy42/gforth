@@ -162,39 +162,37 @@ t{ 7 x1 -> 7 22 11 34 17 52 26 13 40 20 10 5 16 8 4 2 1 }t
 
 \ recognizer tests
 
-T{ 4 STACK constant RS -> }T
+T{ 0 recognizer-sequence: RS -> }T
 
-0 warnings !@ \ rectype: is obsolete, will warn
-T{ :noname 1 ;  :noname 2 ;  :noname 3  ; rectype: rectype-1 -> }T
-T{ :noname 10 ; :noname 20 ; :noname 30 ; rectype: rectype-2 -> }T
-warnings !
+T{ :noname 1 ;  :noname 2 ;  :noname 3  ; translate: translate-1 -> }T
+T{ :noname 10 ; :noname 20 ; :noname 30 ; translate: translate-2 -> }T
 
 \ really stupid: 1 character length or 2 characters
-T{ : rec-1 NIP 1 = IF rectype-1 ELSE RECTYPE-NULL THEN ; -> }T
-T{ : rec-2 NIP 2 = IF rectype-2 ELSE RECTYPE-NULL THEN ; -> }T
+T{ : rec-1 NIP 1 = IF ['] translate-1 ELSE 0 THEN ; -> }T
+T{ : rec-2 NIP 2 = IF ['] translate-2 ELSE 0 THEN ; -> }T
 
-T{ rectype-1 RECTYPE>INT EXECUTE  -> 1 }T
-T{ rectype-1 RECTYPE>COMP EXECUTE -> 2 }T
-T{ rectype-1 RECTYPE>POST EXECUTE -> 3 }T
+T{ ' translate-1 >interpret  -> 1 }T
+T{ ' translate-1 >compile    -> 2 }T
+T{ ' translate-1 >postpone   -> 3 }T
 
 \ set and get methods
-T{ 0 RS SET-STACK -> }T
-T{ RS GET-STACK -> 0 }T
+T{ 0 ' RS set-recognizer-sequence -> }T
+T{ ' RS get-recognizer-sequence -> 0 }T
 
-T{ ' rec-1 1 RS SET-STACK -> }T
-T{ RS GET-STACK -> ' rec-1 1 }T
+T{ ' rec-1 1 ' RS set-recognizer-sequence -> }T
+T{ ' RS get-recognizer-sequence -> ' rec-1 1 }T
 
-T{ ' rec-1 ' rec-2 2 RS SET-STACK -> }T
-T{ RS GET-STACK -> ' rec-1 ' rec-2 2 }T
+T{ ' rec-1 ' rec-2 2 ' RS set-recognizer-sequence -> }T
+T{ ' RS get-recognizer-sequence -> ' rec-1 ' rec-2 2 }T
 
 \ testing RECOGNIZE
-T{         0 RS SET-STACK -> }T
-T{ S" 1"     RS RECOGNIZE   -> RECTYPE-NULL }T
-T{ ' rec-1 1 RS SET-STACK -> }T
-T{ S" 1"     RS RECOGNIZE   -> RECTYPE-1 }T
-T{ S" 10"    RS RECOGNIZE   -> RECTYPE-NULL }T
-T{ ' rec-2 ' rec-1 2 RS SET-STACK -> }T
-T{ S" 10"    RS RECOGNIZE   -> RECTYPE-2 }T
+T{         0 ' RS set-recognizer-sequence -> }T
+T{ S" 1"     RS   -> 0 }T
+T{ ' rec-1 1 ' RS set-recognizer-sequence -> }T
+T{ S" 1"     RS   -> ' translate-1 }T
+T{ S" 10"    RS   -> 0 }T
+T{ ' rec-2 ' rec-1 2 ' RS set-recognizer-sequence -> }T
+T{ S" 10"    RS   -> ' translate-2 }T
 
 \ extended synonym behaviour
 t{ create coc1 -> }t

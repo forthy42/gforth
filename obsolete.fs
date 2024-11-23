@@ -143,9 +143,12 @@ inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline obsolete
 
 \ legacy rectype stuff
 
-: rectype>int  ( rectype -- xt ) >body @ ;
-: rectype>comp ( rectype -- xt ) cell >body + @ ;
-: rectype>post ( rectype -- xt ) 2 cells >body + @ ;
+: rectype>int  ( rectype -- xt ) \ gforth-obsolete
+    >body @ ;
+: rectype>comp ( rectype -- xt ) \ gforth-obsolete
+    cell >body + @ ;
+: rectype>post ( rectype -- xt ) \ gforth-obsolete
+    2 cells >body + @ ;
 
 : rectype ( int-xt comp-xt post-xt -- rectype ) \ gforth-obsolete
     \G create a new unnamed recognizer token

@@ -178,13 +178,15 @@ UValue $? ( -- n ) \ gforth dollar-question
     \G directory.  Throws an exception if the file cannot be opened.
     fpath file>path ;
 
+\ recognizer sequences
+
 : defers@ ( xt -- xt' )
     BEGIN  dup ['] defer@ catch-nobt 0= WHILE  nip  REPEAT  drop ;
-synonym >rec-stack >body ( xt -- stack )
+
 : get-recognizer-sequence ( recs-xt -- x1 .. xtn n )
-    defers@ >rec-stack get-stack ;
+    defers@ get-stack ;
 : set-recognizer-sequence ( x1 .. xtn n recs-xt -- )
-    defers@ >rec-stack set-stack ;
+    defers@ set-stack ;
 
 Create forth-recognizer ( -- xt ) \ gforth-obsolete
 \G backward compatible to Matthias Trute recognizer API.
