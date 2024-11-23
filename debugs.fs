@@ -333,12 +333,12 @@ Variable rec'[]
     rp0 @ rp@ - cell/ 22 - ?dup-if
         ."  r:" 0 dec.r then ;
 
-: prompt-text
-    case state @ abs
-	0 of  prompt-ok  endof
-	1 of  ." compiled"  endof
-	2 of  ." postponed"  endof
-    endcase ;
+Create prompt-text
+' prompt-ok ,
+[: ." compiled" ;] ,
+[: ." postponed" ;] ,
+[: ." extended mode" ;] ,
+DOES> state @ abs 3 umin cells + perform ;
 
 : color-prompt ( -- )
     success-color prompt-text default-color ;

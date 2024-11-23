@@ -20,17 +20,16 @@
 
 0 Value status-offset
 
+' prompt-text Create-from status-colors reveal
+' status-color ,
+' compile-color ,
+' postpone-color ,
+' error-color ,
+
 : redraw-status ( addr u -- )
     save-cursor-position
     0 rows 1 - at-xy
-    case state @ abs
-	0 of  status-color    endof
-	1 of  compile-color   endof
-	2 of  postpone-color  endof
-	error-color
-    endcase
-    type
-    default-color
+    status-colors type default-color
     restore-cursor-position ;
 : .unstatus-line ( -- )
     0 erase-display
