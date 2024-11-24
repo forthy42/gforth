@@ -42,9 +42,8 @@ latestxt optimizes sf@o+
 \ template for methods and ivars
 Create o# 0 ,  DOES> @ o+ ;
 opt: ( xt -- ) >body @ lit, postpone o+ ;
-s" Invalid method for this class" exception Constant !!inv-method!!
 : ?valid-method ( offset class -- offset )
-    cell- @ over u<= !!inv-method!! and throw ;
+    cell- @ over u<= #-21 and throw ;
 : m>body ( xt class xtsel -- )
     >body @ over ?valid-method + ;
 fold1: ( xt class xtsel -- ) >body @ lit, postpone + ;

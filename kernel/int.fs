@@ -27,7 +27,7 @@
 : >comp  ( xt -- ) name>compile execute ;
 : no-to ( xt -- )
     \ default to action: report an error ASAP (even right when COMPILE,ing)
-    #-12 throw ;
+    #-32 throw ;
 ' execute set-optimizer
 
 require ./basics.fs 	\ bounds decimal hex ...
