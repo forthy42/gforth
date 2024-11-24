@@ -54,9 +54,10 @@ Create >postpone ( translator -- ) \ gforth-experimental
 DOES> @ over >does-code ['] do-translate = IF
       + @ execute-;s  THEN
   \ fallback for combined translators
-  translate-fallback-error IF  #-21 throw
-  ELSE  true warning" translator not defined by translate:"  THEN
-  cell/ negate state !@ >r execute r> state ! ;
+  translate-fallback-error IF  #-21 throw  THEN
+  true warning" translator not defined by translate:"
+  cell/ dup state @ abs = IF  drop execute-;s  THEN
+  negate state !@ >r execute r> state ! ;
 
 : name-compsem ( ... nt -- ... )
     \ perform compilation semantics of nt
