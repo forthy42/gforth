@@ -35,7 +35,7 @@
     \G words prefixed with @code{``} return their nt.
     \G Example: @code{``S"} gives the nt of @code{S"}
     2dup "``" string-prefix? if
-	2 /string ?rec-nt if  ['] translate-num exit then  0
+	2 /string ?rec-nt if  ['] translate-num exit then
         0 exit  then
     2drop 0 ;
 
