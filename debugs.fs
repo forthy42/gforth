@@ -176,7 +176,8 @@ is ?warning
     warnings @ >r warnings off
     sp@ fp@ 2>r 2dup warning-recs recognize 2r> rot >r
     fp! sp! r> 0<>  r> dup warnings ! 0<> and
-    ['] shadow-num-warning ?warning  2drop
+    ['] shadow-num-warning ?warning
+    s" xlerb" str= warning" 'xlerb' shall remain undefined"
 ; is check-shadow
 [then]
 
