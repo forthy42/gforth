@@ -22,6 +22,9 @@
 
 ' (to) ' (to), ' post-to, >postponer translate: translate-to
 
+Create to-slots here $100 dup allot $FF fill
+0 "-+'@=" bounds [DO] dup to-slots [I] c@ + c! 1+ [LOOP] drop
+
 : rec-to ( addr u -- xt n translate-to | 0 ) \ gforth-experimental
     \G words prefixed with @code{->} are treated as if preceeded by
     \G @code{TO}, with @code{+>} as @code{+TO}, with
@@ -29,17 +32,10 @@
     \G with @code{=>} as @code{IS}.
     dup 3 u< IF  2drop 0  EXIT  THEN
     over 1+ c@ '>' <> IF  2drop 0  EXIT  THEN
-    case  over c@
-	'-' of  0  endof
-	'+' of  1  endof
-	''' of  2  endof
-	'@' of  3  endof
-	'=' of  4  endof
-	drop 2drop 0  EXIT
-    endcase  -rot
-    2 /string forth-recognize
+    over c@ to-slots + c@ dup $FF = IF  drop 2drop 0  EXIT  THEN
+    -rot  2 /string forth-recognize
     translate-nt? 0= IF  drop 0 EXIT  THEN
-    dup >namehm @ >hmto @ ['] no-to = IF  2drop 0 EXIT  THEN
+    \ dup >namehm @ >hmto @ ['] no-to = IF  2drop 0 EXIT  THEN
     name>interpret ['] translate-to ;
 
 ' rec-to action-of forth-recognize >back
