@@ -31,8 +31,8 @@ Create to-slots here $100 dup allot $FF fill
     dup 3 u< IF  2drop 0  EXIT  THEN
     over 1+ c@ '>' <> IF  2drop 0  EXIT  THEN
     over c@ to-slots + c@ dup $FF = IF  drop 2drop 0  EXIT  THEN
-    -rot  2 /string forth-recognize
-    translate-nt? 0= IF  drop 0 EXIT  THEN
+    -rot  2 /string sp@ 3 cells + fp@ 2>r forth-recognize
+    translate-nt? 0= IF  2r> fp! sp! 0 EXIT  THEN  2rdrop
     \ dup >namehm @ >hmto @ ['] no-to = IF  2drop 0 EXIT  THEN
     name>interpret ['] translate-to ;
 
