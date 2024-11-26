@@ -59,7 +59,7 @@ A    [x] see-code should work properly with zero-length primitives
  B   [ ] Build issues
  B       [x] Build extra libs only on request
  B       [x] Build text-only on request
- B       [ ] configure stops if gcc is really LLVM
+ B       [x] configure stops if gcc is really LLVM
   G      [x] Summary for BUILD-FROM-SCRATCH 
 AB       [ ] Try building on non-Linux machines (cfarm)
 

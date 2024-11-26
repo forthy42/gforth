@@ -322,9 +322,25 @@ AC_SYS_LARGEFILE
 #currently we force direct threading this way.  Eventually we should
 #setup in the arch and engine files right
 
+AC_CHECK_PROGS(COWSAY, cowsay)
+AC_CHECK_PROGS(LOLCAT, lolcat)
+
 AC_PROG_CC
 
 test "$GCC" = "yes" || AC_MSG_ERROR(Gforth uses GNU C extensions and requires GCC 4.0 or higher)
+
+# stop configure with an error when using an unsuitable C compiler
+UNSUITABLE_CC=${UNSUITABLE_CC:-clang}
+if test "`echo | $CC -dM -E - | grep -w __${UNSUITABLE_CC}__`" = "#define __${UNSUITABLE_CC}__ 1"
+then
+  if test -z "$COWSAY" -o -z "$LOLCAT"
+  then
+    AC_MSG_ERROR(Clang has a long unfixed bug that makes it unsuitable to compile Gforth. Please use GCC instead)
+  else
+    cowsay -f dragon "*** Clang has a long unfixed bug that makes it unsuitable to compile Gforth. Please use GCC instead ***"|lolcat --seed=50 -i -F 0.02
+    exit
+  fi
+fi
 
 test "x$SH" = "x" && SH="/bin/sh"
 
@@ -2185,9 +2201,6 @@ if test x$kernel_anti_dependence = x; then
 fi
 
 # print warnings summary if exist
-
-AC_CHECK_PROGS(COWSAY, cowsay)
-AC_CHECK_PROGS(LOLCAT, lolcat)
 
 echo
 if test -z "$config_warns"
