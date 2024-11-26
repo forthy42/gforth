@@ -369,6 +369,37 @@ t{ "`123e" forth-recognize -> 0 }t
 t{ "``123e" forth-recognize -> 0 }t
 t{ "${HOME}" forth-recognize -rot "HOME" str= -> `translate-env true }t 
 t{ "${HOME}" eval-rec-interpret s" HOME" getenv str= -> true }t 
+t{ "`xlerb" forth-recognize -> 0 }t
+t{ "``xlerb" forth-recognize -> 0 }t
+t{ "->xlerb" forth-recognize -> 0 }t
+
+: eval-catch ( addr u -- throwcode | results 0 )
+    [{: addr u :}h1 addr u evaluate ;] catch ;
+
+1 Value value1
+2 Varue Varue2
+Defer defer3
+' dup is defer3
+
+t{ "3 ->value1" eval-catch value1 -> 0 3 }t
+t{ "2 +>value1" eval-catch value1 -> 0 5 }t
+t{ "'>value1" eval-catch value1 -> -21 5 }t
+t{ "@>value1" eval-catch value1 -> -21 5 }t
+t{ "3 ->Varue2" eval-catch Varue2 -> 0 3 }t
+t{ "2 +>Varue2" eval-catch Varue2 -> 0 5 }t
+t{ "'>Varue2" eval-catch Varue2 -> <Varue2> 0 5 }t
+t{ "@>Varue2" eval-catch Varue2 -> -21 5 }t
+t{ "@>defer3" eval-catch -> ' dup 0 }t
+t{ "' noop =>defer3" eval-catch @>defer3 -> 0 ' noop }t
+t{ "2 +>defer3" eval-catch @>defer3 -> -21 ' noop }t
+t{ "'>defer3" eval-catch @>defer3 -> -21 ' noop }t
+
+\ tests for non-existing words
+
+T{ ' ' catch xlerb -> -13 }T
+T{ s" xlerb" find-name -> 0 }T
+
+T{ s" 3 to xlerb" eval-catch -> -13 }T
 
 \ division words
 
