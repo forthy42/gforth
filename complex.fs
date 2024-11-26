@@ -204,7 +204,7 @@ Defer fc.       :noname f. 1 backspaces ; IS fc.
 \ recognizer
 
 : zliteral ( z -- ) fswap ]] fliteral fliteral [[ ; immediate
-' noop ' zliteral ' zliteral >postponer
+' noop ' zliteral dup >postponer
 translate: translate-complex
 \ alternative:
 \ : translate-complex ( z -- ) fswap translate-float translate-float ;

@@ -338,8 +338,8 @@ Create prompt-text
 ' prompt-ok ,
 [: ." compiled" ;] ,
 [: ." postponed" ;] ,
-[: ." extended mode" ;] ,
-DOES> state @ abs 3 umin cells + perform ;
+[: ." extended mode" ;] 7 0 [DO] dup , [LOOP] drop
+DOES> state @ abs translator-max-offset# umin cells + perform ;
 
 : color-prompt ( -- )
     success-color prompt-text default-color ;

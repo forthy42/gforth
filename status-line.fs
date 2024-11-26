@@ -24,7 +24,7 @@
 ' status-color ,
 ' compile-color ,
 ' postpone-color ,
-' error-color ,
+' error-color 7 0 [DO] dup , [LOOP] drop
 
 : redraw-status ( addr u -- )
     save-cursor-position

@@ -18,9 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: post-to, ( nt -- )  swap lit, lit, ;
-
-' (to) ' (to), ' post-to, >postponer translate: translate-to
+' (to) ' (to), ' 2lit, >postponer translate: translate-to
 
 Create to-slots here $100 dup allot $FF fill
 0 "-+'@=" bounds [DO] dup to-slots [I] c@ + c! 1+ [LOOP] drop
