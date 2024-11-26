@@ -346,10 +346,29 @@ t{ 5 6 7 8 9 pick-test -> 5 6 7 8 9 5 7 9 7 7 }t
 t{ : fpick-test 4 fpick 3 fpick 2 fpick 1 fpick 0 fpick ; -> }t
 t{ 5e 6e 7e 8e 9e fpick-test -> 5e 6e 7e 8e 9e 5e 7e 9e 7e 7e }t
 
+\ testing standard recongizers
 \ `<word> and ``<word>
 
 t{ `needs -> ' needs }t
 t{ ``needs -> "needs" find-name }t
+
+\ more standard recognizers
+: eval-rec ( addr u -- )
+    [: parse-name forth-recognize ;] execute-parsing ;
+: eval-rec-interpret ( addr u -- )
+    [: parse-name forth-recognize >interpret ;] execute-parsing ;
+
+t{ s" needs" forth-recognize -> ``needs `translate-nt }t
+t{ s\" \"a string 123\"" eval-rec -rot s\" \"a" str= -> `scan-translate-string true }t
+t{ s\" \"a string 123\"" eval-rec-interpret s" a string 123" str= -> true }t
+t{ "->#123." forth-recognize -> 0 }t
+t{ "+>123e" forth-recognize -> 0 }t
+t{ "`#123." forth-recognize -> 0 }t
+t{ "``#123." forth-recognize -> 0 }t
+t{ "`123e" forth-recognize -> 0 }t
+t{ "``123e" forth-recognize -> 0 }t
+t{ "${HOME}" forth-recognize -rot "HOME" str= -> `translate-env true }t 
+t{ "${HOME}" eval-rec-interpret s" HOME" getenv str= -> true }t 
 
 \ division words
 
