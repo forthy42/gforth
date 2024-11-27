@@ -617,7 +617,7 @@ is adjust-locals-list
 : locals-;-hook ( sys addr xt sys -- sys )
     ?struc
     deactivate-locals
-    ['] ->here locals-headers
+    [: ->here 0 lastnt ! ;] locals-headers
     DEFERS ;-hook ;
 
 \ THEN (another control flow from before joins the current one):
