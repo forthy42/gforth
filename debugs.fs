@@ -336,9 +336,7 @@ Variable rec'[]
 
 Create prompt-text
 ' prompt-ok ,
-[: ." compiled" ;] ,
-[: ." postponed" ;] ,
-[: ." extended mode" ;] 7 0 [DO] dup , [LOOP] drop
+[: get-state id. ;] translator-max-offset# 1 [DO] dup , [LOOP] drop
 DOES> state @ abs translator-max-offset# umin cells + perform ;
 
 : color-prompt ( -- )

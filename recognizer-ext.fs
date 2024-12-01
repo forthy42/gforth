@@ -31,6 +31,9 @@ fold1: ( xt -- ) >body @ lit, postpone >body postpone + ;
 ' postponing make-latest
 ' translate-method-to set-to
 
+Create translate-methods
+translator-max-offset# 0 [DO] ' noop , [LOOP]
+
 : translate-method: ( "name" -- ) \ gforth-experimental
     \G create a new translate method, extending the translator table.
     \G You can assign an xt to an existing rectype by using
@@ -38,6 +41,7 @@ fold1: ( xt -- ) >body @ lit, postpone >body postpone + ;
     translator-offset translator-max-offset# u>=
     translator-overflow and throw
     ['] postponing create-from reveal
+    latestxt translate-methods translator-offset + !
     translator-offset ,  cell +to translator-offset ;
 
 translate-method: interpreting ( translator -- ) \ gforth-experimental
@@ -47,16 +51,20 @@ translate-method: compiling ( translator -- ) \ gforth-experimental
 \ we already have defined this in the kernel
 \ translate-method: postponing ( translator -- ) \ gforth-experimental
 \ \G perform postpone action of translator
+' postponing translate-methods translator-offset + !
 cell +to translator-offset
 
-: translate-state ( xt -- ) \ gforth-experimental
+: set-state ( xt -- ) \ gforth-experimental
     \G change the current state of the system so that executing
-    \G a translator matches the translate-method passsed as @var{xt}
+    \G a translator matches the translate-method passed as @var{xt}
     dup >does-code [ ' postponing >does-code ] Literal <> #-12 and throw
     >body @ cell/ negate state ! ;
+opt: lits# 1 u>= IF
+	lits> dup >does-code [ ' postponing >does-code ] Literal = IF
+	    >body @ cell/ negate lit, postpone state postpone !  drop  EXIT
+	ELSE  #-12 throw  THEN
+    THEN  :, ;
 
-: translate-state? ( xt -- flag ) \ gforth-experimental
-    \G change the current state of the system so that executing
-    \G a translator matches the translate-method passsed as @var{xt}
-    dup >does-code [ ' postponing >does-code ] Literal <> #-12 and throw
-    >body @ cell/ state @ abs = ;
+: get-state ( -- xt ) \ gforth-experimental
+    \G return the currently used translate-method @var{xt}
+    state @ abs cells translate-methods + @ ;

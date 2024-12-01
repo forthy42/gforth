@@ -44,10 +44,10 @@ require sections.fs
 require float.fs
 require extend.fs
 require glocals.fs
+threading-method 1 <> [IF] require fold.fs [THEN]
+require iloops.fs
 require recognizer-ext.fs
 require stuff.fs
-require iloops.fs
-threading-method 1 <> [IF] require fold.fs [THEN]
 require sections2.fs
 require struct0x.fs
 threading-method 1 <> [IF] require stagediv.fs [THEN]

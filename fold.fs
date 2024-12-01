@@ -18,13 +18,20 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+3 to: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
+\G @i{Xt} is the XT that is currently assigned to @i{name}.
+
+: pow2? ( u -- f ) \ gforth pow-two-query
+    \g @i{f} is true iff @i{u} is a power of two, i.e., there is
+    \g exactly one bit set in @i{u}.
+    dup dup 1- and 0= and 0<> ;
+
 : 2lits> ( -- d )  lits> lits> swap ;
 : >2lits ( d -- )  swap >lits >lits ;
 : 3lits> ( -- t )  2lits> lits> -rot ;
 : >3lits ( -- t )  rot >lits >2lits ;
 : 4lits> ( -- q )  2lits> 2lits> 2swap ;
 : >4lits ( q -- )  2swap >2lits >2lits ;
-
 
 : fold-constants {: xt m xt: pop xt: unpop xt: push -- :}
     \ compiles xt with constant folding: xt ( m*n -- l*n ).
@@ -170,14 +177,6 @@ optimizes fpick
         ['] * fold2-1
     then ;
 ' opt* optimizes *
-
-: opt-array>mem ( xt -- )
-    drop lits# 1 = if
-        lits> dup ]] literal * literal [[
-    else
-        ['] array>mem fold2-2
-    then ;
-' opt-array>mem optimizes array>mem
 
 \ optimize lit @ into lit@
 : opt@ ( xt -- )

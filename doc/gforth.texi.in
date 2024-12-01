@@ -10960,7 +10960,7 @@ on the data (usually, this means it just leaves the data on the stack).
 The second xt performs the compilation semantics, it gets the data and
 the run-time semantics xt.  The third xt perfoms the postpone semantics,
 it also gets the data and the run-time semantics xt.  You can use
-@code{>postpone} to postpone the run-time xt.
+@code{postponing} to postpone the run-time xt.
 
 Recognizers are organized as stack, so you can arrange the sequence of
 recognizers in the same way as the vocabulary stack.  Recognizer stacks
@@ -10993,11 +10993,12 @@ doc-translate-num
 doc-translate-dnum
 doc-translate-float
 doc-try-recognize
-doc->interpret
-doc->compile
-doc->postpone
+doc-interpreting
+doc-compiling
+doc-postponing
 doc-translate-method:
-doc-translate-state
+doc-set-state
+doc-get-state
 
 @node Defining Recognizers,  , Dealing with existing Recognizers, Recognizers
 @subsubsection Defining Recognizers

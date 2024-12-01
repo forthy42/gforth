@@ -61,11 +61,6 @@ AUser CSP
     drop ;
 [then]
 
-: pow2? ( u -- f ) \ gforth pow-two-query
-    \g @i{f} is true iff @i{u} is a power of two, i.e., there is
-    \g exactly one bit set in @i{u}.
-    dup dup 1- and 0= and 0<> ;
-
 : ctz ( x -- u ) \ gforth c-t-z
     \g count trailing zeros in binary representation of x
     dup if
@@ -102,9 +97,6 @@ AUser CSP
     \G emit code that reverts a deferred word to the state at
     \G compilation
     ' dup defer@ lit, 4 swap (to), ; immediate
-
-3 to: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
-\G @i{Xt} is the XT that is currently assigned to @i{name}.
 
 \ shell commands
 
@@ -242,7 +234,7 @@ opt: @ 3 swap (to), ;
     \G processed as if they were preceded by @code{postpone}.
     \G Postpone state ends when @code{[[} is recognized.
     ['] rec-[[ action-of forth-recognize >stack
-    ['] postponing translate-state ; immediate restrict
+    ['] postponing set-state ; immediate restrict
 
 \ mem+do...mem+loop mem-do...mem-loop array>mem
 
@@ -254,6 +246,14 @@ constant mem*do-noconstant
 : array>mem ( uelements uelemsize -- ubytes uelemsize ) \ gforth-experimental
     \G @i{ubytes}=@i{uelements}*@i{uelemsize}
     tuck * swap ;
+
+: opt-array>mem ( xt -- )
+    drop lits# 1 = if
+        lits> dup ]] Literal * Literal [[
+    else
+        ['] array>mem fold2-2
+    then ;
+' opt-array>mem optimizes array>mem
 
 : const-mem+loop ( +nstride xt do-sys -- )
     cs-item-size 1+ pick ]] literal +loop [[ 2drop ;
