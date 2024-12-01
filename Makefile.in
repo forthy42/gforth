@@ -1659,7 +1659,7 @@ doc/crossdoc.fd:	$(KERN_SRC) gforth$(EXT) kernel/version.fs $(FORTH_GEN0)
 
 #call explicitly on machine with libffi and ffcall
 doc/words/$(RVERSION)-words: gforth$(EXT) $(GFORTH_FI_SRC) $(EXTRA_DOC) $(LIBCC_GEN_SRC)
-		$(FORTHS) $(EXTRA_DOC) -e "locals-types words c-lib words see-voc words environment words forth words bye" >$@-
+		$(FORTHS) $(EXTRA_DOC) -e "locals-types words c-lib words see-voc words environment words forth words bye" | sed -e 's/ \+$$//' -e 's/ \+/\n/g' | sort >$@-
 		$(MV) $@- $@
 
 DOC_GEN = doc/crossdoc.fd doc/doc.fd doc/extradoc.fd @minosdoc@

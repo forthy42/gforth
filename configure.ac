@@ -2182,6 +2182,7 @@ chmod +x gforthp
 chmod +x debian/rules
 test -f $srcdir/unix/wayland-fsi.c&&touch $srcdir/unix/wayland-fsi.c
 test -d kernel||mkdir kernel
+test -d doc/words||mkdir -p doc/words
 test -d test||mkdir test
 test -d wayland||mkdir wayland
 if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi
