@@ -28,7 +28,7 @@ fold1: ( xt -- ) >body @ lit, postpone >body postpone + ;
 
 ' >translate-method defer-table to-class: translate-method-to
 
-' >postpone make-latest
+' postponing make-latest
 ' translate-method-to set-to
 
 : translate-method: ( "name" -- ) \ gforth-experimental
@@ -37,26 +37,26 @@ fold1: ( xt -- ) >body @ lit, postpone >body postpone + ;
     \G @var{xt rectype} @code{to} @var{translator}.
     translator-offset translator-max-offset# u>=
     translator-overflow and throw
-    ['] >postpone create-from reveal
+    ['] postponing create-from reveal
     translator-offset ,  cell +to translator-offset ;
 
-translate-method: >interpret ( translator -- ) \ gforth-experimental
+translate-method: interpreting ( translator -- ) \ gforth-experimental
 \G perform interpreter action of translator
-translate-method: >compile ( translator -- ) \ gforth-experimental
+translate-method: compiling ( translator -- ) \ gforth-experimental
 \G perform compile action of translator
 \ we already have defined this in the kernel
-\ translate-method: >postpone ( translator -- ) \ gforth-experimental
+\ translate-method: postponing ( translator -- ) \ gforth-experimental
 \ \G perform postpone action of translator
 cell +to translator-offset
 
 : translate-state ( xt -- ) \ gforth-experimental
     \G change the current state of the system so that executing
     \G a translator matches the translate-method passsed as @var{xt}
-    dup >does-code [ ' >postpone >does-code ] Literal <> #-12 and throw
+    dup >does-code [ ' postponing >does-code ] Literal <> #-12 and throw
     >body @ cell/ negate state ! ;
 
 : translate-state? ( xt -- flag ) \ gforth-experimental
     \G change the current state of the system so that executing
     \G a translator matches the translate-method passsed as @var{xt}
-    dup >does-code [ ' >postpone >does-code ] Literal <> #-12 and throw
+    dup >does-code [ ' postponing >does-code ] Literal <> #-12 and throw
     >body @ cell/ state @ abs = ;

@@ -242,7 +242,7 @@ opt: @ 3 swap (to), ;
     \G processed as if they were preceded by @code{postpone}.
     \G Postpone state ends when @code{[[} is recognized.
     ['] rec-[[ action-of forth-recognize >stack
-    ['] >postpone translate-state ; immediate restrict
+    ['] postponing translate-state ; immediate restrict
 
 \ mem+do...mem+loop mem-do...mem-loop array>mem
 

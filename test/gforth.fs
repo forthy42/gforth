@@ -171,9 +171,9 @@ T{ :noname 10 ; :noname 20 ; :noname 30 ; translate: translate-2 -> }T
 T{ : rec-1 NIP 1 = IF ['] translate-1 ELSE 0 THEN ; -> }T
 T{ : rec-2 NIP 2 = IF ['] translate-2 ELSE 0 THEN ; -> }T
 
-T{ ' translate-1 >interpret  -> 1 }T
-T{ ' translate-1 >compile    -> 2 }T
-T{ ' translate-1 >postpone   -> 3 }T
+T{ ' translate-1 interpreting  -> 1 }T
+T{ ' translate-1 compiling     -> 2 }T
+T{ ' translate-1 postponing    -> 3 }T
 
 \ set and get methods
 T{ 0 ' RS set-recognizer-sequence -> }T
@@ -356,7 +356,7 @@ t{ ``needs -> "needs" find-name }t
 : eval-rec ( addr u -- )
     [: parse-name forth-recognize ;] execute-parsing ;
 : eval-rec-interpret ( addr u -- )
-    [: parse-name forth-recognize >interpret ;] execute-parsing ;
+    [: parse-name forth-recognize interpreting ;] execute-parsing ;
 
 t{ s" needs" forth-recognize -> ``needs `translate-nt }t
 t{ s\" \"a string 123\"" eval-rec -rot s\" \"a" str= -> `scan-translate-string true }t
