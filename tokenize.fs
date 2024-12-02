@@ -72,7 +72,7 @@ Defer backup-recognize
 
 : >nt ( -- nt )
     >parsed 2dup find-name dup IF  dup +nt nip nip
-    ELSE  drop backup-recognize rectype-nt <> !!token!! and throw
+    ELSE  drop backup-recognize ['] translate-nt <> !!token!! and throw
 	dup +nt  THEN ;
 : nt@ ( -- nt )
     tokens[] $@ xc-token cells safe/string drop @ ;
@@ -130,18 +130,18 @@ translate-method: tokenizing
     THEN
     nextname$ $@ d0<> IF
 	nextname$ $@ n,
-    THEN ; rectype-nt is tokenizing
+    THEN ; ' translate-nt is tokenizing
 :noname ( n -- n )
-    3 emit dup { w^ x } x cell type ; rectype-num is tokenizing
+    3 emit dup { w^ x } x cell type ; ' translate-num is tokenizing
 :noname ( d -- d )
-    4 emit 2dup { d^ x } x 2 cells type ; rectype-dnum is tokenizing
+    4 emit 2dup { d^ x } x 2 cells type ; ' translate-dnum is tokenizing
 :noname ( r -- r )
-    5 emit fdup { f^ x } x 1 floats type ; rectype-float is tokenizing
+    5 emit fdup { f^ x } x 1 floats type ; ' translate-float is tokenizing
 :noname ( addr u -- addr u )
-    6 emit 2dup dup xemit type ; rectype-string is tokenizing
+    6 emit 2dup dup xemit type ; ' translate-string is tokenizing
 :noname ( xt -- )
     over ?token IF  8 emit xemit
-    ELSE  7 i,  THEN ; rectype-to is tokenizing
+    ELSE  7 i,  THEN ; ' translate-to is tokenizing
 
 : tokenize-it ( rectype rec-xt -- rectype )
     drop rec-level @ 0> ?EXIT
@@ -215,7 +215,7 @@ tokenizer definitions
     >nt ['] translate-to ;
 : token-to ( -- nt translate-to )
     nt@ ['] translate-to ;
-: token-generic ( -- ... rectype-??? )
+: token-generic ( -- ... translate-??? )
     >parsed backup-recognize ;
 
 Create token-actions
