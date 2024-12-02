@@ -35,6 +35,17 @@ s" Scanned string not in input buffer" exception >r
 :noname scan-string slit, postpone 2lit, ;
 translate: scan-translate-string
 
+' noop
+' slit,
+:noname slit, postpone 2lit, ;
+translate: translate-string
+
+: ?scan-string ( addr u scan-translate-string -- addr' u' translate-string  |  ... translator -- ... translator )
+    case
+	['] scan-translate-string of  scan-string ['] translate-string  endof
+	0
+    endcase ;
+
 : rec-string ( addr u -- addr u' scan-translate-string | 0 ) \ gforth-experimental
     \G Convert strings enclosed in double quotes into string literals,
     \G escapes are treated as in @code{S\"}.

@@ -241,20 +241,20 @@ variable nextname$
 : noname ( -- ) \ gforth
     \g The next defined word will be anonymous. The defining word will
     \g leave the input stream alone. The xt of the defined word will
-    \g be given by @code{latestxt}.
+    \g be given by @code{latestxt}, the nt by @code{latestnt}.
     ['] noname-header IS header-name, ;
 
 : latestnt ( -- nt ) \ gforth
-    \G @i{nt} is the name token of the last word defined.
+    \G @i{nt} is the name token of the last word defined in the current section.
     \ The main purpose of this word is to get the nt of words defined using noname
     lastnt @ ;
 : latestxt ( -- xt ) \ gforth
-    \G @i{xt} is the execution token of the last word defined.
+    \G @i{xt} is the execution token of the last word defined in the current section.
     \ The main purpose of this word is to get the xt of words defined using noname
     lastnt @ name>interpret ;
 
 : latest ( -- nt ) \ gforth
-\G @var{nt} is the name token of the last word defined; it is 0 if the
+\G @var{nt} is the name token of the last word defined in the current section; it is 0 if the
 \G last word has no name.
     lastnt @ dup name>string d0<> and ;
 

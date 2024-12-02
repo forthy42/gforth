@@ -113,7 +113,7 @@ Variable blacklisted
 	dup I @ = IF  drop I cell+ @  UNLOOP  EXIT  THEN
     2 cells +LOOP  drop false ;
 
-translate-method: >tokenize
+translate-method: tokenizing
 
 :noname ( xt -- xt )
     dup ?blacklist dup IF
@@ -130,23 +130,23 @@ translate-method: >tokenize
     THEN
     nextname$ $@ d0<> IF
 	nextname$ $@ n,
-    THEN ; rectype-nt is >tokenize
+    THEN ; rectype-nt is tokenizing
 :noname ( n -- n )
-    3 emit dup { w^ x } x cell type ; rectype-num is >tokenize
+    3 emit dup { w^ x } x cell type ; rectype-num is tokenizing
 :noname ( d -- d )
-    4 emit 2dup { d^ x } x 2 cells type ; rectype-dnum is >tokenize
+    4 emit 2dup { d^ x } x 2 cells type ; rectype-dnum is tokenizing
 :noname ( r -- r )
-    5 emit fdup { f^ x } x 1 floats type ; rectype-float is >tokenize
+    5 emit fdup { f^ x } x 1 floats type ; rectype-float is tokenizing
 :noname ( addr u -- addr u )
-    6 emit 2dup dup xemit type ; rectype-string is >tokenize
+    6 emit 2dup dup xemit type ; rectype-string is tokenizing
 :noname ( xt -- )
     over ?token IF  8 emit xemit
-    ELSE  7 i,  THEN ; rectype-to is >tokenize
+    ELSE  7 i,  THEN ; rectype-to is tokenizing
 
 : tokenize-it ( rectype rec-xt -- rectype )
     drop rec-level @ 0> ?EXIT
     \ dup [: .addr. space rec-level ? cr ;] stdout outfile-execute
-    dup >r ['] >tokenize catch
+    dup >r ['] tokenizing catch
     dup #-13 = IF  2drop  9 i,  ELSE  throw  THEN  r>
     parsed-name$ $free ;
 
