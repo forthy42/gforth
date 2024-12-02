@@ -40,7 +40,9 @@ translate: scan-translate-string
 :noname slit, postpone 2lit, ;
 translate: translate-string
 
-: ?scan-string ( addr u scan-translate-string -- addr' u' translate-string  |  ... translator -- ... translator )
+: ?scan-string ( addr u scan-translate-string -- addr' u' translate-string  |  ... translator -- ... translator ) \ gforth-experimental
+    \G Check if the token is an incomplete (side effect free) string,
+    \G and scan the string to complete it.
     case
 	['] scan-translate-string of  scan-string ['] translate-string  endof
 	0

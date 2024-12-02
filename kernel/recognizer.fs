@@ -32,7 +32,7 @@
 \ and the table contains three actions (as array of three xts):
 \ interpret it, compile it, postpone it.
 
-: lit, ( n -- ) postpone Literal ;
+' >lits Alias lit, ( n -- )
 : 2lit, ( n -- ) postpone 2literal ;
 
 : no.extensions  ( -- ) #-13 throw ;
@@ -120,7 +120,7 @@ translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
     \G Create a named stack with at least @var{n} cells space.
     drop $Variable ;
 : do-stack: ( x1 .. xn n xt "name" -- )
-    >r dup stack: r> set-does> latestnt >body set-stack ;
+    >r dup stack: r> set-does> latestxt >body set-stack ;
 : stack ( n -- stack ) \ gforth-experimental
     \G Create an unnamed stack with at least @var{n} cells space.
     drop align here 0 , ;

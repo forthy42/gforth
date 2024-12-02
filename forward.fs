@@ -49,7 +49,7 @@ s" forward must be resolved with :" exception constant forward-needs-:
     \g resolves the forward references.  Use @code{.unresolved} to
     \g check whether any forwards are unresolved.
     :start
-    defer ['] unresolved-forward-error latestnt defer!
+    defer ['] unresolved-forward-error latestxt defer!
     true to in-colon-def?
     ['] branch peephole-compile, ['] unfixed-forward >body , flush-code
     [: ['] call peephole-compile, >body cell+ , ;] set-optimizer
@@ -65,8 +65,8 @@ s" forward must be resolved with :" exception constant forward-needs-:
     \ auto-resolve the forward reference in check-shadow
     dup 2over rot find-name-in dup if
 	dup is-forward? if
-	    latestnt >code-address docol: <> forward-needs-: and throw
-            latestnt swap defer! 2drop drop exit then then
+	    latestxt >code-address docol: <> forward-needs-: and throw
+            latestxt swap defer! 2drop drop exit then then
     drop defers check-shadow ;
 
 ' auto-resolve is check-shadow

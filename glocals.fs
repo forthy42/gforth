@@ -101,7 +101,7 @@ User locals-size \ this is the current size of the locals stack
     
 : opt-table: ( unit -- )
     Create 0 , , xts,
-    here latestnt dup >r 2 cells + - cell/ r> !
+    here latestxt >body dup >r 2 cells + - cell/ r> !
     DOES> ( xt table -- )
     >r lits# 1 u>= if
         lits> dup r@ cell+ @ /mod swap 0= over r@ @ u< and if
@@ -110,10 +110,10 @@ User locals-size \ this is the current size of the locals stack
     rdrop peephole-compile, ;
 
 cell opt-table: opt-@localn @local0 @local1 @local2 @local3 @local4 @local5 @local6 @local7 
-latestnt optimizes @localn
+latestxt optimizes @localn
 
 cell opt-table: opt-!localn !local0 !local1 !local2 !local3 !local4 !local5 !local6 !local7
-latestnt optimizes !localn
+latestxt optimizes !localn
 
 \ peephole optimizer enabled 2compile,
 
@@ -759,7 +759,7 @@ is adjust-locals-list
 also locals-types
 : noname-w: ( -- n )
     \ generate local; its offset is n
-    POSTPONE { 0 0 nextname W: ['] latestnt locals-headers >r } r> @ ;
+    POSTPONE { 0 0 nextname W: ['] latestxt locals-headers >r } r> @ ;
 previous
 
 

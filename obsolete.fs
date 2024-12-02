@@ -152,7 +152,7 @@ inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline obsolete
 
 : rectype ( int-xt comp-xt post-xt -- rectype ) \ gforth-obsolete
     \G create a new unnamed recognizer token
-    noname translate: latestnt ; 
+    noname translate: latestxt ; 
 
 : rectype: ( int-xt comp-xt post-xt "name" -- ) \ gforth-obsolete
     \G create a new recognizer table
@@ -279,7 +279,7 @@ synonym create-interpret/compile create ( "name" -- ) \ gforth-obsolete
     POSTPONE (const-does>)
     POSTPONE ;
     noname : POSTPONE rdrop
-    latestnt r> cell+ ! \ patch the literal
+    latestxt r> cell+ ! \ patch the literal
 ; immediate
 
 

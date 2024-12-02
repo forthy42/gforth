@@ -260,32 +260,9 @@ variable nextname$
 
 \ \ literals							17dec92py
 
-: Literal  ( compilation n -- ; run-time -- n ) \ core
-    \G Compilation semantics: compile the run-time semantics.@*
-    \G Run-time Semantics: push @i{n}.@*
-    \G Interpretation semantics: undefined.
-    >lits ; \ threading-method 1 = IF  postpone lit ,  ELSE  >lits  THEN ;
-immediate restrict
-
-: 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal
-    \G Compile appropriate code such that, at run-time, @i{w1 w2} are
-    \G placed on the stack. Interpretation semantics are undefined.
-    swap postpone Literal  postpone Literal ; immediate restrict
-
-: ALiteral ( compilation addr -- ; run-time -- addr ) \ gforth
-    \g Works like @code{literal}, but (when used in cross-compiled
-    \g code) tells the cross-compiler that the literal is an address.
-    postpone Literal ; immediate restrict
-
-: ?parse-name ( -- addr u )
-    \G same as parse-name, but fails with an error
-    parse-name dup 0= #-16 and throw ;
-
-\ \ threading							17mar93py
-
 Variable litstack
 
-: >lits ( x -- ) litstack >stack ;
+: >lits ( x -- ) prim-check litstack >stack ;
 : lits> ( -- x ) litstack stack> ;
 : lits# ( -- u ) litstack stack# ;
 : lits, ( -- )
@@ -294,6 +271,29 @@ Variable litstack
     r> free throw ;
 : clear-litstack ( -- )
     0 litstack set-stack ;
+
+: Literal  ( compilation n -- ; run-time -- n ) \ core
+    \G Compilation semantics: compile the run-time semantics.@*
+    \G Run-time Semantics: push @i{n}.@*
+    \G Interpretation semantics: undefined.
+    >lits ;
+immediate restrict
+
+: 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal
+    \G Compile appropriate code such that, at run-time, @i{w1 w2} are
+    \G placed on the stack. Interpretation semantics are undefined.
+    swap >lits >lits ; immediate restrict
+
+: ALiteral ( compilation addr -- ; run-time -- addr ) \ gforth
+    \g Works like @code{literal}, but (when used in cross-compiled
+    \g code) tells the cross-compiler that the literal is an address.
+    >lits ; immediate restrict
+
+: ?parse-name ( -- addr u )
+    \G same as parse-name, but fails with an error
+    parse-name dup 0= #-16 and throw ;
+
+\ \ threading							17mar93py
 
 : cfa,     ( code-address -- )  \ gforth-internal	cfa-comma
     here only-code-address! ;
@@ -664,7 +664,7 @@ Create hmtemplate
     \G afterwards if you want a more efficient @code{compile,}
     \G implementation.
     ['] general-compile, set-optimizer
-    latestnt only-code-address! ;
+    latestxt only-code-address! ;
 
 : does-code! ( xt2 xt1 -- ) \ gforth
     \G Change @i{xt1} to be a @code{@i{xt2} set-does>}-defined word.
@@ -678,7 +678,7 @@ Create hmtemplate
     \G afterwards if you want a more efficient implementation.
     ['] does, set-optimizer
     0 >hmextra hm!
-    dodoes: latestnt only-code-address! ;
+    dodoes: latestxt only-code-address! ;
 
 : set-to ( to-xt -- ) \ gforth
     \G Changes the implementations of the to-class methods of the most
@@ -824,7 +824,7 @@ Create defstart
 :noname ; aconstant dummy-noname
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
     :start dummy-noname noname-from
-    latestnt colon-sys ] :-hook ;
+    latestxt colon-sys ] :-hook ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys -- ) \ core	semicolon
     ;-hook [compile] exit flush-code

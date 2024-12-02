@@ -45,7 +45,7 @@ standard:field
 : extend-structure ( n "name" -- struct-sys n ) \ gforth
     \g Start a new structure @i{name} as extension of an existing
     \g structure with size @i{n}.
-    standard:field >r 0 value latestnt >body r> ;
+    standard:field >r 0 value latestxt >body r> ;
 
 : begin-structure ( "name" -- struct-sys 0 ) \ facility-ext
     \ Start a structure definition and call it @i{name}
