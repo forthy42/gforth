@@ -146,7 +146,7 @@ translate-method: tokenizing
 : tokenize-it ( rectype rec-xt -- rectype )
     drop rec-level @ 0> ?EXIT
     \ dup [: .addr. space rec-level ? cr ;] stdout outfile-execute
-    dup >r ['] tokenizing catch
+    ?scan-string dup >r ['] tokenizing catch
     dup #-13 = IF  2drop  9 i,  ELSE  throw  THEN  r>
     parsed-name$ $free ;
 

@@ -48,7 +48,7 @@
     THEN ;
 
 \ load with: gforth test/ttester.fs coverage.fs date.fs
-[IFUNDEF] cov% : cov%cr ; : .coverage ;
+[IFUNDEF] cov% : cov%cr ; : .coverage "coverate tool not loaded" type ;
 [ELSE] : cov%cr info-color cov% default-color cr ; [THEN]
 [defined] t{ [IF]
     t{ 0 3 1 ymd2day dup day2dow -> 0 1 }t cov%cr
