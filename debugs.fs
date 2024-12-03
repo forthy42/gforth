@@ -368,7 +368,9 @@ DOES> state @ abs translator-max-offset# umin cells + perform ;
 \ warn on compiling into space outside colon definitions
 
 [IFUNDEF] in-colon-def?
-    0 Value in-colon-def?
+    0 Value in-colon-def? ( -- flag ) \ gforth-experimental
+    \G allows to check if there currently is an active colon
+    \G definition where you can append code to.
 [THEN]
 
 :noname defers wrap!   true  to in-colon-def? ; is wrap!

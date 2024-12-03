@@ -8124,9 +8124,9 @@ latestxt IS deferred
 @code{noname} works with any defining word, not just @code{:}.
 
 @code{latestxt} also works when the last word was not defined as
-@code{noname}.  It does not work for combined words, though.  It also has
-the useful property that is is valid as soon as the header for a
-definition has been built. Thus:
+@code{noname}.  It does not work for combined words, though, use
+@code{latestnt}.  It also has the useful property that it is valid as
+soon as the header for a definition has been built. Thus:
 
 @example
 latestxt . : foo [ latestxt . ] ; ' foo .
@@ -10396,6 +10396,7 @@ better, because the compiler knows that the value compiled with
 @code{create}d word can be changed.
 
 doc-[compile]
+doc-in-colon-def?
 
 @c ----------------------------------------------------------
 @node The Text Interpreter, The Input Stream, Compiling words, Words

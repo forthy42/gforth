@@ -126,7 +126,9 @@ forth definitions
     pop-locals ;
 
 [IFUNDEF] in-colon-def?
-    0 Value in-colon-def?
+    0 Value in-colon-def? ( -- flag ) \ gforth-experimental
+    \G allows to check if there currently is an active colon
+    \G definition where you can append code to.
 [THEN]
 
 : closure-:-hook ( sys -- sys addr xt n )

@@ -257,7 +257,9 @@ synonym create-interpret/compile create ( "name" -- ) \ gforth-obsolete
     endif ;
 
 [IFUNDEF] in-colon-def?
-    0 Value in-colon-def?
+    0 Value in-colon-def? ( -- flag ) \ gforth-experimental
+    \G allows to check if there currently is an active colon
+    \G definition where you can append code to.
 [THEN]
 
 : (const-does>) ( w*uw r*ur uw ur target "name" -- )
