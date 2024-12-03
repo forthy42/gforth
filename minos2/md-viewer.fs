@@ -184,7 +184,7 @@ end-class album-actor
 simple-actor class
 end-class album-scroll-actor
 
-:noname ( key -- )
+album-actor :method ekeyed ( key -- )
     case
 	ctrl P k-ctrl-mask or   of  prev-slide   endof
 	ctrl N k-ctrl-mask or   of  next-slide   endof
@@ -193,15 +193,15 @@ end-class album-scroll-actor
 	k-volup   of  prev-slide   endof
 	k-voldown of  next-slide   endof
 	#esc      of  album-close  endof
-    endcase ; album-actor is ekeyed
+    endcase ;
 : album[] ( o -- o )
     >o album-actor new to act o act >o to caller-w o> o o> ;
 
-:noname ( fx fy b n -- )
+album-scroll-actor :method clicked ( fx fy b n -- )
     over $180 and IF  4 to scroll<<  THEN
     over $08 scroll<< lshift and IF  prev-slide  2drop fdrop fdrop  EXIT  THEN
     over $10 scroll<< lshift and IF  next-slide  2drop fdrop fdrop  EXIT  THEN
-    2drop fdrop fdrop ; album-scroll-actor is clicked
+    2drop fdrop fdrop ;
 : album-scroll[] ( o -- o )
     >o album-scroll-actor new to act o act >o to caller-w o> o o> ;
 

@@ -500,9 +500,9 @@ end-class glue
 : df!- ( addr -- u addr' )  dup df! [ 1 dfloats ]L - ;
 : glue@ ( addr -- t s a )  df@+ df@+ df@ ;
 : glue! ( t s a addr -- )  [ 2 dfloats ]L + df!- df!- df! ;
-:noname hglue-c glue@ ; dup glue is hglue@ glue is hglue
-:noname dglue-c glue@ ; dup glue is dglue@ glue is dglue
-:noname vglue-c glue@ ; dup glue is vglue@ glue is vglue
+glue :method hglue@ hglue-c glue@ ; glue action-of hglue@ glue is hglue
+glue :method dglue@ dglue-c glue@ ; glue action-of dglue@ glue is dglue
+glue :method vglue@ vglue-c glue@ ; glue action-of vglue@ glue is vglue
 
 \ tile widget
 
@@ -1638,13 +1638,13 @@ $10 stack: vp<>
     <draw      ['] draw       do-vp-childs  ?mod-thumb render>
     draw-vp> ;
 
-:noname
+viewport :method draw-init
     [: ?sync ?config or ;] vp-needed ?vpsync or IF
 	[IFDEF] +offset  x vp-x f-  y vp-h vp-y f- f- +offset  [THEN]
 	draw-vpchilds
 	[IFDEF] +offset  vp-x x f-  vp-h vp-y f- y f- +offset  [THEN]
 	[: -sync -config ;] vp-needed
-    THEN ; viewport is draw-init
+    THEN ;
 viewport :method draw ( -- )  render>
     0e to t.i0
     z-bias set-color+ vp-tex
