@@ -80,7 +80,7 @@ DOES> ( x-key [addr] -- ekey )
 
 : resize-widgets ( w h -- )
     dpy-h ! dpy-w !  config-changed ;
-:noname  ic ?dup-IF
+x11-handler :method DoKeyPress  ic ?dup-IF
 	event look_chars $FF look_key comp_stat  Xutf8LookupString
     ELSE
 	event look_chars $FF look_key comp_stat  XLookupString
@@ -95,7 +95,7 @@ DOES> ( x-key [addr] -- ekey )
 	ELSE  top-act ?dup-IF  .ukeyed  ELSE  2drop  THEN  THEN
     ELSE   look_key l@ x-key>ekey# ?dup-IF
 	    top-act ?dup-IF  .ekeyed  ELSE  #esc = level# +!  THEN  THEN  THEN
-; x11-handler is DoKeyPress
+ ;
 
 here
 ' (key) A,
@@ -126,7 +126,7 @@ Variable xy$
 	s>f I sf!
     1 sfloats -LOOP
     xy$ ;
-:noname ( -- )
+x11-handler :method ?looper-timeouts ( -- )
     event-handler @ >o
     Xtime lasttime @ - twoclicks >= IF
 	flags #pending -bit@ IF
@@ -136,14 +136,14 @@ Variable xy$
 	    0 to clicks
 	THEN
     THEN
-    o> ; x11-handler is ?looper-timeouts
-:noname ( -- )
+    o>  ;
+x11-handler :method DoButtonPress ( -- )
     buttonmask e.button 1- +bit
     top-act IF  e.x e.y 1 >xy$ buttonmask l@ lle top-act .touchdown  THEN
     e.kbm.time lasttime !  ?samepos
     flags #lastdown +bit  flags #pending +bit
-; x11-handler is DoButtonPress
-:noname ( -- )
+ ;
+x11-handler :method DoButtonRelease ( -- )
     ?samepos  e.kbm.time lasttime !
     flags #lastdown -bit@  IF
 	1 +to clicks  flags #clearme +bit
@@ -152,8 +152,8 @@ Variable xy$
 	send-clicks  THEN
     buttonmask e.button 1- -bit
     top-act IF  e.x e.y 1 >xy$ buttonmask l@ lle top-act .touchup  THEN
-; x11-handler is DoButtonRelease
-:noname ( -- )
+ ;
+x11-handler :method DoMotionNotify ( -- )
     flags #pending bit@  e.x e.y samepos? 0= and IF
 	buttonmask l@ lle send-clicks  0 to clicks
     THEN
@@ -161,26 +161,26 @@ Variable xy$
 	[: grab-move? .touchmove ;] vp-needed<>|  EXIT
     THEN
     top-act    IF  e.x e.y 1 >xy$ buttonmask l@ lle top-act    .touchmove  THEN
-; x11-handler is DoMotionNotify
-:noname ; x11-handler is DoEnterNotify
-:noname ; x11-handler is DoLeaveNotify
-:noname e.window focus-ic ; x11-handler is DoFocusIn
+ ;
+x11-handler :method DoEnterNotify  ;
+x11-handler :method DoLeaveNotify  ;
+x11-handler :method DoFocusIn e.window focus-ic  ;
 \ ' noop x11-handler is DoFocusOut
 \ ' noop x11-handler is DoKeymapNotify
-:noname top-widget .widget-draw ; x11-handler is DoExpose
-:noname top-widget .widget-draw ; x11-handler is DoGraphicsExpose
+x11-handler :method DoExpose top-widget .widget-draw  ;
+x11-handler :method DoGraphicsExpose top-widget .widget-draw  ;
 \ ' noop x11-handler is DoNoExpose
-:noname gui( ~~ ) ; x11-handler is DoVisibilityNotify
-:noname e.w-width e.w-height resize-widgets ; x11-handler is DoCreateNotify
+x11-handler :method DoVisibilityNotify gui( ~~ )  ;
+x11-handler :method DoCreateNotify e.w-width e.w-height resize-widgets  ;
 \ ' noop x11-handler is DoDestroyNotify
-:noname gui( ~~ ) -1 rendering ! ; x11-handler is DoUnmapNotify
-:noname gui( ~~ ) -2 rendering ! ; x11-handler is DoMapNotify
-:noname gui( ~~ ) ; x11-handler is DoMapRequest
+x11-handler :method DoUnmapNotify gui( ~~ ) -1 rendering !  ;
+x11-handler :method DoMapNotify gui( ~~ ) -2 rendering !  ;
+x11-handler :method DoMapRequest gui( ~~ )  ;
 \ ' noop x11-handler is DoReparentNotify
-:noname e.c-width  e.c-height resize-widgets ; x11-handler is DoConfigureNotify
+x11-handler :method DoConfigureNotify e.c-width  e.c-height resize-widgets  ;
 \ ' noop x11-handler is DoConfigureRequest
 \ ' noop x11-handler is DoGravityNotify
-:noname e.r-width  e.r-height resize-widgets ; x11-handler is DoResizeRequest
+x11-handler :method DoResizeRequest e.r-width  e.r-height resize-widgets  ;
 \ ' noop x11-handler is DoCirculateNotify
 \ ' noop x11-handler is DoCirculateRequest
 \ ' noop x11-handler is DoPropertyNotify
@@ -188,7 +188,7 @@ Variable xy$
 \ ' noop x11-handler is DoSelectionRequest
 \ ' noop x11-handler is DoSelectionNotify
 \ ' noop x11-handler is DoColormapNotify
-:noname gui( ~~ ) ; x11-handler is DoMappingNotify
+x11-handler :method DoMappingNotify gui( ~~ )  ;
 \ ' noop x11-handler is DoGenericEvent
 
 x11-handler ' new static-a with-allocater Constant x11-keyboard

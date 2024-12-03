@@ -262,7 +262,7 @@ variable nextname$
 
 Variable litstack
 
-: >lits ( x -- ) prim-check litstack >stack ;
+: >lits ( x -- ) litstack >stack ;
 : lits> ( -- x ) litstack stack> ;
 : lits# ( -- u ) litstack stack# ;
 : lits, ( -- )

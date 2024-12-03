@@ -115,7 +115,7 @@ Variable blacklisted
 
 translate-method: tokenizing
 
-:noname ( xt -- xt )
+' translate-nt :method tokenizing ( xt -- xt )
     dup ?blacklist dup IF
 	[ also locals-types ]
 	dup ['] w: <> blacklisted !
@@ -130,18 +130,18 @@ translate-method: tokenizing
     THEN
     nextname$ $@ d0<> IF
 	nextname$ $@ n,
-    THEN ; ' translate-nt is tokenizing
-:noname ( n -- n )
-    3 emit dup { w^ x } x cell type ; ' translate-num is tokenizing
-:noname ( d -- d )
-    4 emit 2dup { d^ x } x 2 cells type ; ' translate-dnum is tokenizing
-:noname ( r -- r )
-    5 emit fdup { f^ x } x 1 floats type ; ' translate-float is tokenizing
-:noname ( addr u -- addr u )
-    6 emit 2dup dup xemit type ; ' translate-string is tokenizing
-:noname ( xt -- )
+    THEN ;
+' translate-num :method tokenizing ( n -- n )
+    3 emit dup { w^ x } x cell type ;
+' translate-dnum :method tokenizing ( d -- d )
+    4 emit 2dup { d^ x } x 2 cells type ;
+' translate-float :method tokenizing ( r -- r )
+    5 emit fdup { f^ x } x 1 floats type ;
+' translate-string :method tokenizing ( addr u -- addr u )
+    6 emit 2dup dup xemit type ;
+' translate-to :method tokenizing ( xt -- )
     over ?token IF  8 emit xemit
-    ELSE  7 i,  THEN ; ' translate-to is tokenizing
+    ELSE  7 i,  THEN ;
 
 : tokenize-it ( rectype rec-xt -- rectype )
     drop rec-level @ 0> ?EXIT

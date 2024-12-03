@@ -436,7 +436,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]" "[:"
 	  "[n:l" "[n:h" "[n:d" "[d:l" "[d:h" "[d:d" "[f:l" "[f:h" "[f:d" "[{:")
 	 (0 . 2) (0 . 2))
-	((":" "?:" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" "uclass" "with" 
+	((":" ":is" ":method" "?:" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" "uclass" "with" 
 	  "interface" "c-library" "c-library-name" "comp:" "opt:" "post:"
 	  "begin-structure" "extend-structure" "event:" "fold1:" "to:" "defer@:" ":trigger-on(")
 	 (0 . 2) (0 . 2) non-immediate)
@@ -757,7 +757,7 @@ End:\" construct).")
 ;;;
 (defvar forth-defining-words 
   '("VARIABLE" "CONSTANT" "2VARIABLE" "2CONSTANT" "FVARIABLE" "FCONSTANT"
-   "USER" "VALUE" "2Value" "field" "end-struct" "VOCABULARY" "CREATE" ":" "?:" "CODE"
+   "USER" "VALUE" "2Value" "field" "end-struct" "VOCABULARY" "CREATE" ":" "?:" ":is" ":method" "CODE"
    "DEFER" "ALIAS" "interpret/compile:" "debug:" "field:" "2field:" "ffield:"
    "sffield:" "dffield:" "uvar" "uvalue" "voctable" "method" "umethod")
   "List of words, that define the following word.

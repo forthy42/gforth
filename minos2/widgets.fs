@@ -330,7 +330,7 @@ end-class helper-glue
 :noname 2drop fdrop fdrop ;
 dup actor is clicked
 actor is dnddrop
-:noname fdrop fdrop ; actor is dndmove
+actor :method dndmove fdrop fdrop ;
 ' 2drop actor is scrolled
 ' 2drop actor is touchdown
 ' 2drop actor is touchup
@@ -423,19 +423,18 @@ end-class widget ( -- class ) \ minos2
 
 0 Value w.indent#
 
-:noname ( -- )
+widget :method resized ( -- )
     parent-w ?dup-IF  .resized \ upwards
     ELSE  !size xywhd !resize     \ downwards
     THEN ;
-widget is resized
 
 : inside? ( o:widget rx ry -- flag )
     y f- fdup d f< h fnegate f> and
     x f- fdup w f< f0> and
     and ;
-:noname ( rx ry -- act / 0 )
+actor :method ?inside ( rx ry -- act / 0 )
     caller-w .inside? o and
-; actor is ?inside
+ ;
 
 ' fdrop widget is par-split
 
@@ -444,18 +443,18 @@ widget is resized
     baseline f. gap f. space
     kerning f. raise f. space
     border f. borderv f. bordert f. borderl f. ;
-:noname w.widget cr ; widget is .widget
+widget :method .widget w.widget cr  ;
 
 : name! ( o addr u -- )  third >o to name$ o> ;
 : !act ( o:widget actor -- o:widget )
     to act o act >o to caller-w o> ;
 
-:noname x y h f- w h d f+ ; widget is xywh
-:noname x y w h d ; widget is xywhd
+widget :method xywh x y h f- w h d f+  ;
+widget :method xywhd x y w h d  ;
 ' noop widget is !size
-:noname w border f2* f+ borderl f+ kerning f+ 0e fdup ; widget is hglue
-:noname h border borderv f+ bordert f+ raise f- f+ 0e fdup ; widget is vglue
-:noname d border borderv f+ raise f+ f+ 0e fdup ; widget is dglue
+widget :method hglue w border f2* f+ borderl f+ kerning f+ 0e fdup  ;
+widget :method vglue h border borderv f+ bordert f+ raise f- f+ 0e fdup  ;
+widget :method dglue d border borderv f+ raise f+ f+ 0e fdup  ;
 : widget-resize ( x y w h d -- )
     to d to h to w to y to x
     resize( w.indent# spaces name$ type ." : " x f. y f. w f. h f. d f. cr ) ;
@@ -463,9 +462,9 @@ widget is resized
 ' hglue widget is hglue@
 ' vglue widget is vglue@
 ' dglue widget is dglue@
-:noname ( firstflag rstart1 rx -- o rstart2 )
+widget :method split ( firstflag rstart1 rx -- o rstart2 )
     !size hglue@ fdrop fdrop f>= or IF   o fdrop 1e
-    ELSE  0  fdrop 0e  THEN ; widget is split
+    ELSE  0  fdrop 0e  THEN  ;
 \ if rstart2 < 0, no split happened
 Defer dispose-check ' noop is dispose-check
 : dispose-nodict ( o:object -- )
@@ -476,8 +475,8 @@ Defer dispose-check ' noop is dispose-check
 \    ELSE  dispose( ." in dictionary, don't dispose" cr )  THEN
 ;
 : dispose-act ( o:widget -- ) act ?dup-IF  .dispose-nodict  THEN ;
-:noname ( -- )
-    dispose-nodict ; widget is dispose-widget
+widget :method dispose-widget ( -- )
+    dispose-nodict  ;
 ' noop widget is lastfit
 
 : dw* ( f -- f' ) dpy-w @ fm* ;
@@ -515,9 +514,9 @@ widget class
 end-class tile
 
 : borderh ( -- b ) borderl border f2* f+ ;
-:noname tile-glue .hglue { f: s f: a } borderh f+ s a ; tile is hglue
-:noname tile-glue .dglue { f: s f: a } border borderv f+ f+ s a ; tile is dglue
-:noname tile-glue .vglue { f: s f: a } border borderv f+ bordert f+ f+ s a ; tile is vglue
+tile :method hglue tile-glue .hglue { f: s f: a } borderh f+ s a  ;
+tile :method dglue tile-glue .dglue { f: s f: a } border borderv f+ f+ s a  ;
+tile :method vglue tile-glue .vglue { f: s f: a } border borderv f+ bordert f+ f+ s a  ;
 
 : x.glue ( addr -- ) '[' emit glue@ frot f. fswap f. f. ']' emit ;
 : g.widget ( -- )
@@ -525,7 +524,7 @@ end-class tile
     tile-glue .hglue-c x.glue
     tile-glue .vglue-c x.glue
     tile-glue .dglue-c x.glue ;
-:noname g.widget cr ; tile is .widget
+tile :method .widget g.widget cr  ;
 
 begin-structure atlas-region
     slvalue: i.x
@@ -617,7 +616,7 @@ tile class
     value: cv-data
 end-class canvas
 
-:noname render> draw-canvas text-canvas vi0 ; canvas is draw
+canvas :method draw render> draw-canvas text-canvas vi0  ;
 
 \ tile that doesn't draw
 
@@ -634,10 +633,9 @@ tile class
     value: image-h
 end-class image
 
-:noname ( -- )  render>
+image :method draw ( -- )  render>
     0e to t.i0
-    z-bias set-color+ image-tex  frame-color xywh-rect ;
-image is draw
+    z-bias set-color+ image-tex  frame-color xywh-rect  ;
 
 \ frame widget
 
@@ -726,13 +724,13 @@ end-class text
     \ [: 2dup type cr ;] do-debug
     layout-string >text+border ;
 \    ." text sized to: " x f. y f. w f. h f. d f. cr ;
-:noname text$ text-text ; text is draw
-:noname text$ text-!size ; text is !size
-:noname w kerning f+
-    text-w text-shrink% f* text-w text-grow% f* ; text is hglue
-:noname h raise f- 0e fdup ; text is vglue
-:noname d raise f+ 0e fdup ; text is dglue
-:noname addr text$ $free [ widget ] defers dispose-widget ; text is dispose-widget
+text :method draw text$ text-text  ;
+text :method !size text$ text-!size  ;
+text :method hglue w kerning f+
+    text-w text-shrink% f* text-w text-grow% f*  ;
+text :method vglue h raise f- 0e fdup  ;
+text :method dglue d raise f+ 0e fdup  ;
+text :method dispose-widget addr text$ $free [ widget ] defers dispose-widget  ;
 : i18n-text-init
     l-text ?lang and IF
 	l-text locale@ to text$
@@ -768,13 +766,13 @@ end-class part-text
 : text-split ( firstflag rstart rx -- o rstart2 )
     part-text (text-split) ;
 ' text-split text is split
-:noname orig-text .split ; part-text is split
-:noname ( -- )
+part-text :method split orig-text .split  ;
+part-text :method lastfit ( -- )
     start end orig-text .text$ text$-part xc-trailing +
-    orig-text .pos>fp to end ; part-text is lastfit
+    orig-text .pos>fp to end  ;
 
-:noname start end orig-text .text$ text$-part text-!size ; part-text is !size
-:noname start end orig-text .text$ text$-part text-text ; part-text is draw
+part-text :method !size start end orig-text .text$ text$-part text-!size  ;
+part-text :method draw start end orig-text .text$ text$-part text-text  ;
 
 : tp.widget ( -- )
     w.widget  '"' emit start end orig-text .text$ text$-part type '"' emit cr ;
@@ -893,8 +891,8 @@ Variable *ins-o
     ELSE
 	2rdrop  xt execute
     THEN ;
-:noname ( -- ) ['] edit-text    pw-xt ; pw-edit is draw
-:noname ( -- ) ['] edit-!size   pw-xt ; pw-edit is !size
+pw-edit :method draw ( -- ) ['] edit-text    pw-xt  ;
+pw-edit :method !size ( -- ) ['] edit-!size   pw-xt  ;
 
 \ thumb texture
 
@@ -1137,8 +1135,8 @@ end-class box
     1 +to w.indent# ['] .widget box-visible# ?do-childs -1 +to w.indent# ;
 ' b.widget box is .widget
 
-:noname ( -- )
-    dispose-childs [ widget ] defers dispose-widget ; box is dispose-widget
+box :method dispose-widget ( -- )
+    dispose-childs [ widget ] defers dispose-widget  ;
 
 : resize-me ( -- )
     \ make sure you get resized
@@ -1153,8 +1151,8 @@ end-class box
     vglue vglue-c glue! ;
 ' box-!size box is !size
 
-:noname ( -- ) ['] draw-init box-visible# ?do-childs ; box is draw-init
-:noname ( -- ) ['] draw      box-visible# ?do-childs ; box is draw
+box :method draw-init ( -- ) ['] draw-init box-visible# ?do-childs  ;
+box :method draw ( -- ) ['] draw      box-visible# ?do-childs  ;
 
 : +child ( o -- ) o over >o to parent-w resize-parents o> childs[] >back ;
 : child+ ( o -- ) o over >o to parent-w resize-parents o> childs[] >stack ;
@@ -1267,17 +1265,17 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : vfix| ( -- ) box-flags box-vfix# and IF  fdrop fdrop 0e fdup  THEN ;
 : dfix| ( -- ) box-flags box-dfix# and IF  fdrop fdrop 0e fdup  THEN ;
 
-:noname hglue+ hfix| >hglue!@ ; hbox is hglue
-:noname dglue* dfix| >dglue!@ ; hbox is dglue
-:noname vglue* vfix| >vglue!@ ; hbox is vglue
+hbox :method hglue hglue+ hfix| >hglue!@  ;
+hbox :method dglue dglue* dfix| >dglue!@  ;
+hbox :method vglue vglue* vfix| >vglue!@  ;
 
-:noname hglue* hfix| >hglue!@ ; vbox is hglue
-:noname dglue+ dfix| >dglue!@ ; vbox is dglue
-:noname vglue+ vfix| >vglue!@ ; vbox is vglue
+vbox :method hglue hglue* hfix| >hglue!@  ;
+vbox :method dglue dglue+ dfix| >dglue!@  ;
+vbox :method vglue vglue+ vfix| >vglue!@  ;
 
-:noname hglue* hfix| >hglue!@ ; zbox is hglue
-:noname dglue* dfix| >dglue!@ ; zbox is dglue
-:noname vglue* vfix| >vglue!@ ; zbox is vglue
+zbox :method hglue hglue* hfix| >hglue!@  ;
+zbox :method dglue dglue* dfix| >dglue!@  ;
+zbox :method vglue vglue* vfix| >vglue!@  ;
 
 :noname ( rw -- )
     borderh f- [{: f: rw :}l rw par-split ;] do-childs ; dup
@@ -1293,14 +1291,14 @@ helper-glue class
     glues +field htab-co
 end-class htab-glue
 
-:noname ( -- )
-    1glue htab-co glue! ; htab-glue is aidglue0
- :noname ( -- flag )
-    htab-co df@ fdup htab-c df@ f= htab-c df! ; htab-glue is aidglue=
- :noname ( glue -- glue' )
+htab-glue :method aidglue0 ( -- )
+    1glue htab-co glue!  ;
+htab-glue :method aidglue= ( -- flag )
+    htab-co df@ fdup htab-c df@ f= htab-c df!  ;
+htab-glue :method hglue!@ ( glue -- glue' )
+    \ don't allow shrinking/growing
     htab-co glue@ glue* htab-co glue!
-    htab-c df@ 0g fdup ; \ don't allow shrinking/growing
-htab-glue is hglue!@
+    htab-c df@ 0g fdup  ;
 
 : tabglues0 ( -- )
     tab-glues get-stack 0 ?DO  .aidglue0  LOOP ;
@@ -1387,7 +1385,7 @@ htab-glue is hglue!@
     LOOP
     newbox 1e ;
 ' hbox-split hbox is split
-:noname childs[] dup $[]# 1- swap $[] @ .lastfit ; hbox is lastfit
+hbox :method lastfit childs[] dup $[]# 1- swap $[] @ .lastfit  ;
 
 \ add glues up for vboxes
 
@@ -1481,11 +1479,11 @@ end-class parbox
 : dispose[] ( $addr[] -- )
     dup $@ bounds ?DO  I @ .dispose  cell +LOOP  $free ;
 
-:noname ( -- )
+parbox :method dispose-widget ( -- )
     childs[] dispose[]
-    subbox .dispose-widget ; parbox is dispose-widget
+    subbox .dispose-widget  ;
 
-:noname { f: w -- } \ split a hbox into chunks
+parbox :method par-split { f: w -- } \ split a hbox into chunks
     childs[] dispose[] 0e false
     BEGIN  w
 	childs[] $[]# IF
@@ -1501,7 +1499,7 @@ end-class parbox
 	    lhang ?dup-IF  }}glue r@ .+child  THEN  THEN
 	rhang ?dup-IF  }}glue r@ .child+  THEN
     r> o .child+ true fdup 1e f>=  UNTIL  fdrop drop
-; parbox is par-split
+ ;
 
 \ create boxes
 
@@ -1647,7 +1645,7 @@ $10 stack: vp<>
 	[IFDEF] +offset  vp-x x f-  vp-h vp-y f- y f- +offset  [THEN]
 	[: -sync -config ;] vp-needed
     THEN ; viewport is draw-init
-:noname ( -- )  render>
+viewport :method draw ( -- )  render>
     0e to t.i0
     z-bias set-color+ vp-tex
     x fround y h f- fround w fround h d f+ fround
@@ -1675,7 +1673,7 @@ $10 stack: vp<>
     x2 y1 >xy fdup i>c n> s1 t1 >st v+
     x1 y2 >xy fdup i>c n> s0 t0 >st v+
     x2 y2 >xy      i>c n> s1 t0 >st v+
-    v> 2 quad render-bgra> ; viewport is draw
+    v> 2 quad render-bgra>  ;
 : ?vpt-x ( -- flag )
     vp-x vt-x f< vp-x w f+ vt-x vt-w f+ f> or dup IF  drop
 	vp-x vt-w w f- f2/ f- 0e fmax vp-w vt-w f- fmin
@@ -1702,10 +1700,10 @@ $10 stack: vp<>
 	or or or or or IF ['] +sync vp-needed THEN
     THEN ;
 ' vp-!size viewport is !size
-:noname ( -- )
-    ['] +sync vp-needed [ box ] defers resized ; viewport is resized
+viewport :method resized ( -- )
+    ['] +sync vp-needed [ box ] defers resized  ;
 
-:noname { f: x f: y f: w f: h f: d -- }
+viewport :method !resize { f: x f: y f: w f: h f: d -- }
     x y w h d box-resize? 0= ?EXIT
     vp-!size  vp-tex
     ?textures IF  [: +textures +sync ;] vp-needed  THEN
@@ -1719,31 +1717,31 @@ $10 stack: vp<>
     0e vp-h vp-w vp-h 0e vbox-resize
     x y w h d widget-resize
     vp-need @ [ ' +resize >body @ ]L invert and vp-need !
-; viewport is !resize
-:noname ( -- glue )
+ ;
+viewport :method hglue ( -- glue )
     box-flags vp-hfix# and IF  [ vbox ] defers hglue
     ELSE  vp-glue .hglue >hglue!@  THEN
-    resize( ." vp.hglue: " gdup .glue cr ) ; viewport is hglue
-:noname ( -- glue )
+    resize( ." vp.hglue: " gdup .glue cr )  ;
+viewport :method dglue ( -- glue )
     box-flags vp-dfix# and IF  [ vbox ] defers dglue
     ELSE  vp-glue .dglue >dglue!@  THEN
-    resize( ." vp.dglue: " gdup .glue cr ) ; viewport is dglue
-:noname ( -- glue )
+    resize( ." vp.dglue: " gdup .glue cr )  ;
+viewport :method vglue ( -- glue )
     box-flags vp-vfix# and IF  [ vbox ] defers vglue
     ELSE  vp-glue .vglue >vglue!@  THEN
-    resize( ." vp.vglue: " gdup .glue cr ) ; viewport is vglue
-:noname ( -- glue )
+    resize( ." vp.vglue: " gdup .glue cr )  ;
+viewport :method hglue@ ( -- glue )
     box-flags vp-hfix# and IF  [ vbox ] defers hglue@
     ELSE  vp-glue .hglue@ THEN
-    resize( ." vp.hglue@: " gdup .glue cr ) ; viewport is hglue@
-:noname ( -- glue )
+    resize( ." vp.hglue@: " gdup .glue cr )  ;
+viewport :method dglue@ ( -- glue )
     box-flags vp-dfix# and IF  [ vbox ] defers dglue@
     ELSE  vp-glue .dglue@  THEN
-    resize( ." vp.dglue@: " gdup .glue cr ) ; viewport is dglue@
-:noname ( -- glue )
+    resize( ." vp.dglue@: " gdup .glue cr )  ;
+viewport :method vglue@ ( -- glue )
     box-flags vp-vfix# and IF  [ vbox ] defers vglue@
     ELSE   vp-glue .vglue@  THEN
-    resize( ." vp.vglue@: " gdup .glue cr ) ; viewport is vglue@
+    resize( ." vp.vglue@: " gdup .glue cr )  ;
 : }}vp ( b:n1 .. b:nm glue vp-tex -- viewport ) { g t }
     }} viewport new >o -1 to baseline-offset "vp" to name$
     +childs t is vp-tex g to vp-glue [ ' +resize >body @ ]L vp-need !  o o> ;
@@ -1753,9 +1751,9 @@ $10 stack: vp<>
 tile class \ tile-glue here is the viewport link
 end-class vslider-part \ slider part
 
-:noname w 0g fdup ; vslider-part is hglue
-:noname d 0g fdup ; vslider-part is dglue
-:noname d 0g tile-glue >o h d f+ o> ; vslider-part is vglue
+vslider-part :method hglue w 0g fdup  ;
+vslider-part :method dglue d 0g fdup  ;
+vslider-part :method vglue d 0g tile-glue >o h d f+ o>  ;
 ' frame-draw vslider-part is draw
 
 vslider-part class
@@ -1766,12 +1764,12 @@ end-class vslider-partd \ lower part
 
 ' 0glue vslider-partu is hglue
 ' 0glue vslider-partu is dglue
-:noname 0e fdup tile-glue >o vp-h vp-y f- h d f+ f- o> ; vslider-partu is vglue
+vslider-partu :method vglue 0e fdup tile-glue >o vp-h vp-y f- h d f+ f- o>  ;
 ' noop vslider-partu is draw
 
 ' 0glue vslider-partd is hglue
 ' 0glue vslider-partd is dglue
-:noname 0e fdup tile-glue .vp-y ; vslider-partd is vglue
+vslider-partd :method vglue 0e fdup tile-glue .vp-y  ;
 ' noop vslider-partd is draw
 
 \ vslider
@@ -1782,21 +1780,21 @@ vslider-partu , vslider-part , vslider-partd ,
 tile class \ tile-glue here is the viewport link
 end-class hslider-part \ slider part
 
-:noname d f2* 0g tile-glue .w ; hslider-part is hglue
-:noname h 0g fdup ; hslider-part is vglue
-:noname d 0g fdup ; hslider-part is dglue
+hslider-part :method hglue d f2* 0g tile-glue .w  ;
+hslider-part :method vglue h 0g fdup  ;
+hslider-part :method dglue d 0g fdup  ;
 ' frame-draw hslider-part is draw
 
 hslider-part class
 end-class hslider-partl \ left part
 
-:noname 0g fdup tile-glue .vp-x ; hslider-partl is hglue
+hslider-partl :method hglue 0g fdup tile-glue .vp-x  ;
 ' noop hslider-partl is draw
 
 hslider-part class
 end-class hslider-partr
 
-:noname 0g fdup tile-glue >o vp-w vp-x f- w f- o> ; hslider-partr is hglue
+hslider-partr :method hglue 0g fdup tile-glue >o vp-w vp-x f- w f- o>  ;
 ' noop hslider-partr is draw
 
 Create hslider-parts
