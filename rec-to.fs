@@ -37,16 +37,3 @@ Create to-slots here $100 dup allot $FF fill
     name>interpret ['] translate-to ;
 
 ' rec-to action-of forth-recognize >back
-
-\ easier definer of noname words that are assigned to a deferred word
-
-: :is ( "name" -- ) \ gforth-experimental
-    \G define a noname that is assigned to the deffered word @var{name}
-    \G at @code{;}.
-    record-name :noname (') [{: name :}h1 4 name [ ' (to) :, ] ;]
-    colon-sys-xt-offset stick ;
-: :method ( class "name" -- ) \ gforth-experimental
-    \G define a noname that is assigned to the deffered word @var{name}
-    \G at @code{;}.
-    >r record-name :noname r> (') [{: class name :}h1 class 4 name [ ' (to) :, ] ;]
-    colon-sys-xt-offset stick ;

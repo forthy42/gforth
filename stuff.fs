@@ -91,12 +91,36 @@ AUser CSP
 	2drop
     then ;
 
+\ multiple values to and from return stack
+
+: n>r ( x1 .. xn n -- R:xn..R:x1 R:n ) \ tools-ext n-to-r
+    scope r> { n ret }
+    0  BEGIN  dup n <  WHILE  swap >r 1+  REPEAT  >r
+    ret >r endscope ;
+: nr> ( R:xn..R:x1 R:n -- x1 .. xn n ) \ tools-ext n-r-from
+    scope r> r> { ret n }
+    0  BEGIN  dup n <  WHILE  r> swap 1+  REPEAT
+    ret >r endscope ;
+
 \ defer stuff
 
 : preserve ( "name" -- ) \ gforth
     \G emit code that reverts a deferred word to the state at
     \G compilation
     ' dup defer@ lit, 4 swap (to), ; immediate
+
+\ easier definer of noname words that are assigned to a deferred word
+
+: :is ( "name" -- ) \ gforth-experimental
+    \G define a noname that is assigned to the deffered word @var{name}
+    \G at @code{;}.
+    :noname colon-sys-xt-offset n>r drop
+    record-name (') ['] defer! nr> drop ;
+: :method ( class "name" -- ) \ gforth-experimental
+    \G define a noname that is assigned to the deffered word @var{name}
+    \G at @code{;}.
+    :noname colon-sys-xt-offset n>r drop
+    swap record-name (') ['] defer! nr> drop ;
 
 \ shell commands
 
@@ -664,17 +688,6 @@ synonym hex. h. ( u -- ) \ gforth
     source-id dup 1 -1 within IF
 	dup >r file-size throw r> reposition-file throw
 	BEGIN  refill 0= UNTIL  postpone \  THEN ; immediate
-
-\ multiple values to and from return stack
-
-: n>r ( x1 .. xn n -- R:xn..R:x1 R:n ) \ tools-ext n-to-r
-    scope r> { n ret }
-    0  BEGIN  dup n <  WHILE  swap >r 1+  REPEAT  >r
-    ret >r endscope ;
-: nr> ( R:xn..R:x1 R:n -- x1 .. xn n ) \ tools-ext n-r-from
-    scope r> r> { ret n }
-    0  BEGIN  dup n <  WHILE  r> swap 1+  REPEAT
-    ret >r endscope ;
 
 \ 2value
 

@@ -70,7 +70,7 @@ interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 \G Prints the source code location of the @code{~~} and the stack
 \G contents with @code{.debugline}.
 
-:noname ( -- )  stderr to debug-fid  defers 'cold ; IS 'cold
+:is 'cold ( -- )  stderr to debug-fid  defers 'cold ;
 
 \ code coverage helpers that are always present
 
@@ -144,7 +144,7 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
     Defer ?warning
 [THEN]
 
-:noname ( f xt -- )
+:is ?warning ( f xt -- )
     \ if f, output a warning by EXECUTEing xt
     swap warnings @ 0<> and if
 	[: cr warning-color current-view .sourceview ." : warning: " execute
@@ -152,7 +152,6 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 	warnings @ abs 4 >= warning-error and throw
 	exit then
     drop ;
-is ?warning
 
 : shadow-warning ( c-addr u nt -- c-addr u nt )
     dup >r name>string ." redefined " 2dup type ( c-addr u c-addr2 u2 )
@@ -274,7 +273,7 @@ Variable rec'[]
     \G or the recognizer that successfully parsed @var{"name"}
     parse-name (view') ;
 
-:noname  defers 'image rec'[] $free ; is 'image
+:is 'image  defers 'image rec'[] $free ;
 
 : kate-l:c ( line pos -- )
     swap ." -l " . ." -c " . ;
@@ -373,10 +372,10 @@ DOES> state @ abs translator-max-offset# umin cells + perform ;
     \G definition where you can append code to.
 [THEN]
 
-:noname defers wrap!   true  to in-colon-def? ; is wrap!
-:noname defers :-hook  true  to in-colon-def? ; is :-hook
-:noname defers ;-hook2 false to in-colon-def? ; is ;-hook2
-:noname defers reset-dpp false to in-colon-def? ; is reset-dpp
+:is wrap! defers wrap!   true  to in-colon-def? ;
+:is :-hook defers :-hook  true  to in-colon-def? ;
+:is ;-hook2 defers ;-hook2 false to in-colon-def? ;
+:is reset-dpp defers reset-dpp false to in-colon-def? ;
 : level-check defers prim-check
     in-colon-def? 0= warning" Compiling outside a definition" ;
 ' level-check is prim-check
