@@ -230,10 +230,17 @@ Create token-actions
 ' token-to       ,
 ' token-generic  ,
 
-: token-recognize ( n 0 / addr u -- ... rectype )
-    ?dup-IF  backup-recognize  ELSE
-	cells token-actions + perform
-    THEN ;
+: rec-token
+    dup 0= IF drop cells token-actions + perform
+    ELSE  2drop 0  THEN ;
+
+Create !token-table ' warn! A, ' n/a A, ' n/a A, [: drop ['] backup-recognize defer@ ;] A,   [: drop ['] backup-recognize defer! ;] A,
+
+' >body !token-table to-class: token-to-class
+
+' backup-recognize ' rec-token 2 recognizer-sequence: token-recognize
+\ transfer defer@ and defer! from token-recognize to backup-recognize
+' token-to-class set-to
 
 : token-int ( -- )
     BEGIN  ?stack token-pos# tokens$ $@ + u< WHILE

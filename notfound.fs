@@ -20,9 +20,7 @@
 
 : notfound: ( "name" -- )
     \G special defer word to recover the input lexeme
-    Create ['] no.extensions ,
-    [: >r input-lexeme 2@ r> @ execute-;s ;] set-does>
-    ['] defer-is set-to ;
+    Defer ['] no.extensions latestxt defer! ;
 
 notfound: interpret-notfound1 ( addr u -- )
 \g Legacy hook for words not found during interpretation
