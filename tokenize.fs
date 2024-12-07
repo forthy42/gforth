@@ -234,7 +234,7 @@ Create token-actions
     dup 0= IF drop cells token-actions + perform
     ELSE  2drop 0  THEN ;
 
-Create !token-table ' warn! A, ' n/a A, ' n/a A, [: drop ['] backup-recognize defer@ ;] A,   [: drop ['] backup-recognize defer! ;] A,
+Create !token-table ' warn! A, ' n/a A, ' n/a A, [: 0 swap $[] @ defer@ ;] A,   [: 0 swap $[] @ defer! ;] A,
 
 ' >body !token-table to-class: token-to-class
 
