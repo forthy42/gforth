@@ -143,8 +143,8 @@ variable next-prelude
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
 
-:noname drop lastnt @ (to) ;
-opt: ?fold1 drop lastnt @ (to), ;
+:noname name>interpret (to) ;
+opt: ?fold1 name>interpret (to), ;
 :noname drop lastnt @ ;
 ' noop Alias recurse ( ... -- ... ) \ core
 \g Alias to the current definition.
