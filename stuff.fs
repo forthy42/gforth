@@ -870,4 +870,4 @@ fold1:
 ' noop Alias outer-recurse ( ... -- ... ) \ core
 \g Alias to the current definition.
 [: drop ['] lastnt outer-section section-execute @ ;] set->int
-' recurse >namehm @ >hmto @ set-to
+' s-to set-to

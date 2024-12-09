@@ -143,12 +143,10 @@ variable next-prelude
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
 
-:noname name>interpret (to) ;
-opt: ?fold1 name>interpret (to), ;
 :noname drop lastnt @ ;
 ' noop Alias recurse ( ... -- ... ) \ core
 \g Alias to the current definition.
-unlock set->int set-to lock
+unlock set->int ghost s-to gset-to lock
 \ this is the alias pointer in the recurse header, named lastnt.
 \ changing lastnt now changes where recurse aliases to
 \ it's always an alias of the current definition
@@ -441,8 +439,8 @@ include ./recognizer.fs
 : s>int ( nt -- xt )  >body @ name>interpret ;
 : s>comp ( nt -- xt1 xt2 )  >body @ name>compile ;
 : s-to ( val operation nt -- )
-    >body @ (to) ;
-opt: ( xt -- ) ?fold1 >body @ (to), ;
+    name>interpret (to) ;
+opt: ( xt -- ) ?fold1 name>interpret (to), ;
 : s-compile, ( xt -- )  >body @ compile, ;
 
 : synonym, ( nt int comp -- ) \ gforth-internal
