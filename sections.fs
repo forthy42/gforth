@@ -26,8 +26,8 @@
 \ Deal with MARKERs and the native code thingies
 
 $Variable sections   \ section stack (grows in both directions)
-user #extra-sections \ hidden extra sections not part of the next/prev
-		     \ section stack
+Variable #extra-sections \ hidden extra sections not part of the next/prev
+		         \ section stack
 
 256 1024 * value section-defaultsize
 : image-offset ( -- n )

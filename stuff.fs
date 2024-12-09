@@ -864,7 +864,9 @@ fold1:
 
 \ outer recurse
 
-: outer-section ( -- addr ) section# 1- sections $[] @ ;
+: outer-section ( -- addr ) section# 1-
+    dup #extra-sections @ < abort" no outer section"
+    sections $[] @ ;
 : outer-lastnt ( -- addr ) ['] lastnt outer-section section-execute ;
 :noname drop outer-lastnt @ [ ' (to) :, ] ;
 opt: ?fold1 drop outer-lastnt @ (to), ;
