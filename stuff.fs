@@ -861,3 +861,14 @@ fold1:
     \G @code{place})
     swap $ff min swap
     over >r  rot over 1+  r> move c! ;
+
+\ outer recurse
+
+: outer-section ( -- addr ) section# 1- sections $[] @ ;
+: outer-lastnt ( -- addr ) ['] lastnt outer-section section-execute ;
+:noname drop outer-lastnt @ [ ' (to) :, ] ;
+opt: ?fold1 drop outer-lastnt @ (to), ;
+:noname drop outer-lastnt @ ;
+' noop Alias outer-recurse ( ... -- ... ) \ core
+\g Alias to the current definition.
+set->int set-to
