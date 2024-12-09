@@ -60,6 +60,7 @@ here 1802 over
     NIL A,              \ targets
     NIL A,              \ codestart
     NIL A,              \ last-header
+    NIL A,              \ litstack
     has? stack-size ,   \ data stack size
     has? fstack-size ,  \ FP stack size
     has? rstack-size ,  \ return stack size

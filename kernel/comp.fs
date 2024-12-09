@@ -260,8 +260,6 @@ variable nextname$
 
 \ \ literals							17dec92py
 
-Variable litstack
-
 : >lits ( x -- ) litstack >stack ;
 : lits> ( -- x ) litstack stack> ;
 : lits# ( -- u ) litstack stack# ;
