@@ -868,9 +868,6 @@ fold1:
     dup #extra-sections @ < abort" no outer section"
     sections $[] @ ;
 : outer-lastnt ( -- addr ) ['] lastnt outer-section section-execute ;
-:noname drop outer-lastnt @ [ ' (to) :, ] ;
-opt: ?fold1 drop outer-lastnt @ (to), ;
-:noname drop outer-lastnt @ ;
 ' noop Alias outer-recurse ( ... -- ... ) \ core
 \g Alias to the current definition.
-set->int set-to
+[: drop outer-lastnt @ ;] set->int
