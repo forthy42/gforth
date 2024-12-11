@@ -46,19 +46,21 @@
 action-of forth-recognize get-stack 1+ ' rec-scope -rot
 action-of forth-recognize set-stack
 
+: current-execute ( xt -- ) \ gforth-experimental
+    \G execute current-changing word and revert current afterwards
+    get-current >r catch r> set-current throw ;
+
 : in ( "voc" "defining-word" -- ) \ gforth-experimental
     \G execute @var{defining-word} with @var{voc} as one-shot current
     \G directory. Example: @code{in gui : init-gl ... ;} will define
     \G @code{init-gl} in the @code{gui} vocabulary.
-    get-current >r also ' execute definitions previous ' catch
-    r> set-current throw ;
+    [: ' also execute definitions previous ' execute ;] current-execute ;
 
 : in-wordlist ( wordlist "defining-word" -- ) \ gforth-experimental
     \G execute @var{defining-word} with @var{wordlist} as one-shot current
     \G directory. Example: @code{gui-wordlist in-wordlist : init-gl ... ;}
     \G will define @code{init-gl} in the @code{gui-wordlist} wordlist.
-    get-current >r set-current ' catch
-    r> set-current throw ;
+    [: set-current ' execute ;] current-execute ;
 
 : ?search-prefix ( addr len wid/0 -- addr' len' )
     ?dup-IF
