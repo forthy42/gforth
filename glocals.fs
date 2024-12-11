@@ -174,10 +174,13 @@ Defer locals-post,
 translate: translate-locals
 \ undocumented for good reasons
 
-: locals-rec [ ' locals >wordlist ] Literal execute
+: rec-locals ( addr u -- nt translate-locals | 0 )
+    \G search the locals wordlist and if found replace
+    \G the translator with @code{translate-locals}.
+    [ ' locals >wordlist compile, ]
     dup ['] translate-nt = IF  drop ['] translate-locals  THEN ;
 
-' search-order ' locals-rec 2 recognizer-sequence: rec-locals
+' search-order ' rec-locals 2 recognizer-sequence: rec-locals
 
 : activate-locals   ['] rec-locals is rec-nt ;
 : deactivate-locals ['] search-order is rec-nt ;
@@ -444,10 +447,10 @@ xt: some-xtlocal 2drop
 w^ some-waddr 2drop
 
 \ the following gymnastics are for declaring locals without type specifier.
-\ we use a catch-all recognizer to do t' new-locals-rec  hat
+\ we use a catch-all recognizer to do t' rec-new-locals  hat
 
 >r
-: new-locals-rec ( caddr u -- [size] nfa )
+: rec-new-locals ( caddr u -- [size] nfa )
 \ this is the find method of the new-locals vocabulary
 \ make a new local with name caddr u; w is ignored
 \ the returned nfa denotes a word that produces what W: produces
@@ -461,7 +464,7 @@ w^ some-waddr 2drop
     ELSE  ['] default: defer@  THEN  nt>rec ;
 previous
 
-' new-locals-rec  ' locals-types >wordlist 2 recognizer-sequence: new-locals
+' rec-new-locals  ' locals-types >wordlist 2 recognizer-sequence: new-locals
 
 \ and now, finally, the user interface words
 : { ( -- hmaddr u wid 0 ) \ gforth open-brace

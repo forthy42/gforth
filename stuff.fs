@@ -871,3 +871,20 @@ fold1:
 \g Alias to the current definition.
 [: drop ['] lastnt outer-section section-execute @ ;] set->int
 ' s-to set-to
+
+\ equivalents for defer!
+
+: to! ( x xt-value -- ) \ gforth-experimental  to-store
+    \G Changes the value of @var{xt-value} to @var{x}
+    [ 0 ] (to) ;
+opt: ?fold1 0 swap (to), ;
+
+: +to! ( n xt-value -- ) \ gforth-experimental  plus-to-store
+    \G Increments the value of @var{xt-value} by @var{n}
+    [ 1 ] (to) ;
+opt: ?fold1 1 swap (to), ;
+
+: >addr ( xt-varue -- addr ) \ gforth-experimental  to-addr
+    \G Obtain the address @var{addr} of the varue @var{xt-varue}
+    [ 2 ] (to) ;
+opt: ?fold1 2 swap (to), ;
