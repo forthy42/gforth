@@ -7983,6 +7983,8 @@ doc-2value
 doc-fvalue
 doc-to
 doc-+to
+doc-to!
+doc-+to!
 
 @node Varues, Colon Definitions, Values, Defining Words
 @subsection Varues
@@ -7997,6 +7999,7 @@ doc-varue
 doc-2varue
 doc-fvarue
 doc-addr
+doc->addr
 
 @node Colon Definitions, Anonymous Definitions, Varues, Defining Words
 @subsection Colon Definitions
@@ -8769,11 +8772,12 @@ system, you write
 `>body d!-table to-class: dvalue-to
 @end example
 
-This defines the method implementations of the methods behind
-@code{to}, @code{+to} and @code{addr}, and the methods @code{defer@@},
-and @code{defer!}.  The reason for defining the methods in two steps
-(by first defining the table) is that the same table can be used for
-several to-classes; e.g., @code{!-table} is used for defining
+This defines the method implementations of the methods behind @code{to},
+@code{+to}, @code{addr}, @code{action-of}, and @code{is}, and
+corresponding the methods for @code{to!}, @code{+to!}, @code{>addr},
+@code{defer@@}, and @code{defer!}.  The reason for defining the methods
+in two steps (by first defining the table) is that the same table can be
+used for several to-classes; e.g., @code{!-table} is used for defining
 @code{value-to} (used for @code{value}), but also for @code{uvalue-to}
 used for defining @code{uvalue} (@pxref{Task-local data}) and
 @code{to-w:} (used for the default (@code{w:}) locals).
