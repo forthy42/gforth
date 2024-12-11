@@ -39,7 +39,7 @@ synonym macro: $value
     \G If the macro already exists, just change the content.
     2dup macros-wordlist search-wordlist
     IF
-	nip nip 0 swap [ ' (to) :, ]
+	nip nip to!
     ELSE
 	get-current >r macros-wordlist set-current
 	['] macro: execute-parsing
