@@ -68,14 +68,13 @@ is addr>view
     current-section @ >r
     image-offset >r
     dup r@ + allocate throw r> + dup current-section !
+    section-start section-desc erase
     dup section-start !
     dup codestart !
     section-desc + section-dp !
     section-size !
     ['] noname section-name !
     locs[] dup off $saved
-    primbits off  targets off
-    [IFDEF] last-header  last-header off  [THEN]
     current-section @ r> current-section ! ;
 
 : new-section ( -- )
