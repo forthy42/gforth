@@ -874,12 +874,12 @@ fold1:
 
 \ equivalents for defer!
 
-: to! ( x xt-value -- ) \ gforth-experimental  to-store
+: value! ( x xt-value -- ) \ gforth-experimental  to-store
     \G Changes the value of @var{xt-value} to @var{x}
     [ 0 ] (to) ;
 opt: ?fold1 0 swap (to), ;
 
-: +to! ( n xt-value -- ) \ gforth-experimental  plus-to-store
+: value+! ( n xt-value -- ) \ gforth-experimental  plus-to-store
     \G Increments the value of @var{xt-value} by @var{n}
     [ 1 ] (to) ;
 opt: ?fold1 1 swap (to), ;

@@ -39,7 +39,7 @@ synonym macro: $value
     \G If the macro already exists, just change the content.
     2dup macros-wordlist find-name-in
     ?dup-IF
-	nip nip to!
+	nip nip value!
     ELSE
 	[: macros-wordlist set-current nextname macro: ;] current-execute
     THEN ;

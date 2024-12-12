@@ -7983,8 +7983,8 @@ doc-2value
 doc-fvalue
 doc-to
 doc-+to
-doc-to!
-doc-+to!
+doc-value!
+doc-value+!
 
 @node Varues, Colon Definitions, Values, Defining Words
 @subsection Varues
@@ -8774,7 +8774,7 @@ system, you write
 
 This defines the method implementations of the methods behind @code{to},
 @code{+to}, @code{addr}, @code{action-of}, and @code{is}, and
-corresponding the methods for @code{to!}, @code{+to!}, @code{>addr},
+corresponding the methods for @code{value!}, @code{value+!}, @code{>addr},
 @code{defer@@}, and @code{defer!}.  The reason for defining the methods
 in two steps (by first defining the table) is that the same table can be
 used for several to-classes; e.g., @code{!-table} is used for defining
