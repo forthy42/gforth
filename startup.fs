@@ -51,7 +51,6 @@ require stuff.fs
 require sections2.fs
 require struct0x.fs
 threading-method 1 <> [IF] require stagediv.fs [THEN]
-require varues.fs
 require closures.fs
 require wordinfo.fs
 \ require bufio.fs \ replaced by $exec
@@ -87,6 +86,7 @@ require locate1.fs
 require status-line.fs
 require forward.fs
 require marker.fs
+require varues.fs
 require complex.fs
 require struct-val.fs
 require rec-env.fs

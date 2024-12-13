@@ -111,12 +111,8 @@ locals-types definitions
 
 forth definitions
 
-to-table: closure-table n/a n/a >cfa
-
-' >body closure-table to-class: closure-to
-
 : wrap-closure ( xt -- )
-    dup >extra !  ['] does, set-optimizer  ['] closure-to set-to
+    dup >extra !  ['] does, set-optimizer
     flush-code  hm,  wrap!  hmtemplate off \ dead hmtemplate link
     previous-section  dead-code off ;
 
@@ -142,7 +138,7 @@ to-table: closure-table n/a n/a >cfa
 
 : free-closure ( xt -- ) \ gforth-internal
     \G free a heap-allocated closure
-    >addr free throw ;
+    >cfa free throw ;
 : closure> ( hmaddr -- addr ) \ gforth-internal closure-end
     \G create trampoline head
     [ 0 >body ] [IF] dodoes: >l >l lp@ cell+
