@@ -879,11 +879,6 @@ fold1:
     [ 0 ] (to) ;
 opt: ?fold1 0 swap (to), ;
 
-: value+! ( n xt-value -- ) \ gforth-experimental  plus-to-store
-    \G Increments the value of @var{xt-value} by @var{n}
-    [ 1 ] (to) ;
-opt: ?fold1 1 swap (to), ;
-
 : >addr ( xt-varue -- addr ) \ gforth-experimental  to-addr
     \G Obtain the address @var{addr} of the varue @var{xt-varue}
     [ 2 ] (to) ;

@@ -743,15 +743,12 @@ Create hmtemplate
     \G @i{v} in the storage represented by @i{xt}.
     opt: postpone ?fold1 ;
 
-\ defer and friends
-
-: defer! ( xt xt-deferred -- ) \ core-ext  defer-store
-    \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
-    4 swap (to) ;
-opt: ?fold1 4 swap (to), ;
+\ Access methods to wordlists
 
 ' defer! Alias reveal! ( xt wid -- ) \ core-ext  reveal-store
-\G Add xt to a wordlist.
+\G Add @var{xt} to a wordlist. Mapped to @code{DEFER!}.
+' value+! Alias initwl ( wid -- ) \ core-ext  initwl
+\G initialize a wordlist. Mapped to @code{+TO}.
 \ by using the TO access method
 ' >hmto Alias reveal-method ( wid -- addr )
 

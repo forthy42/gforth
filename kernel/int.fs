@@ -443,8 +443,13 @@ drop Constant hmsize \ vtable size
     3 swap (to) ;
 opt: ?fold1 3 swap (to), ;
 
-: initwl ( wid -- ) \ gforth-internal
-    \G initialises a vocabulary. Mapped to +TO
+: defer! ( xt xt-deferred -- ) \ core-ext  defer-store
+    \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
+    4 swap (to) ;
+opt: ?fold1 4 swap (to), ;
+
+: value+! ( n xt-value -- ) \ gforth-internal
+    \G Increments the value of @var{xt-value} by @var{n}
     1 swap (to) ;
 opt: ?fold1 1 swap (to), ;
 
