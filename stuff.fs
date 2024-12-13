@@ -874,10 +874,5 @@ fold1:
 
 \ equivalents for defer!
 
-' defer@ create-from value! ( x xt-value -- ) \ gforth-experimental  to-store
+0 to-access: value! ( x xt-value -- ) \ gforth-experimental  to-store
     \G Changes the value of @var{xt-value} to @var{x}
-0 , reveal
-
-' defer@ create-from >addr ( xt-varue -- addr ) \ gforth-experimental  to-addr
-    \G Obtain the address @var{addr} of the varue @var{xt-varue}
-2 , reveal

@@ -123,4 +123,7 @@ previous
 \g @var{name} or a local @var{name} defined with one of @code{wa: ca:
 \g da: fa: xta:}.
 
+2 to-access: >addr ( xt-varue -- addr ) \ gforth-experimental  to-addr
+    \G Obtain the address @var{addr} of the varue @var{xt-varue}
+
 synonym &of addr \ for SwiftForth compatibility

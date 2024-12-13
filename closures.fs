@@ -32,10 +32,6 @@ Defer endref, ( -- )
 ' noop is endref,
 false Value 1t-closure?
 
--2 cells field: >addr ( xt -- addr ) \ gforth-experimental to-addr
-    \G convert the xt of a closure on the heap to the @var{addr} with can be
-    \G passed to @code{free} to get rid of the closure
-drop
 : alloch ( size -- addr )
     \ addr is the end of the allocated region
     dup allocate throw + ;
@@ -115,8 +111,12 @@ locals-types definitions
 
 forth definitions
 
+to-table: closure-table n/a n/a >cfa
+
+' >body closure-table to-class: closure-to
+
 : wrap-closure ( xt -- )
-    dup >extra !  ['] does, set-optimizer
+    dup >extra !  ['] does, set-optimizer  ['] closure-to set-to
     flush-code  hm,  wrap!  hmtemplate off \ dead hmtemplate link
     previous-section  dead-code off ;
 
