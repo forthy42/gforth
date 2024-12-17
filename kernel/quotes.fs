@@ -24,8 +24,14 @@ require ./vars.fs
 
 \ String literals
 
-Defer next-section     \ put some data within a definition
-Defer previous-section \ end that part
+Defer next-section ( -- ) \ gforth
+\g Switch to the next section in the section stack.  If there is no
+\g such section yet, create it (with the size being a quarter of the
+\g size of the current section).
+
+Defer previous-section ( -- ) \ gforth
+\g Switch to the previous section in the section stack.  Throw an
+\g exception if there is no previous section.
 
 :noname  latestnt  postpone ahead ; is next-section
 :noname  postpone then  lastnt !  ; is previous-section

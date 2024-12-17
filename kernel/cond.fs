@@ -445,8 +445,15 @@ defer adjust-locals-list ( wid -- )
     backedge-locals-default ! to cs-floor
     leave-stack ! hmrestore ;
 
-Defer wrap@ ( -- wrap-sys ) ' wrap@-kernel is wrap@
-Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
+Defer wrap@ ( -- wrap-sys )
+\G Suspend current compilation and store the internal state in
+\G @i{wrap-sys}.  Note that you still have to switch the section
+\G yourself.
+' wrap@-kernel is wrap@
+
+Defer wrap! ( wrap-sys -- )
+\G Resume compilation from @i{wrap-sys}.
+' wrap!-kernel is wrap!
 
 : (int-;]) ( some-sys lastxt -- ) >r hm, previous-section wrap! r> ;
 : (;]) ( some-sys lastxt -- )

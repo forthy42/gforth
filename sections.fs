@@ -103,7 +103,12 @@ is reset-dpp
 : >extra-sections ( section -- )
     sections >back 1 #extra-sections +! ;
 
-: extra-section ( size "name" -- )
+: extra-section ( usize "name" -- ) \ gforth
+    \G Define a new word @i{name} and create a section @i{s} with
+    \G usable size @i{usize}.@* @i{Name} execution @code{( ... xt --
+    \G ... )}: When calling @i{name}, the current section is @i{c}.
+    \G Switch the current section to be @i{s}, @i{execute} xt, then
+    \G switch the current section back to @i{c}.
     create-section dup >extra-sections
     [: create , latest section-name !
       does> ( xt -- ) @ section-execute ;]

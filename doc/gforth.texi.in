@@ -283,6 +283,7 @@ Memory
 
 * Memory model::
 * Dictionary allocation::
+* Sections::
 * Heap Allocation::
 * Memory Access::
 * Special Memory Accesses::
@@ -5987,6 +5988,7 @@ doc-lp!
 @menu
 * Memory model::
 * Dictionary allocation::
+* Sections::
 * Heap Allocation::
 * Memory Access::
 * Special Memory Accesses::
@@ -6028,7 +6030,7 @@ regions.  The memory order of allocations in the heap is
 platform-dependent (and possibly different from one run to the next).
 
 
-@node Dictionary allocation, Heap Allocation, Memory model, Memory
+@node Dictionary allocation, Sections, Memory model, Memory
 @subsection Dictionary allocation
 @cindex reserving data space
 @cindex data space - reserving some
@@ -6090,7 +6092,141 @@ doc-maxalign
 @c cfalign is now internal, and actually obsolete given the new header structure
 
 
-@node Heap Allocation, Memory Access, Dictionary allocation, Memory
+@node Sections, Heap Allocation, Dictionary allocation, Memory
+@subsection Sections
+@cindex sections and contiguous regions
+@cindex contiguous regioons and sections
+
+If you want to do something that allocates memory from the dictionary
+or compiles code in the middle of a contiguous region of another
+dictionary allocation, or in the middle of a colon definition, that's
+not possible with a single dictionary pointer, leading to complicated
+workarounds.
+
+Gforth provides dictionary sections to address this problem.  Each
+section has its own dictionary pointer, and allocating or compiling
+something in one section does not interrupt the contiguity of
+allocations in other sections.  In this respect Gforth's sections are
+similar to sections and segments in assembly languages.
+
+One difference is that the most common usage of sections is as a stack
+of sections, which is useful for building nested definitions or
+dictionary-allocated data structures: Use @code{next-section} for the
+inner definition or data structure, switch back with
+@code{previous-section}.
+
+A Gforth-specific property of sections is that words like
+@code{latest} (@pxref{Name token}) and @code{latestxt}
+(@pxref{Anonymous Definitions}) refer to the most recent definition in
+the current section.  Quotations (@pxref{Quotations}) and the implicit
+quotation of @code{does>} (@pxref{User-defined defining words using
+CREATE}) are in a different section than the containing definition, so
+after the quotation ends (and the section is switched back), words
+like @code{latest} report the outer definition rather than the
+quotation.
+
+An example of such a usage of the section stack is:
+
+@example
+create my2x2matrix
+  next-section here 1 , 2 , previous-section ,
+  next-section here 3 , 4 , previous-section ,
+
+\ now print my2x2matrix[0,1], i.e., "2":
+my2x2matrix 0 cells + @@ 1 cells + @@ .
+@end example
+
+
+This works also for allocating section memory while compiling a
+definition, or defining a definition during a contiguous region, e.g.:
+
+@example
+create mydispatchtable
+  next-section :noname ." foo" ; previous-section ,
+  next-section :noname ." bar" ; previous-section ,
+
+\ now dispatch mydispatchtable[1]
+mydispatchtable 1 cells + @@ execute
+@end example
+
+Note that the interpretation semantics of @code{[:}
+(@pxref{Quotations}) switches to the next section internally, so you
+can write @code{mydispatchtable} also as follows:
+  
+@example
+create mydispatchtable
+  [: ." foo" ;] ,
+  [: ." bar" ;] ,
+@end example
+
+The interpretation semantics of @code{does>} uses a separate section,
+so the @code{does>} does not end the contiguous region, and you can
+define a word @code{mydispatch} that includes the dispatch code, as
+follows:
+
+@example
+create mydispatch
+does> ( u -- )
+    ( u addr ) swap cells + @@ execute ;
+  [: ." foo" ;] ,
+  [: ." bar" ;] ,
+
+1 mydispatch \ prints "bar"
+@end example
+
+doc-next-section
+doc-previous-section
+
+The bottom section in the section stack has the size given with the
+@code{--dictionary-size} command-line parameter (@pxref{Invoking
+Gforth}).
+
+In addition to the stack of anonymous sections you can also have named
+sections that you define with:
+
+doc-extra-section
+
+As an example, here's a variant of the @code{my2x2matrix} definition:
+
+@example
+4 cells extra-section myvec
+
+create my2x2matrix
+  ' here myvec 1 ' , myvec 2 ' , myvec ,
+  ' here myvec 3 ' , myvec 4 ' , myvec ,
+@end example
+
+Currently a named section does not start a dictionary stack, and using
+@code{next-section} inside a named section throws an error.
+
+You can show the existing sections with:
+
+doc-.sections
+
+At the time of this writing this outputs:
+
+@example
+            start      size      used name
+     7F884CE34000      4000       5D8 locals-headers 
+>    7F883ECBF040    800000     A09A0 Forth 
+     7F883EABE000    200000      7FE8 noname 
+     7F883EA3D000     80000       7F0 noname 
+     7F883EA1C000     20000        C8 noname 
+     7F883EA13000      8000        58 noname
+@end example
+
+The lines are the different sections: First the named sections, then
+the section stack, with the bottom of the stack (@code{Forth}) shown
+topmost with the name @code{Forth}.  The columns are the start address
+of the section, the gross size (including section management
+overhead), how much of the section is already used, and the name.  All
+numbers are in hexadecimal base.  Note that not all of the remaining
+size can be used for @code{allot}ting memory, because room must be
+left for the @code{hold} buffer (@pxref{Formatted numeric output}) and
+for @code{pad} (@code{memory blocks}).  The current section is marked
+with the @code{>}.
+
+@node Heap Allocation, Memory Access, Sections, Memory
 @subsection Heap allocation
 @cindex heap allocation
 @cindex dynamic allocation of memory
@@ -6116,7 +6252,8 @@ doc-resize
 * Growable memory buffers::
 @end menu
 
-@node Memory blocks and heap allocation, , Heap Allocation, Heap Allocation
+
+@node Memory blocks and heap allocation, Growable memory buffers, Heap Allocation, Heap Allocation
 @subsubsection Memory blocks and heap allocation
 
 Additional words for dealing with memory blocks are described in
