@@ -38,7 +38,7 @@ extern struct _IO_FILE *stderr;
 %include <SDL2/SDL_filesystem.h>
  // %include <SDL2/SDL_gamecontroller.h>
 %include <SDL2/SDL_haptic.h>
-%include <SDL2/SDL_hidapi.h>
+ // %include <SDL2/SDL_hidapi.h>
 %include <SDL2/SDL_hints.h>
  // %include <SDL2/SDL_joystick.h>
 %include <SDL2/SDL_loadso.h>
