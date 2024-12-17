@@ -1186,8 +1186,8 @@ init-libcc
 : unbind-libcc ( -- )
     [: [: ( lib -- )
 	    case dup >does-code
-		['] call-c@        of  >body off  endof
-		['] callback-does> of  >body off  endof
+		['] call-c@        of  off  endof
+		['] callback-does> of  #0. rot 2 cells + 2!  endof
 		drop endcase
 	    true ;] swap traverse-wordlist ;] map-vocs ;
 

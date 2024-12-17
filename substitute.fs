@@ -28,7 +28,7 @@ cs-wordlist AConstant macros-wordlist ( -- wid ) \ gforth-experimental
     ' >body $!-table to-class: $value-to
     
     : $Value ( addr u -- )
-	Create here 0 , $!
+	Create here dup $saved 0 , $!
 	['] $@ set-does> ['] $value-to set-to ;
 [THEN]
 

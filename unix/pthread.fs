@@ -444,6 +444,9 @@ User keypollfds pollfd 2* cell- uallot drop
     epiper off
     epipew off
     wake# off
+    0 to prepare-cb#
+    0 to parent-cb#
+    0 to child-cb#
 ; is 'image
 
 : prep-key ( -- )
