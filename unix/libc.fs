@@ -166,13 +166,13 @@ e? os-type s" linux-musl" string-prefix? or [IF]
 
 :noname ['] execute is int-execute 0 to getpid defers 'image ; is 'image
 
-:noname
+:is 'cold
     defers 'cold
     host? IF
 	['] int-errno-exec is int-execute
 	getpagesize to pagesize
 	(getpid) to getpid
-    THEN ; is 'cold
+    THEN ;
 
 to-table: errno-table ->errno
 ' drop errno-table to-class: to-errno

@@ -459,12 +459,12 @@ User keypollfds pollfd 2* cell- uallot drop
 
 ' thread-key is key-ior
 
-:noname defers 'cold
+:is 'cold defers 'cold
     host? IF
 	atfork-cbs atfork-init
 	pthread-id pthread_self epiper create_pipe
 	preserve key-ior  preserve deadline
-    THEN ; is 'cold
+    THEN ;
 
 host? [IF] atfork-cbs atfork-init [THEN]
 

@@ -65,10 +65,8 @@ User block-offset ( -- addr ) \ gforth
     dup buffer-struct %size buffers * erase
     buffers 0 ?DO dup buffer-block on next-buffer LOOP drop ;
 
-:noname ( -- )
-    defers 'cold
-    block-cold
-; is 'cold
+:is 'cold ( -- )
+    defers 'cold block-cold ;
 
 :noname ( -- ) defers 'image  block-buffers off ; is 'image
 

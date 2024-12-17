@@ -113,6 +113,8 @@ Variable slowvoc   0 slowvoc !
 
 \ Only root                                            14may93py
 
+voclink off \ remove forth-wordlist from voclink
+
 Vocabulary Forth ( -- ) \ search-ext
   \G Replace the @i{wid} at the top of the search order with the
   \G @i{wid} associated with the word list @code{forth-wordlist}.

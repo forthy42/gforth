@@ -274,7 +274,7 @@ uncolored-mode
 	dark-mode
     THEN ;
 
-:noname auto-color defers 'cold ; is 'cold
+:is 'cold auto-color defers 'cold ;
 
 \ scrolling etc: (thanks to Ulrich Hoffmann)
 

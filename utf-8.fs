@@ -408,9 +408,7 @@ environment-wordlist set-current
 
 forth definitions
 
-:noname ( -- )
-    defers 'cold
-    utf-8-cold
-; is 'cold
+:is 'cold ( -- )
+    defers 'cold utf-8-cold ;
 
 utf-8-cold

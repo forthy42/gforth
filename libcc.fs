@@ -1160,6 +1160,7 @@ latestnt Constant ft-vtable
 	2drop libcc-tmp-dir
     THEN
     libcc-named-dir$ $!
+    libcc-named-dir $1ff mkdir-parents drop
     clear-libs libcc>named-path
     s" libccdir" getenv 2dup d0= IF
 	2drop [ s" libccdir" getenv ':' 0 substc ] SLiteral
@@ -1171,23 +1172,23 @@ latestnt Constant ft-vtable
 init-libcc
 
 : rebind-libcc ( -- )
-    [: [: dup >does-code ['] call-c@ = IF
-		>body dup link-wrapper-function
-		\ ." relink: " over body> .name dup h. cr
-		over !
-	    ELSE  dup >does-code [ ' callback-does> >body ]L = IF
-		    dup >body setup-callback
-		THEN
-	    THEN  drop
+    [: [: ( lib -- )
+	    case dup >does-code
+		['] call-c@ of
+		    >body dup link-wrapper-function
+		    \ ." relink: " over body> .name dup h. cr
+		    swap !  endof
+		['] callback-does> of
+		    >body setup-callback
+		endof
+	    drop endcase
 	    true ;] swap traverse-wordlist ;] map-vocs ;
 : unbind-libcc ( -- )
-    [: [: dup >does-code ['] call-c@ = IF
-		dup >body off
-		\ ." relink: " over body> .name dup h. cr
-	    ELSE  dup >does-code [ ' callback-does> >body ]L = IF
-		    dup >body off
-		THEN
-	    THEN  drop
+    [: [: ( lib -- )
+	    case dup >does-code
+		['] call-c@        of  >body off  endof
+		['] callback-does> of  >body off  endof
+		drop endcase
 	    true ;] swap traverse-wordlist ;] map-vocs ;
 
 set-current
@@ -1204,25 +1205,26 @@ Defer prefetch-lib ( addr u -- )
 : .libs ( -- ) [: lha-name $. space ;] map-libs ;
 
 : reopen-libs ( -- )
-    [:  lib-handle-addr !
+    [:  lib-handle-addr !@ >r
 	lib-modulename $@
-	libcc-named-dir 2dup  $1ff mkdir-parents drop
-	prepend-dirname lib-filename $!
+	libcc-named-dir prepend-dirname lib-filename $!
 	open-wrappers dup IF
 	    \ ." link " r@ lha-name $. ."  to " dup h. cr
-	    dup lib-handle!  init-lib  EXIT
+	    dup lib-handle!  init-lib
+	    r> lib-handle-addr !
+	    EXIT
 	THEN
+	r> lib-handle-addr !
 	.lib-error !!openlib!! throw
     ;] map-libs ;
 
-:noname ( -- )
+:is 'cold ( -- )
     defers 'cold  get-host? to host?
     init-libcc reopen-libs rebind-libcc lib-filename $free ;
-is 'cold
 
 :noname ( -- )
     defers 'image  unbind-libcc  ['] on map-libs
-    libcc$ off  libcc-named-dir$ off  libcc-path off ;
+    libcc$ off  libcc-named-dir$ off  libcc-path off  lib-filename off ;
 is 'image
 
 : c-library ( "name" -- ) \ gforth
