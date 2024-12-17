@@ -69,7 +69,6 @@ require rec-string.fs
 require rec-to.fs
 require rec-tick.fs
 require rec-body.fs
-require substitute.fs
 require code.fs
 require see.fs
 require see-ext.fs
@@ -93,6 +92,7 @@ require struct-val.fs
 require rec-env.fs
 require rec-scope.fs
 require rec-meta.fs
+require substitute.fs
 require csv.fs
 require obsolete.fs
 require unused.fs

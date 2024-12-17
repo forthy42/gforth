@@ -437,16 +437,16 @@ method name>link ( nt1 -- nt2 / 0 ) \ gforth name-to-link
 
 drop Constant hmsize \ vtable size
 
-: defer@ ( xt-deferred -- xt ) \ core-ext new-defer-fetch
+: to-access:exec ( xt -- ) @ swap (to) ;
+: to-access:,    ( xt -- ) lits# IF   @ lits> (to),  EXIT  THEN  does, ;
+
+3 to-access: defer@ ( xt-deferred -- xt ) \ core-ext new-defer-fetch
     \G @i{xt} represents the word currently associated with the deferred
     \G word @i{xt-deferred}.
-    3 swap (to) ;
-opt: ?fold1 3 swap (to), ;
-
-: initwl ( wid -- ) \ gforth-internal
-    \G initialises a vocabulary. Mapped to +TO
-    1 swap (to) ;
-opt: ?fold1 1 swap (to), ;
+4 to-access: defer! ( xt xt-deferred -- ) \ core-ext  defer-store
+    \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
+1 to-access: value+! ( n xt-value -- ) \ gforth-experimental  value-plus-store
+    \G Increments the value of @var{xt-value} by @var{n}
 
 : >extra ( nt -- addr )
     >namehm @ >hmextra ;

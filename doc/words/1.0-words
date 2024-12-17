@@ -281,6 +281,7 @@ add-lib
 add-libpath
 .addr.
 >addr
+>addr
 addr
 addr?
 ADDRESS-UNIT-BITS
@@ -1085,6 +1086,7 @@ cur-class
 [current]
 current
 current'
+current-execute
 current-input
 current-interface
 current-location?
@@ -3280,7 +3282,6 @@ lit-perform
 >lits
 lits#
 lits,
-lits<>
 lits>
 litstack
 live-orig
@@ -3339,7 +3340,6 @@ locals-list!
 locals-lists
 locals-name-size+
 locals-post,
-locals-rec
 locals-size
 locals-sizes
 locals-to:,
@@ -3608,7 +3608,6 @@ new
 NewFix
 newline
 new-locals
-new-locals-rec
 ?new-lsid
 new-lsid
 new-section
@@ -3911,6 +3910,8 @@ ostack
 os-type
 other-control-flow
 out
+outer-recurse
+outer-section
 outfile-execute
 outfile-id
 output:
@@ -4374,8 +4375,10 @@ rec-f83
 rec-float
 rec-level
 rec-locals
+rec-locals
 rec-meta
 rec-moof2
+rec-new-locals
 ?rec-nt
 rec-nt
 rec-num
@@ -5576,6 +5579,8 @@ tmp$[]
 tmps#
 (to)
 (to),
++to!
+to!
 to:
 to:,
 +TO

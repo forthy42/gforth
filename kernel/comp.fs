@@ -143,12 +143,10 @@ variable next-prelude
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
 
-:noname drop lastnt @ (to) ;
-opt: ?fold1 drop lastnt @ (to), ;
 :noname drop lastnt @ ;
 ' noop Alias recurse ( ... -- ... ) \ core
 \g Alias to the current definition.
-unlock set->int set-to lock
+unlock set->int ghost s-to gset-to lock
 \ this is the alias pointer in the recurse header, named lastnt.
 \ changing lastnt now changes where recurse aliases to
 \ it's always an alias of the current definition
@@ -259,8 +257,6 @@ variable nextname$
     lastnt @ dup name>string d0<> and ;
 
 \ \ literals							17dec92py
-
-Variable litstack
 
 : >lits ( x -- ) litstack >stack ;
 : lits> ( -- x ) litstack stack> ;
@@ -443,8 +439,8 @@ include ./recognizer.fs
 : s>int ( nt -- xt )  >body @ name>interpret ;
 : s>comp ( nt -- xt1 xt2 )  >body @ name>compile ;
 : s-to ( val operation nt -- )
-    >body @ (to) ;
-opt: ( xt -- ) ?fold1 >body @ (to), ;
+    name>interpret (to) ;
+opt: ( xt -- ) ?fold1 name>interpret (to), ;
 : s-compile, ( xt -- )  >body @ compile, ;
 
 : synonym, ( nt int comp -- ) \ gforth-internal
@@ -747,15 +743,12 @@ Create hmtemplate
     \G @i{v} in the storage represented by @i{xt}.
     opt: postpone ?fold1 ;
 
-\ defer and friends
-
-: defer! ( xt xt-deferred -- ) \ core-ext  defer-store
-    \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
-    4 swap (to) ;
-opt: ?fold1 4 swap (to), ;
+\ Access methods to wordlists
 
 ' defer! Alias reveal! ( xt wid -- ) \ core-ext  reveal-store
-\G Add xt to a wordlist.
+\G Add @var{xt} to a wordlist. Mapped to @code{DEFER!}.
+' value+! Alias initwl ( wid -- ) \ core-ext  initwl
+\G initialize a wordlist. Mapped to @code{+TO}.
 \ by using the TO access method
 ' >hmto Alias reveal-method ( wid -- addr )
 

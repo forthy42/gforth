@@ -3336,10 +3336,21 @@ Ghost to:exec
 
 Builder to-class:
 Build: T A, A, H ;Build
-by: :dodoes ;DO
+by: :dodoes1 ;DO
 hm: [G'] to:, gset-optimizer
     [G'] to:exec  gset-extra  ;hm
 \ hmghost: dodoes-hm
+
+Ghost to-access:,
+Ghost to-access:exec
+2drop
+
+Builder to-access:
+Build: T , H ;Build
+by: :dodoes2 ;DO
+compile: g>xt compile does-xt T a, H ;compile
+hm: [G'] to-access:, gset-optimizer
+    [G'] to-access:exec gset-extra  ;hm
 
 \ Variables and Constants                              05dec92py
 
@@ -3369,7 +3380,7 @@ by (AConstant)
 
 Builder 2Constant
 Build:  ( d -- ) T , , H ;Build
-by: :dodoes1 ( ghost -- d ) T dup cell+ @ swap @ H ;DO
+by: :dodoes3 ( ghost -- d ) T dup cell+ @ swap @ H ;DO
 hm: [G'] 2constant, gset-optimizer
     [G'] 2@ gset-extra ;hm
 
@@ -3380,7 +3391,7 @@ hm: [G'] variable, gset-optimizer ;hm \ hmghost: dovar-hm
 
 Builder <Builds
 BuildSmart: ;Build
-by: :dodoes2 ( target-body-addr -- addr ) ;DO
+by: :dodoes4 ( target-body-addr -- addr ) ;DO
 hm: [G'] does, gset-optimizer ;hm \ hmghost: dovar-hm
 
 Builder Variable
@@ -3644,7 +3655,7 @@ ghost do-translate drop
 Builder translate:
 Build: ( xtint xtcomp xtpost --- )
     T rot A, swap A, A, H 7 0 DO [T'] no.extensions X A, LOOP ;Build
-by: :dodoes3 ;DO
+by: :dodoes5 ;DO
 hm: [G'] does, gset-optimizer
 [G'] do-translate gset-extra  ;hm
 

@@ -61,3 +61,6 @@
     :noname postpone record-name r> postpone Literal
     postpone (') postpone (to), postpone ;
     interpret/compile: ;
+
+: to-access: ( n "name" -- ) \ gforth-internal to-access-colon
+    ['] defer@ create-from , reveal ;

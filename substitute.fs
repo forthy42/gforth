@@ -37,13 +37,11 @@ synonym macro: $value
 : replaces ( addr1 len1 addr2 len2 -- ) \ string-ext
     \G create a macro with name @var{addr2 len2} and content @var{addr1 len1}.
     \G If the macro already exists, just change the content.
-    2dup macros-wordlist search-wordlist
-    IF
-	nip nip 0 swap [ ' (to) :, ]
+    2dup macros-wordlist find-name-in
+    ?dup-IF
+	nip nip value!
     ELSE
-	get-current >r macros-wordlist set-current
-	['] macro: execute-parsing
-	r> set-current
+	[: macros-wordlist set-current nextname macro: ;] current-execute
     THEN ;
 
 : warn-hardcoded ( addr u xt1 xt2 -- )

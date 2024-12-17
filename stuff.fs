@@ -861,3 +861,18 @@ fold1:
     \G @code{place})
     swap $ff min swap
     over >r  rot over 1+  r> move c! ;
+
+\ outer recurse
+
+: outer-section ( -- addr ) section# 1-
+    dup #extra-sections @ < abort" no outer section"
+    sections $[] @ ;
+' noop Alias outer-recurse ( ... -- ... ) \ core
+\g Alias to the current definition.
+[: drop ['] lastnt outer-section section-execute @ ;] set->int
+' s-to set-to
+
+\ equivalents for defer!
+
+0 to-access: value! ( x xt-value -- ) \ gforth-experimental  to-store
+    \G Changes the value of @var{xt-value} to @var{x}

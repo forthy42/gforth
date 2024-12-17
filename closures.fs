@@ -32,10 +32,6 @@ Defer endref, ( -- )
 ' noop is endref,
 false Value 1t-closure?
 
--2 cells field: >addr ( xt -- addr ) \ gforth-experimental to-addr
-    \G convert the xt of a closure on the heap to the @var{addr} with can be
-    \G passed to @code{free} to get rid of the closure
-drop
 : alloch ( size -- addr )
     \ addr is the end of the allocated region
     dup allocate throw + ;
@@ -142,7 +138,7 @@ forth definitions
 
 : free-closure ( xt -- ) \ gforth-internal
     \G free a heap-allocated closure
-    >addr free throw ;
+    >cfa free throw ;
 : closure> ( hmaddr -- addr ) \ gforth-internal closure-end
     \G create trampoline head
     [ 0 >body ] [IF] dodoes: >l >l lp@ cell+

@@ -70,6 +70,7 @@ cell uvar primbits
 cell uvar targets
 cell uvar codestart
 cell uvar lastnt
+cell uvar litstack
 
 Constant section-desc
 drop
