@@ -24,7 +24,7 @@ require ./io.fs
     \G @var{c-addr} is the address of a transient region that can be
     \G used as temporary data storage. At least 84 characters of space
     \G is available.
-    here word-pno-size + aligned ;
+    [ image-header 2 cells + ] ALiteral @ word-pno-size + aligned ;
 
 : +hold ( n -- addr )
     \G Reserve space for n chars in the pictured numeric buffer.
