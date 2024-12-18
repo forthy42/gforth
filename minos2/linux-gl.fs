@@ -241,9 +241,7 @@ Variable ?sync-update
 	dpy wm_sync_counter l@ wm_sync_value' XSyncSetCounter drop
     THEN ;
 
-[IFUNDEF] level#
-    Variable level#
-[THEN]
+[IFUNDEF] level#  Variable level#  [THEN]
 
 \ handle X11 events
 

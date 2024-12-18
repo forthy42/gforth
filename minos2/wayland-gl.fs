@@ -210,6 +210,8 @@ Defer rescaler ' noop is rescaler
 
 \ As events come in callbacks, push them to an event queue
 
+?: 3drop 2drop drop ;
+
 Defer b-scroll ' 3drop is b-scroll
 Defer b-button ' 3drop is b-button
 Defer b-motion ' 3drop is b-motion
@@ -894,6 +896,8 @@ cb> xdg-surface-listener
 : map-win ( -- )
     BEGIN  get-events mapped  UNTIL ;
 
+[IFUNDEF] level#  Variable level#  [THEN]
+
 2Variable wl-min-size &640 &400 wl-min-size 2!
 
 <cb
@@ -1039,6 +1043,8 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 
 require need-x.fs
 
+[IFUNDEF] rendering  Variable rendering  [THEN]
+-2 rendering !
 #16 Value config-change#
 
 : ?looper ;
