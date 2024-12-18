@@ -66,7 +66,14 @@ is 'clean-maintask
 : dump-fi ( c-addr u -- )
     prepare-for-dump
     w/o bin create-file throw >r
-    preamble-start here over - r@ write-file throw
+    s" GFORTH_PREAMBLE" getenv 2dup d0= IF  2drop
+	preamble-start forthstart 8 - over - r@ write-file throw
+    ELSE
+	tuck r@ write-file throw
+	#lf r@ emit-file throw 1+ dup dfaligned swap -
+	0 ?DO  bl j emit-file throw  LOOP
+    THEN
+    forthstart 8 - here over - r@ write-file throw
     r@ dump-sections
     r> close-file throw ;
 
