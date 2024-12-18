@@ -296,7 +296,7 @@ Defer write-record
     pa-ml       ?dup-IF  pa_mainloop_free              0 to pa-ml        THEN
     0 to pa-task  kill-task ;
 
-: kill-pulse ( -- )
+: kill-pulses ( -- )
     pa-task IF
 	['] kill-pulse pa-task send-event
 	5 0 DO  pa-task 0= ?LEAVE  1 ms  LOOP
@@ -307,5 +307,5 @@ previous pulse
 
 0 warnings !@
 : bye ( -- )
-    kill-pulse bye ;
+    kill-pulses bye ;
 warnings !
