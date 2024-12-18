@@ -82,7 +82,9 @@ image-header 4 cells + unlock cross-boot$[] >stack lock
     section-start 2@ + ;
 
 : usable-dictionary-end1 ( -- addr )
-    dictionary-end [ word-pno-size pad-minsize + ] Literal - ;
+    dictionary-end
+    [ word-pno-size pad-minsize + ] Literal
+    current-section @ image-header @ = and - ;
 
 defer usable-dictionary-end ( -- addr )
 ' usable-dictionary-end1 is usable-dictionary-end

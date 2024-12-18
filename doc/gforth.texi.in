@@ -15813,6 +15813,9 @@ doc-'s
 
 @c doc-udp
 
+The pictured numeric output buffer is also task-local, but other areas
+like dictionary or @code{PAD} are shared.
+
 @node Semaphores, Hardware operations for multi-tasking, Task-local data, Pthreads
 @subsubsection Semaphores
 
