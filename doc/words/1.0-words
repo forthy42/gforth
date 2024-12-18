@@ -281,7 +281,6 @@ add-lib
 add-libpath
 .addr.
 >addr
->addr
 addr
 addr?
 ADDRESS-UNIT-BITS
@@ -3298,6 +3297,7 @@ loadline
 load-rc
 load-rc?
 load-rc0
+load-rc0?
 #loc
 (local)
 !local0
@@ -5579,14 +5579,15 @@ tmp$[]
 tmps#
 (to)
 (to),
-+to!
-to!
 to:
 to:,
 +TO
 <+TO>
 [+TO]
 TO
+to-access:
+to-access:,
+to-access:exec
 >to+addr-table:
 to-c:
 to-ca:
@@ -5817,6 +5818,8 @@ Val-color
 ?valid-method
 val-part
 val-part-off
+value!
+value+!
 value,
 value:
 value?

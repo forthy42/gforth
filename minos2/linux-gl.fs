@@ -762,11 +762,10 @@ XVisualInfo buffer: visual-info
     up@ [ up@ ]L = IF screen-ops THEN  defers deadline ;
 ' x-deadline IS deadline
 
-0 warnings !@
-: bye ( -- )
+:is bye ( -- )
     ic ?dup-IF  XDestroyIC  THEN  0 to ic
     xim ?dup-IF  XCloseIM drop  THEN  0 to xim
-    bye ;
-warnings !
+    defers bye ;
+
 ' x-key IS key-ior
 ' x-key? IS key?

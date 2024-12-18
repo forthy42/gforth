@@ -314,7 +314,6 @@ Variable stream-bufs<>
 set-current
 previous opensles
 
-0 warnings !@
-: bye ( -- )
-    destroy-player destroy-recorder destroy-mix destroy-engine  bye ;
-warnings !
+:is bye ( -- )
+    destroy-player destroy-recorder destroy-mix destroy-engine
+    defers bye ;

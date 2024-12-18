@@ -305,7 +305,4 @@ Defer write-record
 set-current
 previous pulse
 
-0 warnings !@
-: bye ( -- )
-    kill-pulses bye ;
-warnings !
+:is bye kill-pulses defers bye ;
