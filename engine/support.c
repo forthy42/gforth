@@ -54,6 +54,7 @@ void* (*realloc_l)(void* addr, size_t size)=realloc;
 
 void gforth_abortmcheck(enum mcheck_status reason)
 {
+  debugp(stderr, "mcheck event %d\n", reason);
   pthread_mutex_unlock(&memlock);
   throw(-2049-reason);
 }
