@@ -173,7 +173,11 @@ Defer char@ ( addr u -- char addr' u' )
 : cfa,     ( code-address -- )  \ gforth	cfa-comma
     here
     dup lastcfa !
-    [ has? rom [IF] ] 2 cells allot [ [ELSE] ] 0 A, 0 , [ [THEN] ]
+    [ has? new-cfa [IF] ]
+        [ has? rom [IF] ] 2 cells allot [ [ELSE] ] 0 A, 0 , [ [THEN] ]
+    [ [ELSE] ]
+        [ has? rom [IF] ] 1 cells allot [ [ELSE] ] 0 A, [ [THEN] ]
+    [ [THEN] ]
     code-address! ;
 
 [IFUNDEF] compile,
