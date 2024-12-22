@@ -603,7 +603,8 @@ t{ 1 2 3 4 t-rpick -> 4 3 2 1 }t
 
 t{ 1 extra-section t-extra-section -> }t
 t{ ' unused t-extra-section -> 1 }t
-t{ 0 ' c, t-extra-section -> }t
+t{ 1 ' allot t-extra-section -> }t
+t{ 1 ' allot ' t-extra-section catch nip nip -> -8 }t
 
 \ refill with&without newline at end of last line
 \ (do not add a newline to the end of this buffer!)
