@@ -109,10 +109,11 @@ is reset-dpp
     \G ... )}: When calling @i{name}, the current section is @i{c}.
     \G Switch the current section to be @i{s}, @i{execute} xt, then
     \G switch the current section back to @i{c}.
+    section-desc +
     create-section dup >extra-sections
-    [: create , latest section-name !
-      does> ( xt -- ) @ section-execute ;]
-    over section-execute ;
+    create , latest [:  section-name ! ;] over section-execute
+  does> ( xt -- )
+    @ section-execute ;
     
 \ initialization
 
