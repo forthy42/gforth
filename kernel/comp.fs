@@ -42,7 +42,7 @@
     \G Gforth you can deallocate anything in this way but named words.
     \G The system does not check this restriction.
     here +
-    dup 1- usable-dictionary-end forthstart within -8 and throw
+    dup 1- usable-dictionary-end section-start @ within -8 and throw
     ->here ;
 [THEN]
 
