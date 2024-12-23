@@ -162,6 +162,23 @@ AUser lp0 ( -- a-addr ) \ gforth
 
 AUser throw-entry  \ pointer to task-specific signal handler
 
+user-o current-section
+
+0 0
+cell uvar section-start
+cell uvar section-size
+cell uvar section-dp
+cell uvar section-name
+cell uvar locs[]
+cell uvar primbits
+cell uvar targets
+cell uvar codestart
+cell uvar lastnt
+cell uvar litstack
+
+Constant section-desc
+drop
+
 : handler ( -- addr )
     \ pointer to last throw frame
     sps@ cell+ ;

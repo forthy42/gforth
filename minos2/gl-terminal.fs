@@ -355,7 +355,7 @@ xc-vector !
 ${GFORTH_IGNLIB} s" true" str= 0= [IF]
     Sema gl-sema
 [ELSE]
-    Create gl-sema
+    Create gl-sema  1 pthread-mutexes allot
 [THEN]
 
 : gl-emit ( char -- ) [: color-index @ (gl-emit) ;] gl-sema c-section ;

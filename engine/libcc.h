@@ -46,6 +46,29 @@ typedef void **Xt;
 typedef unsigned Clongest UClongest;
 
 typedef struct {
+  Address base;		/* base address of image (0 if relocatable) */
+  UCell dict_size;
+  Address image_dp;	/* all sizes in bytes */
+  Address sect_name;
+  Address sect_locs;
+  Address sect_primbits;
+  Address sect_targets;
+  Address sect_codestart;
+  Address sect_last_header;
+  UCell data_stack_size;
+  UCell fp_stack_size;
+  UCell return_stack_size;
+  UCell locals_stack_size;
+  Xt *boot_entry;	/* initial ip for booting (in BOOT) */
+  Xt *quit_entry;
+  Xt *execute_entry;
+  Xt *find_entry;
+  Label *xt_base;         /* base of DOUBLE_INDIRECT xts[], for comp-i.fs */
+  Label *label_base;      /* base of DOUBLE_INDIRECT labels[], for comp-i.fs */
+} ImageHeader;
+/* the image-header is created in main.fs */
+
+typedef struct {
   Cell next_task;
   Cell prev_task;
   Cell save_task;
@@ -54,6 +77,7 @@ typedef struct {
   Float* fp0;
   Address lp0;
   Xt *throw_entry;
+  ImageHeader *current_section;
 } user_area;
 
 typedef struct {

@@ -236,11 +236,13 @@ static void segv_handler(int sig, siginfo_t *info, void *_)
 {
   int code=-9;
   Address addr=info->si_addr;
+  ImageHeader *section=gforth_UP->current_section;
+  UCell section_end=(UCell)(section->base + section->dict_size + (pagesize-1)) & -pagesize;
 
   SIGPP(sig);
   debugp(stderr,"\nsegv_handler %d %p %p @%p\n", sig, info, _, addr);
 
-  if ((UCell)(addr - dictguard) < pagesize)
+  if ((UCell)(addr - section_end) < pagesize)
     code=-8;
   else if (JUSTUNDER(addr, NEXTPAGE3(gforth_UP)))
     code=-3;

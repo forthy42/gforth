@@ -392,17 +392,6 @@ typedef Label *Xt;
 #define rpTOS (rp[0])
 
 typedef struct {
-  Cell next_task;
-  Cell prev_task;
-  Cell save_task;
-  Cell* sp0;
-  Cell* rp0;
-  Float* fp0;
-  Address lp0;
-  Xt *throw_entry;
-} user_area;
-
-typedef struct {
   Address base;		/* base address of image (0 if relocatable) */
   UCell dict_size;
   Address image_dp;	/* all sizes in bytes */
@@ -428,6 +417,18 @@ typedef struct {
   Label *label_base;      /* base of DOUBLE_INDIRECT labels[], for comp-i.fs */
 } ImageHeader;
 /* the image-header is created in main.fs */
+
+typedef struct {
+  Cell next_task;
+  Cell prev_task;
+  Cell save_task;
+  Cell* sp0;
+  Cell* rp0;
+  Float* fp0;
+  Address lp0;
+  Xt *throw_entry;
+  ImageHeader *current_section;
+} user_area;
 
 typedef struct {
   Address base;

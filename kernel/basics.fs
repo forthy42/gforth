@@ -58,23 +58,6 @@ hex
 
 \ dictionary
 
-user-o current-section
-
-0 0
-cell uvar section-start
-cell uvar section-size
-cell uvar section-dp
-cell uvar section-name
-cell uvar locs[]
-cell uvar primbits
-cell uvar targets
-cell uvar codestart
-cell uvar lastnt
-cell uvar litstack
-
-Constant section-desc
-drop
-
 image-header current-section !
 image-header 4 cells + unlock cross-boot$[] >stack lock
 

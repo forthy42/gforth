@@ -664,7 +664,7 @@ static void page_noaccess(void *a)
 
 static inline size_t wholepage(size_t n)
 {
-  return (n+pagesize-1)&~(pagesize-1);
+  return (n+pagesize-1)& -pagesize;
 }
 
 static Address alloc_mmap_guard(Cell size)
@@ -692,16 +692,18 @@ Address gforth_alloc(Cell size)
   return verbose_malloc(size);
 }
 
+Cell preamblesize=0;
+
 static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell offset)
 {
   void *image = MAP_FAILED;
 
 #if defined(HAVE_MMAP)
   if (offset==0) {
-    image=alloc_mmap_guard(dictsize);
+    image=alloc_mmap_guard(dictsize+preamblesize);
     if (image != (void *)MAP_FAILED) {
       void *image1;
-      debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)dictsize, image);
+      debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)dictsize+preamblesize, image);
       debugp(stderr,"try mmap(%p, $%lx, RWX, MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
       image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
       after_alloc(image1,dictsize);
@@ -721,7 +723,7 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
   }
 #endif /* defined(HAVE_MMAP) */
   if (image == (void *)MAP_FAILED) {
-    if((image = gforth_alloc(dictsize+offset)+offset) == NULL)
+    if((image = gforth_alloc(dictsize+preamblesize+offset)+offset) == NULL)
       return NULL;
 #ifdef __ANDROID__
   read_image: /* on Android, mmap will fail despite RWX allocs are possible */
@@ -743,8 +745,8 @@ void gforth_free_dict()
 {
   Cell image = (-pagesize) & (Cell)gforth_header;
 #ifdef HAVE_MMAP
-  debugp(stderr,"try unmmap(%p, $%lx); ", (void*)image, dictsize);
-  if(!munmap((void*)image, dictsize)) {
+  debugp(stderr,"try unmmap(%p, $%lx); ", (void*)image, dictsize+preamblesize);
+  if(!munmap((void*)image, wholepage(dictsize+preamblesize))) {
     debugp(stderr,"ok\n");
   }
 #else
@@ -2248,7 +2250,6 @@ static FILE *openimage(char *fullfilename)
 /* global variables from checkimage */
 
 Char magic[8];
-Cell preamblesize=0;
 
 static FILE *checkimage(char *path, int len, char *imagename)
 {
