@@ -111,7 +111,7 @@ is reset-dpp
     \G switch the current section back to @i{c}.
     section-desc +
     create-section dup >extra-sections
-    create , latest [:  section-name ! ;] over section-execute
+    create , latest [: section-name ! ;] over @ section-execute
   does> ( xt -- )
     @ section-execute ;
     
