@@ -167,17 +167,17 @@ support-ll-reg.o libsupport-ll-reg.lo: support.c config.h forth.h longlong.h
 	@echo CC -DFORCE_LL -DFORCE_REG -o $@ $<
 	$(COMPILER) -DFORCE_LL -DFORCE_REG -o $@ $<
 
-strtol.o libstrtol.lo: strtol.c ansidecl.h
+strtol.o libstrtol.lo: ansidecl.h
 
-fnmatch.o libfnmatch.lo: fnmatch.c fnmatch.h
+fnmatch.o libfnmatch.lo: fnmatch.h
 
-getopt1.o libgetopt1.lo: getopt1.c getopt.h
+getopt1.o libgetopt1.lo: getopt.h
 
-getopt.o libgetopt.lo: getopt.c getopt.h
+getopt.o libgetopt.lo: getopt.h
 
-androidmain.o libandroidmain.lo: androidmain.c config.h forth.h
+%.o: %.c config.h forth.h
 
-signals.o libsignals.lo: signals.c config.h forth.h
+lib%.lo: %.c config.h forth.h
 
 GFORTHDEPS = $(AOBJECTS) $(LTDLDEPS) libmain.o
 GFORTHOBJS = $(AOBJECTS) $(LDLIBS) libmain.o
