@@ -2308,6 +2308,22 @@ a_addr = &winch_addr;
 a_addr = NULL;
 #endif
 
+alloc-mmap ( u -- c_addr wior )  gforth-internal alloc_mmap_guard
+""Allocate a memory region through @code{mmap()} with the size @var{u}""
+c_addr = alloc_mmap(u);
+#ifndef MAP_FAILED
+#define MAP_FAILED ((Address) -1)
+#endif
+wior = IOR(c_addr == MAP_FAILED);
+
+pagesize ( -- u )  gforth-internal pagesize
+""Return the size of a page""
+u=pagesize;
+
+guardpage ( c_addr -- )  gforth-internal guardpage
+""Make a page at @var{c_addr} non-accessible""
+page_noaccess(c_addr);
+
 \+
 \+file
 

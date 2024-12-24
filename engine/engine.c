@@ -376,6 +376,10 @@ static inline Cell slashfstage2(Cell n1, stagediv_t *stage1)
 extern Cell winch_addr;
 #endif
 
+extern Address alloc_mmap(Cell size);
+extern void page_noaccess(void *a);
+extern UCell pagesize;
+
 #ifdef STANDALONE
 jmp_buf * throw_jmp_handler;
 

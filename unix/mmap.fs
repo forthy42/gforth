@@ -172,8 +172,10 @@ s" os-type" environment? [IF]
 #15 Constant MADV_NOHUGEPAGE	\ Not worth backing with hugepages.
 #100 Constant MADV_HWPOISON	\ Poison a page for testing.
 
-: >pagealign ( addr -- p-addr )
-    pagesize 1- + pagesize negate and ;
+[IFUNDEF] >pagealign
+    : >pagealign ( addr -- p-addr )
+	pagesize 1- + pagesize negate and ;
+[THEN]
 
 : alloc+guard ( len -- addr )
     >pagealign dup >r pagesize +

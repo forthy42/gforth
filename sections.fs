@@ -64,10 +64,15 @@ is addr>view
     sections-execute nip ;
 :noname which-section? 0<> ; is in-dictionary?
 
+: >pagesize ( size -- size' )
+    pagesize 1- + pagesize negate and ;
+
 : create-section ( size -- section )
     current-section @ >r
-    image-offset >r
-    dup r@ + allocate throw r> + dup current-section !
+    image-offset >r dup r@ +
+    >pagesize dup pagesize + alloc-mmap throw
+    tuck + guardpage
+    r> + dup current-section !
     section-start section-desc erase
     dup section-start !
     dup codestart !

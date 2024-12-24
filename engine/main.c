@@ -157,8 +157,11 @@ Cell die_on_signal=0;
 int ignore_async_signals=0;
 #ifndef INCLUDE_IMAGE
 static int clear_dictionary=0;
+#ifdef PAGESIZE
+UCell pagesize=PAGESIZE;
+#else
 UCell pagesize=1;
-Address dictguard; // guard page for dictionary
+#endif
 char *progname;
 #else
 char *progname = "gforth";
@@ -615,7 +618,7 @@ static void after_alloc(Address r, Cell size)
 #endif
 
 #if defined(HAVE_MMAP)
-static Address alloc_mmap(Cell size)
+Address alloc_mmap(Cell size)
 {
   void *r=MAP_FAILED;
   static int dev_zero=-1;
@@ -644,7 +647,7 @@ static Address alloc_mmap(Cell size)
   return r;  
 }
 
-static void page_noaccess(void *a)
+void page_noaccess(void *a)
 {
   /* try mprotect first; with munmap the page might be allocated later */
   debugp(stderr, "try mprotect(%p,$%lx,PROT_NONE); ", a, (long)pagesize);
@@ -669,7 +672,7 @@ static inline size_t wholepage(size_t n)
 
 static Address alloc_mmap_guard(Cell size)
 {
-  Address start;
+  Address start, dictguard;
   size = wholepage(size+pagesize);
   start=alloc_mmap(size);
   dictguard=start+size-pagesize;

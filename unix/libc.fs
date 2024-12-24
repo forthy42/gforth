@@ -27,19 +27,12 @@ c-library libc
     \c #include <locale.h>
     \c #include <sys/stat.h>
     \c #include <sys/ioctl.h>
-    \c #if HAVE_GETPAGESIZE
-    \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
-    \c #define getpagesize() sysconf(_SC_PAGESIZE)
-    \c #elif PAGESIZE
-    \c #define getpagesize() PAGESIZE
-    \c #endif
     \c #define set_errno(n) (errno=(n))
     \c extern char ** environ;
     c-value errno errno -- n ( -- value )
     c-value FIONREAD FIONREAD -- n ( -- value )
     c-value FIONBIO FIONBIO -- n ( -- value )
     c-function ->errno set_errno n -- void ( n -- )
-    c-function getpagesize getpagesize -- n ( -- size )
     c-function fileno fileno a{(FILE*)} -- n ( file* -- fd )
     c-function poll poll a n n -- n ( fds nfds timeout -- r )
     e? os-type s" linux-gnu" string-prefix?
@@ -91,8 +84,6 @@ c-library libc
     c-function unsetenv unsetenv s -- n ( name u -- n )
     c-value environ environ -- a ( -- env )
 end-c-library
-
-host? [IF] getpagesize [ELSE] $1000 [THEN] Value pagesize
 
 begin-structure pollfd
     lfield: fd
@@ -170,7 +161,6 @@ e? os-type s" linux-musl" string-prefix? or [IF]
     defers 'cold
     host? IF
 	['] int-errno-exec is int-execute
-	getpagesize to pagesize
 	(getpid) to getpid
     THEN ;
 
