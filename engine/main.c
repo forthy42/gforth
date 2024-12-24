@@ -700,10 +700,10 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
 
 #if defined(HAVE_MMAP)
   if (offset==0) {
-    image=alloc_mmap_guard(dictsize+preamblesize);
+    image=alloc_mmap_guard(dictsize);
     if (image != (void *)MAP_FAILED) {
       void *image1;
-      debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)dictsize+preamblesize, image);
+      debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)dictsize, image);
       debugp(stderr,"try mmap(%p, $%lx, RWX, MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
       image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
       after_alloc(image1,dictsize);
@@ -723,7 +723,7 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
   }
 #endif /* defined(HAVE_MMAP) */
   if (image == (void *)MAP_FAILED) {
-    if((image = gforth_alloc(dictsize+preamblesize+offset)+offset) == NULL)
+    if((image = gforth_alloc(dictsize+offset)+offset) == NULL)
       return NULL;
 #ifdef __ANDROID__
   read_image: /* on Android, mmap will fail despite RWX allocs are possible */
