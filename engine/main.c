@@ -745,8 +745,8 @@ void gforth_free_dict()
 {
   Cell image = (-pagesize) & (Cell)gforth_header;
 #ifdef HAVE_MMAP
-  debugp(stderr,"try unmmap(%p, $%lx); ", (void*)image, dictsize+preamblesize);
-  if(!munmap((void*)image, wholepage(dictsize+preamblesize))) {
+  debugp(stderr,"try unmmap(%p, $%lx); ", (void*)image, dictsize);
+  if(!munmap((void*)image, wholepage(dictsize))) {
     debugp(stderr,"ok\n");
   }
 #else
@@ -2388,7 +2388,7 @@ ImageHeader* gforth_loader(char* imagename, char* path)
   bases[0]=(Cell)header.base;
 
   image = dict_alloc_read(imagefile, preamblesize+sizes[0],
-			  dictsize, data_offset);
+			  dictsize+preamblesize, data_offset);
   if(image==NULL) return NULL;
 
   vm_prims = gforth_engine(0 sr_call);
