@@ -64,14 +64,18 @@ is addr>view
     sections-execute nip ;
 :noname which-section? 0<> ; is in-dictionary?
 
-: >pagesize ( size -- size' )
+: >pagealign ( size -- size' )
     pagesize 1- + pagesize negate and ;
+
+: alloc-mmap-guard ( size -- addr ) \ gforth-experimental
+    \G allocate a memory region with mmap including a guard page
+    \G at the end.
+    >pagealign dup pagesize + alloc-mmap throw
+    tuck + guardpage ;
 
 : create-section ( size -- section )
     current-section @ >r
-    image-offset >r dup r@ +
-    >pagesize dup pagesize + alloc-mmap throw
-    tuck + guardpage
+    image-offset >r dup r@ + alloc-mmap-guard
     r> + dup current-section !
     section-start section-desc erase
     dup section-start !
