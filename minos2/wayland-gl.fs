@@ -301,8 +301,12 @@ k-f11	XKB_KEY_F12 >xkb-key !
 k-f12	XKB_KEY_F12 >xkb-key !
 k-pause	XKB_KEY_Pause >xkb-key !
 
-Defer wl-ekeyed ' drop is wl-ekeyed
-Defer wl-ukeyed ' 2drop is wl-ukeyed
+: search-ekey ( key nt -- xt key flag )
+    2dup @ = IF  rot drop swap false  ELSE  drop true  THEN ;
+Defer wl-ekeyed
+:is wl-ekeyed 0 swap ['] search-ekey esc-sequences traverse-wordlist
+    drop ?dup-IF  #esc inskey name>string inskeys  THEN ;
+Defer wl-ukeyed ' inskeys is wl-ukeyed
 
 0 Value wl-meta
 
@@ -388,7 +392,7 @@ cb> xdg-wm-base-listener
 
 Defer wayland-keys
 
-:noname ( addr u -- ) inskeys ; is wayland-keys
+' inskeys is wayland-keys
 
 Create old-cursor-xywh #-4200 , #3800 , #-5 , #-100 ,
 Create cursor-xywh #200 , #300 , #1 , #10 ,
@@ -1058,6 +1062,19 @@ Defer window-init     ' noop is window-init
 : gl-init ( -- ) \ minos2
     \G if not already opened, open window and initialize OpenGL
     ctx 0= IF  read-cursor-theme  window-init THEN ;
+
+: term-key? ( -- flag )
+    stdin isfg IF  defers key?  ELSE  key-buffer $@len 0>  THEN ;
+: wl-key? ( -- flag ) 0 #looper  term-key? dup 0= IF screen-ops THEN ;
+: wl-key ( -- key )
+    +show  key? IF  defers key-ior  EXIT  THEN
+    BEGIN  >looper  key? UNTIL  defers key-ior ;
+: wl-deadline ( dtime -- )
+    up@ [ up@ ]L = IF screen-ops THEN  defers deadline ;
+' wl-deadline IS deadline
+
+' wl-key IS key-ior
+' wl-key? IS key?
 
 begin-structure app_input_state
 field: action
