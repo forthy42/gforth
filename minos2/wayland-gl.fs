@@ -212,10 +212,57 @@ Defer rescaler ' noop is rescaler
 
 ?: 3drop 2drop drop ;
 
+begin-structure app_input_state
+field: action
+field: flags
+field: metastate
+field: edgeflags
+field: pressure
+field: size
+2field: downtime
+2field: eventtime
+2field: eventtime'
+field: tcount
+field: x0
+field: y0
+field: x1
+field: y1
+field: x2
+field: y2
+field: x3
+field: y3
+field: x4
+field: y4
+field: x5
+field: y5
+field: x6
+field: y6
+field: x7
+field: y7
+field: x8
+field: y8
+field: x9
+field: y9
+end-structure
+
+app_input_state buffer: *input
+
 Defer b-scroll ' 3drop is b-scroll
-Defer b-button ' 3drop is b-button
-Defer b-motion ' 3drop is b-motion
-Defer b-enter  ' 2drop is b-enter
+Defer b-button
+:is b-button ( time b mask -- )
+    *input eventtime 2@ *input eventtime' 2!
+    1 and dup *input pressure ! dup 1 xor *input action !
+    IF    drop s>d *input eventtime 2@ d- *input downtime 2!
+    ELSE  drop s>d *input eventtime 2! #0. *input downtime 2!  THEN ;
+Defer b-motion
+:is b-motion ( time x y -- )
+    *input pressure @ IF
+	8 rshift *input y0 !  8 rshift *input x0 !
+	2 *input action !
+	s>d *input eventtime 2@ d- *input downtime 2!
+    ELSE  2drop drop  THEN ;
+Defer b-enter
+:is b-enter  ( x y -- )  8 rshift *input y0 !  8 rshift *input x0 ! ;
 Defer b-leave  ' noop  is b-leave
 
 up@ Value master-task
@@ -1083,41 +1130,6 @@ Defer window-init     ' noop is window-init
 
 ' wl-key IS key-ior
 ' wl-key? IS key?
-
-begin-structure app_input_state
-field: action
-field: flags
-field: metastate
-field: edgeflags
-field: pressure
-field: size
-2field: downtime
-2field: eventtime
-2field: eventtime'
-field: tcount
-field: x0
-field: y0
-field: x1
-field: y1
-field: x2
-field: y2
-field: x3
-field: y3
-field: x4
-field: y4
-field: x5
-field: y5
-field: x6
-field: y6
-field: x7
-field: y7
-field: x8
-field: y8
-field: x9
-field: y9
-end-structure
-
-app_input_state buffer: *input
 
 : clipboard! ( addr u -- ) clipboard$ $!
     true to my-clipboard
