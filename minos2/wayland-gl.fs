@@ -212,6 +212,8 @@ Defer rescaler ' noop is rescaler
 
 ?: 3drop 2drop drop ;
 
+\ for simplified events, the app_input_state is used
+
 begin-structure app_input_state
 field: action
 field: flags
