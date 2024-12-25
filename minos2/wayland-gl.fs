@@ -304,8 +304,16 @@ k-pause	XKB_KEY_Pause >xkb-key !
 : search-ekey ( key nt -- xt key flag )
     2dup @ = IF  rot drop swap false  ELSE  drop true  THEN ;
 Defer wl-ekeyed
-:is wl-ekeyed 0 swap ['] search-ekey esc-sequences traverse-wordlist
-    drop ?dup-IF  #esc inskey name>string inskeys  THEN ;
+:is wl-ekeyed
+    >r 0 r@ ['] search-ekey esc-sequences traverse-wordlist
+    drop ?dup-IF  #esc inskey name>string inskeys
+    ELSE
+	0 r@ $8FFFFFFF and ['] search-ekey esc-sequences traverse-wordlist
+	drop ?dup-IF
+	    #esc inskey name>string over c@ inskey 1 safe/string
+	    r@ mask-shift# rshift 7 and s" 1;" inskeys '0' + inskey inskeys
+	THEN
+    THEN  rdrop ;
 Defer wl-ukeyed ' inskeys is wl-ukeyed
 
 0 Value wl-meta
