@@ -40,7 +40,8 @@ typedef unsigned CELL_TYPE UCell;
 typedef unsigned char Char;
 typedef double Float;
 typedef Char *Address;
-typedef void **Xt;
+typedef void **Label;
+typedef Label *Xt;
 
 #define Clongest long long
 typedef unsigned Clongest UClongest;
