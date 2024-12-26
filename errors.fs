@@ -43,7 +43,7 @@ decimal
 -14 s" Interpreting a compile-only word" rot errstring
 -15 s" Invalid FORGET" rot errstring
 -16 s" Attempt to use zero-length string as a name" rot errstring
--17 s" Pictured numeric ouput string overflow" rot errstring
+-17 s" Pictured numeric output string overflow" rot errstring
 -18 s" Parsed string overflow" rot errstring
 -19 s" Word name too long" rot errstring
 -20 s" Write to a read-only location" rot errstring
