@@ -557,6 +557,10 @@ create gen-call-types
     ." c_str2gforth_str(" gen-wrapped-void
     ." ," gen-par-sp ." ," gen-par-sp ." )" ;
 
+: gen-wrapped-ws ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
+    ." wc_str2gforth_str(" gen-wrapped-void
+    ." , (Char**)&(" gen-par-sp ." ), (UCell*)&(" gen-par-sp ." ))" ;
+
 : gen-wrapped-d ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     ." gforth_ll2d(" gen-wrapped-void
     ." ," gen-par-sp ." ," gen-par-sp ." )" ;
@@ -584,7 +588,7 @@ create gen-wrapped-types
 ' gen-wrapped-func ,
 ' gen-wrapped-void ,
 ' gen-wrapped-s ,
-' gen-wrapped-a ,
+' gen-wrapped-ws ,
 ' gen-wrapped-t ,
 ' gen-wrapped-void ,
 

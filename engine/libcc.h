@@ -30,6 +30,7 @@ extern "C" {
 #include <setjmp.h>
 #include <string.h>
 #include <stdlib.h>
+#include <wchar.h>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__) || defined(__ANDROID__)
 #undef HAS_BACKLINK
@@ -208,8 +209,8 @@ gforth_stackpointers gforth_libcc_init(GFORTH_ARGS)
             : 0); \
   } while (0);
 
-static int gforth_strs_i;
-static void * gforth_strs[0x10] = { 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0 };
+static __thread int gforth_strs_i;
+static __thread void* gforth_strs[0x10];
 
 #define ROLLSTR(type,size)					   \
   type * str= malloc(sizeof(type)*(size));			   \
@@ -267,6 +268,64 @@ static __attribute__((unused)) wchar_t * gforth_str2wc(Char* addr, UCell u)
     str[i]=0; // add zero terminator
     return str;
   }
+}
+
+static __attribute__((unused)) void wc_str2gforth_str(wchar_t* wstring, Char ** addr, UCell* u)
+{
+  wchar_t wc;
+  wchar_t *wstring_count=wstring;
+  Char *strend;
+  UCell surrogate=0;
+  if(wstring == NULL) {
+    *u=0;
+    *addr=0;
+    return;
+  }
+  ROLLSTR(Char,(wcslen(wstring)*4));
+  strend=str;
+  for(;;) {
+    switch((wc=*wstring_count++)) {
+    case 0x0000: break;
+    case 0x0001 ... 0x007F:
+      *strend++=(Char)wc; continue;
+    case 0x0080 ... 0x07FF:
+      *strend++=0xC0 | (Char)(wc >> 6);
+      *strend++=0x80 | (Char)(wc & 0x3F);
+      continue;
+    case 0xD800 ... 0xDBFF:
+      surrogate = (wc & 0x3FF) << 10;
+      continue;
+    case 0xDC00 ... 0xDFFF:
+      surrogate |= (wc & 0x3FF);
+      surrogate += 0x10000;
+      *strend++=0xF0 | (Char)(surrogate >> 18);
+      *strend++=0x80 | (Char)((surrogate >> 12) & 0x3F);
+      *strend++=0x80 | (Char)((surrogate >> 6) & 0x3F);
+      *strend++=0x80 | (Char)(surrogate & 0x3F);
+      surrogate = 0;
+      continue; // surrogate pair=4 bytes
+    case 0x0800 ... 0xD7FF:
+    case 0xE000 ... 0xFFFF:
+      *strend++=0xE0 | (Char)(wc >> 12);
+      *strend++=0x80 | (Char)((wc >> 6) & 0x3F);
+      *strend++=0x80 | (Char)(wc & 0x3F);
+      continue;
+    case 0x10000 ... 0x10FFFF:
+      *strend++=0xF0 | (Char)((ws >> 18) & 0x7);
+      *strend++=0x80 | (Char)((ws >> 12) & 0x3F);
+      *strend++=0x80 | (Char)((ws >> 6) & 0x3F);
+      *strend++=0x80 | (Char)(ws & 0x3F);
+      continue;
+    default: // undefined code point 0xFFFD
+      *strend++=0xEF;
+      *strend++=0xBF;
+      *strend++=0xBD;
+      continue;
+    }
+    break;
+  }
+  *u=(UCell)(strend-str);
+  *addr=str;
 }
 
 typedef Char hash_128[16];
