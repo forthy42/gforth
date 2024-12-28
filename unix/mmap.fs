@@ -172,23 +172,23 @@ s" os-type" environment? [IF]
 #15 Constant MADV_NOHUGEPAGE	\ Not worth backing with hugepages.
 #100 Constant MADV_HWPOISON	\ Poison a page for testing.
 
-[IFUNDEF] >pagealign
-    : >pagealign ( addr -- p-addr )
-	pagesize 1- + pagesize negate and ;
+[IFUNDEF] pagealigned
+    : pagealigned ( addr -- p-addr )
+	pagesize naligned ;
 [THEN]
 
 : alloc+guard ( len -- addr )
-    >pagealign dup >r pagesize +
+    pagealigned dup >r pagesize +
     0 swap PROT_RWX
     [ MAP_PRIVATE MAP_ANONYMOUS or ]L -1 0 mmap dup ?ior
     dup r> + pagesize PROT_NONE mprotect ?ior ;
 : alloc+lock ( len -- addr )
-    >pagealign dup >r alloc+guard dup r> mlock ?ior ;
+    pagealigned dup >r alloc+guard dup r> mlock ?ior ;
 
 : free+guard ( addr len -- )
-    >pagealign pagesize + munmap ?ior ;
+    pagealigned pagesize + munmap ?ior ;
 
-: clearpages ( addr len -- ) >pagealign
+: clearpages ( addr len -- ) pagealigned
     2dup munmap ?ior
     PROT_RWX
     [ MAP_PRIVATE MAP_ANONYMOUS or MAP_FIXED or ]L -1 0 mmap 0= ?ior ;
