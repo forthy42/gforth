@@ -602,8 +602,8 @@ t{ 1 2 3 4 t-rpick -> 4 3 2 1 }t
 \ extra-section
 
 t{ 1 extra-section t-extra-section -> }t
-t{ ' unused t-extra-section -> 1 }t
-t{ 1 ' allot t-extra-section -> }t
+t{ ' unused t-extra-section 1 pagesize within -> true }t
+t{ ' unused t-extra-section ' allot ' t-extra-section catch -> 0 }t
 t{ 1 ' allot ' t-extra-section catch nip nip -> -8 }t
 
 \ refill with&without newline at end of last line

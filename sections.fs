@@ -64,13 +64,13 @@ is addr>view
     sections-execute nip ;
 :noname which-section? 0<> ; is in-dictionary?
 
-: >pagealign ( size -- size' )
-    pagesize 1- + pagesize negate and ;
+: pagealigned ( size -- size' )
+    pagesize naligned ;
 
 : alloc-mmap-guard ( size -- addr ) \ gforth-experimental
     \G allocate a memory region with mmap including a guard page
     \G at the end.
-    >pagealign dup pagesize + alloc-mmap throw
+    pagealigned dup pagesize + alloc-mmap throw
     tuck + guardpage ;
 
 : create-section ( size -- section )
@@ -113,12 +113,12 @@ is reset-dpp
     sections >back 1 #extra-sections +! ;
 
 : extra-section ( usize "name" -- ) \ gforth
-    \G Define a new word @i{name} and create a section @i{s} with
-    \G usable size @i{usize}.@* @i{Name} execution @code{( ... xt --
-    \G ... )}: When calling @i{name}, the current section is @i{c}.
-    \G Switch the current section to be @i{s}, @i{execute} xt, then
-    \G switch the current section back to @i{c}.
-    section-desc +
+    \G Define a new word @i{name} and create a section @i{s} with at
+    \G least @i{usize} unused bytes.@* @i{Name} execution @code{(
+    \G ... xt -- ... )}: When calling @i{name}, the current section is
+    \G @i{c}.  Switch the current section to be @i{s}, @i{execute} xt,
+    \G then switch the current section back to @i{c}.
+    section-desc + pagealigned
     create-section dup >extra-sections
     create , latest [: section-name ! ;] over @ section-execute
   does> ( xt -- )

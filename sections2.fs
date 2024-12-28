@@ -18,12 +18,17 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+: reverse-sections-execute ( xt -- )
+    >r sections $@ cell/ cell array>mem mem-do
+        j i @ section-execute
+    loop ;
+
 : .sections ( -- ) \ gforth
     \G Show all the sections and their status.
     cr ."             start      size      used name"
     current-section @
     [:  cr dup current-section @ = if '>' else bl then emit
 	section-start @ #16 hex.r
-	section-size  @ #10 hex.r
-	section-dp    @ section-start @ - #10 hex.r space
+	section-size  @ #10 dec.r
+	section-dp    @ section-start @ - #10 dec.r space
 	section-name @ id. ;] sections-execute  drop ;
