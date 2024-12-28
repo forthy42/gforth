@@ -23,11 +23,9 @@
 \g alignment @var{n}.  Another name for this word is @code{*aligned}.
  1- tuck +  swap invert and ;
 
-' naligned alias nalign \ old name, obsolete
-
 : field, ( align1 offset1 align size --  align2 offset2 )
-    swap rot over nalign dup , ( align1 size align offset )
-    rot + >r nalign r> ;
+    swap rot over naligned dup , ( align1 size align offset )
+    rot + >r naligned r> ;
 
 : create-field ( align1 offset1 align size --  align2 offset2 )
     create field, ;
@@ -45,7 +43,7 @@
 \g @var{align} and size @var{size1} (@var{size} rounded up to be a
 \g multiple of @var{align}).@*
 \g @code{name} execution: -- @var{align size1}@*
-    over nalign \ pad size to full alignment
+    over naligned \ pad size to full alignment
     2constant ;
 
 1 chars 0 end-struct struct ( -- align size ) \ gforth
@@ -67,7 +65,7 @@ cell% 2*              2constant double% ( -- align size ) \ gforth
 
 : %align ( align size -- ) \ gforth
     \G Align the data space pointer to the alignment @var{align}. 
-    drop here swap nalign here - allot ;
+    drop here swap naligned here - allot ;
 
 : %allot ( align size -- addr ) \ gforth
     \g Allot @var{size} address units of data space with alignment
