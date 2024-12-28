@@ -19,9 +19,10 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : reverse-sections-execute ( xt -- )
-    >r sections $@ cell/ cell array>mem mem-do
+    >r sections $@ cell mem-do
         j i @ section-execute
-    loop ;
+    loop
+    rdrop ;
 
 : .sections ( -- ) \ gforth
     \G Show all the sections and their status.
@@ -31,4 +32,4 @@
 	section-start @ #16 hex.r
 	section-size  @ #10 dec.r
 	section-dp    @ section-start @ - #10 dec.r space
-	section-name @ id. ;] sections-execute  drop ;
+	section-name @ id. ;] reverse-sections-execute  drop ;
