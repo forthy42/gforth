@@ -1,7 +1,7 @@
 \ see-ext.fs extentions for see locals, floats
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 1995,1996,1997,2003,2007,2012,2014,2019,2021,2023 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,2003,2007,2012,2014,2019,2021,2023,2024 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

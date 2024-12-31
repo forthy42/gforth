@@ -2,7 +2,7 @@
 
 
   Author: Bernd Paysan
-  Copyright (C) 2012,2019 Free Software Foundation, Inc.
+  Copyright (C) 2012,2019,2024 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 

@@ -1,7 +1,7 @@
 \ replacement for name
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 1999,2000,2003,2007,2015,2016,2017,2019,2021 Free Software Foundation, Inc.
+\ Copyright (C) 1999,2000,2003,2007,2015,2016,2017,2019,2021,2024 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
