@@ -98,17 +98,21 @@ require ./io.fs
 
 \ print numbers                                        07jun92py
 
+: type-r ( c-addr u u2 -- ) \ gforth-experimental
+    \G Type string @i{c-addr u} right-aligned in field of width \i{u2}.
+    over - spaces type ;
+
 : d.r ( d n -- ) \ double	d-dot-r
     \G Display @var{d} right-aligned in a field @var{n} characters wide. If more than
     \G @var{n} characters are needed to display the number, all digits are displayed.
     \G If appropriate, @var{n} must include a character for a leading ``-''.
     >r tuck  dabs  <<# #s  rot sign #>
-    r> over - spaces  type #>> ;
+    r> type-r #>> ;
 
 : ud.r ( ud n -- ) \ gforth	u-d-dot-r
     \G Display @var{ud} right-aligned in a field @var{n} characters wide. If more than
     \G @var{n} characters are needed to display the number, all digits are displayed.
-    >r <<# #s #> r> over - spaces type #>> ;
+    >r <<# #s #> r> type-r #>> ;
 
 : .r ( n1 n2 -- ) \ core-ext	dot-r
     \G Display @var{n1} right-aligned in a field @var{n2} characters wide. If more than

@@ -670,7 +670,7 @@ synonym hex. h. ( u -- ) \ gforth
     \G not in Gforth before 1.0.
 
 : hex.r ( u1 u2 -- )
-    ['] u.r $10 base-execute ;
+    >r 0 <<# ['] #s $10 base-execute '$' hold #> r> type-r #>> ;
 
 : dump ( addr u -- ) \ tools
     ['] dump $10 base-execute ;
