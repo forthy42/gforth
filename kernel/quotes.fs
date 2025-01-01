@@ -30,8 +30,9 @@ Defer next-section ( -- ) \ gforth
 \g size of the current section).
 
 Defer previous-section ( -- ) \ gforth
-\g Switch to the previous section in the section stack.  Throw an
-\g exception if there is no previous section.
+\g Switch to the previous section in the section stack; the now-next
+\g section continues to exist with everything that was put there.
+\g Throw an exception if there is no previous section.
 
 :noname  latestnt  postpone ahead ; is next-section
 :noname  postpone then  lastnt !  ; is previous-section

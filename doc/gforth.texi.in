@@ -6115,8 +6115,7 @@ dictionary-allocated data structures: Use @code{next-section} for the
 inner definition or data structure, switch back with
 @code{previous-section}.
 
-A Gforth-specific property of sections is that words like
-@code{latest} (@pxref{Name token}) and @code{latestxt}
+Words like @code{latest} (@pxref{Name token}) and @code{latestxt}
 (@pxref{Anonymous Definitions}) refer to the most recent definition in
 the current section.  Quotations (@pxref{Quotations}) and the implicit
 quotation of @code{does>} (@pxref{User-defined defining words using
@@ -6207,24 +6206,28 @@ At the time of this writing this outputs:
 
 @example
             start      size      used name
-     7F884CE34000      4000       5D8 locals-headers 
->    7F883ECBF040    800000     A09A0 Forth 
-     7F883EABE000    200000      7FE8 noname 
-     7F883EA3D000     80000       7F0 noname 
-     7F883EA1C000     20000        C8 noname 
-     7F883EA13000      8000        58 noname
+    $7F9A5A516000     32768        96 noname 
+    $7F9A5A1A1000    131072       208 noname 
+    $7F9A5A1C2000    524288      2128 noname 
+    $7F9A4BDFD000   2097152     32680 noname 
+>   $7F9A4BFFE040   8388608    659272 Forth 
+    $7F9A5A51F000     20480      1448 locals-headers
 @end example
 
-The lines are the different sections: First the named sections, then
-the section stack, with the bottom of the stack (@code{Forth}) shown
-topmost with the name @code{Forth}.  The columns are the start address
-of the section, the gross size (including section management
-overhead), how much of the section is already used, and the name.  All
-numbers are in hexadecimal base.  Note that not all of the remaining
-size can be used for @code{allot}ting memory, because room must be
-left for the @code{hold} buffer (@pxref{Formatted numeric output}) and
-for @code{pad} (@code{memory blocks}).  The current section is marked
-with the @code{>}.
+The lines describe the different sections: First the section stack,
+with sections called @code{noname} and (the bottom) @code{Forth}, then
+the extra-sections.  The columns are the start address of the section,
+the gross size (including section management overhead), how much of
+the section is already used, and the name.  The size and used columns
+are in decimal base.
+
+In the section @code{Forth}, not all of the remaining size can be used
+for @code{allot}ting memory, because room must be left for @code{pad}
+(@code{memory blocks}).  The current section is marked with the
+@code{>}.  Also, if you use @code{word} (@pxref{The Input Stream}),
+you must leave room in the current section for the parsed string and
+its length byte.
+
 
 @node Heap Allocation, Memory Access, Sections, Memory
 @subsection Heap allocation
