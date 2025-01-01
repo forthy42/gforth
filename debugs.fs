@@ -180,6 +180,12 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 ; is check-shadow
 [then]
 
+\ in pedantic mode, warn if locals overshade existing words
+:is locals-warning  warnings @ abs 3 >= IF
+	sp@ >r latestnt name>string 2dup rec-nt
+	['] shadow-warning ?warning r> sp!
+    THEN ;
+
 : ?warn-dp ( -- )
     >num-state @ >num-state off 1 and 0= dpl @ 0>= and warnings @ abs 1 > and
     [: '' emit input-lexeme 2@ type

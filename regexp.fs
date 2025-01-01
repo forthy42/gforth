@@ -58,8 +58,8 @@
 : +chars ( addr u -- ) \ regexp-cg
     \G add a string of chars to the current charclass
     bounds ?DO  I c@ +char  LOOP ;
-[IFUNDEF] or!  : or! ( n addr -- )  tuck @ or swap ! ;  [THEN]
-[IFUNDEF] and! : and! ( n addr -- )  tuck @ and swap ! ; [THEN]
+?: or! ( n addr -- )  tuck @ or swap ! ;
+?: and! ( n addr -- )  tuck @ and swap ! ;
 : +class ( class -- ) \ regexp-cg
     \G union of charclass @var{class} and the current charclass
     $100 0 ?DO  @+ swap

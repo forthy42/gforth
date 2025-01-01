@@ -324,6 +324,8 @@ t{ : execute-exit-test {: a :} >r ['] r> execute2 a ; -> }t
 t{ 1 2 execute-exit-test -> 1 2 }t
 
 \ postpone locals
+0 warnings !@ >r
+
 t{ : pl-test1 'a' {: c: l :} postpone l ; immediate -> }t
 t{ : pl-test2 pl-test1 ; -> }t
 t{ pl-test2 -> 'a' }t
@@ -339,6 +341,8 @@ t{ pl-test8 -> 123 }t
 t{ : pl-test9 ['] + {: xt: l :} postpone l ; immediate -> }t
 t{ : pl-testa pl-test9 ; -> }t
 t{ 3 6 pl-testa -> 9 }t
+
+r> warnings !
 
 \ optimized pick and fpick
 t{ : pick-test 4 pick 3 pick 2 pick 1 pick 0 pick ; -> }t
@@ -373,8 +377,10 @@ t{ "`xlerb" forth-recognize -> 0 }t
 t{ "``xlerb" forth-recognize -> 0 }t
 t{ "->xlerb" forth-recognize -> 0 }t
 
+0 warnings !@ >r
 : eval-catch ( addr u -- throwcode | results 0 )
     [{: addr u :}h1 addr u evaluate ;] catch ;
+r> warnings !
 
 1 Value value1
 2 Varue Varue2
@@ -502,6 +508,7 @@ t{ :noname -20 -3 /modf ; execute ->  -2 6 }t
 
 \ t{ 1 2 3 homeloc >r @ swap @ rot @ r> free -> 1 2 3 0 }t
 
+0 warnings !@ >r
 : combiner [{: a b xt: do-it | c :}h1 a b do-it ;] ;
 
 t{ 1 2 ' + combiner execute -> 3 }t
@@ -515,6 +522,7 @@ t{ 0 0 ' + combiner #1234 #5678 third >body 2! execute -> #6912 }t
 	    k @ B @ x1 x2 x3 x4 A ;] dup B !
 	execute  THEN ;
 : man-or-boy? ( n -- n' ) [: 1 ;] [: -1 ;] 2dup swap [: 0 ;] A ;
+r> warnings !
 
 t{ 0 man-or-boy? -> 1 }t
 t{ 1 man-or-boy? -> 0 }t
@@ -576,7 +584,9 @@ t{ : test-mem-0 array>mem mem-do i @ loop ; -> }
 t{ test-mem*a 4 cell test-mem-0 -> -3 1 5 3 }t
 t{ test-mem*a 1 cell test-mem-0 -> 3 }t
 t{ test-mem*a 0 cell test-mem-0 -> }t
+0 warnings !@ >r
 t{ : test-mem-l 1 {: a :} array>mem mem-do 2 {: b :} i @ loop a ; -> }
+r> warnings !
 t{ test-mem*a 4 cell test-mem-l -> -3 1 5 3 1 }t
 
 \ -[do u-[do

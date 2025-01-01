@@ -298,8 +298,10 @@ Defer locals-list!
 
 (field) locals-name-size+ hmsize cell+ , \ fields + wiggle room, name size must be added
 
+Defer locals-warning  ' noop is locals-warning
+
 : create-local1 ( does-xt to-xt "name" -- a-addr )
-    create
+    create locals-warning
     immediate restrict  set-to set-does>
     here 0 , ( place for the offset ) ;
 

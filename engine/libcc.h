@@ -311,10 +311,10 @@ static __attribute__((unused)) void wc_str2gforth_str(wchar_t* wstring, Char ** 
       *strend++=0x80 | (Char)(wc & 0x3F);
       continue;
     case 0x10000 ... 0x10FFFF:
-      *strend++=0xF0 | (Char)((ws >> 18) & 0x7);
-      *strend++=0x80 | (Char)((ws >> 12) & 0x3F);
-      *strend++=0x80 | (Char)((ws >> 6) & 0x3F);
-      *strend++=0x80 | (Char)(ws & 0x3F);
+      *strend++=0xF0 | (Char)((wc >> 18) & 0x7);
+      *strend++=0x80 | (Char)((wc >> 12) & 0x3F);
+      *strend++=0x80 | (Char)((wc >> 6) & 0x3F);
+      *strend++=0x80 | (Char)(wc & 0x3F);
       continue;
     default: // undefined code point 0xFFFD
       *strend++=0xEF;
