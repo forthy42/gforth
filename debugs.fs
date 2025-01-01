@@ -182,7 +182,7 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 
 \ in pedantic mode, warn if locals overshade existing words
 :is locals-warning  warnings @ abs 3 >= IF
-	sp@ >r latestnt name>string 2dup rec-nt
+	sp@ >r latestnt name>string 2dup search-order
 	['] shadow-warning ?warning r> sp!
     THEN ;
 
