@@ -358,6 +358,8 @@ alloc-callback
 alloc-callback
 allocd
 alloch
+alloc-mmap
+alloc-mmap-guard
 %allot
 allot
 .all-rest
@@ -2002,6 +2004,7 @@ gen-wrapped-types
 gen-wrapped-u
 gen-wrapped-ud
 gen-wrapped-void
+gen-wrapped-ws
 gen-wrapper-function
 GEqualFunc:
 GEqualFuncFull:
@@ -2022,7 +2025,6 @@ get-input-colored
 get-line
 get-next
 get-order
-getpagesize
 (getpid)
 getpid
 getrandom
@@ -2760,6 +2762,7 @@ _GTypeValueTable-value_copy
 _GTypeValueTable-value_free
 _GTypeValueTable-value_init
 _GTypeValueTable-value_peek_pointer
+guardpage
 g_value_dup_object
 g_value_get_object
 g_value_set_object
@@ -3346,6 +3349,7 @@ locals-to:,
 locals-to-class:
 locals-to:exec
 locals-types
+locals-warning
 locals-where,
 locate
 located-bottom
@@ -3556,7 +3560,6 @@ MyBranch
 [n:
 n
 n/a
-nalign
 naligned
 ((name>))
 (name)
@@ -3925,6 +3928,7 @@ pad
 /PAD
 pad-minsize
 page
+pagealigned
 >pagealign-stack
 pagesize
 .paren-cov#
@@ -4477,6 +4481,7 @@ revealed
 reveal-method
 revents
 reverse
+reverse-sections-execute
 reworkdir
 rfft
 rgb-split
@@ -5666,6 +5671,7 @@ Type!
 type-letter
 type-notabs
 type-prefix
+type-r
 ...-types,
 typewhite
 u#+
