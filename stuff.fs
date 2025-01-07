@@ -118,7 +118,7 @@ AUser CSP
     record-name (') ['] defer! nr> drop ;
 : :method ( class "name" -- ) \ gforth-experimental
     \G define a noname that is assigned to the deffered word @var{name}
-    \G at @code{;}.
+    \G in @var{class} at @code{;}.
     :noname colon-sys-xt-offset n>r drop
     swap record-name (') ['] defer! nr> drop ;
 

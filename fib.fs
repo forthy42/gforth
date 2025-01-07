@@ -18,7 +18,8 @@
 0 [IF]
     5e fsqrt fdup 1/f fconstant /sqrt5
     1e f+ f2/ fln     fconstant gbase
-    : fib ( n -- f )
+    : fibf ( n1 -- n2 )
+	1+ \ as stated above, to make the result comparable
 	dup s>f gbase f* fdup fexp fswap fnegate fexp
-	1 and IF f+ ELSE f- THEN  /sqrt5 f* ;
+	1 and IF f+ ELSE f- THEN  /sqrt5 f* fround f>s ;
 [THEN]

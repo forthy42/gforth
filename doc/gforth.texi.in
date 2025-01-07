@@ -9299,6 +9299,7 @@ doc-defer!
 doc-is
 doc-defer@
 doc-action-of
+doc-:is
 
 @c Use @code{words-deferred} to see a list of deferred words.
 
@@ -14976,7 +14977,11 @@ doc-rec-moof2
 To assign methods to selectors, use @var{xt class} @code{is}
 @var{selector}, so no @code{defines} necessary.  For early binding of
 methods, @code{[} @var{class} @code{] defers} @var{selector} is used, no
-need for @code{::}.
+need for @code{::}.  Instead of writing @code{:noname} @var{code}
+@code{;} @var{class} @code{is} @var{selector}, you can also use the
+syntactic sugar @var{class} @code{:method} @var{selector} @var{code} @code{;}.
+
+doc-:method
 
 @node Comparison with other object models,  , Mini-OOF2, Object-oriented Forth
 @subsection Comparison with other object models
