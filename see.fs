@@ -119,19 +119,23 @@ Defer discode ( addr u -- ) \ gforth
 
 definitions
 
+: (next-head) ( addr1 addr2 -- addr )
+    tuck >r u+do
+	i xt? if
+	    i dup >cfa swap name>string drop cell negate and dup 0= select
+	    unloop rdrop exit
+	then
+    cell +loop
+    r> ;
+
 : next-head ( addr1 -- addr2 ) \ gforth-internal
     \G find the next header starting after addr1, up to here (unreliable).
     [ cell body> ] Literal +
     dup which-section? ?dup-IF
-	['] section-dp swap section-execute @
+	[: section-dp @ (next-head) ;] swap section-execute
     ELSE
-	here
-    THEN tuck >r u+do
-	i xt? if
-	    i name>string drop cell negate and unloop rdrop exit
-	then
-    cell +loop
-    r> ;
+	here (next-head)
+    THEN ;
 
 : next-prim ( addr1 -- addr2 ) \ gforth-internal
     \G find the next primitive after addr1 (unreliable)
@@ -201,13 +205,49 @@ VARIABLE C-Pass
 : Debug? ( -- flag ) C-Pass @ 2 = ;
 : ?.string  ( c-addr u xt -- )   Display? if .string else 2drop drop then ;
 
+Defer see-threaded
+
+\ The branchtable consists of three entrys:
+\ address of branch , branch destination , branch type
+
+CREATE BranchTable 128 cells allot
+here 3 cells -
+ACONSTANT MaxTable
+VARIABLE BranchPointer	\ point to the end of branch table
+VARIABLE SearchPointer
+VARIABLE C-Stop
+
+\ try see quotations, but so far fails, because can't reenter see-threaded
+0 [IF]
+: smart.quotation. ( n depth -- t / n f )
+    drop dup xt? IF
+	dup name>string d0= IF
+	    dup >code-address docol: = IF
+		s" [: " ['] Com-color .string
+		BranchPointer @ BranchTable { bp SaveTable[ 128 cells ] }
+		2 Level +! >body see-threaded  -2 Level +!
+		SaveTable[ BranchTable 128 cells move
+		bp BranchPointer !  C-Stop off
+		s" ] " ['] Com-color .string
+		true EXIT  THEN  THEN  THEN
+    false ;
+[THEN]
+
 : c-lits ( -- )
     display? IF
 	sp@ >r  smart.s-skip off
-	litstack get-stack dup 0 ?DO  dup I - pick smart.s.  LOOP  drop
+	[IFDEF] smart.quotation.
+	    ['] smart.quotation. smart<> >back
+	[THEN]
+	litstack get-stack  litstack $free
+	dup 0 ?DO  dup I - pick smart.s.  LOOP  drop
+	[IFDEF] smart.quotation.
+	    smart<> back> drop
+	[THEN]
 	r> sp!
-    THEN
-    litstack $free ;
+    ELSE
+	litstack $free
+    THEN ;
 
 Variable struct-pre
 : .struc ( c-addr u -- )       
@@ -231,18 +271,7 @@ Variable struct-pre
 
 \ FORMAT WORDS                                          13jun93jaw
 
-VARIABLE C-Stop
 VARIABLE Branches
-
-VARIABLE BranchPointer	\ point to the end of branch table
-VARIABLE SearchPointer
-
-\ The branchtable consists of three entrys:
-\ address of branch , branch destination , branch type
-
-CREATE BranchTable 128 cells allot
-here 3 cells -
-ACONSTANT MaxTable
 
 : FirstBranch ( -- )
     BranchTable cell+ SearchPointer ! ;
@@ -652,7 +681,7 @@ ACONSTANT MaxTable
 [IFDEF] u#exec
     Variable u#what \ global variable to specify what to search for
     : search-u#gen ( 0 offset1 offset2 nt -- xt/0 offset1 offset2 flag )
-	name>interpret dup >code-address docol: = IF
+	dup >code-address docol: = IF
 	    dup >body @decompile-prim u#what @ xt=
 	    over >body 3 cells + @decompile-prim ['] ;S xt= and
 	    IF  >r 2dup r@ >body cell+ 2@ d=
@@ -881,7 +910,7 @@ c-extender !
     else
 	." latestxt >body !"
     then ;
-: see-threaded ( addr -- )
+:is see-threaded ( addr -- )
     C-Pass @ DebugMode = IF
 	ScanMode c-pass !
 	EXIT
