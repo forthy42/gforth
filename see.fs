@@ -218,33 +218,28 @@ VARIABLE SearchPointer
 VARIABLE C-Stop
 
 \ try see quotations, but so far fails, because can't reenter see-threaded
-0 [IF]
+
 : smart.quotation. ( n depth -- t / n f )
     drop dup xt? IF
 	dup name>string d0= IF
 	    dup >code-address docol: = IF
 		s" [: " ['] Com-color .string
-		BranchPointer @ BranchTable { bp SaveTable[ 128 cells ] }
+		BranchPointer @ BranchTable
+		{ bp SaveTable[ 128 cells ] }
 		2 Level +! >body see-threaded  -2 Level +!
 		SaveTable[ BranchTable 128 cells move
 		bp BranchPointer !  C-Stop off
 		s" ] " ['] Com-color .string
 		true EXIT  THEN  THEN  THEN
     false ;
-[THEN]
 
 : c-lits ( -- )
     display? IF
 	sp@ >r  smart.s-skip off
-	[IFDEF] smart.quotation.
-	    ['] smart.quotation. smart<> >back
-	[THEN]
+	['] smart.quotation. smart<> >back
 	litstack get-stack  litstack $free
 	dup 0 ?DO  dup I - pick smart.s.  LOOP  drop
-	[IFDEF] smart.quotation.
-	    smart<> back> drop
-	[THEN]
-	r> sp!
+	smart<> back> drop  r> sp!
     ELSE
 	litstack $free
     THEN ;

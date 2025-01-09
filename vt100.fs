@@ -34,13 +34,13 @@ decimal
 [IFUNDEF] at-deltaxy  Defer at-deltaxy [THEN]
 : vt100-at-deltaxy ( x y -- )
     \ over 0< over 0= and IF  drop abs backspaces  EXIT  THEN
-    [: <<#
-      ?dup-IF
-	  dup 0< 'A' 'B' rot select  hold abs 0 #s 2drop #esc[
-      THEN
-      ?dup-IF
-	  dup 0< 'D' 'C' rot select  hold abs 0 #s 2drop #esc[
-      THEN #0. #> type #>> ;] #10 base-execute ;
+    <<#
+    ?dup-IF
+	dup 0< 'A' 'B' rot select  hold abs #n #esc[
+    THEN
+    ?dup-IF
+	dup 0< 'D' 'C' rot select  hold abs #n #esc[
+    THEN #0. #> type #>> ;
 
 : vt100-page ( -- )
   <<# s" [2J" holds #esc hold #0. #> type #>> 0 0 at-xy ;
