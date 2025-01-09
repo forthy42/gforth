@@ -921,19 +921,17 @@ tex: thumb-tex-rgba
 
 ' init-thumb-atlas window-init,
 
-:noname defers reload-textures gen-thumb-tex
+:is reload-textures defers reload-textures gen-thumb-tex
     level# @ 0> IF  program init  THEN ;
-is reload-textures
 
 Variable thumbs[]
 
 Defer free-thumbs
 
-:noname ( -- )
+:is free-thumbs ( -- )
     thumbs[] $[]free
     thumb-rgba texture_atlas_delete
-    init-thumb-atlas
-; is free-thumbs
+    init-thumb-atlas ;
 
 previous
 

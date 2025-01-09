@@ -95,8 +95,8 @@ Variable fonts[] \ stack of used fonts
     GL_TEXTURE_2D atlas-bgra texture_atlas_t-id l@ glBindTexture edge linear
     atlas-bgra upload-atlas-tex ;
 
-:noname defers reload-textures
-    gen-atlas-tex gen-atlas-tex-bgra ; is reload-textures
+:is reload-textures defers reload-textures
+    gen-atlas-tex gen-atlas-tex-bgra ;
 
 \ render font into vertex buffers
 
@@ -322,9 +322,9 @@ $[]Variable >tc[]
     >r @ 0= IF  rdrop  EXIT  THEN
     r> $@ third $FF and sfloats /string drop l@ tuck select ;
 
-Defer >tc :noname ( from to -- ) >tc[] translate! ; is >tc
+Defer >tc :is >tc ( from to -- ) >tc[] translate! ;
 Defer >tc2 ( to -- ) ' drop is >tc2
-Defer >sc :noname ( from to -- ) >sc[] translate! ; is >sc
+Defer >sc :is >sc ( from to -- ) >sc[] translate! ;
 : >tc@ ( from -- to ) >tc[] translate@ ;
 : >sc@ ( from -- to ) >sc[] translate@ ;
 

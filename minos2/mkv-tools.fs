@@ -315,10 +315,10 @@ also mkv-tags
     3 cells +LOOP  #-1. ;
 
 \ seekhead will terminate after doing the head
-:noname  tag-pos 2@ seek-pos 2!
-    mkv-recurse nothrow !!ebml-early!! throw ; mkv-file to SeekHead
+mkv-file :method SeekHead  tag-pos 2@ seek-pos 2!
+    mkv-recurse nothrow !!ebml-early!! throw ;
 \ segment will catch early termination
-:noname  mkvlevel @ >r ['] mkv-recurse catch r> mkvlevel !
+mkv-file :method Segment  mkvlevel @ >r ['] mkv-recurse catch r> mkvlevel !
     dup !!ebml-early!! = IF  2drop noThrow
 	\ we want to run all the seeks
 	\ those are the meta informations
@@ -329,19 +329,17 @@ also mkv-tags
 	3 cells +LOOP
 	1 seeks# +!
     ELSE  throw  THEN ;
-mkv-file to Segment
-:noname  drop 2dup @uint seektag ! ;
-mkv-file to SeekID
-:noname  drop 2dup @uint 0 seek-pos 2@ d+ seektag cell+ 2!
+mkv-file :method SeekID  drop 2dup @uint seektag ! ;
+mkv-file :method SeekPosition  drop 2dup @uint 0 seek-pos 2@ d+ seektag cell+ 2!
     seektag 3 cells seeks# @ seeks $[]
-    dup @ IF  $+!  ELSE  $!  THEN ; mkv-file to SeekPosition
+    dup @ IF  $+!  ELSE  $!  THEN ;
 
 cell 8 = [IF] ' df! [ELSE] ' sf! [THEN] alias cf!
 cell 8 = [IF] ' df@ [ELSE] ' sf@ [THEN] alias cf@
 
 \ info storing
 ' mkv-recurse mkv-file to Info
-:noname drop 2dup @uint tc-scale ! ; mkv-file to TimecodeScale
+mkv-file :method TimecodeScale drop 2dup @uint tc-scale ! ;
 \ track storing
 ' mkv-recurse mkv-file to Tracks
 ' mkv-recurse mkv-file to TrackEntry
@@ -350,33 +348,33 @@ cell 8 = [IF] ' df@ [ELSE] ' sf@ [THEN] alias cf@
 ' mkv-recurse mkv-file to Tags
 ' mkv-recurse mkv-file to Tag
 ' mkv-recurse mkv-file to SimpleTag
-:noname drop 2dup @uint track# @ default-duration $[] ! ; mkv-file to DefaultDuration
-:noname drop 2dup @float tc-scale @ fm* 1e-9 f* total-duration f! ; mkv-file to Duration
-:noname drop 2dup @uint mkv-w ! ; mkv-file to PixelWidth
-:noname drop 2dup @uint mkv-h ! ; mkv-file to PixelHeight
-:noname drop 2dup @uint track# ! ; mkv-file to TrackNumber
-:noname drop 2dup track# @ codec $[]! ; mkv-file to CodecID
-:noname drop 2dup track# @ codec-private $[]! ; mkv-file to CodecPrivate
-:noname drop 2dup track# @ lang $[]! ; mkv-file to Language
-:noname drop 2dup track# @ lang-name $[]! ; mkv-file to Name
-:noname drop 2dup @float track# @ sample-frequency $[] cf! ; mkv-file to SamplingFrequency
-:noname drop 2dup @uint track# @ track-type $[] ! ; mkv-file to TrackType
-:noname drop 2dup @uint track# @ audio-channels $[] ! ; mkv-file to Channels
+mkv-file :method DefaultDuration drop 2dup @uint track# @ default-duration $[] ! ;
+mkv-file :method Duration drop 2dup @float tc-scale @ fm* 1e-9 f* total-duration f! ;
+mkv-file :method PixelWidth drop 2dup @uint mkv-w ! ;
+mkv-file :method PixelHeight drop 2dup @uint mkv-h ! ;
+mkv-file :method TrackNumber drop 2dup @uint track# ! ;
+mkv-file :method CodecID drop 2dup track# @ codec $[]! ;
+mkv-file :method CodecPrivate drop 2dup track# @ codec-private $[]! ;
+mkv-file :method Language drop 2dup track# @ lang $[]! ;
+mkv-file :method Name drop 2dup track# @ lang-name $[]! ;
+mkv-file :method SamplingFrequency drop 2dup @float track# @ sample-frequency $[] cf! ;
+mkv-file :method TrackType drop 2dup @uint track# @ track-type $[] ! ;
+mkv-file :method Channels drop 2dup @uint track# @ audio-channels $[] ! ;
 
 \ cue storing
 ' mkv-recurse mkv-file to Cues
 ' mkv-recurse mkv-file to CuePoint
 ' mkv-recurse mkv-file to CueTrackPositions
-:noname drop 2dup @uint cuetag ! ; mkv-file to CueTime
-:noname drop 2dup @uint cuetag cell+ ! ; mkv-file to CueTrack
-:noname drop 2dup @uint 0 seek-pos 2@ d+ cuetag 2 cells + 2!
-    cuetag 4 cells cue-tags $+! ; mkv-file to CueClusterPosition
+mkv-file :method CueTime drop 2dup @uint cuetag ! ;
+mkv-file :method CueTrack drop 2dup @uint cuetag cell+ ! ;
+mkv-file :method CueClusterPosition drop 2dup @uint 0 seek-pos 2@ d+ cuetag 2 cells + 2!
+    cuetag 4 cells cue-tags $+! ;
 
 \ cluster handling
 
 ' mkv-recurse mkv-file to Cluster
-:noname drop 2dup @uint dup time-code !
-    1e-9 fm* tc-scale @ fm* dts f! ; mkv-file to TimeCode
+mkv-file :method TimeCode drop 2dup @uint dup time-code !
+    1e-9 fm* tc-scale @ fm* dts f! ;
 
 : >pts ( ticks -- ftime ) time-code @ + 1e-9 fm* tc-scale @ fm* ;
 Variable random-access
@@ -459,13 +457,13 @@ Create aac-rates
     ELSE  0 audio,  THEN
     $101 fill-mts packup ;
 
-:noname drop 2dup + { end }
+mkv-file :method SimpleBlock drop 2dup + { end }
     over track@+ { track }
     be-w@+  dup $8000 and negate or { time-off }
     count drop \ discardable does not interest us
     track 1 = IF  end time-off .video  THEN
     track 2 = IF  end time-off .audio  THEN
-    drop ; mkv-file to SimpleBlock
+    drop ;
 
 previous
 

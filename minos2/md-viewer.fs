@@ -326,10 +326,10 @@ previous
 md-styler new Constant default-md-styler
 default-md-styler to md-style
 
-:noname ( -- )
+:is .md-text ( -- )
     md-text$ $@len IF
 	us-state @ md-text$ $@ }}text-us md-p-box .child+ md-text$ $free
-    THEN ; is .md-text
+    THEN ;
 
 \ interpretation
 
@@ -394,21 +394,21 @@ md-char: ! ( char -- )
     /source "[" string-prefix? IF
 	drop 1 >in +! ]-parse .image
     ELSE  .char  THEN ;
-:noname ( desc-addr u1 img-addr u2 -- )
+:is .image ( desc-addr u1 img-addr u2 -- )
     .md-text ( link-blue )
     dup 0= IF  2drop " "  THEN
-    1 -rot }}text-us +image md-p-box .child+ ( blackish ) ; is .image
+    1 -rot }}text-us +image md-p-box .child+ ( blackish ) ;
 md-char: [ ( char -- )
     drop ]-parse 2dup "![" search nip nip IF
 	drop ')' parse 2drop ]-parse + over -  THEN
     .link ;
-:noname ( link-addr u1 desc-addr u2 -- )
+:is .link ( link-addr u1 desc-addr u2 -- )
     .md-text
     dup 0= IF  2drop " "  THEN
     us-state @ >r md-p-box >r {{ }}h box[] to md-p-box
     [ underline #link-blue or ]L render-line .md-text
     md-p-box r> to md-p-box r> us-state ! blackish
-    +link md-p-box .child+ ; is .link
+    +link md-p-box .child+ ;
 md-char: : ( char -- )
     drop /source ":" string-prefix? IF
 	>in @ >r
@@ -422,11 +422,11 @@ md-char: 	 ( tab -- )
     drop item-blue ['] wspace md-text$ $exec
     font-family <\mono> @ = IF  "  "  ELSE  " "  THEN
     md-text$ 0 $ins md-text$ $@ .desc  md-text$ $free ;
-:noname ( addr u -- ) 2>r
+:is .desc ( addr u -- ) 2>r
     {{
 	{{ us-state @ 2r> }}text-us glue*l }}glue }}h box[]
     }}z box[] bx-tab >lhang
-    md-p-box .child+ blackish ; is .desc
+    md-p-box .child+ blackish ;
 
 $10 cells buffer: indent#s
 0 Value cur#indent
@@ -452,41 +452,41 @@ get-current also markdown definitions
 \ headlines limited to h1..h3
 : # ( -- )
     /source 2dup + 2 - 2 " #" str= -2 and + .h1 ;
-:noname
-    \huge cbl bold #heading-blue or render-line .md-text .\\ \normal \regular ; is .h1
+:is .h1
+    \huge cbl bold #heading-blue or render-line .md-text .\\ \normal \regular ;
 : ## ( -- )
     /source 2dup + 3 - 3 " ##" str= -3 and + .h2 ;
-:noname
-    \large cbl bold #heading-blue or render-line .md-text .\\ \normal \regular ; is .h2
+:is .h2
+    \large cbl bold #heading-blue or render-line .md-text .\\ \normal \regular ;
 : ### ( -- )
     /source 2dup + 4 - 4 " ###" str= -4 and + .h3 ;
-:noname
-    \normal cbl bold #heading-blue or render-line .md-text .\\ \normal \regular ; is .h3
+:is .h3
+    \normal cbl bold #heading-blue or render-line .md-text .\\ \normal \regular ;
 : 1. ( -- )
     \ render counted line
     -3 >indent .#. ;
-:noname ( -- ) item-blue
+:is .#. ( -- ) item-blue
     {{ 0 [: cur#indent 2* 2 + spaces indent# 0 .r ." . " ;]
 	$tmp }}text-us
     }}z /hfix box[] >lhang md-p-box .child+ blackish
-    /source 0 render-line .md-text .\\ ; is .#.
+    /source 0 render-line .md-text .\\ ;
 10 2 [DO] [I] 0 <# '.' hold #S #> nextname synonym 1. [LOOP]
 
 : 10. ( -- )
     \ render counted line
     -4 >indent .##. ;
-:noname ( -- ) item-blue
+:is .##. ( -- ) item-blue
     {{ 0 [: cur#indent 2* 1+ spaces indent# 0 .r ." . " ;]
     $tmp }}text-us }}z /hfix box[] >lhang md-p-box .child+ blackish
-    /source 0 render-line .md-text .\\ ; is .##.
+    /source 0 render-line .md-text .\\ ;
 100 11 [DO] [I] 0 <# '.' hold #S #> nextname synonym 10. [LOOP]
 
 : * ( -- )
     -2 >indent cur#indent bullet-char .item ;
-:noname { bchar -- } item-blue
+:is .item { bchar -- } item-blue
     {{ 0 bchar [: cur#indent 1+ wspaces xemit wspace ;] $tmp }}text-us
     }}z /hfix box[] >lhang md-p-box .child+
-    blackish /source 0 render-line .md-text .\\ ; is .item
+    blackish /source 0 render-line .md-text .\\ ;
 : +  ( -- ) -2 >indent '+' .item ;
 : -  ( -- ) -2 >indent '–' .item ;
 : ±  ( -- ) -2 >indent '±' .item ;
@@ -517,7 +517,7 @@ get-current also markdown definitions
 presenter-md-styler to md-style
 previous set-current
 
-:noname 84e update-size# ; is rescaler
+:is rescaler 84e update-size# ;
 rescaler
 
 \ generic formatting
