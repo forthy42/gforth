@@ -57,6 +57,7 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 0 ' noop trigger-Value cursor
 0 ' noop trigger-Value cursor-surface
 0 ' noop trigger-Value cursor-serial
+0 Value last-serial
 0 ' noop trigger-Value wl-surface
 0 ' noop trigger-Value wp-viewporter
 0 ' noop trigger-Value wp-viewport
@@ -304,7 +305,8 @@ Variable wl-time
 :cb wl_pointer_listener-frame: { data p -- } ;
 :cb wl_pointer_listener-axis: { data p time axis val -- } time XTime!
 ;
-:cb wl_pointer_listener-button: { data p ser time b mask -- }  time XTime!
+:cb wl_pointer_listener-button: { data p serial time b mask -- }  time XTime!
+    serial to last-serial
     time b mask wl-button
 ;
 :cb wl_pointer_listener-motion: { data p time x y -- }  time XTime!
@@ -382,6 +384,7 @@ Variable prev-preedit$
 :cb wl_keyboard_listener-repeat_info: { data wl_keyboard rate delay -- }
 ;
 :cb wl_keyboard_listener-modifiers: { data wl_keyboard serial mods_depressed mods_latched mods_locked group -- }
+    serial to last-serial
     mods_depressed 5 and mods_depressed 8 and sfloat/ or to wl-meta
     wayland( mods_depressed mods_latched mods_locked
     [: cr ." modes: locked " h. ." latched " h. ." depressed " h. wl-meta h. ;]
@@ -391,6 +394,7 @@ Variable prev-preedit$
 ;
 :cb wl_keyboard_listener-key: { data wl_keyboard serial time wl-key state -- }
     wayland( state wl-key [: cr ." wayland key: " h. h. ;] do-debug )
+    serial to last-serial
     state WL_KEYBOARD_KEY_STATE_PRESSED = IF
 	prev-preedit$ $free
 	{: | keys[ $10 ] :}
@@ -492,6 +496,7 @@ Defer sync+config ' noop is sync+config
 
 <cb
 :cb zwp_text_input_v3_listener-done: { data text-input serial -- }
+    serial to last-serial
     text-input send-status-update
 ;
 :cb zwp_text_input_v3_listener-delete_surrounding_text: { data text-input before_length after_length -- }
@@ -561,19 +566,20 @@ object class
     field: in$
     value: public$
     value: in-fd
+    defer: my-in
     method read-in
     method eof-in
     method ?in
     method +in
 end-class in-reader
 
-: in-reader: ( $var "name" -- )
+: in-reader: ( xt $var "name" -- )
     in-reader ['] new static-a with-allocater Constant
-    latestxt execute >o to public$ in$ $saved o> ;
+    latestxt execute >o to public$  is my-in  in$ $saved o> ;
 
-clipboard$ in-reader: clipin$
-dnd$       in-reader: dndin$
-primary$   in-reader: psin$
+' my-clipboard  clipboard$ in-reader: clipin$
+' my-dnd        dnd$       in-reader: dndin$
+' my-primary    primary$   in-reader: psin$
 
 object class
     field: out$
@@ -597,7 +603,10 @@ out-writer: psout$
 
 in-reader :method eof-in ( -- )
     in-fd 0 to in-fd close-file throw
-    0 in$ !@ public$ !@ ?dup-IF  free throw  THEN
+    0 in$ !@
+    my-in 0= IF
+	public$ !@ ?dup-IF  free throw  THEN
+    ELSE  ?dup-IF  free throw  THEN  THEN
     wayland( [: cr ." read " public$ id. ." with '" public$ $@ type ." '" ;] do-debug ) ;
 in-reader :method read-in { flagaddr -- }
     in-fd check_read dup 0> IF \ data available
@@ -662,6 +671,7 @@ out-writer :method ?out ( addr -- addr' )
 
 out-writer :method set-out ( addr fd -- )
     to out-fd  $@ out$ $!  out-offset off
+    wayland( [: cr ." set out " o id. ." to '" out$ $. ." '" ;] do-debug )
     out-fd set-noblock  write-out ;
 
 : accept+receive { offer d: mime-type | fds[ 2 cells ] -- fd }
@@ -789,6 +799,9 @@ cb> primary-selection-listener
 :cb wl_data_source_listener-dnd_drop_performed: { data source -- }
 ;
 :cb wl_data_source_listener-cancelled: { data source -- }
+    wayland( [: cr ." ds cancelled" ;] do-debug )
+\    data-source wl_data_source_destroy
+\    0 to data-source  0 to my-clipboard
 ;
 :cb wl_data_source_listener-send: { data source d: mime-type fd -- }
     wayland( mime-type data [: cr ." send " id. ." type " type ;] do-debug )
@@ -803,6 +816,8 @@ cb> data-source-listener
 <cb
 :cb zwp_primary_selection_source_v1_listener-cancelled: { data source -- }
     wayland( [: cr ." ps cancelled" ;] do-debug )
+\    primary-selection-source zwp_primary_selection_source_v1_destroy
+\    0 to primary-selection-source  0 to my-primary
 ;
 :cb zwp_primary_selection_source_v1_listener-send: { data source d: mime-type fd -- }
     wayland( fd mime-type data [: cr ." ps send " id. ." type: " type ."  fd: " h. ;] do-debug )
@@ -1120,19 +1135,16 @@ Defer window-init     ' noop is window-init
 ' wl-key? IS key?
 
 : clipboard! ( addr u -- ) clipboard$ $!
-    true to my-clipboard
-    data-device data-source 0 wl_data_device_set_selection
-;
+    data-device data-source
+    last-serial wl_data_device_set_selection
+    true to my-clipboard ;
 : clipboard@ ( -- addr u ) clipboard$ $@ ;
-
-0 Value primary-serial#
 
 : primary! ( addr u -- ) primary$ $!
     primary$ $@len 0<> to my-primary
-    1 +to primary-serial#
     primary-selection-device
     primary-selection-source primary$ $@len 0<> and
-    primary-serial# zwp_primary_selection_device_v1_set_selection ;
+    last-serial zwp_primary_selection_device_v1_set_selection ;
 : primary@ ( -- addr u ) primary$ $@ ;
 : dnd@ ( -- addr u ) dnd$ $@ ;
 
