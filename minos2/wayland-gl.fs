@@ -706,11 +706,9 @@ out-writer :method set-out ( addr fd -- )
 ;
 :cb wl_data_offer_listener-source_actions: { data offer source-actions -- }
     wayland( source-actions [: cr ." source-actions: " h. ;] do-debug )
-    my-clipboard 0= IF
-	offer source-actions [{: offer actions :}l offer -rot
-	    actions IF  dnd-accept+receive
-	    ELSE  clip-accept+receive  THEN ;] >liked-mime
-    THEN
+    offer source-actions [{: offer actions :}l offer -rot
+	actions IF  dnd-accept+receive
+	ELSE  clip-accept+receive  THEN ;] >liked-mime
 ;
 :cb wl_data_offer_listener-offer: { data offer d: mime-type -- }
     wayland( mime-type [: cr ." mime-type: " type ;] do-debug )
