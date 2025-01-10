@@ -524,6 +524,14 @@ cb> text-input-listener
 
 \ data offer listener
 
+[IFUNDEF] FIONBIO
+    0x5421 Constant FIONBIO \ works for Linux, which is good enough for Wayland
+[THEN]
+
+: set-noblock ( fd -- )
+    { | w^ arg }  1 arg l!
+    dup FIONBIO arg ioctl ?ior ;
+
 0 Value current-serial
 $[]Variable mime-types[]
 $[]Variable ds-mime-types[]
@@ -585,6 +593,8 @@ out-writer: clipout$
 out-writer: dndout$
 out-writer: psout$
 
+20 Constant maxiter# \ wait 20ms at most
+
 in-reader :method eof-in ( -- )
     in-fd 0 to in-fd close-file throw
     0 in$ !@ public$ !@ ?dup-IF  free throw  THEN
@@ -597,13 +607,22 @@ in-reader :method read-in ( -- )
     ELSE
 	?dup-IF
 	    -512 + [: cr ." Error checking pipe: " error$ type ;] do-debug
+	ELSE
+	    wayland( [: cr ." zero bytes in " public$ id. ." trying nonblocking read" ;] do-debug )
+	    in-fd fileno set-noblock
+	    maxiter# 0 ?DO  pagesize dup in$ $+!len swap dup >r in-fd read-file
+		dup -512 EAGAIN - = WHILE
+		drop  r> - dup 0< IF  in$ $+!len  THEN  drop 1 ms
+		wayland( I [: cr . ." iteration" ;] do-debug )
+	    LOOP  ELSE  throw
+	    r> - dup 0< IF  in$ $+!len  THEN  drop  UNLOOP  THEN
 	THEN
     THEN ;
 in-reader :method ?in ( addr -- addr' )
     in-fd IF  >r
 	wayland( r@ [: cr public$ id. 1 backspaces ." : " w@ h. ;] do-debug )
 	r@ w@ POLLIN  and IF  read-in  THEN
-	r@ w@ POLLHUP and IF  read-in eof-in   THEN
+	r@ w@ POLLHUP and IF  eof-in   THEN
 	r> pollfd +
     THEN ;
 in-reader :method +in ( addr -- addr' )
@@ -616,14 +635,6 @@ in-reader :method +in ( addr -- addr' )
 : ?clipout ( addr -- addr' )  clipout$ .?out ;
 : ?dndout ( addr -- addr' )  dndout$ .?out ;
 : ?psout ( addr -- addr' )  psout$ .?out ;
-
-[IFUNDEF] FIONBIO
-    0x5421 Constant FIONBIO \ works for Linux, which is good enough for Wayland
-[THEN]
-
-: set-noblock ( fd -- )
-    { | w^ arg }  1 arg l!
-    dup FIONBIO arg ioctl ?ior ;
 
 out-writer :method +out ( addr -- addr' )
     out-fd ?dup-IF  POLLOUT rot fds!+  THEN ;
