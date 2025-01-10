@@ -109,7 +109,8 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 ${GFORTH_IGNLIB} "true" str= [IF]
     : ?cb ( xt -- 0 ) drop parse-name 2drop 0 ;
     : :cb ( xt "name" -- addr )
-	:noname parse-name 2drop ;
+	:noname colon-sys-xt-offset n>r drop
+	record-name (') drop ['] noop nr> drop ;
 [ELSE]
     : ?cb ( xt "name" -- addr ) ;
     : :cb ( xt -- 0 )
@@ -548,66 +549,73 @@ false Value my-dnd
     mime-types[] [: 2over str= IF  rot drop true -rot  THEN ;] $[]map
     2drop ;
 
-0 Value clipin-fd
-0 Value clipout-fd
-0 Value dndin-fd
-0 Value dndout-fd
-0 Value psin-fd
-0 Value psout-fd
+object class
+    field: in$
+    value: public$
+    value: in-fd
+    method read-in
+    method eof-in
+    method ?in
+    method +in
+end-class in-reader
 
-$Variable clipin$
-$Variable clipout$
-Variable clipout-offset
+: in-reader: ( $var "name" -- )
+    in-reader ['] new static-a with-allocater Constant
+    latestxt execute >o to public$ in$ $saved o> ;
 
-$Variable dndin$
-$Variable dndout$
-Variable dndout-offset
+clipboard$ in-reader: clipin$
+dnd$       in-reader: dndin$
+primary$   in-reader: psin$
 
-$Variable psin$
-$Variable psout$
-Variable psout-offset
+object class
+    field: out$
+    value: out-fd
+    field: out-offset
+    method write-out
+    method set-out
+    method ?out
+    method +out
+end-class out-writer
 
-: eof-clipin ( -- )
-    clipin-fd 0 to clipin-fd close-file throw
-    0 clipin$ !@ clipboard$ !@ ?dup-IF  free throw  THEN
-    wayland( [: cr ." read clipboard$ with '" clipboard$ $@ type ." '" ;] do-debug ) ;
+: out-writer: ( "name" -- )
+    out-writer ['] new static-a with-allocater Constant
+    latestxt execute >o out$ $saved o> ;
 
-: eof-dndin ( -- )
-    dndin-fd 0 to dndin-fd close-file throw
-    0 dndin$ !@ dnd$ !@ ?dup-IF  free throw  THEN
-    wayland( [: cr ." read dnd$ with '" dnd$ $@ type ." '" ;] do-debug ) ;
+out-writer: clipout$
+out-writer: dndout$
+out-writer: psout$
 
-: eof-psin ( -- )
-    psin-fd 0 to psin-fd close-file throw
-    0 psin$ !@ primary$ !@ ?dup-IF  free throw  THEN
-    wayland( [: cr ." read primary$ with '" primary$ $@ type ." '" ;] do-debug ) ;
-
-: read-clipin ( -- )
-    clipin-fd check_read dup 0> IF \ data available
-	dup clipin$ $+!len swap dup >r clipin-fd
-	read-file throw
-	r> - dup 0< IF  clipin$ $+!len  THEN  drop
+in-reader :method eof-in ( -- )
+    in-fd 0 to in-fd close-file throw
+    0 in$ !@ public$ !@ ?dup-IF  free throw  THEN
+    wayland( [: cr ." read " public$ id. ." with '" public$ $@ type ." '" ;] do-debug ) ;
+in-reader :method read-in ( -- )
+    in-fd check_read dup 0> IF \ data available
+	wayland( [: cr dup . ." bytes available in " public$ id. ;] do-debug )
+	dup in$ $+!len swap dup >r in-fd read-file throw
+	r> - dup 0< IF  in$ $+!len  THEN  drop
     ELSE
-	drop
+	?dup-IF
+	    -512 + [: cr ." Error checking pipe: " error$ type ;] do-debug
+	THEN
     THEN ;
+in-reader :method ?in ( addr -- addr' )
+    in-fd IF  >r
+	wayland( r@ [: cr public$ id. 1 backspaces ." : " w@ h. ;] do-debug )
+	r@ w@ POLLIN  and IF  read-in  THEN
+	r@ w@ POLLHUP and IF  read-in eof-in   THEN
+	r> pollfd +
+    THEN ;
+in-reader :method +in ( addr -- addr' )
+    in-fd ?dup-IF  fileno POLLIN POLLHUP or  rot fds!+  THEN ;
 
-: read-dndin ( -- )
-    dndin-fd check_read dup 0> IF \ data available
-	dup dndin$ $+!len swap dup >r dndin-fd
-	read-file throw
-	r> - dup 0< IF  dndin$ $+!len  THEN  drop
-    ELSE
-	drop
-    THEN ;
+: ?clipin ( addr -- addr' )  clipin$ .?in ;
+: ?dndin ( addr -- addr' )  dndin$ .?in ;
+: ?psin ( addr -- addr' )  psin$ .?in ;
 
-: read-psin ( -- )
-    psin-fd check_read dup 0> IF \ data available
-	dup psin$ $+!len swap dup >r psin-fd
-	read-file throw
-	r> - dup 0< IF  psin$ $+!len  THEN  drop
-    ELSE
-	drop
-    THEN ;
+: ?clipout ( addr -- addr' )  clipout$ .?out ;
+: ?dndout ( addr -- addr' )  dndout$ .?out ;
+: ?psout ( addr -- addr' )  psout$ .?out ;
 
 [IFUNDEF] FIONBIO
     0x5421 Constant FIONBIO \ works for Linux, which is good enough for Wayland
@@ -617,29 +625,32 @@ Variable psout-offset
     { | w^ arg }  1 arg l!
     dup FIONBIO arg ioctl ?ior ;
 
-: write-out { out$ offset fd -- fd }
-    out$ $@ offset @ safe/string
-    fd -rot write dup -1 <> IF  offset +!
-	fd out$ $@len offset @ u> ?EXIT drop
+out-writer :method +out ( addr -- addr' )
+    out-fd ?dup-IF  POLLOUT rot fds!+  THEN ;
+
+out-writer :method write-out
+    out$ $@ out-offset @ safe/string
+    out-fd -rot write dup -1 <> IF  out-offset +!
+	out-fd out$ $@len out-offset @ u> ?EXIT drop
     ELSE
-	drop errno EAGAIN <> IF
-	    -512 errno - [: cr ." Error writing clipboard pipe: " error$ type ;] do-debug
-	ELSE
-	    fd  EXIT
-	THEN
+	drop errno EAGAIN = ?EXIT
+	-512 errno - [: cr ." Error writing clipboard pipe: " error$ type ;] do-debug
     THEN \ if we can't write, let's just abandon this operation
     wayland( out$ [: cr ." wrote '" $. ." ' to clipout" ;] do-debug )
-    fd close -1 = IF
+    out-fd close -1 = IF
 	-512 errno - [: cr ." Error closing clipboard pipe: " error$ type ;] do-debug
     THEN
-    clipout$ $free 0 ;
+    out$ $free 0 to out-fd ;
 
-: write-clipout ( -- )
-    clipout$ clipout-offset clipout-fd write-out to clipout-fd ;
-: write-dndout ( -- )
-    dndout$ dndout-offset dndout-fd write-out to dndout-fd ;
-: write-psout ( -- )
-    psout$ psout-offset psout-fd write-out to psout-fd ;
+out-writer :method ?out ( addr -- addr' )
+    out-fd IF  >r
+	r@ w@ POLLOUT POLLHUP or and IF  write-out  THEN
+	r> pollfd +
+    THEN ;
+
+out-writer :method set-out ( addr fd -- )
+    to out-fd  $@ out$ $!  out-offset off
+    out-fd set-noblock  write-out ;
 
 : accept+receive { offer d: mime-type | fds[ 2 cells ] -- fd }
     offer current-serial mime-type wl_data_offer_accept
@@ -648,15 +659,15 @@ Variable psout-offset
     fds[ cell+ @ close-file throw
     fds[ @ ;
 : dnd-accept+receive ( offer mime-type -- )
-    accept+receive to dndin-fd ;
+    accept+receive dndin$ >o to in-fd o> ;
 : clip-accept+receive ( offer mime-type -- )
-    accept+receive to clipin-fd ;
+    accept+receive clipin$ >o to in-fd o> ;
 
 : ps-accept+receive { offer d: mime-type | fds[ 2 cells ] -- }
     fds[ create_pipe
     offer mime-type fds[ cell+ @ fileno zwp_primary_selection_offer_v1_receive
     fds[ cell+ @ close-file throw
-    fds[ @ to psin-fd ;
+    fds[ @ psin$ >o to in-fd o> ;
 
 : >liked-mime { xt: xt -- }
     liked-mime[] $[]# 0 ?DO
@@ -769,9 +780,7 @@ cb> primary-selection-listener
 ;
 :cb wl_data_source_listener-send: { data source d: mime-type fd -- }
     wayland( mime-type data [: cr ." send " id. ." type " type ;] do-debug )
-    data $@ clipout$ $! fd to clipout-fd  clipout-offset off
-    fd set-noblock  write-clipout
-;
+    data fd clipout$ .set-out ;
 :cb wl_data_source_listener-target: { data source d: mime-type -- }
     wayland( data mime-type [: cr ." ds target: " type space id. ;] do-debug )
 ;
@@ -785,9 +794,7 @@ cb> data-source-listener
 ;
 :cb zwp_primary_selection_source_v1_listener-send: { data source d: mime-type fd -- }
     wayland( fd mime-type data [: cr ." ps send " id. ." type: " type ."  fd: " h. ;] do-debug )
-    fd to psout-fd  data $@ psout$ $!  psout-offset off
-    fd set-noblock  write-psout
-;
+    data fd psout$ .set-out ;
 cb> primary-selection-source-listener
 
 \ registry listeners: the interface string is searched in a table
@@ -1032,17 +1039,12 @@ User xpollfds
 xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
 : >poll-events ( delay -- n )
-    0 xptimeout 2!  xpollfds >r
-    epiper @ fileno POLLIN  r> fds!+ >r
-    dpy ?dup-IF  wl_display_get_fd POLLIN  r> fds!+ >r  THEN
-    clipin-fd ?dup-IF  fileno POLLIN POLLHUP or  r> fds!+ >r  THEN
-    clipout-fd ?dup-IF  POLLOUT  r> fds!+ >r  THEN
-    psin-fd ?dup-IF  fileno POLLIN POLLHUP or  r> fds!+ >r  THEN
-    psout-fd ?dup-IF  POLLOUT  r> fds!+ >r  THEN
-    dndin-fd ?dup-IF  fileno POLLIN POLLHUP or  r> fds!+ >r  THEN
-    dndout-fd ?dup-IF  POLLOUT  r> fds!+ >r  THEN
-    infile-id fileno POLLIN  r> fds!+ >r
-    r> xpollfds - pollfd / ;
+    0 xptimeout 2!
+    epiper @ fileno POLLIN  xpollfds fds!+
+    dpy ?dup-IF  wl_display_get_fd POLLIN  rot fds!+  THEN
+    clipin$  .+in  psin$  .+in  dndin$  .+in
+    clipout$ .+out psout$ .+out dndout$ .+out
+    xpollfds - pollfd / ;
 
 : xpoll ( -- flag )
     [IFDEF] ppoll
@@ -1053,46 +1055,18 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
 Defer ?looper-timeouts ' noop is ?looper-timeouts
 
+: ?dpy ( addr -- addr' )
+    dpy IF  >r
+	r@ w@ POLLIN and IF  get-events  THEN
+	r> pollfd +
+    THEN ;
+
 : #looper ( delay -- ) #1000000 *
     ?looper-timeouts >poll-events >r
     xpollfds r> xpoll
     IF
-	xpollfds revents pollfd + >r
-	dpy IF
-	    r@ w@ POLLIN and IF  get-events  THEN
-	    r> pollfd + >r
-	THEN
-	clipin-fd IF
-	    wayland( r@ [: cr ." clipin: " w@ h. ;] do-debug )
-	    r@ w@ POLLIN and IF  read-clipin  THEN
-	    r@ w@ POLLHUP and IF  eof-clipin  THEN
-	    r> pollfd + >r
-	THEN
-	clipout-fd IF
-	    r@ w@ POLLOUT POLLHUP or and IF  write-clipout  THEN
-	    r> pollfd + >r
-	THEN
-	psin-fd IF
-	    wayland( r@ [: cr ." psin: " w@ h. ;] do-debug )
-	    r@ w@ POLLIN and IF  read-psin  THEN
-	    r@ w@ POLLHUP and IF  eof-psin  THEN
-	    r> pollfd + >r
-	THEN
-	psout-fd IF
-	    r@ w@ POLLOUT POLLHUP or and IF  write-psout  THEN
-	    r> pollfd + >r
-	THEN
-	dndin-fd IF
-	    wayland( r@ [: cr ." dndin: " w@ h. ;] do-debug )
-	    r@ w@ POLLIN and IF  read-dndin  THEN
-	    r@ w@ POLLHUP and IF  eof-dndin  THEN
-	    r> pollfd + >r
-	THEN
-	dndout-fd IF
-	    r@ w@ POLLOUT POLLHUP or and IF  write-dndout  THEN
-	    r> pollfd + >r
-	THEN
-	rdrop
+	xpollfds revents pollfd +
+	?dpy ?clipin ?psin ?dndin ?clipout ?psout ?dndout drop
     ELSE
 	dpy IF  get-events  THEN
     THEN
