@@ -664,7 +664,7 @@ simple-actor class
 end-class edit-actor
 
 : edit-copy ( max span addr pos1 -- max span addr pos1 false )
-    >r 2dup swap r@ safe/string xselw min primary!
+    >r 2dup swap r@ safe/string xselw min clipboard!
     r> 0 ;
 : edit-cut ( max span addr pos1 -- max span addr pos1 false )
     edit-copy drop >r
