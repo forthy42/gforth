@@ -599,7 +599,7 @@ in-reader :method eof-in ( -- )
     in-fd 0 to in-fd close-file throw
     0 in$ !@ public$ !@ ?dup-IF  free throw  THEN
     wayland( [: cr ." read " public$ id. ." with '" public$ $@ type ." '" ;] do-debug ) ;
-in-reader :method read-in ( -- )
+in-reader :method read-in { flagaddr -- }
     in-fd check_read dup 0> IF \ data available
 	wayland( [: cr dup . ." bytes available in " public$ id. ;] do-debug )
 	dup in$ $+!len swap dup >r in-fd read-file throw
@@ -608,20 +608,20 @@ in-reader :method read-in ( -- )
 	?dup-IF
 	    -512 + [: cr ." Error checking pipe: " error$ type ;] do-debug
 	ELSE
-	    wayland( [: cr ." zero bytes in " public$ id. ." trying nonblocking read" ;] do-debug )
+	    wayland( [: cr ." zero bytes in " public$ id. ;] do-debug )
 	    in-fd fileno set-noblock
-	    maxiter# 0 ?DO  pagesize dup in$ $+!len swap dup >r in-fd read-file
-		dup -512 EAGAIN - = WHILE
-		drop  r> - dup 0< IF  in$ $+!len  THEN  drop 1 ms
-		wayland( I [: cr . ." iteration" ;] do-debug )
-	    LOOP  ELSE  throw
-	    r> - dup 0< IF  in$ $+!len  THEN  drop  UNLOOP  THEN
+	    pagesize dup in$ $+!len swap dup >r in-fd read-file
+	    dup -512 EAGAIN - = IF  drop
+		\ clean POLLHUP flag, it's EAGAIN
+		flagaddr w@ POLLHUP invert and flagaddr w!
+	    ELSE  throw  THEN
+	    r> - dup 0< IF  in$ $+!len  THEN  drop
 	THEN
     THEN ;
 in-reader :method ?in ( addr -- addr' )
     in-fd IF  >r
 	wayland( r@ [: cr public$ id. 1 backspaces ." : " w@ h. ;] do-debug )
-	r@ w@ POLLIN  and IF  read-in  THEN
+	r@ w@ POLLIN  and IF  r@ read-in  THEN
 	r@ w@ POLLHUP and IF  eof-in   THEN
 	r> pollfd +
     THEN ;
@@ -655,6 +655,7 @@ out-writer :method write-out
 
 out-writer :method ?out ( addr -- addr' )
     out-fd IF  >r
+	wayland( r@ [: cr o id. 1 backspaces ." : " w@ h. ;] do-debug )
 	r@ w@ POLLOUT POLLHUP or and IF  write-out  THEN
 	r> pollfd +
     THEN ;
