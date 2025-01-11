@@ -32,7 +32,8 @@ require trigger-value.fs
 
 also wayland
 
-debug: wayland( \ )
+debug: wayland(
+debug: serial(
 
 $Variable window-title$ s" ΜΙΝΟΣ2 OpenGL Window" window-title$ $!
 $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
@@ -83,7 +84,6 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 \ set a cursor
 
 :trigger-on( cursor-serial cursor-surface cursor wl-pointer )
-    wayland( cursor-serial [: cr ." Set cursor, serial " h. ;] do-debug )
     cursor wl_cursor-images @ @ { image }
     wl-pointer cursor-serial cursor-surface
     image wl_cursor_image-hotspot_x l@ l>s
@@ -100,6 +100,8 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 \ shell surface listener
 
 : shell-surface-ping ( data surface serial -- )
+    serial( dup [: cr ." ping serial: " h. ;] do-debug )
+    dup last-serial!
     wl_shell_surface_pong drop ;
 : shell-surface-config { data surface edges w h -- }
     win w h 0 0 wl_egl_window_resize ;
@@ -308,6 +310,7 @@ Variable wl-time
 :cb wl_pointer_listener-axis: { data p time axis val -- } time XTime!
 ;
 :cb wl_pointer_listener-button: { data p serial time b mask -- }  time XTime!
+    serial( serial [: cr ." button serial: " h. ;] do-debug )
     serial last-serial!
     time b mask wl-button
 ;
@@ -318,7 +321,7 @@ Variable wl-time
     wl-leave
 ;
 :cb wl_pointer_listener-enter: { data p s x y -- }
-    wayland( s [: cr ." cursor serial " h. ;] do-debug )
+    serial( s [: cr ." cursor-serial: " h. ;] do-debug )
     s to cursor-serial \ on enter, we set the cursor
     x y wl-enter
 ;
@@ -386,7 +389,7 @@ Variable prev-preedit$
 :cb wl_keyboard_listener-repeat_info: { data wl_keyboard rate delay -- }
 ;
 :cb wl_keyboard_listener-modifiers: { data wl_keyboard serial mods_depressed mods_latched mods_locked group -- }
-    serial last-serial!
+    serial( serial [: cr ." kb modifiers serial: " h. ;] do-debug )
     mods_depressed 5 and mods_depressed 8 and sfloat/ or to wl-meta
     wayland( mods_depressed mods_latched mods_locked
     [: cr ." modes: locked " h. ." latched " h. ." depressed " h. wl-meta h. ;]
@@ -396,6 +399,7 @@ Variable prev-preedit$
 ;
 :cb wl_keyboard_listener-key: { data wl_keyboard serial time wl-key state -- }
     wayland( state wl-key [: cr ." wayland key: " h. h. ;] do-debug )
+    serial( serial [: cr ." kb key serial: " h. ;] do-debug )
     serial last-serial!
     state WL_KEYBOARD_KEY_STATE_PRESSED = IF
 	prev-preedit$ $free
@@ -415,8 +419,11 @@ Variable prev-preedit$
     THEN
 ;
 :cb wl_keyboard_listener-leave: { data wl_keyboard serial surface -- }
+    serial( serial [: cr ." kb leave serial: " h. ;] do-debug )
 ;
 :cb wl_keyboard_listener-enter:	{ data wl_keyboard serial surface keys -- }
+    serial( serial [: cr ." kb enter serial: " h. ;] do-debug )
+    serial last-serial!
 ;
 :cb wl_keyboard_listener-keymap: { data wl_keyboard format fd size -- }
     \ sp@ sp0 !
@@ -454,6 +461,8 @@ cb> wl-seat-listener
 
 <cb
 :cb xdg_wm_base_listener-ping: ( data xdg_wm_base serial -- )
+    serial( dup [: cr ." pong serial: " h. ;] do-debug )
+    dup last-serial!
     xdg_wm_base_pong drop ;
 cb> xdg-wm-base-listener
 
@@ -498,7 +507,6 @@ Defer sync+config ' noop is sync+config
 
 <cb
 :cb zwp_text_input_v3_listener-done: { data text-input serial -- }
-    serial last-serial!
     text-input send-status-update
 ;
 :cb zwp_text_input_v3_listener-delete_surrounding_text: { data text-input before_length after_length -- }
@@ -644,7 +652,7 @@ in-reader :method +inout ( addr -- addr' )
 out-writer :method +inout ( addr -- addr' )
     out-fd ?dup-IF  POLLOUT rot fds!+  THEN ;
 
-out-writer :method write-out
+out-writer :method write-out ( -- )
     out$ $@ out-offset @ safe/string
     out-fd -rot write dup -1 <> IF  out-offset +!
 	out-fd out$ $@len out-offset @ u> ?EXIT drop
@@ -735,6 +743,7 @@ Defer dnd-drop
     wayland( [: cr ." leave" ;] do-debug )
 ;
 :cb wl_data_device_listener-enter: { data data-device serial surface x y id -- }
+    serial( serial [: cr ." device enter serial: " h. ;] do-debug )
     wayland( id y x surface [: cr ." enter [surface,x,y,id] " h. . . h. ;] do-debug )
     serial to current-serial
     serial last-serial!
@@ -976,6 +985,8 @@ forward clear
 
 <cb
 :cb xdg_surface_listener-configure: { data xdg_surface serial -- }
+    serial( serial [: cr ." surface configure serial: " h. ;] do-debug )
+    serial last-serial!
     wayland( serial [: cr ." configured, serial " h. ;] do-debug )
     true to mapped
     xdg_surface serial xdg_surface_ack_configure
