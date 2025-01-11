@@ -565,14 +565,17 @@ false Value my-dnd
     2drop ;
 
 object class
+    method ?inout
+    method +inout
+end-class inout-r/w
+
+inout-r/w class
     field: in$
     value: public$
     value: in-fd
     defer: my-in
     method read-in
     method eof-in
-    method ?in
-    method +in
 end-class in-reader
 
 : in-reader: ( xt $var "name" -- )
@@ -583,15 +586,13 @@ end-class in-reader
 ' my-dnd        dnd$       in-reader: dndin$
 ' my-primary    primary$   in-reader: psin$
 
-object class
+inout-r/w class
     field: out$
     value: out-fd
     field: out-offset
     value: out-name
     method write-out
     method set-out
-    method ?out
-    method +out
 end-class out-writer
 
 : out-writer: ( "name" -- )
@@ -630,25 +631,17 @@ in-reader :method read-in { flagaddr -- }
 	    r> - dup 0< IF  in$ $+!len  THEN  drop
 	THEN
     THEN ;
-in-reader :method ?in ( addr -- addr' )
+in-reader :method ?inout ( addr -- addr' )
     in-fd IF  >r
 	wayland( r@ [: cr public$ id. 1 backspaces ." : " w@ h. ;] do-debug )
 	r@ w@ POLLIN  and IF  r@ read-in  THEN
 	r@ w@ POLLHUP and IF  eof-in   THEN
 	r> pollfd +
     THEN ;
-in-reader :method +in ( addr -- addr' )
+in-reader :method +inout ( addr -- addr' )
     in-fd ?dup-IF  fileno POLLIN POLLHUP or  rot fds!+  THEN ;
 
-: ?clipin ( addr -- addr' )  clipin$ .?in ;
-: ?dndin ( addr -- addr' )  dndin$ .?in ;
-: ?psin ( addr -- addr' )  psin$ .?in ;
-
-: ?clipout ( addr -- addr' )  clipout$ .?out ;
-: ?dndout ( addr -- addr' )  dndout$ .?out ;
-: ?psout ( addr -- addr' )  psout$ .?out ;
-
-out-writer :method +out ( addr -- addr' )
+out-writer :method +inout ( addr -- addr' )
     out-fd ?dup-IF  POLLOUT rot fds!+  THEN ;
 
 out-writer :method write-out
@@ -665,7 +658,7 @@ out-writer :method write-out
     THEN
     out$ $free 0 to out-fd ;
 
-out-writer :method ?out ( addr -- addr' )
+out-writer :method ?inout ( addr -- addr' )
     out-fd IF  >r
 	wayland( r@ [: cr o id. 1 backspaces ." : " w@ h. ;] do-debug )
 	r@ w@ POLLOUT POLLHUP or and IF  write-out  THEN
@@ -1062,12 +1055,16 @@ looper-to# #1000000 um* xptimeout 2!
 User xpollfds
 xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
+Create inout$s
+clipin$ ,  psin$ ,  dndin$ ,  clipout$ , psout$ , dndout$ ,
+here latestxt - >r
+DOES> { xt: do-it array } array [ r> ]L bounds DO  I @ .do-it  cell +LOOP ;
+
 : >poll-events ( delay -- n )
     0 xptimeout 2!
     epiper @ fileno POLLIN  xpollfds fds!+
     dpy ?dup-IF  wl_display_get_fd POLLIN  rot fds!+  THEN
-    clipin$  .+in  psin$  .+in  dndin$  .+in
-    clipout$ .+out psout$ .+out dndout$ .+out
+    ['] +inout inout$s
     xpollfds - pollfd / ;
 
 : xpoll ( -- flag )
@@ -1090,7 +1087,7 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
     xpollfds r> xpoll
     IF
 	xpollfds revents pollfd +
-	?dpy ?clipin ?psin ?dndin ?clipout ?psout ?dndout drop
+	?dpy ['] ?inout inout$s drop
     ELSE
 	dpy IF  get-events  THEN
     THEN
