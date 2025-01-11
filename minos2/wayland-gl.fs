@@ -58,6 +58,8 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 0 ' noop trigger-Value cursor-surface
 0 ' noop trigger-Value cursor-serial
 0 Value last-serial
+: last-serial! ( n -- )
+    last-serial max 1+ to last-serial ;
 0 ' noop trigger-Value wl-surface
 0 ' noop trigger-Value wp-viewporter
 0 ' noop trigger-Value wp-viewport
@@ -306,7 +308,7 @@ Variable wl-time
 :cb wl_pointer_listener-axis: { data p time axis val -- } time XTime!
 ;
 :cb wl_pointer_listener-button: { data p serial time b mask -- }  time XTime!
-    serial to last-serial
+    serial last-serial!
     time b mask wl-button
 ;
 :cb wl_pointer_listener-motion: { data p time x y -- }  time XTime!
@@ -384,7 +386,7 @@ Variable prev-preedit$
 :cb wl_keyboard_listener-repeat_info: { data wl_keyboard rate delay -- }
 ;
 :cb wl_keyboard_listener-modifiers: { data wl_keyboard serial mods_depressed mods_latched mods_locked group -- }
-    serial to last-serial
+    serial last-serial!
     mods_depressed 5 and mods_depressed 8 and sfloat/ or to wl-meta
     wayland( mods_depressed mods_latched mods_locked
     [: cr ." modes: locked " h. ." latched " h. ." depressed " h. wl-meta h. ;]
@@ -394,7 +396,7 @@ Variable prev-preedit$
 ;
 :cb wl_keyboard_listener-key: { data wl_keyboard serial time wl-key state -- }
     wayland( state wl-key [: cr ." wayland key: " h. h. ;] do-debug )
-    serial to last-serial
+    serial last-serial!
     state WL_KEYBOARD_KEY_STATE_PRESSED = IF
 	prev-preedit$ $free
 	{: | keys[ $10 ] :}
@@ -496,7 +498,7 @@ Defer sync+config ' noop is sync+config
 
 <cb
 :cb zwp_text_input_v3_listener-done: { data text-input serial -- }
-    serial to last-serial
+    serial last-serial!
     text-input send-status-update
 ;
 :cb zwp_text_input_v3_listener-delete_surrounding_text: { data text-input before_length after_length -- }
@@ -585,6 +587,7 @@ object class
     field: out$
     value: out-fd
     field: out-offset
+    value: out-name
     method write-out
     method set-out
     method ?out
@@ -593,7 +596,7 @@ end-class out-writer
 
 : out-writer: ( "name" -- )
     out-writer ['] new static-a with-allocater Constant
-    latestxt execute >o out$ $saved o> ;
+    latestxt execute >o out$ $saved latestxt to out-name o> ;
 
 out-writer: clipout$
 out-writer: dndout$
@@ -671,7 +674,7 @@ out-writer :method ?out ( addr -- addr' )
 
 out-writer :method set-out ( addr fd -- )
     to out-fd  $@ out$ $!  out-offset off
-    wayland( [: cr ." set out " o id. ." to '" out$ $. ." '" ;] do-debug )
+    wayland( [: cr ." set out " out-name id. ." to '" out$ $. ." '" ;] do-debug )
     out-fd set-noblock  write-out ;
 
 : accept+receive { offer d: mime-type | fds[ 2 cells ] -- fd }
@@ -746,6 +749,7 @@ Defer dnd-drop
 :cb wl_data_device_listener-enter: { data data-device serial surface x y id -- }
     wayland( id y x surface [: cr ." enter [surface,x,y,id] " h. . . h. ;] do-debug )
     serial to current-serial
+    serial last-serial!
 ;
 :cb wl_data_device_listener-data_offer: { data data-device id -- }
     wayland( id [: cr ." offer: " h. ;] do-debug )
