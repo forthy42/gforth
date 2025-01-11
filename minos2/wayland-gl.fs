@@ -677,16 +677,12 @@ out-writer :method set-out ( addr fd -- )
     wayland( [: cr ." set out " out-name id. ." to '" out$ $. ." '" ;] do-debug )
     out-fd set-noblock  write-out ;
 
-: accept+receive { offer d: mime-type | fds[ 2 cells ] -- fd }
+: accept+receive { offer d: mime-type object | fds[ 2 cells ] -- }
     offer current-serial mime-type wl_data_offer_accept
     fds[ create_pipe
     offer mime-type fds[ cell+ @ fileno wl_data_offer_receive
     fds[ cell+ @ close-file throw
-    fds[ @ ;
-: dnd-accept+receive ( offer mime-type -- )
-    accept+receive dndin$ >o to in-fd o> ;
-: clip-accept+receive ( offer mime-type -- )
-    accept+receive clipin$ >o to in-fd o> ;
+    fds[ @ object >o to in-fd o> ;
 
 : ps-accept+receive { offer d: mime-type | fds[ 2 cells ] -- }
     fds[ create_pipe
@@ -709,9 +705,8 @@ out-writer :method set-out ( addr fd -- )
 ;
 :cb wl_data_offer_listener-source_actions: { data offer source-actions -- }
     wayland( source-actions [: cr ." source-actions: " h. ;] do-debug )
-    offer source-actions [{: offer actions :}l offer -rot
-	actions IF  dnd-accept+receive
-	ELSE  clip-accept+receive  THEN ;] >liked-mime
+    offer dndin$ clipin$ source-actions select
+    [{: offer in$ :}l offer -rot in$ accept+receive ;] >liked-mime
 ;
 :cb wl_data_offer_listener-offer: { data offer d: mime-type -- }
     wayland( mime-type [: cr ." mime-type: " type ;] do-debug )
@@ -730,7 +725,7 @@ Defer dnd-drop
 <cb
 :cb wl_data_device_listener-selection: { data data-device id -- }
     wayland( id [: cr ." selection id: " h. ;] do-debug )
-    id ?dup-IF  [{: id :}l id -rot clip-accept+receive ;] >liked-mime  THEN
+    id ?dup-IF  [{: id :}l id -rot clipin$ accept+receive ;] >liked-mime  THEN
 ;
 :cb wl_data_device_listener-drop: { data data-device -- }
     wayland( [: cr ." drop" ;] do-debug )
