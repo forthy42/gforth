@@ -150,6 +150,8 @@ cb> wl-shell-surface-listener
     fractional-scale #60 */ 1+ 2/ ;
 : scale/ ( n1 -- n2 )
     #240 fractional-scale */ 1+ 2/ ;
+: f>coordi ( r -- n )
+    #120 fractional-scale fm*/ fround f>s ;
 : scale*fixed ( n1 -- n2 )
     fractional-scale 8 lshift #60 */ 1+ 2/ ;
 : coord>f ( fixed -- r )
@@ -476,12 +478,12 @@ Create old-cursor-xywh #-4200 , #3800 , #-5 , #-100 ,
 Create cursor-xywh #200 , #300 , #1 , #10 ,
 0e+0ei ZValue xy-offset
 
+: point>coord ( rx ry -- x y )
+    f>coordi f>coordi swap ;
 : >cursor-xyxy { f: x0 f: y0 f: x1 f: y1 -- }
     wayland( y1 x1 y0 x0 [: cr ." >cursor-xyxy " f. f. f. f. ." offset " xy-offset z. ;] do-debug )
-    x0 y1 xy-offset z+ fswap
-    f>s scale/ f>s scale/ cursor-xywh 2!
-    x1 y0  x0 y1 z- fabs fswap fabs
-    f>s scale/ f>s scale/ cursor-xywh 2 cells + 2! ;
+    x0 y1 xy-offset z+ point>coord cursor-xywh 2!
+    x1 y0  x0 y1 z- point>coord cursor-xywh 2 cells + 2! ;
 : +offset ( x y -- )  +to xy-offset ;
 : 0offset ( -- )
     0e fdup to xy-offset ;
