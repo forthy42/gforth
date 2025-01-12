@@ -53,7 +53,7 @@ Variable lasttime
     lastpos 2@ swap coord>f coord>f buttonmask l@ lle
     clicks 2* flags #lastdown bit@ -
     flags #pending -bit
-    grab-move? ?dup-IF  .clicked  EXIT  THEN
+    grab-move? ?dup-IF  gxy-sum z+ [: .clicked ;] vp-needed<>| EXIT  THEN
     top-act    ?dup-IF  .clicked  EXIT  THEN
     2drop fdrop fdrop ;
 
@@ -79,6 +79,7 @@ Create >button 0 c, 2 c, 1 c, 7 c, 8 c, 3 c, 4 c, 5 c,
 DOES> + c@ ;
 
 :is b-button { time b mask -- }
+    event( ." button event: mask=" mask h. ." button=" b h. cr )
     mask IF  \ button pressend
 	buttonmask b 7 and >button +bit
 	top-act IF  ev-xy 2@ 1 >xy$ buttonmask l@ lle top-act .touchdown  THEN
@@ -87,9 +88,10 @@ DOES> + c@ ;
     ELSE \ button released
 	?samepos  time lasttime !
 	flags #lastdown -bit@  IF
+	    event( ." send downclick" cr )
 	    1 +to clicks  send-clicks  flags #clearme +bit  THEN
 	buttonmask b 7 and >button -bit
-	top-act IF ev-xy 2@ 1 >xy$ buttonmask l@ lle top-act .touchup  THEN
+	top-act IF  ev-xy 2@ 1 >xy$ buttonmask l@ lle top-act .touchup  THEN
     THEN
 ;
 

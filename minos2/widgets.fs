@@ -39,6 +39,8 @@ debug: click(   \ +db click( \ )
 debug: click-o( \ +db click-o( \ )
 debug: resize(  \ +db resize( \ )
 debug: dispose( \ +db dispose( \ )
+debug: event(   \ +db event( \ )
+debug: dnd(
 
 Variable minos2-debug$
 ${MINOS2_DEBUGS} minos2-debug$ $!

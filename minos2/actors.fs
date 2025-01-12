@@ -34,7 +34,7 @@ end-class edit-widget-c
 
 edit-widget-c ' new static-a with-allocater Constant edit-widget
 
-false value grab-move?   \ set to object to grab moves
+false Value grab-move?   \ set to object to grab moves
 false value inside-move? \ set to object if touched
 
 :is dispose-check ( o:disposed -- )
@@ -43,8 +43,7 @@ false value inside-move? \ set to object if touched
 
 0e FValue tx-sum
 0e FValue ty-sum
-0e FValue gx-sum
-0e FValue gy-sum
+0e+0ei ZValue gxy-sum
 $10 stack: vp'<>
 
 : vp-need-or ( -- )
@@ -65,7 +64,7 @@ $10 stack: vp'<>
     throw ;
 
 : >grab-move? ( o -- )
-    to grab-move?  tx-sum to gx-sum  ty-sum to gy-sum
+    to grab-move?  tx-sum ty-sum to gxy-sum
     vp<> $@ vp'<> $! ;
 
 : >txy ( -- l:tx l:ty )
@@ -78,7 +77,7 @@ $10 stack: vp'<>
 	I sfloat+ sf@ dy f+ sf!+
     [ 2 sfloats ]L +LOOP drop ;
 : >dxy ( $addr -- $addr )
-    dup gx-sum gy-sum $@ over swap dxy$ ;
+    dup gxy-sum $@ over swap dxy$ ;
 
 [IFDEF] x11      include x11-actors.fs      [ELSE]
 [IFDEF] wayland  include wayland-actors.fs  [ELSE]
@@ -88,9 +87,6 @@ $10 stack: vp'<>
 
 actor class
 end-class simple-actor
-
-debug: event( \ +db event( \ )
-debug: dnd(
 
 simple-actor :method clicked { f: rx f: ry b n -- }
     click( o h. caller-w .name$ type space caller-w h. ." simple click: " rx f. ry f. b . n . cr )  ;

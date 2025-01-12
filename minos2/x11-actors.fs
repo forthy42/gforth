@@ -115,8 +115,7 @@ A, here AConstant default-in'
     lastpos 2@ swap s>f s>f
     clicks 2* flags #lastdown bit@ -
     flags #pending -bit
-    grab-move? ?dup-IF  fswap gx-sum f+ fswap gy-sum f+
-	[: .clicked ;] vp-needed<>|  EXIT  THEN
+    grab-move? ?dup-IF  gxy-sum z+ [: .clicked ;] vp-needed<>|  EXIT  THEN
     top-act    ?dup-IF  .clicked  EXIT  THEN
     2drop fdrop fdrop ;
 Variable xy$
