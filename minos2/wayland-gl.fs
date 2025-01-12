@@ -478,12 +478,10 @@ Create cursor-xywh #200 , #300 , #1 , #10 ,
 
 : >cursor-xyxy { f: x0 f: y0 f: x1 f: y1 -- }
     wayland( y1 x1 y0 x0 [: cr ." >cursor-xyxy " f. f. f. f. ." offset " xy-offset z. ;] do-debug )
-    cursor-xywh
     x0 y1 xy-offset z+ fswap
-    f>s scale/ over ! cell+
-    f>s scale/ over ! cell+
-    x1 x0 f- fabs f>s scale/ over ! cell+
-    y0 y1 f- fabs f>s scale/ swap ! ;
+    f>s scale/ f>s scale/ cursor-xywh 2!
+    x1 y0  x0 y1 z- fabs fswap fabs
+    f>s scale/ f>s scale/ cursor-xywh 2 cells + 2! ;
 : +offset ( x y -- )  +to xy-offset ;
 : 0offset ( -- )
     0e fdup to xy-offset ;
@@ -494,7 +492,8 @@ Create cursor-xywh #200 , #300 , #1 , #10 ,
     ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL
     zwp_text_input_v3_set_content_type
     cursor-xywh 4 cells old-cursor-xywh over str= 0= IF
-	text-input cursor-xywh 4 cells bounds DO  I @  cell  +LOOP
+	text-input
+	cursor-xywh 2@  cursor-xywh 2 cells + 2@
 	zwp_text_input_v3_set_cursor_rectangle
 	cursor-xywh old-cursor-xywh 4 cells move
     THEN
