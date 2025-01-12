@@ -148,6 +148,8 @@ cb> wl-shell-surface-listener
 1e 256e f/ fconstant 1/256
 : scale* ( n1 -- n2 )
     fractional-scale #60 */ 1+ 2/ ;
+: scale/ ( n1 -- n2 )
+    #240 fractional-scale */ 1+ 2/ ;
 : scale*fixed ( n1 -- n2 )
     fractional-scale 8 lshift #60 */ 1+ 2/ ;
 : coord>f ( fixed -- r )
@@ -472,20 +474,19 @@ Defer wayland-keys
 
 Create old-cursor-xywh #-4200 , #3800 , #-5 , #-100 ,
 Create cursor-xywh #200 , #300 , #1 , #10 ,
-Create xy-offset 0e f, 0e f,
+0e+0ei ZValue xy-offset
 
 : >cursor-xyxy { f: x0 f: y0 f: x1 f: y1 -- }
+    wayland( y1 x1 y0 x0 [: cr ." >cursor-xyxy " f. f. f. f. ." offset " xy-offset z. ;] do-debug )
     cursor-xywh
-    x0 xy-offset f@ f+ f>s over ! cell+
-    y1 xy-offset float+ f@ f+ f>s over ! cell+
-    x1 x0 f- f>s over ! cell+
-    y0 y1 f- f>s swap ! ;
-: +offset { f: x f: y -- }
-    xy-offset
-    dup f@ x f+ dup f! float+
-    dup f@ y f+ f! ;
+    x0 y1 xy-offset z+ fswap
+    f>s scale/ over ! cell+
+    f>s scale/ over ! cell+
+    x1 x0 f- fabs f>s scale/ over ! cell+
+    y0 y1 f- fabs f>s scale/ swap ! ;
+: +offset ( x y -- )  +to xy-offset ;
 : 0offset ( -- )
-    0e fdup xy-offset f! xy-offset float+ f! ;
+    0e fdup to xy-offset ;
 
 : send-status-update { text-input -- }
     text-input
@@ -521,7 +522,7 @@ Defer sync+config ' noop is sync+config
 	text prev-preedit$ $!
 	wayland( text [: cr ." preedit: '" type ''' emit ;] do-debug )
 	text save-mem [{: d: text :}h1
-	    text setstring$ $! sync+config
+	    text setstring$ $! "\x0C" wayland-keys
 	    text drop free throw ;]
 	master-task send-event
     THEN
