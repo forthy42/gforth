@@ -165,18 +165,11 @@ Variable def-output$
     ${SNAP} d0<> IF \ snap workaround
 	2dup ':' $split 2swap "unix" str=
 	IF  file-status nip 0<  ELSE  2drop false  THEN  IF
-	    ${PULSE_SERVER} 2dup d0<> IF
-		2nip save-mem
-		r> free throw over >r
-		':' $split
-		${XDG_RUNTIME_DIR} tuck dirname dup 0<> + 2>r
-		/string r@ negate /string 2r> 2over drop swap move
-		third 1+ negate /string
-		2swap 1+ fourth swap move  compact-filename
-		pulse( ." snap server: " 2dup type cr )
-	    ELSE
-		2drop
-	    THEN
+	    5 /string ${XDG_RUNTIME_DIR} tuck dirname dup 0<> + 2>r
+	    /string r@ negate /string 2r> 2over drop swap move
+	    -5 /string
+	    over "unix:" rot swap move
+	    pulse( ." snap server: " 2dup type cr )
 	THEN
     THEN
     PA_CONTEXT_NOAUTOSPAWN 0 pa_context_connect ?pa-ior
