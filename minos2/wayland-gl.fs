@@ -970,8 +970,19 @@ cb> registry-listener
     dpy wl_display_roundtrip drop ;
 
 : get-display ( -- w h )
-    0 0 wl_display_connect to dpy
+    ${SNAP} d0<> IF \ Snap workaround
+	${XDG_RUNTIME_DIR} file-status nip 0< IF
+	    [: ${XDG_RUNTIME_DIR} dirname type ${WAYLAND_DISPLAY} type ;] $tmp
+	    wayland( cr [: ." wayland workaround display for snap: " 2dup type ;] do-debug )
+	ELSE  0 0  THEN
+    ELSE  0 0  THEN  wl_display_connect to dpy
+    dpy 0= IF
+	[:  ." no wayland display in " ${XDG_RUNTIME_DIR} type
+	    ." /" ${WAYLAND_DISPLAY} type cr ;] do-debug
+	true abort" no wayland display connected"
+    THEN
     dpy wl_display_get_registry to registry
+    registry 0= abort" no wayland registry"
     registry registry-listener 0 wl_registry_add_listener drop
     get-events  get-events  dpy-wh 2@ ;
 

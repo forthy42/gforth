@@ -182,6 +182,7 @@ Variable eglformat
 	: choose-config ( -- )
 	    get-display dpy-h ! dpy-w !
 	    dpy eglGetDisplay to egldpy
+	    egldpy 0= abort" no EGL display connected"
 	    egldpy 0 0 eglInitialize drop
 	    EGL_OPENGL_ES_API eglBindAPI drop
 	    egldpy attribs3 configs 1 numconfigs eglChooseConfig drop
@@ -204,7 +205,7 @@ Variable eglformat
 	    [IFDEF] use-wl
 		dpy-w @ dpy-h @ wl-eglwin
 		egldpy configs @ win 0 eglCreatePlatformWindowSurface to surface
-	    [ELSE]
+	    [ELSE] \ x11
 		default-events window-title$ $@ dpy-w @ dpy-h @ simple-win
 		egldpy configs @ win 0 eglCreateWindowSurface to surface
 	    [THEN]

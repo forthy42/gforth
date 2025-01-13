@@ -16,7 +16,7 @@ A        [x] simplify API
  B       [x] examples
 AB       [x] Documentation in manual
   G      [x] Modify env-recognizer to use ${HOME} instead of $HOME to avoid collision with hex-numbers like $BEEF
- B       [ ]*update to current word names etc.
+ B       [x] update to current word names etc.
 ABGO [ ]*Documentation for Undocumented features
  B       [x] Document so far, that other programmers can understand the code and complete the documentation
 A        [d] Search changelogs for features

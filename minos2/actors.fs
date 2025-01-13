@@ -89,23 +89,20 @@ actor class
 end-class simple-actor
 
 simple-actor :method clicked { f: rx f: ry b n -- }
-    click( o h. caller-w .name$ type space caller-w h. ." simple click: " rx f. ry f. b . n . cr )  ;
+    click( o h. caller-w .name$ type space caller-w h. ." simple click: " rx f. ry f. b . n . cr ) ;
 simple-actor :method ukeyed ( addr u -- )
-    event( o h. caller-w .name$ type space caller-w h. ." keyed: " type cr )else( 2drop )  ;
+    event( o h. caller-w .name$ type space caller-w h. ." keyed: " type cr )else( 2drop ) ;
 simple-actor :method ekeyed ( ekey -- )
-    event( o h. caller-w .name$ type space caller-w h. ." ekeyed: " h. cr )else( drop )  ;
+    event( o h. caller-w .name$ type space caller-w h. ." ekeyed: " h. cr )else( drop ) ;
 : .touch ( $xy b -- )
     event( ." touch: " h. $@ bounds ?DO  I sf@ f.  1 sfloats +LOOP cr )else( 2drop ) ;
 simple-actor :method touchdown ( $xy b -- )
-    event( o h. caller-w .name$ type space caller-w h. ." down " .touch )else( 2drop )
- ;
+    event( o h. caller-w .name$ type space caller-w h. ." down " .touch )else( 2drop ) ;
 simple-actor :method touchup ( $xy b -- )
-    event( o h. caller-w .name$ type space caller-w h. ." up " .touch )else( 2drop )
- ;
+    event( o h. caller-w .name$ type space caller-w h. ." up " .touch )else( 2drop ) ;
 simple-actor :method touchmove ( $xy b -- )
-    event( o h. caller-w .name$ type space caller-w h. ." move " .touch )else( 2drop )
- ;
-simple-actor :method entered ( -- ) o to inside-move?  ;
+    event( o h. caller-w .name$ type space caller-w h. ." move " .touch )else( 2drop ) ;
+simple-actor :method entered ( -- ) o to inside-move? ;
 
 : simple[] ( o -- o )
     >o simple-actor new !act o o> ;
@@ -128,14 +125,12 @@ click-actor :method clicked ( rx ry b n -- )
     fdrop fdrop 2 = swap 1 <= and IF
 	click( o h. ." is clicked, do-action " action-of ck-action xt-see cr )
 	do-action
-    THEN
- ;
+    THEN ;
 click-actor :method ukeyed ( ukeyaddr u -- )
     bounds ?DO  I c@ bl = IF  do-action  THEN
-    LOOP  ;
+    LOOP ;
 click-actor :method ekeyed ( ekey -- )
-    k-enter = IF  do-action  THEN
- ;
+    k-enter = IF  do-action  THEN ;
 
 \ key actor
 
@@ -148,7 +143,7 @@ end-class key-actor
 
 actor action-of clicked key-actor is clicked
 key-actor :method ukeyed ( ukeyaddr u -- )
-    bounds ?DO  I xc@+ swap I - >r  do-action  r>  +LOOP  ;
+    bounds ?DO  I xc@+ swap I - >r  do-action  r>  +LOOP ;
 ' do-action key-actor is ekeyed
 
 \ toggle actor
@@ -159,7 +154,7 @@ end-class toggle-actor
 : toggle[] ( o xt state -- o )
     rot >o toggle-actor new >o to data is ck-action o o> !act o o> ;
 
-toggle-actor :method do-action data 0= dup to data ck-action  ;
+toggle-actor :method do-action data 0= dup to data ck-action ;
 
 \ actor for a box with one active element
 
@@ -194,32 +189,30 @@ end-class box-actor
 
 box-actor :method ?inside ( rx ry -- act )
     fover fover [ actor ] defers ?inside 0= IF  fdrop fdrop 0  EXIT  THEN
-    box-?inside  ;
+    box-?inside ;
 
 box-actor :method clicked ( rx ry b n -- )
     click( o h. caller-w .name$ type space caller-w h. ." box click: " fover f. fdup f. over . dup . cr )
     fover fover ?inside ?dup-IF  .clicked  EXIT  THEN
-    2drop fdrop fdrop  ;
+    2drop fdrop fdrop ;
 box-actor :method dndmove ( rx ry -- )
     fover fover ?inside ?dup-IF  .dndmove  EXIT  THEN
-    fdrop fdrop  ;
+    fdrop fdrop ;
 box-actor :method dnddrop ( rx ry addr u -- )
     fover fover ?inside ?dup-IF  .dnddrop  EXIT  THEN
-    2drop fdrop fdrop  ;
+    2drop fdrop fdrop ;
 box-actor :method scrolled ( axis dir x y -- )
     fover fover ?inside ?dup-IF  .scrolled  EXIT  THEN
-    2drop fdrop fdrop  ;
+    2drop fdrop fdrop ;
 box-actor :method ukeyed ( addr u -- )
-    active-w ?dup-IF  .act ?dup-IF .ukeyed  EXIT  THEN  THEN  2drop  ;
+    active-w ?dup-IF  .act ?dup-IF .ukeyed  EXIT  THEN  THEN  2drop ;
 box-actor :method ekeyed ( ekey -- )
-    active-w ?dup-IF  .act ?dup-IF .ekeyed  EXIT  THEN  THEN  drop  ;
+    active-w ?dup-IF  .act ?dup-IF .ekeyed  EXIT  THEN  THEN  drop ;
 : xy@ ( addr -- rx ry )  $@ drop dup sf@ sfloat+ sf@ ;
 box-actor :method touchdown ( $xy b -- )
-    over xy@ ?inside ?dup-IF  .touchdown  ELSE  2drop  THEN
- ;
+    over xy@ ?inside ?dup-IF  .touchdown  ELSE  2drop  THEN ;
 box-actor :method touchup ( $xy b -- )
-    over xy@ ?inside ?dup-IF  .touchup  ELSE  2drop  THEN
- ;
+    over xy@ ?inside ?dup-IF  .touchup  ELSE  2drop  THEN ;
 box-actor :method touchmove ( $xy b -- )
     event( o h. caller-w h. ." box move " 2dup .touch )
     [: over xy@ inside?
@@ -230,12 +223,11 @@ box-actor :method touchmove ( $xy b -- )
 	    r@ inside-move? <> act and
 	    IF  r@ ?dup-IF  .left  THEN  THEN  rdrop
 	    2dup act .touchmove  THEN
-    ;] box-touched# do-childs-act?
-    2drop  ;
+   ;] box-touched# do-childs-act?
+    2drop ;
 box-actor :method defocus ( -- )
     [: act .defocus ;] box-defocus# do-childs-act?
-    0 to active-w
- ;
+    0 to active-w ;
 ' noop box-actor is entered
 
 : box[] ( o -- o )
@@ -261,8 +253,7 @@ scroll-actor :method clicked ( rx ry b n -- )
 	THEN  drop
     ELSE
 	[ box-actor ] defers clicked
-    THEN
- ;
+    THEN ;
 scroll-actor :method ukeyed ( ukeyaddr u -- )
     over ctrl P = >r over ctrl N = r> or over 1 = IF
 	bounds ?DO  case I c@
@@ -270,14 +261,13 @@ scroll-actor :method ukeyed ( ukeyaddr u -- )
 		ctrl N of   1 sr-action  endof
 	    endcase
 	LOOP
-    ELSE  [ box-actor ] defers ukeyed  THEN  ;
+    ELSE  [ box-actor ] defers ukeyed  THEN ;
 scroll-actor :method ekeyed ( ekey -- )
     case
 	k-left  of  -1 sr-action  endof
 	k-right of   1 sr-action  endof
 	[ box-actor ] defers ekeyed 0
-    endcase
- ;
+    endcase ;
 
 \ scroll through tabs
 
@@ -382,8 +372,7 @@ vp-actor :method ?inside ( rx ry -- act )
     IF    box-?inside
     ELSE  [ actor ] defers ?inside
     THEN
-    click( dup h. cr )
- ;
+    click( dup h. cr ) ;
 : 1-?inside ( rx ry xt -- act )
     1 to ?inside-mode  catch  0 to ?inside-mode  throw ;
 
@@ -433,33 +422,29 @@ vp-actor :method clicked ( rx ry bmask n -- )
 	EXIT  THEN
     [: caller-w >o  >txy  tx
 	[: act >o [ box-actor ] defers clicked o> ;] vp-needed|
-	txy> o> ;] 1-?inside
- ;
+	txy> o> ;] 1-?inside ;
 vp-actor :method dnddrop ( rx ry addr u -- )
     [: caller-w >o  >txy  tx
 	[: act >o [ box-actor ] defers dnddrop o> ;] vp-needed|
-	txy> o> ;] 1-?inside
- ;
+	txy> o> ;] 1-?inside ;
 vp-actor :method dndmove ( rx ry -- )
     [: caller-w >o  >txy  tx
 	[: act >o [ box-actor ] defers dndmove o> ;] vp-needed|
-	txy> o> ;] 1-?inside
- ;
+	txy> o> ;] 1-?inside ;
 vp-actor :method scrolled ( axis dir rx ry -- )
     swap IF \ horizontal
 	drop
     ELSE \ vertical
 	vp-scrolling
-    THEN  fdrop fdrop
- ;
+    THEN  fdrop fdrop ;
 vp-actor :method touchdown ( $rxy*n bmask -- )
     [: caller-w >o  >txy  >r tx$ r>
 	[: act >o [ box-actor ] defers touchdown o> ;] vp-needed|
-	txy> o> ;] 1-?inside  ;
+	txy> o> ;] 1-?inside ;
 vp-actor :method touchup ( $rxy*n bmask -- )
     [: caller-w >o  >txy  >r tx$ r>
 	[: act >o [ box-actor ] defers touchup o> ;] vp-needed|
-	txy> o> ;] 1-?inside  ;
+	txy> o> ;] 1-?inside ;
 vp-actor :method touchmove ( $rxy*n bmask -- )
     dup 2 or 2 = grab-move? o = and IF
 	drop xy@ vpxy!
@@ -467,13 +452,13 @@ vp-actor :method touchmove ( $rxy*n bmask -- )
 	[: caller-w >o  >txy  >r tx$ r>
 	    [: act >o [ box-actor ] defers touchmove o> ;] vp-needed|
 	    txy> o> ;] 1-?inside
-    THEN  ;
+    THEN ;
 vp-actor :method ekeyed ( ekey -- )
     caller-w >o
-    [: act >o [ box-actor ] defers ekeyed o> ;] vp-needed| o>  ;
+    [: act >o [ box-actor ] defers ekeyed o> ;] vp-needed| o> ;
 vp-actor :method ukeyed ( ekey -- )
     caller-w >o
-    [: act >o [ box-actor ] defers ukeyed o> ;] vp-needed| o>  ;
+    [: act >o [ box-actor ] defers ukeyed o> ;] vp-needed| o> ;
 
 : vp[] ( o -- o )
     >o vp-actor new !act o o> ;
@@ -501,7 +486,7 @@ hslider-actor :method touchmove ( $rxy*n bmask -- )
 	drop xy@ fdrop >hslide
     ELSE
 	2drop
-    THEN  ;
+    THEN ;
 hslider-actor :method clicked ( x y b n -- )
     click( o h. caller-w h. ." slider click " fover f. fdup f. over . dup . cr )
     slide-vp .act anim-del
@@ -511,7 +496,7 @@ hslider-actor :method clicked ( x y b n -- )
     ELSE
 	drop fdrop >hslide
 	false to grab-move?
-    THEN  ;
+    THEN ;
 
 : (hslider[]) ( vp o class -- )
     swap >o o swap new to act
@@ -530,13 +515,13 @@ hsliderleft-actor :method clicked ( rx ry b n -- )
 	slide-vp >o w         act o> ?dup-IF  >o  o anim-del
 	set-startxy to vmotion-dx  0e to vmotion-dt  0e to vmotion-dy
 	0.333e o ['] vp-scroll >animate o>  ELSE fdrop THEN
-    THEN  ;
+    THEN ;
 hsliderright-actor :method clicked ( rx ry b n -- )
     fdrop fdrop  1 and 0= swap 1 u<= and IF
 	slide-vp >o w fnegate act o> ?dup-IF  >o  o anim-del
 	set-startxy to vmotion-dx  0e to vmotion-dt  0e to vmotion-dy
 	0.333e o ['] vp-scroll >animate o>  ELSE fdrop THEN
-    THEN  ;
+    THEN ;
 
 : hsliderleft[] ( vp o -- ) hsliderleft-actor (hslider[]) ;
 : hsliderright[] ( vp o -- ) hsliderright-actor (hslider[]) ;
@@ -553,7 +538,7 @@ vslider-actor :method touchmove ( $rxy*n bmask -- )
     grab-move? IF
 	slide-vp .act anim-del
 	drop xy@ fnip >vslide
-    ELSE  2drop  THEN  ;
+    ELSE  2drop  THEN ;
 vslider-actor :method clicked ( x y b n -- )
     click( o h. caller-w h. ." slider click " fover f. fdup f. over . dup . cr )
     slide-vp .act anim-del
@@ -564,7 +549,7 @@ vslider-actor :method clicked ( x y b n -- )
     ELSE
 	drop fnip >vslide
 	false to grab-move?
-    THEN  ;
+    THEN ;
 
 : (vslider[]) ( vp o class -- )
     swap >o o swap new to act
@@ -582,13 +567,13 @@ vsliderup-actor :method clicked ( rx ry b n -- )
 	slide-vp >o h         act o> ?dup-IF  >o  o anim-del
 	set-startxy to vmotion-dy  0e to vmotion-dt  0e to vmotion-dx
 	0.333e o ['] vp-scroll >animate o>  ELSE  fdrop  THEN
-    THEN  ;
+    THEN ;
 vsliderdown-actor :method clicked ( rx ry b n -- )
     fdrop fdrop  1 and 0= swap 1 u<= and IF
 	slide-vp >o h fnegate act o> ?dup-IF  >o  o anim-del
 	set-startxy to vmotion-dy  0e to vmotion-dt  0e to vmotion-dx
 	0.333e o ['] vp-scroll >animate o>  ELSE  fdrop  THEN
-    THEN  ;
+    THEN ;
 
 : vsliderup[] ( vp o -- ) vsliderup-actor (vslider[]) ;
 : vsliderdown[] ( vp o -- ) vsliderdown-actor (vslider[]) ;
@@ -833,25 +818,22 @@ edit-terminal edit-out !
 
 edit-actor :method ekeyed ( key o:actor -- )
     [: 4 roll dup keycode-start and 0= k-ctrl-mask and invert and
-	everychar >control edit-control drop +sync +resize ;] edit-xt  ;
+	everychar >control edit-control drop +sync +resize ;] edit-xt ;
 edit-actor :method ukeyed ( addr u o:actor -- )
     dup 1 = vt100-modifier @ 8 = and IF
 	drop c@ 2 mask-shift# lshift or ekeyed
     ELSE
 	[: 2rot prefix-off edit-ins$ edit-update +sync +resize ;] edit-xt
-    THEN  ;
+    THEN ;
 edit-actor :method defocus ( o:actor -- )
-    ['] setstring> edit-xt edit-w >o -1 to cursize o> +sync
- ;
+    ['] setstring> edit-xt edit-w >o -1 to cursize o> +sync ;
 edit-actor :method focus ( o:actor -- )
-    edit-w >o  0 to cursize o> +sync +keyboard  edit-engaged
- ;
+    edit-w >o  0 to cursize o> +sync +keyboard  edit-engaged ;
 edit-actor :method touchmove ( $rxy*n bmask -- )
     case
 	dup 1 u<= ?of drop  expand-selection  endof
 	nip
-    endcase +sync +resize
- ;
+    endcase +sync +resize ;
 edit-actor :method clicked ( o:actor rx ry b n -- )
     click( o h. caller-w h. ." edit click " fover f. fdup f. over . dup . cr )
     o engage
@@ -885,8 +867,7 @@ edit-actor :method clicked ( o:actor rx ry b n -- )
 	    4 of  ( menu   )  drop fdrop fdrop  endof
 	    nip fdrop fdrop
 	endcase
-    THEN +sync +resize
- ;
+    THEN +sync +resize ;
 [IFDEF] dnd@
     edit-actor :method dnddrop ( o:actor rx ry addr u -- )
 	dnd( [: cr ." Editor dnd drop '" dnd@ type ." '" ;] do-debug )
@@ -894,12 +875,10 @@ edit-actor :method clicked ( o:actor rx ry b n -- )
 	fdrop edit>curpos
 	[: dnd@
 	    [: BEGIN #lf $split dup WHILE 2swap type space
-		REPEAT 2drop type ;] $tmp edit-ins$ ;] edit-xt
-     ;
+		REPEAT 2drop type ;] $tmp edit-ins$ ;] edit-xt ;
     edit-actor :method dndmove ( o:actor rx ry -- )
 	dnd( [: cr ." Editor dnd move '" fover f. fdup f. ;] do-debug )
-	fdrop fdrop
-     ;
+	fdrop fdrop ;
 [THEN]
 : edit[] ( o widget xt -- o ) { xt }
     swap >o edit-actor new to act
