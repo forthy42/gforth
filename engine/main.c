@@ -62,7 +62,7 @@ static int trigger_no_dynamic = DEFAULT_TRIGGER;
 #ifdef MAP_JIT
 #include <pthread.h>
 #define jit_map_normal() ({ trigger_no_dynamic = DEFAULT_TRIGGER; map_extras = pthread_jit_write_protect_supported_np() ? 0 : MAP_JIT; })
-#define jit_map_code()   ({ trigger_no_dynamic = 1; map_extras = pthread_jit_write_protect_supported_np() ? MAP_JIT : 0; })
+#define jit_map_code()   ({ trigger_no_dynamic = 1; map_extras = MAP_JIT; })
 #define jit_write_enable()  pthread_jit_write_protect_np(0)
 #define jit_write_disable() pthread_jit_write_protect_np(1)
 #else
