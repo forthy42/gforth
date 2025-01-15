@@ -592,12 +592,12 @@ static Address verbose_malloc(Cell size)
   return r;
 }
 
-static void after_alloc(Address r, Cell size)
+static void after_alloc(char * description, Address r, Cell size)
 {
   if (r != (Address)-1) {
-    debugp(stderr, "success, address=%p\n", r);
+    debugp(stderr, "%s success, address=%p\n", description, r);
   } else {
-    debugp(stderr, "failed: %s\n", strerror(errno));
+    debugp(stderr, "%s failed: %s\n", description, strerror(errno));
   }
 }
 
@@ -634,16 +634,29 @@ Address alloc_mmap(Cell size)
     r = MAP_FAILED;
     debugp(stderr, "open(\"/dev/zero\"...) failed (%s), no mmap; ", 
 	      strerror(errno));
-    after_alloc(r, size);
+    after_alloc("/dev/zero", r, size);
     return r;
   }
 #endif /* !defined(MAP_ANON) */
   debugp(stderr,"try mmap(%p, $%lx, ..., dev_zero, ...); ", NULL, size);
-  if (MAP_32BIT && map_32bit)
+  if (MAP_32BIT && map_32bit) {
     r=mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|MAP_32BIT, dev_zero, 0);
-  if (r==MAP_FAILED)
+    after_alloc("RWX+32", r, size);
+  }
+  if (r==MAP_FAILED) {
     r=mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve, dev_zero, 0);
-  after_alloc(r, size);
+    after_alloc("RWX", r, size);
+  }
+  if (r==MAP_FAILED) {
+    debugp(stderr,"disabling dynamic native code generation");
+    no_dynamic = 1;
+#ifndef NO_DYNAMIC
+    init_ss_cost();
+#endif
+    prot_exec = 0;
+    r=mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve, dev_zero, 0);
+    after_alloc("RW", r, size);
+  }
   return r;  
 }
 
@@ -675,8 +688,12 @@ static Address alloc_mmap_guard(Cell size)
   Address start, dictguard;
   size = wholepage(size+pagesize);
   start=alloc_mmap(size);
-  dictguard=start+size-pagesize;
-  page_noaccess(dictguard);
+  if(start==MAP_FAILED) {
+    start=malloc(size-pagesize);
+  } else {
+    dictguard=start+size-pagesize;
+    page_noaccess(dictguard);
+  }
   return start;
 }
 
@@ -709,18 +726,21 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
       debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)dictsize, image);
       debugp(stderr,"try mmap(%p, $%lx, RWX, MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
       image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
-      after_alloc(image1,dictsize);
-#ifdef __ANDROID__
+      after_alloc("image1 RWX", image1,dictsize);
+#if defined(__ANDROID__)
       if (image1 == (void *)MAP_FAILED)
 	goto read_image;
 #endif
       if (image1 == (void *)MAP_FAILED) {
         debugp(stderr,"disabling dynamic native code generation");
         no_dynamic = 1;
+#ifndef NO_DYNAMIC
+	init_ss_cost();
+#endif
         prot_exec = 0;
         debugp(stderr,"try mmap(%p, $%lx, RW, MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
         image1 = mmap(image, imagesize, PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
-        after_alloc(image1,dictsize);
+        after_alloc("image1 RW", image1,dictsize);
       }
     }
   }
@@ -728,7 +748,7 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
   if (image == (void *)MAP_FAILED) {
     if((image = gforth_alloc(dictsize+offset)+offset) == NULL)
       return NULL;
-#ifdef __ANDROID__
+#if defined(__ANDROID__)
   read_image: /* on Android, mmap will fail despite RWX allocs are possible */
 #endif
     rewind(file);  /* fseek(imagefile,0L,SEEK_SET); */
