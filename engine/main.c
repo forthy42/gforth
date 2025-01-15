@@ -55,6 +55,24 @@
 #include <locale.h>
 #endif
 
+// if JIT is enabled, set DEFAULT_TRIGGER to 0
+#define DEFAULT_TRIGGER 0
+static int trigger_no_dynamic = DEFAULT_TRIGGER;
+
+#ifdef MAP_JIT
+#include <pthread.h>
+#define jit_map_normal() ({ trigger_no_dynamic = DEFAULT_TRIGGER; map_extras = pthread_jit_write_protect_supported_np() ? 0 : MAP_JIT; })
+#define jit_map_code()   ({ trigger_no_dynamic = 1; map_extras = pthread_jit_write_protect_supported_np() ? MAP_JIT : 0; })
+#define jit_write_enable()  pthread_jit_write_protect_np(0)
+#define jit_write_disable() pthread_jit_write_protect_np(1)
+#else
+#define MAP_JIT 0
+#define jit_map_normal() trigger_no_dynamic = DEFAULT_TRIGGER
+#define jit_map_code()   trigger_no_dynamic = 1
+#define jit_write_enable()
+#define jit_write_disable()
+#endif
+
 /* output rules etc. for burg with --debug and --print-sequences */
 /* #define BURG_FORMAT*/
 
@@ -178,12 +196,13 @@ int map_32bit=0; /* mmap option, can be set to MAP_32BIT with --map_32bit */
 #define MAP_NORESERVE 0
 #endif
 
-static int map_noreserve=MAP_NORESERVE;
-
 #ifndef PROT_EXEC
 #define PROT_EXEC 0
 #endif
-static int prot_exec=PROT_EXEC;
+
+static int map_noreserve=MAP_NORESERVE;
+PER_THREAD int map_extras=0;
+PER_THREAD int prot_exec=PROT_EXEC;
 
 #define CODE_BLOCK_SIZE (2*1024*1024) /* !! overflow handling for -native */
 Address code_area=0;
@@ -382,6 +401,15 @@ Cell groups[32] = {
 #define GROUPADD(n)
 };
 
+static void flush_to_here(void)
+{
+#ifndef NO_DYNAMIC
+  if (start_flush)
+    FLUSH_ICACHE((caddr_t)start_flush, code_here-start_flush);
+  start_flush=code_here;
+#endif
+}
+
 void gforth_compile_range(Cell *image, Cell size,
 			  Char *bitstring, Char *targets)
 {
@@ -391,6 +419,8 @@ void gforth_compile_range(Cell *image, Cell size,
   if(size<=0)
     return;
 
+  debugp(stderr, "compile code range %p:%lx\n", image, size);
+  jit_write_enable();
   for(i=k=0; k<steps; k++) {
     Char bitmask;
     for(bitmask=(1U<<(RELINFOBITS-1)); bitmask; i++, bitmask>>=1) {
@@ -406,7 +436,9 @@ void gforth_compile_range(Cell *image, Cell size,
     }
   }
 
-  finish_code();
+  compile_prim1(NULL);
+  flush_to_here();
+  jit_write_disable();
 }
 
 static unsigned char *gforth_relocate_range(Address sections[], Cell bases[],
@@ -638,23 +670,30 @@ Address alloc_mmap(Cell size)
     return r;
   }
 #endif /* !defined(MAP_ANON) */
-  debugp(stderr,"try mmap(%p, $%lx, ..., dev_zero, ...); ", NULL, size);
   if (MAP_32BIT && map_32bit) {
-    r=mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|MAP_32BIT, dev_zero, 0);
+    debugp(stderr,"try mmap(%p, $%lx, %x, %x, %i, %i); ", (void*)0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras|MAP_32BIT, dev_zero, 0);
+    r=mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras|MAP_32BIT, dev_zero, 0);
     after_alloc("RWX+32", r, size);
   }
   if (r==MAP_FAILED) {
-    r=mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve, dev_zero, 0);
+    debugp(stderr,"try mmap(%p, $%lx, %x, %x, %i, %i); ", (void*)0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras, dev_zero, 0);
+    r=mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras, dev_zero, 0);
     after_alloc("RWX", r, size);
   }
   if (r==MAP_FAILED) {
-    debugp(stderr,"disabling dynamic native code generation");
-    no_dynamic = 1;
+    if(trigger_no_dynamic) {
+      debugp(stderr,"disabling dynamic native code generation ");
+      no_dynamic = 1;
 #ifndef NO_DYNAMIC
-    init_ss_cost();
+      init_ss_cost();
 #endif
-    prot_exec = 0;
-    r=mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve, dev_zero, 0);
+      prot_exec = 0;
+      debugp(stderr,"try mmap(%p, $%lx, %x, %x, %i, %i); ", (void*)0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras, dev_zero, 0);
+      r=mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras, dev_zero, 0);
+    } else {
+      debugp(stderr,"try mmap(%p, $%lx, %x, %x, %i, %i); ", (void*)0, size, PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras, dev_zero, 0);
+      r=mmap(0, size, PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras, dev_zero, 0);
+    }
     after_alloc("RW", r, size);
   }
   return r;  
@@ -732,12 +771,6 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
 	goto read_image;
 #endif
       if (image1 == (void *)MAP_FAILED) {
-        debugp(stderr,"disabling dynamic native code generation");
-        no_dynamic = 1;
-#ifndef NO_DYNAMIC
-	init_ss_cost();
-#endif
-        prot_exec = 0;
         debugp(stderr,"try mmap(%p, $%lx, RW, MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
         image1 = mmap(image, imagesize, PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
         after_alloc("image1 RW", image1,dictsize);
@@ -1317,15 +1350,6 @@ static DynamicInfo *add_dynamic_info()
 }
 #endif
 
-static void flush_to_here(void)
-{
-#ifndef NO_DYNAMIC
-  if (start_flush)
-    FLUSH_ICACHE((caddr_t)start_flush, code_here-start_flush);
-  start_flush=code_here;
-#endif
-}
-
 static void MAYBE_UNUSED  append_code(Address code, size_t length)
 {
   memmove(code_here,code,length);
@@ -1441,18 +1465,36 @@ struct code_block_list {
   Cell size;
 } *code_block_list=NULL, **next_code_blockp=&code_block_list;
 
+static void init_code_space()
+{
+  int old_prot_exec = prot_exec;
+  prot_exec = PROT_EXEC;
+  jit_map_code();
+  code_here = start_flush = code_area = gforth_alloc(code_area_size);
+  jit_map_normal();
+  prot_exec = old_prot_exec;
+}
+
 static int reserve_code_space(UCell size)
 {
   if(((Cell)size)<0) size=100;
   if (code_area+code_area_size < code_here+size) {
     struct code_block_list *p;
+    int old_prot_exec = prot_exec;
+    prot_exec = PROT_EXEC;
     append_jump_previous();
     debugp(stderr,"Did not use %ld bytes in code block\n",
            (long)(code_area+code_area_size-code_here));
     flush_to_here();
     if (*next_code_blockp == NULL) {
-      if((code_here = start_flush = code_area = gforth_alloc(code_area_size)) == NULL)
+      jit_map_code();
+      if((code_here = start_flush = code_area = gforth_alloc(code_area_size)) == NULL) {
+	jit_map_normal();
+	prot_exec = old_prot_exec;
 	return 1;
+      }
+      jit_map_normal();
+      prot_exec = old_prot_exec;
       p = (struct code_block_list *)malloc_l(sizeof(struct code_block_list));
       *next_code_blockp = p;
       p->next = NULL;
@@ -1653,21 +1695,6 @@ Cell fetch_decompile_prim(Cell *a_addr)
   if (c->length > 1)
     p = super2[p];
   return (Cell)(vm_prims[p]);
-}
-
-void finish_code(void)
-{
-  compile_prim1(NULL);
-  flush_to_here();
-}
-
-void finish_code_barrier(void)
-{
-  compile_prim1(NULL);
-#ifndef NO_DYNAMIC
-  append_jump();
-#endif
-  flush_to_here();
 }
 
 #if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
@@ -2207,6 +2234,7 @@ int gforth_init()
   asm("fldcw %0" : : "m"(fpu_control));
 #endif /* defined(__i386) */
 
+  jit_map_normal();
 #ifdef MACOSX_DEPLOYMENT_TARGET
   setenv("MACOSX_DEPLOYMENT_TARGET", MACOSX_DEPLOYMENT_TARGET, 0);
 #endif
@@ -2470,6 +2498,9 @@ ImageHeader* gforth_loader(char* imagename, char* path)
     debugp(stderr, "section base=%p, dp=%p, size=%lx\n", section.base, section.dp, section.size);
     if(fread(sections[i], 1, sizes[i], imagefile) != sizes[i]) break;
   }
+#ifndef NO_DYNAMIC
+  init_code_space();
+#endif
   int no_dynamic_orig = no_dynamic;
   no_dynamic |= no_dynamic_image;
   gforth_relocate(sections, reloc_bits, sizes, bases);

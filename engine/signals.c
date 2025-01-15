@@ -173,7 +173,7 @@ signal_throw(int sig)
 static void
 sigaction_throw(int sig, siginfo_t *info, void *_)
 {
-  debugp(stderr,"\nsigaction_throw %d %p %p\n", sig, info, _);
+  debugp(stderr,"\nsigaction_throw %d %p %p @%p\n", sig, info, _, info->si_addr);
   signal_throw(sig);
 }
 

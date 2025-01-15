@@ -170,7 +170,7 @@ $Variable term-rgb$
 
 : term-rgb@ ( -- rgb )
     \ read color value returned from terminal
-    100 0 ?DO  key? ?LEAVE  1 ms  LOOP \ wait a maximum of 100 ms
+    1000 0 ?DO  key? ?LEAVE  1 ms  LOOP \ wait a maximum of 1000 ms
     BEGIN  key?  WHILE  key #esc =  UNTIL  ELSE  0  EXIT  THEN
     BEGIN  key?  WHILE  key term-rgb$ c$+!  REPEAT
     term-rgb$ $@ ':' $split 2nip

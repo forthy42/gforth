@@ -42,6 +42,11 @@ e? os-type s" linux" string-prefix? [IF]
 	c-function mremapf mremap a n n n a -- a ( addr len newlen flags newaddr -- addr' )
     [THEN]
 [THEN]
+e? os-type s" darwin" str= [IF]
+    \c #include <pthread.h>
+    c-function pthread_jit_write_protect_supported_np pthread_jit_write_protect_supported_np -- n
+    c-function pthread_jit_write_protect_np pthread_jit_write_protect_np n -- void
+[THEN]
 end-c-library
 
 require ./libc.fs
