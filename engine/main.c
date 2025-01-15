@@ -204,6 +204,8 @@ Label **ginstps; /* array of threaded code locations for
                            primitives being optimize_rewrite()d */
 
 static int no_super=0;   /* true if compile_prim should not fuse prims */
+static int no_dynamic_orig=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
+						  dynamically */
 static int no_dynamic=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
 					     dynamically */
 static int no_dynamic_image=0; /* disable dynamic while loading the image */
@@ -733,7 +735,7 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
 #endif
       if (image1 == (void *)MAP_FAILED) {
         debugp(stderr,"disabling dynamic native code generation");
-        no_dynamic = 1;
+        no_dynamic_orig = no_dynamic = 1;
 #ifndef NO_DYNAMIC
 	init_ss_cost();
 #endif
@@ -1145,7 +1147,7 @@ static void check_prims(Label symbols1[])
 	 goto_p[0],symbols2[goto_p-symbols1],(long)goto_len);
   if ((goto_len < 0) ||
       memcmp(goto_p[0],symbols2[goto_p-symbols1],goto_len)!=0) { /* unequal */
-    no_dynamic=1;
+    no_dynamic_orig = no_dynamic = 1;
     debugp(stderr,"  not relocatable, disabling dynamic code generation\n");
     init_ss_cost();
     return;
@@ -2385,7 +2387,7 @@ ImageHeader* gforth_loader(char* imagename, char* path)
   Cell data_offset = offset_image ? 56*sizeof(Cell) : 0;
   UCell check_sum;
   FILE* imagefile=open_image_file(imagename, path);
-  int no_dynamic_orig = no_dynamic;
+  no_dynamic_orig = no_dynamic;
 
   if(imagefile == NULL) return NULL;
   if(gforth_init()) return NULL;
