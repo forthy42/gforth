@@ -451,6 +451,11 @@ $80 0 [DO] ' false , [LOOP]
     2r> 2over + swap move
     edit-update false ;
 
+: xfgcolor ( max span addr pos1 -- max span addr pos2 flag )
+    xreformat ;
+: xbgcolor ( max span addr pos1 -- max span addr pos2 flag )
+    ekey-rgb rgb>mode xreformat ;
+
 Create xchar-ctrlkeys ( -- )
     ' false        , ' xfirst-pos   , ' xback        , ' false        ,
     ' xeof         , ' xend-pos     , ' xforw        , ' false        ,
@@ -470,7 +475,8 @@ Create std-ekeys
     ' false ,        ' false ,        ' false ,        ' false ,
     ' false ,        ' false ,        ' false ,        ' xreformat ,
     ' xhide ,        ' false ,        ' prev-line ,    ' next-line ,
-    ' ?xdel ,        ' xtab-expand ,  ' setsel ,       ' xeof' ,
+    ' ?xdel ,        ' xtab-expand ,  ' setsel ,       ' xfgcolor ,
+    ' xbgcolor ,     ' xeof' ,
 
 : xchar-edit-ctrl ( max span addr pos1 ekey -- max span addr pos2 flag )
     dup mask-shift# rshift 7 and vt100-modifier !
@@ -489,12 +495,18 @@ Create std-ekeys
 : xchar-history ( -- )
     edit-terminal edit-out ! ;
 
+: xeveryline ( -- )
+    edit-curpos-off  key? drop \ set terminal into raw mode
+    term-rgb? 1 and IF  s\" \e]10;?\a" type  THEN
+    term-rgb? 2 and IF  s\" \e]11;?\a" type  THEN
+    0 to term-rgb? ;
+
 xchar-history
 
 ' xins            IS insert-char
 ' xins-string     IS insert-string
 ' kill-prefix     IS everychar
-' edit-curpos-off IS everyline
+' xeveryline      IS everyline
 ' xedit-update    IS edit-update
 ' xpaste!         IS paste!
 ' xpaste@         IS paste@

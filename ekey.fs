@@ -33,7 +33,7 @@
 \ The keycode names are compatible with pfe-0.9.14
 
 $80000000 constant keycode-start
-$80000020 constant keycode-limit
+$80000022 constant keycode-limit
 
 create keycode-table keycode-limit keycode-start - cells allot
 
@@ -111,6 +111,8 @@ keycode k-voldown ( -- u ) \ gforth
 keycode k-backspace ( -- u ) \ gforth
 keycode k-tab ( -- u ) \ gforth
 keycode k-sel ( -- u ) \ gforth
+keycode k-fgcolor ( -- u ) \ gforth
+keycode k-bgcolor ( -- u ) \ gforth
 \G keycode for Android selections
 keycode k-eof ( -- u ) \ gforth
 \ always the last gforth-specific keycode
@@ -163,6 +165,7 @@ Variable key-buffer
 table constant esc-sequences \ and prefixes
 
 Variable ekey-buffer
+
 [IFUNDEF] #esc  27 Constant #esc  [THEN]
 
 : esc-mask ( addr u -- addr' u' mask )
@@ -288,6 +291,8 @@ Variable ekey-buffer
     k-voldown s" VD" esc-sequence
 
     k-sel     s" [S"  esc-sequence
+    k-fgcolor s" ]10rgb:" esc-sequence
+    k-bgcolor s" ]11rgb:" esc-sequence
 set-current
 [ENDIF]
 
@@ -314,6 +319,13 @@ set-current
 	    clear-ekey-buffer  then ;
 [THEN]
 
+0 Value ekey-rgb
+: read-rgb ( -- )
+    term-rgb$ $free
+    BEGIN  key?  WHILE  key dup $07 <> WHILE  term-rgb$ c$+!
+	REPEAT  drop  THEN
+    term-rgb$ $@ string>rgb to ekey-rgb ;
+
 : ekey ( -- u ) \ facility-ext e-key
     \G Receive a keyboard event @var{u} (encoding implementation-defined).
     BEGIN  winch? @ 0= WHILE  key-ior dup EINTR = WHILE  drop  REPEAT
@@ -325,7 +337,9 @@ set-current
     IF  drop k-eof  EXIT  THEN
     dup #esc =
     if
-        drop esc-prefix  exit
+	drop esc-prefix
+	dup k-fgcolor k-bgcolor 1+ within IF  read-rgb  THEN
+	exit
     then
     [IFDEF] max-single-byte
 	get-xkey

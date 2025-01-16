@@ -61,10 +61,11 @@ require smartdots.fs
 require blocks.fs
 require savesys.fs
 require table.fs
-require ekey.fs
-require history.fs
 require quotes.fs
 require vt100.fs
+require ansi.fs
+require ekey.fs
+require history.fs
 require rec-string.fs
 require rec-to.fs
 require rec-tick.fs
@@ -79,7 +80,6 @@ require libcc.fs
 require str-exec.fs
 require dis-gdb.fs
 require gforthrc.fs
-require ansi.fs
 \ require colorize.fs
 require mwords.fs
 require locate1.fs

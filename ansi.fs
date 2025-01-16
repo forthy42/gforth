@@ -168,7 +168,7 @@ $Variable term-rgb$
     s" TERM_PROGRAM" getenv s" Apple_Terminal" str= 0= and
     is-terminal? and ;
 
-: string>rgb ( -- rgb )
+: string>rgb ( addr u -- rgb )
     '/' $split '/' $split
     2 umin ['] s>number $10 base-execute drop >r
     2 umin ['] s>number $10 base-execute drop >r
@@ -177,7 +177,7 @@ $Variable term-rgb$
 
 : term-rgb@ ( -- rgb )
     \ read color value returned from terminal
-    1000 0 ?DO  key? ?LEAVE  1 ms  LOOP \ wait a maximum of 1000 ms
+    100 0 ?DO  key? ?LEAVE  1 ms  LOOP \ wait a maximum of 100 ms
     BEGIN  key?  WHILE  key #esc =  UNTIL  ELSE  0  EXIT  THEN
     BEGIN  key?  WHILE  key term-rgb$ c$+!  REPEAT
     term-rgb$ $@ ':' $split 2nip string>rgb term-rgb$ $free ;
@@ -189,13 +189,11 @@ $Variable term-rgb$
     term-rgb@ ;
 : term-fg? ( -- rgb )
     \ query terminal's foreground color, return value in hex RRGGBB
-    s" TERM_FGCOLOR" getenv dup IF  string>rgb  EXIT  THEN  2drop
     key? drop \ set terminal into raw mode
     s\" \e]10;?\a" type \ avada kedavra, terminal!
     term-rgb@ ;
 : term-bg? ( -- rgb )
     \ query terminal's background color, return value in hex RRGGBB
-    s" TERM_BGCOLOR" getenv dup IF  string>rgb  EXIT  THEN  2drop
     key? drop \ set terminal into raw mode
     s\" \e]11;?\a" type \ avada kedavra, terminal!
     term-rgb@ ;
@@ -205,7 +203,7 @@ $Variable term-rgb$
     dup $FF and swap 8 rshift
     ( ) $FF and swap rot ;
 
-$0 Value default-bg
+0 Value default-bg
 
 theme: uncolored-mode ( -- ) \ gforth
 \G This mode does not set colors, but uses the default ones.
@@ -265,17 +263,24 @@ uncolored-mode
     \G make input color easily recognizable (useful in presentations)
     $A601 white? + to input-color ;
 
+: rgb>mode  ( rgb -- )
+    rgb-split + + $17F u> IF  light-mode  ELSE  dark-mode  THEN ;
+
+0 Value term-rgb?
+
 : auto-color ( -- )
     is-terminal? is-color-terminal? and 0= if
         \ TODO: no terminal - switch to other output class
 	uncolored-mode  EXIT
     then
-    is-xterm? if term-bg? else default-bg then
-    rgb-split + + $17F u> IF
-	light-mode
-    ELSE
-	dark-mode
-    THEN ;
+    default-bg rgb>mode
+    is-xterm? if
+	s" SSH_CONNECTION" getenv d0= if
+	    term-bg? rgb>mode
+	else \ with a SSH connection, color setting only in interactive mode
+	    2 to term-rgb?
+	then
+    then ;
 
 :is 'cold auto-color defers 'cold ;
 
