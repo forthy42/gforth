@@ -168,18 +168,20 @@ $Variable term-rgb$
     s" TERM_PROGRAM" getenv s" Apple_Terminal" str= 0= and
     is-terminal? and ;
 
+: string>rgb ( -- rgb )
+    ':' $split 2nip
+    '/' $split '/' $split
+    2 umin ['] s>number $10 base-execute drop >r
+    2 umin ['] s>number $10 base-execute drop >r
+    2 umin ['] s>number $10 base-execute drop
+    8 lshift r> or 8 lshift r> or ;
+
 : term-rgb@ ( -- rgb )
     \ read color value returned from terminal
     1000 0 ?DO  key? ?LEAVE  1 ms  LOOP \ wait a maximum of 1000 ms
     BEGIN  key?  WHILE  key #esc =  UNTIL  ELSE  0  EXIT  THEN
     BEGIN  key?  WHILE  key term-rgb$ c$+!  REPEAT
-    term-rgb$ $@ ':' $split 2nip
-    '/' $split '/' $split
-    2 umin ['] s>number $10 base-execute drop >r
-    2 umin ['] s>number $10 base-execute drop >r
-    2 umin ['] s>number $10 base-execute drop
-    8 lshift r> or 8 lshift r> or
-    term-rgb$ $free ;
+    term-rgb$ $@ string>rgb term-rgb$ $free ;
 
 : term-color? ( n -- rgb )
     \ query terminal's colors by number
@@ -188,11 +190,13 @@ $Variable term-rgb$
     term-rgb@ ;
 : term-fg? ( -- rgb )
     \ query terminal's foreground color, return value in hex RRGGBB
+    s" TERM_FGCOLOR" getenv dup IF  string>rgb  EXIT  THEN  2drop
     key? drop \ set terminal into raw mode
     s\" \e]10;?\a" type \ avada kedavra, terminal!
     term-rgb@ ;
 : term-bg? ( -- rgb )
     \ query terminal's background color, return value in hex RRGGBB
+    s" TERM_BGCOLOR" getenv dup IF  string>rgb  EXIT  THEN  2drop
     key? drop \ set terminal into raw mode
     s\" \e]11;?\a" type \ avada kedavra, terminal!
     term-rgb@ ;

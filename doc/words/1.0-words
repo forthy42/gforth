@@ -3628,6 +3628,7 @@ next-case
 next-csv
 next-exception
 next-field
+(next-head)
 next-head
 next-l|g
 next-line
@@ -5251,6 +5252,7 @@ slvalue-dummy
 small-allot
 smart.
 smart<>
+smart.quotation.
 smart.s.
 smart.s-skip
 sm/rem
