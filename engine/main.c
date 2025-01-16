@@ -448,7 +448,7 @@ static unsigned char *gforth_relocate_range(Address sections[], Cell bases[],
   int i, k;
   int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
   unsigned char *targets=malloc_l(steps);
-  bzero(targets, steps);
+  memset(targets, 0, steps);
 
   for(i=k=0; k<steps; k++) {
     Char bitmask;
@@ -2422,8 +2422,8 @@ ImageHeader* gforth_loader(char* imagename, char* path)
   }
 
   set_stack_sizes(&header);
-  bzero(sections, sizeof(sections));
-  bzero(reloc_bits, sizeof(reloc_bits));
+  memset(sections, 0, sizeof(sections));
+  memset(reloc_bits, 0, sizeof(reloc_bits));
   
 #if HAVE_GETPAGESIZE
   pagesize=getpagesize(); /* Linux/GNU libc offers this */

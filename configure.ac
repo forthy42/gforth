@@ -499,6 +499,7 @@ Dynamic NC generation disabled."
 		;;
 	sparc*)
 		machine=sparc
+                test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=3
 		;;
 	i386)
 		machine=386

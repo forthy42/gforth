@@ -26,7 +26,13 @@ c-library libc
     \c #include <fcntl.h>
     \c #include <locale.h>
     \c #include <sys/stat.h>
+    \c #ifndef FIONREAD
+    \c #if defined(__sun)
+    \c #include <sys/filio.h>
+    \c #else
     \c #include <sys/ioctl.h>
+    \c #endif
+    \c #endif
     \c #define set_errno(n) (errno=(n))
     \c extern char ** environ;
     c-value errno errno -- n ( -- value )

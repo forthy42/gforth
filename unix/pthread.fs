@@ -31,7 +31,11 @@ c-library pthread
     \c #include <stdio.h>
     \c #include <signal.h>
     \c #ifndef FIONREAD
-    \c #include <sys/socket.h>
+    \c #if defined(__sun)
+    \c #include <sys/filio.h>
+    \c #else
+    \c #include <sys/ioctl.h>
+    \c #endif
     \c #endif
     \c #ifdef __x86_64
     \c #ifdef FORCE_SYMVER
@@ -163,7 +167,7 @@ require ./libc.fs
 require set-compsem.fs
 
 User pthread-id
--1 cells pthread+ uallot drop
+-1 cells pthread+ aligned uallot drop
 
 host? [IF]
     pthread-id pthread_self

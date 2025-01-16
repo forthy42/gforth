@@ -81,82 +81,85 @@ begin-structure rlimit
     8 +field rlim_max
 end-structure
 
-s" os-type" environment? [IF]
-    s" linux" string-prefix? [IF]
-	\ Sharing types (must choose one and only one of these). 
-	
-	0 Constant MAP_FILE
-	machine "mips" str= [IF]
-	    $800  Constant MAP_ANONYMOUS
-	    $01000 Constant MAP_GROWSDOWN	\ Stack-like segment.
-	    $02000 Constant MAP_DENYWRITE	\ ETXTBSY
-	    $04000 Constant MAP_EXECUTABLE	\ Mark it as an executable.
-	    $08000 Constant MAP_LOCKED		\ Lock the mapping.
-	    $90400 Constant MAP_NORESERVE	\ Don't check for reservations.
-	    $10000 Constant MAP_POPULATE	\ Populate (prefault) pagetables
-	    $20000 Constant MAP_NONBLOCK	\ Do not block on IO.
-	    $40000 Constant MAP_STACK		\ Allocation is for a stack.
-	    $80000 Constant MAP_HUGETLB		\ Create huge page mapping.
-	[ELSE]
-	    $20 Constant MAP_ANONYMOUS		\ Don't use a file.
-	    $00100 Constant MAP_GROWSDOWN	\ Stack-like segment.
-	    $00800 Constant MAP_DENYWRITE	\ ETXTBSY
-	    $01000 Constant MAP_EXECUTABLE	\ Mark it as an executable.
-	    $02000 Constant MAP_LOCKED		\ Lock the mapping.
-	    $04000 Constant MAP_NORESERVE	\ Don't check for reservations.
-	    $08000 Constant MAP_POPULATE	\ Populate (prefault) pagetables
-	    $10000 Constant MAP_NONBLOCK	\ Do not block on IO.
-	    $20000 Constant MAP_STACK		\ Allocation is for a stack.
-	    $40000 Constant MAP_HUGETLB		\ Create huge page mapping.
-	[THEN]
-	$40 Constant MAP_32BIT		\ Only give out 32-bit addresses.
-
-	MAP_ANONYMOUS Constant MAP_ANON
-
-	begin-structure __info
-	    field: uptime     \ Seconds since boot
-	    field: loads      \ 1, 5, and 15 minute load averages
-	    2 cells +
-	    field: totalram   \ Total usable main memory size
-	    field: freeram    \ Available memory size
-	    field: sharedram  \ Amount of shared memory
-	    field: bufferram  \ Memory used by buffers
-	    field: totalswap  \ Total swap space size
-	    field: freeswap   \ Swap space still available
-	    field: procs     \ Number of current processes
-	    field: totalhigh  \ Total high memory size
-	    field: freehigh   \ Available high memory size
-	    field: mem_unit    \ Memory unit size in bytes
-	    $3F + -$40 and \ pad to 64 Bytes
-	end-structure
-    [THEN]
-[THEN]
-
-s" os-type" environment? [IF]
-    s" cygwin" string-prefix? [IF]
-	\ Sharing types (must choose one and only one of these). 
-	
-	0 Constant MAP_FILE
+e? os-type s" linux" string-prefix? [IF]
+    \ Sharing types (must choose one and only one of these). 
+    
+    0 Constant MAP_FILE
+    machine "mips" str= [IF]
+	$800  Constant MAP_ANONYMOUS
+	$01000 Constant MAP_GROWSDOWN	\ Stack-like segment.
+	$02000 Constant MAP_DENYWRITE	\ ETXTBSY
+	$04000 Constant MAP_EXECUTABLE	\ Mark it as an executable.
+	$08000 Constant MAP_LOCKED		\ Lock the mapping.
+	$90400 Constant MAP_NORESERVE	\ Don't check for reservations.
+	$10000 Constant MAP_POPULATE	\ Populate (prefault) pagetables
+	$20000 Constant MAP_NONBLOCK	\ Do not block on IO.
+	$40000 Constant MAP_STACK		\ Allocation is for a stack.
+	$80000 Constant MAP_HUGETLB		\ Create huge page mapping.
+    [ELSE]
 	$20 Constant MAP_ANONYMOUS		\ Don't use a file.
-	$4000 Constant MAP_NORESERVE            \ Don't reserve swap space for this mapping.
-	$8000 Constant MAP_AUTOGROW             \ Grow underlying object to mapping size.
-	MAP_ANONYMOUS Constant MAP_ANON
+	$00100 Constant MAP_GROWSDOWN	\ Stack-like segment.
+	$00800 Constant MAP_DENYWRITE	\ ETXTBSY
+	$01000 Constant MAP_EXECUTABLE	\ Mark it as an executable.
+	$02000 Constant MAP_LOCKED		\ Lock the mapping.
+	$04000 Constant MAP_NORESERVE	\ Don't check for reservations.
+	$08000 Constant MAP_POPULATE	\ Populate (prefault) pagetables
+	$10000 Constant MAP_NONBLOCK	\ Do not block on IO.
+	$20000 Constant MAP_STACK		\ Allocation is for a stack.
+	$40000 Constant MAP_HUGETLB		\ Create huge page mapping.
     [THEN]
+    $40 Constant MAP_32BIT		\ Only give out 32-bit addresses.
+    
+    MAP_ANONYMOUS Constant MAP_ANON
+    
+    begin-structure __info
+	field: uptime     \ Seconds since boot
+	field: loads      \ 1, 5, and 15 minute load averages
+	2 cells +
+	field: totalram   \ Total usable main memory size
+	field: freeram    \ Available memory size
+	field: sharedram  \ Amount of shared memory
+	field: bufferram  \ Memory used by buffers
+	field: totalswap  \ Total swap space size
+	field: freeswap   \ Swap space still available
+	field: procs     \ Number of current processes
+	field: totalhigh  \ Total high memory size
+	field: freehigh   \ Available high memory size
+	field: mem_unit    \ Memory unit size in bytes
+	$3F + -$40 and \ pad to 64 Bytes
+    end-structure
 [THEN]
 
-s" os-type" environment? [IF]
-    2dup s" darwin" string-prefix? -rot s" bsd" search nip nip or [IF]
-	$0020 Constant MAP_RENAME \ Sun: rename private pages to file
-	$0040 Constant MAP_NORESERVE \ Sun: don't reserve needed swap area
-	$0080 Constant MAP_RESERVED0080 \ previously unimplemented MAP_INHERIT
-	$0100 Constant MAP_NOEXTEND \ for MAP_FILE, don't change file size
-	$0200 Constant MAP_HASSEMAPHORE \ region may contain semaphores
-	$0400 Constant MAP_NOCACHE \ don't cache pages for this mapping
-	$0800 Constant MAP_JIT \ Allocate a region that will be used for JIT purposes
-	$0000 Constant MAP_FILE \ map from file (default)
-	$1000 Constant MAP_ANON \ allocated from memory, swap space
-	MAP_ANON Constant MAP_ANONYMOUS
-    [THEN]
+e? os-type s" cygwin" string-prefix? [IF]
+    \ Sharing types (must choose one and only one of these). 
+    
+    0 Constant MAP_FILE
+    $20 Constant MAP_ANONYMOUS		\ Don't use a file.
+    $4000 Constant MAP_NORESERVE            \ Don't reserve swap space for this mapping.
+    $8000 Constant MAP_AUTOGROW             \ Grow underlying object to mapping size.
+    MAP_ANONYMOUS Constant MAP_ANON
+[THEN]
+
+e? os-type 2dup s" darwin" string-prefix? -rot s" bsd" search nip nip or [IF]
+    $0020 Constant MAP_RENAME \ Sun: rename private pages to file
+    $0040 Constant MAP_NORESERVE \ Sun: don't reserve needed swap area
+    $0080 Constant MAP_RESERVED0080 \ previously unimplemented MAP_INHERIT
+    $0100 Constant MAP_NOEXTEND \ for MAP_FILE, don't change file size
+    $0200 Constant MAP_HASSEMAPHORE \ region may contain semaphores
+    $0400 Constant MAP_NOCACHE \ don't cache pages for this mapping
+    $0800 Constant MAP_JIT \ Allocate a region that will be used for JIT purposes
+    $0000 Constant MAP_FILE \ map from file (default)
+    $1000 Constant MAP_ANON \ allocated from memory, swap space
+    MAP_ANON Constant MAP_ANONYMOUS
+[THEN]
+
+e? os-type s" solaris" string-prefix? [IF]
+    $0020 Constant MAP_RENAME
+    $0040 Constant MAP_NORESERVE
+    $0080 Constant MAP_32BIT
+    $0100 Constant MAP_ANON \ allocated from memory, swap space
+    $0000 Constant MAP_FILE \ map from file (default)
+    MAP_ANON Constant MAP_ANONYMOUS
 [THEN]
 
 1 Constant MREMAP_MAYMOVE
