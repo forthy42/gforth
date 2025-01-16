@@ -169,7 +169,6 @@ $Variable term-rgb$
     is-terminal? and ;
 
 : string>rgb ( -- rgb )
-    ':' $split 2nip
     '/' $split '/' $split
     2 umin ['] s>number $10 base-execute drop >r
     2 umin ['] s>number $10 base-execute drop >r
@@ -181,7 +180,7 @@ $Variable term-rgb$
     1000 0 ?DO  key? ?LEAVE  1 ms  LOOP \ wait a maximum of 1000 ms
     BEGIN  key?  WHILE  key #esc =  UNTIL  ELSE  0  EXIT  THEN
     BEGIN  key?  WHILE  key term-rgb$ c$+!  REPEAT
-    term-rgb$ $@ string>rgb term-rgb$ $free ;
+    term-rgb$ $@ ':' $split 2nip string>rgb term-rgb$ $free ;
 
 : term-color? ( n -- rgb )
     \ query terminal's colors by number
