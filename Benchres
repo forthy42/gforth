@@ -17,6 +17,11 @@ All times are given in seconds of user time.
 After 0.7.0:
 AMD64:
  sieve bubble matrix fib   fft  release; CPU; gcc
+ 0.020 0.021  0.012 0.027 0.015 20250115; AMD Ryzen 8700G 5000MHz; gcc-12.2.0
+ 0.025 0.023  0.012 0.032 0.016 20250115; AMD Ryzen 5800X 4800MHz; gcc-10.2.1
+ 0.027 0.033  0.011 0.043 0.017 20250115; Golden Cove 3.8GHz (Core i3-1315U); gcc-10.2.1
+ 0.046 0.086  0.025 0.077 0.031 20250115; Gracemont 2.6GHz (Core i3-1315U); gcc-10.2.1
+ 0.029 0.028  0.012 0.037 0.014 20250115; Intel Xeon W-1370P 5200MHz; gcc-10.2.1
  0.038 0.042  0.013 0.032 0.014 20231214; Intel Xeon W-1370P 5200MHz; gcc-10.2.1
  0.037 0.035  0.014 0.031 0.021 20231214; AMD Ryzen 5800X 4800MHz; gcc-10.2.1
  0.051 0.058  0.017 0.041 0.018 20231214; Intel Core i5 1135G7 4200MHz; gcc-11.4
