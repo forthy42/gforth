@@ -2131,12 +2131,12 @@ AC_SUBST(LIBTOOL_CXX)
 # logging helpers
 LOGDIR=logs
 
-AC_CHECK_PROG(LOLCAT_SUCCESS, lolcat, lolcat -i --seed=40, cat)
-AC_CHECK_PROG(LOLCAT_NEUTRAL, lolcat, lolcat -i --seed=87, cat)
-AC_CHECK_PROG(LOLCAT_FAIL, lolcat, lolcat -i --seed=196, cat)
+AC_CHECK_PROG(LOLCAT_SUCCESS, lolcat, lolcat -i --seed=173 -F 0.03, cat)
+AC_CHECK_PROG(LOLCAT_NEUTRAL, lolcat, lolcat -i --seed=15 -F 0.02, cat)
+AC_CHECK_PROG(LOLCAT_FAIL, lolcat, lolcat -i --seed=50 -F 0.02, cat)
 
-AC_CHECK_PROG(COWSAY_SUCCESS, cowsay, cowsay -f tux, echo)
-AC_CHECK_PROG(COWSAY_FAIL, cowsay, cowsay -f mutilated, echo)
+AC_CHECK_PROG(COWSAY_SUCCESS, cowsay, cowsay -f dragon-and-cow, echo)
+AC_CHECK_PROG(COWSAY_FAIL, cowsay, cowsay -f dragon, echo)
 
 AC_SUBST(LOGDIR)
 AC_SUBST(LOLCAT_SUCCESS)
@@ -2208,18 +2208,8 @@ fi
 echo
 if test -z "$config_warns"
 then
-   if test -z "$COWSAY" -o -z "$LOLCAT"
-   then
-      echo "*** Config summary: everything fine ***"
-   else
-      cowsay -f dragon-and-cow "*** Config summary: everything fine ***"|lolcat --seed=173 -i -F 0.03
-   fi
+   $COWSAY_SUCCESS "*** Config summary: everything fine ***"|$LOLCAT_SUCCESS
 else
-   if test -z "$COWSAY" -o -z "$LOLCAT"
-   then
-      echo "*** Config summary: Warnings exist ***"
-   else
-      cowsay -f dragon "*** Config summary: Warnings exist ***"|lolcat --seed=50 -i -F 0.02
-   fi
+   $COWSAY_FAIL "*** Config summary: Warnings exist ***"|$LOLCAT_FAIL
    echo "$config_warns"
 fi

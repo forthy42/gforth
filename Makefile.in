@@ -1122,7 +1122,7 @@ $(LIBCC_GEN_SRC):
 
 check:		gforths	gforth.fi more
 		$(MAKE) checkones
-		@echo "*** Check successful ***"
+		@COWSAY_SUCCESS@ "*** Check successful ***" | @LOLCAT_SUCCESS@
 		./gforth-fast$(EXT) --diag -e '."     in gforth-fast" cr bye'
 		./gforth$(EXT) --diag -e '."     in gforth" cr bye'
 		@libbench@./libgforth-fast$(EXT) --diag -e '."     in libgforth-fast" cr bye'
