@@ -26,10 +26,12 @@ extern "C" {
 #include "config.h"
 #include <stddef.h>
 #include <signal.h>
-#include <alloca.h>
 #include <setjmp.h>
 #include <string.h>
 #include <stdlib.h>
+#if !defined(__FreeBSD__)
+# include <alloca.h>
+#endif
 #include <wchar.h>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__) || defined(__ANDROID__)

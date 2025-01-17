@@ -153,7 +153,7 @@ UValue $? ( -- n ) \ gforth dollar-question
     forthstart dictionary-end within ;
 
 : in-return-stack? ( addr -- f )
-    rp0 @ [ forthstart 9 cells + ]L @ - $FFF + -$1000 and rp0 @ within ;
+    rp0 @ [ forthstart section-desc + #2 cells + ]L @ - $FFF + -$1000 and rp0 @ within ;
 
 \ !! rewrite slurp-file using slurp-fid
 : slurp-file ( c-addr1 u1 -- c-addr2 u2 ) \ gforth

@@ -34,7 +34,7 @@
     else \ throw by signal handler with insufficient information
 	handler @ cell- \ beyond that we know nothing
 	extra-backtrace# ?dup-IF  cells -
-	    rp0 @ [ forthstart 9 cells + ]L @ - $FFF + -$1000 and umax
+	    rp0 @ [ forthstart section-desc + #2 cells + ]L @ - $FFF + -$1000 and umax
 	    BEGIN  dup @ 0=  WHILE  cell+  REPEAT
 	THEN
     then
