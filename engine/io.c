@@ -49,7 +49,7 @@ typedef unsigned int uint32_t;
 #endif
 #include <fcntl.h>
 #include <sys/file.h>
-#if defined(Solaris) && !defined(FIONREAD)
+#if (defined(__sun) || defined(__FreeBSD__)) && !defined(FIONREAD)
 #include <sys/filio.h>
 #endif
 #include <setjmp.h>
@@ -662,6 +662,19 @@ int gf_ungottenc(FILE *stream)
   return search_ungotten(stream)>=0;
 }
 
+#if defined(__FreeBSD__)
+long key_avail (FILE * fid)
+{
+  int tty = fileno(fid);
+  int chars_avail;
+  if(!terminal_prepped && fid == stdin) {
+    setvbuf(fid, NULL, _IONBF, 0);
+    prep_terminal();
+  }
+  int result = ioctl(tty, FIONREAD, &chars_avail);
+  return (result==-1) ? -errno : chars_avail;
+}
+#else
 long key_avail (FILE *stream)
 {
   int tty = fileno (stream);
@@ -677,6 +690,8 @@ long key_avail (FILE *stream)
   if(isatty (tty)) {
     MAYBE_UNUSED int result = ioctl (tty, FIONREAD, &chars_avail);
   } else
+#else
+#warning FIONREAD undefined
 #endif
   {
     struct pollfd fds = { tty, POLLIN, 0 };
@@ -693,6 +708,7 @@ long key_avail (FILE *stream)
 #endif
   return (chars_avail == -1) ? 0 : chars_avail;
 }
+#endif
 
 /* Get a key from the buffer of characters to be read.
    Return the key in KEY.
