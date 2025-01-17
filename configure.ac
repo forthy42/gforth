@@ -237,7 +237,7 @@ AC_SUBST(EXTRAS)
 AC_ARG_WITH(install,
 	AS_HELP_STRING([--with-install=<things>],[  Install extra <things>]),
 [if test "$withval" != "no"; then
-    for i in ${withval//,/ }
+    for i in `echo ${withval} | tr , ' '`
     do
 	echo "install $i with $ac_configure_args ..."
 	eval ./install-$i.sh $ac_configure_args
@@ -958,8 +958,8 @@ LDFLAGS_1="$LDFLAGS"
 CFLAGS="$CFLAGS -pthread"
 LDFLAGS="$LDFLAGS -pthread"
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_pthread=yes;ENGINE_FLAGS="$ENGINE_FLAGS -pthread"],[ac_pthread=no])
-test "$ac_pthread" == yes || CFLAGS="$CFLAGS_1"
-test "$ac_pthread" == yes || LDFLAGS="$LDFLAGS_1"
+test "$ac_pthread" = yes || CFLAGS="$CFLAGS_1"
+test "$ac_pthread" = yes || LDFLAGS="$LDFLAGS_1"
 AC_MSG_RESULT($ac_pthread)
 
 if test -z "$LIBTOOL_CC"
@@ -1030,7 +1030,7 @@ case "$host_os" in
 		CFLAGS_1="$CFLAGS"
 		CFLAGS="$CFLAGS -no-cpp-precomp"
 		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_no_cpp_precomp=yes;ENGINE_FLAGS="$ENGINE_FLAGS -no-cpp-precomp"],[ac_no_cpp_precomp=no])
-		test "$ac_no_cpp_precomp" == yes || CFLAGS="$CFLAGS_1"
+		test "$ac_no_cpp_precomp" = yes || CFLAGS="$CFLAGS_1"
 		AC_MSG_RESULT($ac_no_cpp_precomp)
 		DIRSEP="/"
 		PATHSEP=":"
@@ -1048,7 +1048,7 @@ case "$host_os" in
 		CFLAGS_1="$CFLAGS"
 		CFLAGS="$CFLAGS -no-cpp-precomp"
 		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_no_cpp_precomp=yes;ENGINE_FLAGS="$ENGINE_FLAGS -no-cpp-precomp"],[ac_no_cpp_precomp=no])
-		test "$ac_no_cpp_precomp" == yes || CFLAGS="$CFLAGS_1"
+		test "$ac_no_cpp_precomp" = yes || CFLAGS="$CFLAGS_1"
 		AC_MSG_RESULT($ac_no_cpp_precomp)
 		DIRSEP="/"
 		PATHSEP=":"
@@ -1329,24 +1329,24 @@ in
 	;;
 esac
 
-if test x$ac_cv_makeinfo_has_css_ref == xyes
+if test x$ac_cv_makeinfo_has_css_ref = xyes
 then
     MAKEINFOREF='--css-ref=$(GFORTH_CSS)'
 else
-    if test x$ac_cv_makeinfo_has_css_include == xyes
+    if test x$ac_cv_makeinfo_has_css_include = xyes
     then
 	MAKEINFOREF='--css-include=$(srcdir)/$(GFORTH_CSS)'
     fi
 fi
 AC_SUBST(MAKEINFOREF)
 
-if test "x$RECODE" == xrecode; then
+if test "x$RECODE" = xrecode; then
    RECODE_ARGS=l1..
 else
    RECODE_ARGS="-f LATIN1"
 fi
 AC_SUBST(RECODE_ARGS)
-if test x$TIMEOUT == xtimeout; then
+if test x$TIMEOUT = xtimeout; then
    TIMEOUT_ARGS=60s
 fi
 AC_SUBST(TIMEOUT_ARGS)
@@ -1690,7 +1690,7 @@ if test x$MINOS2_LIBS = xyes; then
 		      , MINOSFLAG=false,)
    fi
    
-   if test "$host_os" == "cygwin"
+   if test "$host_os" = "cygwin"
    then
        if test x$has_swig = xyes || test -f $srcdir/unix/gdi32-fsi.c; then
           AC_CHECK_HEADER(w32api/wtypes.h,
@@ -2121,7 +2121,7 @@ AC_MSG_CHECKING([if $CXX understands -fpermissive])
 CXXFLAGS_1="$CXXFLAGS"
 CXXFLAGS="$CXXFLAGS -fpermissive"
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_fpermissive=yes],[ac_fpermissive=no])
-test "$ac_fpermissive" == yes || CXXFLAGS="$CXXFLAGS_1"
+test "$ac_fpermissive" = yes || CXXFLAGS="$CXXFLAGS_1"
 AC_MSG_RESULT($ac_fpermissive)
 AC_LANG([C])
 
