@@ -2222,7 +2222,9 @@ void compile_prim1(Cell *start)
 #endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
 }
 
+#ifdef HAVE_LIBLTDL
 static int gforth_ltdlinited=0;
+#endif
 
 int gforth_init()
 {
