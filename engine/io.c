@@ -662,7 +662,7 @@ int gf_ungottenc(FILE *stream)
   return search_ungotten(stream)>=0;
 }
 
-#if defined(__FreeBSD__)
+#if defined(__FreeBSD__) || defined(__linux__)
 long key_avail (FILE * fid)
 {
   int tty = fileno(fid);
@@ -673,6 +673,20 @@ long key_avail (FILE * fid)
   }
   int result = ioctl(tty, FIONREAD, &chars_avail);
   return (result==-1) ? -errno : chars_avail;
+}
+
+Cell getkey(FILE * stream)
+{
+  Cell result;
+
+  if(!terminal_prepped && stream == stdin) {
+    setvbuf(stream, NULL, _IONBF, 0);
+    prep_terminal();
+  }
+
+  errno=0;
+  result = fgetc(stream);
+  return result==EOF ? IOR(1) : result;
 }
 #else
 long key_avail (FILE *stream)
@@ -708,7 +722,6 @@ long key_avail (FILE *stream)
 #endif
   return (chars_avail == -1) ? 0 : chars_avail;
 }
-#endif
 
 /* Get a key from the buffer of characters to be read.
    Return the key in KEY.
@@ -733,6 +746,7 @@ Cell getkey(FILE * stream)
     gf_regetc(stream);
   return result==0 ? IOR(1) : c;
 }
+#endif
 
 #ifdef STANDALONE
 void emit_char(char x)

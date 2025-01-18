@@ -460,7 +460,7 @@ User keypollfds pollfd 2* cell- uallot drop
     prep-key
     BEGIN  key? winch? @ or 0= WHILE  keypollfds 2 -1 poll drop
 	    keypollfds pollfd + revents w@ POLLIN and IF  ?events  THEN
-	    keypollfds revents w@ POLLIN and IF  defers key-ior  EXIT  THEN
+	    keypollfds revents w@ [ POLLIN POLLHUP or ]L and IF  defers key-ior  EXIT  THEN
     REPEAT  winch? @ IF  EINTR  ELSE  defers key-ior  THEN ;
 
 ' thread-key is key-ior
