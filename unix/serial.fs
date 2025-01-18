@@ -42,7 +42,6 @@ c-library serial
     c-function cfsetispeed cfsetispeed a n -- n ( termios speed -- r )
     c-function cfsetospeed cfsetospeed a n -- n ( termios speed -- r )
     c-function tcflow tcflow n n -- n ( fd action -- n )
-    c-function setvbuf setvbuf a a n n -- n ( file* buf mode size -- r )
 end-c-library
 
 require ./libc.fs
@@ -120,11 +119,12 @@ base !
 
 $5409 Constant TCSBRK
 $540B Constant TCFLSH
-$541B Constant FIONREAD
+[IFUNDEF] FIONREAD
+    $541B Constant FIONREAD
+[THEN]
     2 Constant _IONBF
 
 : set-baud ( baud port -- )
-    dup 0 _IONBF 0 setvbuf ?ior \ no buffering on serial IO
     fileno dup
     >r t_old tcgetattr ?ior
     t_old t_buf termios move

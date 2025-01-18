@@ -23,5 +23,3 @@ default-out op-vector !
     to debug-fid
     >term
     key drop BEGIN  key? WHILE key drop REPEAT ;
-
-: t -status get-connection ;

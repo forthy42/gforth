@@ -55,6 +55,8 @@ c-library libc
 	\c #endif
 	c-function posix_spawnp posix_spawnp a s a a a a -- n ( *pid path addr actions attrp argv envp -- ret )
     [THEN]
+    \c #define nobuffer(stream) setvbuf(stream, NULL, _IONBF, 0);
+    c-function nobuffer nobuffer a -- void ( file -- )
     c-function fdopen fdopen n s -- a ( fd fileattr len -- file )
     c-function freopen freopen s s a -- a ( path mode file -- file )
     c-function fcntl fcntl n n n -- n ( fd n1 n2 -- ior )
@@ -141,7 +143,7 @@ $010 Constant POLLHUP
 [then]
 
 : fd>file ( fd -- fid )
-    s" w+" fdopen dup 0= ?errno-throw ;
+    s" w+" fdopen dup 0= ?errno-throw dup nobuffer ;
 
 host? [IF] (getpid) [ELSE] 0 [THEN] Value getpid
 
