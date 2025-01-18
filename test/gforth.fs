@@ -618,14 +618,14 @@ t{ 1 ' allot ' t-extra-section catch nip nip -> -8 }t
 
 \ refill test with different newlines
 
-: refill-tester ( n -- len1 .. lenn )
-    0 ?DO  refill drop source nip  LOOP  refill drop ;
+: refill-tester ( n -- addr u )
+    [: 0 ?DO  refill drop source type ." /"  LOOP  refill drop ;] $tmp ;
 
 t{ 4 refill-tester
 ab
 cde
 fghijklmn
--> 2 3 4 5 }t
+s" ab/cde/fghi/jklmn/" str= -> true }t
 
 \ refill with&without newline at end of last line
 \ (do not add a newline to the end of this buffer!)

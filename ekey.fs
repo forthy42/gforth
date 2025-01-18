@@ -326,6 +326,8 @@ set-current
 	REPEAT  drop  THEN
     term-rgb$ $@ string>rgb to ekey-rgb ;
 
+Defer ekey-extension ' noop is ekey-extension
+
 : ekey ( -- u ) \ facility-ext e-key
     \G Receive a keyboard event @var{u} (encoding implementation-defined).
     BEGIN  winch? @ 0= WHILE  key-ior dup EINTR = WHILE  drop  REPEAT
@@ -341,6 +343,7 @@ set-current
 	dup k-fgcolor k-bgcolor 1+ within IF  read-rgb  THEN
 	exit
     then
+    ekey-extension
     [IFDEF] max-single-byte
 	get-xkey
     [THEN]

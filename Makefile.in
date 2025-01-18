@@ -1198,11 +1198,11 @@ checkone test: prim.b gforth-light.fi engine/prim-s.i
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $<\" ' output-c ' output-c-combined process-file bye"| \
 		  tr -d '\015' | grep -v '^#line '|diff -u engine/prim-s.i -
 		@echo TEST $(ENGINE) fptests
-		-$(TIMEOUT) $(FORTH) -i gforth-light.fi test/fp/runfptests.fth -e bye | diff -u $(srcdir)/test/fp/fptest.out - || echo "Floating point test failed"
+		-$(TIMEOUT) $(FORTH) -i gforth-light.fi test/fp/runfptests.fth -e bye | diff -u $(srcdir)/test/fp/fptest.out - || $(COWSAY_FAIL) "=== Floating point test failed ===" | $(LOLCAT_FAIL)
 		@echo TEST $(ENGINE) read-line
 		$(TIMEOUT) $(FORTHS) -i gforth-light.fi test/read-line.fs -e bye | diff -u - $(srcdir)/test/read-line.out
 		@echo TEST $(ENGINE) regexp
-		$(TIMEOUT) $(FORTHS) -i gforth-light.fi regexp.fs test/regexp-test.fs | diff -u - $(srcdir)/test/regexp.out || echo "Regexp test failed"
+		$(TIMEOUT) $(FORTHS) -i gforth-light.fi regexp.fs test/regexp-test.fs | diff -u - $(srcdir)/test/regexp.out || $(COWSAY_FAIL) "=== Regexp test failed ===" | $(LOLCAT_FAIL)
 
 check-nofast: gforth-light.fi
 		@echo TEST $(ENGINE) nofast
