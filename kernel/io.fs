@@ -83,10 +83,10 @@ unlock H base ! lock T
     dup 0< IF  throw  THEN  nip ;
 
 : (key) ( -- c / ior )
-    infile-id (key-file) ;
+    0 winch? !@ IF  EINTR  ELSE  infile-id (key-file)  THEN ;
 
 : (key?) ( -- flag )
-    infile-id key?-file ;
+    infile-id key?-file  winch? @ or ;
 
 user-o op-vector
 0 0

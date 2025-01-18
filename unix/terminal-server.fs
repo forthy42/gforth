@@ -16,6 +16,11 @@ default-out op-vector !
 
 : >term  out>term op-vector @ debug-vector ! ;
 
+: read-iac ( -- )
+    BEGIN  key?  WHILE
+	    key #255 = IF key drop key drop THEN
+    REPEAT ;
+
 : get-connection ( -- )
     gforth-port# create-server { lsocket }
     lsocket 1 listen
@@ -23,5 +28,5 @@ default-out op-vector !
     dup to infile-id
     dup to outfile-id
     to debug-fid
-    >term
-    key drop BEGIN  key? WHILE key drop REPEAT ;
+    >term read-iac ;
+

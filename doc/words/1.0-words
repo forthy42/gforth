@@ -1451,6 +1451,7 @@ ekey?
 ekey-buffer
 ekey>char
 ekey>fkey
+ekey-rgb
 ekeys
 ekey>xchar
 .elapsed
@@ -3071,6 +3072,7 @@ k9
 k-alt-mask
 kate-l:c
 k-backspace
+k-bgcolor
 k-ctrl-mask
 k-delete
 k-down
@@ -3106,6 +3108,7 @@ k-f6
 k-f7
 k-f8
 k-f9
+k-fgcolor
 k-home
 (kill)
 kill
@@ -3655,6 +3658,7 @@ NL_NOSERVICE
 NL_NOSOCK
 NL_NOSOCKOPT
 no-</>
+nobuffer
 (nocheck-reveal)
 ]nocov
 nocov[
@@ -4365,6 +4369,7 @@ read-line
 readlink
 read-loop
 read-loop1
+read-rgb
 read-xkey
 Real
 realloc
@@ -4485,6 +4490,7 @@ reverse
 reverse-sections-execute
 reworkdir
 rfft
+rgb>mode
 rgb-split
 rmdir
 r/o
@@ -5409,6 +5415,7 @@ string-ext
 >string-out
 string-parse
 string-prefix?
+string>rgb
 .strings
 string-suffix?
 >string-type
@@ -5507,6 +5514,7 @@ term-fg?
 *terminal*#
 terminal-input
 term-prep?
+term-rgb?
 term-rgb@
 term-rgb$
 tfile
@@ -6066,6 +6074,7 @@ xaligned
 xback
 xback-chars
 xbe
+xbgcolor
 X:buffer
 xc!+
 xc!+?
@@ -6113,8 +6122,10 @@ xend-pos
 xeof
 xeof'
 X:escaped-strings
+xeveryline
 x#exec
 X:extension-query
+xfgcolor
 xfield:
 xfirst-pos
 xforw

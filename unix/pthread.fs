@@ -453,14 +453,15 @@ User keypollfds pollfd 2* cell- uallot drop
 
 : prep-key ( -- )
     keypollfds >r
-    stdin fileno    POLLIN r> fds!+ >r
-    epiper @ fileno POLLIN r> fds!+ drop ;
+    infile-id fileno POLLIN r> fds!+ >r
+    epiper @  fileno POLLIN r> fds!+ drop ;
 
 : thread-key ( -- key )
     prep-key
-    BEGIN  key? winch? @ or 0= WHILE  keypollfds 2 -1 poll drop
+    BEGIN  key? 0= WHILE  keypollfds 2 -1 poll drop
 	    keypollfds pollfd + revents w@ POLLIN and IF  ?events  THEN
-    REPEAT  winch? @ IF  EINTR  ELSE  defers key-ior  THEN ;
+\	    keypollfds revents w@ POLLIN POLLHUP or and IF  defers key-ior  THEN
+    REPEAT  defers key-ior ;
 
 ' thread-key is key-ior
 
