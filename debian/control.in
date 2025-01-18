@@ -8,7 +8,7 @@ Package: gforth-bin
 Version: @DEBVERSION@
 Architecture: any
 Multi-Arch: same
-Depends: libltdl7, gforth-common (= @DEBVERSION@)
+Depends: libltdl7, gforth-common (= @DEBVERSION@), gforth-libcc (= @DEBVERSION@)
 Recommends: gforth-lib (= @DEBVERSION@)
 Suggests: libtool, libtool-bin, libffi6 | libffi5, build-essential, gcc
 License: GPLv3
@@ -74,7 +74,7 @@ Package: gforth-lib
 Version: @DEBVERSION@
 Architecture: any
 Multi-Arch: same
-Depends: libltdl7, gforth-common (= @DEBVERSION@)
+Depends: libltdl7, gforth-common (= @DEBVERSION@), gforth-dev (= @DEBVERSION@)
 Suggests: libtool, libtool-bin, libffi6 | libffi5, build-essential, gcc
 Description: GNU Forth
  Gforth is the Forth implementation of the GNU project, providing all
@@ -86,7 +86,7 @@ Package: gforth-libcc
 Version: @DEBVERSION@
 Architecture: any
 Multi-Arch: same
-Depends: libltdl7, gforth-common (= @DEBVERSION@)
+Depends: libltdl7, gforth-common (= @DEBVERSION@), gforth-dev (= @DEBVERSION@)
 Suggests: libtool, libtool-bin, libffi6 | libffi5, build-essential, gcc, gforth-opengl
 Description: GNU Forth
  Gforth is the Forth implementation of the GNU project, providing all

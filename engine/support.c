@@ -536,8 +536,10 @@ struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid)
   flag=-1;
   u3=0;
   wior=0;
+#ifdef LEGACY_GF
   if (u1>0)
     gf_regetc(wfileid);
+#endif
   for(u2=0; u2<u1; u2++) {
     do{
       c = getc(wfileid);
@@ -562,11 +564,15 @@ struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid)
         flag=-1;
         break;
       }
-      if (c!='\n')
+      if (c!='\n') {
+#ifdef LEGACY_GF
 	gf_ungetc(c,wfileid);
-      else
+#else
+        ungetc(c,wfileid);
+#endif
+      } else {
 	u3++;
-      break;
+      } break;
     }
     c_addr[u2] = (Char)c;
   }

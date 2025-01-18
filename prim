@@ -2379,8 +2379,10 @@ indicated by @i{u2}$<$@i{u1} and @i{wior}=0.""
 u2 = 0;
 do {
   u2 += fread(c_addr+u2, sizeof(Char), u1-u2, (FILE *)wfileid);
+#ifdef LEGACY_GF
   if (u2>0)
     gf_regetc((FILE *)wfileid);
+#endif
   if((wior = FILEIO(u2<u1 && ferror((FILE *)wfileid))))
     clearerr((FILE *)wfileid);
 } while(wior==TOIOR(EINTR));

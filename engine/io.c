@@ -469,6 +469,8 @@ void prep_terminal ()
   if (terminal_prepped)
     return;
 
+  setvbuf(stdin, NULL, _IONBF, 0); /* terminals without buffering */
+  
   if (!isatty(tty))  {     /* added by MdG */
     terminal_prepped = 1;      /* added by MdG */
     return;      /* added by MdG */
@@ -615,6 +617,31 @@ void deprep_terminal ()
 }
 #endif  /* NEW_TTY_DRIVER */
 
+#if !defined(LEGACY_GF)
+long key_avail (FILE * stream)
+{
+  int tty = fileno(stream);
+  int chars_avail;
+  if(!terminal_prepped && stream == stdin) {
+    prep_terminal();
+  }
+  int result = ioctl(tty, FIONREAD, &chars_avail);
+  return (result==-1) ? -errno : chars_avail;
+}
+
+Cell getkey(FILE * stream)
+{
+  Cell result;
+
+  if(!terminal_prepped && stream == stdin) {
+    prep_terminal();
+  }
+
+  errno=0;
+  result = fgetc(stream);
+  return (result<0) ? IOR(1) : result;
+}
+#else
 /* an ungetc() variant where we can know that there is a character waiting:
    gf_ungetc: like ungetc
    gf_regetc: call when reading a char, but does not get the character
@@ -662,35 +689,6 @@ int gf_ungottenc(FILE *stream)
   return search_ungotten(stream)>=0;
 }
 
-#if defined(__FreeBSD__) || defined(__linux__)
-long key_avail (FILE * stream)
-{
-  int tty = fileno(stream);
-  int chars_avail;
-  if (!gf_ungottenc(stream))
-    setvbuf(stream, NULL, _IONBF, 0);
-  if(!terminal_prepped && stream == stdin) {
-    prep_terminal();
-  }
-  int result = ioctl(tty, FIONREAD, &chars_avail);
-  return (result==-1) ? -errno : chars_avail;
-}
-
-Cell getkey(FILE * stream)
-{
-  Cell result;
-
-  if (!gf_ungottenc(stream))
-    setvbuf(stream, NULL, _IONBF, 0);
-  if(!terminal_prepped && stream == stdin) {
-    prep_terminal();
-  }
-
-  errno=0;
-  result = fgetc(stream);
-  return (result<0) ? IOR(1) : result;
-}
-#else
 long key_avail (FILE *stream)
 {
   int tty = fileno (stream);
@@ -698,7 +696,6 @@ long key_avail (FILE *stream)
 
   if (gf_ungottenc(stream))
     return 1;
-  setvbuf(stream, NULL, _IONBF, 0);
   if(!terminal_prepped && stream == stdin)
     prep_terminal();
 

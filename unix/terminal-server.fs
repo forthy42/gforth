@@ -8,7 +8,9 @@ require unix/socket.fs
 
 ' (type) ' (emit) ' term-cr ' (form)  output: out>term
 action-of at-xy action-of at-deltaxy action-of page action-of attr!
+action-of control-sequence  action-of theme-color!
 out>term
+IS theme-color!  IS control-sequence
 IS attr! IS page IS at-deltaxy IS at-xy
 default-out op-vector !
 

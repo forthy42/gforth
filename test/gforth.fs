@@ -379,7 +379,7 @@ t{ "->xlerb" forth-recognize -> 0 }t
 
 0 warnings !@ >r
 : eval-catch ( addr u -- throwcode | results 0 )
-    [{: addr u :}h1 addr u evaluate ;] catch ;
+    [{: addr u :}h1 addr u evaluate ;] catch nothrow stored-backtrace $free ;
 r> warnings !
 
 1 Value value1
@@ -615,6 +615,17 @@ t{ 1 extra-section t-extra-section -> }t
 t{ ' unused t-extra-section 1 pagesize within -> true }t
 t{ ' unused t-extra-section ' allot ' t-extra-section catch -> 0 }t
 t{ 1 ' allot ' t-extra-section catch nip nip -> -8 }t
+
+\ refill test with different newlines
+
+: refill-tester ( n -- len1 .. lenn )
+    0 ?DO  refill drop source nip  LOOP  refill drop ;
+
+t{ 4 refill-tester
+ab
+cde
+fghijklmn
+-> 2 3 4 5 }t
 
 \ refill with&without newline at end of last line
 \ (do not add a newline to the end of this buffer!)
