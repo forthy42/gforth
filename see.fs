@@ -143,7 +143,7 @@ definitions
     begin ( umin head R: boundary )
 	>link @ dup
     while
-	tuck name>interpret >code-address ( head1 umin ca R: boundary )
+	tuck ( name>interpret ) >code-address ( head1 umin ca R: boundary )
 	r@ - umin
 	swap
     repeat
@@ -712,7 +712,7 @@ VARIABLE Branches
 	IF  2dup >body @ = IF  -rot nip false  EXIT
 	    THEN  THEN  drop true ;
     : search-uservar ( offset nt -- offset flag )
-	name>interpret dup >code-address douser: = ?type-found ;
+	( name>interpret ) dup >code-address douser: = ?type-found ;
     : c-searcharg ( addr xt addr u -- addr' ) 2>r >r
 	display? IF
 	    0 over @
@@ -740,7 +740,7 @@ VARIABLE Branches
 [THEN]
 [IFDEF] user@
     : search-userval ( offset nt -- offset flag )
-	name>interpret dup >does-code ['] infile-id >does-code = ?type-found ;
+	( name>interpret ) dup >does-code ['] infile-id >does-code = ?type-found ;
     : c-user@ ( addr -- addr' )
 	[: ['] search-userval swap traverse-wordlist ;]
 	s" user@ " c-searcharg ;

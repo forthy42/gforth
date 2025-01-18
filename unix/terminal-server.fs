@@ -24,3 +24,4 @@ default-out op-vector !
     >term
     key drop BEGIN  key? WHILE key drop REPEAT ;
 
+: t -status get-connection ;

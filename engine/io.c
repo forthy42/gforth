@@ -663,12 +663,13 @@ int gf_ungottenc(FILE *stream)
 }
 
 #if defined(__FreeBSD__) || defined(__linux__)
-long key_avail (FILE * fid)
+long key_avail (FILE * stream)
 {
-  int tty = fileno(fid);
+  int tty = fileno(stream);
   int chars_avail;
-  if(!terminal_prepped && fid == stdin) {
-    setvbuf(fid, NULL, _IONBF, 0);
+  if (!gf_ungottenc(stream))
+    setvbuf(stream, NULL, _IONBF, 0);
+  if(!terminal_prepped && stream == stdin) {
     prep_terminal();
   }
   int result = ioctl(tty, FIONREAD, &chars_avail);
@@ -679,14 +680,15 @@ Cell getkey(FILE * stream)
 {
   Cell result;
 
-  if(!terminal_prepped && stream == stdin) {
+  if (!gf_ungottenc(stream))
     setvbuf(stream, NULL, _IONBF, 0);
+  if(!terminal_prepped && stream == stdin) {
     prep_terminal();
   }
 
   errno=0;
   result = fgetc(stream);
-  return result==EOF ? IOR(1) : result;
+  return (result<0) ? IOR(1) : result;
 }
 #else
 long key_avail (FILE *stream)
