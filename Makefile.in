@@ -166,10 +166,11 @@ LOGDIR = logs
 LOLCAT_SUCCESS = @LOLCAT_SUCCESS@
 LOLCAT_NEUTRAL = @LOLCAT_NEUTRAL@
 LOLCAT_FAIL = @LOLCAT_FAIL@
-COWSAY_SUCCESS = @COWSAY_SUCCESS@
-COWSAY_FAIL = @COWSAY_FAIL@
+COWSAY_SUCCESS = @COWSAY_SUCCESS@ -n
+COWSAY_FAIL = @COWSAY_FAIL@ -n
 
 SUCCESS = $(COWSAY_SUCCESS) | $(LOLCAT_SUCCESS)
+FAIL = $(COWSAY_FAIL) | $(LOLCAT_FAIL)
 
 # -------------	Compiler Flags
 
@@ -1122,13 +1123,16 @@ build-libcc-swig: $(LIBCC_GEN_SRC)
 $(LIBCC_GEN_SRC):
 		(cd unix; $(MAKE) $(patsubst unix/%,%,$@))
 
+diag:
+		./gforth-fast$(EXT) --diag -e '."     in gforth-fast" cr bye'
+		./gforth$(EXT) --diag -e '."     in gforth" cr bye'
+		@libbench@./libgforth-fast$(EXT) --diag -e '."     in libgforth-fast" cr bye'
+		@libbench@./libgforth$(EXT) --diag -e '."     in libgforth" cr bye'
+
 check:		gforths	gforth.fi more
 		$(MAKE) checkones
 		@echo "*** Check successful ***" | $(SUCCESS)
-		./gforth-fast$(EXT) --diag -e '."     in gforth-fast" cr bye' | $(SUCCESS)
-		./gforth$(EXT) --diag -e '."     in gforth" cr bye' | $(SUCCESS)
-		@libbench@./libgforth-fast$(EXT) --diag -e '."     in libgforth-fast" cr bye' | $(SUCCESS)
-		@libbench@./libgforth$(EXT) --diag -e '."     in libgforth" cr bye' | $(SUCCESS)
+		$(MAKE) --no-print-directory diag | $(SUCCESS)
 
 checkones:	checkg checkgi checkgdi checkgf checkgd checkgfd @libbench@checklibg checklibgi checklibgdi checklibgf checklibgd checklibgfd
 
