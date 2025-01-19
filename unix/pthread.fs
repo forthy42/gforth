@@ -438,7 +438,7 @@ synonym sleep halt ( task -- ) \ gforth-experimental
 
 \ key for pthreads
 
-User keypollfds pollfd 2* cell- uallot drop
+User keypollfds pollfd 2* cell- aligned uallot drop
 
 :noname defers 'image
     keypollfds pollfd 2* erase
@@ -460,8 +460,8 @@ User keypollfds pollfd 2* cell- uallot drop
     prep-key
     BEGIN  key? 0= WHILE  keypollfds 2 -1 poll drop
 	    keypollfds pollfd + revents w@ POLLIN and IF  ?events  THEN
-\	    keypollfds revents w@ POLLIN POLLHUP or and IF  defers key-ior  THEN
-    REPEAT  defers key-ior ;
+	keypollfds revents w@ POLLIN POLLHUP or and UNTIL  THEN
+    defers key-ior ;
 
 ' thread-key is key-ior
 

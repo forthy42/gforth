@@ -30,7 +30,7 @@ debug: telnet(
     dup $FF = \ telnet iac
     if  drop
 	case key
-	    $FA of
+	    $FA of \ detailed negotiation
 		key $1F = IF
 		    key 8 lshift key +
 		    key 8 lshift key + swap

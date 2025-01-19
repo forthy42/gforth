@@ -169,6 +169,8 @@ LOLCAT_FAIL = @LOLCAT_FAIL@
 COWSAY_SUCCESS = @COWSAY_SUCCESS@
 COWSAY_FAIL = @COWSAY_FAIL@
 
+SUCCESS = $(COWSAY_SUCCESS) | $(LOLCAT_SUCCESS)
+
 # -------------	Compiler Flags
 
 XCFLAGS	= @CFLAGS@ @ANDROID_EXTRA@
@@ -1122,11 +1124,11 @@ $(LIBCC_GEN_SRC):
 
 check:		gforths	gforth.fi more
 		$(MAKE) checkones
-		@COWSAY_SUCCESS@ "*** Check successful ***" | @LOLCAT_SUCCESS@
-		./gforth-fast$(EXT) --diag -e '."     in gforth-fast" cr bye'
-		./gforth$(EXT) --diag -e '."     in gforth" cr bye'
-		@libbench@./libgforth-fast$(EXT) --diag -e '."     in libgforth-fast" cr bye'
-		@libbench@./libgforth$(EXT) --diag -e '."     in libgforth" cr bye'
+		@echo "*** Check successful ***" | $(SUCCESS)
+		./gforth-fast$(EXT) --diag -e '."     in gforth-fast" cr bye' | $(SUCCESS)
+		./gforth$(EXT) --diag -e '."     in gforth" cr bye' | $(SUCCESS)
+		@libbench@./libgforth-fast$(EXT) --diag -e '."     in libgforth-fast" cr bye' | $(SUCCESS)
+		@libbench@./libgforth$(EXT) --diag -e '."     in libgforth" cr bye' | $(SUCCESS)
 
 checkones:	checkg checkgi checkgdi checkgf checkgd checkgfd @libbench@checklibg checklibgi checklibgdi checklibgf checklibgd checklibgfd
 

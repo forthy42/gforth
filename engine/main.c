@@ -2605,12 +2605,12 @@ static void print_diag()
 {
 
 #if !defined(HAVE_GETRUSAGE) || (!defined(HAS_ATOMIC) && !defined(HAS_SYNC))
-  fprintf(stderr, "*** missing functionality ***\n"
+  printf("*** missing functionality ***\n"
 #ifndef HAVE_GETRUSAGE
-	  "    no getrusage -> CPUTIME broken\n"
+	 "    no getrusage -> CPUTIME broken\n"
 #endif
 #if !defined(HAS_ATOMIC) && !defined(HAS_SYNC)
-	  "    no atomic operations -> !@ and co. broken\n"
+	 "    no atomic operations -> !@ and co. broken\n"
 #endif
 	  );
 #endif
@@ -2622,7 +2622,7 @@ static void print_diag()
 #endif
      )
     debugp(stderr, "relocs: %d:%d\n", relocs, nonrelocs);
-  fprintf(stderr, "*** %sperformance problems ***\n%s%s",
+  printf("*** %sperformance problems ***\n%s%s",
 #if defined(BUGGY_LL_CMP) || defined(BUGGY_LL_MUL) || defined(BUGGY_LL_DIV) || defined(BUGGY_LL_ADD) || defined(BUGGY_LL_SHIFT) || defined(BUGGY_LL_D2F) || defined(BUGGY_LL_F2D) || !(defined(FORCE_REG) || defined(FORCE_REG_UNNECESSARY)) || defined(BUGGY_LONG_LONG) || (NO_DYNAMIC_DEFAULT)
 	    "",
 #else
