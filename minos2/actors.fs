@@ -644,9 +644,11 @@ simple-actor class
     defer: edit-engaged
 end-class edit-actor
 
+also [IFDEF] jni  jni [THEN]
 : edit-copy ( max span addr pos1 -- max span addr pos1 false )
     >r 2dup swap r@ safe/string xselw min clipboard!
     r> 0 ;
+previous
 : edit-cut ( max span addr pos1 -- max span addr pos1 false )
     edit-copy drop >r
     2dup swap r@ safe/string xselw delete
