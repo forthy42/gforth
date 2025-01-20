@@ -55,23 +55,32 @@
 #include <locale.h>
 #endif
 
-// if JIT is enabled, set DEFAULT_TRIGGER to 0
-#define DEFAULT_TRIGGER 0
-static int trigger_no_dynamic = DEFAULT_TRIGGER;
 
-#ifdef MAP_JIT
-#include <pthread.h>
-#define jit_map_normal() ({ trigger_no_dynamic = DEFAULT_TRIGGER; map_extras = pthread_jit_write_protect_supported_np() ? 0 : MAP_JIT; })
-#define jit_map_code()   ({ trigger_no_dynamic = 1; map_extras = MAP_JIT; })
-#define jit_write_enable()  pthread_jit_write_protect_np(0)
-#define jit_write_disable() pthread_jit_write_protect_np(1)
+#if defined(MAP_JIT)
+# include <pthread.h>
+// if JIT is enabled, set DEFAULT_TRIGGER to 0
+# define DEFAULT_TRIGGER 0
+# define jit_map_normal() ({ trigger_no_dynamic = DEFAULT_TRIGGER; map_extras = pthread_jit_write_protect_supported_np() ? 0 : MAP_JIT; })
+# define jit_map_code()   ({ trigger_no_dynamic = 1; map_extras = MAP_JIT; })
+# define jit_write_enable()  pthread_jit_write_protect_np(0)
+# define jit_write_disable() pthread_jit_write_protect_np(1)
+#elif defined(__OpenBSD__)
+# define MAP_JIT 0
+# define DEFAULT_TRIGGER 0
+# define jit_map_normal() trigger_no_dynamic = DEFAULT_TRIGGER
+# define jit_map_code()   trigger_no_dynamic = 0
+# define jit_write_enable() ({ debugp(stderr, "code -> RW %p:%lx\n", code_area, code_area_size); mprotect(code_area, code_area_size, PROT_READ | PROT_WRITE); })
+# define jit_write_disable() ({ debugp(stderr, "code -> RX %p:%lx\n", code_area, code_area_size); mprotect(code_area, code_area_size, PROT_READ | PROT_EXEC); })
 #else
-#define MAP_JIT 0
-#define jit_map_normal() trigger_no_dynamic = DEFAULT_TRIGGER
-#define jit_map_code()   trigger_no_dynamic = 1
-#define jit_write_enable()
-#define jit_write_disable()
+# define MAP_JIT 0
+# define DEFAULT_TRIGGER 0
+# define jit_map_normal() trigger_no_dynamic = DEFAULT_TRIGGER
+# define jit_map_code()   trigger_no_dynamic = 1
+# define jit_write_enable()
+# define jit_write_disable()
 #endif
+
+static int trigger_no_dynamic = DEFAULT_TRIGGER;
 
 /* output rules etc. for burg with --debug and --print-sequences */
 /* #define BURG_FORMAT*/
@@ -1486,6 +1495,7 @@ static int reserve_code_space(UCell size)
     debugp(stderr,"Did not use %ld bytes in code block\n",
            (long)(code_area+code_area_size-code_here));
     flush_to_here();
+    jit_write_disable();
     if (*next_code_blockp == NULL) {
       jit_map_code();
       if((code_here = start_flush = code_area = gforth_alloc(code_area_size)) == NULL) {
@@ -1493,6 +1503,7 @@ static int reserve_code_space(UCell size)
 	prot_exec = old_prot_exec;
 	return 1;
       }
+      jit_write_enable();
       jit_map_normal();
       prot_exec = old_prot_exec;
       p = (struct code_block_list *)malloc_l(sizeof(struct code_block_list));
