@@ -63,7 +63,7 @@ require look.fs
 				     \ !! does not work for primitives
 [THEN]
 : prim? ( nfa -- flag )
-    name>interpret xtprim? ;
+    xtprim? ;
 
 \ None nestable IDs:
 

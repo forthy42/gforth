@@ -58,5 +58,5 @@ debug: telnet(
     3 .iac-will+do \ Suppress Go Ahead
     1 .iac-will+do \ Echo
     #31 .iac-will  \ Terminal size
-;
+    gforth ;
 

@@ -864,9 +864,8 @@ fold1:
 
 \ outer recurse
 
-: outer-section ( -- addr ) section# 1-
-    dup #extra-sections @ < abort" no outer section"
-    sections $[] @ ;
+: outer-section ( -- addr )
+    section# 1- #extra-sections @ max sections $[] @ ;
 ' noop Alias outer-recurse ( ... -- ... ) \ core
 \g Alias to the current definition.
 [: drop ['] lastnt outer-section section-execute @ ;] set->int
