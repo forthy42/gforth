@@ -1450,6 +1450,7 @@ ekey
 ekey?
 ekey-buffer
 ekey>char
+ekey-extension
 ekey>fkey
 ekey-rgb
 ekeys

@@ -976,7 +976,15 @@ AC_SUBST(ENGINE_FLAGS)
 
 # Try a number of flags as workarounds
 
-CHECKFLAGS=$CHECKFLAGS" no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-strict-aliasing no-cse-follow-jumps no-reorder-blocks no-reorder-blocks-and-partition no-toplevel-reorder no-trigraphs align-labels=1 align-loops=1 align-jumps=1 no-delete-null-pointer-checks cf-protection=none no-tree-vectorize no-lto llvm=--tail-dup-indirect-size=0"
+CHECKFLAGS="$CHECKFLAGS no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-strict-aliasing no-cse-follow-jumps no-reorder-blocks no-reorder-blocks-and-partition no-toplevel-reorder no-trigraphs align-labels=1 align-loops=1 align-jumps=1 no-delete-null-pointer-checks cf-protection=none no-tree-vectorize llvm=--tail-dup-indirect-size=0"
+
+case "$host_os" in
+     *netbsd*)
+	;;
+     *)
+        CHECKFLAGS="$CHECKFLAGS no-lto"
+	;;
+esac
 
 for i in $CHECKFLAGS
 do
