@@ -429,9 +429,14 @@ void throw(int code)
 #define gforth_engine gforth_engine2
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
-#define LABEL(name) H_##name: asm(ASMCOMMENT "H " #name); asm("SKIP16"); \
+#ifdef __ia64__
+#define SKIP4X4 asm("SKIP4"); /* one IA64 instruction is already 16 bytes */
+#else
+#define SKIP4X4 ({ asm("SKIP4"); asm("SKIP4"); asm("SKIP4"); asm("SKIP4"); })
+#endif
+#define LABEL(name) H_##name: asm(ASMCOMMENT "H " #name); SKIP4X4; \
     asm(ASMCOMMENT "I " #name); I_##name:
-#define LABEL_UU(name) H_##name: MAYBE_UNUSED asm(ASMCOMMENT "H " #name); asm("SKIP16"); \
+#define LABEL_UU(name) H_##name: MAYBE_UNUSED asm(ASMCOMMENT "H " #name); SKIP4X4; \
     asm(ASMCOMMENT "I " #name); I_##name: MAYBE_UNUSED
 /* the SKIP16 after LABEL3 is there, because the ARM gcc may place
    some constants after the final branch, and may refer to them from
@@ -446,7 +451,7 @@ void throw(int code)
     asm(ASMCOMMENT "J " #name);  \
     asm(ASMCOMMENT "J " #name);  \
     asm(ASMCOMMENT "J " #name);  \
-  } asm("SKIP16");
+  } SKIP4X4;
 #define LABEL3_UU(name) J_##name: MAYBE_UNUSED { \
     asm(ASMCOMMENT "J " #name);                  \
     asm(ASMCOMMENT "J " #name);                  \
@@ -456,7 +461,7 @@ void throw(int code)
     asm(ASMCOMMENT "J " #name);  \
     asm(ASMCOMMENT "J " #name);  \
     asm(ASMCOMMENT "J " #name);  \
-  } asm("SKIP16");
+  } SKIP4X4;
 
 #elif ENGINE==3
 /* variant with different immediate arguments for finding out

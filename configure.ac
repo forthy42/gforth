@@ -297,7 +297,7 @@ AC_ARG_VAR(ac_cv_sizeof___uint128_t, [sizeof(__uint128_t)])
 AC_ARG_VAR(ac_cv_c_bigendian, [Is the target big-endian ("yes" or "no")?])
 AC_ARG_VAR(no_dynamic_default, [run gforth with --dynamic (0) or --no-dynamic (1) by default])
 AC_ARG_VAR(condbranch_opt, [enable (1) or disable (0) using two dispatches for conditional branches])
-AC_ARG_VAR(skipcode, [assembly code for skipping 16 bytes of code])
+AC_ARG_VAR(skipcode, [assembly code for skipping 4 bytes of code])
 AC_ARG_VAR(asmcomment, [assembler comment start string])
 AC_ARG_VAR(arm_cacheflush, [file containing ARM cacheflush function (without .c)])
 AC_ARG_VAR(LTDL_LIBRARY_PATH, [additional directories for libltdl (for some 64-bit platforms)])
@@ -493,6 +493,8 @@ esac
 AC_SUBST(ANDROID_EXTRA)
 #terminology is a bit unusual here: The host is the system on which
 #gforth will run; the system on which configure will run is the `build'
+UNIFIED_ENGINE=
+AC_SUBST(UNIFIED_ENGINE)
 case "$host_cpu" in
 	arm64*|aarch64*)
 		machine=arm64
@@ -501,6 +503,7 @@ case "$host_cpu" in
 		if test -z "$arm_cacheflush"; then
 		   AC_LIBOBJ(arm64-cacheflush)
 		fi
+		UNIFIED_ENGINE=lib
 		;;
 	arm*)
 		machine=arm
@@ -576,7 +579,7 @@ Dynamic NC generation disabled."
 		;;
 	i*86)
 		machine=386
-		test "$skipcode" || skipcode="nopl (%eax,%eax,1)\nnopl (%eax,%eax,1)\nnopl (%eax,%eax,1)\nnopl (%eax,%eax,1)"
+		test "$skipcode" || skipcode="nopl	(%eax,%eax,1)"
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 		CFLAGS_1="$CFLAGS"
 		CFLAGS="$CFLAGS_1 -march=athlon64 -mtune=generic"
@@ -595,7 +598,7 @@ Dynamic NC generation disabled."
 		in
 		    *-m32*|*-mx32*)
 		    	machine=386
-			test "$skipcode_arch" || skipcode_arch="nopl (%eax,%eax,1)\nnopl (%eax,%eax,1)\nnopl (%eax,%eax,1)\nnopl (%eax,%eax,1)"
+			test "$skipcode_arch" || skipcode_arch="nopl	(%eax,%eax,1)"
 			CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 			CFLAGS_1="$CFLAGS"
 			CFLAGS="$CFLAGS -march=athlon64"
@@ -605,18 +608,19 @@ Dynamic NC generation disabled."
 			in
 			    *gnux32)
 			    	machine=386
-				test "$skipcode_arch" || skipcode_arch="nopl (%eax,%eax,1)\nnopl (%eax,%eax,1)\nnopl (%eax,%eax,1)\nnopl (%eax,%eax,1)"
+				test "$skipcode_arch" || skipcode_arch="nopl	(%eax,%eax,1)"
 				CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 				CFLAGS_1="$CFLAGS"
 				CFLAGS="$CFLAGS -march=athlon64"
 			        ;;
 			    *)
 		    		machine=amd64
-				test "$skipcode_arch" || skipcode_arch="nopl (%rax,%rax,1)\nnopl (%rax,%rax,1)\nnopl (%rax,%rax,1)\nnopl (%rax,%rax,1)"
+				test "$skipcode_arch" || skipcode_arch="nopl	(%rax,%rax,1)"
 				CFLAGS="$CFLAGS -fomit-frame-pointer"
 				CCVER=`$CC -v 2>&1 | grep ' version ' | cut -f3 -d' '`
 				test ${CCVER%.*.*} -ge 7 && test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=3
 				unset CCVER
+				UNIFIED_ENGINE=lib
 				;;
 			esac
 			;;
@@ -625,7 +629,7 @@ Dynamic NC generation disabled."
 	ia64*)
 		machine=ia64
 		AC_LIBOBJ(ia64_flush_icache_block)
-		test "$skipcode" || skipcode="nop.i 0"
+		test "$skipcode" || skipcode="nop.i	0"
 		#".skip 16" passes the test below,
 		# but gives an assembler error in engine
 		;;
@@ -678,16 +682,18 @@ Dynamic Code generation disabled (relocation and delay slot issues).]"
 
                 #the skipcode that is normally selected below does not
                 #work with gcc-3.[34]
-		test "$skipcode" || skipcode="nop\nnop\nnop\nnop"
+		test "$skipcode" || skipcode="nop"
                 #Power 3.1 prefixed instructions must not cross 64-byte
                 #boundaries; we cannot guarantee that for --dynamic, so
                 #we disable prefixed instructions
                 CHECKFLAGS=$CHECKFLAGS" -mno-prefixed"
+		UNIFIED_ENGINE=lib
 		;;
 	riscv*)
 		machine=riscv
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
                 test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=3
+		UNIFIED_ENGINE=lib
 		;;
 	tile*)
 		machine=tile
@@ -1212,7 +1218,7 @@ else
   GKERNEL="kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi"
 fi
 
-#check how to do asm(".skip 16")
+#check how to do asm(".skip 4")
 if test "$host_alias" = "`echo $build_alias | sed -e s/x86_64/i686/g`"
 then
     cross_compiling=no # we can actually execute the code
@@ -1228,7 +1234,7 @@ elif test -z "$skipcode"; then
     skipcode=no
     CFLAGS_1="$CFLAGS"
     CFLAGS="$CFLAGS $ENGINE_FLAGS"
-    for i in ".skip 16" ".block 16" ".org .+16" ".=.+16" ".space 16" "$skipcode_arch"
+    for i in ".skip 4" ".block 4" ".org .+4" ".=.+4" ".space 4" "$skipcode_arch"
     do
     AC_MSG_CHECKING([if and how we can waste code space])
 	AC_RUN_IFELSE([AC_LANG_SOURCE([[#include <stdio.h>
@@ -1238,8 +1244,8 @@ int foo(int x, int y, int z)
   static void *labels[]={&&label1, &&label2, &&label3};
   if (x) {
     y++; /* workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=12108 */
-  label1: asm("$i"); /* or ".space 16" or somesuch */
-  label2: asm("$i"); /* or ".space 16" or somesuch */
+  label1: asm("$i"); /* or ".space 4" or somesuch */
+  label2: asm("$i"); /* or ".space 4" or somesuch */
   label3: ; /* workaround clang */
   }
   {
@@ -1250,12 +1256,12 @@ int foo(int x, int y, int z)
 int main(int argc, char ** argv, char ** env)
 {
   int skip=foo(0,0,0);
-  if(skip<16) {
+  if(skip<4) {
     char cmd[80];
     snprintf(cmd, sizeof(cmd), "objdump -zl --disassemble=foo %s", argv[0]);
     system(cmd);
   }
-  return skip<16;
+  return skip<4;
 }
 	]])],[skipcode=$i; break
 	],[AC_MSG_RESULT([no, $i doesn't work])],[])
@@ -1273,9 +1279,9 @@ then
 	config_warns="$config_warns
 Dynamic NC generation disabled."
     fi
-    AC_DEFINE_UNQUOTED(SKIP16,asm(""),statement for skipping 16 bytes)
+    AC_DEFINE_UNQUOTED(SKIP4,asm(""),statement for skipping 4 bytes)
 else
-    AC_DEFINE_UNQUOTED(SKIP16,asm("$skipcode"),statement for skipping 16 bytes)
+    AC_DEFINE_UNQUOTED(SKIP4,asm("$skipcode"),statement for skipping 4 bytes)
     SKIPCODE=$skipcode
     AC_SUBST(SKIPCODE)
 fi

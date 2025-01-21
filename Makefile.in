@@ -1460,12 +1460,14 @@ FIRSTOBJECTS = @signals_o@ @LIBOBJS@ support-ll.o support-noll.o support-ll-reg.
 GFORTHOBJECTS = $(patsubst %,engine/%,$(FIRSTOBJECTS))
 GFORTHLIBOBJECTS = $(patsubst %.o,engine/lib%.lo,$(FIRSTOBJECTS))
 
+UNIFIED_ENGINE = @UNIFIED_ENGINE@
+
 $(GFORTHOBJECTS) $(GFORTHLIBOBJECTS):
 	(cd engine; $(MAKE) $(patsubst engine/%,%,$@))
 
 gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h $(kernel_anti_dependence) $(GFORTHOBJECTS)
 
-gforth$(OPT)$(EXT): $(GFORTHOBJECTS) arch/$(machine)/machine.h
+gforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(GFORTHOBJECTS) arch/$(machine)/machine.h
 	@echo GFORTH$(OPT)$(EXT)
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(RM) gforth$${i}$(EXT); $(MAKE) DOSTRIP=$(DOSTRIP) optgforth OPT=$$i && $(CP) gforth$${i}$(EXT) $@ && break; done; \
@@ -1477,6 +1479,21 @@ gforth$(OPT)$(EXT): $(GFORTHOBJECTS) arch/$(machine)/machine.h
 		@NO_CHECK@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
 	fi
 	$(DOSTRIP) $@
+
+ifeq "$(UNIFIED_ENGINE)" "lib"
+LIBGFORTH_DEP = gforth$(OPT)$(EXT)
+else
+LIBGFORTH_DEP = 
+endif
+
+libgforth$(OPT)$(EXT): $(LIBGFORTH_DEP) $(ENGINE_SOURCES) $(GFORTHLIBOBJECTS) arch/$(machine)/machine.h
+	@echo LIBGFORTH$(OPT)$(EXT)
+	if test -z "$(OPT)"; then \
+		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optlibgforth OPT=$$i && $(MAKE) optlibgforth2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
+	else \
+		(cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) $@ ); \
+		@NO_CHECK@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
+	fi
 
 .PHONY: optgforth optgforth-fast
 
@@ -1522,24 +1539,27 @@ gforths: $(GFORTHOBJECTS) $(ENGINES) $(ENGINES_FAST)
 
 libgforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h $(kernel_anti_dependence) $(GFORTHLIBOBJECTS)
 
-libgforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(GFORTHLIBOBJECTS) arch/$(machine)/machine.h
-	@echo LIBGFORTH$(OPT)$(EXT)
-	if test -z "$(OPT)"; then \
-		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optlibgforth OPT=$$i && $(MAKE) optlibgforth2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
-	else \
-		(cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) $@ ); \
-		@NO_CHECK@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
-	fi
-
 optlibgforth: $(GFORTHLIBOBJECTS)
 	$(MAKE) libgforth$(OPT)$(EXT) $(MAKELINE$(OPT))
 
 optlibgforth2: $(GFORTHLIBOBJECTS)
 	(cd engine && $(MAKE) libgforth$(EXT) $(MAKELINE$(OPT)))
 
+optengine2.S: $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST)
+	(cd engine && $(MAKE) engine2$(OPT).S $(MAKELINE$(OPT)))
+
+optlibengine2.S: $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST)
+	(cd engine && $(MAKE) libengine2$(OPT).S $(MAKELINE$(OPT)))
+
 libgforth-fast$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h $(GFORTHLIBOBJECTS)
 
-libgforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(GFORTHLIBOBJECTS) arch/$(machine)/machine.h
+ifeq "$(UNIFIED_ENGINE)" "lib"
+LIBGFORTH_FAST_DEP = gforth-fast$(OPT)$(EXT)
+else
+LIBGFORTH_FAST_DEP = 
+endif
+
+libgforth-fast$(OPT)$(EXT): $(LIBGFORTH_FAST_DEP) $(ENGINE_SOURCES) $(GFORTHLIBOBJECTS) arch/$(machine)/machine.h
 	@echo LIBGFORTH-FAST$(OPT)$(EXT)
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optlibgforth-fast OPT=$$i && $(MAKE) optlibgforth-fast2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \

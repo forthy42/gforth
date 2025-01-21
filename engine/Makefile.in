@@ -273,53 +273,63 @@ engine.s:	$(ENGINE_FAST_DEPS)
 		@echo CC-ENGINE -o $@ -S $<
 		$(COMPILER) -DFORCE_LL -DFORCE_REG -DGFORTH_DEBUGGING -DASMNAME $(ENGINE_FLAGS) -S $(srcdir)/engine.c
 
+ENGINE1 = -DSKIP4= -Dgforth_engine2=gforth_engine
+ENGINE2 = -DSKIP4="@SKIPCODE@"
+
+UNIFIED_ENGINE = @UNIFIED_ENGINE@
+
+GENENGINE=$(UNIFIED_ENGINE)engine2
+GENENGINEFAST=$(UNIFIED_ENGINE)engine-fast2
+GENLIBENGINE=libengine2
+GENLIBENGINEFAST=libengine-fast2
+
 engine2$(OPT).S:	$(ENGINE_DEPS)
 		@echo CC-ENGINE2 -o $@ -S $<
 		$(COMPILE.c) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -DENGINE=2 -o $@ -S $<
 
-engine$(OPT).o:	engine2$(OPT).S
+engine$(OPT).o:	$(GENENGINE)$(OPT).S
 		@echo CC-ENGINE -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) -DSKIP16= -Dgforth_engine2=gforth_engine -o $@ $<
+		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE1) -o $@ $<
 
-engine2$(OPT).o:	engine2$(OPT).S
+engine2$(OPT).o:	$(GENENGINE)$(OPT).S
 		@echo AS-ENGINE2 -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) -DSKIP16="@SKIPCODE@" -o $@ $<
+		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE2) -o $@ $<
 
 libengine2$(OPT).S:	$(ENGINE_DEPS)
-		@echo CC-ENGINE2 -o $@ -S $<
+		@echo CC-LIBENGINE2 -o $@ -S $<
 		$(COMPILE.c) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -DENGINE=2 $(PIC) -o $@ -S $<
 
-libengine$(OPT).lo:	libengine2$(OPT).S
+libengine$(OPT).lo:	$(GENLIBENGINE)$(OPT).S
 		@echo AS-ENGINE -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -DSKIP16= -Dgforth_engine2=gforth_engine -o $@ $<
+		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE1) -o $@ $<
 
-libengine2$(OPT).lo:	libengine2$(OPT).S
+libengine2$(OPT).lo:	$(GENLIBENGINE)$(OPT).S
 		@echo AS-ENGINE2 -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -DENGINE=2 -DSKIP16="@SKIPCODE@" -o $@ $<
+		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE2) -o $@ $<
 
 engine-fast2$(OPT).S:	$(ENGINE_DEPS)
 		@echo CC-ENGINE-FAST2 -o $@ -S $<
 		$(COMPILE.c) $(ENGINE_FLAGS) -DENGINE=2 -o $@ -S $<
 
-engine-fast$(OPT).o:	engine-fast2$(OPT).S
+engine-fast$(OPT).o:	$(GENENGINEFAST)$(OPT).S
 		@echo AS-ENGINE-FAST -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) -DSKIP16= -Dgforth_engine2=gforth_engine -o $@ $<
+		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE1) -o $@ $<
 
-engine-fast2$(OPT).o:	engine-fast2$(OPT).S
+engine-fast2$(OPT).o:	$(GENENGINEFAST)$(OPT).S
 		@echo AS-ENGINE-FAST2 -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) -DSKIP16="@SKIPCODE@" -o $@ $<
+		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE2) -o $@ $<
 
 libengine-fast2$(OPT).S:	$(ENGINE_DEPS)
-		@echo CC-ENGINE-FAST -o $@ -S $<
+		@echo CC-LIBENGINE-FAST -o $@ -S $<
 		$(COMPILE.c) $(ENGINE_FLAGS) -DENGINE=2 $(PIC) -o $@ -S $<
 
-libengine-fast$(OPT).lo:	libengine-fast2$(OPT).S
+libengine-fast$(OPT).lo:	$(GENLIBENGINEFAST)$(OPT).S
 		@echo AS-ENGINE-FAST -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) -DSKIP16= -Dgforth_engine2=gforth_engine -o $@ $<
+		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE1) -o $@ $<
 
-libengine-fast2$(OPT).lo:	libengine-fast2$(OPT).S
+libengine-fast2$(OPT).lo:	$(GENLIBENGINEFAST)$(OPT).S
 		@echo AS-ENGINE-FAST2 -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) -DENGINE=2 -DSKIP16="@SKIPCODE@" -o $@ $<
+		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE2) -o $@ $<
 
 engine-itc$(OPT).o libengine-itc$(OPT).lo:	$(ENGINE_DEPS)
 		@echo CC-ENGINE-ITC -o $@ $<
