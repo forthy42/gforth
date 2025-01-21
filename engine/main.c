@@ -64,13 +64,13 @@
 # define jit_map_code()   ({ trigger_no_dynamic = 1; map_extras = MAP_JIT; })
 # define jit_write_enable()  pthread_jit_write_protect_np(0)
 # define jit_write_disable() pthread_jit_write_protect_np(1)
-#elif defined(__OpenBSD__)
+/* #elif defined(__OpenBSD__)
 # define MAP_JIT 0
 # define DEFAULT_TRIGGER 0
 # define jit_map_normal() trigger_no_dynamic = DEFAULT_TRIGGER
 # define jit_map_code()   trigger_no_dynamic = 0
 # define jit_write_enable() ({ debugp(stderr, "code -> RW %p:%lx\n", code_area, code_area_size); mprotect(code_area, code_area_size, PROT_READ | PROT_WRITE); })
-# define jit_write_disable() ({ debugp(stderr, "code -> RX %p:%lx\n", code_area, code_area_size); mprotect(code_area, code_area_size, PROT_READ | PROT_EXEC); })
+# define jit_write_disable() ({ debugp(stderr, "code -> RX %p:%lx\n", code_area, code_area_size); mprotect(code_area, code_area_size, PROT_READ | PROT_EXEC); })*/
 #else
 # define MAP_JIT 0
 # define DEFAULT_TRIGGER 0
@@ -1285,7 +1285,8 @@ static void check_prims(Label symbols1[])
 	     (long)pi->length, (long)pi->restlength);
 #endif
     };
-    while (j<(pi->length+pi->restlength)) {
+    int overall_length=pi->length+pi->restlength;
+    while (j<overall_length) {
       if (s1[j] != s2[j]) {
 	pi->start = NULL; /* not relocatable */
 #ifndef BURG_FORMAT

@@ -29,7 +29,7 @@ extern "C" {
 #include <setjmp.h>
 #include <string.h>
 #include <stdlib.h>
-#if !defined(__FreeBSD__)
+#if defined (HAVE_ALLOCA_H)
 # include <alloca.h>
 #endif
 #include <wchar.h>

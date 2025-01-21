@@ -437,6 +437,8 @@ Variable ,space ,space on
 : fp3source  unallocated ;
 : simdsc3  unallocated ;
 
+: hint ( opcode -- )
+    ." hint" tab #5 rshift $7F and .# 0x. ;
 : barriers ( opcode -- )
     dup #5 rshift $7 and s" -/-  dsb  clrex-/-  dsb  dmb  isb  sb   " rot .5"
     tab  #8 rshift $F and
@@ -500,6 +502,7 @@ $1E200C00 $FF200C00 inst, fpcsel
 $1F000000 $FF000000 inst, fp3source
 
 \ barriers
+$D503201F $FFFFF01F inst, hint
 $D503301F $FFFFF01F inst, barriers
 \ catch all
 $00000000 $00000000 inst, unallocated

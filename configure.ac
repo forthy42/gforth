@@ -135,6 +135,7 @@ engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
 signals_o="io.o signals.o"
+ENGINE_FLAGS=""
 
 AC_CANONICAL_HOST
 AC_ARG_WITH(ec,
@@ -402,6 +403,56 @@ AC_MSG_RESULT($ac_export_dynamic)
 AX_GCC_BUILTIN(__builtin___clear_cache)
 
 AS_VAR_PUSHDEF([ac_var], [ax_cv_have___builtin_add_overflow])
+
+#*BSD has three security theater mesures: w^x, execute-only, and branch protection
+#We disable all.
+
+if test "$ac_wxneeded" != no; then
+  if test "$ac_wxneeded" != yes; then
+    AC_MSG_CHECKING([whether the linker accepts -Wl,-z,wxneeded])
+    OLDLDFLAGS=$LDFLAGS
+    LDFLAGS="$LDFLAGS -Wl,-z,wxneeded"
+    AC_RUN_IFELSE([AC_LANG_SOURCE([[int main(){return 0;}]])],[ac_wxneeded=yes],[ac_wxneeded=no],[ac_wxneeded=no])
+    LDFLAGS=$OLDLDFLAGS
+  fi
+fi
+
+test $ac_wxneeded = yes && LDFLAGS="$LDFLAGS -Wl,-z,wxneeded"
+test $ac_wxneeded = yes && AC_DEFINE(HAS_WXNEEDED,,[Define if your OS does WX])
+AC_MSG_RESULT($ac_wxneeded)
+
+if test "$ac_no_execute_only" != no; then
+  if test "$ac_no_execute_only" != yes; then
+    AC_MSG_CHECKING([whether the linker accepts -Wl,--no-execute-only])
+    OLDLDFLAGS=$LDFLAGS
+    LDFLAGS="$LDFLAGS -Wl,--no-execute-only"
+    AC_RUN_IFELSE([AC_LANG_SOURCE([[int main(){return 0;}]])],[ac_no_execute_only=yes],[ac_no_execute_only=no],[ac_no_execute_only=no])
+    LDFLAGS=$OLDLDFLAGS
+  fi
+fi
+
+test $ac_no_execute_only = yes && LDFLAGS="$LDFLAGS -Wl,--no-execute-only"
+test $ac_no_execute_only = yes && AC_DEFINE(HAS_NO_EXECUTE_ONLY,,[Define if your OS does WX])
+AC_MSG_RESULT($ac_no_execute_only)
+
+if test "$ac_nobtcfi" != no; then
+  if test "$ac_nobtcfi" != yes; then
+    AC_MSG_CHECKING([whether the linker accepts -Wl,-z,nobtcfi])
+    OLDLDFLAGS=$LDFLAGS
+    OLDCFLAGS=$CFLAGS
+    LDFLAGS="$LDFLAGS -Wl,-z,nobtcfi"
+    CFLAGS="$CFLAGS -mbranch-protection=none"
+    AC_RUN_IFELSE([AC_LANG_SOURCE([[int main(){return 0;}]])],[ac_nobtcfi=yes],[ac_nobtcfi=no],[ac_nobtcfi=no])
+    LDFLAGS=$OLDLDFLAGS
+    CFLAGS=$OLDCFLAGS
+  fi
+fi
+
+test $ac_nobtcfi = yes && LDFLAGS="$LDFLAGS -Wl,-z,nobtcfi"
+test $ac_nobtcfi = yes && ENGINE_FLAGS="$ENGINE_FLAGS -mbranch-protection=none"
+test $ac_nobtcfi = yes && AC_DEFINE(HAS_NOBTCFI,,[Define if your OS does WX])
+AC_MSG_RESULT($ac_nobtcfi)
+
 case "$host_cpu" in
     riscv*|mips*|alpha*)
         # RISCV has no branch on overflow, so GCC's emulation is worse
@@ -915,7 +966,6 @@ test $ac_cv_sizeof_off_t -gt $ac_cv_sizeof_char_p
 ac_small_off_t=$?
 AC_DEFINE_UNQUOTED(SMALL_OFF_T,$ac_small_off_t,[1 if off_t fits in a Cell])
 
-ENGINE_FLAGS=
 AC_SUBST(ENGINE_FLAGS)
 
 # Try a number of flags as workarounds
@@ -1226,6 +1276,8 @@ Dynamic NC generation disabled."
     AC_DEFINE_UNQUOTED(SKIP16,asm(""),statement for skipping 16 bytes)
 else
     AC_DEFINE_UNQUOTED(SKIP16,asm("$skipcode"),statement for skipping 16 bytes)
+    SKIPCODE=$skipcode
+    AC_SUBST(SKIPCODE)
 fi
 
 AC_MSG_CHECKING([if and how we can do comments in asm statements])

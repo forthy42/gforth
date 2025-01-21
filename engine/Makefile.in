@@ -135,6 +135,7 @@ LIBTOOL.c = $(LIBTOOL) --mode=compile $(COMPILE.c)
 COMPILER = $(COMPILE.c)
 
 lib%.lo:	COMPILER = $(LIBTOOL.c)
+lib%.s:		COMPILER = $(LIBTOOL.c)
 
 #some makes don't do the -o $@ correctly, so we help them
 .c.o:
@@ -272,21 +273,55 @@ engine.s:	$(ENGINE_FAST_DEPS)
 		@echo CC-ENGINE-S -o $@ $<
 		$(COMPILER) -DFORCE_LL -DFORCE_REG -DGFORTH_DEBUGGING -DASMNAME $(ENGINE_FLAGS) -S $(srcdir)/engine.c
 
-engine$(OPT).o libengine$(OPT).lo:	$(ENGINE_DEPS)
+engine$(OPT).s:	engine2$(OPT).s
+		@echo CC-ENGINE -o $@ -S $<
+		grep -v -F '@SKIPCODE@' $< | sed -e 's/gforth_engine2/gforth_engine/g' >$@
+#		$(COMPILER) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ $(srcdir)/engine.c
+
+engine$(OPT).o:	engine$(OPT).s
+		@echo CC-ENGINE -o $@ $<
+		$(COMPILER) $(ENGINE_FLAGS) -o $@ $<
+
+engine2$(OPT).s:	$(ENGINE_DEPS)
+		@echo CC-ENGINE2 -o $@ -S $<
+		$(COMPILER) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -DENGINE=2 -o $@ -S $(srcdir)/engine.c
+
+engine2$(OPT).o:	engine2$(OPT).s
+		@echo CC-ENGINE-FAST2 -o $@ $<
+		$(COMPILER) $(ENGINE_FLAGS) -DENGINE=2 -o $@ $<
+
+libengine$(OPT).lo:	$(ENGINE_DEPS)
 		@echo CC-ENGINE -o $@ $<
 		$(COMPILER) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ $(srcdir)/engine.c
 
-engine2$(OPT).o libengine2$(OPT).lo:	$(ENGINE_DEPS)
+libengine2$(OPT).lo:	$(ENGINE_DEPS)
 		@echo CC-ENGINE2 -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -DENGINE=2 -o $@ $(srcdir)/engine.c
+		$(COMPILER) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -DENGINE=2 -o $@ $<
 
-engine-fast$(OPT).o libengine-fast$(OPT).lo:	$(ENGINE_FAST_DEPS)
+engine-fast$(OPT).s:	engine-fast2$(OPT).s
+		@echo CC-ENGINE-FAST -o $@ -S $<
+		grep -v -F '@SKIPCODE@' $< | sed -e 's/gforth_engine2/gforth_engine/g' >$@
+#		$(COMPILER) $(ENGINE_FLAGS) -o $@ -S $<
+
+engine-fast2$(OPT).s:	$(ENGINE_FAST_DEPS)
+		@echo CC-ENGINE-FAST2 -o $@ -S $<
+		$(COMPILER) $(ENGINE_FLAGS) -DENGINE=2 -o $@ -S $<
+
+engine-fast$(OPT).o:	engine-fast$(OPT).s
 		@echo CC-ENGINE-FAST -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) -o $@ $(srcdir)/engine.c
+		$(COMPILER) $(ENGINE_FLAGS) -o $@ $<
 
-engine-fast2$(OPT).o libengine-fast2$(OPT).lo:	$(ENGINE_FAST_DEPS)
+engine-fast2$(OPT).o:	engine-fast2$(OPT).s
 		@echo CC-ENGINE-FAST2 -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) -DENGINE=2 -o $@ $(srcdir)/engine.c
+		$(COMPILER) $(ENGINE_FLAGS) -DENGINE=2 -o $@ $<
+
+libengine-fast$(OPT).lo:	$(ENGINE_FAST_DEPS)
+		@echo CC-ENGINE-FAST -o $@ $<
+		$(COMPILER) $(ENGINE_FLAGS) -o $@ $<
+
+libengine-fast2$(OPT).lo:	$(ENGINE_FAST_DEPS)
+		@echo CC-ENGINE-FAST2 -o $@ $<
+		$(COMPILER) $(ENGINE_FLAGS) -DENGINE=2 -o $@ $<
 
 engine-itc$(OPT).o libengine-itc$(OPT).lo:	$(ENGINE_DEPS)
 		@echo CC-ENGINE-ITC -o $@ $<

@@ -50,6 +50,10 @@ c-library libc
 	c-function epoll_create epoll_create n -- n ( n -- epfd )
 	c-function epoll_ctl epoll_ctl n n n a -- n ( epfd op fd event -- r )
 	c-function epoll_wait epoll_wait n a n n -- n ( epfd events maxevs timeout -- r )
+    [THEN]
+    e? os-type s" linux-gnu" string-prefix?
+    e? os-type s" linux-musl" string-prefix? or
+    e? os-type s" darwin" string-prefix? or [IF]
 	\c #if HAVE_SPAWN_H
 	\c # include <spawn.h>
 	\c #endif
@@ -81,7 +85,6 @@ c-library libc
     c-function getcwd getcwd a u -- a ( c-addr u -- c-addr )
     c-function strlen strlen a -- n
     getentropy? [IF]
-	\c #include <sys/random.h>
 	c-function getentropy getentropy a n -- n ( buffer len -- n )
     [THEN]
     getrandom? [IF]
