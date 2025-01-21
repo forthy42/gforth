@@ -294,24 +294,18 @@ static __attribute__((unused)) void wc_str2gforth_str(wchar_t* wstring, Char ** 
       *strend++=0xC0 | (Char)(wc >> 6);
       *strend++=0x80 | (Char)(wc & 0x3F);
       continue;
-    case 0xD800 ... 0xDBFF:
-      surrogate = (wc & 0x3FF) << 10;
-      continue;
-    case 0xDC00 ... 0xDFFF:
-      surrogate |= (wc & 0x3FF);
-      surrogate += 0x10000;
-      *strend++=0xF0 | (Char)(surrogate >> 18);
-      *strend++=0x80 | (Char)((surrogate >> 12) & 0x3F);
-      *strend++=0x80 | (Char)((surrogate >> 6) & 0x3F);
-      *strend++=0x80 | (Char)(surrogate & 0x3F);
-      surrogate = 0;
-      continue; // surrogate pair=4 bytes
     case 0x0800 ... 0xD7FF:
     case 0xE000 ... 0xFFFF:
       *strend++=0xE0 | (Char)(wc >> 12);
       *strend++=0x80 | (Char)((wc >> 6) & 0x3F);
       *strend++=0x80 | (Char)(wc & 0x3F);
       continue;
+    case 0xD800 ... 0xDBFF:
+      surrogate = (wc & 0x3FF) << 10;
+      continue;
+    case 0xDC00 ... 0xDFFF:
+      wc = (surrogate | (wc & 0x3FF)) + 0x10000;
+      surrogate = 0; // surrogate pair=4 bytes, fall through
     case 0x10000 ... 0x10FFFF:
       *strend++=0xF0 | (Char)((wc >> 18) & 0x7);
       *strend++=0x80 | (Char)((wc >> 12) & 0x3F);
