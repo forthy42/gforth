@@ -429,9 +429,9 @@ void throw(int code)
 #define gforth_engine gforth_engine2
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
-#define LABEL(name) H_##name: asm(ASMCOMMENT "H " #name); SKIP16; \
+#define LABEL(name) H_##name: asm(ASMCOMMENT "H " #name); asm("SKIP16"); \
     asm(ASMCOMMENT "I " #name); I_##name:
-#define LABEL_UU(name) H_##name: MAYBE_UNUSED asm(ASMCOMMENT "H " #name); SKIP16; \
+#define LABEL_UU(name) H_##name: MAYBE_UNUSED asm(ASMCOMMENT "H " #name); asm("SKIP16"); \
     asm(ASMCOMMENT "I " #name); I_##name: MAYBE_UNUSED
 /* the SKIP16 after LABEL3 is there, because the ARM gcc may place
    some constants after the final branch, and may refer to them from
@@ -446,7 +446,7 @@ void throw(int code)
     asm(ASMCOMMENT "J " #name);  \
     asm(ASMCOMMENT "J " #name);  \
     asm(ASMCOMMENT "J " #name);  \
-  } SKIP16;
+  } asm("SKIP16");
 #define LABEL3_UU(name) J_##name: MAYBE_UNUSED { \
     asm(ASMCOMMENT "J " #name);                  \
     asm(ASMCOMMENT "J " #name);                  \
@@ -456,7 +456,7 @@ void throw(int code)
     asm(ASMCOMMENT "J " #name);  \
     asm(ASMCOMMENT "J " #name);  \
     asm(ASMCOMMENT "J " #name);  \
-  } SKIP16;
+  } asm("SKIP16");
 
 #elif ENGINE==3
 /* variant with different immediate arguments for finding out

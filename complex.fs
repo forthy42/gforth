@@ -101,8 +101,12 @@ previous
 : x+       ( z r -- z+r ) frot f+ fswap ;
 : x-       ( z r -- z-r ) fnegate x+ ;
 : z*       ( z1 z2 -- z1*z2 )
-           fdup 4 fpick f* f>l fover 3 fpick f* f>l
-           f>l fswap fl> f* f>l f* fl> f- fl> fl> f+ ;
+    { f: r1 f: i1 f: r2 f: i2 -- }
+    r1 r2 f* i1 i2 f* f-
+    r1 i2 f* r2 i1 f* f+ ;
+\ code using locals not only is easier to read, but also slightly faster
+\           fdup 4 fpick f* f>l fover 3 fpick f* f>l
+\           f>l fswap fl> f* f>l f* fl> f- fl> fl> f+ ;
 : zscale   ( z r -- z*r ) ftuck f* f>l f* fl> ;
 
 \ simple operations                                    02mar05py
