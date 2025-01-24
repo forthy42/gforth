@@ -36,6 +36,16 @@ $20 Constants caf saf clt slt ceq seq cle sle cun sun cult sult cueq sueq cule s
 $20 Constants r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 r16 r17 r18 r19 r20 r21 r22 r23 r24 r25 r26 r27 r28 r29 r30 r31
 $20 Constants f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24 f25 f26 f27 f28 f29 f30 f31
 
+\ predefined register aliases for gforth-fast-ll-reg
+r23 constant rip
+r24 constant rsp
+r25 constant rrp
+r26 constant rlp
+r27 constant rcfa
+r28 constant rtos
+r29 constant rop
+f24 constant ftos
+
 : code, ( code inst -- inst' ) swap $7FFF and or ;
 : rd, ( x inst -- inst' )  swap $1F and or ;
 : cd, ( x inst -- inst' )  swap $7 and or ;
@@ -119,5 +129,11 @@ $20 Constants f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 
     REPEAT ;
 
 s" ./insts.fs" open-fpath-file throw ' read-asm execute-parsing-named-file
+
+: next ( -- )
+    \ assume dynamic code generation works, so NOOP's code can be copied
+    \ Essentially assumes: code noop next end-code
+    ['] noop >code-address ['] call >code-address over -
+    here swap dup allot move ;
 
 previous set-current definitions
