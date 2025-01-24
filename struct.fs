@@ -21,7 +21,9 @@
 : naligned ( addr1 n -- addr2 ) \ gforth-internal
 \g @var{Addr2} is the aligned version of @var{addr1} with respect to the
 \g alignment @var{n}.  Another name for this word is @code{*aligned}.
- 1- tuck +  swap invert and ;
+    1- tuck +  swap invert and ;
+fold1:
+    1- dup >lits postpone + invert >lits postpone and ;
 
 : field, ( align1 offset1 align size --  align2 offset2 )
     swap rot over naligned dup , ( align1 size align offset )

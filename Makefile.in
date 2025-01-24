@@ -626,6 +626,9 @@ ARCHS =	\
 	arch/lm32/Makefile \
 	arch/lm32/testasm.disas-ok \
 	arch/loongarch64/machine.h \
+	arch/loongarch64/asm.fs \
+	arch/loongarch64/disasm.fs \
+	arch/loongarch64/insts.fs \
 	engine/arm64-cacheflush.c \
 	engine/arm-cacheflush0.c \
 	engine/arm-cacheflush-linux.c \

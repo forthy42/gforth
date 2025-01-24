@@ -18,6 +18,17 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+[IFUNDEF] #+mask
+    : #+mask ( addr u -- num mask )
+	#0. 2swap bounds ?DO
+	    2* swap 2* swap
+	    case I c@
+		'0' of  1 or  endof
+		'1' of  swap 1 or swap 1 or  endof
+	    endcase
+	LOOP ;
+[THEN]
+
 vocabulary disassembler
 
 disassembler also definitions
@@ -140,14 +151,6 @@ disassembler also definitions
 : <rj,seq> ( inst -- )
     dup #5 rshift .r# ., #10 rshift .u8# ;
 
-: #+mask ( addr u -- num mask )
-    #0. 2swap bounds ?DO
-	2* swap 2* swap
-	case I c@
-	    '0' of  1 or  endof
-	    '1' of  swap 1 or swap 1 or  endof
-	endcase
-    LOOP ;
 : str16, ( addr u -- )
     $10 umin here $10 allot dup $10 bl fill swap move ;
 
