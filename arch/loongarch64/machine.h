@@ -20,10 +20,11 @@
 */
 
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
-/* on the mips this is a mixed blessing, since defining this spills
-   the rp with some gcc versions. This machine has 31 regs, yet that's
-   not enough for gcc-2.4.5 :-( */
 #define USE_TOS
+#endif
+
+#if !defined(USE_FTOS) && !defined(USE_NO_FTOS)
+#define USE_FTOS
 #endif
 
 /* cache flush stuff */
@@ -37,4 +38,5 @@
 #define CFAREG asm("$s4")
 #define TOSREG asm("$s5")
 #define OPREG asm("$s6")
+#define FTOSREG asm("$f24")
 #endif /* FORCE_REG */
