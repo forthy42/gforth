@@ -454,7 +454,7 @@ test $ac_nobtcfi = yes && AC_DEFINE(HAS_NOBTCFI,,[Define if your OS does WX])
 AC_MSG_RESULT($ac_nobtcfi)
 
 case "$host_cpu" in
-    riscv*|mips*|alpha*)
+    riscv*|mips*|alpha*|loongarch*)
         # RISCV has no branch on overflow, so GCC's emulation is worse
 	# than what we do; the same is likely true for MIPS and Alpha
         AS_VAR_SET([ac_var], [no])
@@ -478,16 +478,8 @@ FAST=no
 ANDROID_EXTRA=""
 case "$host_os" in
     *android*)
-	case "$host_cpu" in
-	    arm64*|aarch64*|mips64*)
-		AC_DEFINE(__ANDROID_API__,21,[Define if you use Android])
-		ANDROID_EXTRA=-D__ANDROID_API__=21
-		;;
-	    *)
-		AC_DEFINE(__ANDROID_API__,21,[Define if you use Android])
-		ANDROID_EXTRA=-D__ANDROID_API__=21
-		;;
-	esac
+	AC_DEFINE(__ANDROID_API__,21,[Define if you use Android])
+	ANDROID_EXTRA=-D__ANDROID_API__=21
 	;;
 esac
 AC_SUBST(ANDROID_EXTRA)
@@ -663,6 +655,12 @@ Dynamic NC generation disabled."
 			config_warns="$config_warns
 Dynamic Code generation disabled (relocation and delay slot issues).]"
 		fi
+		;;
+	loongarch64*)
+		machine=loongarch64
+		CFLAGS="$CFLAGS -fomit-frame-pointer"
+                test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=3
+		UNIFIED_ENGINE=lib
 		;;
 	alpha*)
 		machine=alpha

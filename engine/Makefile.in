@@ -288,7 +288,7 @@ engine2$(OPT).S:	$(ENGINE_DEPS)
 		$(COMPILE.c) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -DENGINE=2 -o $@ -S $<
 
 engine$(OPT).o:	$(GENENGINE)$(OPT).S
-		@echo CC-ENGINE -o $@ $<
+		@echo AS-ENGINE -o $@ $<
 		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE1) -o $@ $<
 
 engine2$(OPT).o:	$(GENENGINE)$(OPT).S

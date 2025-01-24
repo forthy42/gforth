@@ -200,7 +200,7 @@ INSTALLDIRS = kernel kernel-ec doc asm ec f test test/fp \
 	arch/alpha arch/4stack arch/misc arch/6502 \
 	arch/8086 arch/avr arch/c165 arch/h8 \
 	arch/shboom arch/sharc arch/ia64 arch/amd64 \
-	arch/arm arch/arm64 arch/r8c arch/lm32 arch/riscv
+	arch/arm arch/arm64 arch/r8c arch/lm32 arch/riscv arch/loongarch64
 INSTALL_LIBDIRS = unix
 
 INCLUDES = engine/forth.h engine/threaded.h engine/io.h engine/longlong.h \
@@ -625,6 +625,7 @@ ARCHS =	\
 	arch/lm32/prim.fs \
 	arch/lm32/Makefile \
 	arch/lm32/testasm.disas-ok \
+	arch/loongarch64/machine.h \
 	engine/arm64-cacheflush.c \
 	engine/arm-cacheflush0.c \
 	engine/arm-cacheflush-linux.c \
