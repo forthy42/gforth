@@ -38,5 +38,6 @@
 #define CFAREG asm("$s4")
 #define TOSREG asm("$s5")
 #define OPREG asm("$s6")
+#define FPREG asm("$s7")
 #define FTOSREG asm("$f24")
 #endif /* FORCE_REG */

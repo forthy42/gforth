@@ -35,7 +35,14 @@ disassembler also definitions
 
 : ., ( -- )  ." , " ;
 : .r# ( n -- )  $1F and ." $r" 0 .r ;
+: .rd ( n -- )  .r# ;
+: .rj ( n -- )  #5 rshift .r# ;
+: .rk ( n -- )  #10 rshift .r# ;
 : .f# ( n -- )  $1F and ." $f" 0 .r ;
+: .fd ( n -- )  .f# ;
+: .fj ( n -- )  #5 rshift .f# ;
+: .fk ( n -- )  #10 rshift .f# ;
+: .fa ( n -- )  #15 rshift .f# ;
 : .fcc# ( n -- )  $7 and ." $fcc" 0 .r ;
 : .fcsr# ( n -- )  $1F and ." $fcsr" 0 .r ;
 : .2# ( n -- )  $3 and 0 .r ;
@@ -45,19 +52,19 @@ disassembler also definitions
 : .u8# ( n -- )  $FF and 0 .r ;
 : .u12# ( n -- )  $FFF and 0 .r ;
 : .u14# ( n -- )  $3FFF and 0 .r ;
-: .s12# ( n -- )  $FFF and dup $800 and negate or 0 .r ;
-: .s14# ( n -- )  $3FFF and dup $2000 and negate or 0 .r ;
-: .s16# ( n -- )  $FFFF and dup $8000 and negate or 0 .r ;
+: .s12# ( n -- )  #10 rshift $FFF and dup $800 and negate or 0 .r ;
+: .s14# ( n -- )  #10 rshift $3FFF and dup $2000 and negate or 0 .r ;
+: .s16# ( n -- )  #10 rshift $FFFF and dup $8000 and negate or 0 .r ;
 : .s20# ( n -- )  $FFFFF and dup $80000 and negate or 0 .r ;
 : <code> ( n -- ) $7FFF and h. ;
 : <rd,rj> ( inst -- )
-    dup .r# ., #5 rshift .r# ;
+    dup .rd ., .rj ;
 : <rd,rj,rk> ( inst -- )
-    dup <rd,rj> ., #10 rshift .r# ;
+    dup <rd,rj> ., .rk ;
 : <rd,rk,rj> ( inst -- )
-    dup .r# ., dup #10 rshift .r# ., #5 rshift .r# ;
+    dup .rd ., dup .rk ., .rj ;
 : <fd,rk,rj> ( inst -- )
-    dup .f# ., dup #10 rshift .r# ., #5 rshift .r# ;
+    dup .fd ., dup .rk ., .rj ;
 : <rd,rj,rk,sa2> ( inst -- )
     dup <rd,rj,rk> ., #15 rshift .2# ;
 : <rd,rj,rk,sa3> ( inst -- )
@@ -71,43 +78,43 @@ disassembler also definitions
 : <rd,rj,msbd,lsbd> ( inst -- )
     dup <rd,rj> ., dup #10 rshift .6# ., #16 rshift .6# ;
 : <rd,rj,si12> ( inst -- )
-    dup <rd,rj> ., #10 rshift .s12# ;
+    dup <rd,rj> ., .s12# ;
 : <rd,rj,si14> ( inst -- )
-    dup <rd,rj> ., #10 rshift .s14# ;
+    dup <rd,rj> ., .s14# ;
 : <rd,rj,si16> ( inst -- )
-    dup <rd,rj> ., #10 rshift .s16# ;
+    dup <rd,rj> ., .s16# ;
 : <rd,si20> ( inst -- )
-    dup .r# ., #5 rshift .s20# ;
+    dup .rd ., #5 rshift .s20# ;
 : <rd,rj,ui12> ( inst -- )
     dup <rd,rj> ., #10 rshift .u12# ;
 : <rj,rk> ( inst -- )
-    dup #5 rshift .r# ., #10 rshift .r# ;
+    dup .rj ., .rk ;
 : <fd,fj> ( inst -- )
-    dup .f# ., #5 rshift .f# ;
+    dup .fd ., .fj ;
 : <fd,rj> ( inst -- )
-    dup .f# ., #5 rshift .r# ;
+    dup .fd ., .rj ;
 : <fd,rj,si12> ( inst -- )
-    dup <fd,rj> ., #10 rshift .s12# ;
+    dup <fd,rj> ., .s12# ;
 : <fd,rj,rk> ( inst -- )
-    dup <fd,rj> ., #10 rshift .r# ;
+    dup <fd,rj> ., .rk ;
 : <rd,fj> ( inst -- )
-    dup .r# ., #5 rshift .f# ;
+    dup .rd ., .fj ;
 : <fd,fj,fk> ( inst -- )
-    dup <fd,fj> ., #10 rshift .r# ;
+    dup <fd,fj> ., .fk ;
 : <fd,fj,fk,fa> ( inst -- )
-    dup <fd,fj,fk> ., #15 rshift .r# ;
+    dup <fd,fj,fk> ., .fa ;
 : <fcsr,rj> ( inst -- )
-    dup .fcsr# ., #5 rshift .r# ;
+    dup .fcsr# ., .rj ;
 : <rd,fcsr> ( inst -- )
-    dup .r# ., #5 rshift .fcsr# ;
+    dup .rd ., #5 rshift .fcsr# ;
 : <cd,fj> ( inst -- )
-    dup .fcc# ., #5 rshift .f# ;
+    dup .fcc# ., .fj ;
 : <fd,cj> ( inst -- )
-    dup .f# ., #5 rshift .fcc# ;
+    dup .fd ., #5 rshift .fcc# ;
 : <cd,rj> ( inst -- )
-    dup .fcc# ., #5 rshift .r# ;
+    dup .fcc# ., .rj ;
 : <rd,cj> ( inst -- )
-    dup .r# ., #5 rshift .fcc# ;
+    dup .rd ., #5 rshift .fcc# ;
 : <--> ( inst -- ) drop ;
 : .offs16 ( inst -- )
     #10 rshift $FFFF and
@@ -123,9 +130,9 @@ disassembler also definitions
 : <rd,rj,offs> ( inst -- )
     dup <rd,rj> ., .offs16 ;
 : <rj,rd,offs> ( inst -- )
-    dup #5 rshift .r# ., dup .r# ., .offs16 ;
+    dup .rj ., dup .rd ., .offs16 ;
 : <rj,offs> ( inst -- )
-    dup #5 rshift .r# ., .offs21 ;
+    dup .rj ., .offs21 ;
 : <cj,offs> ( inst -- )
     dup #5 rshift .fcc# ., .offs21 ;
 : .cond ( inst -- )
@@ -133,23 +140,23 @@ disassembler also definitions
     s" caf saf clt slt ceq seq cle sle cun sun cultsultcueqsueqculesulecne sne 0x120x13cor sor 0x160x17cunesune0x1A0x1B0x1C0x1D0x1E0x1F"
     drop + 4 -trailing "cond" replaces ;
 : <cd,fj,fk> ( inst -- )
-    dup .fcc# ., dup #5 rshift .f# ., #10 rshift .f# ;
+    dup .fcc# ., dup .fj ., .fk ;
 : <fd,fj,fk,ca> ( inst -- )
-    dup .f# ., dup #5 rshift .f# ., dup #10 rshift .f# ., .3# ;
+    dup .fd ., dup .fj ., dup .fk ., .3# ;
 : <hint,rj,rk> ( inst -- )
-    dup .5# ., dup #5 rshift .r# ., #10 rshift .r# ;
+    dup .5# ., dup .rj ., .rk ;
 : <hint,rj,si12> ( inst -- )
-    dup .5# ., dup #5 rshift .r# ., #10 rshift .s12# ;
+    dup .5# ., dup .rj ., .s12# ;
 : <op,rj,rk> ( inst -- )
-    dup .5# ., dup #5 rshift .r# ., #10 rshift .r# ;
+    dup .5# ., dup .rj ., .rk ;
 : <rd,csr> ( inst -- )
-    dup .r# ., #10 rshift .u14# ;
+    dup .rd ., #10 rshift .u14# ;
 : <rd,rj,csr> ( inst -- )
     dup <rd,rj> ., #10 rshift .u14# ;
 : <rd,rj,level> ( inst -- )
     dup <rd,rj> ., #10 rshift .u8# ;
 : <rj,seq> ( inst -- )
-    dup #5 rshift .r# ., #10 rshift .u8# ;
+    dup .rj ., #10 rshift .u8# ;
 
 : str16, ( addr u -- )
     $10 umin here $10 allot dup $10 bl fill swap move ;
