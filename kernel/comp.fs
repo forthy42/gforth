@@ -729,18 +729,18 @@ Create hmtemplate
     \ OPT!-COMPILE,.
 ;
 
-: ?fold1 ( <to>-xt -- name-xt )
-    \G Prepare partial constant folding for @code{(to)} methods: if
-    \G there's no literal on the folding stack, just compile the
-    \G @code{(to)} method as is.  If there is, drop the xt of the
-    \G \code{(to)} method, and retrieve the @i{name-xt} of the word TO
-    \G is applied to from the folding stack.
+: ?fold1 ( colon-xt l:x -- x  |  <to>-xt -- never )
+    \G Prepare one-literal constant folding: if there's no literal on the
+    \G literal stack, just compile the @var{colon-xt} as is, and do not return
+    \G to the caller.  If there is, drop the xt of the \var{colon-xt}, and
+    \G retrieve the literal @var{x} and return to the caller.
     lits# 0= IF :, rdrop EXIT THEN drop lits> ;
 : fold1: ( -- colon-sys ) \ gforth-internal
-    \G Defines a part of the TO <name> run-time semantics used with compiled
-    \G @code{TO}.  The stack effect of the code following @code{fold1:} must
-    \G be: @code{( xt -- ) ( generated: v -- )}.  The generated code stores
-    \G @i{v} in the storage represented by @i{xt}.
+    \G Define the code that optimizes constant folding with a single constant.
+    \G The code following @code{fold1:} has a stack effect of @code{( x -- )},
+    \G where @var{x} is the topmost entry from the literal stack.  If there's
+    \G none, this code is never reached, and the colon definition is compiled
+    \G as is.
     opt: postpone ?fold1 ;
 
 \ Access methods to wordlists

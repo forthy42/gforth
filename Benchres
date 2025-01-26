@@ -91,6 +91,7 @@ s390x:
 
 RV64GC:
  sieve bubble matrix fib   fft  release; CPU; gcc
+ 0.314 0.314  0.188 0.301 0.252 20250125 (3 regs); 1.6GHz Spacemit(R) X60; gcc-14.2.0 (Debian)
  0.597 0.796  0.633 0.798 0.622 20220217 (1 reg); 1GHz U74 (JH7100, Visionfive V1); gcc-10.3.1 (Fedora 33)
  0.519 0.555  0.483 0.797 0.729 20220226 (3 regs); 1GHz U74 (JH7100, Visionfive V1); gcc-10.3.1 (Fedora 33)
 
