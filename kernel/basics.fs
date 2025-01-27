@@ -273,13 +273,6 @@ is throw
 : c(abort") ( c-addr -- )
     abort-string ! -2 throw ;
 
-: (abort")
-    "lit >r
-    IF
-	r> abort-string ! -2 throw
-    THEN
-    rdrop ;
-
 defer ?warning ( f xt -- )
 
 :noname ( f xt -- )
@@ -322,11 +315,6 @@ is ?warning
     fp0 @ fp!
 [ [THEN] ]
 ;
-
-\ Strings						 22feb93py
-
-: "lit ( -- addr )
-  r> r> dup count + aligned >r swap >r ;
 
 \ HEX DECIMAL                                           2may93jaw
 

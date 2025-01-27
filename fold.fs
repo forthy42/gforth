@@ -186,8 +186,12 @@ optimizes fpick
     drop lits# 1 = if
         lits> case
             0    of postpone drop 0 lit, endof
-            2    of postpone 2*    endof
+	    2    of postpone 2*    endof
+	    [ cell 1 sfloats <> ] [IF]
+	    1 sfloats of postpone sfloats  endof [THEN]
             cell of postpone cells endof
+	    [ cell 1 dfloats <> ] [IF]
+	    1 dfloats of postpone dfloats  endof [THEN]
             dup pow2? ?of log2 lit, postpone lshift endof
             dup lit, ['] * peephole-compile,
         endcase
