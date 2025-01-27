@@ -33,6 +33,28 @@
 : 4lits> ( -- q )  2lits> 2lits> 2swap ;
 : >4lits ( q -- )  2swap >2lits >2lits ;
 
+: cfaprim? ( cfa -- flag )
+    [ ' noop >code-address ] Literal
+    [ ' image-header >link @ >code-address ] Literal
+    \ please do not fold this 1+ into the previous literal
+    1+ within ;
+
+: noopt-compile, ( xt -- ) \ gforth-experimental
+    \G compiles @var{xt} using the (unoptimized) default method.
+    \G limited use: only understands docol:, dodoes: and primitives
+    case dup >code-address
+	docol:      of  :,              endof
+	dodoes:     of  does,           endof
+	docon:      of  constant,       endof
+	dovar:      of  variable,       endof
+	douser:     of  user,           endof
+	dodefer:    of  defer,          endof
+	doabicode:  of  abi-code,       endof
+	do;abicode: of  ;abi-code,      endof
+	cfaprim? ?of  peephole-compile, endof
+	true abort" can't compile this"
+    endcase ;
+
 : fold-constants {: xt m xt: pop xt: unpop xt: push -- :}
     \ compiles xt with constant folding: xt ( m*n -- l*n ).
     \ xt-pop pops m items from literal stack to data stack, xt-push
@@ -41,11 +63,7 @@
 	pop xt catch-nobt 0= if
 	    push exit then
 	unpop then
-    xt dup >code-address docol: = if
-	:,
-    else
-	peephole-compile,
-    then ;
+    xt noopt-compile, ;
 
 : folds ( folder-xt "name1" ... "namen" <eol> -- )
     {: folder-xt :} BEGIN

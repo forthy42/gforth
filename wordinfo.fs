@@ -53,17 +53,9 @@ require look.fs
 \ the above words could be factored with create-does>, but this would
 \ probably make this file incompatible with cross.
 
-[IFDEF] forthstart
-    : xtprim? ( xt -- flag )
-	>code-address ['] noop >code-address
-	['] image-header >link @ >code-address 1+ within ;
-[ELSE]
-: xtprim? ( xt -- flag )
-    dup >body swap >code-address = ; \ !! works only for indirect threaded code
-				     \ !! does not work for primitives
-[THEN]
 : prim? ( nfa -- flag )
-    xtprim? ;
+    >code-address cfaprim? ;
+synonym xtprim? prim?
 
 \ None nestable IDs:
 
