@@ -1647,12 +1647,16 @@ AC_SUBST(include_fi)
 
 AC_ARG_PROGRAM
 
-# Find installed Gforth
+# Find minimal viable installed Gforth
+test -z "$MINVIABLE" && MINVIABLE=7
 AC_MSG_CHECKING([for gforth])
 if test -z "$GFORTH"
 then
     GFORTH="`cd / && command -v gforth`"
     (cd / && "$GFORTH" -e bye >/dev/null 2>/dev/null) || GFORTH=""
+    OLDVERSION=`$GFORTH --version 2>&1 | cut -f2 -d' ' | cut -f1-2 -d.`
+    # Shells are bad at comparing versions
+    test x`$GFORTH -e 's" '"$OLDVERSION"'"'" '.' "'$'"split s>number drop -rot s>number drop 1000 * + $MINVIABLE >= . bye"` = x-1 || GFORTH=""
 fi
 if test -z "$GFORTH"; then
   PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" >&2 && false'
