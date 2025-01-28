@@ -173,64 +173,64 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
     next-section staged/-size small-allot previous-section {: addr :}
     divisor addr stage1 ]] addr stage2 [[ ;
 
-: opt-/f ( xt -- )
-    lits# 1 = if
-        lits> dup 0> if
-            dup pow2? if
-                ctz ]] literal arshift [[ drop exit then
-            ['] /f-stage1m ['] /f-stage2m lit/, drop exit then
-	>lits then
-    fold2-1 ;
+' noopt-compile, 2 foldn: opt-/f
+' fold2-1 get-foldmax set-foldmax
+[: ( xt -- )
+    lits> dup 0> if
+	dup pow2? if
+	    ctz ]] literal arshift [[ drop exit then
+	['] /f-stage1m ['] /f-stage2m lit/, drop exit then
+    >lits noopt-compile, ;] 1 set-fold#
 ' opt-/f optimizes /f
 
-: opt-u/ ( xt -- )
-    lits# 1 = if
-        lits> dup 0<> if
-            dup pow2? if
-                ctz ]] literal rshift [[ drop exit then
-            ['] u/-stage1m ['] u/-stage2m lit/, drop exit then
-        >lits then
-    fold2-1 ;
+' noopt-compile, 2 foldn: opt-u/
+' fold2-1 get-foldmax set-foldmax
+[: ( xt -- )
+    lits> dup 0<> if
+	dup pow2? if
+	    ctz ]] literal rshift [[ drop exit then
+	['] u/-stage1m ['] u/-stage2m lit/, drop exit then
+    >lits noopt-compile, ;] 1 set-fold#
 ' opt-u/ optimizes u/
 
-: opt-modf ( xt -- )
-    lits# 1 = if
-        lits> dup 0> if
-            dup pow2? if
-                1- ]] literal and [[ drop exit then
-            ['] /f-stage1m ['] modf-stage2m lit/, drop exit then
-	>lits then
-    fold2-1 ;
+' noopt-compile, 2 foldn: opt-modf
+' fold2-1 get-foldmax set-foldmax
+[: ( xt -- )
+    lits> dup 0> if
+	dup pow2? if
+	    1- ]] literal and [[ drop exit then
+	['] /f-stage1m ['] modf-stage2m lit/, drop exit then
+    >lits noopt-compile, ;] 1 set-fold#
 ' opt-modf optimizes modf
 
-: opt-umod ( xt -- )
-    lits# 1 = if
-        lits> dup 0<> if
-            dup pow2? if
-                1- ]] literal and [[ drop exit then
-            ['] u/-stage1m ['] umod-stage2m lit/, drop exit then
-        >lits then
-    fold2-1 ;
+' noopt-compile, 2 foldn: opt-umod
+' fold2-1 get-foldmax set-foldmax
+[: ( xt -- )
+    lits> dup 0<> if
+	dup pow2? if
+	    1- ]] literal and [[ drop exit then
+	['] u/-stage1m ['] umod-stage2m lit/, drop exit then
+    >lits noopt-compile, ;] 1 set-fold#
 ' opt-umod optimizes umod
 
-: opt-/modf ( xt -- )
-    lits# 1 = if
-        lits> dup 0> if
-            dup pow2? if
-                dup 1- ]] dup literal and swap [[ ctz ]] literal arshift [[
-                drop exit then
-            ['] /f-stage1m ['] /modf-stage2m lit/, drop exit then
-	>lits then
-    fold2-2 ;
+' noopt-compile, 2 foldn: opt-/modf
+' fold2-2 get-foldmax set-foldmax
+[: ( xt -- )
+    lits> dup 0> if
+	dup pow2? if
+	    dup 1- ]] dup literal and swap [[ ctz ]] literal arshift [[
+	    drop exit then
+	['] /f-stage1m ['] /modf-stage2m lit/, drop exit then
+    >lits noopt-compile, ;] 1 set-fold#
 ' opt-/modf optimizes /modf
 
-: opt-u/mod ( xt -- )
-    lits# 1 = if
-        lits> dup 0<> if
-            dup pow2? if
-                dup 1- ]] dup literal and swap [[ ctz ]] literal rshift [[
-                drop exit then
-            ['] u/-stage1m ['] u/mod-stage2m lit/, drop exit then
-        >lits then
-    fold2-2 ;
+' noopt-compile, 2 foldn: opt-u/mod
+' fold2-2 get-foldmax set-foldmax
+[: ( xt -- )
+    lits> dup 0<> if
+	dup pow2? if
+	    dup 1- ]] dup literal and swap [[ ctz ]] literal rshift [[
+	    drop exit then
+	['] u/-stage1m ['] u/mod-stage2m lit/, drop exit then
+    >lits noopt-compile, ;] 1 set-fold#
 ' opt-u/mod optimizes u/mod

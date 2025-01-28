@@ -620,7 +620,7 @@ Dynamic NC generation disabled."
 		;;
 	ia64*)
 		machine=ia64
-		AC_LIBOBJ(ia64_flush_icache_block)
+		AC_LIBOBJ(ia64-flush_icache_block)
 		test "$skipcode" || skipcode="nop.i	0"
 		#".skip 16" passes the test below,
 		# but gives an assembler error in engine

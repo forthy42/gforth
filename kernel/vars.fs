@@ -57,7 +57,7 @@ Create defer-table ' warn! A, ' n/a A, ' n/a A, ' @ A,   ' ! A,
     \G optimizations that assume that uvalues can only be accessed
     \G through their name.
     >body @ up@ + ;
-opt: ?fold1 >body @ postpone up@ postpone lit+ , ;
+fold1: >body @ postpone up@ postpone lit+ , ;
 
 : to:exec ( .. u xt1 xt2 -- .. ) rot >r 2@ r> cells + >r execute r> perform ;
 : to:,    ( u xt2 -- ) 2@ rot cells + @ >r compile, r> compile, ;

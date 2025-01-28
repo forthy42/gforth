@@ -373,7 +373,7 @@ Variable ,space ,space on
 
 : .ext ( opcode -- )
     #10 rshift dup $7 and >r .,
-    #3 rshift $7 and s" uxtbuxthuxtwuxtxsxtbsxthsxtwxstx" rot .4" space
+    #3 rshift $7 and s" uxtbuxthuxtwuxtxsxtbsxthsxtwsxtx" rot .4" space
     .# r> 0x. ;
 
 : addext# ( opcode -- ) \ addsub with shifted operand

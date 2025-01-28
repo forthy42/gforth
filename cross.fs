@@ -3256,6 +3256,8 @@ ghost ?fold1 drop
 
 : opt: ( -- colon-sys )   gstart-xt set-optimizer ;
 : comp: ( -- colon-sys )  gstart-xt set-optimizer ;
+: fold1: ( -- colon-sys ) no-loop on gstart-xt set-optimizer
+    compile ?fold1 T ] H ;
 
 variable cross-boot$[]
 variable cross-boot[][]
@@ -4031,7 +4033,7 @@ Cond: postpone ( -- ) \ name
       dup >magic @ <imm> =
       IF   (gexecute)
       ELSE >link @ alit, compile compile,  THEN ;Cond
-	   
+
 \ save-cross                                           17mar93py
 
 hex

@@ -440,7 +440,7 @@ include ./recognizer.fs
 : s>comp ( nt -- xt1 xt2 )  >body @ name>compile ;
 : s-to ( val operation nt -- )
     name>interpret (to) ;
-opt: ( xt -- ) ?fold1 name>interpret (to), ;
+fold1: name>interpret (to), ;
 : s-compile, ( xt -- )  >body @ compile, ;
 
 : synonym, ( nt int comp -- ) \ gforth-internal
@@ -729,12 +729,12 @@ Create hmtemplate
     \ OPT!-COMPILE,.
 ;
 
-: ?fold1 ( colon-xt l:x -- x  |  <to>-xt -- never )
+: ?fold1 ( colon-xt l:x -- x  |  <to>-xt -- never ) \ gforth-internal
     \G Prepare one-literal constant folding: if there's no literal on the
     \G literal stack, just compile the @var{colon-xt} as is, and do not return
     \G to the caller.  If there is, drop the xt of the \var{colon-xt}, and
     \G retrieve the literal @var{x} and return to the caller.
-    lits# 0= IF :, rdrop EXIT THEN drop lits> ;
+    lits# 0= IF :, rdrop EXIT THEN drop lits> ; obsolete \ actually means: don't use
 : fold1: ( -- colon-sys ) \ gforth-internal
     \G Define the code that optimizes constant folding with a single constant.
     \G The code following @code{fold1:} has a stack effect of @code{( x -- )},

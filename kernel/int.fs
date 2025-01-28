@@ -379,7 +379,6 @@ struct
     cell% field >hmlink
     cell% field >hmcompile,
     cell% field >hmto
-\    cell% field >hmdefer@
     cell% field >hmextra
     cell% field >hm>int
     cell% field >hm>comp
