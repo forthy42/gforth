@@ -373,7 +373,7 @@ $01000000. 1 cells 8 = [IF] #32 dlshift [THEN] #1. d- dconstant lcount-mask
 	drop ['] compile-only-error
     then ;
 
-' noop Alias ((name>)) ( nfa -- cfa )
+' [noop] Alias ((name>)) ( nfa -- cfa )
 
 struct
     cell% field >hmlink
