@@ -1648,15 +1648,15 @@ AC_SUBST(include_fi)
 AC_ARG_PROGRAM
 
 # Find minimal viable installed Gforth
-test -z "$MINVIABLE" && MINVIABLE=7
+test -z "$MINVIABLE" && MINVIABLE=7000
 AC_MSG_CHECKING([for gforth])
 if test -z "$GFORTH"
 then
     GFORTH="`cd / && command -v gforth`"
     (cd / && "$GFORTH" -e bye >/dev/null 2>/dev/null) || GFORTH=""
-    OLDVERSION=`$GFORTH --version 2>&1 | cut -f2 -d' ' | cut -f1-2 -d. | tr . ' '`
+    OLDVERSION=`$GFORTH --version 2>&1 | cut -f2 -d' ' | cut -f1 -d_ | tr . ' '`
     # Shells are bad at comparing versions
-    test x`$GFORTH -e "$OLDVERSION swap 1000 * + $MINVIABLE >= . bye"` = x-1 || GFORTH=""
+    test `$GFORTH -e "$OLDVERSION >r >r 1000 * r> + 1000 * r> + . bye"` -ge "$MINVIABLE" || GFORTH=""
 fi
 if test -z "$GFORTH"; then
   PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" >&2 && false'
@@ -1745,10 +1745,14 @@ fi
 
 if test x$MINOS2_LIBS = xyes; then
    if test x$has_swig = xyes || test -f $srcdir/unix/x-fsi.c; then
-      AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES x.fs"
-		      SWIGLIBS="$SWIGLIBS x.fs"
-		      SWIGDISTFSI="$SWIGDISTFSI x.fs"
-		      , MINOSFLAG=false,)
+      AC_CHECK_HEADER(X11/X.h, AC_CHECK_HEADER(X11/extensions/sync.h,
+      			       SWIGMODULES="$SWIGMODULES x.fs"
+		      	       SWIGLIBS="$SWIGLIBS x.fs"
+		      	       SWIGDISTFSI="$SWIGDISTFSI x.fs"
+		      	       , MINOSFLAG=false,
+#include <X11/X.h>
+#include <X11/Xlib.h>
+), MINOSFLAG=false,)
    fi
 
    if test x$has_swig = xyes || test -f $srcdir/unix/xrandr-fsi.c; then
