@@ -1656,7 +1656,7 @@ then
     (cd / && "$GFORTH" -e bye >/dev/null 2>/dev/null) || GFORTH=""
     OLDVERSION=`$GFORTH --version 2>&1 | cut -f2 -d' ' | cut -f1-2 -d.`
     # Shells are bad at comparing versions
-    test x`$GFORTH -e 's" '"$OLDVERSION"'"'" '.' "'$'"split s>number drop -rot s>number drop 1000 * + $MINVIABLE >= . bye"` = x-1 || GFORTH=""
+    test x`$GFORTH string.fs -e 's" '"$OLDVERSION"'"'" '.' "'$'"split s>number drop -rot s>number drop 1000 * + $MINVIABLE >= . bye"` = x-1 || GFORTH=""
 fi
 if test -z "$GFORTH"; then
   PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" >&2 && false'
