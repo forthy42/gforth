@@ -189,43 +189,30 @@ optimizes fpick
 
 \ optimize + -
 
-: opt+- {: xt: op -- :}
-    lits# 1 = if
-        0 lits> op ?dup-if
-            ['] lit+ peephole-compile, , then
-	exit then
-    action-of op fold2-1 ;
-' opt+- folds + -
+' fold2-1 noname foldn-from:
+[: 0 lits> rot execute ?dup-if ['] lit+ peephole-compile, , then ;] 1 set-fold#
+latestxt folds + -
 
-: opt* ( xt -- )
-    drop lits# 1 = if
-        lits> case
-            0    of postpone drop 0 lit, endof
-	    2    of postpone 2*    endof
-	    [ cell 1 sfloats <> ] [IF]
+' fold2-1 noname foldn-from:
+[: lits> case
+	0    of postpone drop 0 lit, endof
+	2    of postpone 2*    endof
+	[ cell 1 sfloats <> ] [IF]
 	    1 sfloats of postpone sfloats  endof [THEN]
-            cell of postpone cells endof
-	    [ cell 1 dfloats <> ] [IF]
+	cell of postpone cells endof
+	[ cell 1 dfloats <> ] [IF]
 	    1 dfloats of postpone dfloats  endof [THEN]
-            dup pow2? ?of log2 lit, postpone lshift endof
-            dup lit, ['] * peephole-compile,
-        endcase
-    else
-        ['] * fold2-1
-    then ;
-' opt* optimizes *
+	dup pow2? ?of log2 lit, postpone lshift endof
+	dup lit, over peephole-compile,
+    endcase drop ;] 1 set-fold#
+latestxt optimizes *
 
 \ optimize lit @ into lit@
-: opt@ ( xt -- )
-    drop lits# 1 u>= if
-	lits> ['] lit@ peephole-compile, ,
-    else
-	['] @ peephole-compile, then ;
-' opt@ optimizes @
+' fold1-1 noname foldn-from:
+[: drop lits> ['] lit@ peephole-compile, , ;] 1 set-fold#
+latestxt optimizes @
 
 \ optimize lit execute into call
-:noname ( xt -- )
-    lits# 1 u>= if
-	drop lits> compile,
-    else  peephole-compile, then ;
-optimizes execute
+' fold1-1 noname foldn-from:
+[: ( xt -- ) drop lits> compile, ;] 1 set-fold#
+latestxt optimizes execute
