@@ -33,6 +33,12 @@
 : 4lits> ( -- q )  2lits> 2lits> 2swap ;
 : >4lits ( q -- )  2swap >2lits >2lits ;
 
+: nth ( n addr -- ) swap cells + @ ;
+Create nlits> ' noop , ' lits> , ' 2lits> , ' 3lits> , ' 4lits> ,
+' nth set-does>
+Create n>lits ' noop , ' >lits , ' >2lits , ' >3lits , ' >4lits ,
+' nth set-does>
+
 : cfaprim? ( cfa -- flag )
     [ ' noop >code-address ] Literal
     [ ' image-header >link @ >code-address ] Literal
@@ -73,9 +79,9 @@
     next-section noname foldn: previous-section
     lastfold set-optimizer ;
 
-: fold-constant: ( pop unpop push n "name" -- )
-    ['] noopt-compile, swap foldn:
-    noname Create latestxt set-foldmax , , ,
+: fold-constant: ( popn pushn "name" -- )
+    n>lits swap >r ['] noopt-compile, r@ foldn:
+    noname Create latestxt r@ set-fold# , r@ n>lits , r> nlits> ,
   DOES> ( xt -- ) >r >r
     i' cell+ cell+ perform r> catch-nobt 0<> cell and r> + @ execute-;s ;
 
@@ -86,10 +92,10 @@
 	    folder-xt optimizes
     REPEAT ;
 
-' lits> ' >lits ' noop 1 fold-constant: fold1-0
+1 0 fold-constant: fold1-0
 ' fold1-0 folds drop
 
-' lits> ' >lits ' >lits 1 fold-constant: fold1-1
+1 1 fold-constant: fold1-1
 ' fold1-1 folds invert abs negate >pow2
 ' fold1-1 folds 1+ 1- 2* 2/ cells cell/ cell+ cell-
 ' fold1-1 folds floats sfloats dfloats float+
@@ -98,13 +104,13 @@
 ' fold1-1 folds wcwidth
 ' fold1-1 folds 0> 0= 0<
 
-' lits> ' >lits ' >2lits 1 fold-constant: fold1-2
+1 2 fold-constant: fold1-2
 ' fold1-2 folds dup s>d
 
-' 2lits> ' >lits ' noop 2 fold-constant: fold2-0
+2 0 fold-constant: fold2-0
 ' fold2-0 folds 2drop
 
-' 2lits> ' >2lits ' >lits 2 fold-constant: fold2-1
+2 1 fold-constant: fold2-1
 ' fold2-1 folds * and or xor
 ' fold2-1 folds min max umin umax
 ' fold2-1 folds nip
@@ -113,28 +119,28 @@
 ' fold2-1 folds d0> d0< d0=
 ' fold2-1 folds /s mods
 
-' 2lits> ' >2lits ' >2lits 2 fold-constant: fold2-2
+2 2 fold-constant: fold2-2
 ' fold2-2 folds m* um* swap d2* /modf /mods u/mod bounds
 
-' 2lits> ' >2lits ' >3lits 2 fold-constant: fold2-3
+2 3 fold-constant: fold2-3
 ' fold2-3 folds over tuck
 
-' 3lits> ' >3lits ' >lits 3 fold-constant: fold3-1
+3 1 fold-constant: fold3-1
 ' fold3-1 folds within select mux */f */s u*/
 
-' 3lits> ' >3lits ' >2lits 3 fold-constant: fold3-2
+3 2 fold-constant: fold3-2
 ' fold3-2 folds um/mod fm/mod sm/rem du/mod */modf */mods u*/mod under+
 
-' 3lits> ' >3lits ' >3lits 3 fold-constant: fold3-3
+3 3 fold-constant: fold3-3
 ' fold3-3 folds rot -rot
 
-' 4lits> ' >4lits ' >lits 4 fold-constant: fold4-1
+4 1 fold-constant: fold4-1
 ' fold4-1 folds d= d> d>= d< d<= du> du>= du< du<=
 
-' 4lits> ' >4lits ' >2lits 4 fold-constant: fold4-2
+4 2 fold-constant: fold4-2
 ' fold4-2 folds d+ d- 2nip
 
-' 4lits> ' >4lits ' >4lits 4 fold-constant: fold4-4
+4 4 fold-constant: fold4-4
 ' fold4-4 folds 2swap
 
 \ optimize +loop (not quite folding)
