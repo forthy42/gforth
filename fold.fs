@@ -42,7 +42,6 @@
 : noopt-compile, ( xt -- ) \ gforth-experimental
     \G compiles @var{xt} using the (unoptimized) default method.
     case dup >code-address
-	dup cfaprim? ?of  drop  peephole-compile, endof
 	docol:      of  :,              endof
 	dodoes:     of  does,           endof
 	docon:      of  constant,       endof
@@ -51,6 +50,7 @@
 	dodefer:    of  defer,          endof
 	doabicode:  of  abi-code,       endof
 	do;abicode: of  ;abi-code,      endof
+	dup cfaprim? ?of  drop  peephole-compile, endof
 	over        ?of peephole-compile, endof \ code word
 	lit, lits, postpone execute 0
     endcase ;
@@ -62,9 +62,12 @@
 : get-foldmax ( opt-xt -- xt )
     dup @ 1+ cells + @ ;
 
-: foldn: ( xt n -- )
-    create  latestxt to lastfold  dup , 1+ 0 ?DO dup , LOOP drop
-  DOES> >r lits# r@ @ umin 1+ cells r> + perform ;
+: (foldn:) ( xt n -- )
+    create  latestxt to lastfold
+  DOES> >r lits# r@ @ umin 1+ cells r> + @ execute-;s ;
+: foldn: ( xt n -- ) (foldn:) dup , 1+ 0 ?DO dup , LOOP drop ;
+: foldn-from: ( xt "name" -- )
+    (foldn:) dup @ 2 + cells here swap dup allot move ;
 : folding ( n -- )
     latest >namehm @ >hmcompile, @ swap
     next-section noname foldn: previous-section
@@ -74,9 +77,7 @@
     ['] noopt-compile, swap foldn:
     noname Create latestxt set-foldmax , , ,
   DOES> ( xt -- ) >r >r
-    i' cell+ cell+ perform r> catch-nobt 0= IF
-	r> perform EXIT  THEN
-    r> cell+ perform ;
+    i' cell+ cell+ perform r> catch-nobt 0<> cell and r> + @ execute-;s ;
 
 : folds ( folder-xt "name1" ... "namen" <eol> -- )
     {: folder-xt :} BEGIN

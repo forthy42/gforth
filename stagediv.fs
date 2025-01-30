@@ -173,8 +173,7 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
     next-section staged/-size small-allot previous-section {: addr :}
     divisor addr stage1 ]] addr stage2 [[ ;
 
-' noopt-compile, 2 foldn: opt-/f
-' fold2-1 get-foldmax set-foldmax
+' fold2-1 foldn-from: opt-/f
 [: ( xt -- )
     lits> dup 0> if
 	dup pow2? if
@@ -183,8 +182,7 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
     >lits noopt-compile, ;] 1 set-fold#
 ' opt-/f optimizes /f
 
-' noopt-compile, 2 foldn: opt-u/
-' fold2-1 get-foldmax set-foldmax
+' fold2-1 foldn-from: opt-u/
 [: ( xt -- )
     lits> dup 0<> if
 	dup pow2? if
@@ -193,8 +191,7 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
     >lits noopt-compile, ;] 1 set-fold#
 ' opt-u/ optimizes u/
 
-' noopt-compile, 2 foldn: opt-modf
-' fold2-1 get-foldmax set-foldmax
+' fold2-1 foldn-from: opt-modf
 [: ( xt -- )
     lits> dup 0> if
 	dup pow2? if
@@ -203,8 +200,7 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
     >lits noopt-compile, ;] 1 set-fold#
 ' opt-modf optimizes modf
 
-' noopt-compile, 2 foldn: opt-umod
-' fold2-1 get-foldmax set-foldmax
+' fold2-1 foldn-from: opt-umod
 [: ( xt -- )
     lits> dup 0<> if
 	dup pow2? if
@@ -213,8 +209,7 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
     >lits noopt-compile, ;] 1 set-fold#
 ' opt-umod optimizes umod
 
-' noopt-compile, 2 foldn: opt-/modf
-' fold2-2 get-foldmax set-foldmax
+' fold2-2 foldn-from: opt-/modf
 [: ( xt -- )
     lits> dup 0> if
 	dup pow2? if
@@ -224,8 +219,7 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
     >lits noopt-compile, ;] 1 set-fold#
 ' opt-/modf optimizes /modf
 
-' noopt-compile, 2 foldn: opt-u/mod
-' fold2-2 get-foldmax set-foldmax
+' fold2-2 foldn-from: opt-u/mod
 [: ( xt -- )
     lits> dup 0<> if
 	dup pow2? if

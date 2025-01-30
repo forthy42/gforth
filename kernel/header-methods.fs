@@ -26,7 +26,7 @@ defer does-check ( xt -- xt ) ' noop is does-check
 : :, ( xt -- ) call-check >body ['] call peephole-compile, , ;
 : variable, >body lit, ;
 : user, >body @ ['] up@ peephole-compile, ['] lit+ peephole-compile, , ;
-: defer, >body ['] lit-perform peephole-compile, , ;
+: defer, >body lit, postpone perform  ;
 : field+, >body @ lit, postpone + ;
 : abi-code, >body ['] abi-call peephole-compile, , ;
 : ;abi-code, ['] ;abi-code-exec peephole-compile, , ;

@@ -271,12 +271,8 @@ constant mem*do-noconstant
     \G @i{ubytes}=@i{uelements}*@i{uelemsize}
     tuck * swap ;
 
-: opt-array>mem ( xt -- )
-    drop lits# 1 = if
-        lits> dup ]] Literal * Literal [[
-    else
-        ['] array>mem fold2-2
-    then ;
+' fold2-2 foldn-from: opt-array>mem
+[: drop lits> dup ]] Literal * Literal [[ ;] 1 set-fold#
 ' opt-array>mem optimizes array>mem
 
 : const-mem+loop ( +nstride xt do-sys -- )

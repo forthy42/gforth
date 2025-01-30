@@ -579,11 +579,13 @@ end-class inout-r/w
 
 inout-r/w class
     field: in$
+    field: in<<
     value: public$
     value: in-fd
     defer: my-in
     method read-in
     method eof-in
+    method set-in
 end-class in-reader
 
 : in-reader: ( xt $var "name" -- )
@@ -596,10 +598,12 @@ end-class in-reader
 
 inout-r/w class
     field: out$
+    field: out<<
     value: out-fd
     field: out-offset
     value: out-name
     method write-out
+    method eof-out
     method set-out
 end-class out-writer
 
@@ -613,12 +617,21 @@ out-writer: psout$
 
 20 Constant maxiter# \ wait 20ms at most
 
+: $free0 ( addr -- )
+    dup $@len 0= IF  $free  ELSE  drop  THEN ;
+
+in-reader :method set-in ( fd -- )
+    in-fd IF  in<< >back  ELSE  to in-fd  THEN ;
 in-reader :method eof-in ( -- )
     in-fd 0 to in-fd close-file throw
     0 in$ !@
     my-in 0= IF
 	public$ !@ ?dup-IF  free throw  THEN
     ELSE  ?dup-IF  free throw  THEN  THEN
+    in<< $@len IF
+	in<< stack> to in-fd
+	in<< $free0
+    THEN
     wayland( [: cr ." read " public$ id. ." with '" public$ $@ type ." '" ;] do-debug ) ;
 in-reader :method read-in { flagaddr -- }
     in-fd check_read dup 0> IF \ data available
@@ -650,7 +663,7 @@ in-reader :method +inout ( addr -- addr' )
     in-fd ?dup-IF  fileno POLLIN POLLHUP or  rot fds!+  THEN ;
 
 out-writer :method +inout ( addr -- addr' )
-    out-fd ?dup-IF  POLLOUT rot fds!+  THEN ;
+    out-fd ?dup-IF  POLLOUT POLLHUP rot fds!+  THEN ;
 
 out-writer :method write-out ( -- )
     out$ $@ out-offset @ safe/string
@@ -661,19 +674,28 @@ out-writer :method write-out ( -- )
 	-512 errno - [: cr ." Error writing clipboard pipe: " error$ type ;] do-debug
     THEN \ if we can't write, let's just abandon this operation
     wayland( out$ [: cr ." wrote '" $. ." ' to clipout" ;] do-debug )
+    eof-out ;
+out-writer :method eof-out ( -- )
     out-fd close -1 = IF
 	-512 errno - [: cr ." Error closing clipboard pipe: " error$ type ;] do-debug
     THEN
-    out$ $free 0 to out-fd ;
+    out<< $@len 2 cells u>= IF
+	out<< stack>
+	out<< stack> $@ out$ $!
+	out<< $free0
+    ELSE  out$ $free 0  THEN
+    to out-fd  out-offset off ;
 
 out-writer :method ?inout ( addr -- addr' )
     out-fd IF  >r
 	wayland( r@ [: cr o id. 1 backspaces ." : " w@ h. ;] do-debug )
-	r@ w@ POLLOUT POLLHUP or and IF  write-out  THEN
+	r@ w@ POLLHUP and IF  eof-out
+	ELSE  r@ w@ POLLOUT and IF  write-out  THEN  THEN
 	r> pollfd +
     THEN ;
 
 out-writer :method set-out ( addr fd -- )
+    out-fd IF  out<< >back out<< >back  EXIT  THEN
     to out-fd  $@ out$ $!  out-offset off
     wayland( [: cr ." set out " out-name id. ." to '" out$ $. ." '" ;] do-debug )
     out-fd set-noblock  write-out ;
@@ -683,13 +705,13 @@ out-writer :method set-out ( addr fd -- )
     fds[ create_pipe
     offer mime-type fds[ cell+ @ fileno wl_data_offer_receive
     fds[ cell+ @ close-file throw
-    fds[ @ object >o to in-fd o> ;
+    fds[ @ object .set-in ;
 
 : ps-accept+receive { offer d: mime-type | fds[ 2 cells ] -- }
     fds[ create_pipe
     offer mime-type fds[ cell+ @ fileno zwp_primary_selection_offer_v1_receive
     fds[ cell+ @ close-file throw
-    fds[ @ psin$ >o to in-fd o> ;
+    fds[ @ psin$ .set-in ;
 
 : >liked-mime { xt: xt -- }
     liked-mime[] $[]# 0 ?DO

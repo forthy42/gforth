@@ -379,7 +379,7 @@ t{ "->xlerb" forth-recognize -> 0 }t
 
 0 warnings !@ >r
 : eval-catch ( addr u -- throwcode | results 0 )
-    [{: addr u :}h1 addr u evaluate ;] catch nothrow stored-backtrace $free ;
+    [{: addr u :}h1 addr u evaluate ;] catch-nobt ;
 r> warnings !
 
 1 Value value1
