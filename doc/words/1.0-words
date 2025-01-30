@@ -1828,7 +1828,9 @@ fold4-2
 fold4-4
 fold-constant:
 folding
+(foldn:)
 foldn:
+foldn-from:
 folds
 (for)
 [FOR]
@@ -3655,6 +3657,8 @@ nip
 nl
 nlcount
 nlflag
+n>lits
+nlits>
 NL_NOCONNECT
 NL_NOHOST
 NL_NOPROTO
@@ -3695,6 +3699,7 @@ nr>
 (ns)
 ns
 nt
+nth
 ntime
 nt>rec
 (number?)
@@ -3825,10 +3830,7 @@ open-path-lib
 open-pipe
 open-warp
 open-wrappers
-opt*
-opt+-
 opt:
-opt@
 opt-array>mem
 opt!-compile,
 opt-compile,

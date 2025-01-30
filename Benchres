@@ -101,7 +101,7 @@ SPARC:
 
 IA64:
  sieve bubble matrix fib   fft  release; CPU; gcc
- 1.184 1.112  0.740 1.084 0.560 20250122; Itanium II 900MHz (HP rx2600); gcc-4.3.2
+ 1.116 1.060  0.644 1.032 0.556 20250130; Itanium II 900MHz (HP rx2600); gcc-4.3.2
 
 ARM Cortex A73, 32 bit:
  0.208  0.240  0.104 0.268 0.096 2021-04-22; Odroid N2+ (2400MHz Cortex-A73), gcc-4.9.2
