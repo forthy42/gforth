@@ -48,6 +48,10 @@ AC_SUBST(LTDLINCL)
 AC_SUBST(LIBLTDL)
 AC_SUBST(LTDL_LDLIBS)
 
+UNDERSCORE=
+test x$sys_symbol_underscore = xyes && UNDERSCORE=_
+ AC_SUBST(UNDERSCORE)
+
 #suppress "-flto=auto"
 case "$CFLAGS" in
      *-flto=auto*)
@@ -1494,7 +1498,7 @@ if test -z "$FFI_H_NAME"; then
   AC_CHECK_HEADER(ffi/ffi.h,FFI_H_NAME=ffi/ffi.h,)
 fi
 AC_SUBST(FFI_H_NAME)
-AC_CHECK_LIB(ffi,ffi_call,LIBS="$LIBS")
+AC_CHECK_LIB(ffi,ffi_prep_closure,LIBS="$LIBS")
 if test -n "$FFI_H_NAME" -a $ac_cv_lib_ffi_ffi_call = yes
 then
   LIBFFIFLAG="true"
@@ -1654,10 +1658,16 @@ AC_MSG_CHECKING([for gforth])
 if test -z "$GFORTH"
 then
     GFORTH="`cd / && command -v gforth`"
-    (cd / && "$GFORTH" -e bye >/dev/null 2>/dev/null) || GFORTH=""
-    OLDVERSION=`$GFORTH --version 2>&1 | cut -f2 -d' ' | cut -f1 -d_ | tr . ' '`
-    # Shells are bad at comparing versions
-    test `$GFORTH -e "$OLDVERSION >r >r 1000 * r> + 1000 * r> + . bye"` -ge "$MINVIABLE" || GFORTH=""
+    if test ! -z "$GFORTH"
+    then
+	(cd / && "$GFORTH" -e bye >/dev/null 2>/dev/null) || GFORTH=""
+	if test ! -z "$GFORTH"
+	then
+	    OLDVERSION=`$GFORTH --version 2>&1 | cut -f2 -d' ' | cut -f1 -d_ | tr . ' '`
+	    # Shells are bad at comparing versions
+	    test `$GFORTH -e "$OLDVERSION >r >r 1000 * r> + 1000 * r> + . bye"` -ge "$MINVIABLE" || GFORTH=""
+        fi
+    fi
 fi
 if test -z "$GFORTH"; then
   PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" >&2 && false'

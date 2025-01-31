@@ -273,7 +273,7 @@ engine.s:	$(ENGINE_FAST_DEPS)
 		@echo CC-ENGINE -o $@ -S $<
 		$(COMPILER) -DFORCE_LL -DFORCE_REG -DGFORTH_DEBUGGING -DASMNAME $(ENGINE_FLAGS) -S $(srcdir)/engine.c
 
-ENGINE1 = -DSKIP4= -Dgforth_engine2=gforth_engine
+ENGINE1 = -DSKIP4= -D@UNDERSCORE@gforth_engine2=@UNDERSCORE@gforth_engine
 ENGINE2 = -DSKIP4="@SKIPCODE@"
 
 UNIFIED_ENGINE = @UNIFIED_ENGINE@
