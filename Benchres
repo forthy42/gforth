@@ -101,6 +101,7 @@ SPARC:
 
 IA64:
  sieve bubble matrix fib   fft  release; CPU; gcc
+ 0.708 0.780  0.484 1.028 0.552 20250201 Itanium II 900MHz (HP rx2600); gcc-4.3.2
  1.112 1.056  0.648 1.040 0.552 20250129 STACK_CACHE_REGS=3; Itanium II 900MHz (HP rx2600); gcc-4.3.2
  1.184 1.112  0.740 1.084 0.560 20250122; Itanium II 900MHz (HP rx2600); gcc-4.3.2
 
