@@ -354,7 +354,6 @@ allocate
 allocater
 alloc-by-xt,
 alloc-callback
-alloc-callback
 allocd
 alloch
 alloc-mmap
@@ -403,17 +402,10 @@ append-extend-string
 append-locate-lines
 arg
 arg,
-arg,
 arg@
-arg@
-argbuf
 argc
 arg-input
-argptr
-args
 argtype
-argtype
-argtype'
 argv
 array>mem
 arshift
@@ -673,9 +665,7 @@ c(abort")
 c-abort"
 call
 callback
-callback
 callback#
-callback;
 callback;
 callback-call
 callback-c-array
@@ -688,7 +678,6 @@ callback-ip-array
 callback-pushs
 callback-return
 !!callbacks!!
-callbacks
 callbacks
 callback-&style
 callback-style
@@ -716,7 +705,6 @@ catch
 catch-frame
 catch-nobt
 cb-decl
-cb-decl
 c-?branch
 c-branch
 c-?branch-lp+!#
@@ -734,7 +722,6 @@ ccb-ips
 ccb-lha
 ccb-num
 C-Clearline
-c-decl
 c-decl
 c-?do
 c-do
@@ -806,11 +793,6 @@ check-xy
 C-Highlight
 child-cb#
 child-fork
-cif,
-cif@
-cifbuf
-cifreset
-cifs
 cilk-bye
 cilk-init
 cilk-sync
@@ -1021,7 +1003,6 @@ cputime
 (cr)
 cr
 Create
-create-cif
 create-field
 create-file
 create-from
@@ -1116,8 +1097,6 @@ Cyan
 -\d
 :}d
 :d
->d+
->d-
 [d:
 \d
 d+
@@ -1188,7 +1167,6 @@ debug-out
 debug-vector
 dec.
 decimal
-decl,
 decl,
 decode
 decode-pos
@@ -1267,8 +1245,6 @@ devconfig_t-subtype1
 DEVICEID_SET
 DEVICELIST_SET
 DEVICE_SET
->df+
->df-
 d>f
 df!
 df+!
@@ -1283,7 +1259,6 @@ dfloat/
 dfloats
 dfvalue:
 dfvalue-dummy
-df>x
 [d:h
 dictionary-end
 dict-new
@@ -1304,11 +1279,8 @@ DisplayMode
 dispose
 disp-step
 D-KEY
->dl+
->dl-
 [d:l
 dlshift
-dl>x
 dmax
 dmin
 ?dnegate
@@ -1415,7 +1387,6 @@ dup
 ?DUP-0=-IF
 ?dup-?branch
 ?DUP-IF
-d>x
 >dynamic
 dynamic
 dynamic-a
@@ -1688,37 +1659,7 @@ fexp
 fexpm1
 #ff
 ffcall-present
-ffi-2!
-ffi-2@
-ffi-arg-dlong
-ffi-arg-double
-ffi-arg-float
-ffi-arg-int
-ffi-arg-long
-ffi-arg-longlong
-ffi-arg-ptr
-ffi-call
-ffi-call,
 ffield:
-ffi-prep-cif
-ffi-prep-closure
-ffi-ret-dlong
-ffi-ret-dlong1
-ffi-ret-double
-ffi-ret-double1
-ffi-ret-float
-ffi-ret-float1
-ffi-ret-int
-ffi-ret-int1
-ffi-ret-long
-ffi-ret-long1
-ffi-ret-longlong
-ffi-ret-longlong1
-ffi-ret-ptr
-ffi-ret-ptr1
-ffi-ret-void
-ffi-size
-ffi-type
 ffourth
 (fft
 fft
@@ -1780,7 +1721,6 @@ flit1
 FLiteral
 fln
 flnp1
-(float)
 (float)
 >float
 float
@@ -1869,7 +1809,6 @@ fpath=
 fpick
 fpid
 fptr
-fptr
 f>r
 fr>
 fr@
@@ -1909,10 +1848,7 @@ ftrunc
 ftuck
 ft-vtable
 [func']
-[func']
 func'
-func'
-func@
 func@
 function-types,
 fvalue
@@ -2889,8 +2825,6 @@ H_PHYS_TAR
 H_RESERVED
 hw>width
 (i)
->i+
->i-
 i
 i'
 [I]
@@ -2940,7 +2874,6 @@ include-file
 include-locale
 in-colon-def?
 ind-call
-ind-call
 index++
 index--
 in-dictionary?
@@ -2958,13 +2891,11 @@ InfoTable
 init-asm
 init-buffer
 init-callbacks
-init-callbacks
 inithash
 initiate
 init-lib
 init-libcc
 init-object
-init-shared-libs
 init-shared-libs
 init-timer
 initwl
@@ -2997,7 +2928,6 @@ insRule
 inst-something
 inst-value
 inst-var
-(int)
 (int)
 (int-;])
 int-[:
@@ -3052,10 +2982,8 @@ iso8601_to_timespec
 is-terminal?
 is-umethod
 is-weak?
-is>x
 is-xterm?
 Italic
-i>x
 j
 JOIN
 json_oscillator_read
@@ -3200,8 +3128,6 @@ Leave-D
 leave-empty?
 leave-stack
 legacy
-legacy
-legacy-proc
 legacy-proc
 le-l!
 letter
@@ -3225,7 +3151,6 @@ lha-hash
 lha-id
 lha-name
 lha-next
-@lib
 @lib
 libcc$
 libcc-cast,
@@ -3253,9 +3178,7 @@ lib-modulename
 lib-name
 lib-prefix
 library
-library
 .libs
-libs
 libs
 lib-suffix
 lib-sym
@@ -3382,7 +3305,6 @@ log2
 LOGMESSAGE_SET
 LOG_SET
 l-once
-_long
 longstring,
 look
 lookup-c-array
@@ -3449,7 +3371,6 @@ magenta-input
 MAGNETIC_TRACK_SET
 mag_var
 main-task
-make-cif
 make-hash
 make-latest
 makepass
@@ -3472,7 +3393,6 @@ max
 maxalign
 maxaligned
 maxalign-lp
-maxargs
 MAXCHANNELS
 MAX-CHAR
 MAXCORRECTIONS
@@ -3932,8 +3852,6 @@ outfile-id
 output:
 over
 overrides
->p+
->p-
 p
 PACKET_SET
 pad
@@ -4285,10 +4203,7 @@ PR_LCC1SP
 PR_LCC2SP
 PR_LCCW
 @proc
-@proc
 proc,
-proc,
-proc:
 proc:
 process-args
 (process-option)
@@ -4344,7 +4259,6 @@ push-order
 push-right
 push-stack-state
 push-stack-state1
-p>x
 pyth
 query
 'quit
@@ -4476,15 +4390,10 @@ restore-see-flags
 restrict
 restrict-mask
 (ret)
-retbuf
 rettype
-rettype
-rettype'
 ?return
 return-stack-cells
 revarg
-revarg
-revdec
 revdec
 (reveal
 (reveal)
@@ -4930,7 +4839,6 @@ rtk_sat_t-pc
 rtk_sat_t-pseudorange
 rtk_sat_t-rrc
 rt-vtable
-rtype
 .rvalues
 r/w
 #s
@@ -5127,8 +5035,6 @@ setstring-color
 set-to
 setup-callback
 set-wordlist
->sf+
->sf-
 s>f
 sf!
 sf+!
@@ -5211,7 +5117,6 @@ sf!o9
 sf@o9
 sfvalue:
 sfvalue-dummy
-sf>x
 sh
 sh$
 shadow-num-warning
@@ -5333,7 +5238,6 @@ staged/-size
 standard+field
 standard:field
 :start
-start,
 start$
 start-rex?
 start-workers
@@ -5480,7 +5384,6 @@ swvalue-dummy
 sx@
 sxd@
 symbol,
-symbol,
 symlink
 sync#
 synonym,
@@ -5547,9 +5450,7 @@ THENs
 third
 this
 thislib
-thislib
 thisline#
-thisproc
 thisproc
 thread-deadline
 @threaded>name
@@ -5927,7 +5828,6 @@ vocs
 voc-table
 voctable
 voc-to
-(void)
 (void)
 vt100-at-deltaxy
 vt100-at-xy

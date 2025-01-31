@@ -2218,8 +2218,8 @@ AC_CHECK_PROG(LOLCAT_SUCCESS, lolcat, lolcat -i --seed=173 -F 0.03, cat)
 AC_CHECK_PROG(LOLCAT_NEUTRAL, lolcat, lolcat -i --seed=15 -F 0.02, cat)
 AC_CHECK_PROG(LOLCAT_FAIL, lolcat, lolcat -i --seed=50 -F 0.02, cat)
 
-AC_CHECK_PROG(COWSAY_SUCCESS, cowsay, cowsay -f dragon-and-cow, echo)
-AC_CHECK_PROG(COWSAY_FAIL, cowsay, cowsay -f dragon, echo)
+AC_CHECK_PROG(COWSAY_SUCCESS, cowsay, cowsay -f dragon-and-cow, cat)
+AC_CHECK_PROG(COWSAY_FAIL, cowsay, cowsay -f dragon, cat)
 
 AC_SUBST(LOGDIR)
 AC_SUBST(LOLCAT_SUCCESS)
@@ -2291,8 +2291,8 @@ fi
 echo
 if test -z "$config_warns"
 then
-   $COWSAY_SUCCESS "*** Config summary: everything fine ***"|$LOLCAT_SUCCESS
+   echo "*** Config summary: everything fine ***"|$COWSAY_SUCCESS|$LOLCAT_SUCCESS
 else
-   $COWSAY_FAIL "*** Config summary: Warnings exist ***"|$LOLCAT_FAIL
+   echo "*** Config summary: Warnings exist ***"|$COWSAY_FAIL|$LOLCAT_FAIL
    echo "$config_warns"
 fi
