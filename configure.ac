@@ -458,8 +458,8 @@ test $ac_nobtcfi = yes && AC_DEFINE(HAS_NOBTCFI,,[Define if your OS does WX])
 AC_MSG_RESULT($ac_nobtcfi)
 
 case "$host_cpu" in
-    riscv*|mips*|alpha*|loongarch*)
-        # RISCV has no branch on overflow, so GCC's emulation is worse
+    riscv*|mips*|alpha*|loongarch*|ia64*)
+        # RISCV and IA64 have no branch on overflow, so GCC's emulation is worse
 	# than what we do; the same is likely true for MIPS and Alpha
         AS_VAR_SET([ac_var], [no])
 	;;
