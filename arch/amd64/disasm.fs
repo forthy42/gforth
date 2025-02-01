@@ -434,8 +434,10 @@ $0C flt, bld     $0D flt, ild     $0E flt, bstp    $0F flt, istp
 
 : .s/p ( -- ) 's' 'p' s? select emit ;
 : .p/s ( -- ) 'p' 's' s? select emit ;
-: .s/d ( -- ) 's' 'd' s? IF ss? ELSE length @ 0= THEN select emit ;
-: .d/s ( -- ) 'd' 's' s? IF ss? ELSE length @ 0= THEN select emit ;
+: (.s/d) ( c1 c2 -- )
+    ss? length @ 0= s? select select emit ;
+: .s/d ( -- ) 's' 'd' (.s/d) ;
+: .d/s ( -- ) 'd' 's' (.s/d) ;
 
 : .sse-suff ( -- ) .s/p .s/d ;
 : .ssereg ( n -- n ) 'y' 'x' l? select emit ." mm" #.r ;
