@@ -374,7 +374,7 @@ locals-types definitions
     \G Define variable-flavoured cell local @i{name} @code{( -- a-addr )}
     [: ( Compilation: -- ) ( Run-time: -- w )
 	@ laddr#, ;]
-    ['] no-to create-local
+    ['] n/a create-local
     ['] compile-pushlocal-w ;
 
 : F: ( compilation "name" -- a-addr xt; run-time r -- ) \ gforth f-colon

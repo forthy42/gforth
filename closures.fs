@@ -94,7 +94,7 @@ forth definitions
 : dummy-local, ( n -- )
     locals-size +!
     get-current >r  0 warnings !@ >r  [ ' locals >wordlist ]l set-current
-    s" " nextname ['] no-to dup create-local locals-size @ locals,
+    s" " nextname ['] n/a dup create-local locals-size @ locals,
     r> warnings !  r> set-current ;
 
 locals-types definitions

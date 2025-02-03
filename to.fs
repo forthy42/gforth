@@ -49,7 +49,7 @@
 : interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
     swap alias ,
     ['] i/c>comp set->comp
-    ['] no-to set-to ;
+    ['] n/a set-to ;
 
 \ Create TO variants by number
 

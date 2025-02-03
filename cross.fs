@@ -1218,7 +1218,7 @@ Ghost lit@ drop
 Ghost lit-perform drop
 Ghost lit+ drop
 Ghost does-xt drop
-Ghost no-to drop
+Ghost n/a drop
 Ghost refill drop
 
 Ghost :docol    drop
@@ -3113,8 +3113,6 @@ drop
 ghost i/c>int
 ghost i/c>comp
 2drop
-ghost no-to
-drop
 ghost named>string
 ghost named>link
 2drop
@@ -3141,7 +3139,7 @@ ghost no.extensions
 Create hmtemplate
 0 ,
 findghost :, ,
-findghost no-to ,
+findghost n/a ,
 0 ,
 findghost noop ,
 findghost default-name>comp ,
@@ -3199,7 +3197,7 @@ End-Struct vtable-struct
     [G'] noname>link       hmtemplate g>hm>link ! ; is hm-noname
 : hm-populate ( -- )
     [G'] :,                hmtemplate g>hmcompile, !
-    [G'] no-to             hmtemplate g>hmto !
+    [G'] n/a               hmtemplate g>hmto !
     TNIL                   hmtemplate g>hmextra !
     hm-named ;
 
@@ -3250,7 +3248,7 @@ ghost ?fold1 drop
     [G'] :dodefer (doer,)
     swap T A, A, H [ T has? ec H ] [IF] alias-mask flag! [THEN]
     hm-populate
-    [G'] no-to   gset-to
+    [G'] n/a     gset-to
     [G'] a>int   gset->int
     [G'] i/c>comp hmtemplate g>hm>comp ! ;
 
