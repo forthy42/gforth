@@ -21,13 +21,13 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20250131],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20250202],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ([2.69])
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1_YYYYMMDD must not exist before 0.4.1!
-UPDATED="January 31, 2025"
+UPDATED="February 02, 2025"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 AC_USE_SYSTEM_EXTENSIONS
@@ -1494,19 +1494,18 @@ AC_SUBST(libbench)
 AC_SUBST(LIB_VERSION)
 
 #check for libffi 2.x
+LIBFFIFLAG="false"
 AC_CHECK_HEADER(ffi.h,FFI_H_NAME=ffi.h,)
 if test -z "$FFI_H_NAME"; then
   AC_CHECK_HEADER(ffi/ffi.h,FFI_H_NAME=ffi/ffi.h,)
 fi
 AC_SUBST(FFI_H_NAME)
-AC_CHECK_LIB(ffi,ffi_prep_closure,LIBS="$LIBS")
-if test -n "$FFI_H_NAME" -a $ac_cv_lib_ffi_ffi_call = yes
-then
-  LIBFFIFLAG="true"
-  LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/libffi.fs"
-else
-  LIBFFIFLAG="false"
+if test ! -z "$FFI_H_NAME"; then
+   AC_CHECK_LIB(ffi,ffi_prep_closure,LIBS="$LIBS"
+LIBFFIFLAG="true"
+LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/libffi.fs")
 fi
+
 #check for ffcall libraries
 #unfortunately, these four calls are separated out into a library each.
 AC_CHECK_LIB(avcall,__builtin_avcall,LIBS="$LIBS")
