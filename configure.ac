@@ -1494,19 +1494,18 @@ AC_SUBST(libbench)
 AC_SUBST(LIB_VERSION)
 
 #check for libffi 2.x
+LIBFFIFLAG="false"
 AC_CHECK_HEADER(ffi.h,FFI_H_NAME=ffi.h,)
 if test -z "$FFI_H_NAME"; then
   AC_CHECK_HEADER(ffi/ffi.h,FFI_H_NAME=ffi/ffi.h,)
 fi
 AC_SUBST(FFI_H_NAME)
-AC_CHECK_LIB(ffi,ffi_prep_closure,LIBS="$LIBS")
-if test -n "$FFI_H_NAME" -a $ac_cv_lib_ffi_ffi_call = yes
-then
-  LIBFFIFLAG="true"
-  LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/libffi.fs"
-else
-  LIBFFIFLAG="false"
+if test ! -z "$FFI_H_NAME"; then
+   AC_CHECK_LIB(ffi,ffi_prep_closure,LIBS="$LIBS"
+LIBFFIFLAG="true"
+LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/libffi.fs")
 fi
+
 #check for ffcall libraries
 #unfortunately, these four calls are separated out into a library each.
 AC_CHECK_LIB(avcall,__builtin_avcall,LIBS="$LIBS")
