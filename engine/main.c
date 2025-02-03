@@ -1680,9 +1680,7 @@ DynamicInfo *decompile_prim3(Label *tcp)
       dyninfo = (DynamicInfo){tcp,-1,0,0,0,0};
     else {
       struct cost *c = &super_costs[p];
-      dyninfo = (DynamicInfo){tcp,0,p,c->state_in,c->state_out};
-      assert(c->state_in  == CANONICAL_STATE);
-      assert(c->state_out == CANONICAL_STATE);
+      dyninfo = (DynamicInfo){tcp,0,p,c->length,c->state_in,c->state_out};
     }
     di = &dyninfo;
   }
@@ -2126,7 +2124,6 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
         if (ndynamicinfos>1 &&
             ((UCell)(((Address)tc)-code_area)) < (UCell)code_area_size) {
           di[-1].length = ((Address)tc) - (Address)*(di[-1].tcp);
-          di[-1].end_state = startstate;
         }
         di->prim = p;
         di->seqlen = super_costs[p].length;

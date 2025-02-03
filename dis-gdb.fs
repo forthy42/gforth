@@ -80,7 +80,8 @@ set-current
     ." 0x" [: 0 u.r ;] $10 base-execute ;
 
 : disasm-gdb { addr u -- }
-    u 0= ?exit
+    u 0= if
+        cr exit then
     cr addr u [: { addr u }
         \ .\" set -x\n"
         .\" type mktemp >/dev/null && "
