@@ -584,7 +584,7 @@ Create hmtemplate
 ' peephole-compile, A, \ compile, field
 ' n/a A,               \ to field
 0 A,                   \ extra field
-' noop A,  \ name>interpret field
+' noop A,              \ name>interpret field
 ' default-name>comp A, \ name>comp field
 ' named>string A,      \ name>string field
 ' named>link A,        \ name>link field
