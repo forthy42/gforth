@@ -87,3 +87,6 @@ c-value wp_fractional_scale_v1_interface &wp_fractional_scale_v1_interface -- a
 c-value wp_viewporter_interface &wp_viewporter_interface -- a
 c-value wp_viewport_interface &wp_viewport_interface -- a
 [THEN]
+?include-wayland xdg-output-unstable-v1.c
+c-value zxdg_output_manager_v1_interface &zxdg_output_manager_v1_interface -- a
+[THEN]

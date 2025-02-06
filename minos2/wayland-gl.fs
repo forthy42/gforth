@@ -40,7 +40,9 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 
 0 Value dpy        \ wayland display
 0 ' noop trigger-Value wl-compositor \ wayland compositor
-0 Value wl-output
+0 ' noop trigger-Value wl-output
+0 ' noop trigger-Value zxdg-output-manager-v1
+0 Value zxdg-output-v1
 [IFDEF] wp_fractional_scale_v1_listener
     0 ' noop trigger-Value wp-fractional-scale-v1
     0 ' noop trigger-Value wp-fractional-scale-manager-v1
@@ -140,6 +142,7 @@ cb> wl-shell-surface-listener
 [IFUNDEF] dpy-wh
     2Variable dpy-wh
 [THEN]
+2Variable dpy-xy
 2Variable dpy-unscaled-wh
 1 Value wl-scale
 #120 Value fractional-scale
@@ -159,30 +162,37 @@ cb> wl-shell-surface-listener
 : n>coord ( n -- r )
     scale*fixed 1/256 fm* ;
 
-: wl-out-geometry { data out x y pw ph subp d: make d: model transform -- }
-    wayland( pw ph [: cr ." metrics: " . . ;] do-debug )
-    pw ph wl-metrics 2! transform to screen-orientation ;
-: wl-out-mode { data out flags w h r -- }
-    w h dpy-wh 2! ;
-: wl-out-done { data out -- } ;
-: wl-out-scale { data out scale -- }
+<cb
+:cb wl_output_listener-description: { data out d: description -- }
+    wayland( description [: cr ." output description: " type ;] do-debug ) ;
+:cb wl_output_listener-name: { data out d: name -- }
+    wayland( name [: cr ." output name: " type ;] do-debug ) ;
+:cb wl_output_listener-scale: { data out scale -- }
     wayland( scale [: cr ." scale: " . ;] do-debug )
     scale to wl-scale ;
-: wl-out-name { data out d: name -- }
-    wayland( name [: cr ." output name: " type ;] do-debug )
-;
-: wl-out-description { data out d: description -- }
-    wayland( description [: cr ." output description: " type ;] do-debug )
-;
-
-<cb
-' wl-out-description ?cb wl_output_listener-description:
-' wl-out-name ?cb wl_output_listener-name:
-' wl-out-scale ?cb wl_output_listener-scale:
-' wl-out-done ?cb wl_output_listener-done:
-' wl-out-mode ?cb wl_output_listener-mode:
-' wl-out-geometry ?cb wl_output_listener-geometry:
+:cb wl_output_listener-done: { data out -- } ;
+:cb wl_output_listener-mode: { data out flags w h r -- }
+    w h dpy-wh 2! ;
+:cb wl_output_listener-geometry: { data out x y pw ph subp d: make d: model transform -- }
+    wayland( pw ph [: cr ." metrics: " . . ;] do-debug )
+    pw ph wl-metrics 2! transform to screen-orientation ;
 cb> wl-output-listener
+
+[IFDEF] zxdg_output_v1_listener
+    <cb
+    :cb zxdg_output_v1_listener-description: { data out d: description -- }
+	wayland( description [: cr ." xdg description: " type ;] do-debug ) ;
+    :cb zxdg_output_v1_listener-name: { data out d: name -- }
+	wayland( name [: cr ." xdg name: " type ;] do-debug ) ;
+    :cb zxdg_output_v1_listener-done: { data out -- } ;
+    :cb zxdg_output_v1_listener-logical_size: { data out w h -- }
+	wayland( h w [: cr ." xdg size: " . . ;] do-debug )
+	w h dpy-wh 2! ;
+    :cb zxdg_output_v1_listener-logical_position: { data out x y -- }
+	wayland( y x [: cr ." xdg position: " . . ;] do-debug )
+	x y dpy-xy 2! ;
+    cb> zxdg-output-v1-listener
+[THEN]
 
 require need-x.fs
 
@@ -282,17 +292,6 @@ Defer b-leave  ' noop  is b-leave
 
 up@ Value master-task
 
-: wl-scroll ( time axis val -- )
-    [{: time axis val :}h1 time axis val b-scroll ;] master-task send-event ;
-: wl-button ( time b mask -- )
-    [{: time b mask :}h1 time b mask b-button ;] master-task send-event ;
-: wl-motion ( time x y -- )
-    [{: time x y :}h1 time x y b-motion ;] master-task send-event ;
-: wl-enter  ( x y -- )
-    [{: x y :}h1 x y b-enter ;] master-task send-event ;
-: wl-leave  ( -- )
-    ['] b-leave master-task send-event ; 
-
 \ pointer listener
 
 Variable wl-time
@@ -301,8 +300,8 @@ Variable wl-time
 :cb wl_pointer_listener-axis_relative_direction: { data p axis disc -- }
 ;
 :cb wl_pointer_listener-axis_value120: { data p axis val -- }
-    XTime axis val wl-scroll
-;
+    XTime axis val
+    [{: time axis val :}h1 time axis val b-scroll ;] master-task send-event ;
 :cb wl_pointer_listener-axis_discrete: { data p axis disc -- }
 ;
 :cb wl_pointer_listener-axis_stop: { data p time axis -- } time XTime!
@@ -314,19 +313,15 @@ Variable wl-time
 :cb wl_pointer_listener-button: { data p serial time b mask -- }  time XTime!
     serial( serial [: cr ." button serial: " h. ;] do-debug )
     serial to last-serial
-    time b mask wl-button
-;
+    time b mask [{: time b mask :}h1 time b mask b-button ;] master-task send-event ;
 :cb wl_pointer_listener-motion: { data p time x y -- }  time XTime!
-    time x y wl-motion
-;
+    time x y [{: time x y :}h1 time x y b-motion ;] master-task send-event ;
 :cb wl_pointer_listener-leave: { data p s -- }
-    wl-leave
-;
+    ['] b-leave master-task send-event ; 
 :cb wl_pointer_listener-enter: { data p s x y -- }
     serial( s [: cr ." cursor-serial: " h. ;] do-debug )
     s to cursor-serial \ on enter, we set the cursor
-    x y wl-enter
-;
+    x y [{: x y :}h1 x y b-enter ;] master-task send-event ;
 cb> wl-pointer-listener
 
 \ keyboard listener
@@ -821,9 +816,8 @@ cb> primary-selection-listener
 ;
 :cb wl_data_source_listener-cancelled: { data source -- }
     wayland( [: cr ." ds cancelled" ;] do-debug )
-\    data-source wl_data_source_destroy
-\    0 to data-source  0 to my-clipboard
-;
+    0 to data-source  0 to my-clipboard
+    source wl_data_source_destroy ;
 :cb wl_data_source_listener-send: { data source d: mime-type fd -- }
     wayland( mime-type data [: cr ." send " id. ." type " type ;] do-debug )
     data fd clipout$ .set-out ;
@@ -837,9 +831,8 @@ cb> data-source-listener
 <cb
 :cb zwp_primary_selection_source_v1_listener-cancelled: { data source -- }
     wayland( [: cr ." ps cancelled" ;] do-debug )
-\    primary-selection-source zwp_primary_selection_source_v1_destroy
-\    0 to primary-selection-source  0 to my-primary
-;
+    0 to primary-selection-source  0 to my-primary
+    source zwp_primary_selection_source_v1_destroy ;
 :cb zwp_primary_selection_source_v1_listener-send: { data source d: mime-type fd -- }
     wayland( fd mime-type data [: cr ." ps send " id. ." type: " type ."  fd: " h. ;] do-debug )
     data fd psout$ .set-out ;
@@ -886,9 +879,12 @@ Variable cursor-size #24 cursor-size !
     wl-data-device-manager
     wl-seat wl_data_device_manager_get_data_device to data-device ;
 :trigger-on( data-device )
-    data-device data-device-listener 0 wl_data_device_add_listener drop
-    wl-data-device-manager wl_data_device_manager_create_data_source
-    to data-source ;
+    data-device data-device-listener 0 wl_data_device_add_listener drop ;
+: ?dd-source ( -- )
+    data-source 0= IF
+	wl-data-device-manager
+	wl_data_device_manager_create_data_source
+	to data-source THEN ;
 :trigger-on( data-source )
     data-source data-source-listener clipboard$ wl_data_source_add_listener drop
     ds-mime-types[] [: data-source -rot wl_data_source_offer ;] $[]map ;
@@ -898,9 +894,12 @@ Variable cursor-size #24 cursor-size !
     zwp-primary-selection-device-manager-v1
     wl-seat zwp_primary_selection_device_manager_v1_get_device to primary-selection-device ;
 :trigger-on( primary-selection-device )
-    primary-selection-device primary-selection-listener 0 zwp_primary_selection_device_v1_add_listener drop
-    zwp-primary-selection-device-manager-v1 zwp_primary_selection_device_manager_v1_create_source
-    to primary-selection-source ;
+    primary-selection-device primary-selection-listener 0 zwp_primary_selection_device_v1_add_listener drop ;
+: ?ps-source ( -- )
+    primary-selection-source 0= IF
+	zwp-primary-selection-device-manager-v1
+	zwp_primary_selection_device_manager_v1_create_source
+	to primary-selection-source THEN ;
 :trigger-on( primary-selection-source )
     primary-selection-source primary-selection-source-listener primary$ zwp_primary_selection_source_v1_add_listener drop
     ds-mime-types[] [: primary-selection-source -rot zwp_primary_selection_source_v1_offer ;] $[]map ;
@@ -953,6 +952,12 @@ wl-registry set-current
 :trigger-on( wp-viewporter wl-surface )
     wp-viewporter wl-surface wp_viewporter_get_viewport to wp-viewport ;
 4 wlal: wl_output
+[IFDEF] zxdg_output_v1_add_listener
+3 wl: zxdg_output_manager_v1
+:trigger-on( zxdg-output-manager-v1 wl-output )
+    zxdg-output-manager-v1 wl-output zxdg_output_manager_v1_get_xdg_output dup to zxdg-output-v1
+    zxdg-output-v1-listener 0 zxdg_output_v1_add_listener drop ;
+[THEN]
 8 wlal: wl_seat
 1 wl: wl_shm
 :trigger-on( wl-shm )
@@ -1061,6 +1066,7 @@ cb> xdg-decoration-listener
     xdg-surface xdg_surface_get_toplevel to xdg-toplevel ;
 :trigger-on( xdg-toplevel )
     xdg-toplevel xdg-toplevel-listener 0 xdg_toplevel_add_listener drop
+\    xdg-toplevel 0 xdg_toplevel_set_parent
     xdg-toplevel window-title$ $@ xdg_toplevel_set_title
     xdg-toplevel window-app-id$ $@ xdg_toplevel_set_app_id
     xdg-toplevel xdg_toplevel_set_maximized ;
@@ -1173,6 +1179,7 @@ Defer window-init     ' noop is window-init
 ' wl-key? IS key?
 
 : clipboard! ( addr u -- ) clipboard$ $!
+    ?dd-source
     data-device data-source
     last-serial wl_data_device_set_selection
     true to my-clipboard ;
@@ -1180,8 +1187,8 @@ Defer window-init     ' noop is window-init
 
 : primary! ( addr u -- ) primary$ $!
     primary$ $@len 0<> to my-primary
-    primary-selection-device
-    primary-selection-source primary$ $@len 0<> and
+    ?ps-source
+    primary-selection-device primary-selection-source primary$ $@len 0<> and
     last-serial zwp_primary_selection_device_v1_set_selection ;
 : primary@ ( -- addr u ) primary$ $@ ;
 : dnd@ ( -- addr u ) dnd$ $@ ;
