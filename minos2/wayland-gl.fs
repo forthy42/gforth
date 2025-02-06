@@ -1115,10 +1115,10 @@ here latestxt - >r
 DOES> { xt: do-it array } array [ r> ]L bounds DO  I @ .do-it  cell +LOOP ;
 
 : >poll-events ( delay -- n )
-    0 xptimeout 2!
-    epiper @ fileno POLLIN  xpollfds fds!+
+    0 xptimeout 2!  xpollfds
     dpy ?dup-IF  wl_display_get_fd POLLIN  rot fds!+  THEN
     ['] +inout inout$s
+    epiper @ fileno POLLIN  rot fds!+
     xpollfds - pollfd / ;
 
 : xpoll ( -- flag )
@@ -1132,7 +1132,7 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 
 : ?dpy ( addr -- addr' )
     dpy IF  >r
-	r@ w@ POLLIN and IF  get-events  THEN
+	r@ w@ POLLIN and IF  dpy wl_display_dispatch drop  THEN
 	r> pollfd +
     THEN ;
 
@@ -1140,12 +1140,8 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
     ?looper-timeouts >poll-events >r
     xpollfds r> xpoll
     IF
-	xpollfds revents pollfd +
-	?dpy ['] ?inout inout$s drop
-    ELSE
-	dpy IF  get-events  THEN
-    THEN
-    ?events ;
+	xpollfds revents ?dpy ['] ?inout inout$s w@ POLLIN and IF  ?events  THEN
+    THEN ;
 
 : >looper ( -- )  looper-to# #looper ;
 
