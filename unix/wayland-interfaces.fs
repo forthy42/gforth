@@ -90,3 +90,6 @@ c-value wp_viewport_interface &wp_viewport_interface -- a
 ?include-wayland xdg-output-unstable-v1.c
 c-value zxdg_output_manager_v1_interface &zxdg_output_manager_v1_interface -- a
 [THEN]
+?include-wayland xdg-activation-v1.c
+c-value xdg_activation_v1_interface &xdg_activation_v1_interface -- a
+[THEN]

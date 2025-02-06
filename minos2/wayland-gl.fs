@@ -41,6 +41,7 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 0 Value dpy        \ wayland display
 0 ' noop trigger-Value wl-compositor \ wayland compositor
 0 ' noop trigger-Value wl-output
+0 ' noop trigger-Value xdg-activation-v1
 0 ' noop trigger-Value zxdg-output-manager-v1
 0 Value zxdg-output-v1
 [IFDEF] wp_fractional_scale_v1_listener
@@ -99,14 +100,6 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 
 \ shell surface listener
 
-: shell-surface-ping ( data surface serial -- )
-    serial( dup [: cr ." ping serial: " h. ;] do-debug )
-    dup to last-serial
-    wl_shell_surface_pong drop ;
-: shell-surface-config { data surface edges w h -- }
-    win w h 0 0 wl_egl_window_resize ;
-: shell-surface-popup-done { data surface -- } ;
-
 : <cb ( -- ) depth r> swap >r >r ;
 : cb> ( xt1 .. xtn -- )
     Create depth r> r> swap >r - 0 ?DO , LOOP ;
@@ -124,9 +117,13 @@ ${GFORTH_IGNLIB} "true" str= [IF]
 [THEN]
 
 <cb
-' shell-surface-popup-done ?cb wl_shell_surface_listener-popup_done:
-' shell-surface-config ?cb wl_shell_surface_listener-configure:
-' shell-surface-ping ?cb wl_shell_surface_listener-ping:
+:cb wl_shell_surface_listener-popup_done: { data surface -- } ;
+:cb wl_shell_surface_listener-configure: { data surface edges w h -- }
+    win w h 0 0 wl_egl_window_resize ;
+:cb wl_shell_surface_listener-ping: ( data surface serial -- )
+    serial( dup [: cr ." ping serial: " h. ;] do-debug )
+    dup to last-serial
+    wl_shell_surface_pong drop ;
 cb> wl-shell-surface-listener
 
 \ time handling
@@ -143,6 +140,7 @@ cb> wl-shell-surface-listener
     2Variable dpy-wh
 [THEN]
 2Variable dpy-xy
+2Variable dpy-raw-wh
 2Variable dpy-unscaled-wh
 1 Value wl-scale
 #120 Value fractional-scale
@@ -187,12 +185,17 @@ cb> wl-output-listener
     :cb zxdg_output_v1_listener-done: { data out -- } ;
     :cb zxdg_output_v1_listener-logical_size: { data out w h -- }
 	wayland( h w [: cr ." xdg size: " . . ;] do-debug )
-	w h dpy-wh 2! ;
+	w h dpy-raw-wh 2! ;
     :cb zxdg_output_v1_listener-logical_position: { data out x y -- }
 	wayland( y x [: cr ." xdg position: " . . ;] do-debug )
 	x y dpy-xy 2! ;
     cb> zxdg-output-v1-listener
 [THEN]
+
+<cb
+:cb xdg_activation_token_v1_listener-done: { data token d: name -- }
+    wayland( name [: cr ." activation token: " type ;] do-debug ) ;
+cb> xdg-activation-token-v1-listener
 
 require need-x.fs
 
@@ -933,6 +936,7 @@ wl-registry set-current
 1 wl: wl_shell
 :trigger-on( wl-shell wl-surface )
     wl-shell wl-surface wl_shell_get_shell_surface to shell-surface ;
+1 wl: xdg_activation_v1
 [IFDEF] wp_fractional_scale_v1_listener
     1 wl: wp_fractional_scale_manager_v1
     :trigger-on( wp-fractional-scale-manager-v1 wl-surface )
@@ -1186,10 +1190,17 @@ Defer window-init     ' noop is window-init
 : clipboard@ ( -- addr u ) clipboard$ $@ ;
 
 : primary! ( addr u -- ) primary$ $!
-    primary$ $@len 0<> to my-primary
-    ?ps-source
-    primary-selection-device primary-selection-source primary$ $@len 0<> and
-    last-serial zwp_primary_selection_device_v1_set_selection ;
+    primary$ $@len IF
+	?ps-source  true to my-primary
+	primary-selection-device primary-selection-source primary$ $@len 0<> and
+	last-serial zwp_primary_selection_device_v1_set_selection
+    ELSE
+	primary-selection-source ?dup-IF
+	    zwp_primary_selection_source_v1_destroy
+	    0 to primary-selection-source
+	THEN
+	0 to my-primary
+    THEN ;
 : primary@ ( -- addr u ) primary$ $@ ;
 : dnd@ ( -- addr u ) dnd$ $@ ;
 
