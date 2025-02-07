@@ -93,3 +93,7 @@ c-value zxdg_output_manager_v1_interface &zxdg_output_manager_v1_interface -- a
 ?include-wayland xdg-activation-v1.c
 c-value xdg_activation_v1_interface &xdg_activation_v1_interface -- a
 [THEN]
+?include-wayland cursor-shape-v1.c
+c-value wp_cursor_shape_manager_v1_interface &wp_cursor_shape_manager_v1_interface -- a
+c-value wp_cursor_shape_device_v1_interface &wp_cursor_shape_device_v1_interface -- a
+[THEN]

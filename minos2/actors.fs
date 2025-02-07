@@ -821,6 +821,10 @@ edit-terminal edit-out !
     ELSE  drop
     THEN ;
 
+[IFDEF] cursor-type
+    edit-actor :method entered ( -- ) 9 to cursor-type [ edit-actor action-of entered compile, ] ;
+    edit-actor :method left ( -- ) 1 to cursor-type [ edit-actor action-of left compile, ] ;
+[THEN]
 edit-actor :method ekeyed ( key o:actor -- )
     [: 4 roll dup keycode-start and 0= k-ctrl-mask and invert and
 	everychar >control edit-control edit-update drop +sync +resize ;] edit-xt ;

@@ -61,7 +61,9 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 0 ' noop trigger-Value cursor
 0 ' noop trigger-Value cursor-surface
 0 ' noop trigger-Value cursor-serial
-0 Value last-serial
+0 ' noop trigger-Value wp-cursor-shape-manager-v1
+0 ' noop trigger-Value wp-cursor-shape-device-v1
+0 ' noop trigger-Value last-serial
 0 ' noop trigger-Value wl-surface
 0 ' noop trigger-Value wp-viewporter
 0 ' noop trigger-Value wp-viewport
@@ -324,10 +326,10 @@ Variable wl-time
     time b mask [{: time b mask :}h1 time b mask b-button ;] master-task send-event ;
 :cb wl_pointer_listener-motion: { data p time x y -- }  time XTime!
     time x y [{: time x y :}h1 time x y b-motion ;] master-task send-event ;
-:cb wl_pointer_listener-leave: { data p s -- }
+:cb wl_pointer_listener-leave: { data p s surface -- }
     ['] b-leave master-task send-event ; 
-:cb wl_pointer_listener-enter: { data p s x y -- }
-    serial( s [: cr ." cursor-serial: " h. ;] do-debug )
+:cb wl_pointer_listener-enter: { data p s surface x y -- }
+    serial( s [: cr ." cursor-serial: " . ;] do-debug )
     s to cursor-serial \ on enter, we set the cursor
     x y [{: x y :}h1 x y b-enter ;] master-task send-event ;
 cb> wl-pointer-listener
@@ -425,6 +427,7 @@ Variable prev-preedit$
 ;
 :cb wl_keyboard_listener-leave: { data wl_keyboard serial surface -- }
     serial( serial [: cr ." kb leave serial: " h. ;] do-debug )
+    serial to last-serial
 ;
 :cb wl_keyboard_listener-enter:	{ data wl_keyboard serial surface keys -- }
     serial( serial [: cr ." kb enter serial: " h. ;] do-debug )
@@ -447,7 +450,8 @@ cb> wl-keyboard-listener
 \ seat listener
 
 <cb
-:cb wl_seat_listener-name: { data seat d: name -- } ;
+:cb wl_seat_listener-name: { data seat d: name -- }
+    wayland( name [: cr ." seat: " type ;] do-debug ) ;
 :cb wl_seat_listener-capabilities: { data seat caps -- }
     caps WL_SEAT_CAPABILITY_POINTER and IF
 	wl-seat wl_seat_get_pointer to wl-pointer
@@ -488,19 +492,21 @@ Create cursor-xywh #200 , #300 , #1 , #10 ,
     0e fdup to xy-offset ;
 
 : send-status-update { text-input -- }
-    text-input
-    ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE
-    ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL
-    zwp_text_input_v3_set_content_type
-    cursor-xywh 4 cells old-cursor-xywh over str= 0= IF
+    [IFDEF] zwp_text_input_v3_add_listener
 	text-input
-	cursor-xywh 2@  cursor-xywh 2 cells + 2@
-	zwp_text_input_v3_set_cursor_rectangle
-	cursor-xywh old-cursor-xywh 4 cells move
-    THEN
-    text-input s" " 0 0
-    zwp_text_input_v3_set_surrounding_text
-    text-input zwp_text_input_v3_commit ;
+	ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE
+	ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL
+	zwp_text_input_v3_set_content_type
+	cursor-xywh 4 cells old-cursor-xywh over str= 0= IF
+	    text-input
+	    cursor-xywh 2@  cursor-xywh 2 cells + 2@
+	    zwp_text_input_v3_set_cursor_rectangle
+	    cursor-xywh old-cursor-xywh 4 cells move
+	THEN
+	text-input s" " 0 0
+	zwp_text_input_v3_set_surrounding_text
+	text-input zwp_text_input_v3_commit
+    [THEN] ;
 
 : >cursor-xyxy { f: x0 f: y0 f: x1 f: y1 -- }
     wayland( y1 x1 y0 x0 [: cr ." >cursor-xyxy " f. f. f. f. ." offset " xy-offset z. ;] do-debug )
@@ -510,6 +516,7 @@ Create cursor-xywh #200 , #300 , #1 , #10 ,
 
 Defer sync+config ' noop is sync+config
 
+[IFDEF] zwp_text_input_v3_add_listener
 <cb
 :cb zwp_text_input_v3_listener-done: { data text-input serial -- }
     wayland( serial [: cr ." input done: " . ;] do-debug ) ;
@@ -532,6 +539,7 @@ Defer sync+config ' noop is sync+config
     THEN
 ;
 :cb zwp_text_input_v3_listener-leave: { data text-input surface -- }
+    text-input zwp_text_input_v3_disable
     text-input zwp_text_input_v3_commit
 ;
 :cb zwp_text_input_v3_listener-enter: { data text-input surface -- }
@@ -539,6 +547,7 @@ Defer sync+config ' noop is sync+config
     text-input send-status-update
 ;
 cb> text-input-listener
+[THEN]
 
 \ data offer listener
 
@@ -550,6 +559,7 @@ cb> text-input-listener
     { | w^ arg }  1 arg l!
     dup FIONBIO arg ioctl ?ior ;
 
+1 Value cursor-type
 0 Value current-serial
 $[]Variable mime-types[]
 $[]Variable ds-mime-types[]
@@ -952,6 +962,14 @@ wl-registry set-current
 	wp-fractional-scale-v1 wp-fractional-scale-v1-listener
 	0 wp_fractional_scale_v1_add_listener drop ;
 [THEN]
+[IFDEF] wp_cursor_shape_manager_v1_interface
+    1 wl: wp_cursor_shape_manager_v1
+    :trigger-on( wp-cursor-shape-manager-v1 wl-pointer )
+	wp-cursor-shape-manager-v1 wl-pointer wp_cursor_shape_manager_v1_get_pointer
+	to wp-cursor-shape-device-v1 ;
+    :trigger-on( wp-cursor-shape-device-v1 cursor-serial )
+	wp-cursor-shape-device-v1 cursor-serial cursor-type wp_cursor_shape_device_v1_set_shape ;
+[THEN]
 :trigger-on( shell-surface )
     shell-surface wl-shell-surface-listener 0 wl_shell_surface_add_listener drop
     shell-surface wl_shell_surface_set_toplevel
@@ -962,10 +980,10 @@ wl-registry set-current
     wp-viewporter wl-surface wp_viewporter_get_viewport to wp-viewport ;
 4 wlal: wl_output
 [IFDEF] zxdg_output_v1_add_listener
-3 wl: zxdg_output_manager_v1
-:trigger-on( zxdg-output-manager-v1 wl-output )
-    zxdg-output-manager-v1 wl-output zxdg_output_manager_v1_get_xdg_output dup to zxdg-output-v1
-    zxdg-output-v1-listener 0 zxdg_output_v1_add_listener drop ;
+    3 wl: zxdg_output_manager_v1
+    :trigger-on( zxdg-output-manager-v1 wl-output )
+	zxdg-output-manager-v1 wl-output zxdg_output_manager_v1_get_xdg_output dup to zxdg-output-v1
+	zxdg-output-v1-listener 0 zxdg_output_v1_add_listener drop ;
 [THEN]
 8 wlal: wl_seat
 1 wl: wl_shm
@@ -974,10 +992,12 @@ wl-registry set-current
     wayland( [: cr ." load cursor theme " third third type ."  size " dup . ;] do-debug )
     wl-shm wl_cursor_theme_load dup to cursor-theme
     s" default" wl_cursor_theme_get_cursor to cursor ;
-1 wl: zwp_text_input_manager_v3
-:trigger-on( zwp-text-input-manager-v3 wl-seat )
-    zwp-text-input-manager-v3 wl-seat zwp_text_input_manager_v3_get_text_input dup to text-input
-    text-input-listener 0 zwp_text_input_v3_add_listener drop ;
+[IFDEF] zwp_text_input_v3_add_listener
+    1 wl: zwp_text_input_manager_v3
+    :trigger-on( zwp-text-input-manager-v3 wl-seat )
+	zwp-text-input-manager-v3 wl-seat zwp_text_input_manager_v3_get_text_input dup to text-input
+	text-input-listener 0 zwp_text_input_v3_add_listener drop ;
+[THEN]
 4 wlal: xdg_wm_base
 1 wl: zxdg_decoration_manager_v1
 3 wl: wl_data_device_manager

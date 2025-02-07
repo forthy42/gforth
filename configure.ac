@@ -2080,7 +2080,7 @@ wayland protocols not found."
 	    for i in text-input-unstable-v3 xdg-shell \
 	    	xdg-decoration-unstable-v1 primary-selection-unstable-v1 \
 		tablet-unstable-v2 fractional-scale-v1 viewporter xdg-output-unstable-v1 \
-		xdg-activation-v1
+		xdg-activation-v1 cursor-shape-v1
 	    do
 		if test -f ""`find $WAYLAND_PROTOCOLS_DATADIR -name $i.xml`
 		then
