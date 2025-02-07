@@ -697,6 +697,8 @@ Defer anim-ins
     endcase ;
 [IFDEF] android previous previous [THEN]
 
+: xedit-repaint ( -- flag ) xselw to outselw false ;
+
 ' edit-next-line ctrl N bindkey
 ' edit-prev-line ctrl P bindkey
 ' edit-paste     ctrl V bindkey
@@ -706,7 +708,7 @@ Defer anim-ins
 ' edit-cut       ctrl W bindkey
 ' xedit-enter    #lf    bindkey
 ' xedit-enter    #cr    bindkey
-' false          ctrl L bindkey
+' xedit-repaint  ctrl L bindkey
 ' edit-bs        ctrl H bindkey
 ' edit-del       ctrl D bindkey
 ' (xtab-expand)  #tab   bindkey
@@ -719,7 +721,8 @@ Defer anim-ins
 ' edit-prev-line k-prior  ebindkey
 ' edit-enter     k-eof    ebindkey
 ' xedit-enter    k-enter  ebindkey
-' false          k-winch  ebindkey
+' xedit-repaint  k-winch  ebindkey
+' edit-bs        k-backspace ebindkey
 ' edit-del       k-delete ebindkey
 ' (xtab-expand)  k-tab    ebindkey
 ' edit-selall    k-sel    ebindkey
@@ -820,7 +823,7 @@ edit-terminal edit-out !
 
 edit-actor :method ekeyed ( key o:actor -- )
     [: 4 roll dup keycode-start and 0= k-ctrl-mask and invert and
-	everychar >control edit-control drop +sync +resize ;] edit-xt ;
+	everychar >control edit-control edit-update drop +sync +resize ;] edit-xt ;
 edit-actor :method ukeyed ( addr u o:actor -- )
     dup 1 = vt100-modifier @ 8 = and IF
 	drop c@ 2 mask-shift# lshift or ekeyed
@@ -869,7 +872,7 @@ edit-actor :method clicked ( o:actor rx ry b n -- )
 	    4 of  ( menu   )  drop fdrop fdrop  endof
 	    nip fdrop fdrop
 	endcase
-    THEN +sync +resize ;
+    THEN  +sync +resize ;
 [IFDEF] dnd@
     edit-actor :method dnddrop ( o:actor rx ry addr u -- )
 	dnd( [: cr ." Editor dnd drop '" dnd@ type ." '" ;] do-debug )

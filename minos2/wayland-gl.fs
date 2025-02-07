@@ -126,6 +126,10 @@ ${GFORTH_IGNLIB} "true" str= [IF]
     wl_shell_surface_pong drop ;
 cb> wl-shell-surface-listener
 
+<cb
+:cb wl_callback_listener-done: { data callback done -- } ;
+cb> wl-callback-listener
+
 \ time handling
 
 0 Value timeoffset
@@ -145,6 +149,7 @@ cb> wl-shell-surface-listener
 1 Value wl-scale
 #120 Value fractional-scale
 0 Value screen-orientation
+0 Value registered
 
 1e 256e f/ fconstant 1/256
 : scale* ( n1 -- n2 )
@@ -170,7 +175,7 @@ cb> wl-shell-surface-listener
     scale to wl-scale ;
 :cb wl_output_listener-done: { data out -- } ;
 :cb wl_output_listener-mode: { data out flags w h r -- }
-    w h dpy-wh 2! ;
+    w h dpy-wh 2! true to registered ;
 :cb wl_output_listener-geometry: { data out x y pw ph subp d: make d: model transform -- }
     wayland( pw ph [: cr ." metrics: " . . ;] do-debug )
     pw ph wl-metrics 2! transform to screen-orientation ;
@@ -478,10 +483,6 @@ Create cursor-xywh #200 , #300 , #1 , #10 ,
 
 : point>coord ( rx ry -- x y )
     f>coordi f>coordi swap ;
-: >cursor-xyxy { f: x0 f: y0 f: x1 f: y1 -- }
-    wayland( y1 x1 y0 x0 [: cr ." >cursor-xyxy " f. f. f. f. ." offset " xy-offset z. ;] do-debug )
-    x0 y1 xy-offset z+ point>coord cursor-xywh 2!
-    x1 y0  x0 y1 z- point>coord cursor-xywh 2 cells + 2! ;
 : +offset ( x y -- )  +to xy-offset ;
 : 0offset ( -- )
     0e fdup to xy-offset ;
@@ -501,15 +502,19 @@ Create cursor-xywh #200 , #300 , #1 , #10 ,
     zwp_text_input_v3_set_surrounding_text
     text-input zwp_text_input_v3_commit ;
 
+: >cursor-xyxy { f: x0 f: y0 f: x1 f: y1 -- }
+    wayland( y1 x1 y0 x0 [: cr ." >cursor-xyxy " f. f. f. f. ." offset " xy-offset z. ;] do-debug )
+    x0 y1 xy-offset z+ point>coord cursor-xywh 2!
+    x1 y0  x0 y1 z- point>coord cursor-xywh 2 cells + 2!
+    text-input ?dup-IF  send-status-update  THEN ;
+
 Defer sync+config ' noop is sync+config
 
 <cb
 :cb zwp_text_input_v3_listener-done: { data text-input serial -- }
-    text-input send-status-update
-;
-:cb zwp_text_input_v3_listener-delete_surrounding_text: { data text-input before_length after_length -- }
-    text-input send-status-update
-;
+    wayland( serial [: cr ." input done: " . ;] do-debug ) ;
+:cb zwp_text_input_v3_listener-delete_surrounding_text: { data text-input before after -- }
+    wayland( after before [: cr ." delete surrounding: " . . ;] do-debug ) ;
 :cb zwp_text_input_v3_listener-commit_string: { data text-input d: text -- }
     wayland( text [: cr ." wayland keys: '" type ''' emit ;] do-debug )
     prev-preedit$ $free  text save-mem
@@ -792,7 +797,7 @@ cb> primary-selection-offer-listener
 
 <cb
 :cb zwp_primary_selection_device_v1_listener-selection: { data data-device id -- }
-    wayland( id [: cr ." primary selection id: " h. ;] do-debug )
+    wayland( id [: cr ." primary selection id/device/mydevice: " h. ;] do-debug )
     my-primary 0= IF
 	id ?dup-IF  [{: id :}l id -rot ps-accept+receive ;] >liked-mime  THEN
     THEN
@@ -972,8 +977,7 @@ wl-registry set-current
 1 wl: zwp_text_input_manager_v3
 :trigger-on( zwp-text-input-manager-v3 wl-seat )
     zwp-text-input-manager-v3 wl-seat zwp_text_input_manager_v3_get_text_input dup to text-input
-    text-input-listener 0 zwp_text_input_v3_add_listener drop
-    text-input send-status-update ;
+    text-input-listener 0 zwp_text_input_v3_add_listener drop ;
 4 wlal: xdg_wm_base
 1 wl: zxdg_decoration_manager_v1
 3 wl: wl_data_device_manager
@@ -1015,7 +1019,8 @@ cb> registry-listener
     dpy wl_display_get_registry to registry
     registry 0= abort" no wayland registry"
     registry registry-listener 0 wl_registry_add_listener drop
-    get-events  get-events  dpy-wh 2@ ;
+    false to registered
+    BEGIN  get-events  registered UNTIL  dpy-wh 2@ ;
 
 \ xdg surface listener
 
@@ -1114,8 +1119,8 @@ clipin$ ,  psin$ ,  dndin$ ,  clipout$ , psout$ , dndout$ ,
 here latestxt - >r
 DOES> { xt: do-it array } array [ r> ]L bounds DO  I @ .do-it  cell +LOOP ;
 
-: >poll-events ( delay -- n )
-    0 xptimeout 2!  xpollfds
+: >poll-events ( delay -- addr u )
+    0 xptimeout 2!  xpollfds dup
     dpy ?dup-IF  wl_display_get_fd POLLIN  rot fds!+  THEN
     ['] +inout inout$s
     epiper @ fileno POLLIN  rot fds!+
@@ -1137,10 +1142,11 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
     THEN ;
 
 : #looper ( delay -- ) #1000000 *
-    ?looper-timeouts >poll-events >r
-    xpollfds r> xpoll
+    ?looper-timeouts >poll-events xpoll
     IF
 	xpollfds revents ?dpy ['] ?inout inout$s w@ POLLIN and IF  ?events  THEN
+    ELSE
+\	dpy wl_display_sync wl-callback-listener 0 wl_callback_add_listener drop
     THEN ;
 
 : >looper ( -- )  looper-to# #looper ;
