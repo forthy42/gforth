@@ -70,8 +70,10 @@ locals-types definitions
     ['] allocd :}* ;
 
 : :}h ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth colon-close-brace-h
-    \G end a closure's locals declaration.  The closure will be allocated on
-    \G the heap.
+    \G Ends a closure's locals declaration.  At the run-time of the
+    \G surrounding definition this allocates the closure on the heap;
+    \G you are then responsible for deallocating it with
+    \G @code{free-closure}.
     ['] alloch :}* ;
 
 : :}h1 ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth colon-close-brace-h-one
@@ -136,8 +138,8 @@ forth definitions
     defstart
     true to in-colon-def? ;
 
-: free-closure ( xt -- ) \ gforth-internal
-    \G free a heap-allocated closure
+: free-closure ( xt -- ) \ gforth
+    \G Free the heap-allocated closure @i{xt}.
     >cfa free throw ;
 : closure> ( hmaddr -- addr ) \ gforth-internal closure-end
     \G create trampoline head
