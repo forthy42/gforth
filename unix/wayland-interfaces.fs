@@ -97,3 +97,7 @@ c-value xdg_activation_v1_interface &xdg_activation_v1_interface -- a
 c-value wp_cursor_shape_manager_v1_interface &wp_cursor_shape_manager_v1_interface -- a
 c-value wp_cursor_shape_device_v1_interface &wp_cursor_shape_device_v1_interface -- a
 [THEN]
+?include-wayland idle-inhibit-unstable-v1.c
+c-value zwp_idle_inhibit_manager_v1_interface &zwp_idle_inhibit_manager_v1_interface -- a
+c-value zwp_idle_inhibitor_v1_interface &zwp_idle_inhibitor_v1_interface -- a
+[THEN]

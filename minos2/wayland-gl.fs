@@ -40,10 +40,14 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 
 0 Value dpy        \ wayland display
 0 ' noop trigger-Value wl-compositor \ wayland compositor
+0 ' noop trigger-Value wl-subcompositor
 0 ' noop trigger-Value wl-output
 0 ' noop trigger-Value xdg-activation-v1
 0 ' noop trigger-Value zxdg-output-manager-v1
 0 Value zxdg-output-v1
+[IFDEF] zwp_idle_inhibit_manager_v1_get_version
+    0 ' noop trigger-Value zwp-idle-inhibit-manager-v1
+[THEN]
 [IFDEF] wp_fractional_scale_v1_listener
     0 ' noop trigger-Value wp-fractional-scale-v1
     0 ' noop trigger-Value wp-fractional-scale-manager-v1
@@ -61,6 +65,7 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 0 ' noop trigger-Value cursor
 0 ' noop trigger-Value cursor-surface
 0 ' noop trigger-Value cursor-serial
+1 ' noop trigger-Value cursor-type
 0 ' noop trigger-Value wp-cursor-shape-manager-v1
 0 ' noop trigger-Value wp-cursor-shape-device-v1
 0 ' noop trigger-Value last-serial
@@ -427,12 +432,10 @@ Variable prev-preedit$
 ;
 :cb wl_keyboard_listener-leave: { data wl_keyboard serial surface -- }
     serial( serial [: cr ." kb leave serial: " h. ;] do-debug )
-    serial to last-serial
-;
+    serial to last-serial ;
 :cb wl_keyboard_listener-enter:	{ data wl_keyboard serial surface keys -- }
     serial( serial [: cr ." kb enter serial: " h. ;] do-debug )
-    serial to last-serial
-;
+    serial to last-serial ;
 :cb wl_keyboard_listener-keymap: { data wl_keyboard format fd size -- }
     \ sp@ sp0 !
     wayland( fd size [: cr ." xkbd mmap file: " swap . h. ;] do-debug )
@@ -559,7 +562,6 @@ cb> text-input-listener
     { | w^ arg }  1 arg l!
     dup FIONBIO arg ioctl ?ior ;
 
-1 Value cursor-type
 0 Value current-serial
 $[]Variable mime-types[]
 $[]Variable ds-mime-types[]
@@ -948,6 +950,7 @@ wl-registry set-current
 :trigger-on( wl-compositor )
     wl-compositor wl_compositor_create_surface to wl-surface
     wl-compositor wl_compositor_create_surface to cursor-surface ;
+1 wl: wl_subcompositor
 1 wl: wl_shell
 :trigger-on( wl-shell wl-surface )
     wl-shell wl-surface wl_shell_get_shell_surface to shell-surface ;
@@ -967,7 +970,7 @@ wl-registry set-current
     :trigger-on( wp-cursor-shape-manager-v1 wl-pointer )
 	wp-cursor-shape-manager-v1 wl-pointer wp_cursor_shape_manager_v1_get_pointer
 	to wp-cursor-shape-device-v1 ;
-    :trigger-on( wp-cursor-shape-device-v1 cursor-serial )
+    :trigger-on( wp-cursor-shape-device-v1 cursor-serial cursor-type )
 	wp-cursor-shape-device-v1 cursor-serial cursor-type wp_cursor_shape_device_v1_set_shape ;
 [THEN]
 :trigger-on( shell-surface )
@@ -1002,6 +1005,7 @@ wl-registry set-current
 1 wl: zxdg_decoration_manager_v1
 3 wl: wl_data_device_manager
 1 wl: zwp_primary_selection_device_manager_v1
+1 wl: zwp_idle_inhibit_manager_v1
 
 set-current
 
@@ -1049,6 +1053,8 @@ cb> registry-listener
 
 forward sync
 forward clear
+2Variable toplevel-wh &640 &400 toplevel-wh 2!
+Variable toplevel-states 0 toplevel-states !
 
 <cb
 :cb xdg_surface_listener-configure: { data xdg_surface serial -- }
@@ -1057,8 +1063,8 @@ forward clear
     wayland( serial [: cr ." configured, serial " h. ;] do-debug )
     true to mapped
     xdg_surface serial xdg_surface_ack_configure
-    wl-surface wl_surface_commit
-;
+    toplevel-wh 2@ rescale-win
+    wl-surface wl_surface_commit ;
 cb> xdg-surface-listener
 
 : map-win ( -- )
@@ -1070,7 +1076,7 @@ cb> xdg-surface-listener
 
 <cb
 :cb xdg_toplevel_listener-wm_capabilities: { data xdg_toplevel capabilities -- }
-wayland( capabilities [: cr ." wm capabilities: " h. ;] do-debug ) ;
+    wayland( capabilities [: cr ." wm capabilities: " h. ;] do-debug ) ;
 :cb xdg_toplevel_listener-configure_bounds: { data xdg_toplevel width height -- }
     wayland( height width [: cr ." toplevel bounds: " . . ;] do-debug )
     xdg_toplevel wl-min-size 2@ xdg_toplevel_set_min_size
@@ -1079,8 +1085,12 @@ wayland( capabilities [: cr ." wm capabilities: " h. ;] do-debug ) ;
     wayland( [: cr ." close" ;] do-debug )
     -1 level# +! ;
 :cb xdg_toplevel_listener-configure: { data xdg_toplevel width height states -- }
-    wayland( height width [: cr ." toplevel-config: " . . ;] do-debug )
-    width height rescale-win ;
+    wayland( states height width [: cr ." toplevel-config: " . .
+    cr >r r@ wl_array-data @ r> wl_array-size @ dump ;] do-debug )
+    width height toplevel-wh 2!
+    0 states wl_array-data @ states wl_array-size @ bounds ?DO
+	1 I l@ lshift or
+    4 +LOOP  toplevel-states ! ;
 cb> xdg-toplevel-listener
 
 <cb
@@ -1098,7 +1108,8 @@ cb> xdg-decoration-listener
 \    xdg-toplevel 0 xdg_toplevel_set_parent
     xdg-toplevel window-title$ $@ xdg_toplevel_set_title
     xdg-toplevel window-app-id$ $@ xdg_toplevel_set_app_id
-    xdg-toplevel xdg_toplevel_set_maximized ;
+    xdg-toplevel xdg_toplevel_set_maximized
+    wl-surface wl_surface_commit ;
 
 : wl-eglwin { w h -- }
     wayland( h w [: cr ." eglwin: " . . ;] do-debug )
@@ -1113,7 +1124,8 @@ cb> xdg-decoration-listener
     dup xdg-decoration-listener 0
     zxdg_toplevel_decoration_v1_add_listener drop
     ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE
-    zxdg_toplevel_decoration_v1_set_mode ;
+    zxdg_toplevel_decoration_v1_set_mode
+    wl-surface wl_surface_commit ;
 
 also opengl
 : getwh ( -- )
@@ -1214,15 +1226,15 @@ Defer window-init     ' noop is window-init
 : primary! ( addr u -- ) primary$ $!
     primary$ $@len IF
 	?ps-source  true to my-primary
-	primary-selection-device primary-selection-source primary$ $@len 0<> and
-	last-serial zwp_primary_selection_device_v1_set_selection
     ELSE
 	primary-selection-source ?dup-IF
 	    zwp_primary_selection_source_v1_destroy
 	    0 to primary-selection-source
 	THEN
 	0 to my-primary
-    THEN ;
+    THEN
+    primary-selection-device primary-selection-source
+    last-serial zwp_primary_selection_device_v1_set_selection ;
 : primary@ ( -- addr u ) primary$ $@ ;
 : dnd@ ( -- addr u ) dnd$ $@ ;
 
