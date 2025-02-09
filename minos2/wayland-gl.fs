@@ -575,12 +575,12 @@ false Value my-clipboard
 false Value my-primary
 false Value my-dnd
 
-"text/plain;charset=utf-8" liked-mime[] $+[]!
 "UTF8_STRING"              liked-mime[] $+[]!
+"text/plain;charset=utf-8" liked-mime[] $+[]!
 "text/uri-list"            liked-mime[] $+[]!
 
-"text/plain;charset=utf-8" ds-mime-types[] $+[]!
 "UTF8_STRING"              ds-mime-types[] $+[]!
+"text/plain;charset=utf-8" ds-mime-types[] $+[]!
 
 : ?mime-type ( addr u -- flag )
     false -rot
@@ -1073,6 +1073,8 @@ cb> xdg-surface-listener
 [IFUNDEF] level#  Variable level#  [THEN]
 
 2Variable wl-min-size &640 &400 wl-min-size 2!
+[IFUNDEF] rendering  Variable rendering  [THEN]
+-2 rendering !
 
 <cb
 :cb xdg_toplevel_listener-wm_capabilities: { data xdg_toplevel capabilities -- }
@@ -1090,7 +1092,10 @@ cb> xdg-surface-listener
     width height toplevel-wh 2!
     0 states wl_array-data @ states wl_array-size @ bounds ?DO
 	1 I l@ lshift or
-    4 +LOOP  toplevel-states ! ;
+    4 +LOOP  dup toplevel-states !
+    wayland( [: cr ." display state: " dup h. ;] do-debug )
+    \ if inactive, stop rendering!
+    1 XDG_TOPLEVEL_STATE_ACTIVATED lshift and 0<> 1- rendering ! ;
 cb> xdg-toplevel-listener
 
 <cb
@@ -1187,8 +1192,6 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 
 require need-x.fs
 
-[IFUNDEF] rendering  Variable rendering  [THEN]
--2 rendering !
 #16 Value config-change#
 
 : ?looper ;
