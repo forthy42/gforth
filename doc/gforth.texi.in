@@ -13488,10 +13488,10 @@ doc-[{:
 doc-:}l
 doc-:}d
 doc-:}h
+doc-free-closure
 doc-:}h1
 doc-:}xt
 doc->addr
-doc-free-closure
 
 @example
 : foo [@{: a f: b d: c xt: d :@}d a . b f. c d. d ;] ;
