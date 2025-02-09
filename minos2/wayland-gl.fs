@@ -312,19 +312,15 @@ up@ Value master-task
 Variable wl-time
 
 <cb
-:cb wl_pointer_listener-axis_relative_direction: { data p axis disc -- }
-;
+:cb wl_pointer_listener-axis_relative_direction: { data p axis disc -- } ;
 :cb wl_pointer_listener-axis_value120: { data p axis val -- }
     XTime axis val
     [{: time axis val :}h1 time axis val b-scroll ;] master-task send-event ;
-:cb wl_pointer_listener-axis_discrete: { data p axis disc -- }
-;
-:cb wl_pointer_listener-axis_stop: { data p time axis -- } time XTime!
-;
+:cb wl_pointer_listener-axis_discrete: { data p axis disc -- } ;
+:cb wl_pointer_listener-axis_stop: { data p time axis -- } time XTime! ;
 :cb wl_pointer_listener-axis_source: { data p source -- } ;
 :cb wl_pointer_listener-frame: { data p -- } ;
-:cb wl_pointer_listener-axis: { data p time axis val -- } time XTime!
-;
+:cb wl_pointer_listener-axis: { data p time axis val -- } time XTime! ;
 :cb wl_pointer_listener-button: { data p serial time b mask -- }  time XTime!
     serial( serial [: cr ." button serial: " h. ;] do-debug )
     serial to last-serial
@@ -398,8 +394,7 @@ Variable prev-preedit$
     setstring$ $@len IF  setstring$ $free  THEN ;
 
 <cb
-:cb wl_keyboard_listener-repeat_info: { data wl_keyboard rate delay -- }
-;
+:cb wl_keyboard_listener-repeat_info: { data wl_keyboard rate delay -- } ;
 :cb wl_keyboard_listener-modifiers: { data wl_keyboard serial mods_depressed mods_latched mods_locked group -- }
     serial( serial [: cr ." kb modifiers serial: " h. ;] do-debug )
     mods_depressed 5 and mods_depressed 8 and sfloat/ or to wl-meta
@@ -407,8 +402,7 @@ Variable prev-preedit$
     [: cr ." modes: locked " h. ." latched " h. ." depressed " h. wl-meta h. ;]
     do-debug )
     xkb-state
-    mods_depressed mods_latched mods_locked 0 0 group xkb_state_update_mask
-;
+    mods_depressed mods_latched mods_locked 0 0 group xkb_state_update_mask ;
 :cb wl_keyboard_listener-key: { data wl_keyboard serial time wl-key state -- }
     wayland( state wl-key [: cr ." wayland key: " h. h. ;] do-debug )
     serial( serial [: cr ." kb key serial: " h. ;] do-debug )
@@ -428,8 +422,7 @@ Variable prev-preedit$
 		[{: wl-key :}h1 ?setstring wl-key wl-ekeyed ;] master-task send-event
 	    THEN
 	ELSE  drop  THEN
-    THEN
-;
+    THEN ;
 :cb wl_keyboard_listener-leave: { data wl_keyboard serial surface -- }
     serial( serial [: cr ." kb leave serial: " h. ;] do-debug )
     serial to last-serial ;
@@ -445,8 +438,7 @@ Variable prev-preedit$
     buf size 1- XKB_KEYMAP_FORMAT_TEXT_V1 XKB_KEYMAP_COMPILE_NO_FLAGS
     xkb_keymap_new_from_buffer to keymap
     buf size munmap ?ior
-    keymap xkb_state_new to xkb-state
-;
+    keymap xkb_state_new to xkb-state ;
 previous
 cb> wl-keyboard-listener
 
@@ -529,26 +521,21 @@ Defer sync+config ' noop is sync+config
     wayland( text [: cr ." wayland keys: '" type ''' emit ;] do-debug )
     prev-preedit$ $free  text save-mem
     [{: d: text :}h1 ?setstring
-	text wayland-keys text drop free drop ;] master-task send-event
-;
+	text wayland-keys text drop free drop ;] master-task send-event ;
 :cb zwp_text_input_v3_listener-preedit_string: { data text-input d: text cursor_begin cursor_end -- }
     text prev-preedit$ $@ str= 0= IF
 	text prev-preedit$ $!
 	wayland( text [: cr ." preedit: '" type ''' emit ;] do-debug )
 	text save-mem [{: d: text :}h1
 	    text setstring$ $! "\x0C" wayland-keys
-	    text drop free throw ;]
-	master-task send-event
-    THEN
-;
+	    text drop free throw ;] master-task send-event
+    THEN ;
 :cb zwp_text_input_v3_listener-leave: { data text-input surface -- }
     text-input zwp_text_input_v3_disable
-    text-input zwp_text_input_v3_commit
-;
+    text-input zwp_text_input_v3_commit ;
 :cb zwp_text_input_v3_listener-enter: { data text-input surface -- }
     text-input zwp_text_input_v3_enable
-    text-input send-status-update
-;
+    text-input send-status-update ;
 cb> text-input-listener
 [THEN]
 
@@ -739,17 +726,14 @@ out-writer :method set-out ( addr fd -- )
 
 <cb
 :cb wl_data_offer_listener-action: { data offer dnd-actions -- }
-    wayland( dnd-actions [: cr ." dnd-actions: " h. ;] do-debug )
-;
+    wayland( dnd-actions [: cr ." dnd-actions: " h. ;] do-debug ) ;
 :cb wl_data_offer_listener-source_actions: { data offer source-actions -- }
     wayland( source-actions [: cr ." source-actions: " h. ;] do-debug )
     offer dndin$ clipin$ source-actions select
-    [{: offer in$ :}l offer -rot in$ accept+receive ;] >liked-mime
-;
+    [{: offer in$ :}l offer -rot in$ accept+receive ;] >liked-mime ;
 :cb wl_data_offer_listener-offer: { data offer d: mime-type -- }
     wayland( mime-type [: cr ." mime-type: " type ;] do-debug )
-    mime-type mime-types[] $+[]!
-;
+    mime-type mime-types[] $+[]! ;
 cb> data-offer-listener
 
 \ data device listener
@@ -763,35 +747,27 @@ Defer dnd-drop
 <cb
 :cb wl_data_device_listener-selection: { data data-device id -- }
     wayland( id [: cr ." selection id: " h. ;] do-debug )
-    id ?dup-IF  [{: id :}l id -rot clipin$ accept+receive ;] >liked-mime  THEN
-;
+    id ?dup-IF  [{: id :}l id -rot clipin$ accept+receive ;] >liked-mime  THEN ;
 :cb wl_data_device_listener-drop: { data data-device -- }
     wayland( [: cr ." drop" ;] do-debug )
-    [: dnd-xy 2@ dnd$ $@ dnd-drop ;]
-    master-task send-event
-;
+    [: dnd-xy 2@ dnd$ $@ dnd-drop ;] master-task send-event ;
 :cb wl_data_device_listener-motion: { data data-device time x y -- }
     wayland( y x time [: cr ." motion [time,x,y] " . . . ;] do-debug )
     x y dnd-xy 2!
-    x y [{: x y :}h1 x y dnd-move ;]
-    master-task send-event
-;
+    x y [{: x y :}h1 x y dnd-move ;] master-task send-event ;
 :cb wl_data_device_listener-leave: { data data-device -- }
-    wayland( [: cr ." leave" ;] do-debug )
-;
+    wayland( [: cr ." leave" ;] do-debug ) ;
 :cb wl_data_device_listener-enter: { data data-device serial surface x y id -- }
     serial( serial [: cr ." device enter serial: " h. ;] do-debug )
     wayland( id y x surface [: cr ." enter [surface,x,y,id] " h. . . h. ;] do-debug )
     serial to current-serial
-    serial to last-serial
-;
+    serial to last-serial ;
 :cb wl_data_device_listener-data_offer: { data data-device id -- }
     wayland( id [: cr ." offer: " h. ;] do-debug )
     old-id ?dup-IF  wl_data_offer_destroy  THEN
     id to old-id
     mime-types[] $[]free
-    id ?dup-IF  data-offer-listener 0 wl_data_offer_add_listener drop  THEN
-;
+    id ?dup-IF  data-offer-listener 0 wl_data_offer_add_listener drop  THEN ;
 cb> data-device-listener
 
 \ primary selection offer listener
@@ -799,8 +775,7 @@ cb> data-device-listener
 <cb
 :cb zwp_primary_selection_offer_v1_listener-offer: { data offer d: mime-type -- }
     wayland( mime-type [: cr ." primary mime-type: " type ;] do-debug )
-    mime-type mime-types[] $+[]!
-;
+    mime-type mime-types[] $+[]! ;
 cb> primary-selection-offer-listener
 
 \ primary selection device listener
@@ -812,28 +787,23 @@ cb> primary-selection-offer-listener
     wayland( id [: cr ." primary selection id/device/mydevice: " h. ;] do-debug )
     my-primary 0= IF
 	id ?dup-IF  [{: id :}l id -rot ps-accept+receive ;] >liked-mime  THEN
-    THEN
-;
+    THEN ;
 :cb zwp_primary_selection_device_v1_listener-data_offer: { data data-device id -- }
     wayland( id [: cr ." primary offer: " h. ;] do-debug )
     old-ps-id ?dup-IF  zwp_primary_selection_offer_v1_destroy  THEN
     id to old-ps-id
     mime-types[] $[]free  0 to my-primary
     id ?dup-IF  primary-selection-offer-listener 0
-	zwp_primary_selection_offer_v1_add_listener  THEN
-;
+	zwp_primary_selection_offer_v1_add_listener  THEN ;
 cb> primary-selection-listener
 
 \ data source listener
 
 <cb
 :cb wl_data_source_listener-action: { data source dnd-action -- }
-    wayland( dnd-action [: cr ." ds action: " h. ;] do-debug )
-;
-:cb wl_data_source_listener-dnd_finished: { data source -- }
-;
-:cb wl_data_source_listener-dnd_drop_performed: { data source -- }
-;
+    wayland( dnd-action [: cr ." ds action: " h. ;] do-debug ) ;
+:cb wl_data_source_listener-dnd_finished: { data source -- } ;
+:cb wl_data_source_listener-dnd_drop_performed: { data source -- } ;
 :cb wl_data_source_listener-cancelled: { data source -- }
     wayland( [: cr ." ds cancelled" ;] do-debug )
     0 to data-source  0 to my-clipboard
@@ -842,8 +812,7 @@ cb> primary-selection-listener
     wayland( mime-type data [: cr ." send " id. ." type " type ;] do-debug )
     data fd clipout$ .set-out ;
 :cb wl_data_source_listener-target: { data source d: mime-type -- }
-    wayland( data mime-type [: cr ." ds target: " type space id. ;] do-debug )
-;
+    wayland( data mime-type [: cr ." ds target: " type space id. ;] do-debug ) ;
 cb> data-source-listener
 
 \ primary selection source listener
