@@ -101,3 +101,7 @@ c-value wp_cursor_shape_device_v1_interface &wp_cursor_shape_device_v1_interface
 c-value zwp_idle_inhibit_manager_v1_interface &zwp_idle_inhibit_manager_v1_interface -- a
 c-value zwp_idle_inhibitor_v1_interface &zwp_idle_inhibitor_v1_interface -- a
 [THEN]
+?include-wayland tearing-control-v1.c
+c-value wp_tearing_control_manager_v1_interface &wp_tearing_control_manager_v1_interface -- a
+c-value wp_tearing_control_v1_interface &wp_tearing_control_v1_interface -- a
+[THEN]

@@ -21,13 +21,13 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20250205],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20250211],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ([2.69])
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1_YYYYMMDD must not exist before 0.4.1!
-UPDATED="February 05, 2025"
+UPDATED="February 11, 2025"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 AC_USE_SYSTEM_EXTENSIONS
@@ -2080,7 +2080,7 @@ wayland protocols not found."
 	    for i in text-input-unstable-v3 xdg-shell \
 	    	xdg-decoration-unstable-v1 primary-selection-unstable-v1 \
 		tablet-unstable-v2 fractional-scale-v1 viewporter xdg-output-unstable-v1 \
-		xdg-activation-v1 cursor-shape-v1 idle-inhibit-unstable-v1
+		xdg-activation-v1 cursor-shape-v1 idle-inhibit-unstable-v1 tearing-control-v1
 	    do
 		if test -f ""`find $WAYLAND_PROTOCOLS_DATADIR -name $i.xml`
 		then

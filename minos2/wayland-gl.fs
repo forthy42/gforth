@@ -88,6 +88,8 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 0 ' noop trigger-Value zwp-primary-selection-device-manager-v1
 0 ' noop trigger-Value primary-selection-device
 0 ' noop trigger-Value primary-selection-source
+0 ' noop trigger-Value wp-tearing-control-manager-v1
+0 ' noop trigger-Value wp-tearing-control-v1
 
 \ set a cursor
 
@@ -975,7 +977,15 @@ wl-registry set-current
 3 wl: wl_data_device_manager
 1 wl: zwp_primary_selection_device_manager_v1
 1 wl: zwp_idle_inhibit_manager_v1
-
+[IFDEF] wp_tearing_control_manager_v1_interface
+    1 wl: wp_tearing_control_manager_v1
+    :trigger-on( wp-tearing-control-manager-v1 wl-surface )
+	wp-tearing-control-manager-v1 wl-surface
+	wp_tearing_control_manager_v1_get_tearing_control
+	dup to wp-tearing-control-v1
+	WP_TEARING_CONTROL_V1_PRESENTATION_HINT_VSYNC
+	wp_tearing_control_v1_set_presentation_hint ;
+[THEN]
 set-current
 
 : registry+ { data registry name d: interface version -- }
@@ -1113,7 +1123,7 @@ get-current also forth definitions
 previous set-current
 
 User xptimeout  cell uallot drop
-#16 Value looper-to# \ 16ms, don't sleep too long
+#4 Value looper-to# \ 4ms, don't sleep too long
 looper-to# #1000000 um* xptimeout 2!
 9 Value xpollfd#
 \ events, wayland, clip read, clip write, ps read, ps write, dnd read, dnd write, infile
