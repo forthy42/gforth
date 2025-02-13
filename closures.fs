@@ -215,11 +215,16 @@ forth definitions
 
 : :l ( -- xt )                  ['] (;]l) ; immediate restrict
 : :h ( -- xt1 xt2 )  ['] alloch ['] (;]xt) ; immediate restrict
+: :h1 ( -- xt1 xt2 ) true to 1t-closure? ]] :h [[ ; immediate restrict
 : :d ( -- xt1 xt2 )  ['] allocd ['] (;]xt) ; immediate restrict
 
 : [*:: [{: xt@ xt>l size :}d
 	>r xt>l size [ 2 cells ]L + maxaligned
-	postpone [: xt@ compile,
+	postpone [:
+	1t-closure? IF ]] dup >r [[ THEN
+	xt@ compile,
+	1t-closure? IF ]] r> free-closure [[ THEN
+	false to 1t-closure?
 	r> [ colon-sys-xt-offset 2 + ]L stick ;]
     alias immediate restrict ;
 
@@ -250,6 +255,13 @@ cell 4 = [IF]  :noname ( n -- xt )  false >l >l ;  [ELSE]  ' >l  [THEN]
     ]] :h [d: [[ ; immediate restrict
 : [f:h ( compilation -- colon-sys; run-time: r -- xt ; xt execution: -- r ) \ gforth-experimental open-bracket-r-colon-h
     ]] :h [f: [[ ; immediate restrict
+
+: [n:h1 ( compilation -- colon-sys; run-time: n -- xt ; xt execution: -- n ) \ gforth-experimental open-bracket-n-colon-h1
+    ]] :h1 [n: [[ ; immediate restrict
+: [d:h1 ( compilation -- colon-sys; run-time: d -- xt ; xt execution: -- d ) \ gforth-experimental open-bracket-d-colon-h1
+    ]] :h1 [d: [[ ; immediate restrict
+: [f:h1 ( compilation -- colon-sys; run-time: r -- xt ; xt execution: -- r ) \ gforth-experimental open-bracket-r-colon-h1
+    ]] :h1 [f: [[ ; immediate restrict
 
 [IFDEF] test-it
     : foo [{: a f: b d: c xt: d :}d a . b f. c d. d ;] ;
