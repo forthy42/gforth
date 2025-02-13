@@ -254,6 +254,21 @@ set-current
     loop
     drop ;
 
+: type-replace@word ( addr u -- )
+    \ replace @word{<word>}... (terminated by white space) with
+    \ @code{<word>}... where <word> is typetexi'd.
+    s" @word{" {: d: w :}
+    begin {: d: s :}
+        s w search while {: d: match :}
+            s drop match drop over - type
+            ." @code{"
+            match w nip /string {: d: match1 :}
+            match1 (parse-white) '}' scan-back 1- {: d: word :}
+            word typetexi
+            match1 word nip /string            
+    repeat
+    type ;
+
 : print-wordset ( doc-entry -- )
     dup >r doc-wordset 2@ 2dup type "gforth" str= if
         r@ doc-name 2@ gforth-versions-wl find-name-in ?dup-if
@@ -315,19 +330,25 @@ set-current
 	2drop 2rdrop false
     endif ;
 
+defer type-ds ( c-addr u )
+' type-replace@word is type-ds \ typetexi between @source and @end source
+
 : process-line ( addr u -- )
-    2dup s" doc-" ['] print-doc do-doc 0=
-    if
-	2dup s" short-" ['] print-short do-doc 0=
-	if
-	    type cr EXIT
-	endif
-    endif
+    case
+        2dup s" doc-"   ['] print-doc   do-doc ?of endof
+        2dup s" short-" ['] print-short do-doc ?of endof
+        2dup s" @source" string-prefix? ?of
+            .\" @example\n" `typetexi is type-ds endof
+        2dup s" @end source" string-prefix? ?of
+            .\" @end example\n" `type-replace@word is type-ds endof
+        2dup type-ds cr
+        0 endcase
     2drop ;
 
 1024 constant doclinelength
 
 create docline doclinelength chars allot
+
 
 : ds2texi ( file-id -- )
     >r

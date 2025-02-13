@@ -119,7 +119,8 @@ previous
 : 1/z      ( z -- 1/z ) zconj zdup zsqabs 1/f zscale ;
 : z/       ( z1 z2 -- z1/z2 ) 1/z z* ;
 : pyth ( a b c -- r ) f/ fdup f* 1e f+ fsqrt  f* ;
-: |z| ( z -- r )	\ compute sqrt(a^2+b^2) without overflow
+: |z| ( z -- r )
+    \ compute sqrt(a^2+b^2) without overflow
     fabs fswap fabs
     fover fover f> IF
 	fover ( f: a b a -- ) pyth  exit

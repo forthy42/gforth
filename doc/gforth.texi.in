@@ -1,6 +1,19 @@
 \input texinfo   @c -*-texinfo-*-
 @comment The source is gforth.texi.in, from which gforth.texi is generated
 
+@c In the conversion from gforth.texi.in, the following replacements
+@c happen:
+@c
+@c ^doc-<word>
+@c   is replaced with the documentation for <word>
+@c ^short-<word>
+@c   is replaced with the short documentation for <word>
+@c ^@source ... ^@end source
+@c   is replaced with @example ... @end example and the contents are escaped
+@c @word{<word>}...
+@c   <word>is escaped; the last } before the first white space is the
+@c   end of <word>.
+
 @c s/@c <ebook>/@/g this if you want a smartphone/ebook PDF
 @c <ebook>iftex
 @c <ebook>internalpagesizes{150mm}{97mm}{-0.666in}{-0.95in}{0in}{0in}{160mm}{100mm}
@@ -250,6 +263,7 @@ Forth Words
 * OS command line arguments::
 * Locals::
 * Object-oriented Forth::
+* Closures::
 * Regular Expressions::
 * Programming Tools::
 * Multitasker::
@@ -428,7 +442,6 @@ Gforth locals
 * How long do locals live?::
 * Locals programming style::
 * Locals implementation::
-* Closures::
 
 Object-oriented Forth
 
@@ -467,6 +480,11 @@ The @file{mini-oof.fs} model
 * Basic Mini-OOF Usage::
 * Mini-OOF Example::
 * Mini-OOF Implementation::
+
+Closures
+
+* How do I read outer locals?::
+* How do I write outer locals?::
 
 Programming Tools
 
@@ -5009,6 +5027,7 @@ discussed elsewhere (@pxref{Default Recognizers}).
 * OS command line arguments::
 * Locals::
 * Object-oriented Forth::
+* Closures::
 * Regular Expressions::
 * Programming Tools::
 * Multitasker::
@@ -13007,7 +13026,6 @@ poses the following questions:
 * How long do locals live?::
 * Locals programming style::
 * Locals implementation::
-* Closures::
 @end menu
 
 @node Locals definition words, Where are locals visible by name?, Gforth locals, Gforth locals
@@ -13333,7 +13351,7 @@ are initialized with the right value for the current iteration.
 Here it is clear from the start that @code{s1} has a different value
 in every loop iteration.
 
-@node Locals implementation, Closures, Locals programming style, Gforth locals
+@node Locals implementation,  , Locals programming style, Gforth locals
 @subsubsection Locals implementation
 @cindex locals implementation
 @cindex implementation of locals
@@ -13471,73 +13489,6 @@ they are no longer visible in any control-flow path. In a few cases
 this may lead to increased space needs for the locals name area, but
 usually less than reclaiming this space would cost in code size.
 
-@node Closures,  , Locals implementation, Gforth locals
-@subsubsection Closures
-@cindex closures
-
-Gforth also provides basic closures.  A closure is a combination of a
-quotation (@pxref{Quotations}) and locals.  Gforth's closures have
-locals which are filled with values at the closure's run-time,
-producing a trampoline xt.  When executing that trampoline xt, the
-closure's code is executed, with access to the closure's locals on the
-locals stack.  Modifications of the closure's locals aren't
-persistent, i.e. when the closure @code{EXIT}s, the modified values
-are lost.
-
-doc-[{:
-doc-:}l
-doc-:}d
-doc-:}h
-doc-free-closure
-doc-:}h1
-doc-:}xt
-doc->addr
-
-@example
-: foo [@{: a f: b d: c xt: d :@}d a . b f. c d. d ;] ;
-5 3.3e #1234. ' cr foo execute
-@end example
-
-@code{foo} creates a closure in the dictionary with a single cell, a
-floating point, a double, and an xt, and prints the first three values
-before executing the xt on invocation.
-
-This allows to implement Donald Knuth's ``Man or boy test'' proposed
-in 1964 to test Algol compilers.
-
-@example
-: A @{: w^ k x1 x2 x3 xt: x4 xt: x5 | w^ B :@} recursive
-    k @ 0<= IF  x4 x5 f+  ELSE
-        B k x1 x2 x3 action-of x4 [@{: B k x1 x2 x3 x4 :@}L
-            -1 k +!
-            k @ B @ x1 x2 x3 x4 A ;] dup B !
-        execute  THEN ;
-: man-or-boy? ( n -- ) [: 1e ;] [: -1e ;] 2dup swap [: 0e ;] A f. ;
-@end example
-
-Sometimes, closures need a permanent storage to be modified; it is
-even possible that more than one closure shares that permanent
-storage.  In the example above, local variables of the outer procedure
-are used for this, but in some cases, the closure lives longer than
-the outer procedure; especially closures allocated in the dictionary
-or on the heap are designed to outlive their parent procedure.
-
-For those, we have home locations, which are allocated like closures,
-but their code is directly executed at creation and should provide us
-with the addresses of the home locations.
-
-@example
-: bar ( a b c -- aaddr baddr caddr hl-addr )
-    <@{: w^ a w^ b w^ c :@}h a b c ;> ;
-@end example
-
-This example creates a home location with three cells on the heap, and
-returns the addresses of the three locations and the address of the
-home location.  This address can be used to @code{free} the home
-location when it is no longer needed.
-
-doc-<{:
-doc-;>
 
 @node Standard Forth locals,  , Gforth locals, Locals
 @subsection Standard Forth locals
@@ -13579,7 +13530,7 @@ it is easy to implement using the Forth-2012 locals wordset, but then,
 so is the @code{@{:} syntax.
 
 @c -------------------------------------------------------------
-@node Object-oriented Forth, Regular Expressions, Locals, Words
+@node Object-oriented Forth, Closures, Locals, Words
 @section Object-oriented Forth
 
 Gforth comes with three packages for object-oriented programming:
@@ -15063,8 +15014,360 @@ The @file{mini-oof.fs} model is quite similar to a very stripped-down
 version of the @file{objects.fs} model, but syntactically it is a
 mixture of the @file{objects.fs} and @file{oof.fs} models.
 
+
+@c --------------------------------------------------------------
+@node Closures, Regular Expressions, Object-oriented Forth, Words
+@section Closures
+@cindex closures
+@cindex flat closures
+
+Gforth provides flat closures (called closures in the following).
+Closures are similar to quotations (@pxref{Quotations}), but the
+execution token (xt) that represents a closure does not just refer to
+code, but also to data.  Running the code of a closure definition
+creates a closure data structure (also referred to as ``closure''),
+that is represented by an execution token.  The closure data structure
+needs to be allocated somewhere, and in Gforth this memory is managed
+explicitly.
+
+As an example, consider a word that sums up the results of a function
+@code{( n -- r)} across a range of input values:
+
+@source
+: sum {: limit start xt -- r :}
+  0e limit start ?do
+    i xt execute f+
+  loop ;
+@end source
+
+You can add up the values of the functon 1/n for n=1..10 with:
+
+@source
+11 1 [: s>f -1e f** ;] sum f.
+@end source
+
+Yes, you can do it shorter and more efficiently with @word{1/f}, but
+bear with me.  If you want to add up 1/n^2, you can write
+
+@source
+11 1 [: s>f -2e f** ;] sum f.
+@end source
+
+Now if you want to deal with additional exponents and these exponents
+are known at compile time, you can create a new quotation for every
+exponent.  But you may prefer to provide an exponent and produce an xt
+without having to write down a quotation every time.  If the value of
+the exponent is only known at run-time, producing such an xt is
+possible in Forth, but even more involved, and consumes dictionary
+memory (with limited deallocation options).  Closures come to the
+rescue:
+
+@source
+: 1/n^r ( r -- xt; xt execution: n -- r1 )
+  fnegate [f:h ( n -r ) s>f fswap f** ;] ;
+
+11 1 3e   1/n^r dup >r sum f. r> free-closure
+11 1 0.5e 1/n^r dup >r sum f. r> free-closure
+@end source
+
+When @word{1/n^r} runs, it creates a closure that incorporates a
+floating-point number (indicated by the @code{f} in @word{[f:h}), in
+particular the value -r.  It also references the code between
+@word{[f:h} and @word{;]}.  The memory for the closure comes from the
+heap, i.e. @word{allocate}d memory (indicated by the @code{h} in
+@word{[f:h}).  @word{1/n^r} produces an xt representing this closure.
+This xt is then passed to @word{sum} and @word{execute}d there.
+
+When the closure is executed (in @word{sum}), -r is pushed (in
+addition to the n that has already been pushed before the
+@word{execute}) and the code of the closure is run.
+
+The code above shows a pure-stack closure (no locals involved).
+Pure-stack closures start with a word with the naming scheme
+@code{[@i{T}:@i{A}} where the type @i{T} can be @code{n} (cell),
+@code{d} (double-cell), or @code{f} (FP), and the allocator @i{A} can
+currently be @code{l} (local), @code{h} (heap) or @code{d}
+(dictionary).  A pure-stack closure consumes one @i{T} from a stack at
+closure creation time (when the code containing the closure definition
+is run), and pushes an xt.  After creating the closure, execution
+continues behind the @word{;]}.
+
+When the xt is executed (directly with @word{execute} or indirectly
+through, e.g., @word{compile,} or a deferred word), it pushes the
+stack item that was consumed at closure creation time and then runs
+the code inside the closure definition (up to the @word{;]}).  You can
+deallocate heap-allocated closures with
+
+doc-free-closure
+
+Like a quotation, a (flat) closure cannot access locals of the
+enclosing definition(s).
+
+The words for starting pure-stack closure definitions are:
+
+doc-[n:l
+doc-[d:l
+doc-[f:l
+doc-[n:h
+doc-[d:h
+doc-[f:h
+doc-[n:d
+doc-[d:d
+doc-[f:d
+
+If you want to pass more than one stack item from closure creation to
+execution time, defining more such words becomes unwieldy, and the
+code inside the closure definition might have to juggle many stack
+items, so Gforth does not provide such additional words.  Instead,
+Gforth offers flat closures that define locals.  Here's the example
+above, but using locals-defining closures:
+
+@source
+: 1/n^r ( r -- xt; xt execution: n -- r1 )
+  fnegate [{: f: -r :}h s>f -r f** ;] ;
+@end source
+  
+The number, types, and order of the locals are used for specifying how
+many and which stack items are consumed at closure creation time.  At
+closure execution time these values become the values of the locals.
+The locals definition ends with a word with a naming scheme
+@code{:@}@i{A}}, where @i{A} specifies where the closure is allocated;
+in addition to @code{l} (local), @code{h} (heap), or @code{d}
+(dictionary), you can also specify @code{h1}: Allocate on the heap and
+deallocate after the first execution; this is used for passing data to
+another task with @word{send-event} (@pxref{Message queues}).
+
+Note that the locals are still strictly local to one execution of the
+xt, and any changes to the locals (e.g., with @word{to}) do not change
+the values stored in the closure; i.e., in the next execution of the
+closure the locals will be initialized with the values that closure
+creation consumed.
+
+doc-[{:
+doc-:}l
+doc-:}d
+doc-:}h
+doc-:}h1
+doc-:}xt
+doc->addr
+
+If you look at closures in other languages (e.g., Scheme), they are
+quite different: data is passed by accessing and possibly changing
+locals of enclosing definitions (lexical scoping).  Gforth's closures
+are based on the flat closures used in the implementation of Scheme,
+so by writing the code appropriately (see the following subsections)
+you can do the same things with Gforth's closures as with
+lexical-scoping closures.
+
+In our programming we have not missed lexical scoping, except when
+trying to convert code (usually textbook examples) coming from another
+language.  I.e., in our experience flat closures are as useful and
+similarly convenient as lexical scoping.  For comparison, if Gforth
+supported lexical scoping instead of flat closures, the definition of
+@word{1/n^r} might look as follows:
+
+@source
+\ this does not work in Gforth:
+: 1/n^r ( r -- xt; xt execution: n -- r1 )
+  fnegate {: -r :} [:h s>f -r f** ;] ;
+@end source
+
+But if you want to know how to convert lexical scoping to Gforth's
+flat closures, the following subsections explain it.
+
+@menu
+* How do I read outer locals?::
+* How do I write outer locals?::
+@end menu
+
+@node  How do I read outer locals?, How do I write outer locals?, Closures, Closures
+@subsection How do I read outer locals?
+@cindex closure conversion
+
+As long as you only read the value of locals, you can duplicate them
+as needed, so a way to convert an access to an outer local for flat
+closures is to just pass the values on the stack to the closures and
+define them again as locals there.  Here's an example: Consider the
+following code for a hypothetical Gforth with a quotation-like syntax
+for lexical-scoping closures:
+
+
+@source
+\ does not work; [:d would dictionary-allocate the closure
+: ...
+  ... {: a b :} ...
+  [:d ...
+    ... {: c d :} ...
+    [:d ... a b c d ... ;]
+    ...
+  ;]
+  ... ;
+@end source
+
+you can convert it to flat closures as follows:
+
+@source
+: ...
+  ... {: a b :} ...
+  a b [{: a b :}d ...
+    ... {: c d :} ...
+    a b c d [{: a b c d :}d
+      ... a b c d ... ;]
+    ...
+  ;]
+  ... ;
+@end source
+
+Only those locals that are read in the closure need to be passed in.
+
+This process is called @emph{closure conversion} in the programming
+language implementation literature.
+
+
+@node How do I write outer locals?,  , How do I read outer locals?, Closures
+@subsection How do I write outer locals?
+@cindex assignment conversion
+
+A local instance that is written and read must exist at only one
+location, its home location.  The address of this home location is
+only read and can be duplicated and passed around.  A textbook example
+might look like this in a hypothetical Gforth with lexical-scoping and
+explicit dictionary allocation:
+
+@source
+\ does not work
+: counter ( -- xt-inc xt-val )
+  0 {: n :}d
+  [:d n 1+ to n ;]
+  [:d n ;]
+;
+\ for usage example see below
+@end source
+
+Instead, you allocate the home location, and pass its address around:
+
+@source
+: counter ( -- xt-inc xt-val )
+  align here {: np :} 0 , \ home location
+  np [{: np :}d 1 np +! ;]
+  np [{: np :}d np @ ;]
+;
+\ usage example
+counter \ first instance
+dup execute . \ prints 0
+over execute
+over execute
+dup execute . \ prints 2
+counter \ second instance
+over execute
+dup execute . \ prints 1
+2swap \ work on first instance again
+dup execute . \ prints 2
+@end source
+
+This introduction of a home location is called @emph{assignment
+conversion} in the programming language implementation literature.
+
+You can also use pure-stack closures in this case:
+
+@source
+: counter ( -- xt-inc xt-val )
+  align here {: np :} 0 , \ home location
+  np [n:d 1 swap +! ;]
+  np [n:d @ ;]
+;
+\ same usage
+@end source
+
+Instead of dictionary allocation you can also @word{allocate} on the
+heap.  For local allocation of the home location you can use
+variable-flavoured locals (@pxref{Gforth locals}), but of course then
+the closures must not be used after leaving the definition in which
+the home location is defined.  E.g.
+
+@source
+: counter-example ( -- )
+  0 {: w^ np :} \ home location
+  np [n:d 1 swap +! ;]
+  np [n:d @ ;]
+  dup execute cr . 
+  over execute
+  over execute
+  dup execute cr .
+  2drop
+;
+counter-example \ prints 0 and 2
+@end source
+
+There is actually rarely a reason to use home locations at all,
+because what the textbook examples do with closures and writable
+locals can be done in Gforth more directly with structs
+(@pxref{Structures}) or objects (@pxref{Object-oriented Forth}), or in
+the counter example, simply with @word{create}:
+
+@source
+: counter ( "name" -- )
+  create 0 , ;
+: counter-inc ( addr -- )
+  1 swap +! ;
+: counter-val ( addr -- )
+  @ ;
+\ usage example
+counter a
+a counter-val . \ prints 0
+a counter-inc
+a counter-inc
+a counter-val . \ prints 2
+counter b
+b counter-inc
+b counter-val . \ prints 1
+a counter-val . \ prints 2
+@end source
+
+Still, for dictionary and heap allocation Gforth has a home-location
+definition syntax based on the locals-definition syntax.  Here's a
+heap-allocation version of @word{counter} using closures and the
+locals-like home-location syntax:
+
+@source
+: counter ( -- handle xt-inc xt-val )
+  0 <{: w^ np :}h
+  np [n:h 1 swap +! ;]
+  np [n:h @ ;]
+  ;> -rot ;
+\ usage example
+counter \ first instance
+dup execute . \ prints 0
+over execute
+over execute
+dup execute . \ prints 2
+counter \ second instance
+over execute
+dup execute . \ prints 1
+free-closure free-closure free throw \ back to first instance
+dup execute . \ prints 2
+free-closure free-clouse free throw
+@end source
+
+Here @word{<{:} starts a locals scope (similar to a closure itself),
+then you define (variable-flavoured) locals.  @word{:}h} (or
+@word{:}d}) finishes the locals definition.  Now (and up to @word{;>})
+you can use the names of the defined locals.  Finally, @word{;>} ends
+the scope and pushes the start address of the allocated home-location
+block (also when using @word{:}d} for dictionary allocation), for
+@word{free}ing the home-location block later.
+
+We have produced no uses of @word{<{:} and @word{;>} in the first 6
+years that they were present in (development) Gforth.  We think that
+the reason is that one prefers structs or objects for modifiable data.
+Therefore, we intend to remove these words in the future.  If you want
+to see them preserved, contact us and make a case for them.
+
+doc-<{:
+doc-;>
+
 @c -------------------------------------------------------------
-@node Regular Expressions, Programming Tools, Object-oriented Forth, Words
+@node Regular Expressions, Programming Tools, Closures, Words
 @section Regular Expressions
 @cindex regexps
 

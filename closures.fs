@@ -58,26 +58,26 @@ locals-types definitions
     extra-locals off activate-locals ;
 
 : :}xt ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth colon-close-brace-x-t
-    \G end a closure's locals declaration.  The closure will be allocated by
+    \G Ends a closure's locals definition.  The closure will be allocated by
     \G the xt on the stack, so the closure's run-time stack effect is @code{(
-    \G xt-alloc -- xt-closure )}.
+    \G ... xt-alloc -- xt-closure )}.
     \ run-time: ( xt size -- ... )
     [: swap execute ;] :}* ;
 
 : :}d ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth colon-close-brace-d
-    \G end a closure's locals declaration.  The closure will be allocated in
+    \G Ends a closure's locals definition.  The closure will be allocated in
     \G the dictionary.
     ['] allocd :}* ;
 
 : :}h ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth colon-close-brace-h
-    \G Ends a closure's locals declaration.  At the run-time of the
+    \G Ends a closure's locals definition.  At the run-time of the
     \G surrounding definition this allocates the closure on the heap;
     \G you are then responsible for deallocating it with
     \G @code{free-closure}.
     ['] alloch :}* ;
 
 : :}h1 ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth colon-close-brace-h-one
-    \G end a closure's locals declaration.  The closure is deallocated
+    \G Ends a closure's locals definition.  The closure is deallocated
     \G after the first execution, so this is a one-shot closure,
     \G particularly useful in combination with @code{send-event}
     \G (@pxref{Message queues}).
@@ -102,8 +102,8 @@ forth definitions
 locals-types definitions
 
 : :}l ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-locals
-    \G end a closure's locals declaration.  The closure will be allocated on
-    \G the local's stack.
+    \G Ends a closure's locals definition.  The closure will be allocated on
+    \G the locals stack.
     :}
     locals-size @ locals-list @ over 2>r  pop-locals
     [ 2 cells maxaligned ]L + dummy-local,
@@ -163,30 +163,37 @@ forth definitions
     false to 1t-closure?
     ['] (closure-;]) colon-sys-xt-offset stick ;
 
-: [{: ( -- hmaddr u latest wid 0 ) \ gforth-experimental start-closure
-    \G starts a closure.  Closures first declare the locals frame they are
-    \G going to use, and then the code that is executed with those locals.
-    \G Closures end like quotations with a @code{;]}.  The locals declaration
-    \G ends depending where the closure's locals are created.  At run-time, the
-    \G closure is created as trampolin xt, and fills the values of its local
-    \G frame from the stack.  At execution time of the xt, the local frame is
-    \G copied to the locals stack, and used inside the closure's code.  After
-    \G return, those values are removed from the locals stack, and not updated
-    \G in the closure itself.
+: [{: ( compilation -- hmaddr u latest wid 0 ; instantiation ... -- xt ) \ gforth-experimental start-closure
+    \G Starts a closure.  Closures started with @code{[@{:} define
+    \G locals for use inside the closure.  The locals-definition part
+    \G ends with @code{:@}l}, @code{:@}h}, @code{:@}h1}, @code{:@}d}
+    \G or @code{:@}xt}.  The rest of the closure definition is Forth
+    \G code.  The closure ends with @code{;]}.  When the closure
+    \G definition is encountered during execution (closure creation
+    \G time), the values going into the locals are consumed, and an
+    \G execution token (xt) is pushed on the stack; when that
+    \G execution token is executed (with @code{execute}, through
+    \G @code{compile,} or a deferred word), the code in the closure is
+    \G executed (closure execution time).  If the xt of a closure is
+    \G executed multiple times, the values of the locals at the start
+    \G of code execution are those from closure-creation time,
+    \G unaffected by any locals-changes in earlier executions of the
+    \G closure.
     [: ] drop ;] defstart
     #0. push-locals
-    ['] end-dclosure is end-d  [: ]] lp> [[ ;] is endref,
+    ['] end-dclosure is end-d [: ]] lp> [[ ;] is endref,
     [ 2 cells maxaligned ]L extra-locals !
     postpone {:
 ; immediate compile-only
 
-: <{: ( -- hmaddr u latest latestnt wid 0 ) \ gforth-experimental start-homelocation
-    \G starts a home location
+: <{: ( compilation -- colon-sys ; run-time -- ) \ gforth-obsolete start-homelocation
+    \G Starts defining a home location block.
     #0. push-locals postpone {:
 ; immediate compile-only
 
-: ;> ( -- ) \ gforth-experimental end-homelocation
-    \G end using a home location
+: ;> ( compilation colon-sys -- ; run-time -- addr ) \ gforth-obsolete end-homelocation
+    \G Ends defining a home location; @i{addr} is the start address of
+    \G the home-location block (used for deallocation).
     pop-locals ]] lp@ lp> [[
 ; immediate compile-only
 
@@ -223,17 +230,26 @@ cell 4 = [IF]  :noname ( n -- xt )  false >l >l ;  [ELSE]  ' >l  [THEN]
 
 \ combined names (used in existing code)
 
-: [n:l ( -- colon-sys ) ]] :l [n: [[ ; immediate restrict
-: [d:l ( -- colon-sys ) ]] :l [d: [[ ; immediate restrict
-: [f:l ( -- colon-sys ) ]] :l [f: [[ ; immediate restrict
+: [n:l ( compilation -- colon-sys; run-time: n -- xt ; xt execution: -- n ) \ gforth-experimental open-bracket-n-colon-l
+    ]] :l [n: [[ ; immediate restrict
+: [d:l ( compilation -- colon-sys; run-time: d -- xt ; xt execution: -- d ) \ gforth-experimental open-bracket-d-colon-l
+    ]] :l [d: [[ ; immediate restrict
+: [f:l ( compilation -- colon-sys; run-time: r -- xt ; xt execution: -- r ) \ gforth-experimental open-bracket-r-colon-l
+    ]] :l [f: [[ ; immediate restrict
 
-: [n:d ( -- colon-sys ) ]] :d [n: [[ ; immediate restrict
-: [d:d ( -- colon-sys ) ]] :d [d: [[ ; immediate restrict
-: [f:d ( -- colon-sys ) ]] :d [f: [[ ; immediate restrict
+: [n:d ( compilation -- colon-sys; run-time: n -- xt ; xt execution: -- n ) \ gforth-experimental open-bracket-n-colon-d
+    ]] :d [n: [[ ; immediate restrict
+: [d:d ( compilation -- colon-sys; run-time: d -- xt ; xt execution: -- d ) \ gforth-experimental open-bracket-d-colon-d
+    ]] :d [d: [[ ; immediate restrict
+: [f:d ( compilation -- colon-sys; run-time: r -- xt ; xt execution: -- r ) \ gforth-experimental open-bracket-r-colon-d
+    ]] :d [f: [[ ; immediate restrict
 
-: [n:h ( -- colon-sys ) ]] :h [n: [[ ; immediate restrict
-: [d:h ( -- colon-sys ) ]] :h [d: [[ ; immediate restrict
-: [f:h ( -- colon-sys ) ]] :h [f: [[ ; immediate restrict
+: [n:h ( compilation -- colon-sys; run-time: n -- xt ; xt execution: -- n ) \ gforth-experimental open-bracket-n-colon-h
+    ]] :h [n: [[ ; immediate restrict
+: [d:h ( compilation -- colon-sys; run-time: d -- xt ; xt execution: -- d ) \ gforth-experimental open-bracket-d-colon-h
+    ]] :h [d: [[ ; immediate restrict
+: [f:h ( compilation -- colon-sys; run-time: r -- xt ; xt execution: -- r ) \ gforth-experimental open-bracket-r-colon-h
+    ]] :h [f: [[ ; immediate restrict
 
 [IFDEF] test-it
     : foo [{: a f: b d: c xt: d :}d a . b f. c d. d ;] ;

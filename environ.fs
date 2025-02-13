@@ -18,7 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: ?: ( "name" -- ) \ query-colon gforth-experimental
+: ?: ( "name" -- ) \ gforth-experimental query-colon
     \G check if @var{"name"} exists.  If it does, scan the input until
     \G @code{;} is found.  Otherwise, define @var{"name"} with @code{:}
     \G and continue compiling the code following
