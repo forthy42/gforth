@@ -90,10 +90,12 @@ $Variable mlstringpos
 
 s" End of string expected" exception >r
 
-: single-line-strings ( -- never )
+: singleline-strings ( -- never ) \ gforth-experimental
+    \G set strings to end within a line (default).
     [: [ r@ ]L throw ;] is string-lineend ;
 
-: multi-line-strings ( -- parse-area' parse-end )
+: multiline-strings ( -- parse-area' parse-end ) \ gforth-experimental
+    \G set strings to span multiple lines
     [:  #lf c,
 	source-id 0= IF
 	    success-color ."  string" default-color cr
@@ -103,7 +105,7 @@ s" End of string expected" exception >r
 	    2r> source drop + swap input-lexeme!  [ r> ]L throw  THEN
 	over + ;] is string-lineend ;
 
-single-line-strings
+singleline-strings
 
 : \"-parse ( "string"<"> -- c-addr u ) \ gforth-internal  backslash-quote-parse
 \G parses string, translating @code{\}-escapes to characters (as in
@@ -115,7 +117,7 @@ single-line-strings
 	dup r@ u>= IF
 	    drop rdrop string-lineend >r
 	THEN
-	dup c@ '" <> while
+	dup c@ '" <> while \ hardcoded string end, might need hook here
 	    dup c@ dup '\ = if ( parse-area c R: here parse-end )
 		drop char+ dup r@ = abort" unfinished \-escape"
 		\-escape,
