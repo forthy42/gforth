@@ -86,18 +86,21 @@ create \-escape-table
     c, char+ ;
 
 Defer string-lineend
+$Variable mlstringpos
 
 s" End of string expected" exception >r
 
 : single-line-strings ( -- never )
-    [: [ r> ]L throw ;] is string-lineend ;
+    [: [ r@ ]L throw ;] is string-lineend ;
 
 : multi-line-strings ( -- parse-area' parse-end )
     [:  #lf c,
 	source-id 0= IF
 	    success-color ."  string" default-color cr
 	    input-color  THEN
-	refill  IF  source  ELSE  [ s" ." over '"' swap c! ] SLiteral drop  THEN
+	refill  IF  source  ELSE
+	    mlstringpos get-stack 2 - -rot 2>r restore-input drop
+	    2r> source drop + swap input-lexeme!  [ r> ]L throw  THEN
 	over + ;] is string-lineend ;
 
 single-line-strings
@@ -107,6 +110,7 @@ single-line-strings
 \G C).  The resulting string resides at @code{here}.  See @code{S\"}
 \G for the supported @code{\-escapes}.
     here >r
+    save-input input-lexeme 2@ swap source drop - rot 2 + mlstringpos set-stack
     >in @ chars source chars over + >r + begin ( parse-area R: here parse-end )
 	dup r@ u>= IF
 	    drop rdrop string-lineend >r
