@@ -85,12 +85,12 @@ create \-escape-table
     endif
     c, char+ ;
 
-Defer string-mode
+Defer string-lineend
 
 s" End of string expected" exception >r
 
 : single-line-strings ( -- never )
-    [: [ r> ]L throw ;] is string-mode ;
+    [: [ r> ]L throw ;] is string-lineend ;
 
 : multi-line-strings ( -- parse-area' parse-end )
     [:  #lf c,
@@ -98,7 +98,7 @@ s" End of string expected" exception >r
 	    success-color ."  string" default-color cr
 	    input-color  THEN
 	refill  IF  source  ELSE  [ s" ." over '"' swap c! ] SLiteral drop  THEN
-	over + ;] is string-mode ;
+	over + ;] is string-lineend ;
 
 single-line-strings
 
@@ -109,7 +109,7 @@ single-line-strings
     here >r
     >in @ chars source chars over + >r + begin ( parse-area R: here parse-end )
 	dup r@ u>= IF
-	    drop rdrop string-mode >r
+	    drop rdrop string-lineend >r
 	THEN
 	dup c@ '" <> while
 	    dup c@ dup '\ = if ( parse-area c R: here parse-end )
