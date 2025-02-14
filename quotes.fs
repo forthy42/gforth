@@ -85,6 +85,23 @@ create \-escape-table
     endif
     c, char+ ;
 
+Defer string-mode
+
+s" End of string expected" exception >r
+
+: single-line-strings ( -- never )
+    [: [ r> ]L throw ;] is string-mode ;
+
+: multi-line-strings ( -- parse-area' parse-end )
+    [:  #lf c,
+	source-id 0= IF
+	    success-color ."  string" default-color cr
+	    input-color  THEN
+	refill  IF  source  ELSE  [ s" ." over '"' swap c! ] SLiteral drop  THEN
+	over + ;] is string-mode ;
+
+single-line-strings
+
 : \"-parse ( "string"<"> -- c-addr u ) \ gforth-internal  backslash-quote-parse
 \G parses string, translating @code{\}-escapes to characters (as in
 \G C).  The resulting string resides at @code{here}.  See @code{S\"}
@@ -92,12 +109,7 @@ create \-escape-table
     here >r
     >in @ chars source chars over + >r + begin ( parse-area R: here parse-end )
 	dup r@ u>= IF
-	    #lf c, drop rdrop
-	    source-id 0= IF
-		success-color ."  string" default-color cr
-		input-color  THEN
-	    refill  IF  source  ELSE  [ s" ." over '"' swap c! ] SLiteral drop  THEN
-	    over + >r
+	    drop rdrop string-mode >r
 	THEN
 	dup c@ '" <> while
 	    dup c@ dup '\ = if ( parse-area c R: here parse-end )
