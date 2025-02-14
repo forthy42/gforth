@@ -90,13 +90,13 @@ $Variable mlstringpos
 
 s" End of string expected" exception >r
 
-: singleline-strings ( -- never ) \ gforth-experimental
+: singleline-strings ( -- ) \ gforth-experimental
     \G set strings to end within a line (default).
-    [: [ r@ ]L throw ;] is string-lineend ;
+    [: ( -- never ) [ r@ ]L throw ;] is string-lineend ;
 
-: multiline-strings ( -- parse-area' parse-end ) \ gforth-experimental
+: multiline-strings ( -- ) \ gforth-experimental
     \G set strings to span multiple lines
-    [:  #lf c,
+    [: ( -- parse-area parse-end ) #lf c,
 	source-id 0= IF
 	    success-color ."  string" default-color cr
 	    input-color  THEN
