@@ -85,33 +85,35 @@ create \-escape-table
     endif
     c, char+ ;
 
-Defer string-lineend
 $Variable mlstringpos
 
 s" End of string expected" exception >r
 
-: singleline-strings ( -- ) \ gforth-experimental
-    \G set strings to end within a line (default).
-    [: ( -- never ) [ r@ ]L throw ;] is string-lineend ;
+: singleline-string ( -- never ) \ gforth-experimental
+    \G throw exception when string reaches the end of a line
+    [ r@ ]L throw ;
 
-: multiline-strings ( -- ) \ gforth-experimental
-    \G set strings to span multiple lines
-    [: ( -- parse-area parse-end ) #lf c,
-	source-id 0= IF
-	    success-color ."  string" default-color cr
-	    input-color  THEN
-	refill  IF  source  ELSE
-	    mlstringpos get-stack 2 - -rot 2>r restore-input drop
-	    2r> source drop + swap input-lexeme!  [ r> ]L throw  THEN
-	over + ;] is string-lineend ;
+: multiline-string ( -- parse-area parse-end ) \ gforth-experimental
+    \G parses multiline strings
+    #lf c,
+    source-id 0= IF
+	success-color ."  string" default-color cr
+	input-color  THEN
+    refill  IF
+	source
+	\ skip auto-indent blanks
+	mlstringpos stack> dup mlstringpos >stack
+	0 U+DO  over c@ bl = IF  1 safe/string  THEN  LOOP
+    ELSE
+	mlstringpos get-stack 2 - -rot 2>r restore-input drop
+	2r> source drop + swap input-lexeme!  [ r> ]L throw  THEN
+    over + ;
 
-singleline-strings
-
-: \"-parse ( "string"<"> -- c-addr u ) \ gforth-internal  backslash-quote-parse
+: \"-parse ( "string"<"> xt -- c-addr u ) \ gforth-internal  backslash-quote-parse
 \G parses string, translating @code{\}-escapes to characters (as in
 \G C).  The resulting string resides at @code{here}.  See @code{S\"}
 \G for the supported @code{\-escapes}.
-    here >r
+    { xt: string-lineend } here >r
     save-input input-lexeme 2@ swap source drop - rot 2 + mlstringpos set-stack
     >in @ chars source chars over + >r + begin ( parse-area R: here parse-end )
 	dup r@ u>= IF
@@ -130,8 +132,8 @@ singleline-strings
     here r> - dup negate allot
     here swap char/ ;
 
-:noname \"-parse save-mem ;
-:noname \"-parse save-mem 2dup postpone sliteral drop free throw ;
+:noname ['] singleline-string \"-parse save-mem ;
+:noname ['] singleline-string \"-parse save-mem 2dup postpone sliteral drop free throw ;
 interpret/compile: s\" ( Interpretation 'ccc"' -- c-addr u )	\ core-ext,file-ext s-backslash-quote
 \G Interpretation: Parse the string @i{ccc} delimited by a @code{"}
 \G (but not @code{\"}), and convert escaped characters as described
@@ -146,7 +148,7 @@ interpret/compile: s\" ( Interpretation 'ccc"' -- c-addr u )	\ core-ext,file-ext
 \G Run-time @code{( -- c-addr u )}: Push a descriptor for the
 \G resulting string.
 
-:noname \"-parse type ;
+:noname ['] singleline-string \"-parse type ;
 :noname postpone s\" postpone type ;
 interpret/compile: .\" ( compilation 'ccc"' -- ; run-time -- )	\ gforth	dot-backslash-quote
 \G Like @code{."}, but translates C-like \-escape-sequences (see

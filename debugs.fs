@@ -137,12 +137,7 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
     \G word that should never be reached
     FIXME# throw ;
 
-
 \ warn beginners that double numbers clash with floating points
-
-[IFUNDEF] ?warning \ fix compilation problem
-    Defer ?warning
-[THEN]
 
 :is ?warning ( f xt -- )
     \ if f, output a warning by EXECUTEing xt
@@ -195,6 +190,11 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 	." ' is a non-standard double: only trailing '.' standard" ;] ?warning ;
 
 ' ?warn-dp is ?warn#
+
+\ eof warning
+
+:is eof-warning ( -- )
+    state @ [: ." EOF reached while " get-state id. ;] ?warning ;
 
 \ replacing one word with another
 

@@ -26,7 +26,8 @@ s" Scanned string not in input buffer" exception >r
 
 : scan-string ( addr u -- addr' u' )
     2dup ?in-inbuf
-    drop source drop - 1+ >in ! \"-parse  save-mem ;
+    drop source drop - 1+ >in !
+    ['] multiline-string \"-parse  save-mem ;
 
 : slit,  postpone sliteral ;
 

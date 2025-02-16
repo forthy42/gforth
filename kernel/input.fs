@@ -200,14 +200,15 @@ defer line-end-hook ( -- ) \ gforth
 \G called at every end-of-line when text-interpreting from a file    
 \ alternatively we could use a wrapper for REFILL
 ' noop is line-end-hook
+Defer eof-warning
+' noop is eof-warning
 
 : read-loop1 ( i*x -- j*x )
     BEGIN  refill  WHILE  interpret line-end-hook REPEAT ;
 
 : read-loop ( i*x -- j*x ) \ gforth-internal
     \G refill and interpret a file until EOF
-    ['] read-loop1 bt-rp0-wrapper
-    state @ warning" EOF reached while compiling" ;
+    ['] read-loop1 bt-rp0-wrapper eof-warning ;
 
 Variable second-ctrl-c 0 second-ctrl-c !
 
