@@ -93,17 +93,22 @@ s" End of string expected" exception >r
     \G throw exception when string reaches the end of a line
     [ r@ ]L throw ;
 
+Defer skip-autoindent ( addr u -- addr' u' )
+
+: (skip-autoindent) ( addr u -- addr' u' )
+    \ skip auto-indent blanks
+    mlstringpos $@ + cell- @
+    0 U+DO  over c@ bl = IF  1 safe/string  THEN  LOOP ;
+
+' (skip-autoindent) is skip-autoindent
+
 : multiline-string ( -- parse-area parse-end ) \ gforth-experimental
     \G parses multiline strings
     #lf c,
     source-id 0= IF
-	success-color ."  string" default-color cr
-	input-color  THEN
+	success-color ."  string" default-color cr input-color  THEN
     refill  IF
-	source
-	\ skip auto-indent blanks
-	mlstringpos stack> dup mlstringpos >stack
-	0 U+DO  over c@ bl = IF  1 safe/string  THEN  LOOP
+	source skip-autoindent
     ELSE
 	mlstringpos get-stack 2 - -rot 2>r restore-input drop
 	2r> source drop + swap input-lexeme!  [ r> ]L throw  THEN
