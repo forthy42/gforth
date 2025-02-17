@@ -339,10 +339,7 @@ Variable rec'[]
     rp0 @ rp@ - cell/ 22 - ?dup-if
         ."  r:" 0 dec.r then ;
 
-Create prompt-text
-' prompt-ok ,
-[: get-state id. ;] translator-max-offset# 1 [DO] dup , [LOOP] drop
-DOES> state @ abs translator-max-offset# umin cells + perform ;
+: prompt-text state @ IF  get-state id.  ELSE  prompt-ok  THEN ;
 
 : color-prompt ( -- )
     success-color prompt-text default-color ;

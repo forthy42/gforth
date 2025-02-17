@@ -20,11 +20,12 @@
 
 0 Value status-offset
 
-' prompt-text Create-from status-colors reveal
+Create status-colors
 ' status-color ,
 ' compile-color ,
 ' postpone-color ,
 ' error-color 7 0 [DO] dup , [LOOP] drop
+DOES> state @ abs translator-max-offset# umin cells + perform ;
 
 : redraw-status ( addr u -- )
     save-cursor-position
