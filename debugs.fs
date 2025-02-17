@@ -339,7 +339,8 @@ Variable rec'[]
     rp0 @ rp@ - cell/ 22 - ?dup-if
         ."  r:" 0 dec.r then ;
 
-: prompt-text state @ IF  get-state id.  ELSE  prompt-ok  THEN ;
+: prompt-text ( -- )
+    case  get-state ['] interpreting of  prompt-ok  endof  id. 0 endcase ;
 
 : color-prompt ( -- )
     success-color prompt-text default-color ;
