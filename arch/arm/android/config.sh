@@ -50,7 +50,7 @@ pic_object='.libs/lib$i'
 non_pic_object='lib$i'" >lib${i%o}lo
  done
 )
-skipcode=".skip 4\n.skip 4\n.skip 4\n.skip 4"
+skipcode=".skip 4"
 kernel_fi=kernl64l.fi
 ac_cv_sizeof_void_p=4
 ac_cv_sizeof_char_p=4

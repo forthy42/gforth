@@ -330,13 +330,15 @@ Variable rec'[]
     ELSE  nip nip  THEN
     -rot encode-view to replace-sourceview ;
 
+#22 Value rstack-offset \ different prompt words can have different offsets
+
 : prompt-ok ( -- )
     ."  ok"
     depth ?dup-if
         space 0 dec.r then
     fdepth ?dup-if
         ."  f:" 0 dec.r then
-    rp0 @ rp@ - cell/ 22 - ?dup-if
+    rp0 @ rp@ - cell/ rstack-offset - ?dup-if
         ."  r:" 0 dec.r then ;
 
 : prompt-text ( -- )
