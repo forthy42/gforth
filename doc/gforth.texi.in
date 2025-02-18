@@ -15085,12 +15085,14 @@ addition to the n that has already been pushed before the
 The code above shows a pure-stack closure (no locals involved).
 Pure-stack closures start with a word with the naming scheme
 @code{[@i{T}:@i{A}} where the type @i{T} can be @code{n} (cell),
-@code{d} (double-cell), or @code{f} (FP), and the allocator @i{A} can
-currently be @code{l} (local), @code{h} (heap) or @code{d}
-(dictionary).  A pure-stack closure consumes one @i{T} from a stack at
-closure creation time (when the code containing the closure definition
-is run), and pushes an xt.  After creating the closure, execution
-continues behind the @word{;]}.
+@code{d} (double-cell), or @code{f} (FP).  The allocator @i{A} can be
+@code{l} (local), @code{d} (dictionary), @code{h} (heap), or
+@code{h1}: @code{Allocate} the closure on the heap and @code{free} it
+after the first execution; this is used for passing data to another
+task with @word{send-event} (@pxref{Message queues}).  A pure-stack
+closure consumes one @i{T} from a stack at closure creation time (when
+the code containing the closure definition is run), and pushes an xt.
+After creating the closure, execution continues behind the @word{;]}.
 
 When the xt is executed (directly with @word{execute} or indirectly
 through, e.g., @word{compile,} or a deferred word), it pushes the
@@ -15108,12 +15110,15 @@ The words for starting pure-stack closure definitions are:
 doc-[n:l
 doc-[d:l
 doc-[f:l
-doc-[n:h
-doc-[d:h
-doc-[f:h
 doc-[n:d
 doc-[d:d
 doc-[f:d
+doc-[n:h
+doc-[d:h
+doc-[f:h
+doc-[n:h1
+doc-[d:h1
+doc-[f:h1
 
 If you want to pass more than one stack item from closure creation to
 execution time, defining more such words becomes unwieldy, and the
@@ -15132,10 +15137,8 @@ many and which stack items are consumed at closure creation time.  At
 closure execution time these values become the values of the locals.
 The locals definition ends with a word with a naming scheme
 @code{:@}@i{A}}, where @i{A} specifies where the closure is allocated;
-in addition to @code{l} (local), @code{h} (heap), or @code{d}
-(dictionary), you can also specify @code{h1}: Allocate on the heap and
-deallocate after the first execution; this is used for passing data to
-another task with @word{send-event} (@pxref{Message queues}).
+in addition to @code{l} (local), @code{d} (dictionary), @code{h}
+(heap), or @code{h1} (heap, @code{free} on first execution).
 
 Note that the locals are still strictly local to one execution of the
 xt, and any changes to the locals (e.g., with @word{to}) do not change
