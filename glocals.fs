@@ -174,15 +174,15 @@ Defer locals-post,
 translate: translate-locals
 \ undocumented for good reasons
 
-: rec-locals ( addr u -- nt translate-locals | 0 )
+: rec-locals ( addr u -- nt translate-locals | 0 ) \ gforth-experimental
     \G search the locals wordlist and if found replace
     \G the translator with @code{translate-locals}.
     [ ' locals >wordlist compile, ]
     dup ['] translate-nt = IF  drop ['] translate-locals  THEN ;
 
-' search-order ' rec-locals 2 recognizer-sequence: rec-locals
+' search-order ' rec-locals 2 recognizer-sequence: rec-nt-locals
 
-: activate-locals   ['] rec-locals is rec-nt ;
+: activate-locals   ['] rec-nt-locals is rec-nt ;
 : deactivate-locals ['] search-order is rec-nt ;
 
 :noname defers wrap@ ['] rec-nt defer@ deactivate-locals ; is wrap@

@@ -163,7 +163,7 @@ forth definitions
     false to 1t-closure?
     ['] (closure-;]) colon-sys-xt-offset stick ;
 
-: [{: ( compilation -- hmaddr u latest wid 0 ; instantiation ... -- xt ) \ gforth-experimental start-closure
+: [{: ( compilation -- hmaddr u latest wid 0 ; instantiation ... -- xt ) \ gforth start-closure
     \G Starts a closure.  Closures started with @code{[@{:} define
     \G locals for use inside the closure.  The locals-definition part
     \G ends with @code{:@}l}, @code{:@}h}, @code{:@}h1}, @code{:@}d}
@@ -235,32 +235,32 @@ cell 4 = [IF]  :noname ( n -- xt )  false >l >l ;  [ELSE]  ' >l  [THEN]
 
 \ combined names (used in existing code)
 
-: [n:l ( compilation -- colon-sys; run-time: n -- xt ; xt execution: -- n ) \ gforth-experimental open-bracket-n-colon-l
+: [n:l ( compilation -- colon-sys; run-time: n -- xt ; xt execution: -- n ) \ gforth open-bracket-n-colon-l
     ]] :l [n: [[ ; immediate restrict
-: [d:l ( compilation -- colon-sys; run-time: d -- xt ; xt execution: -- d ) \ gforth-experimental open-bracket-d-colon-l
+: [d:l ( compilation -- colon-sys; run-time: d -- xt ; xt execution: -- d ) \ gforth open-bracket-d-colon-l
     ]] :l [d: [[ ; immediate restrict
-: [f:l ( compilation -- colon-sys; run-time: r -- xt ; xt execution: -- r ) \ gforth-experimental open-bracket-r-colon-l
+: [f:l ( compilation -- colon-sys; run-time: r -- xt ; xt execution: -- r ) \ gforth open-bracket-r-colon-l
     ]] :l [f: [[ ; immediate restrict
 
-: [n:d ( compilation -- colon-sys; run-time: n -- xt ; xt execution: -- n ) \ gforth-experimental open-bracket-n-colon-d
+: [n:d ( compilation -- colon-sys; run-time: n -- xt ; xt execution: -- n ) \ gforth open-bracket-n-colon-d
     ]] :d [n: [[ ; immediate restrict
-: [d:d ( compilation -- colon-sys; run-time: d -- xt ; xt execution: -- d ) \ gforth-experimental open-bracket-d-colon-d
+: [d:d ( compilation -- colon-sys; run-time: d -- xt ; xt execution: -- d ) \ gforth open-bracket-d-colon-d
     ]] :d [d: [[ ; immediate restrict
-: [f:d ( compilation -- colon-sys; run-time: r -- xt ; xt execution: -- r ) \ gforth-experimental open-bracket-r-colon-d
+: [f:d ( compilation -- colon-sys; run-time: r -- xt ; xt execution: -- r ) \ gforth open-bracket-r-colon-d
     ]] :d [f: [[ ; immediate restrict
 
-: [n:h ( compilation -- colon-sys; run-time: n -- xt ; xt execution: -- n ) \ gforth-experimental open-bracket-n-colon-h
+: [n:h ( compilation -- colon-sys; run-time: n -- xt ; xt execution: -- n ) \ gforth open-bracket-n-colon-h
     ]] :h [n: [[ ; immediate restrict
-: [d:h ( compilation -- colon-sys; run-time: d -- xt ; xt execution: -- d ) \ gforth-experimental open-bracket-d-colon-h
+: [d:h ( compilation -- colon-sys; run-time: d -- xt ; xt execution: -- d ) \ gforth open-bracket-d-colon-h
     ]] :h [d: [[ ; immediate restrict
-: [f:h ( compilation -- colon-sys; run-time: r -- xt ; xt execution: -- r ) \ gforth-experimental open-bracket-r-colon-h
+: [f:h ( compilation -- colon-sys; run-time: r -- xt ; xt execution: -- r ) \ gforth open-bracket-r-colon-h
     ]] :h [f: [[ ; immediate restrict
 
-: [n:h1 ( compilation -- colon-sys; run-time: n -- xt ; xt execution: -- n ) \ gforth-experimental open-bracket-n-colon-h1
+: [n:h1 ( compilation -- colon-sys; run-time: n -- xt ; xt execution: -- n ) \ gforth open-bracket-n-colon-h1
     ]] :h1 [n: [[ ; immediate restrict
-: [d:h1 ( compilation -- colon-sys; run-time: d -- xt ; xt execution: -- d ) \ gforth-experimental open-bracket-d-colon-h1
+: [d:h1 ( compilation -- colon-sys; run-time: d -- xt ; xt execution: -- d ) \ gforth open-bracket-d-colon-h1
     ]] :h1 [d: [[ ; immediate restrict
-: [f:h1 ( compilation -- colon-sys; run-time: r -- xt ; xt execution: -- r ) \ gforth-experimental open-bracket-r-colon-h1
+: [f:h1 ( compilation -- colon-sys; run-time: r -- xt ; xt execution: -- r ) \ gforth open-bracket-r-colon-h1
     ]] :h1 [f: [[ ; immediate restrict
 
 [IFDEF] test-it
