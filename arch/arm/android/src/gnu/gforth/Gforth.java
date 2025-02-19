@@ -55,6 +55,7 @@ import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 import android.view.OrientationEventListener;
+import android.view.View.OnLayoutChangeListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -102,7 +103,8 @@ public class Gforth
 	       LocationListener,
 	       SensorEventListener,
 	       SurfaceHolder.Callback2,
-	       OnGlobalLayoutListener {
+	       OnGlobalLayoutListener,
+	       View.OnLayoutChangeListener {
     private long argj0=1000; // update every second
     private double argf0=10;    // update every 10 meters
     private String args0="gps";
@@ -353,8 +355,15 @@ public class Gforth
 	}
 	@Override
 	public void onSizeChanged(int w, int h, int oldw, int oldh) {
-	    mActivity.onEventNative(14, w);
-	    mActivity.onEventNative(15, h);
+	    // mActivity.onEventNative(14, w);
+	    // mActivity.onEventNative(15, h);
+	}
+	@Override
+	public void onLayoutChange(View v,
+				   int left, int top, int right, int bottom,
+				   int oldLeft, int oldTop, int oldRight, int oldBottom) {
+	    mActivity.onEventNative(14, right+left);
+	    mActivity.onEventNative(15, top+bottom);
 	}
 	@Override
 	public boolean dispatchKeyEvent (KeyEvent event) {
