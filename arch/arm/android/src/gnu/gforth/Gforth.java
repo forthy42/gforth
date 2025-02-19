@@ -362,8 +362,8 @@ public class Gforth
 	public void onLayoutChange(View v,
 				   int left, int top, int right, int bottom,
 				   int oldLeft, int oldTop, int oldRight, int oldBottom) {
-	    mActivity.onEventNative(14, right+left);
-	    mActivity.onEventNative(15, top+bottom);
+	    mActivity.onEventNative(14, right-left);
+	    mActivity.onEventNative(15, bottom-top);
 	}
 	@Override
 	public boolean dispatchKeyEvent (KeyEvent event) {

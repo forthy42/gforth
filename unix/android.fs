@@ -208,7 +208,7 @@ host? [IF] newRect to screenrect [THEN]
 : screen-xywh@ ( -- x y w h )
     clazz >o getWindow >o getDecorView >o
     screenrect getWindowVisibleDisplayFrame ref> ref> o>
-    screenrect >o left top right bottom o> ;
+    screenrect >o left top right third - bottom third - o> ;
 
 $80 Constant FLAG_KEEP_SCREEN_ON
 
