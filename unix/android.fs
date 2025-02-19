@@ -39,7 +39,7 @@ get-current also android definitions
 Defer akey
 
 also c-lib
-:noname open-path-lib drop ; is prefetch-lib
+:is prefetch-lib open-path-lib drop ;
 previous
 
 begin-structure app_input_state
@@ -184,7 +184,7 @@ DOES> ( akey -- addr u )
 
 Variable level#
 Defer aback
-:noname  -1 level# +!  level# @ 0< IF  bye  THEN ; IS aback
+:is aback  -1 level# +!  level# @ 0< IF  bye  THEN ;
 
 also jni
 
@@ -308,7 +308,7 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 
 : #looper  looper-init
     BEGIN  ?looper-timeouts  0 poll? 0=  UNTIL  poll? drop ;
-:noname ( -- ) looper-to# #looper ; is >looper
+:is >looper ( -- ) looper-to# #looper ;
 : ?looper  BEGIN  >looper  app window @ UNTIL ;
 
 \ : >looper  BEGIN  0 poll_looper 0<  UNTIL looper-to# poll_looper drop ;
@@ -316,10 +316,9 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 
 Defer screen-ops ' noop IS screen-ops
 
-:noname  0 poll? drop
+:is key?  0 poll? drop
     key-buffer $@len 0<>  infile-id ?dup-IF  key?-file  or  THEN
-    screen-ops
-; IS key?
+    screen-ops ;
 
 : android-key-ior ( -- key / ior )
     ?keyboard IF  showkb -keyboard  THEN
@@ -341,13 +340,13 @@ Defer screen-ops ' noop IS screen-ops
     defers everyline restartkb ;
 ' android-everyline is everyline
 
-:noname [: ." app window " app window @ h. cr ;] $err ; IS window-init
+:is window-init [: ." app window " app window @ h. cr ;] $err ;
 : window-init, ( xt -- )
     >r :noname action-of window-init compile, r@ compile,
     postpone ; is window-init
     ctx IF  r@ execute  THEN  rdrop ;
 screen-ops     ' noop IS screen-ops
-:noname ( -- ) +sync +config ; is config-changed
+:is config-changed ( -- ) +sync +config ;
 
 Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop
 
@@ -357,13 +356,13 @@ Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop
 : android-characters ( string -- )  jstring>sstring
     nostring 0 skip inskeys jfree ;
 Defer android-commit
-:noname     ( string/0 -- ) ?dup-0=-IF  insstring  ELSE
+:is android-commit     ( string/0 -- ) ?dup-0=-IF  insstring  ELSE
 	jstring>sstring 0 skip inskeys jfree setstring$ $free
-    THEN ; is android-commit
+    THEN ;
 Defer android-setstring
 Defer android-inskey ' inskey is android-inskey
-:noname  ( string -- ) jstring>sstring setstring$ $! jfree
-    ctrl L android-inskey ; is android-setstring
+:is android-setstring  ( string -- ) jstring>sstring setstring$ $! jfree
+    ctrl L android-inskey ;
 : android-unicode    ( uchar -- )   >xstring inskeys ;
 : android-keycode    ( keycode -- ) keycode>keys inskeys ;
 
@@ -437,9 +436,9 @@ Variable new-touch
     o> ;
 
 Defer android-location ( location -- )
-:noname to location ; IS android-location
+:is android-location to location ;
 Defer android-sensor ( sensor -- )
-:noname to sensor ; IS android-sensor
+:is android-sensor to sensor ;
 
 \ stubs, "is recurse" assigns to last defined word
 
@@ -466,35 +465,40 @@ Defer clipboard-changed ( 0 -- ) ' drop is recurse
 
 Defer android-active
 
-:noname ( flag -- )
+:is android-active ( flag -- )
     \ >stderr ." active: " dup . cr
     dup rendering !  IF
 	16 to looper-to#
 	rendering @ -2 <= IF  reload-textures
 	    +show +sync +config +textures screen-ops  THEN
-    ELSE  16000 to looper-to#  THEN ; is android-active
+    ELSE  16000 to looper-to#  THEN ;
 
 Defer android-alarm ( 0 -- ) ' drop is android-alarm
 Defer android-network ( metered -- )
-( :noname drop .network cr ; ) ' drop is android-network
+( :is android-context-menu drop .network cr ; ) ' drop is android-network
 Defer android-notification ( intent -- )
 ( :noname drop ." Got intent" cr ; ) ' drop is android-notification
 Defer android-context-menu ( id -- )
-:noname ( n -- )
+:is android-context-menu ( n -- )
     case
 	$0102001f of  "\e[S"  inskeys endof \ select all
 	$01020020 of  ctrl X  inskey  endof \ cut
 	$01020021 of  ctrl C  inskey  endof \ copy
 	$01020022 of  ctrl V  inskey  endof \ paste
 	$0102002c of  ctrl A  inskey  endof \ home
-    endcase ; is android-context-menu
+    endcase ;
 Defer android-permission# ( n -- )
-:noname to android-perm# ; is android-permission#
+:is android-permission# to android-perm# ;
 Defer android-permission-result ( jstring -- )
 Variable android-permissions[]
-:noname ( jstring -- )
+:is android-permission-result ( jstring -- )
     jstring>sstring android-permissions[] $+[]! jfree ;
-is android-permission-result
+Defer android-insets
+JValue ime-insets
+JValue bar-insets
+:is android-insets ( inset -- )
+    >o ime getInsets to ime-insets statusBars getInsets to bar-insets
+    gref> ; 
 
 Create aevents
 (  0 ) ' android-key ,
@@ -524,11 +528,12 @@ Create aevents
 ( 24 ) ' android-context-menu ,
 ( 25 ) ' android-permission# ,
 ( 26 ) ' android-permission-result ,
+( 27 ) ' android-insets ,
 here aevents - cell/
 ' drop ,
 Constant max-event#
 
-:noname ( event type -- )
-    max-event# umin cells aevents + perform ; is akey
+:is akey ( event type -- )
+    max-event# umin cells aevents + perform ;
 
 previous previous set-current

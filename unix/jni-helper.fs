@@ -57,6 +57,7 @@ jni-field: cameraPath cameraPath Ljava/lang/String;
 jni-field: shortcutname shortcutname Ljava/lang/String;
 jni-field: shortcutfile shortcutfile Ljava/lang/String;
 jni-field: shortcuticon shortcuticon Ljava/lang/String;
+jni-field: insets insets Landroid/view/WindowInsets;
 
 jni-class: android/os/Handler
 jni-method: post post (Ljava/lang/Runnable;)Z
@@ -81,6 +82,7 @@ SDK_INT 30 >= [IF]
 
     jni-class: android/view/WindowInsets$Type
     jni-static: ime ime ()I
+    jni-static: statusBars statusBars ()I
 [THEN]
 
 jni-class: android/view/Display

@@ -49,6 +49,7 @@ import android.hardware.usb.UsbManager;
 import android.content.Context;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowInsets;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -103,8 +104,7 @@ public class Gforth
 	       LocationListener,
 	       SensorEventListener,
 	       SurfaceHolder.Callback2,
-	       OnGlobalLayoutListener,
-	       View.OnLayoutChangeListener {
+	       OnGlobalLayoutListener {
     private long argj0=1000; // update every second
     private double argf0=10;    // update every 10 meters
     private String args0="gps";
@@ -159,6 +159,7 @@ public class Gforth
     public String shortcutname;
     public String shortcutfile;
     public String shortcuticon;
+    public WindowInsets insets;
 
     private static final String META_DATA_LIB_NAME = "android.app.lib_name";
     private static final String META_DATA_STARTFILE = "android.app.startfile";
@@ -355,15 +356,13 @@ public class Gforth
 	}
 	@Override
 	public void onSizeChanged(int w, int h, int oldw, int oldh) {
-	    // mActivity.onEventNative(14, w);
-	    // mActivity.onEventNative(15, h);
+	    mActivity.onEventNative(14, w);
+	    mActivity.onEventNative(15, h);
 	}
 	@Override
-	public void onLayoutChange(View v,
-				   int left, int top, int right, int bottom,
-				   int oldLeft, int oldTop, int oldRight, int oldBottom) {
-	    mActivity.onEventNative(14, right-left);
-	    mActivity.onEventNative(15, bottom-top);
+	public WindowInsets onApplyWindowInsets(WindowInsets insets) {
+	    mActivity.insets=insets;
+	    return insets;
 	}
 	@Override
 	public boolean dispatchKeyEvent (KeyEvent event) {
