@@ -140,7 +140,7 @@ umethod key? ( -- flag ) \ facility key-question
 
 : key ( -- char ) \ core
 \G Receive (but do not display) one character, @var{char}.
-    BEGIN  key-ior dup EINTR =  WHILE  drop winch? off  REPEAT
+    BEGIN  key-ior dup EINTR =  WHILE  drop  REPEAT
     dup 0< IF  throw  THEN ;
 
 here

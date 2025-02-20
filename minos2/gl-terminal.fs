@@ -25,7 +25,7 @@
 require ../unix/pthread.fs
 require gl-helper.fs
 
-also opengl also [IFDEF] android android [THEN]
+also opengl [IFDEF] android also android also jni  [THEN]
 
 GL_FRAGMENT_SHADER shader: TerminalShader
 #precision
@@ -190,20 +190,27 @@ Variable scroll-y
 FVariable scroll-dest
 FVariable scroll-source
 FVariable scroll-time
+[IFDEF] screen-xywh@     \ For Android
+    2Variable screen-xy  \ top left position
+    2Variable screen-wh' \ actually visible width and height
+[THEN]
 
 80 Value hcols
 48 Value vcols
 
 : form-chooser ( -- )
     screen-orientation 1 and  IF  hcols  ELSE  vcols  THEN
-    dup dpy-h @ dpy-w @ 2* */ swap gl-wh 2! ;
+    dup [IFDEF] screen-wh' screen-wh' 2@ swap
+	2dup d0= IF  2drop dpy-h @ dpy-w @  THEN
+    [ELSE] dpy-h @ dpy-w @ [THEN]
+    2* */ swap gl-wh 2! ;
 
 : show-rows ( -- n ) videorows scroll-y @ - rows 1+ min ;
 $40 Value minpow2#
 : nextpow2 ( n -- n' )
     minpow2#  BEGIN  2dup u>  WHILE 2*  REPEAT  nip ;
 
-[IFDEF] android also jni SDK_INT #35 >= [ELSE] false [THEN]
+[IFDEF] android SDK_INT #35 >= [ELSE] false [THEN]
 [IF]
     : >rectangle ( -- )
 	show-rows s>f rows fm/ -2e f* 1e f+
@@ -223,7 +230,6 @@ $40 Value minpow2#
 	1e  1e >xy n> v+
 	1e  fswap >xy n> v+ o> ;
 [THEN]
-[IFDEF] android previous [THEN]
 
 : >texcoords ( -- )
     cols s>f videocols fm/  show-rows dup s>f nextpow2 dup fm/
@@ -249,10 +255,11 @@ $40 Value minpow2#
 	dup lle I l!
     [ 1 sfloats ]L +LOOP drop ;
 : resize-screen ( -- )
+    gl-wh @ { height }
     gl-xy @ 1+ actualrows max to actualrows
-    gl-wh @ videocols u> gl-xy @ videorows u>= or IF
+    height videocols u> gl-xy @ videorows u>= or IF
 	videorows videocols * sfloats >r
-	gl-wh @ nextpow2 videocols max to videocols
+	height nextpow2 videocols max to videocols
 	gl-xy @ 1+ nextpow2 videorows max to videorows
 	videomem videocols videorows * sfloats dup >r
 	videorows sfloats + resize throw
@@ -463,7 +470,6 @@ ${GFORTH_IGNLIB} s" true" str= 0= [IF]
 [IFUNDEF] win : win app window @ ; [THEN]
 
 [IFDEF] android
-    also jni
     JValue metrics \ screen metrics
     
     : >metrics ( -- )
@@ -491,7 +497,7 @@ ${GFORTH_IGNLIB} s" true" str= 0= [IF]
 	    screen-pwh
 	    dpy-h @ rr-out0 XRROutputInfo-mm_height l@ s>f fm*/
 	    dpy-w @ rr-out0 XRROutputInfo-mm_width  l@ s>f fm*/ fswap ;
-	previous
+	previous previous
     [ELSE]
 	: screen-pwh ( -- w h )
 	    dpy-wh 2@ ;
@@ -499,9 +505,8 @@ ${GFORTH_IGNLIB} s" true" str= 0= [IF]
 	    wl-metrics 2@ swap s>f s>f ;
     [THEN]
 [THEN]
-previous
 
-141e FValue default-diag \ Galaxy Note II is 80x48
+5.5555e 25.4e f* FValue default-diag \ 5.5555" inches as default
 1e FValue default-scale
 
 : screen-diag ( -- rdiag )
@@ -511,28 +516,21 @@ previous
     \ smart scaler, scales using square root relation
     level# @ 0= IF
 	default-diag screen-diag f/ fsqrt default-scale f*
-	1/f 80 fdup fm* f>s to hcols 48 fm* f>s to vcols
+	1/f #80 fdup fm* f>s to hcols #48 fm* f>s to vcols
 	resize-screen config-changed screen->gl  THEN ;
 
 Defer scale-me ' terminal-scale-me is scale-me
 
-[IFDEF] screen-xywh@
-    2Variable screen-xy
-[THEN]
-
 : config-changer ( -- )
 [IFDEF] screen-xywh@
-    screen-xywh@ 2drop screen-xy 2!
+    screen-xywh@ screen-wh' 2! screen-xy 2!
 [THEN]
     getwh  >screen-orientation  scale-me
     form-chooser ;
 : ?config-changer ( -- )
     ?config IF
-	gl-wh 2@ 2>r config-changer
-	gl-wh 2@ 2r> d<> IF
-	    winch? on +resize +sync
-	ELSE  +sync  THEN
-	-config
+	gl-wh 2@ 2>r config-changer gl-wh 2@ 2r> d<>
+	IF   winch? on +resize  THEN  +sync -config
     THEN ;
 
 : screen-sync ( -- )
@@ -638,7 +636,7 @@ default-out op-vector !
 
 \ window-init
 
-previous previous \ remove opengl from search order
+previous [IFDEF] android previous previous [THEN] \ remove opengl from search order
 
 \ print system and sh outputs on gl terminal
 
