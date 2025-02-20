@@ -497,7 +497,7 @@ Defer android-insets
 JValue ime-insets
 JValue bar-insets
 :is android-insets ( inset -- )
-    >o ime getInsets to ime-insets statusBars getInsets to bar-insets
+    >o ime getInsets to ime-insets systemBars getInsets to bar-insets
     gref> ; 
 
 Create aevents

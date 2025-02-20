@@ -83,6 +83,7 @@ SDK_INT 30 >= [IF]
     jni-class: android/view/WindowInsets$Type
     jni-static: ime ime ()I
     jni-static: statusBars statusBars ()I
+    jni-static: systemBars systemBars ()I
 [THEN]
 
 jni-class: android/view/Display

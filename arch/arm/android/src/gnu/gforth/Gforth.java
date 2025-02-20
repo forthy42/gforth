@@ -362,6 +362,7 @@ public class Gforth
 	@Override
 	public WindowInsets onApplyWindowInsets(WindowInsets insets) {
 	    mActivity.insets=insets;
+	    mActivity.onEventNative(27, insets);
 	    return insets;
 	}
 	@Override

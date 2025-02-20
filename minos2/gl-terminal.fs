@@ -203,13 +203,27 @@ $40 Value minpow2#
 : nextpow2 ( n -- n' )
     minpow2#  BEGIN  2dup u>  WHILE 2*  REPEAT  nip ;
 
-: >rectangle ( -- )
-    show-rows s>f rows fm/ -2e f* 1e f+
-    >v
-    -1e fover >xy n> v+
-    -1e 1e >xy n> v+
-    1e  1e >xy n> v+
-    1e  fswap >xy n> v+ o> ;
+[IFDEF] android also jni SDK_INT #35 >= [ELSE] false [THEN]
+[IF]
+    : >rectangle ( -- )
+	show-rows s>f rows fm/ -2e f* 1e f+
+	screen-size@ screen-xywh@ { sw sh x y w h }
+	y h + sh 2/ tuck - swap fm*/
+	>v
+	-1e fover >xy n> v+
+	-1e 1e sh 2/ y - sh 2/ fm*/ >xy n> v+
+	1e  1e sh 2/ y - sh 2/ fm*/ >xy n> v+
+	1e  fswap >xy n> v+ o> ;
+[ELSE]
+    : >rectangle ( -- )
+	show-rows s>f rows fm/ -2e f* 1e f+
+	>v
+	-1e fover >xy n> v+
+	-1e 1e >xy n> v+
+	1e  1e >xy n> v+
+	1e  fswap >xy n> v+ o> ;
+[THEN]
+[IFDEF] android previous [THEN]
 
 : >texcoords ( -- )
     cols s>f videocols fm/  show-rows dup s>f nextpow2 dup fm/
