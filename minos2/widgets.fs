@@ -480,9 +480,6 @@ widget :method dispose-widget ( -- )
     dispose-nodict ;
 ' noop widget is lastfit
 
-: dw* ( f -- f' ) dpy-w @ fm* ;
-: dh* ( f -- f' ) dpy-h @ fm* ;
-
 \ glues
 
 begin-structure glues
@@ -943,7 +940,7 @@ also freetype-gl
     program glUseProgram
     -1e 1e >apxy  .01e 100e fdup >ap
     Ambient 1 ambient% glUniform1fv
-    0e fdup fdup 1e glClearColor clear ;
+    0>clear clear ;
 
 : draw-init> ( -- ) ;
 previous
@@ -1839,13 +1836,19 @@ require animation.fs
     }}v box[]
     }}z box[] ;
 
+[defined] screen-xywh@ [IFDEF] SDK_INT SDK_INT #35 >= and [THEN] [IF]
+    : xywhd@ ( -- fx fy fw fh fd )
+	screen-xywh@ { x y w h }
+	x s>f  y h + s>f  w s>f  h s>f  0e ;
+[ELSE]
+    : xywhd@ ( -- fx fy fw fh fd )
+	0e dpy-h @ s>f dpy-w @ s>f fover  0e ;
+[THEN]
+
 : htop-resize ( -- )
     +resizeall
-    tabglues0
-    !size 0e 1e dh* 1e dw* 1e dh* 0e !resize
-    tabglues= 0= IF
-	!size 0e 1e dh* 1e dw* 1e dh* 0e !resize
-    THEN
+    tabglues0        !size xywhd@ !resize
+    tabglues= 0= IF  !size xywhd@ !resize  THEN
     -resizeall
     [IFDEF] ?sync-update
 	wm_sync_value 8 wm_sync_value' over str= 0= IF

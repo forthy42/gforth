@@ -18,16 +18,16 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 0 to infile-id
-s" GFORTHDESTDIR" getenv d0<> [IF]
+${GFORTHDESTDIR} d0<> [IF]
     ." Replace dirs:" cr
-    s" GFORTHDESTDIR" getenv 2dup type cr
-    s" GFORTHINSDIR" getenv 2dup type cr
+    ${GFORTHDESTDIR} 2dup type cr
+    ${GFORTHINSDIR} 2dup type cr
     repl-included-files
     .included
 [THEN]
 ." load terminal-server" cr stdout flush-file throw
 require unix/terminal-server.fs
-: t get-connection ;
+: t ." listen" key? drop get-connection term-bg? rgb>mode ;
 ." load android" cr stdout flush-file throw
 require unix/android.fs
 ." load gl-terminal" cr stdout flush-file throw

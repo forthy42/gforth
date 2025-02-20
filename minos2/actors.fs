@@ -623,7 +623,7 @@ also
 	+sync ;
     ' android-seteditline is edit-update
 [ELSE]
-    ' noop is edit-update \ no need to do that here
+    [: ~~ ;] is edit-update \ no need to do that here
 [THEN]
 ' noop is edit-error  \ no need to make annoying bells
 ' clipboard!     is paste!
@@ -827,7 +827,7 @@ edit-terminal edit-out !
 [THEN]
 edit-actor :method ekeyed ( key o:actor -- )
     [: 4 roll dup keycode-start and 0= k-ctrl-mask and invert and
-	everychar >control edit-control edit-update drop +sync +resize ;] edit-xt ;
+	everychar >control edit-control drop edit-update +sync +resize ;] edit-xt ;
 edit-actor :method ukeyed ( addr u o:actor -- )
     dup 1 = vt100-modifier @ 8 = and IF
 	drop c@ 2 mask-shift# lshift or ekeyed

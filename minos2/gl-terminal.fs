@@ -199,8 +199,9 @@ FVariable scroll-time
 48 Value vcols
 
 : form-chooser ( -- )
-    screen-orientation 1 and  IF  hcols  ELSE  vcols  THEN
-    dup [IFDEF] screen-wh' screen-wh' 2@ swap
+    screen-orientation 1 and  IF  hcols  ELSE  vcols  THEN  dup
+    [ [defined] screen-wh' [IFDEF] SDK_INT SDK_INT #35 >= and [THEN] ]
+    [IF] screen-wh' 2@ swap
 	2dup d0= IF  2drop dpy-h @ dpy-w @  THEN
     [ELSE] dpy-h @ dpy-w @ [THEN]
     2* */ swap gl-wh 2! ;
