@@ -177,7 +177,9 @@ $FF7733FF text-color: redish
 	}}vt
 	glue*l }}glue
 	l" close" redish x-color blackish }}button /center*ll
+	also [IFDEF] android android [THEN]
 	[: -1 level# +! ;] over click[]
+	previous
     }}v box[] >bdr
 }}z box[] /flip dup >slides
 
