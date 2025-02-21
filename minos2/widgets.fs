@@ -937,10 +937,10 @@ previous
 
 also freetype-gl
 : <draw-init ( -- )
+    0>clear clear
     program glUseProgram
     -1e 1e >apxy  .01e 100e fdup >ap
-    Ambient 1 ambient% glUniform1fv
-    0>clear clear ;
+    Ambient 1 ambient% glUniform1fv ;
 
 : draw-init> ( -- ) ;
 previous
@@ -1887,7 +1887,7 @@ previous
     0 looper-to# anims[] $@len ?sync or select
     #looper  time( ." looper: " .!time cr ) ;
 : widgets-loop ( -- ) depth fdepth { d fd }
-    level# @ 0= IF  enter-minos  THEN
+    level# @ 0= IF  enter-minos  THEN  !init-animation
     1 level# +!@ >r  top-widget .widget-draw
     BEGIN
 	time( ." looper: " ) widgets-looper time( .!time

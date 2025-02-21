@@ -1105,8 +1105,9 @@ previous
     old @ -100 = IF
 	cur old !
     ELSE
-	cur old @ over old ! swap -
-	s>f dpy-h @ s>f rows fm/ 1e fmax f/ fdup f2/ motion f@ f2/ f+ motion f!
+	cur old @ over old ! swap - s>f
+	[IFDEF] screen-xywh@ screen-xywh@ nip nip nip [ELSE] dpy-h @ [THEN] s>f
+	rows fm/ 1e fmax f/ fdup f2/ motion f@ f2/ f+ motion f!
 	xt execute
     THEN ;
 

@@ -159,12 +159,13 @@ $8F00 Value gl-default-color \ real default color
     4 lshift error-color-index fg-field c! ;
 : err-bg! ( index -- ) ?default-bg
     4 lshift error-color-index bg-field c! ;
+1e $130 fm/ FValue damp-light
 : bg>clear ( index -- ) $F xor
     $F and sfloats color-matrix +
-    count s>f $FF fm/
-    count s>f $FF fm/
-    count s>f $FF fm/
-    c@    s>f $FF fm/ glClearColor ;
+    count damp-light fm*
+    count damp-light fm*
+    count damp-light fm*
+    c@    damp-light fm* glClearColor ;
 
 : std-bg! ( index -- )  dup bg! dup std-bg ! bg>clear ;
 Black White white? [IF] swap [THEN] fg! bg!
