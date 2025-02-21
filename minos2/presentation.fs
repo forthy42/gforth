@@ -27,6 +27,7 @@ also minos
 require minos2/font-style.fs
 require minos2/text-style.fs
 require minos2/presentation-support.fs
+require unix/open-url.fs
 
 gl-init
 :noname 44e update-size# ; is rescaler
@@ -173,7 +174,7 @@ $FF7733FF text-color: redish
 	vt{{
 	    l" Bernd Paysan " l" net2o fossil repository" bi\\
 	    l" 🔗" l" https://net2o.de/" bm\\
-	    [: s" xdg-open https://net2o.de/" system ;] 0 click[]
+	    [: "https://net2o.de/" open-url ;] 0 click[]
 	}}vt
 	glue*l }}glue
 	l" close" redish x-color blackish }}button /center*ll
