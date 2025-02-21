@@ -300,7 +300,7 @@ Variable gl-emit-buf
 : gl-cr ( -- )
     gl-lineend @ 0= IF
 	gl-xy @ 1+ 0 swap gl-xy 2! THEN
-    resize-screen  +sync  out off ;
+    resize-screen  +sync +show  out off ;
 
 xc-vector @ set-encoding-utf-8
 : xchar>glascii ( xchar -- 0..7F )
@@ -445,7 +445,7 @@ ${GFORTH_IGNLIB} s" true" str= 0= [IF]
     scroll-y @ s>f y-pos sf@ f2/ rows fm* f+ scroll-source f!
     scroll-dest f!  ftime scroll-time f! ;
 
-: scroll-slide ( -- )  scroll-dest f@ scroll-source f@ f= ?EXIT
+: scroll-slide ( -- )  -sync scroll-dest f@ scroll-source f@ f= ?EXIT
     >scroll-pos fdup 1e f= IF  scroll-dest f@ scroll-source f!  THEN
     fdup scroll-dest f@ f* 1e frot f- scroll-source f@ f* f+ screen-scroll ;
 
@@ -534,6 +534,8 @@ Defer scale-me ' terminal-scale-me is scale-me
 	gl-wh 2@ 2>r config-changer gl-wh 2@ 2r> d<>
 	IF   winch? on +resize  THEN  +sync -config
     THEN ;
+
+Variable render#
 
 : screen-sync ( -- )
     rendering @ -2 > ?EXIT \ don't render if paused

@@ -1187,7 +1187,8 @@ Defer window-init     ' noop is window-init
 
 : term-key? ( -- flag )
     stdin isfg IF  defers key?  ELSE  key-buffer $@len 0>  THEN ;
-: wl-key? ( -- flag ) 0 #looper  term-key? dup 0= IF screen-ops THEN ;
+: wl-key? ( -- flag ) 0 #looper
+    term-key? dup 0= ?sync and IF  screen-ops  THEN ;
 : wl-key ( -- key )
     +show  key? IF  defers key-ior  EXIT  THEN
     BEGIN  >looper  key? UNTIL  defers key-ior ;
