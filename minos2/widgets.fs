@@ -1883,6 +1883,9 @@ also [IFDEF] android jni [THEN]
 
 previous
 
+: !init-animation ( -- )
+    0.1e o [: fdrop drop color-theme s>f 1/2 f+ ColorMode! +sync +vpsync ;]
+    >animate ;
 : widgets-looper ( -- )
     0 looper-to# anims[] $@len ?sync or select
     #looper  time( ." looper: " .!time cr ) ;
