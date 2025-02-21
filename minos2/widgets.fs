@@ -1890,8 +1890,8 @@ previous
     0 looper-to# anims[] $@len ?sync or select
     #looper  time( ." looper: " .!time cr ) ;
 : widgets-loop ( -- ) depth fdepth { d fd }
-    level# @ 0= IF  enter-minos  THEN  !init-animation
-    1 level# +!@ >r  top-widget .widget-draw
+    level# @ 0= IF  enter-minos  THEN
+    1 level# +!@ >r  top-widget .widget-draw  !init-animation
     BEGIN
 	time( ." looper: " ) widgets-looper time( .!time
 	." sync: " ) widget-sync time( .!time cr )
