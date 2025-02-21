@@ -285,11 +285,8 @@ synonym rgbas sfloats
     vp-tops get-stack 0 ?DO  .vp-top  LOOP
     1e ambient% sf! set-uniforms ;
 
-: !init-animation ( -- )
-    0.1e o [: fdrop drop color-theme s>f 1/2 f+ ColorMode! +sync +vpsync ;]
-    >animate ;
 : presentation ( -- )
-    1config >fullscreen !pres-widgets !init-animation widgets-loop
+    1config >fullscreen !pres-widgets widgets-loop
     >normalscreen ;
 [IFDEF] looper-keyior
     : >presentation-key ( -- )  1 level# +!
