@@ -42,9 +42,15 @@ Variable buttonmask
     dup sf@ sfloat+ sf@ ;
 : 2sf! ( r1 r2 addr -- )
     dup sfloat+ sf! sf! ;
-: getXY ( index -- rx ry )
-    dup getX screen-xy cell+ @ s>f f-
-        getY screen-xy       @ s>f f- ;
+SDK_INT #35 >= [IF]
+    \ with API 35, the entire screen is rendered, so we don't need to correct here
+    : getXY ( index -- rx ry )
+	dup getX getY ;
+[ELSE]
+    : getXY ( index -- rx ry )
+	dup getX screen-xy cell+ @ s>f f-
+	    getY screen-xy       @ s>f f- ;
+[THEN]
 : samepos? ( rx ry -- flag )
     lastpos 2sf@ frot f- f**2 f-rot f- f**2 f+ samepos f< ;
 : ?samepos ( -- )
