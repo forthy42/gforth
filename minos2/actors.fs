@@ -623,7 +623,7 @@ also
 	+sync ;
     ' android-seteditline is edit-update
 [ELSE]
-    [: ~~ ;] is edit-update \ no need to do that here
+    ' noop is edit-update \ no need to do that here
 [THEN]
 ' noop is edit-error  \ no need to make annoying bells
 ' clipboard!     is paste!

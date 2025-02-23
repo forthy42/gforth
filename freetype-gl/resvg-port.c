@@ -91,7 +91,7 @@ void free_trees(Resvg_Port_StateRec * state)
   {
     /* allocate the memory upon initialization */
     *state = malloc( sizeof( Resvg_Port_StateRec ) ); /* XXX error handling */
-    bzero(state, sizeof( Resvg_Port_StateRec ) );
+    memset(state, 0, sizeof( Resvg_Port_StateRec ) );
 
     return FT_Err_Ok;
   }
@@ -143,31 +143,38 @@ void free_trees(Resvg_Port_StateRec * state)
     float xscale=metrics.x_scale/4194304.;
     float yscale=metrics.y_scale/4194304.;
 
-    if(resvg_get_node_transform(tree, id, &transform)) {
+    if(!resvg_get_node_transform(tree, id, &transform)) {
+      transform.a=ft_transform.xx/65536.;
+      transform.b=ft_transform.yx/65536.;
+      transform.c=ft_transform.xy/65536.;
+      transform.d=ft_transform.yy/65536.;
+      transform.e=ft_delta.x/65536.;
+      transform.f=ft_delta.y/65536.;
+    } else {
       transform.a*=xscale;
       transform.b*=yscale;
       transform.c*=xscale;
       transform.d*=yscale;
-      transform.e*=xscale;
-      transform.f*=yscale;
-      /* some slots have points outside the legal range */
-      if(slot->bitmap_left < 0)
-	transform.e-=slot->bitmap_left;
-      if((float)(slot->bitmap_top) > metrics.height/64.)
-	transform.f+=slot->bitmap_top-(FT_Int)(metrics.height/64.);
-      resvg_render_node(tree,
-			id,
-			transform,
-			(int)slot->bitmap.width,
-			(int)slot->bitmap.rows,
-			slot->bitmap.buffer);
     }
-
+    transform.e*=xscale;
+    transform.f*=yscale;
+    /* some slots have points outside the legal range */
+    if(slot->bitmap_left < 0)
+      transform.e-=slot->bitmap_left;
+    if((float)(slot->bitmap_top) > metrics.height/64.)
+      transform.f+=slot->bitmap_top-(FT_Int)(metrics.height/64.);
     debugp("left/top: %d %d\n", slot->bitmap_left, slot->bitmap_top);
     debugp("transform: %f %f %f matrix: %f %f delta: %f\n"
 	   "           %f %f %f         %f %f        %f\n",
 	   transform.a, transform.c, transform.e, ft_transform.xx/65536., ft_transform.xy/65536., ft_delta.x/65536.,
 	   transform.b, transform.d, transform.f, ft_transform.yx/65536., ft_transform.yy/65536., ft_delta.y/65536.);
+    
+    resvg_render_node(tree,
+		      id,
+		      transform,
+		      (int)slot->bitmap.width,
+		      (int)slot->bitmap.rows,
+		      slot->bitmap.buffer);
 
     int i;
     uint32_t* ptr=(uint32_t*)(slot->bitmap.buffer);
@@ -229,7 +236,7 @@ void free_trees(Resvg_Port_StateRec * state)
 	   "         heigth=       %f\n"
 	   "         max_advance=  %f\n",
 	   metrics.x_ppem/64., metrics.y_ppem/64.,
-	   metrics.x_scale/65536., metrics.y_scale/65536.,
+	   metrics.x_scale/4194304., metrics.y_scale/4194304.,
 	   metrics.ascender/64., metrics.descender/64.,
 	   metrics.height/64., metrics.max_advance/64.);
 
@@ -238,6 +245,7 @@ void free_trees(Resvg_Port_StateRec * state)
       struct timespec time1, time2;
       
       clock_gettime(CLOCK_REALTIME,&time1);
+      debugp("Parse SVG document %.*s\n", document->svg_document_length, document->svg_document);
       if( resvg_parse_tree_from_data( document->svg_document,
 				      document->svg_document_length,
 				      opts,
@@ -254,12 +262,15 @@ void free_trees(Resvg_Port_StateRec * state)
 	      (time1.tv_sec+time1.tv_nsec*1e-9));
     }
 
-    resvg_get_node_bbox(tree, id, &imgrect);
+    float xscale=metrics.x_scale/4194304.;
+    float yscale=metrics.y_scale/4194304.;
+    
+    if(!resvg_get_node_bbox(tree, id, &imgrect)) {
+      resvg_get_image_bbox(tree, &imgrect);
+    }
 
     debugp("BBox: %f %f %f %f\n", imgrect.x, imgrect.y, imgrect.width, imgrect.height);
     /* Preset the values. */
-    float xscale=metrics.x_scale/4194304.;
-    float yscale=metrics.y_scale/4194304.;
     
     slot->bitmap_left = (FT_Int) imgrect.x*xscale;  /* XXX rounding? */
     slot->bitmap_top  = (FT_Int)-imgrect.y*yscale;

@@ -254,10 +254,7 @@ texture_font_generate_kerning( texture_font_t *self,
 
 int
 texture_is_color_font( texture_font_t *self) {
-    static const uint32_t tag = FT_MAKE_TAG('C', 'B', 'D', 'T');
-    unsigned long length = 0;
-    FT_Load_Sfnt_Table(self->face, tag, 0, NULL, &length);
-    return length != 0;
+    FT_HAS_COLOR(self->face);
 }
 
 // -------------------------------------------------- texture_font_set_size ---
