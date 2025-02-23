@@ -254,7 +254,7 @@ texture_font_generate_kerning( texture_font_t *self,
 
 int
 texture_is_color_font( texture_font_t *self) {
-    FT_HAS_COLOR(self->face);
+    return FT_HAS_COLOR(self->face);
 }
 
 // -------------------------------------------------- texture_font_set_size ---
@@ -995,7 +995,7 @@ texture_font_load_glyph_gi( texture_font_t * self,
             error = FT_Glyph_To_Bitmap( &ft_glyph, FT_RENDER_MODE_LCD, 0, 1);
             break;
         case 4:
-            error = FT_Glyph_To_Bitmap( &ft_glyph, FT_RENDER_MODE_NORMAL, 0, 1);
+	    error = FT_Glyph_To_Bitmap( &ft_glyph, FT_RENDER_MODE_NORMAL, 0, 1);
             break;
         }
 

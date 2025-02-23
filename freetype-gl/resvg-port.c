@@ -230,16 +230,6 @@ void free_trees(Resvg_Port_StateRec * state)
     id = str;
     debugp("preset id=%s∈[%d,%d]\n", id, start_glyph_id, end_glyph_id);
 
-    debugp("Metrics: x/y ppem=     %f %f\n"
-	   "         x/y scale=    %f %f\n"
-	   "         a/de scender= %f %f\n"
-	   "         heigth=       %f\n"
-	   "         max_advance=  %f\n",
-	   metrics.x_ppem/64., metrics.y_ppem/64.,
-	   metrics.x_scale/4194304., metrics.y_scale/4194304.,
-	   metrics.ascender/64., metrics.descender/64.,
-	   metrics.height/64., metrics.max_advance/64.);
-
     if(tree == NULL) {
       /* Form an `resvg_render_tree` by loading the SVG document. */
       struct timespec time1, time2;
@@ -262,9 +252,21 @@ void free_trees(Resvg_Port_StateRec * state)
 	      (time1.tv_sec+time1.tv_nsec*1e-9));
     }
 
+    // resvg_size imgsize=resvg_get_image_size(tree);
+
     float xscale=metrics.x_scale/4194304.;
     float yscale=metrics.y_scale/4194304.;
     
+    debugp("Metrics: x/y ppem=     %f %f\n"
+	   "         x/y scale=    %f %f\n"
+	   "         a/de scender= %f %f\n"
+	   "         heigth=       %f\n"
+	   "         max_advance=  %f\n",
+	   metrics.x_ppem/64., metrics.y_ppem/64.,
+	   metrics.x_scale/4194304., metrics.y_scale/4194304.,
+	   metrics.ascender/64., metrics.descender/64.,
+	   metrics.height/64., metrics.max_advance/64.);
+
     if(!resvg_get_node_bbox(tree, id, &imgrect)) {
       resvg_get_image_bbox(tree, &imgrect);
     }

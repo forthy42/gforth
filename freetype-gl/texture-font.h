@@ -534,6 +534,15 @@ typedef struct texture_font_t
   int
   texture_font_is_variable( texture_font_t * self );
 
+/**
+ * Texture font is a color font (SVG or COLRv1
+ *
+ * @param self  a valid texture font
+ *
+ * @return 1 if true, 0 if false
+ */
+  int
+  texture_is_color_font( texture_font_t *self );
 
 /**
  * Get font weights (variable fonts only)
