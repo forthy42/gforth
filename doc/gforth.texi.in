@@ -15136,9 +15136,9 @@ The number, types, and order of the locals are used for specifying how
 many and which stack items are consumed at closure creation time.  At
 closure execution time these values become the values of the locals.
 The locals definition ends with a word with a naming scheme
-@code{:@}@i{A}}, where @i{A} specifies where the closure is allocated;
-in addition to @code{l} (local), @code{d} (dictionary), @code{h}
-(heap), or @code{h1} (heap, @code{free} on first execution).
+@code{:@}@i{A}}, where @i{A} specifies where the closure is allocated:
+@code{l} (local), @code{d} (dictionary), @code{h} (heap), or @code{h1}
+(heap, @code{free} on first execution).
 
 Note that the locals are still strictly local to one execution of the
 xt, and any changes to the locals (e.g., with @word{to}) do not change
