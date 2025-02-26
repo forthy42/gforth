@@ -74,22 +74,19 @@ set-current
 
 : see-code-range { addr1 addr2 -- } \ gforth
     \G Decompile code in [@i{addr1},@i{addr2}) like @code{see-code}.
-    0 addr1 0 0 ['] noop begin { nseqlen  addr d: codeblock xt: cr? }
+    0 0 `noop { d: codeblock xt: cr? }
+    addr1 begin { addr }
         addr addr2 u< while
-            addr decompile-prim3 { ulen } ulen 0< if
-                drop 2drop 2drop
-                cr? addr simple-see-word
-                nseqlen
-            else
-                nseqlen 0= if
-                    codeblock discode 0 0 to codeblock ['] noop is cr? then
-                cr? addr see-word.addr type { nseqlen1 ustart uend } nseqlen1 if
-                    ustart uend .transition
-                    assert( codeblock nip 0= )
-                    addr @ ulen to codeblock then
-                nseqlen nseqlen1 max 1-
-            then
-            ( nseqlen2 ) addr cell+ codeblock ['] cr
+            addr decompile-prim3 dup 0> if
+                codeblock discode
+                `noop is cr?
+                \ not true for code area changes:
+                \ assert( codeblock 0. d= codeblock + addr @ = or )
+                addr @ over to codeblock then
+            2drop 2drop 2drop
+            cr? addr simple-see-word
+            `cr is cr?
+            addr cell+
     repeat
     codeblock discode ;
 
