@@ -3459,6 +3459,11 @@ __atomic_thread_fence(__ATOMIC_RELEASE);
 __sync_synchronize();
 #endif
 
+!~@ ( u1 a_addr -- u2 )	gforth-experimental store_nonatomic_fetch
+""load @var{u2} from @var{a_addr}, and store @var{u1} there, as non-atomic operation""
+u2 = *a_addr;
+*a_addr = u1;
+
 \g peephole
 
 \+peephole

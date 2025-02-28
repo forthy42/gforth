@@ -254,7 +254,7 @@ texture_font_generate_kerning( texture_font_t *self,
 
 int
 texture_is_color_font( texture_font_t *self) {
-    return FT_HAS_COLOR(self->face);
+    FT_HAS_COLOR(self->face);
 }
 
 // -------------------------------------------------- texture_font_set_size ---

@@ -158,7 +158,7 @@ function gen_opus {
 
 function gen_fthb {
     (cd $FREETYPE
-     ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --includedir=$TOOLCHAIN/sysroot/usr/include/harfbuzz --with-png=yes --with-bzip2=no --with-zlib=no --with-harfbuzz=yes
+     ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --includedir=$TOOLCHAIN/sysroot/usr/include/harfbuzz --with-png=yes --with-bzip2=yes --with-zlib=no --with-harfbuzz=yes
      make clean
      make -j$nprocs
      make install)
