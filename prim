@@ -3415,7 +3415,7 @@ utfcp = DHI(d1);
 
 \g atomic
 
-!@ ( u1 a_addr -- u2 )	gforth-experimental store_fetch
+atomic!@ ( u1 a_addr -- u2 )	gforth-experimental atomic_store_fetch
 ""load @var{u2} from @var{a_addr}, and store @var{u1} there, as atomic operation""
 #ifdef HAS_ATOMIC
 u2 = __atomic_exchange_n(a_addr, u1, __ATOMIC_SEQ_CST);
@@ -3426,7 +3426,7 @@ u2 = *a_addr;
 *a_addr = u1;
 #endif
 
-+!@ ( u1 a_addr -- u2 )	gforth-experimental add_store_fetch
+atomic+!@ ( u1 a_addr -- u2 )	gforth-experimental atomic_add_store_fetch
 ""load @var{u2} from @var{a_addr}, and increment this location by @var{u1}, as atomic operation""
 #ifdef HAS_ATOMIC
 u2 = __atomic_fetch_add(a_addr, u1, __ATOMIC_SEQ_CST);
@@ -3437,7 +3437,7 @@ u2 = *a_addr;
 *a_addr += u1;
 #endif
 
-?!@ ( unew uold a_addr -- uprev )	gforth-experimental question_store_fetch
+atomic?!@ ( unew uold a_addr -- uprev )	gforth-experimental atomic_question_store_fetch
 ""load @var{uprev} from @var{a_addr}, compare it to @var{uold}, and if equal, store @var{unew} there, as atomic operation""
 #ifdef HAS_ATOMIC
 uprev = uold;
@@ -3459,10 +3459,15 @@ __atomic_thread_fence(__ATOMIC_RELEASE);
 __sync_synchronize();
 #endif
 
-!~@ ( u1 a_addr -- u2 )	gforth-experimental store_nonatomic_fetch
+!@ ( u1 a_addr -- u2 )	gforth-experimental store_fetch
 ""load @var{u2} from @var{a_addr}, and store @var{u1} there, as non-atomic operation""
 u2 = *a_addr;
 *a_addr = u1;
+
++!@ ( u1 a_addr -- u2 )	gforth-experimental add_store_fetch
+""load @var{u2} from @var{a_addr}, and increment this location by @var{u1}, as non-atomic operation""
+u2 = *a_addr;
+*a_addr += u1;
 
 \g peephole
 

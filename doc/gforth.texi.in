@@ -16164,9 +16164,9 @@ the non-atomic sequences of operations they tend to be slow.  Atomic
 operations only work correctly on aligned addresses, even on hardware
 that otherwise does not require alignment.
 
-doc-!@
-doc-+!@
-doc-?!@
+doc-atomic!@
+doc-atomic+!@
+doc-atomic?!@
 
 Another hardware operation is the memory barrier.  Unfortunately
 modern hardware often can reorder memory operations relative to other
@@ -16175,6 +16175,13 @@ barrier suppresses this reordering for one point in the execution of
 the task.
 
 doc-barrier
+
+Since some atomic operations have interesting semantics, which is also
+useful outside the context of atomicy itself, non-atomic fast variants
+also exists:
+
+doc-!@
+doc-+!@
 
 @node Message queues,  , Hardware operations for multi-tasking, Pthreads
 @subsubsection Message queues

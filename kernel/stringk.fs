@@ -52,11 +52,11 @@
     [ 6 cells 1- ] Literal + [ -4 cells ] Literal and >pow2 ;
 : $free ( $addr -- ) \ gforth string-free
     \G free the string pointed to by addr, and set addr to 0
-    0 swap !@ ?dup-IF  free throw  THEN ;
+    0 swap atomic!@ ?dup-IF  free throw  THEN ;
 
 : $!buf ( $buf $addr -- ) \ gforth-internal string-store-buf
     \G stores a buffer in a string variable and frees the previous buffer
-    !@ ?dup-IF  free throw  THEN ;
+    atomic!@ ?dup-IF  free throw  THEN ;
 : $make ( addr1 u -- $buf )
     \G create a string buffer as address on stack, which can be stored into
     \G a string variable, internal factor
