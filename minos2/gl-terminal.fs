@@ -420,6 +420,8 @@ ${GFORTH_IGNLIB} s" true" str= 0= [IF]
 			gl-lineend-save @ gl-lineend !  endof \ restore curpos
 		endcase
 	    endof
+	    'A' of  negate 0 swap gl-at-deltaxy  endof
+	    'B' of         0 swap gl-at-deltaxy  endof
 	    'E' of         gl-xy @ + 0 swap (gl-atxy)  endof
 	    'F' of  negate gl-xy @ + 0 swap (gl-atxy)  endof
 	    'J' of  >r
