@@ -170,6 +170,8 @@ csswaplstore = >r l>< r> l!
 \E S1 S0 state-prim under+
 \E prim-states i                    \ 502908
 \E prim-states +!                   \ 448925
+\E prim-states !@
+\E prim-states +!@
 \E S1 S1 state-offset-prim branch   \ 409561
 \E S1 S1 state-offset-prim (loop)   \ 379646
 \ \E prim-states lp!                  \ 326743
