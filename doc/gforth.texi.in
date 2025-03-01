@@ -6333,6 +6333,8 @@ mybuf 2@@ type
 doc-@
 doc-!
 doc-+!
+doc-!@
+doc-+!@
 doc-c@
 doc-c!
 doc-2@
@@ -16156,6 +16158,7 @@ doc-critical-section
 
 @node Hardware operations for multi-tasking, Message queues, Semaphores, Pthreads
 @subsubsection Hardware operations for multi-tasking
+@cindex atomic operations
 
 Atomic hardware operations perform the whole operation, without any
 other task seeing an intermediate state.  These operations can be used
@@ -16165,23 +16168,22 @@ operations only work correctly on aligned addresses, even on hardware
 that otherwise does not require alignment.
 
 doc-atomic!@
+@cindex fetch and add
 doc-atomic+!@
+@cindex compare and swap
 doc-atomic?!@
+
+There are also the non-atomic @word{!@} and @word{+!@} (otherwise the
+same behaviour, @pxref{Memory Access}).
 
 Another hardware operation is the memory barrier.  Unfortunately
 modern hardware often can reorder memory operations relative to other
 memory operations (as seen by a different core), and the memory
 barrier suppresses this reordering for one point in the execution of
 the task.
+@cindex memory barrier
 
 doc-barrier
-
-Since some atomic operations have interesting semantics, which is also
-useful outside the context of atomicy itself, non-atomic fast variants
-also exists:
-
-doc-!@
-doc-+!@
 
 @node Message queues,  , Hardware operations for multi-tasking, Pthreads
 @subsubsection Message queues

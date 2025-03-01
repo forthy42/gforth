@@ -3415,19 +3415,21 @@ utfcp = DHI(d1);
 
 \g atomic
 
-atomic!@ ( u1 a_addr -- u2 )	gforth-experimental atomic_store_fetch
-""load @var{u2} from @var{a_addr}, and store @var{u1} there, as atomic operation""
+atomic!@ ( w1 a_addr -- w2 )	gforth-experimental atomic_store_fetch
+""Fetch @var{w2} from @var{a_addr}, then store @var{w1} there,
+combined into an atomic operation.""
 #ifdef HAS_ATOMIC
-u2 = __atomic_exchange_n(a_addr, u1, __ATOMIC_SEQ_CST);
+w2 = __atomic_exchange_n(a_addr, w1, __ATOMIC_SEQ_CST);
 #elif defined(HAS_SYNC)
-u2 = __sync_lock_test_and_set(a_addr, u1);
+w2 = __sync_lock_test_and_set(a_addr, w1);
 #else
-u2 = *a_addr;
-*a_addr = u1;
+w2 = *a_addr;
+*a_addr = w1;
 #endif
 
-atomic+!@ ( u1 a_addr -- u2 )	gforth-experimental atomic_add_store_fetch
-""load @var{u2} from @var{a_addr}, and increment this location by @var{u1}, as atomic operation""
+atomic+!@ ( u1 a_addr -- u2 )	gforth-experimental atomic_plus_store_fetch
+""Fetch @var{w2} from @var{a_addr}, then increment this location by @var{u1}.
+This atomic operation is commonly known as fetch-and-add.""
 #ifdef HAS_ATOMIC
 u2 = __atomic_fetch_add(a_addr, u1, __ATOMIC_SEQ_CST);
 #elif defined(HAS_SYNC)
@@ -3438,7 +3440,9 @@ u2 = *a_addr;
 #endif
 
 atomic?!@ ( unew uold a_addr -- uprev )	gforth-experimental atomic_question_store_fetch
-""load @var{uprev} from @var{a_addr}, compare it to @var{uold}, and if equal, store @var{unew} there, as atomic operation""
+""Fetch @var{uprev} from @var{a_addr}, compare it to @var{uold}, and if equal,
+store @var{unew} there.  This atomic operation is commonly known
+as compare-and-swap.""
 #ifdef HAS_ATOMIC
 uprev = uold;
 __atomic_compare_exchange_n(a_addr, &uprev, unew, 0,
@@ -3459,13 +3463,15 @@ __atomic_thread_fence(__ATOMIC_RELEASE);
 __sync_synchronize();
 #endif
 
-!@ ( u1 a_addr -- u2 )	gforth-experimental store_fetch
-""load @var{u2} from @var{a_addr}, and store @var{u1} there, as non-atomic operation""
-u2 = *a_addr;
-*a_addr = u1;
+!@ ( w1 a_addr -- w2 )	gforth-experimental store_fetch
+""Fetch @var{w2} from @var{a_addr}, then store @var{w1} there.
+There is also @word{atomic!@} (@pxref{Hardware operations for multi-tasking}).""
+w2 = *a_addr;
+*a_addr = w1;
 
-+!@ ( u1 a_addr -- u2 )	gforth-experimental add_store_fetch
-""load @var{u2} from @var{a_addr}, and increment this location by @var{u1}, as non-atomic operation""
++!@ ( u1 a_addr -- u2 )	gforth-experimental plus_store_fetch
+""Fetch @var{u2} from @var{a_addr}, then increment this location by @var{u1}.
+There is also @word{atomic+!@} (@pxref{Hardware operations for multi-tasking}).""
 u2 = *a_addr;
 *a_addr += u1;
 

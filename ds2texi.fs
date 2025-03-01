@@ -306,7 +306,7 @@ set-current
     r@ doc-description 2@ dup 0<>
     if
 	\ ." @iftex" cr ." @vskip-0ex" cr ." @end iftex" cr
-	type cr cr
+	type-replace@word cr cr
 	\ ." @ifinfo" cr ." @*" cr ." @end ifinfo" cr cr
     else
 	2drop cr
