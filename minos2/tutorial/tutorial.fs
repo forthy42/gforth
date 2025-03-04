@@ -42,6 +42,7 @@ l"  " >r
 	    rdrop true >r
     REPEAT  2drop rdrop ;
 
+$EEEE3344 text-color: redish
 light-gui
 
 : tutorials ( "name1" .. "namen" -- )
@@ -53,6 +54,33 @@ light-gui
 	    include-tutorials
 	    glue-right @ }}glue
 	}}h box[]
+	[ true ] [IF]
+	    {{
+		\Large
+		{{
+		    glue*l }}glue
+		    l" 〈" redish x-color blackish }}button
+		    glue*l }}glue
+		}}v
+		glue*ll }}glue
+		{{
+		    also [IFDEF] android android [THEN]
+		    [: -1 level# +! ;] over click[]
+		    previous
+		    glue*l }}glue
+		    l" 〉" redish x-color blackish }}button
+		    glue*l }}glue
+		}}v
+	    }}h
+	    {{
+		{{
+		    glue*ll }}glue
+		    l" ❌️" redish x-color blackish }}button
+		}}h
+		glue*ll }}glue
+	    }}v
+	    \normal
+	[THEN]
     }}z box[] slide[] to top-widget
 
     fpath $@ 0 -scan fpath $!

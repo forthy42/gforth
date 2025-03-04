@@ -161,6 +161,8 @@ end-class slide-actor
 
 0 Value scroll<<
 
+also [IFDEF] android android [THEN]
+
 slide-actor :method scrolled ( axis dir rx ry -- )
     scroll<< 4 = IF
 	[ box-actor ] defers scrolled
@@ -173,11 +175,16 @@ slide-actor :method clicked ( rx ry b n -- ) dup 1 and 0= IF
 	over $08 scroll<< lshift and IF  prev-slide  2drop fdrop fdrop  EXIT  THEN
 	over $10 scroll<< lshift and IF  next-slide  2drop fdrop fdrop  EXIT  THEN
 	over -$2 and 0= IF
-	    fover caller-w >o x f- w f/ o>
-	    fdup 0.1e f< IF  fdrop  2drop fdrop fdrop  prev-slide  EXIT
-	    ELSE  0.9e f> IF  2drop fdrop fdrop  next-slide  EXIT  THEN  THEN
+	    fover fover caller-w >o h f/ 0.1e f< w f/ 0.9e f> and o>
+	    IF  -1 level# +!  fdrop fdrop 2drop EXIT  THEN
+            fover caller-w >o x f- w f/ o>
+            fdup 0.1e f< IF  fdrop  2drop fdrop fdrop  prev-slide  EXIT
+            ELSE  0.9e f> IF  2drop fdrop fdrop  next-slide  EXIT  THEN  THEN
 	THEN  THEN
     [ box-actor ] defers clicked +sync +resize ;
+
+previous
+
 forward >fullscreen
 forward >normalscreen
 forward screenshot>png
