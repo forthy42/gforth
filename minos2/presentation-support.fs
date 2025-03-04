@@ -175,9 +175,8 @@ slide-actor :method clicked ( rx ry b n -- ) dup 1 and 0= IF
 	over $08 scroll<< lshift and IF  prev-slide  2drop fdrop fdrop  EXIT  THEN
 	over $10 scroll<< lshift and IF  next-slide  2drop fdrop fdrop  EXIT  THEN
 	over -$2 and 0= IF
-	    fover fover caller-w >o h f/ 0.1e f< w f/ 0.9e f> and o>
-	    IF  -1 level# +!  fdrop fdrop 2drop EXIT  THEN
-            fover caller-w >o x f- w f/ o>
+	    fover fover caller-w >o y fswap f- h f/ fdup 0.2e f> 0.8e f< and
+	    IF  x f- w f/  ELSE  fdrop 0.5e  THEN o>
             fdup 0.1e f< IF  fdrop  2drop fdrop fdrop  prev-slide  EXIT
             ELSE  0.9e f> IF  2drop fdrop fdrop  next-slide  EXIT  THEN  THEN
 	THEN  THEN

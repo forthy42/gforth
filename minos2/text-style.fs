@@ -74,6 +74,8 @@ Defer }}text' ' }}text IS }}text'
     >o font-size# to border o o> ;
 : /center ( o -- o' )
     >r {{ glue*l }}glue r> glue*l }}glue }}h box[] >bl ;
+: /vcenter ( o -- o' )
+    >r {{ glue*l }}glue r> glue*l }}glue }}v box[] ;
 : /left ( o -- o' )
     >r {{ r> glue*l }}glue }}h box[] >bl ;
 : \\ }}text' /left ;
