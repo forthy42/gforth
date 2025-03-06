@@ -63,7 +63,6 @@
 >=
 >>
 ?
-?!@
 ?:
 ???
 ???
@@ -433,6 +432,9 @@ at-deltaxy
 atfork:
 atfork-cbs
 atfork-init
+atomic!@
+atomic+!@
+atomic?!@
 ATTITUDE_SET
 attitude_t
 attitude_t-acc_len
@@ -1285,6 +1287,7 @@ dfvalue:
 dfvalue-dummy
 df>x
 [d:h
+[d:h1
 dictionary-end
 dict-new
 die-on-signal
@@ -1509,6 +1512,7 @@ environment?
 environment-wordlist
 #eof
 EOF_SET
+eof-warning
 EOK
 epiper
 epipew
@@ -1727,6 +1731,7 @@ fft-step
 >FG
 FG>
 [f:h
+[f:h1
 +field
 +field,
 field
@@ -2787,6 +2792,7 @@ g_weak_ref_set
 :h
 h.
 :}h1
+:h1
 halt
 hamming
 handler
@@ -3532,6 +3538,7 @@ mkdir-parents
 mkgmtime
 mknod
 mkstemp
+mlstringpos
 */mod
 /mod
 mod
@@ -3556,6 +3563,7 @@ MPS_TO_MPH
 (ms)
 ms
 m-to
+multiline-string
 mux
 mword-filename-match
 mword-match
@@ -3650,6 +3658,7 @@ next-prim
 next-section
 next-task
 [n:h
+[n:h1
 NIL
 nip
 (nl)
@@ -4391,12 +4400,12 @@ rec-f83
 rec-float
 rec-level
 rec-locals
-rec-locals
 rec-meta
 rec-moof2
 rec-new-locals
 ?rec-nt
 rec-nt
+rec-nt-locals
 rec-num
 recognize
 .recognizers
@@ -4524,6 +4533,7 @@ rp0
 rpick
 rpick#
 rshift
+rstack-offset
 RTCM2_SET
 rtcm2_t
 rtcm2_t-almanac
@@ -5231,6 +5241,7 @@ simple-see
 simple-see-range
 simple-see-word
 simp.word
+singleline-string
 s>int
 si-prefixes
 %size
@@ -5250,6 +5261,8 @@ s-k7
 s-k8
 s-k9
 skip
+(skip-autoindent)
+skip-autoindent
 skip-..-prefixes
 sl@
 sleep
