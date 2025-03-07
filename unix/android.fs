@@ -314,21 +314,16 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 
 Defer screen-ops ' noop IS screen-ops
 
-:is key?  0 poll? drop
-    key-buffer $@len 0<>  infile-id ?dup-IF  key?-file  or  THEN
-    screen-ops ;
-
-[IFUNDEF] EAGAIN
-    #11 Constant EAGAIN \ we know here it's a Linux
-[THEN]
+:is key? ( -- flag ) 0 poll? drop screen-ops
+    key-buffer $@len 0<>  infile-id ?dup-IF  key?-file  or  THEN ;
 
 : android-key-ior ( -- key / ior )
     ?keyboard IF  showkb -keyboard  THEN
     +show
     BEGIN  >looper key? winch? @ or  UNTIL
-    0 winch? atomic!@ IF  EINTR  EXIT  THEN
+    winch? @ IF  EINTR  EXIT  THEN
     key-buffer $@len IF  inskey@  EXIT  THEN
-    infile-id ?dup-IF  key?-file IF  (key)  EXIT  THEN  THEN
+    infile-id ?dup-IF  key?-file IF  infile-id (key-file)  EXIT  THEN  THEN
     EINTR ;
 ' android-key-ior IS key-ior
 
@@ -500,7 +495,7 @@ SDK_INT #30 >= [IF]
     JValue bar-insets
     :is android-insets ( inset -- )
 	>o ime getInsets to ime-insets systemBars getInsets to bar-insets
-	gref> ;
+	gref> winch? on ;
 [THEN]
 
 Create aevents

@@ -619,7 +619,7 @@ default-out op-vector !
 : >screen ( -- )
     ctx 0= IF  window-init  [IFDEF] map-win map-win [THEN] config-changer  THEN
     err>screen op-vector @ debug-vector !  out>screen
-    white? IF  >light  ELSE  >dark  THEN ;
+    white? IF  >light  ELSE  >dark  THEN  config-changed ;
 
 \ initialize
 
