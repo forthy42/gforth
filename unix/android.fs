@@ -235,8 +235,6 @@ false value wake-lock \ doesn't work, why?
 
 \ event handling
 
-Create direct-key# 0 c,
-
 : meta@ ( -- char ) \ minos2
     \G return meta in vt100 form
     0
@@ -244,7 +242,7 @@ Create direct-key# 0 c,
     meta-key# @ AMETA_ALT_ON   and 0<> 2 and  or
     meta-key# @ AMETA_CTRL_ON  and 0<> 4 and  or ;
 
-: +meta ( addr u -- addr' u' ) \ minos2
+: +meta ( addr u meta -- addr' u' ) \ minos2
     \G insert meta information
     >r over c@ #esc <> IF  rdrop  EXIT  THEN
     r> dup 0= IF  drop  EXIT  THEN  '1' + \ no meta, don't insert
@@ -255,20 +253,20 @@ Create direct-key# 0 c,
 	ELSE  type  THEN
     r> r> emit emit ;] $tmp ;
 
-: keycode>keys ( keycode -- addr u )
+: keycode>keys ( keycode -- )
     dup AKEYCODE_A AKEYCODE_Z 1+ within IF
 	AKEYCODE_A -  ctrl A
 	'A' 'a' meta-key# @ AMETA_SHIFT_ON and select
 	meta-key# @ AMETA_CTRL_ON and select
-	+ direct-key# c! direct-key# 1 EXIT
+	+ inskey EXIT
     THEN
     dup AKEYCODE_0 AKEYCODE_9 1+ within IF
-	AKEYCODE_0 - '0' + direct-key# c! direct-key# 1 EXIT
+	AKEYCODE_0 - '0' + inskey EXIT
     THEN
     case
-	AKEYCODE_MENU of  togglekb s" "  endof
-	AKEYCODE_BACK of  aback    s" "  endof
-	akey>ekey meta@ +meta 0
+	AKEYCODE_MENU of  togglekb  endof
+	AKEYCODE_BACK of  aback     endof
+	akey>ekey meta@ +meta inskeys 0
     endcase ;
 
 16 Value looper-to#
@@ -358,15 +356,16 @@ Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop
 : android-characters ( string -- )  jstring>sstring
     nostring 0 skip inskeys jfree ;
 Defer android-commit
-:is android-commit     ( string/0 -- ) ?dup-0=-IF  insstring  ELSE
+:is android-commit     ( string/0 -- )
+    ctrl L inskey
+    ?dup-0=-IF  insstring  ELSE
 	jstring>sstring 0 skip inskeys jfree setstring$ $free
     THEN ;
 Defer android-setstring
-Defer android-inskey ' inskey is android-inskey
 :is android-setstring  ( string -- ) jstring>sstring setstring$ $! jfree
-    ctrl L android-inskey ;
+    ctrl L inskey ;
 : android-unicode    ( uchar -- )   >xstring inskeys ;
-: android-keycode    ( keycode -- ) keycode>keys inskeys ;
+: android-keycode    ( keycode -- ) keycode>keys ;
 
 : xcs ( addr u -- n )
     \G number of xchars in a string
@@ -381,7 +380,7 @@ Defer android-inskey ' inskey is android-inskey
 ' android-edit-update is edit-update
 
 : android-setcur ( +n -- ) setcur# ! ;
-: android-setsel ( +n -- ) setsel# ! ctrl S android-inskey ;
+: android-setsel ( +n -- ) setsel# ! ctrl S inskey ;
 
 JValue key-event
 JValue touch-event
