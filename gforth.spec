@@ -52,7 +52,7 @@ BuildRequires:  libXrandr-devel libXext-devel texinfo texinfo-tex texi2html
 %endif
 BuildRequires:  m4
 %if 0%{?suse_version}
-BuildRequires:   libtool libltdl7 Mesa-libGL-devel Mesa-libglapi-devel glew-devel vulkan-devel gpsd-devel
+BuildRequires:   libtool libltdl7 Mesa-libGL-devel Mesa-libEGL-devel glew-devel vulkan-devel gpsd-devel
 BuildRequires:   Mesa-libGLESv2-devel Mesa-libGLESv3-devel libpng16-devel stb-devel freetype2-devel harfbuzz-devel
 BuildRequires:   libpulse-devel libopus-devel libva-devel libva-gl-devel linux-glibc-devel libxkbcommon-devel
 BuildRequires:   makeinfo texinfo info wayland-devel wayland-protocols-devel

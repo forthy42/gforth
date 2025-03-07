@@ -330,9 +330,9 @@ Defer ekey-extension ' noop is ekey-extension
 
 : ekey ( -- u ) \ facility-ext e-key
     \G Receive a keyboard event @var{u} (encoding implementation-defined).
-    BEGIN  winch? @ 0= WHILE  key-ior dup EINTR = WHILE  drop  REPEAT
+    BEGIN  0 winch? atomic!@ 0= WHILE  key-ior dup EINTR = WHILE  drop  REPEAT
     ELSE
-	winch? off  k-winch  EXIT
+	k-winch  EXIT
     THEN
     dup EOK =
     [IFDEF] EBADF over EBADF = or [THEN]

@@ -320,16 +320,18 @@ Defer screen-ops ' noop IS screen-ops
     key-buffer $@len 0<>  infile-id ?dup-IF  key?-file  or  THEN
     screen-ops ;
 
+[IFUNDEF] EAGAIN
+    #11 Constant EAGAIN \ we know here it's a Linux
+[THEN]
+
 : android-key-ior ( -- key / ior )
     ?keyboard IF  showkb -keyboard  THEN
     +show
     BEGIN  >looper key? winch? @ or  UNTIL
-    winch? @ IF  EINTR  ELSE
-	infile-id IF
-	    defers key-ior dup #cr = key? and
-	    IF  key-ior ?dup-IF inskey THEN THEN
-	ELSE  inskey@  THEN
-    THEN ;
+    0 winch? atomic!@ IF  EINTR  EXIT  THEN
+    key-buffer $@len IF  inskey@  EXIT  THEN
+    infile-id ?dup-IF  key?-file IF  (key)  EXIT  THEN  THEN
+    EINTR ;
 ' android-key-ior IS key-ior
 
 : android-deadline ( dtime -- )
