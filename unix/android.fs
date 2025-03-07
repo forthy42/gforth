@@ -495,12 +495,14 @@ Defer android-permission-result ( jstring -- )
 Variable android-permissions[]
 :is android-permission-result ( jstring -- )
     jstring>sstring android-permissions[] $+[]! jfree ;
-Defer android-insets
-JValue ime-insets
-JValue bar-insets
-:is android-insets ( inset -- )
-    >o ime getInsets to ime-insets systemBars getInsets to bar-insets
-    gref> ; 
+Defer android-insets ' noop is android-insets
+SDK_INT #30 >= [IF]
+    JValue ime-insets
+    JValue bar-insets
+    :is android-insets ( inset -- )
+	>o ime getInsets to ime-insets systemBars getInsets to bar-insets
+	gref> ;
+[THEN]
 
 Create aevents
 (  0 ) ' android-key ,
