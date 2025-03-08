@@ -279,7 +279,8 @@ variable looperfds pollfd 8 * allot
     1 looperfds +! ;
     
 : ?poll-file ( -- )
-    poll-file 0= IF  app ke-fd0 l@ "r" fdopen to poll-file  THEN ;
+    poll-file 0= IF  app ke-fd0 l@ "r" fdopen
+	dup 0= ?errno-throw dup nobuffer to poll-file  THEN ;
 : looper-init ( -- )  looperfds off
     app ke-fd0 l@    POLLIN +fds
     epiper @ fileno  POLLIN +fds
