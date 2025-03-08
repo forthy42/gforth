@@ -676,6 +676,7 @@ synonym hex. h. ( u -- ) \ gforth
 
 : th ( addr1 u -- addr2 )
     cells + ;
+opt: drop ]] cells + [[ ;
 
 \ \\\ - skip to end of file
 
