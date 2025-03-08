@@ -42,6 +42,7 @@ l"  " >r
 	    rdrop true >r
     REPEAT  2drop rdrop ;
 
+$AAAAAA66 text-color: greyishtrans
 light-gui
 
 : tutorials ( "name1" .. "namen" -- )
@@ -53,6 +54,23 @@ light-gui
 	    include-tutorials
 	    glue-right @ }}glue
 	}}h box[]
+	\Large
+	{{
+	    l" 《" transparent x-color greyishtrans }}button /vcenter
+	    glue*ll }}glue
+	    l" 》" transparent x-color greyishtrans }}button /vcenter
+	}}h
+	{{
+	    {{
+		glue*ll }}glue
+		l" ❌️" transparent x-color blackish }}button
+		also [IFDEF] android android [THEN]
+		[: -1 level# +! ;] over click[]
+		previous
+	    }}h box[]
+	    glue*ll }}glue
+	}}v box[]
+	\normal
     }}z box[] slide[] to top-widget
 
     fpath $@ 0 -scan fpath $!

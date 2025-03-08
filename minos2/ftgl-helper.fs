@@ -422,6 +422,7 @@ Variable segment-lens[]
 ${GFORTH_IGNLIB} s" true" str= 0= [IF]
     hb_buffer_create Value hb-buffer
     hb-buffer hb_language_get_default hb_buffer_set_language
+    hb-buffer HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS hb_buffer_set_cluster_level
 [ELSE]
     0 Value hb-buffer
 [THEN]

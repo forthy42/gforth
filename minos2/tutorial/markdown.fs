@@ -28,7 +28,7 @@ fpath+ ~+
     2r> str= ;
 
 1 arg s" .md" string-postfix?
-[IF] next-arg [ELSE] "doc/README.md" [THEN]
+[IF] next-arg [ELSE] "doc/README.md" file>fpath save-mem [THEN]
 markdown-parse
 
 dpy-w @ s>f font-size# fover 5% f* f+ f2* f- p-format

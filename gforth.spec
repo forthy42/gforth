@@ -17,7 +17,7 @@
 
 
 Name:           gforth
-Version:        0.7.9_20230130
+Version:        0.7.9_20250305
 Release:        1.1
 Summary:        GNU Forth
 License:        GFDL-1.2-only AND GPL-2.0-or-later AND GPL-3.0-or-later
@@ -32,30 +32,30 @@ BuildRequires:  libX11-devel
 %if 0%{?rhel_version}
 BuildRequires:  libtool mesa-libGL-devel mesa-libEGL-devel
 BuildRequires:  libpng-devel freetype-devel harfbuzz-devel
-BuildRequires:  pulseaudio-libs-devel glibc-devel
-BuildRequires:  libtool-ltdl libtool-ltdl-devel
+BuildRequires:  pulseaudio-libs-devel glibc-devel libxkbcommon-devel
+BuildRequires:  libtool-ltdl libtool-ltdl-devel wayland-devel wayland-protocols-devel
 BuildRequires:  libXrandr-devel libXext-devel texinfo
 %endif
 %if 0%{?centos_version}
 BuildRequires:  libtool mesa-libGL-devel mesa-libEGL-devel glew-devel
-BuildRequires:  libpng-devel freetype-devel harfbuzz-devel
+BuildRequires:  libpng-devel freetype-devel harfbuzz-devel libxkbcommon-devel
 BuildRequires:  pulseaudio-libs-devel opus-devel libva-devel glibc-devel
-BuildRequires:  libtool-ltdl libtool-ltdl-devel
+BuildRequires:  libtool-ltdl libtool-ltdl-devel wayland-devel wayland-protocols-devel
 BuildRequires:  libXrandr-devel libXext-devel texinfo texinfo-tex texi2html
 %endif
 %if 0%{?fedora}
 BuildRequires:  libtool mesa-libGL-devel mesa-libEGL-devel glew-devel vulkan-devel gpsd-devel
-BuildRequires:  libpng-devel stb-devel freetype-devel harfbuzz-devel
+BuildRequires:  libpng-devel stb-devel freetype-devel harfbuzz-devel libxkbcommon-devel
 BuildRequires:  pulseaudio-libs-devel opus-devel libva-devel glibc-devel
-BuildRequires:  libtool-ltdl libtool-ltdl-devel
+BuildRequires:  libtool-ltdl libtool-ltdl-devel wayland-devel wayland-protocols-devel
 BuildRequires:  libXrandr-devel libXext-devel texinfo texinfo-tex texi2html
 %endif
 BuildRequires:  m4
 %if 0%{?suse_version}
-BuildRequires:   libtool libltdl7 Mesa-libGL-devel Mesa-libglapi-devel glew-devel vulkan-devel gpsd-devel
+BuildRequires:   libtool libltdl7 Mesa-libGL-devel Mesa-libEGL-devel glew-devel vulkan-devel gpsd-devel
 BuildRequires:   Mesa-libGLESv2-devel Mesa-libGLESv3-devel libpng16-devel stb-devel freetype2-devel harfbuzz-devel
-BuildRequires:   libpulse-devel libopus-devel libva-devel libva-gl-devel linux-glibc-devel
-BuildRequires:   makeinfo texinfo info
+BuildRequires:   libpulse-devel libopus-devel libva-devel libva-gl-devel linux-glibc-devel libxkbcommon-devel
+BuildRequires:   makeinfo texinfo info wayland-devel wayland-protocols-devel
 Requires(post):  %{install_info_prereq}
 Requires(preun): %{install_info_prereq}
 %endif
@@ -63,6 +63,11 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
 Gforth is a fast and portable implementation of the ANS Forth language.
+
+%post
+/sbin/ldconfig
+%postun
+/sbin/ldconfig
 
 %package html
 Summary:        GNU Forth documentation in HTML format
@@ -80,24 +85,38 @@ BuildArch:      noarch
 %description pdf
 Gforth manual in PDF format
 
+%package devel
+Summary:        GNU Forth development files
+License:        GPL-3.0-or-later
+Group:          Development/Languages/Other
+BuildArch:      noarch
+%description devel
+Gforth header and include files
+
+%package buildlog
+Summary:        GNU Forth build log
+License:        GPL-3.0-or-later
+Group:          Development/Languages/Other
+BuildArch:      noarch
+%description buildlog
+Gforth build log files
+
 %prep
 %setup -q
 
 %build
-%configure
-#%configure check_option=--no-debug-prim
+%configure \
+        --with-extra-libs
 make %{?_smp_mflags}
-#make --jobs 1
-make doc pdf --jobs 1
 
 %check
 make check %{?_smp_mflags}
-#make check --jobs 1
 cat /proc/cpuinfo
 make onebench
 
 %install
 make DESTDIR=%{buildroot} install install-html install-pdf --jobs 1
+cp config.log %{buildroot}%{_datadir}/doc/gforth-config.log
 rm -f `find %{buildroot}%{_libdir} -name '*.a' -or -name '*.so'`
 %if 0%{?centos_version}
 rm -f %{buildroot}%{_infodir}/dir
@@ -106,23 +125,19 @@ rm -f %{buildroot}%{_infodir}/dir
 rm -f %{buildroot}%{_infodir}/dir
 %endif
 
-%post -p /sbin/ldconfig
 %install_info --info-dir=%{_infodir} %{_infodir}/gforth.info.gz
 
 %preun
 %install_info_delete --info-dir=%{_infodir} %{_infodir}/gforth.info.gz
 
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root)
 %doc README BUGS NEWS
 %{_bindir}/*
-%{_includedir}/gforth.h
-%{_includedir}/gforth
 %{_libdir}/gforth
 %{_libdir}/libgforth*
-%{_includedir}/freetype-gl
+%{_datadir}/gforth/site-forth
+%exclude %{_datadir}/gforth/%{version}/wayland
 %{_datadir}/gforth
 %dir %{_datadir}/emacs/site-lisp
 %{_datadir}/emacs/site-lisp/gforth.el
@@ -141,4 +156,16 @@ rm -f %{buildroot}%{_infodir}/dir
 %doc %{_datadir}/doc/gforth/gforth.pdf
 %doc %{_datadir}/doc/vmgen/vmgen.pdf
 
+%files devel
+%{_includedir}/gforth.h
+%{_includedir}/gforth
+%{_includedir}/wayland
+%{_includedir}/freetype-gl
+%{_datadir}/gforth/%{version}/wayland
+
+%files buildlog
+%{_datadir}/doc/gforth-config.log
+
 %changelog
+* Wed Mar 05 2025 <bernd@net2o.de>
+- Bump version to 0.7.9_20250305

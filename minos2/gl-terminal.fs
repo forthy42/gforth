@@ -420,6 +420,8 @@ ${GFORTH_IGNLIB} s" true" str= 0= [IF]
 			gl-lineend-save @ gl-lineend !  endof \ restore curpos
 		endcase
 	    endof
+	    'A' of  negate 0 swap gl-at-deltaxy  endof
+	    'B' of         0 swap gl-at-deltaxy  endof
 	    'E' of         gl-xy @ + 0 swap (gl-atxy)  endof
 	    'F' of  negate gl-xy @ + 0 swap (gl-atxy)  endof
 	    'J' of  >r
@@ -617,7 +619,7 @@ default-out op-vector !
 : >screen ( -- )
     ctx 0= IF  window-init  [IFDEF] map-win map-win [THEN] config-changer  THEN
     err>screen op-vector @ debug-vector !  out>screen
-    white? IF  >light  ELSE  >dark  THEN ;
+    white? IF  >light  ELSE  >dark  THEN  config-changed ;
 
 \ initialize
 

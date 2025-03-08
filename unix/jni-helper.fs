@@ -119,15 +119,17 @@ jni-field: ydpi ydpi F
 jni-field: density density F
 jni-field: scaledDensity scaledDensity F
 
-jni-class: android/view/WindowInsets
-jni-method: getInsets getInsets (I)Landroid/graphics/Insets;
-jni-method: getInsetsIgnoringVisibility getInsetsIgnoringVisibility (I)Landroid/graphics/Insets;
+SDK_INT #30 >= [IF]
+    jni-class: android/view/WindowInsets
+    jni-method: getInsets getInsets (I)Landroid/graphics/Insets;
+    jni-method: getInsetsIgnoringVisibility getInsetsIgnoringVisibility (I)Landroid/graphics/Insets;
 
-jni-class: android/graphics/Insets
-jni-field: itop top I
-jni-field: ileft left I
-jni-field: iright right I
-jni-field: ibottom bottom I
+    jni-class: android/graphics/Insets
+    jni-field: itop top I
+    jni-field: ileft left I
+    jni-field: iright right I
+    jni-field: ibottom bottom I
+[THEN]
 
 jni-class: android/view/inputmethod/InputMethodManager
 
