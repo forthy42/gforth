@@ -68,12 +68,22 @@ Create n>lits ' noop , ' >lits , ' >2lits , ' >3lits , ' >4lits ,
 : get-foldmax ( opt-xt -- xt )
     dup @ 1+ cells + @ ;
 
-: (foldn:) ( xt n -- )
+: (foldn:) ( xt n "name" -- )
     create  latestxt to lastfold
   DOES> >r lits# r@ @ umin 1+ cells r> + @ execute-;s ;
-: foldn: ( xt n -- ) (foldn:) dup , 1+ 0 ?DO dup , LOOP drop ;
+
+: foldn: ( xt n "name" -- )
+    \ name is a constant-folding word that dispatches between n
+    \ constant-folding words for different numbers of available
+    \ constants.  The entries are initialized with xt.
+    (foldn:) dup , 1+ 0 ?DO dup , LOOP drop ;
+
 : foldn-from: ( xt "name" -- )
+    \ name is a constant-folding word that dispatches between n
+    \ constant-folding words for different numbers of available
+    \ constants.  The entries are copied from the foldn-style word xt.
     (foldn:) dup @ 2 + cells here swap dup allot move ;
+
 : folding ( n -- )
     latest >namehm @ >hmcompile, @ swap
     next-section noname foldn: previous-section
