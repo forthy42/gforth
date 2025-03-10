@@ -55,7 +55,7 @@ override_dh_auto_install:
 	mv $(DB)/etc $(DC)
 	mv $(DB)/usr/bin/vmgen* $(DC)/usr/bin
 	mv $(DB)/usr/lib/$(DEB_HOST_MULTIARCH) $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)
-	mv $(DB)/usr/include/gforth.h $(DV)/usr/include
+	mv $(DB)/usr/include/gforth.h $(DV)/usr/include/gforth-$(GFORTH_VER)-$(GFORTH_ARCH).h
 	mkdir -p $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)
 	mv $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)
 	mkdir -p $(DB)/$(LIB)
@@ -92,6 +92,7 @@ override_dh_auto_install:
 	bash -c "mv $(DLC)$(LIBCC)/libgf{opus,pulse}.* $(DLA)$(LIBCC)"
 	mkdir -p $(D)/usr/bin
 	bash -c "mv $(DB)/usr/bin/gforth{,-fast,-itc,-ditc,mi}{,-$(GFORTH_VER)}  $(D)/usr/bin"
+	(cd $(D)/usr/include; ln -s gforth-$(GFORTH_VER)-$(GFORTH_ARCH).h gforth.h)
 	mkdir -p $(DI)/usr/share
 	mv $(DC)/usr/share/info $(DI)/usr/share
 	rm -f $(DI)/usr/share/info/dir.gz
@@ -109,6 +110,6 @@ override_dh_installchangelogs:
 	rm -rf $(D)/usr/share/doc
 	rm -rf $(DL)/usr/share/doc
 	rm -rf $(DB)/usr/share/doc
-	rm -rf $(DV)/usr/share/doc
+	rm -rf $(DV)/usr/share
 	@DOPDF@rm -rf $(DP)/usr/share/doc/gforth-pdf
 	@DOHTML@rm -rf $(DH)/usr/share/doc/gforth-html
