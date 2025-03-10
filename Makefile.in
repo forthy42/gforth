@@ -1098,11 +1098,11 @@ uninstall:	FORCE
 
 # Extra dependency for libraries that use libc
 $(buildccdir)/libgfmmap.la: $(buildccdir)/libgflibc.la
-$(buildccdir)/libgfpthread.la: $(buildccdir)/libgflibc.la
+$(buildccdir)/libgfpthread.la: gforth-light.fi $(buildccdir)/libgflibc.la
 $(buildccdir)/libgfserial.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgfsocket.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgffreetype_gl.la: $(FREETYPE_GL_SRC)
- $(buildccdir)/libgfpthread.la: unix/pthread-types.fs
+$(buildccdir)/libgfpthread.la: unix/pthread-types.fs
 gforth.fi: $(buildccdir)/libgfpthread.la
 
 $(buildccdir)/libgf%.la: unix/%.fs $(FORTH_GEN_LIGHT) $(GEN) $(LIBCC_LIB_SRC) libforth

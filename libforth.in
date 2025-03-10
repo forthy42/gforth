@@ -23,8 +23,9 @@ VERSION=@PACKAGE_VERSION@
 DEST=$1
 shift
 export CROSS_PREFIX=@CROSS_PREFIX@
-@NO_CROSS@test -z "$ENGINE" && ENGINE=./gforth
-@NO_CROSS@test -f "gforth-light.fi" && KERNEL="gforth-light.fi"
+@NO_CROSS@test -z "$ENGINE" && test -f "gforth" && ENGINE=./gforth
+@NO_CROSS@test -z "$ENGINE" && test -f "gforth-ditc" && ENGINE=./gforth-ditc
+@NO_CROSS@test -z "$KERNEL" && test -f "gforth-light.fi" && KERNEL="gforth-light.fi"
 export libccdir="$PWD/lib/gforth/$VERSION/$machine/libcc-named/"
 export libccnameddir="$libccdir"
 if test x"@LIB_SUFFIX@" = "x.so" ; then
