@@ -1,109 +1,42 @@
  
 before_script:
-  # - apt update -qq
-  # - ./install-deps.sh
- 
-stages:
-  - build-amd64
-  - build-i386
 
-build-amd64:
-  stage: build-amd64
-  # image: amd64/debian:unstable
-  image: forthy42/gforth-builder-linux-amd64:unstable
+.build-template:
+  image: forthy42/gforth-builder-linux-$ARCH:$DISTRIBUTION
   script:
     - ./autogen.sh
-    - ./configure --with-extra-libs --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu
+    - case $ARCH in
+      i386)
+        export BARCH=i686-pc-linux-gnu
+        ;;
+      amd64)
+        export BARCH=x86_64-pc-linux-gnu
+        ;;
+      arm64)
+        export BARCH=aarch64-pc-linux-gnu
+        ;;
+      armel)
+        export BARCH=arm-pc-linux-gnueabi
+        ;;
+      armhf)
+        export BARCH=arm-pc-linux-gnueabihf
+        ;;
+      esac
+    - ./configure --with-extra-libs --host=$BARCH --build=$BARCH
     - make distclean
-    - dpkg-buildpackage -uc -us -d -b -j1
-    - rm -f debian/*.deb
-    - mv ../*.deb debian
+    - dpkg-buildpackage -uc -us -d -b -j1 -a$ARCH
+    - mkdir -p debian/$DISTRIBUTION/$ARCH
+    - rm -f debian/$DISTRIBUTION/$ARCH/*.deb
+    - mv ../*.deb debian/$DISTRIBUTION/$ARCH/
   
   # The files which are to be made available in GitLab
   artifacts:
     paths:
-      - debian/*.deb
+      - debian/$DISTRIBUTION/$ARCH/*.deb
 
-build-i386:
-  stage: build-i386
-  # image: i386/debian:unstable
-  image: forthy42/gforth-builder-linux-i386:unstable
-  script:
-    - ./autogen.sh
-    - ./configure --with-extra-libs --host=i686-pc-linux-gnu --build=i686-pc-linux-gnu
-    - make distclean
-    - dpkg-buildpackage -uc -us -d -b -ai386 -j1
-    - mv ../*i386*.deb debian
-  
-  # The files which are to be made available in GitLab
-  artifacts:
-    paths:
-      - debian/*.deb
-
-build-amd64-stable:
-  stage: build-amd64
-  # image: amd64/debian:stable
-  image: forthy42/gforth-builder-linux-amd64:stable
-  script:
-    - ./autogen.sh
-    - ./configure --with-extra-libs --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu
-    - make distclean
-    - dpkg-buildpackage -uc -us -d -b -j1
-    - mkdir -p debian/stable
-    - rm -f debian/stable/*.deb
-    - mv ../*.deb debian/stable
-  
-  # The files which are to be made available in GitLab
-  artifacts:
-    paths:
-      - debian/stable/*.deb
-
-build-i386-stable:
-  stage: build-i386
-  #image: i386/debian:stable
-  image: forthy42/gforth-builder-linux-i386:stable
-  script:
-    - ./autogen.sh
-    - ./configure --with-extra-libs --host=i686-pc-linux-gnu --build=i686-pc-linux-gnu
-    - make distclean
-    - dpkg-buildpackage -uc -us -d -b -ai386 -j1
-    - mv ../*i386*.deb debian/stable
-  
-  # The files which are to be made available in GitLab
-  artifacts:
-    paths:
-      - debian/stable/*.deb
-
-build-amd64-oldstable:
-  stage: build-amd64
-  # image: amd64/debian:oldstable
-  image: forthy42/gforth-builder-linux-amd64:oldstable
-  script:
-    - ./autogen.sh
-    - ./configure --with-extra-libs --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu
-    - make distclean
-    - dpkg-buildpackage -uc -us -d -b -j1
-    - mkdir -p debian/oldstable
-    - rm -f debian/oldstable/*.deb
-    - mv ../*.deb debian/oldstable
-  
-  # The files which are to be made available in GitLab
-  artifacts:
-    paths:
-      - debian/oldstable/*.deb
-
-build-i386-oldstable:
-  stage: build-i386
-  # image: i386/debian:oldstable
-  image: forthy42/gforth-builder-linux-i386:oldstable
-  script:
-    - ./autogen.sh
-    - ./configure --with-extra-libs --host=i686-pc-linux-gnu --build=i686-pc-linux-gnu
-    - make distclean
-    - dpkg-buildpackage -uc -us -d -b -ai386 -j1
-    - mv ../*i386*.deb debian/oldstable
-  
-  # The files which are to be made available in GitLab
-  artifacts:
-    paths:
-      - debian/oldstable/*.deb
+build:
+  extends: .build-template
+  parallel:
+    matrix:
+      - DISTRIBUTION: [unstable, stable, oldstable]
+        ARCH: [amd64, i386]
