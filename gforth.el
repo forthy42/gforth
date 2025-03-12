@@ -329,7 +329,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be
 	 immediate (font-lock-constant-face . 3))
 	("\"[^\"]**" immediate (font-lock-string-face . 1)
 	 "[^\\]\"" nil string (font-lock-string-face . 1))
-	("\"[[:cntrl:][:nonascii:][:multibyte:]!#-~]*?\""
+	("\"[[:cntrl:][:nonascii:][:multibyte:]!#-~ ]*?\""
 	 immediate (font-lock-string-face . 3))
 	("[a-z\-0-9]+(" immediate (font-lock-comment-face . 1)
 	 "[)]" nil comment (font-lock-comment-face . 1))

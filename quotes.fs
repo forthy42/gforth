@@ -85,7 +85,9 @@ create \-escape-table
     endif
     c, char+ ;
 
-$Variable mlstringpos
+Variable mlstringpos \ store position of string scan start
+
+:is 'image  mlstringpos $free defers 'image ;
 
 s" End of string expected" exception >r
 
