@@ -55,24 +55,27 @@ error_callback_t log_error;
  *                      Errors < FTGL_ERR_BASE are pass-through from Freetype
  */
 #ifndef IMPLEMENT_FREETYPE_GL
-extern
+extern __THREAD int freetype_gl_errno;
+#else
+__THREAD int freetype_gl_errno=0;
 #endif
-__THREAD int freetype_gl_errno;
 /**
  * freetype_gl_warnings is a flag that activates output of warnings.
  *                      Default is warnings off
  */
 #ifndef IMPLEMENT_FREETYPE_GL
-extern
+extern __THREAD int freetype_gl_warnings;
+#else
+__THREAD int freetype_gl_warnings=0;
 #endif
-__THREAD int freetype_gl_warnings;
 /**
  * freetype_gl_message  is the error message if a freetype-gl function fails
  */
 #ifndef IMPLEMENT_FREETYPE_GL
-extern
+extern __THREAD const char * freetype_gl_message;
+#else
+__THREAD const char * freetype_gl_message=NULL;
 #endif
-__THREAD const char * freetype_gl_message;
 /**
  * FTGL_Error_String  converts an errno to the message (including FT_errors)
  */

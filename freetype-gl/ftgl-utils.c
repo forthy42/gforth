@@ -38,9 +38,11 @@ set_error_callback(error_callback_t error_cb)
     log_error = error_cb;
 }
 
+#ifndef IMPLEMENT_FREETYPE_GL
 __THREAD int freetype_gl_errno=0;
 __THREAD int freetype_gl_warnings=0;
 __THREAD const char * freetype_gl_message=NULL;
+#endif
 
 #undef FTERRORS_H_
 #define FT_NOERRORDEF_( e, v, s )  [v] = s,
