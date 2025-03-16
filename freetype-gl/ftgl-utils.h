@@ -49,33 +49,31 @@ error_callback_t log_error;
   void
   set_error_callback(error_callback_t error_cb);
 
+#ifdef IMPLEMENT_FREETYPE_GL
+#define _IFGL_EXTERN
+#define _IFGL_INIT =0
+#define _IFGL_INITP =NULL
+#else
+#define _IFGL_EXTERN extern
+#define _IFGL_INIT
+#define _IFGL_INITP
+#endif
+
 /*********** public error API ***********/
 /**
  * freetype_gl_errno    is the error number if a freetype-gl function fails
  *                      Errors < FTGL_ERR_BASE are pass-through from Freetype
  */
-#ifndef IMPLEMENT_FREETYPE_GL
-extern __THREAD int freetype_gl_errno;
-#else
-__THREAD int freetype_gl_errno=0;
-#endif
+_IFGL_EXTERN __THREAD int freetype_gl_errno _IFGL_INIT;
 /**
  * freetype_gl_warnings is a flag that activates output of warnings.
  *                      Default is warnings off
  */
-#ifndef IMPLEMENT_FREETYPE_GL
-extern __THREAD int freetype_gl_warnings;
-#else
-__THREAD int freetype_gl_warnings=0;
-#endif
+_IFGL_EXTERN __THREAD int freetype_gl_warnings _IFGL_INIT;
 /**
  * freetype_gl_message  is the error message if a freetype-gl function fails
  */
-#ifndef IMPLEMENT_FREETYPE_GL
-extern __THREAD const char * freetype_gl_message;
-#else
-__THREAD const char * freetype_gl_message=NULL;
-#endif
+_IFGL_EXTERN __THREAD const char * freetype_gl_message _IFGL_INITP;
 /**
  * FTGL_Error_String  converts an errno to the message (including FT_errors)
  */
