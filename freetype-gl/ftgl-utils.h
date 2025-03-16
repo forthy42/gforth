@@ -23,12 +23,18 @@ extern "C" {
 namespace ftgl {
 #endif
 
+#ifdef IMPLEMENT_FREETYPE_GL
+#define _IFGL_EXTERN
+#define _IFGL_INIT =0
+#define _IFGL_INITP =NULL
+#else
+#define _IFGL_EXTERN extern
+#define _IFGL_INIT
+#define _IFGL_INITP
+#endif
 
 typedef void (*error_callback_t) (const char *fmt, ...);
-#ifndef IMPLEMENT_FREETYPE_GL
-extern
-#endif
-error_callback_t log_error;
+_IFGL_EXTERN error_callback_t log_error;
 
 /**
  * Prints input to stderr
@@ -49,16 +55,6 @@ error_callback_t log_error;
   void
   set_error_callback(error_callback_t error_cb);
 
-#ifdef IMPLEMENT_FREETYPE_GL
-#define _IFGL_EXTERN
-#define _IFGL_INIT =0
-#define _IFGL_INITP =NULL
-#else
-#define _IFGL_EXTERN extern
-#define _IFGL_INIT
-#define _IFGL_INITP
-#endif
-
 /*********** public error API ***********/
 /**
  * freetype_gl_errno    is the error number if a freetype-gl function fails
@@ -77,10 +73,7 @@ _IFGL_EXTERN __THREAD const char * freetype_gl_message _IFGL_INITP;
 /**
  * FTGL_Error_String  converts an errno to the message (including FT_errors)
  */
-#ifndef IMPLEMENT_FREETYPE_GL
-extern
-#endif
-const char* FTGL_Error_String( unsigned int error_code );
+_IFGL_EXTERN const char* FTGL_Error_String( unsigned int error_code );
 
 #ifndef FTGL_ERR_PREFIX
 # define FTGL_ERR_PREFIX  FTGL_Err_
@@ -92,10 +85,7 @@ const char* FTGL_Error_String( unsigned int error_code );
 #endif
 #define FTGL_ERR_BASE  0xE0 /* Freetype GL errors start at 0xE0 */
 
-#ifndef IMPLEMENT_FREETYPE_GL
-extern
-#endif
-const char* freetype_gl_errstrs[];
+_IFGL_EXTERN const char* freetype_gl_errstrs[];
 
 #define freetype_gl_error(errno) {			     \
 	freetype_gl_errno = FTGL_ERR_CAT( FTGL_ERR_PREFIX, errno);	\
