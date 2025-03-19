@@ -2532,7 +2532,7 @@ utime	( -- dtime )	gforth
 ""Report the current time in microseconds since some epoch.  Use @code{#1000000 um/mod nip} to convert to seconds""
 struct timeval time1;
 gettimeofday(&time1,NULL);
-dtime = timeval2us(&time1);
+dtime = gf_timeval2us(&time1);
 
 cputime ( -- duser dsystem ) gforth
 ""duser and dsystem are the respective user- and system-level CPU
@@ -2543,12 +2543,12 @@ time (since some epoch) for duser and 0 for dsystem.""
 #ifdef HAVE_GETRUSAGE
 struct rusage usage;
 getrusage(RUSAGE_SELF, &usage);
-duser = timeval2us(&usage.ru_utime);
-dsystem = timeval2us(&usage.ru_stime);
+duser = gf_timeval2us(&usage.ru_utime);
+dsystem = gf_timeval2us(&usage.ru_stime);
 #else
 struct timeval time1;
 gettimeofday(&time1,NULL);
-duser = timeval2us(&time1);
+duser = gf_timeval2us(&time1);
 dsystem = DZERO;
 #endif
 

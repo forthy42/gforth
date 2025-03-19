@@ -210,7 +210,7 @@ Cell opencreate_file(char *s, Cell wfam, int flags, Cell *wiorp)
 }
 #endif /* defined(HAS_FILE) */
 
-DCell timeval2us(struct timeval *tvp)
+DCell gf_timeval2us(struct timeval *tvp)
 {
 #ifndef BUGGY_LONG_LONG
   return (tvp->tv_sec*(DCell)1000000)+tvp->tv_usec;

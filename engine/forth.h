@@ -555,7 +555,7 @@ Address gforth_alloc(Cell size);
 char *cstr(Char *from, UCell size);
 char *tilde_cstr(Char *from, UCell size);
 Cell opencreate_file(char *s, Cell wfam, int flags, Cell *wiorp);
-DCell timeval2us(struct timeval *tvp);
+DCell gf_timeval2us(struct timeval *tvp);
 DCell gf_timespec2ns(struct timespec *tvp);
 void cmove(Char *c_from, Char *c_to, UCell u);
 void cmove_up(Char *c_from, Char *c_to, UCell u);
