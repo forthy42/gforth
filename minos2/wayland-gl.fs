@@ -972,7 +972,7 @@ wl-registry set-current
 	zwp-text-input-manager-v3 wl-seat zwp_text_input_manager_v3_get_text_input dup to text-input
 	text-input-listener 0 zwp_text_input_v3_add_listener drop ;
 [THEN]
-4 wlal: xdg_wm_base
+6 wlal: xdg_wm_base
 1 wl: zxdg_decoration_manager_v1
 3 wl: wl_data_device_manager
 1 wl: zwp_primary_selection_device_manager_v1
@@ -1055,6 +1055,20 @@ cb> xdg-surface-listener
 [IFUNDEF] rendering  Variable rendering  [THEN]
 -2 rendering !
 
+: .states ( addr u -- )
+    bounds U+DO  I l@ case
+	    1 of ." maximized " endof
+	    2 of ." fullscreen " endof
+	    3 of ." resizing " endof
+	    4 of ." activated " endof
+	    5 of ." tiled-left " endof
+	    6 of ." tiled-right " endof
+	    7 of ." tiled-top " endof
+	    8 of ." tiled-bottom " endof
+	    9 of ." suspended " endof
+	    dup .
+    endcase 4 +LOOP ;
+
 <cb
 :cb xdg_toplevel_listener-wm_capabilities: { data xdg_toplevel capabilities -- }
     wayland( capabilities [: cr ." wm capabilities: " h. ;] do-debug ) ;
@@ -1067,14 +1081,14 @@ cb> xdg-surface-listener
     -1 level# +! ;
 :cb xdg_toplevel_listener-configure: { data xdg_toplevel width height states -- }
     wayland( states height width [: cr ." toplevel-config: " . .
-    cr >r r@ wl_array-data @ r> wl_array-size @ dump ;] do-debug )
+    cr ." states: " >r r@ wl_array-data @ r> wl_array-size @ .states ;] do-debug )
     width height toplevel-wh 2!
     0 states wl_array-data @ states wl_array-size @ bounds ?DO
 	1 I l@ lshift or
     4 +LOOP  dup toplevel-states !
     wayland( [: cr ." display state: " dup h. ;] do-debug )
     \ if inactive, stop rendering!
-    1 XDG_TOPLEVEL_STATE_ACTIVATED lshift and 0<> 1- rendering ! ;
+    1 XDG_TOPLEVEL_STATE_SUSPENDED lshift and 0= 1- rendering ! ;
 cb> xdg-toplevel-listener
 
 <cb
