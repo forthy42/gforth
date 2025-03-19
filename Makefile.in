@@ -872,7 +872,7 @@ maintainer-clean: realclean
 
 debdist:
 
-setup-debdist docdist htmldist dist: doc
+setup-debdist docdist htmldist dist: doc pdf
 
 dist srcdist srconlydist docdist htmldist bindist binonlydist debdist setup-debdist:		Makedist FORCE
 		@echo DIST
