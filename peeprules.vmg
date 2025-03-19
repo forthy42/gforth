@@ -261,6 +261,7 @@ forlocal(`15',`\E prim-states @o%i')
 \E prim-states within               \ 51075
 \E prim-states 1-                   \ 47441
 \E branch-states execute              \ 46674
+\E branch-states execute-;s
 \E prim-states lp-                  \ 45385
 \E branch-states perform              \ 38756
 \E prim-states xor                  \ 35599

@@ -2563,7 +2563,7 @@ gettimeofday(&time2,NULL);
 time1.tv_sec = time2.tv_sec;
 time1.tv_nsec = time2.tv_usec*1000;
 #endif
-dtime = timespec2ns(&time1);
+dtime = gf_timespec2ns(&time1);
 
 (ns)    ( uns nsec -- wior )	gforth-internal	paren_ns
 ""Wait for usec+uns, values precomputed in Forth""
