@@ -41,6 +41,7 @@ BINONLYDIST = config.status $(ENGINES) $(ENGINES_FAST) $(LIBENGINES)	\
 #use dist targets only when srcdir=.
 ddist:		$(SOURCES) $(FORTH_GEN0) $(WAYLAND_INCLUDE) @GKERNEL@ $(DOCDIST)
 		-$(RMTREE) gforth-$(VERSION)
+		@echo DIST-TARBALL gforth-$(VERSION).tar$(COMPEXT)
 		mkdir gforth-$(VERSION)
 		$(TAR) $(SOURCES) $(FORTH_GEN0) $(WAYLAND_INCLUDE) @GKERNEL@ $(DOCDIST) | \
 			(cd gforth-$(VERSION); tar xf -)
@@ -51,6 +52,7 @@ ddist:		$(SOURCES) $(FORTH_GEN0) $(WAYLAND_INCLUDE) @GKERNEL@ $(DOCDIST)
 #without the documents.
 dsrcdist:	$(SOURCES) $(FORTH_GEN0) @GKERNEL@
 		-$(RMTREE) gforth-$(VERSION)
+		@echo SRCDIST-TARBALL gforth-src-$(VERSION).tar$(COMPEXT)
 		mkdir gforth-$(VERSION)
 		$(TAR) $(SOURCES) $(FORTH_GEN0) @GKERNEL@ | \
 			(cd gforth-$(VERSION); tar xf -)
@@ -59,6 +61,7 @@ dsrcdist:	$(SOURCES) $(FORTH_GEN0) @GKERNEL@
 
 dsrconlydist:	$(SOURCES)
 		-$(RMTREE) gforth-$(VERSION)
+		@echo SRCONLYDIST-TARBALL gforth-srconly-$(VERSION).tar$(COMPEXT)
 		mkdir gforth-$(VERSION)
 		$(TAR) $(SOURCES) | \
 			(cd gforth-$(VERSION); tar xf -)

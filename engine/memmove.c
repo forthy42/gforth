@@ -22,15 +22,19 @@
 #include "config.h"
 #include "forth.h"
 
-Char *memmove(Char *dest, const Char *src, Cell n)
+#if defined(_AIX) && defined(_NOTHROW)
+void *_NOTHROW(memmove, (void *dest, const void *src, size_t n))
+#else
+void *memmove(void *dest, const void *src, Cell n)
+#endif
 {
   Cell i;
 
   if (dest<src)
     for (i=0; i<n; i++)
-      dest[i]=src[i];
+      ((Char*)dest)[i]=((Char*)src)[i];
   else
     for(i=n-1; i>=0; i--)
-      dest[i]=src[i];
+      ((Char*)dest)[i]=((Char*)src)[i];
   return dest;
 }

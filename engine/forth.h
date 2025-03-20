@@ -694,10 +694,18 @@ extern double asinh(double r1);
 extern double acosh(double r1);
 #endif
 #ifndef HAVE_ECVT
-/* extern char* ecvt(double x, int len, int* exp, int* sign);*/
+#if defined(_AIX) && defined(_NOTHROW)
+extern char *_NOTHROW(ecvt, (double, int, int *, int *));
+#else
+extern char* ecvt(double x, int len, int* exp, int* sign);
+#endif
 #endif
 #ifndef HAVE_MEMMOVE
-/* extern char *memmove(char *dest, const char *src, long n); */
+#if defined(_AIX) && defined(_NOTHROW)
+extern void *_NOTHROW(memmove, (void *, const void *, size_t));
+#else
+extern char *memmove(void *dest, const void *src, size_t n);
+#endif
 #endif
 #ifndef HAVE_SINCOS
 extern void sincos(double x, double *s, double *c);

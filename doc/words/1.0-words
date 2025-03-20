@@ -2610,6 +2610,7 @@ _GSource-source_id
 g_source_unref
 G_SQRT2
 g_steal_fd
+g_steal_handle_id
 GST_SET
 gst_t
 gst_t-alt_err_deviation
@@ -2624,6 +2625,7 @@ G_THREAD_ERROR_AGAIN
 g_thread_error_quark
 g_thread_exit
 GThreadFunc:
+g_thread_get_name
 g_thread_join
 g_thread_new
 g_thread_ref
@@ -2664,6 +2666,7 @@ _GTypeClass
 g_type_class_add_private
 g_type_class_adjust_private_offset
 GTypeClassCacheFunc:
+g_type_class_get
 g_type_class_get_instance_private_offset
 g_type_class_get_private
 _GTypeClass-g_type
@@ -2679,6 +2682,7 @@ G_TYPE_DEBUG_MASK
 G_TYPE_DEBUG_NONE
 G_TYPE_DEBUG_OBJECTS
 G_TYPE_DEBUG_SIGNALS
+g_type_default_interface_get
 g_type_default_interface_peek
 g_type_default_interface_ref
 g_type_default_interface_unref

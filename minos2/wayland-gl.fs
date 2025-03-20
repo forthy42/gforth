@@ -1087,7 +1087,7 @@ cb> xdg-surface-listener
 	1 I l@ lshift or
     4 +LOOP  dup toplevel-states !
     wayland( [: cr ." display state: " dup h. ;] do-debug )
-    \ if inactive, stop rendering!
+    \ if suspended, stop rendering!
     1 XDG_TOPLEVEL_STATE_SUSPENDED lshift and 0= 1- rendering ! ;
 cb> xdg-toplevel-listener
 

@@ -100,20 +100,36 @@ c-library pthread
     \c /* optional: CPU affinity */
     \c #include <sched.h>
     \c int stick_to_core(int core_id) {
-    \c #ifdef HAVE_PTHREAD_SETAFFINITY_NP
-    \c   cpu_set_t cpuset;
-    \c   int num_cores = sysconf(_SC_NPROCESSORS_ONLN);
-    \c 
-    \c   if (core_id < 0 || core_id >= num_cores)
-    \c     return EINVAL;
-    \c   
-    \c   CPU_ZERO(&cpuset);
-    \c   CPU_SET(core_id, &cpuset);
-    \c   
-    \c   return pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
+    \c #if defined(__NetBSD__)
+    \c #define cpu_set_t cpuset_t
+    \c #define CPUSETSIZE cpuset_size(cpusetp)
+    \c #define CPU_ZERO(cset) cpuset_zero(cset)
+    \c #define CPU_SET(ci, cset) cpuset_set(ci, cset)
+    \c #define CPUSET_DESTROY(cset) cpuset_destroy(cset)
+    \c   cpu_set_t * cpusetp=cpuset_create();
     \c #else
-    \c   return 0;
+    \c #define CPUSETSIZE sizeof(cpu_set_t)
+    \c #define CPUSET_DESTROY(cset)
+    \c #define cpusetp &cpuset
+    \c   cpu_set_t cpuset;
     \c #endif
+    \c   int result=0;
+    \c #ifdef HAVE_PTHREAD_SETAFFINITY_NP
+    \c   int num_cores = sysconf(_SC_NPROCESSORS_ONLN);
+    \c
+    \c   if (core_id < 0 || core_id >= num_cores) {
+    \c     result=EINVAL;
+    \c     goto err_exit;
+    \c   }
+    \c   
+    \c   CPU_ZERO(cpusetp);
+    \c   CPU_SET(core_id, cpusetp);
+    \c   
+    \c   result=pthread_setaffinity_np(pthread_self(), CPUSETSIZE, cpusetp);
+    \c err_exit:
+    \c   CPUSET_DESTROY(cpusetp);
+    \c #endif
+    \c   return result;
     \ if there's no such function, don't do anything
     \c }
 
