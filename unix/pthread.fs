@@ -100,6 +100,8 @@ c-library pthread
     \c /* optional: CPU affinity */
     \c #include <sched.h>
     \c int stick_to_core(int core_id) {
+    \c   int result=EINVAL;
+    \c #ifdef HAVE_PTHREAD_SETAFFINITY_NP
     \c #if defined(__NetBSD__)
     \c #define cpu_set_t cpuset_t
     \c #define CPUSETSIZE cpuset_size(cpusetp)
@@ -113,12 +115,9 @@ c-library pthread
     \c #define cpusetp &cpuset
     \c   cpu_set_t cpuset;
     \c #endif
-    \c   int result=0;
-    \c #ifdef HAVE_PTHREAD_SETAFFINITY_NP
     \c   int num_cores = sysconf(_SC_NPROCESSORS_ONLN);
     \c
     \c   if (core_id < 0 || core_id >= num_cores) {
-    \c     result=EINVAL;
     \c     goto err_exit;
     \c   }
     \c   
