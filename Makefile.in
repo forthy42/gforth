@@ -1195,6 +1195,7 @@ checkone test: prim.b gforth-light.fi engine/prim-s.i
 		$(TIMEOUT) $(FORTH) -i gforth-light.fi test/tester.fs -e 'warnings off' test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/complex.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -r -u - $(srcdir)/test/coretest.out
 		@echo TEST $(ENGINE) others
 		$(TIMEOUT) $(FORTH) -i gforth-light.fi test/other.fs -e bye
+		@echo
 		@echo TEST $(ENGINE) signals
 		$(TIMEOUT) $(FORTHS) -i gforth-light.fi test/signals.fs -e bye
 		@echo TEST $(ENGINE) coremore

@@ -228,6 +228,6 @@ s" ( testing ( without being delimited by newline in non-files" evaluate
 
 \ last test!
 \ testing '(' without ')' at end-of-file
-." expect ``warning: ')' missing''" cr
+." expect ``" sourcefilename type ':' emit sourceline# 3 + 0 .r ." :1: warning: ')' missing''" cr
 (
 
