@@ -70,7 +70,8 @@ Create n>lits ' noop , ' >lits , ' >2lits , ' >3lits , ' >4lits ,
 
 : (foldn:) ( xt n "name" -- )
     create  latestxt to lastfold
-  DOES> >r lits# r@ @ umin 1+ cells r> + @ execute-;s ;
+  DOES>
+    >r lits# r@ @ umin 1+ cells r> + @ execute-exit ;
 
 : foldn: ( xt n "name" -- )
     \ name is a constant-folding word that dispatches between n
@@ -92,8 +93,9 @@ Create n>lits ' noop , ' >lits , ' >2lits , ' >3lits , ' >4lits ,
 : fold-constant: ( popn pushn "name" -- )
     n>lits swap >r ['] noopt-compile, r@ foldn:
     noname Create latestxt r@ set-fold# , r@ n>lits , r> nlits> ,
-  DOES> ( xt -- ) >r >r
-    i' cell+ cell+ perform r> catch-nobt 0<> cell and r> + @ execute-;s ;
+  DOES> ( xt -- )
+    >r >r
+    i' cell+ cell+ perform r> catch-nobt 0<> cell and r> + @ execute-exit ;
 
 : folds ( folder-xt "name1" ... "namen" <eol> -- )
     {: folder-xt :} BEGIN

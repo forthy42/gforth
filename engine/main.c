@@ -999,6 +999,22 @@ static PrimNum lookup_ss(PrimNum *start, int length,
   return -1;
 }
 
+/* primitives, where ip is dead at the start, so no ip update is needed */
+static PrimNum ip_dead[] = {N_semis,
+                            N_execute_semis,
+                            N_execute_semis,
+                            N_fast_throw};
+/* the first N_execute_semis is overwritten by the 2->1 version */
+
+static int MAYBE_UNUSED prim_ip_dead(PrimNum p)
+{
+  long i;
+  for (i=0; i<sizeof(ip_dead)/sizeof(ip_dead[0]); i++)
+    if (p==ip_dead[i])
+      return 1;
+  return 0;
+}
+
 static void prepare_super_table()
 {
   long i;
@@ -1068,6 +1084,12 @@ static void prepare_super_table()
           max_super = c->length;
         if (c->length >= 2)
           nsupers++;
+        if (c->offset == N_execute_semis && i != N_execute_semis) {
+          /* this particular hack works only if this assertion holds */
+          assert(ip_dead[1] == N_execute_semis);
+          ip_dead[1]=i;
+          debugp(stderr, "Another execute-;s implementation: %ld\n",i);
+        }
       }
     }
   }
@@ -1521,9 +1543,6 @@ static int reserve_code_space(UCell size)
   return 0;
 }
 
-/* primitives, where ip is dead at the start, so no ip update is needed */
-static PrimNum ip_dead[] = {N_semis, N_execute_semis, N_fast_throw};
-
 static Address append_prim(PrimNum p)
 {
   PrimInfo *pi = &priminfos[p];
@@ -1561,14 +1580,8 @@ static Address append_prim(PrimNum p)
         assert(superend == pi->superend);
       } 
     }
-    if (opt_ip_updates>1 && superend && !has_imm) {
-      long i;
-      for (i=0; i<sizeof(ip_dead)/sizeof(ip_dead[0]); i++)
-        if (p==ip_dead[i]) {
-          dead = 1;
-          break;
-        }
-    }
+    if (opt_ip_updates>1 && superend && !has_imm)
+      dead = prim_ip_dead(p);
     if (has_imm || (superend && !dead)) {
       inst_index += ci->length-1; /* -1 to correct for the +1 in other places */
       p += append_ip_update(pi->max_ip_offset);
