@@ -218,6 +218,8 @@ Address code_area=0;
 Cell code_area_size = CODE_BLOCK_SIZE;
 Address code_here; /* does for code-area what HERE does for the dictionary */
 Address start_flush=NULL; /* start of unflushed code */
+UCell generated_bytes=0;
+UCell generated_nop_bytes=0;
 PrimNum last_jump=0; /* if the last prim was compiled without jump, this
                         is it's PrimNum, otherwise this contains 0 */
 Label *ip_at=0; /* during execution of the currently compiled code ip
@@ -1386,6 +1388,7 @@ static void MAYBE_UNUSED  append_code(Address code, size_t length)
 {
   memmove(code_here,code,length);
   code_here += length;
+  generated_bytes += length;
 }
 
 static void MAYBE_UNUSED align_code(void)
@@ -1398,8 +1401,10 @@ static void MAYBE_UNUSED align_code(void)
   UCell maxpadding=MAX_PADDING;
   UCell offset = ((UCell)code_here)&(alignment-1);
   UCell length = alignment-offset;
-  if (length <= maxpadding)
+  if (length <= maxpadding) {
     append_code(nops+offset,length);
+    generated_nop_bytes += length;
+  }
 #endif /* defined(CODE_PADDING) */
 #endif /* defined(NO_DYNAMIC */
 }  
@@ -2901,6 +2906,8 @@ void gforth_printmetrics()
 {
   if (print_metrics) {
     long i;
+    fprintf(stderr, "%8ld native code bytes generated (including deleted code) without padding\n", generated_bytes - generated_nop_bytes);
+    fprintf(stderr, "%8ld native code bytes generated (including deleted code)\n", generated_bytes);
     fprintf(stderr, "code size = %8ld\n", dyncodesize());
 #ifndef STANDALONE
     for (i=0; i<sizeof(cost_sums)/sizeof(cost_sums[0]); i++)
