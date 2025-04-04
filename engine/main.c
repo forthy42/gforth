@@ -1502,16 +1502,6 @@ struct code_block_list {
   Cell size;
 } *code_block_list=NULL, **next_code_blockp=&code_block_list;
 
-static void init_code_space()
-{
-  int old_prot_exec = prot_exec;
-  prot_exec = PROT_EXEC;
-  jit_map_code();
-  code_here = start_flush = code_area = gforth_alloc(code_area_size);
-  jit_map_normal();
-  prot_exec = old_prot_exec;
-}
-
 static int reserve_code_space(UCell size)
 {
   if(((Cell)size)<0) size=100;
@@ -2528,7 +2518,7 @@ ImageHeader* gforth_loader(char* imagename, char* path)
     if(fread(sections[i], 1, sizes[i], imagefile) != sizes[i]) break;
   }
 #ifndef NO_DYNAMIC
-  init_code_space();
+  reserve_code_space(0);
 #endif
   int no_dynamic_orig = no_dynamic;
   no_dynamic |= no_dynamic_image;
