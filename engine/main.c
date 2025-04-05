@@ -683,12 +683,20 @@ Address alloc_mmap(Cell size)
 #endif /* !defined(MAP_ANON) */
   if (MAP_32BIT && map_32bit) {
     debugp(stderr,"try mmap(%p, $%lx, %x, %x, %i, %i); ", (void*)0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras|MAP_32BIT, dev_zero, 0);
-    r=mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras|MAP_32BIT, dev_zero, 0);
+    r=
+#ifdef PROT_RWX_FAIL
+      prot_exec ? ({ errno=EPERM; MAP_FAILED; }) :
+#endif
+      mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras|MAP_32BIT, dev_zero, 0);
     after_alloc("RWX+32", r, size);
   }
   if (r==MAP_FAILED) {
     debugp(stderr,"try mmap(%p, $%lx, %x, %x, %i, %i); ", (void*)0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras, dev_zero, 0);
-    r=mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras, dev_zero, 0);
+    r=
+#ifdef PROT_RWX_FAIL
+      prot_exec ? ({ errno=EPERM; MAP_FAILED; }) :
+#endif
+      mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras, dev_zero, 0);
     after_alloc("RWX", r, size);
   }
   if (r==MAP_FAILED) {
@@ -700,7 +708,11 @@ Address alloc_mmap(Cell size)
 #endif
       prot_exec = 0;
       debugp(stderr,"try mmap(%p, $%lx, %x, %x, %i, %i); ", (void*)0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras, dev_zero, 0);
-      r=mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras, dev_zero, 0);
+      r=
+#ifdef PROT_RWX_FAIL
+	prot_exec ? ({ errno=EPERM; MAP_FAILED; }) :
+#endif
+	mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras, dev_zero, 0);
     } else {
       debugp(stderr,"try mmap(%p, $%lx, %x, %x, %i, %i); ", (void*)0, size, PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras, dev_zero, 0);
       r=mmap(0, size, PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_extras, dev_zero, 0);
@@ -775,7 +787,11 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
       void *image1;
       debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)dictsize, image);
       debugp(stderr,"try mmap(%p, $%lx, RWX, MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
-      image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
+      image1=
+#ifdef PROT_RWX_FAIL
+	PROT_EXEC ? ({ errno=EPERM; MAP_FAILED; }) :
+#endif
+	mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
       after_alloc("image1 RWX", image1,dictsize);
 #if defined(__ANDROID__) || defined(_AIX)
       if (image1 == (void *)MAP_FAILED)
@@ -1534,6 +1550,8 @@ static int reserve_code_space(UCell size)
       code_here = start_flush = code_area = p->block;
     }
     next_code_blockp = &(p->next);
+  } else {
+    debugp(stderr, "Don't reserve code size %ld, code_area=%p, code_ares_size=%ld, code_here=%p\n", size, code_area, code_area_size, code_here);
   }
   return 0;
 }
@@ -2288,7 +2306,7 @@ int gforth_init()
 #endif /* !defined(NO_DYNAMIC) */
 #endif /* defined(HAS_OS) */
 #endif
-  code_here = ((void *)0)+code_area_size;
+  code_here = ((void *)1)+code_area_size;
 
   get_winsize();
    

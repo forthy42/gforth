@@ -102,7 +102,7 @@ SWITCHES = $(XCFLAGS) $(XDEFINES) $(OPTDEFINES)
 ENGINE_FLAGS = @ENGINE_FLAGS@
 DEBUGFLAG = @DEBUGFLAG@
 CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEFAULTPATH='"$(FORTHPATH)"' $(LTDLINCL)
-CPPFLAGS=@CPPFLAGS@
+CPPFLAGS = @CPPFLAGS@ @extra_cflags@
 FORTHKFLAGS= --die-on-signal -p "..$(PATHSEP)$(srcdir)" -i ../$(kernel_fi)
 FORTHK	= ../gforth $(FORTHKFLAGS)
 FORTH	= $(BOOTFORTH) --die-on-signal
@@ -349,7 +349,7 @@ main$(OPT).o libmain$(OPT).lo:		$(MAIN_DEPS)
 
 main-fast$(OPT).o libmain-fast$(OPT).lo:	$(MAIN_FAST_DEPS) 
 		@echo CC-MAIN -o $@ $<
-		$(COMPILER) -o $@ $(srcdir)/main.c
+		$(COMPILER) @no_dynamic@ -o $@ $(srcdir)/main.c
 
 main-itc$(OPT).o libmain-itc$(OPT).lo:	$(MAIN_DEPS) 
 		@echo CC-MAIN -o $@ $<

@@ -50,7 +50,7 @@ AC_SUBST(LTDL_LDLIBS)
 
 UNDERSCORE=
 test x$sys_symbol_underscore = xyes && UNDERSCORE=_
- AC_SUBST(UNDERSCORE)
+AC_SUBST(UNDERSCORE)
 
 #suppress "-flto=auto"
 case "$CFLAGS" in
@@ -305,6 +305,7 @@ AC_ARG_VAR(skipcode, [assembly code for skipping 4 bytes of code])
 AC_ARG_VAR(asmcomment, [assembler comment start string])
 AC_ARG_VAR(arm_cacheflush, [file containing ARM cacheflush function (without .c)])
 AC_ARG_VAR(LTDL_LIBRARY_PATH, [additional directories for libltdl (for some 64-bit platforms)])
+AC_ARG_VAR(extra_cflags, [additional defines for main.c])
 
 test -z "$HOSTCC" && HOSTCC='$(GCC)'
 
@@ -375,6 +376,7 @@ AC_SUBST(EC_MODE)
 AC_SUBST(engine2)
 AC_SUBST(engine_fast2)
 AC_SUBST(no_dynamic)
+AC_SUBST(extra_cflags)
 AC_SUBST(image_i)
 AC_SUBST(signals_o)
 AC_SUBST(mi_prefix)
