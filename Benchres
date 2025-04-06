@@ -64,6 +64,9 @@ AMD64:
 ARM64:
  sieve bubble matrix fib   fft  release; CPU; gcc
  0.055 0.061  0.028 0.039 0.020 20231123; Snapdragon 8 Gen 2 3200MHz; gcc-4.9 (Android 13)
+ 0.105 0.090  0.046 0.087 0.047 20250321; Apple M1 Icestorm 2064MHz; gcc-13.3.0 (Linux)
+ 0.056 0.045  0.029 0.041 0.019 20250321; Apple M1 Firestorm 3200MHz; gcc-13.3.0 (Linux)
+ 0.051 0.041  0.027 0.038 0.018 20250321; Apple M1 Firestorm 3200MHz; gcc-14.1.0 (MacOS)
  0.053 0.044  0.029 0.041 0.021 20250115; Apple M1 Firestorm 3200MHz; gcc-14.1.0 (MacOS)
  0.126 0.179  0.079 0.118 0.052 20230622; Rock 5B RK3588 A76 2231MHz; gcc-6.3.0 (Debian 9)
  0.136 0.155  0.081 0.147 0.081 20220707; Apple M1 Icestorm 2064MHz; gcc-11.3.0
