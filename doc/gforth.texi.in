@@ -236,6 +236,14 @@ An Introduction to Standard Forth
 * Where to go next::
 * Exercises::
 
+Literals in source code
+
+* Integer and character literals::
+* Floating-point number and complex literals::
+* String and Environment variable Literals::
+* Literals for tokens and addresses::
+* Disambiguating recognizers::
+
 Forth Words
 
 * Notation::
@@ -243,6 +251,7 @@ Forth Words
 * Comments::
 * Boolean Flags::
 * Arithmetic::
+* Floating-point comparisons::
 * Stack Manipulation::
 * Memory::
 * Strings and Characters::
@@ -4783,6 +4792,17 @@ the exercises in a .fs file in the distribution.
 @chapter Literals in source code
 @cindex Literals (in source code)
 
+@menu
+* Integer and character literals::
+* Floating-point number and complex literals::
+* String and Environment variable Literals::
+* Literals for tokens and addresses::
+* Disambiguating recognizers::
+@end menu
+
+@node Integer and character literals, Floating-point number and complex literals, Literals in source code, Literals in source code
+@section Integer and character literals
+
 @cindex single-cell numbers, input format
 @cindex input format for single-cell numbers
 To push an integer number on the data stack, you write the number in
@@ -4846,6 +4866,9 @@ trailing @code{'} is required by the standard, but you can leave it
 away in Gforth.  Note that this also works for non-ASCII characters.
 For many uses, it is more useful to have the character as a string
 rather than as a cell; see below for the string syntax.
+
+@node Floating-point number and complex literals, String and Environment variable Literals, Integer and character literals, Literals in source code
+@section Floating-point number and complex literals
 
 @cindex floating-point numbers, input format
 @cindex input format for floating-point numbers
@@ -4922,18 +4945,22 @@ exponential notation at the end.  Examples of scaled notation:
 @code{6k5} (6500e) @code{23%} (0.23e).
 
 @cindex complex numbers, input format
-You can input a complex number with @code{@i{real}+@i{imaginary}i},
-where both @code{@i{real}} and @code{@i{imaginary}} are strings that
-are recognized as floating-point numbers.  E.g., @code{1e+2ei}.  This
-pushes the values @code{1e} and @code{2e} on the floating-point stack,
-so one might just as well have written @code{1e 2e}, but @code{1e+2ei}
-makes the intent obvious.
+In Gforth (since 1.0) you can input a complex number with
+@code{@i{real}+@i{imaginary}i}, where both @code{@i{real}} and
+@code{@i{imaginary}} are strings that are recognized as floating-point
+numbers.  E.g., @code{1e+2ei}.  This pushes the values @code{1e} and
+@code{2e} on the floating-point stack, so one might just as well have
+written @code{1e 2e}, but @code{1e+2ei} makes the intent obvious.
+
+@node String and Environment variable Literals, Literals for tokens and addresses, Floating-point number and complex literals, Literals in source code
+@section String and Environment variable Literals
 
 @cindex String input format
 @cindex input format for strings
-You can input a string by surrounding it with @code{"}
-(e.g. @code{"abc"}, @code{"a b"}).  The result is the starting address
-and byte (=char) count of the string on the data stack.
+In Gforth (since 1.0) you can input a string by surrounding it with
+@code{"} (e.g. @code{"abc"}, @code{"a b"}).  The result is the
+starting address and byte (=char) count of the string on the data
+stack.
 
 You have to escape any @code{"} inside the string with @code{\} (e.g.,
 @code{"double-quote->\"<-"}).  In addition, this string syntax
@@ -4944,11 +4971,16 @@ programs, use @code{s\"} instead.
 
 @cindex environment variable input format
 @cindex input format for environment variables
-You can input an environment variable by surrounding its name with
-@code{$@{}...@code{@}}, e.g., @code{$@{HOME@}}; the result is a string
-descriptor on the data stack in the format described above.  This is
-equivalent to @code{"HOME" getenv}, i.e., the environment variable is
-resolved at run-time.
+In Gforth (since 1.0) you can input an environment variable by
+surrounding its name with @code{$@{}...@code{@}}, e.g.,
+@code{$@{HOME@}}; the result is a string descriptor on the data stack
+in the format described above.  This is equivalent to @code{"HOME"
+getenv}, i.e., the environment variable is resolved at run-time.
+
+@node Literals for tokens and addresses, Disambiguating recognizers, String and Environment variable Literals, Literals in source code
+@section Literals for tokens and addresses
+
+Gforth (since 1.0) also recognizes the following literals:
 
 @cindex xt input format
 @cindex execution token input format
@@ -4977,12 +5009,20 @@ that is at a positive offset from the body address (typically an
 address in that body), by putting @code{+} and a number (see syntax
 above) between the word name and the closing @code{>} (e.g.,
 @code{<spaces+$15>}, @code{<spaces+-3>}).  You will get the body address
-plus the number.  This non-standard feature exists to allow copying
+plus the number.  This feature exists to allow copying
 and pasting the output of @code{...} (@pxref{Examining data}).
+
+In addition, by default Gforth recognizes words with @code{rec-nt} and
+@code{rec-scope}, and stores in or adds to value-flavoured words with
+@code{rec-to}, but these do not recognize literals, so they are
+discussed elsewhere (@pxref{Default Recognizers}).
+
+@node Disambiguating recognizers,  , Literals for tokens and addresses, Literals in source code
+@section Disambiguating recognizers
 
 @cindex meta recognizer
 In some cases where two recognizers match the same string, you can
-specify which recognizer you want to use, with
+specify in Gforth (since 1.0) which recognizer you want to use, with
 @code{@i{recognizer}?@i{string}}, where @code{@i{recognizer}} is the
 name of the recognizer without the @code{rec-} prefix, and
 @code{@i{string}} is the string you want to recognize.  E.g.,
@@ -4991,10 +5031,6 @@ otherwise be recognized as a double-cell integer number (because
 @code{rec-num} is earlier in the recognizer sequence than
 @code{rec-float}).
 
-In addition, by default Gforth recognizes words with @code{rec-nt} and
-@code{rec-scope}, and stores in or adds to value-flavoured words with
-@code{rec-to}, but these do not recognize literals, so they are
-discussed elsewhere (@pxref{Default Recognizers}).
 
 @c ******************************************************************
 @node Words, Error messages, Literals in source code, Top
@@ -5007,6 +5043,7 @@ discussed elsewhere (@pxref{Default Recognizers}).
 * Comments::
 * Boolean Flags::
 * Arithmetic::
+* Floating-point comparisons::
 * Stack Manipulation::
 * Memory::
 * Strings and Characters::
@@ -5141,6 +5178,11 @@ We intend to permanently support this word in Gforth and it has been
 available since Gforth @i{<version>} (possibly not as stable word at
 that time).
 
+You see @code{gforth} in the source code (e.g., when using
+@code{locate}), and @code{gforth-@i{<version>}} in the documentation
+(e.g., when using @code{help}).  So if you want to know since which
+Gforth version a word is available, use @code{help @i{word}}.
+
 @item @i{library}
 The word belongs to a library that is independent of Gforth, but is
 delivered with Gforth and documented in this manual.  Gforth 1.0
@@ -5163,7 +5205,9 @@ Feedback welcome.
 
 @item gforth-internal
 This word is an internal factor, not a supported word, and it may be
-removed in a future release of Gforth.
+removed in a future release of Gforth.  If you see a word in the
+source code (e.g., with @code{locate}) without a wordset, that word is
+also an internal factor.
 
 @item gforth-obsolete
 This word will be removed in a future release of Gforth.
@@ -5253,7 +5297,7 @@ stream that is terminated by @code{"}.
 @cindex case sensitivity
 @cindex upper and lower case
 
-Gforth is case-insensitive for ASCII characters and case-insensitive
+Gforth is case-insensitive for ASCII characters and case-sensitive
 for non-ASCII characters.  I.e., you can invoke Standard words using
 upper, lower or mixed case.
 
@@ -5285,9 +5329,10 @@ wordlists, @pxref{Word Lists}).
 @section Comments
 @cindex comments
 
-Forth supports two styles of comment; the traditional @i{in-line} comment,
-@code{(} and its modern cousin, the @i{comment to end of line}; @code{\}.
-
+Forth supports two styles of comment; the @i{in-line} comment starting
+with @code{(} and ending with @code{)}, and the comment to the end of
+the line line starting with @code{\}.  Don't forget the space after
+the starting word.
 
 doc-(
 doc-\
@@ -5311,7 +5356,7 @@ doc-on
 doc-off
 doc-select
 
-@node Arithmetic, Stack Manipulation, Boolean Flags, Words
+@node Arithmetic, Floating-point comparisons, Boolean Flags, Words
 @section Arithmetic
 @cindex arithmetic words
 
@@ -5812,6 +5857,19 @@ doc-facosh
 doc-fatanh
 doc-pi
 
+@cindex floating-point constants
+Special values in IEEE754 can be derived by for example dividing by zero.
+The most common ones are defined as floating point constants for easy usage.
+
+doc-infinity
+doc-inf
+doc--infinity
+doc--inf
+doc-nan
+
+@node Floating-point comparisons, Stack Manipulation, Arithmetic, Words
+@section Floating-point comparisons
+
 @cindex equality of floats
 @cindex floating-point comparisons
 One particular problem with floating-point arithmetic is that comparison
@@ -5838,17 +5896,7 @@ doc-f0=
 doc-f0>
 doc-f0>=
 
-@cindex floating-point constants
-Special values in IEEE754 can be derived by for example dividing by zero.
-The most common ones are defined as floating point constants for easy usage.
-
-doc-infinity
-doc-inf
-doc--infinity
-doc--inf
-doc-nan
-
-@node Stack Manipulation, Memory, Arithmetic, Words
+@node Stack Manipulation, Memory, Floating-point comparisons, Words
 @section Stack Manipulation
 @cindex stack manipulation words
 
@@ -5937,18 +5985,27 @@ doc-fpick
 @cindex return stack and locals
 @cindex locals and return stack
 
-In Gforth 1.0 you can use the return stack during text interpretation.
-The only limitation here is that you cannot pass data on the return
-stack into or out of an included file, block, or @code{evaluate}d
-string.  This interpretive usage of return-stack words is
-non-standard, and many other Forth systems do not have support this
-usage, or limit it to within one line.  Example:
+The return stack primarily exists for storing system data, such as
+return addresses and loop control parameters, but Forth also allows
+programmers to make use of it, albeit with restrictions stemming from
+the other uses.  The primary use is for temporary storage of data;
+locals also provide this capability, and usually in a more convenient
+way; some purists (or puritans) prefer to avoid locals, though.
+
+In Gforth 1.0 you can use the return stack during text interpretation
+(and you cannot use locals for that).  The only limitation here is
+that you cannot pass data on the return stack into or out of an
+included file, block, or @code{evaluate}d string.  Example:
 
 @example
 1 >r
 : foo [ r> ] literal ;
 foo . \ prints 1
 @end example
+
+This interpretive usage of return-stack words is non-standard, and
+many other Forth systems do not have support this usage, or limit it
+to within one line.
 
 In Gforth you can use the return stack for storing data while you also
 keep and access data in locals.  However, the standard puts
@@ -6025,28 +6082,52 @@ garbage collector}.
 @c The Standard Forth description is a mess (e.g., is the heap part of
 @c the dictionary?), so let's not stick to closely with it.
 
-Standard Forth considers a Forth system as consisting of several address
-spaces, of which only @dfn{data space} is managed and accessible with
-the memory words.  Memory not necessarily in data space includes the
-stacks, the code (called code space) and the headers (called name
-space). In Gforth everything is in data space, but the code for the
-primitives is usually read-only.
+@cindex data space
+@cindex code space
+@cindex name space
+Standard Forth considers a Forth system as consisting of several
+address spaces, of which only @dfn{data space} is managed and
+accessible with the memory words in standard programs.  Memory not
+necessarily in data space includes the stacks, the code (called code
+space) and the headers (called name space).  Gforth allows at least
+read access to all these logical spaces, but does not guarantee that
+code accessing the stacks, the threaded or native code, or the headers
+is portable or will work in the next Gforth version; Gforth provides
+some accessor words for these purposes, however.
 
-Data space is divided into a number of areas: The (data space portion of
-the) dictionary@footnote{Sometimes, the term @dfn{dictionary} is used to
-refer to the search data structure embodied in word lists and headers,
-because it is used for looking up names, just as you would in a
-conventional dictionary.}, the heap, and a number of system-allocated
-buffers.
+@cindex heap memory
+@cindex dictionary memory
+Another division of memory is between dictionary and heap
+memory.@footnote{The term @dfn{dictionary} is also used to refer to
+the search data structure embodied in word lists and headers.  The
+search data (word headers) reside in dictionary memory.}  In heap
+memory you can free allocations in arbitrary order, but you cannot
+grow allocations in-place (@pxref{Heap Allocation}).  In dictionary
+memory deallocation is impractical for the most part, but you can grow
+allocations in place (@pxref{Dictionary allocation}).  Gforth (since
+1.0) allows having several sections of dictionary memory in order to
+allow more flexibility in this growing (@pxref{Sections}).
 
+@cindex contiguous region
+One relevant concept in this context is the @i{contiguous region}: It
+means a piece of memory that is contiguous, without any system data
+interleaved with it.  In heap memory each allocation forms one
+contiguous region, and separate allocations are not contiguous with
+any other allocations.  In dictionary memory all allocations in a
+section are contiguous, unless something happens that ends the
+contiguous region; a typical reason for ending a contiguous region is
+defining a word in that section.
+
+@cindex flat address space
+@cindex dictionary allocation direction
 Gforth provides one big address space, and address arithmetic can be
 performed between any addresses. However, in the dictionary headers or
-code are interleaved with data, so almost the only contiguous data
-space regions there are those described by Standard Forth as
-contiguous; but you can be sure that, within a section the dictionary
-is allocated towards increasing addresses even between contiguous
-regions.  The memory order of allocations in the heap is
-platform-dependent (and possibly different from one run to the next).
+code are interleaved with data, so almost the only contiguous regions
+are those described by Standard Forth as contiguous; but you can be
+sure that, within a section the dictionary is allocated towards
+increasing addresses even between contiguous regions.  The memory
+order of allocations in the heap is platform-dependent (and possibly
+different from one run to the next).
 
 
 @node Dictionary allocation, Sections, Memory model, Memory
@@ -6242,10 +6323,10 @@ are in decimal base.
 
 In the section @code{Forth}, not all of the remaining size can be used
 for @code{allot}ting memory, because room must be left for @code{pad}
-(@code{memory blocks}).  The current section is marked with the
-@code{>}.  Also, if you use @code{word} (@pxref{The Input Stream}),
-you must leave room in the current section for the parsed string and
-its length byte.
+(@pxref{Memory Blocks}).  The current section is marked with @code{>}.
+Also, if you use @code{word} (@pxref{The Input Stream}), you must
+leave room in the current section for the parsed string and its length
+byte.
 
 
 @node Heap Allocation, Memory Access, Sections, Memory
@@ -6256,9 +6337,10 @@ its length byte.
 
 @cindex contiguous regions and heap allocation
 Heap allocation supports deallocation of allocated memory in any
-order. Dictionary allocation is not affected by it (i.e., it does not
-end a contiguous region). In Gforth, these words are implemented using
-the standard C library calls malloc(), free() and realloc().
+order. It does not affect dictionary allocation (i.e., heap allocation
+does not end a contiguous region). In Gforth, these words are
+implemented using the standard C library calls malloc(), free() and
+realloc().
 
 The memory region produced by one invocation of @code{allocate} or
 @code{resize} is internally contiguous.  There is no contiguity between
@@ -6384,7 +6466,8 @@ or a sign extension of the lower cell.
 
 The memory-access words below all work with arbitrarily (un)aligned
 addresses (unlike @code{@@}, @code{!}, @code{f@@}, @code{f!}, which
-require alignment on some hardware).
+require alignment on some hardware), and use native byte order (like
+these words),
 
 doc-w@
 doc-w!
@@ -6468,9 +6551,11 @@ Standard Forth defines no words for character-aligning addresses, but
 given that @code{1 chars}=1 is common practice, that's not a big loss.
 
 @cindex @code{CREATE} and alignment
-Standard Forth guarantees that addresses returned by @code{CREATE}d words
-are cell-aligned; in addition, Gforth guarantees that these addresses
-are aligned for all purposes.
+Standard Forth guarantees that addresses returned by @code{CREATE}d
+words are cell-aligned; in addition, Gforth guarantees that these
+addresses are aligned for all Forth purposes.@footnote{Some SIMD
+extensions of some instruction sets impose more severe alignment
+constraints that @code{create} currently does not satisfy.}
 
 Note that the Standard Forth word @code{char} has nothing to do with address
 arithmetic.
@@ -6526,7 +6611,7 @@ character strings in memory see @ref{String representations}.  For other
 string-processing words see @ref{Displaying characters and strings}.
 
 In case you want to write a program that is portable to systems with
-@code{1 chars}>1 (not recommended), you have to note the difference
+@code{1 chars} > 1 (not recommended), you have to note the difference
 between words that take a number of aus (e.g., @code{erase}) and words
 that take a number of chars (e.g., @code{blank}), and insert
 @code{chars} as appropriate.
@@ -6629,7 +6714,7 @@ same as in C (exceptions noted):
 
 @table @code
 @item \a
-7 BEL (alert)
+7 @code{#bell} (alert)
 @item \b
 8 @code{#bs} (backspace)
 @item \e
@@ -6742,7 +6827,7 @@ doc-#eof
 @subsection String words
 
 Words that are used for memory blocks are also useful for strings, so
-for words that move, copy, compare and search strings, see @ref{Memory
+for words that move, copy, and fill strings, see @ref{Memory
 Blocks}. For words that display characters and strings, see
 @ref{Displaying characters and strings}.
 
@@ -6779,12 +6864,15 @@ The following words create or extend strings on the heap:
 doc-s+
 doc-append
 doc->string-execute
+doc-$tmp
 
 One could define @code{s+} using @code{>string-execute}, as follows:
 
+@example
 : s+ ( c-addr1 u1 c-addr2 u2 -- c-addr u )
   [: 2swap type type ;] >string-execute ;
-
+@end example
+  
 For concatenating just two strings @code{>string-execute} is
 inefficient, but for concatenating many strings @code{>string-execute}
 can be more efficient.
@@ -6825,7 +6913,6 @@ doc-$init
 doc-$iter
 doc-$over
 doc-$exec
-doc-$tmp
 doc-$.
 doc-$slurp
 doc-$slurp-file
@@ -6842,12 +6929,14 @@ doc-$[]slurp
 doc-$[]slurp-file
 doc-$[].
 doc-$[]free
-doc-$save
-doc-$[]save
-doc-$boot
-doc-$[]boot
-doc-$saved
-doc-$[]saved
+@c the documentation of the commented-out words is not clear enough and
+@c these words seem to be internal factors
+@c doc-$save
+@c doc-$[]save
+@c doc-$boot
+@c doc-$[]boot
+@c doc-$saved
+@c doc-$[]saved
 doc-$variable
 doc-$[]variable
 
@@ -6869,7 +6958,6 @@ The following word has no useful interpretation semantics (unlike
 you should use it only inside colon definitions (if at all):
 
 doc-c"
-
 doc-place
 doc-string,
 
@@ -6878,8 +6966,9 @@ doc-string,
 @cindex control structures
 
 Control structures in Forth cannot be used interpretively, only in a
-colon definition@footnote{To be precise, they have no interpretation
-semantics (@pxref{Interpretation and Compilation Semantics}).}. We do
+colon definition@footnote{To be precise, the interpetation semantics
+of the control-flow words are not useful for interpretive control
+flow (@pxref{Interpretation and Compilation Semantics}).}. We do
 not like this limitation, but have not seen a satisfying way around it
 yet, although many schemes have been proposed.
 
@@ -6923,24 +7012,23 @@ ENDIF
 If @var{flag} is true, @i{code1} is executed, otherwise @i{code2} is
 executed.
 
-You can use @code{THEN} instead of @code{ENDIF}. Indeed, @code{THEN} is
-standard, and @code{ENDIF} is not, although it is quite popular. We
-recommend using @code{ENDIF}, because it is less confusing for people
-who also know other languages (and is not prone to reinforcing negative
-prejudices against Forth in these people). Adding @code{ENDIF} to a
-system that only supplies @code{THEN} is simple:
+You can use @code{THEN} instead of @code{ENDIF}. Indeed, @code{THEN}
+is standard, and @code{ENDIF} is not, but we present @code{ENDIF} here
+because it is less confusing to people coming from other languages.
+Adding @code{ENDIF} to a system that only supplies @code{THEN} is
+simple:
 @example
 : ENDIF   POSTPONE then ; immediate
 @end example
 
-[According to @cite{Webster's New Encyclopedic Dictionary}, @dfn{then
+According to @cite{Webster's New Encyclopedic Dictionary}, @dfn{then
 (adv.)}  has the following meanings:
 @quotation
 ... 2b: following next after in order ... 3d: as a necessary consequence
 (if you were there, then you saw them).
 @end quotation
 Forth's @code{THEN} has the meaning 2b, whereas @code{THEN} in Pascal
-and many other programming languages has the meaning 3d.]
+and many other programming languages has the meaning 3d.
 
 Gforth also provides the words @code{?DUP-IF} and @code{?DUP-0=-IF}, so
 you can avoid using @code{?dup}. Using these alternatives is also more
@@ -6977,20 +7065,6 @@ matches).  Example:
    s" other number" 
    rot \ get n on top so ENDCASE can drop it
  endcase ;
-@end example
-
-You can also use (the non-standard) @code{?of} to use @code{case} as a
-general selection structure for more than two alternatives.
-@code{?Of} takes a flag.  Example:
-
-@example
-: sgn ( n1 -- n2 )
-    \ sign function
-    case
-	dup 0< ?of drop -1 endof
-	dup 0> ?of drop 1 endof
-	dup \ n1=0 -> n2=0; dup an item, to be consumed by ENDCASE
-    endcase ;
 @end example
 
 @progstyle
@@ -7475,6 +7549,22 @@ computes 3n+1, and starts the next iteration with @code{contof}.
 Otherwise, if the number is even, it is divided by 2, and the loop is
 restarted with @code{next-case}.
 
+The @code{case} words are:
+
+doc-case
+doc-endcase
+doc-next-case
+doc-of
+doc-?of
+doc-endof
+doc-contof
+
+@noindent
+Internally, @i{of-sys} is an @code{orig}; and @i{case-sys} is a cell
+and some stack-depth information, 0 or more @code{orig}s, and a
+@code{dest}.
+
+
 @node Arbitrary control structures, Calls and returns, General control structures with CASE, Control Structures
 @subsection Arbitrary control structures
 @cindex control structures, user-defined
@@ -7506,43 +7596,27 @@ doc-cs-drop
 The Standard words @code{CS-PICK} and @code{CS-ROLL} allow you to
 manipulate the control-flow stack in a portable way. Without them, you
 would need to know how many stack items are occupied by a control-flow
-entry (many systems use one cell. In Gforth they currently take three,
-but this may change in the future).
+entry (Many systems use one cell. In Gforth they currently take four
+cells, but this may change in the future).
 
-@code{CS-PICK} can only pick a dest and @code{CS-DROP} can only drop a
-dest, because an orig must be resolved exactly once.
+When using @code{CS-PICK} and @code{CS-DROP} on an orig, you need to
+use one @code{CS-DROP} for every @code{CS-PICK} (and vice versa) of a
+given orig, because the orig must be resolved by @code{then} exactly
+once.
 
 Some standard control structure words are built from these words:
-
 
 doc-else
 doc-while
 doc-repeat
 
-
 @noindent
 Gforth adds some more control-structure words:
-
 
 doc-endif
 doc-?dup-if
 doc-?dup-0=-if
 
-@noindent
-Another group of control structure words are:
-
-
-doc-case
-doc-endcase
-doc-next-case
-doc-of
-doc-?of
-doc-endof
-doc-contof
-
-Internally, @i{of-sys} is an @code{orig}; and @i{case-sys} is a cell
-and some stack-depth information, 0 or more @code{orig}s, and a
-@code{dest}.
 
 @subsubsection Programming Style
 @cindex control structures programming style
@@ -7634,7 +7708,6 @@ the end of the definition is reached or @code{EXIT} is encountered.
 
 doc-exit
 doc-?exit
-doc-;s
 
 
 @node Exception Handling,  , Calls and returns, Control Structures
@@ -7850,10 +7923,10 @@ To ease the transition, Gforth provides two compatibility files:
 ... then} syntax (but not @code{iferror} or @code{restore}) for old
 systems; @file{recover-endtry.fs} provides the @code{try ... recover
 ... endtry} syntax on new systems, so you can use that file as a
-stopgap to run old programs.  Both files work on any system (they just
+stopgap to run old programs.  Both files work on any Gforth (they just
 do nothing if the system already has the syntax it implements), so you
 can unconditionally @code{require} one of these files, even if you use
-a mix old and new systems.
+a mix old and new Gforths.
 
 doc-restore
 doc-endtry-iferror
@@ -7884,8 +7957,8 @@ and you can provide an error message.  @code{Abort} just produces an
 The problem with these words is that exception handlers cannot
 differentiate between different @code{abort"}s; they just look like
 @code{-2 throw} to them (the error message cannot be accessed by
-standard programs).  Similar @code{abort} looks like @code{-1 throw} to
-exception handlers.
+standard programs).  Similarly, @code{abort} looks like @code{-1
+throw} to exception handlers.
 
 doc-abort"
 doc-abort

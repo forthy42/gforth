@@ -58,7 +58,7 @@ Defer previous-section ( -- ) \ gforth
     postpone if '"' parse postpone cliteral postpone c(abort")
     dead-code on postpone then ; immediate restrict
 
-: warning" ( compilation 'ccc"' -- ; run-time f -- ) \ gforth
+: warning" ( compilation 'ccc"' -- ; run-time f -- ) \ gforth warning-quote
     \G if @i{f} is non-zero, display the string @i{ccc} as warning message.
     postpone if '"' parse postpone cliteral postpone c(warning")
     postpone then ; immediate restrict

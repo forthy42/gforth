@@ -133,11 +133,11 @@ $010 Constant POLLHUP
 : errno-throw ( errno -- ) \ gforth-internal
     \G throws code from a C error code on the stack (if not 0)
     ?dup-IF  -512 swap - throw  THEN ;
-: ?errno-throw ( f -- ) \ gforth
+: ?errno-throw ( f -- ) \ gforth question-errno-throw
     \G If @i{f}<>0, throws an error code based on the value of @code{errno}.
     IF  errno errno-throw  THEN ;
 
-: ?ior ( x -- ) \ gforth
+: ?ior ( x -- ) \ gforth question-i-o-r
     \G If @i{f}=-1, throws an error code based on the value of @code{errno}.
     -1 = ?errno-throw ;
 

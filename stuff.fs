@@ -94,12 +94,18 @@ AUser CSP
 \ multiple values to and from return stack
 
 : n>r ( x1 .. xn n -- R:xn..R:x1 R:n ) \ tools-ext n-to-r
+    \G In Standard Forth, the order of items on the return stack is
+    \G not specified, and the only thing you can do with the items on
+    \G the return stack is to use @code{nr>}
     scope r> { n ret }
-    0  BEGIN  dup n <  WHILE  swap >r 1+  REPEAT  >r
+    0 BEGIN dup n < WHILE swap >r 1+ REPEAT >r
     ret >r endscope ;
 : nr> ( R:xn..R:x1 R:n -- x1 .. xn n ) \ tools-ext n-r-from
+    \G In Standard Forth, the order of items on the return stack is
+    \G not specified, and the only thing you can do with the items on
+    \G the return stack is to use @code{nr>}
     scope r> r> { ret n }
-    0  BEGIN  dup n <  WHILE  r> swap 1+  REPEAT
+    0 BEGIN dup n < WHILE r> swap 1+ REPEAT
     ret >r endscope ;
 
 \ defer stuff
@@ -573,7 +579,7 @@ alias xd>s ( xd -- d ) \ gforth
 
 ' naligned alias *aligned ( addr1 n -- addr2 ) \ gforth star-aligned
 \g @var{addr2} is the aligned version of @var{addr1} with respect to the
-\g alignment @var{n}.
+\g alignment @var{n}; @var{n} must be a power of 2.
 : *align ( n -- ) \ gforth star-align
     \G Align @code{here} with respect to the alignment @var{n}.
     here swap naligned ->here ;
@@ -719,7 +725,7 @@ struct
     cell% field buffer-length
     cell% field buffer-address
     cell% field buffer-maxlength \ >=length
-end-struct buffer% ( u1 u2 -- ) \ gforth-experimental
+end-struct buffer% ( u1 u2 -- ) \ gforth-experimental buffer-percent
 \g @i{u1} is the alignment and @i{u2} is the size of a buffer descriptor.
 
 : init-buffer ( addr -- ) \ gforth-experimental

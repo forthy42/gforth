@@ -106,6 +106,7 @@ umethod xc@+? ( xc-addr1 u1 -- xc-addr2 u2 xc ) \ gforth-experimental x-c-fetch-
 \ fixed-size versions of these words
 
 ' 1- alias char- ( c-addr1 -- c-addr2 ) \ gforth char-minus
+\G @code{1 chars -}
 
 : +string ( c-addr1 u1 -- c-addr2 u2 )
     1 /string ;

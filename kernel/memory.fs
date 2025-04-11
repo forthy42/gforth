@@ -30,19 +30,19 @@ uval-o current-memory-words
 heap-words uto current-memory-words
 0 0
 umethod allocate ( u -- a_addr wior )	\ memory
-    \G Allocate @i{u} address units of contiguous data space. The
-    \G initial contents of the data space is undefined. If the
-    \G allocation is successful, @i{a-addr} is the start address of
-    \G the allocated region and @i{wior} is 0. If the allocation
-    \G fails, @i{a-addr} is undefined and @i{wior} is a non-zero I/O
-    \G result code.
+    \G Allocate @i{u} address units of contiguous data space. This
+    \G data space is not initialized.  If the allocation is
+    \G successful, @i{a-addr} is the start address of the allocated
+    \G region and @i{wior} is 0. If the allocation fails, @i{a-addr}
+    \G is arbitrary and @i{wior} is a non-zero I/O result code.
 
 umethod free	( a_addr -- wior )	\ memory
     \G Return the region of data space starting at @i{a-addr} to the
     \G system.  The region must originally have been obtained using
-    \G @code{allocate} or @code{resize}. If the operation is
-    \G successful, @i{wior} is 0.  If the operation fails, @i{wior} is
-    \G a non-zero I/O result code.
+    \G @code{allocate} or @code{resize}, otherwise the result of
+    \G @code{free} is unpredictable. If the operation is successful,
+    \G @i{wior} is 0.  If the operation fails, @i{wior} is a non-zero
+    \G I/O result code.
 
 umethod resize	( a_addr1 u -- a_addr2 wior )	\ memory
     \G Change the size of the allocated area at @i{a-addr1} to @i{u}

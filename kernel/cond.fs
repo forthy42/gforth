@@ -401,14 +401,12 @@ Defer exit-like ( -- )
 \G forcing an early return from a definition. Before
 \G @code{EXIT}ing you must clean up the return stack and
 \G @code{UNLOOP} any outstanding @code{?DO}...@code{LOOP}s.
-\G Use @code{;s} for a tickable word that behaves like @code{exit}
-\G in the absence of locals.
     exit-like
     POSTPONE ;s
     basic-block-end
     POSTPONE unreachable ; immediate compile-only
 
-: ?EXIT ( -- ) ( compilation -- ; run-time nest-sys f -- | nest-sys ) \ gforth
+: ?EXIT ( -- ) ( compilation -- ; run-time nest-sys f -- | nest-sys ) \ gforth question-exit
     \G Return to the calling definition if @i{f} is true.
     POSTPONE if POSTPONE exit POSTPONE then ; immediate restrict
 

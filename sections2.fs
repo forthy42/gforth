@@ -24,7 +24,7 @@
     loop
     rdrop ;
 
-: .sections ( -- ) \ gforth
+: .sections ( -- ) \ gforth dot-sections
     \G Show all the sections and their status.
     cr ."             start      size      used name"
     current-section @

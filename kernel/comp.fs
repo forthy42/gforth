@@ -53,7 +53,7 @@
     \G Reserve data space for one char and store @i{c} in the space.
     1 chars small-allot c! ;
 
-: 2,	( w1 w2 -- ) \ gforth
+: 2,	( w1 w2 -- ) \ gforth two-comma
     \G Reserve data space for two cells and store the double @i{w1
     \G w2} there, @i{w2} first (lower address).
     2 cells small-allot 2! ;
@@ -78,7 +78,7 @@
     here dup faligned >align ;
 
 : maxalign ( -- ) \ gforth
-    \G Align data-space pointer for all alignment requirements.
+    \G Align data-space pointer for all Forth alignment requirements.
     here dup maxaligned >align ;
 
 \ the code field is aligned if its body is maxaligned
@@ -86,7 +86,7 @@
 \G Align data-space pointer for code field requirements (i.e., such
 \G that the corresponding body is maxaligned).
 
-' , alias A, ( addr -- ) \ gforth
+' , alias A, ( addr -- ) \ gforth a-comma
 \g Reserve data space for one cell, and store @i{addr} there.  For our
 \g cross-compiler this provides the type information necessary for a
 \g relocatable image; normally, though, this is equivalent to
@@ -106,8 +106,9 @@
     \g aligned, precede @code{mem,} with an alignment word.
     here over allot swap move ;
 
-: string, ( c-addr u -- ) \ gforth
-    \G puts down string as cstring
+: string, ( c-addr u -- ) \ gforth string-comma
+    \G Reserve @i{u}+1 bytes of dictionary space and store the string
+    \G @i{c-addr u} there as counted string.
     dup c, mem, ;
 
 [IFDEF] prelude-mask

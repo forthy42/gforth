@@ -274,8 +274,8 @@ VM_JUMP(EXEC1(*(Xt *)a_addr));
 :
  @ execute ;
 
-;s	( R:w -- )		gforth	semis
-""The primitive compiled by @code{EXIT}.""
+;s	( R:w -- )		gforth-internal	semis
+""The primitive compiled by @code{EXIT}.  It does not clean up locals.""
 SET_IP((Xt *)w);
 
 execute-;s ( xt R:w -- )	gforth-internal execute_semis
@@ -3016,7 +3016,7 @@ towards negative infinity.""
 BUILD_BUG_ON(sizeof(SFloat)!=4);
 n2 = n1 >> 2;
 
-f-rot	( r1 r2 r3 -- r3 r1 r2 )	floating	f_not_rote
+f-rot	( r1 r2 r3 -- r3 r1 r2 )	gforth	f_not_rote
 
 flit	( #w -- r )   gforth-internal
 /* For 64 bit systems: a float is just one word */

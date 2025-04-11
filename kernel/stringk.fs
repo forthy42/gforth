@@ -96,10 +96,11 @@
     dup $@len 1+ over $!len $@ + 1- c! ;
 
 : $ins ( addr1 u $addr off -- ) \ gforth string-ins
-    \G inserts a string at offset @var{off}.
+    \G Inserts string @var{addr1 u} at offset @var{off} bytes in the
+    \G string @var{$addr}.
     >r 2dup dup $@len under+ $!len  $@ r> safe/string insert ;
-: $del ( addr off u -- ) \ gforth string-del
-    \G deletes @var{u} bytes from a string with offset @var{off}.
+: $del ( $addr off u -- ) \ gforth string-del
+    \G Deletes @var{u} bytes at offset @var{off} bytes in the string @var{$addr}.
     >r >r dup $@ r> safe/string r@ delete
     dup $@len r> - 0 max swap $!len ;
 
@@ -158,19 +159,19 @@
 
 \ auto-save and restore strings in images
 
-: $boot ( $addr -- ) \ gforth string-boot
+: $boot ( $addr -- ) \ gforth-internal string-boot
     \G Take string from dictionary to allocated memory.
     \G Clean dictionary afterwards.
     dup >r $@ 2dup r> dup off $! 0 fill ;
-: $save ( $addr -- ) \ gforth string-save
+: $save ( $addr -- ) \ gforth-internal string-save
     \G push string to dictionary for savesys
     dup >r $@ here r> ! dup , here swap dup aligned allot move ;
-: $[]boot ( addr -- ) \ gforth string-array-boot
+: $[]boot ( addr -- ) \ gforth-internal string-array-boot
     \G take string array from dictionary to allocated memory
     dup $boot  $@ bounds ?DO
 	I $boot
     cell +LOOP ;
-: $[]save ( addr -- ) \ gforth string-array-save
+: $[]save ( addr -- ) \ gforth-internal string-array-save
     \G push string array to dictionary for savesys
     dup $save $@ bounds ?DO
 	I $save
@@ -179,17 +180,17 @@
 AVariable boot$[]  \ strings to be booted
 AVariable boot[][] \ arrays to be booted
 
-: $saved ( addr -- ) \ gforth string-saved
+: $saved ( addr -- ) \ gforth-internal string-saved
     \G mark an address as booted/saved
     boot$[] >stack ;
-: $[]saved ( addr -- ) \ gforth string-array-saved
+: $[]saved ( addr -- ) \ gforth-internal string-array-saved
     \G mark an address as booted/saved
     boot[][] >stack ;
-: $Variable ( -- ) \ gforth string-variable
-    \G A string variable which is preserved across savesystem
+: $Variable ( "name" -- ) \ gforth string-variable
+    \G Defines a string variable whose content is preserved across savesystem
     Create here $saved 0 , ;
-: $[]Variable ( -- ) \ gforth string-array-variable
-    \G A string variable which is preserved across savesystem
+: $[]Variable ( "name" -- ) \ gforth string-array-variable
+    \G Defines a string array variable whose content is preserved across savesystem
     Create here $[]saved 0 , ;
 : boot-strings ( -- )
     boot[][] @ >r
