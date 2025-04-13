@@ -304,7 +304,7 @@ constant mem*do-noconstant
     \g Starts a counted loop that starts with @code{I} as
     \g @i{addr}+@i{ubytes}-@i{ustride} and then steps backwards
     \g through memory with -@i{nstride} wide steps as long as
-    \g @code{I}>=@i{addr}.  Must be finished with @i{loop}.
+    \g @code{I}>=@i{addr}.  Must be finished with @word{loop}.
     lits# if
         lits> negate ['] const-mem+loop over ]] literal + over + u-[do [[
     else
@@ -317,7 +317,7 @@ constant mem*do-noconstant
     \g Starts a counted loop that starts with @code{I} as @i{addr} and
     \g then steps upwards through memory with @i{nstride} wide steps
     \g as long as @code{I}<@i{addr}+@i{ubytes}.  Must be finished with
-    \g @i{loop}.
+    \g @word{loop}.
     lits# if
         lits> ['] const-mem+loop ]] bounds u+do [[
     else

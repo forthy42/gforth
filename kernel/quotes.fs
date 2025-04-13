@@ -51,7 +51,7 @@ Defer previous-section ( -- ) \ gforth
 
 \ \ abort"							22feb93py
 
-: abort" ( compilation 'ccc"' -- ; run-time f -- ) \ core,exception-ext	abort-quote
+: abort" ( compilation 'ccc"' -- ; run-time ... f -- ) \ core,exception-ext	abort-quote
 \G If any bit of @i{f} is non-zero, perform the function of @code{-2 throw},
 \G displaying the string @i{ccc} if there is no exception frame on the
 \G exception stack.

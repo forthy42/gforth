@@ -246,7 +246,7 @@ UValue dp               \ initialized at boot time with section-dp
                         \ (i.e. any throw caught by quit)
 
 Variable warnings ( -- addr ) \ gforth
-\G set warnings level to
+\G Set warnings level to
 \G @table @code
 \G @item 0
 \G turns warnings off
@@ -255,7 +255,7 @@ Variable warnings ( -- addr ) \ gforth
 \G @item -2
 \G turns beginner warnings on
 \G @item -3
-\G pedantic warnings on
+\G turns pedantic warnings on
 \G @item -4
 \G turns warnings into errors (including beginner warnings)
 \G @end table

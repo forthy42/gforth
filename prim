@@ -571,8 +571,8 @@ SPs->first_throw |= -(Cell)(SPs->first_throw == 0);
 uncatch ( R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler -- ) gforth-internal
 SPs->handler = a_oldhandler;
 
-fast-throw ( ... wball -- ... wball ) gforth-experimental fast_throw
-""Lightweight @code{throw} variant: only for non-zero balls, and
+fast-throw ( ... nerror -- ... nerror ) gforth-experimental fast_throw
+""Lightweight @code{throw} variant: only for non-zero @i{nerror}s, and
 does not store a backtrace or deal with missing @code{catch}.""
 rp = SPs->handler;
 lp = (Address)rp[1];

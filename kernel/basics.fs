@@ -253,7 +253,7 @@ defer catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
     execute 0 ;
 is catch
 
-defer throw ( y1 .. ym nerror -- y1 .. ym / z1 .. zn error ) \ exception
+defer throw ( y1 .. ym nerror -- y1 .. ym / z1 .. zn nerror ) \ exception
 \G If @i{nerror} is 0, drop it and continue.  Otherwise, transfer
 \G control to the next dynamically enclosing exception handler, reset
 \G the stacks accordingly, and push @i{nerror}.

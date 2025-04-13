@@ -329,10 +329,10 @@ Strings and Characters
 
 Control Structures
 
-* Selection::                   IF ... ELSE ... ENDIF
-* Simple Loops::                BEGIN ...
+* Selection::                   IF ... ELSE ... THEN
+* General Loops::               BEGIN ...
 * Counted Loops::               DO
-* BEGIN loops with multiple exits::
+* General loops with multiple exits::
 * General control structures with CASE::
 * Arbitrary control structures::
 * Calls and returns::
@@ -351,7 +351,6 @@ Defining Words
 * Supplying names::             Passing definition names as strings
 * User-defined Defining Words::
 * Deferred Words::              Allow forward references
-* Forward::                     Auto-resolved forward references
 * Aliases::
 
 User-defined Defining Words
@@ -2537,7 +2536,7 @@ the @code{begin}, otherwise after the @code{until}.
 Write a definition for computing the greatest common divisor.
 @end quotation
 
-Reference: @ref{Simple Loops}.
+Reference: @ref{General Loops}.
 
 @c !! extended case; change file example to use the extended case
 
@@ -2815,7 +2814,7 @@ one at @code{addr cell+} etc.
 
 The difference between @code{variable} and @code{create} is that
 @code{variable} allots a cell, and that you cannot allot additional
-memory to a variable in standard Forth.
+memory to a variable in Standard Forth.
 
 You can also reserve memory without creating a new word:
 
@@ -3632,7 +3631,8 @@ Here is another example for using @code{POSTPONE}:
 see bar
 @end example
 
-You can define @code{ENDIF} in this way:
+You can define @code{ENDIF} (which you can use instead of @code{THEN})
+in this way:
 
 @example
 : ENDIF ( Compilation: orig -- )
@@ -4740,7 +4740,7 @@ Logic: @code{AND OR XOR NOT}
 @item
 Stack manipulation: @code{DUP DROP SWAP OVER}
 @item
-Loops and decisions: @code{IF ELSE ENDIF ?DO I LOOP}
+Loops and decisions: @code{IF ELSE THEN ?DO I LOOP}
 @item
 Input/Output: @code{. ." EMIT CR KEY}
 @item
@@ -5301,7 +5301,7 @@ Gforth is case-insensitive for ASCII characters and case-sensitive
 for non-ASCII characters.  I.e., you can invoke Standard words using
 upper, lower or mixed case.
 
-For now, standard Forth only @i{requires} implementations to recognise
+For now, Standard Forth only @i{requires} implementations to recognise
 Standard words when they are typed entirely in upper case.  You can
 use whatever case you like for words that you define, but in a
 Standard program you have to use the words in the same case that you
@@ -6072,7 +6072,7 @@ doc-lp!
 * Memory Blocks::
 @end menu
 
-In addition to the standard Forth memory allocation words, there is also
+In addition to the Standard Forth memory allocation words, there is also
 a @uref{https://www.complang.tuwien.ac.at/forth/garbage-collection.zip,
 garbage collector}.
 
@@ -6966,69 +6966,69 @@ doc-string,
 @cindex control structures
 
 Control structures in Forth cannot be used interpretively, only in a
-colon definition@footnote{To be precise, the interpetation semantics
-of the control-flow words are not useful for interpretive control
-flow (@pxref{Interpretation and Compilation Semantics}).}. We do
-not like this limitation, but have not seen a satisfying way around it
-yet, although many schemes have been proposed.
+colon definition@footnote{To be precise, in Standard Forth the
+control-flow words have no interpretation semantics, and in Gforth the
+interpetation semantics of the control-flow words are not useful for
+interpretive control flow (@pxref{Interpretation and Compilation
+Semantics}).}. We do not like this limitation, but have not seen a
+satisfying way around it yet, although many schemes have been
+proposed.
 
 @menu
-* Selection::                   IF ... ELSE ... ENDIF
-* Simple Loops::                BEGIN ...
+* Selection::                   IF ... ELSE ... THEN
+* General Loops::               BEGIN ...
 * Counted Loops::               DO
-* BEGIN loops with multiple exits::
+* General loops with multiple exits::
 * General control structures with CASE::
 * Arbitrary control structures::
 * Calls and returns::
 * Exception Handling::
 @end menu
 
-@node Selection, Simple Loops, Control Structures, Control Structures
+@node Selection, General Loops, Control Structures, Control Structures
 @subsection Selection
 @cindex selection control structures
 @cindex control structures for selection
 
 @cindex @code{IF} control structure
 @example
-@i{flag}
-IF
+@i{flag} IF
   @i{code}
-ENDIF
+THEN
 @end example
 @noindent
 
-If @i{flag} is non-zero (as far as @code{IF} etc. are concerned, a cell
-with any bit set represents truth) @i{code} is executed.
+If @i{flag} is non-zero (as far as @code{IF} etc. are concerned, a
+non-zero cell represents truth), @i{code} is executed.
 
-@example
-@i{flag}
-IF
-  @i{code1}
-ELSE
-  @i{code2}
-ENDIF
-@end example
-
-If @var{flag} is true, @i{code1} is executed, otherwise @i{code2} is
-executed.
-
-You can use @code{THEN} instead of @code{ENDIF}. Indeed, @code{THEN}
-is standard, and @code{ENDIF} is not, but we present @code{ENDIF} here
-because it is less confusing to people coming from other languages.
-Adding @code{ENDIF} to a system that only supplies @code{THEN} is
-simple:
-@example
-: ENDIF   POSTPONE then ; immediate
-@end example
-
+You may wonder why @code{then} ends an @code{if} construct, which is
+at odds with the usage of @code{then} in some other programming
+languages, and with the idiom ``if ... then ...'' in English.
 According to @cite{Webster's New Encyclopedic Dictionary}, @dfn{then
 (adv.)}  has the following meanings:
 @quotation
 ... 2b: following next after in order ... 3d: as a necessary consequence
 (if you were there, then you saw them).
 @end quotation
-Forth's @code{THEN} has the meaning 2b, whereas @code{THEN} in Pascal
-and many other programming languages has the meaning 3d.
+Forth's @code{then} has the meaning 2b, whereas @code{THEN} in Pascal
+and many other programming languages has the meaning 3d.  If you do
+not like this usage of @code{then}, Gforth (but not Standard Forth)
+also has @code{endif}, which can be used in its place.  Adding
+@code{ENDIF} to a system that only supplies @code{THEN} is simple:
+@example
+: ENDIF   POSTPONE then ; immediate
+@end example
+
+@example
+@i{flag} IF
+  @i{code1}
+ELSE
+  @i{code2}
+THEN
+@end example
+
+If @var{flag} is true, @i{code1} is executed, otherwise @i{code2} is
+executed.
 
 Gforth also provides the words @code{?DUP-IF} and @code{?DUP-0=-IF}, so
 you can avoid using @code{?dup}. Using these alternatives is also more
@@ -7072,8 +7072,8 @@ To keep the code understandable, you should ensure that you change the
 stack in the same way (wrt. number and types of stack items consumed
 and pushed) on all paths through a selection structure.
 
-@node Simple Loops, Counted Loops, Selection, Control Structures
-@subsection Simple Loops
+@node General Loops, Counted Loops, Selection, Control Structures
+@subsection General Loops
 @cindex simple loops
 @cindex loops without count 
 
@@ -7081,9 +7081,8 @@ and pushed) on all paths through a selection structure.
 @example
 BEGIN
   @i{code1}
-  @i{flag}
-WHILE
-  @i{code2}
+  @i{flag} WHILE
+    @i{code2}
 REPEAT
 @end example
 
@@ -7113,10 +7112,12 @@ BEGIN
 AGAIN
 @end example
 
-This is an endless loop.
+This is an endless loop.  You can leave it by leaving the enclosing
+colon definition with @code{exit} or @code{throw}, or with
+@code{while} (@pxref{General loops with multiple exits}).
 
 
-@node Counted Loops, BEGIN loops with multiple exits, Simple Loops, Control Structures
+@node Counted Loops, General loops with multiple exits, General Loops, Control Structures
 @subsection Counted Loops
 @cindex counted loops
 @cindex loops, counted
@@ -7161,7 +7162,7 @@ prints
 The loop control data are kept on the return stack, so there are some
 restrictions on mixing return stack accesses and counted loop words. In
 particuler, if you put values on the return stack outside the loop, you
-cannot read them inside the loop@footnote{well, not in a way that is
+cannot read them inside the loop@footnote{Not in a way that is
 portable.}. If you put values on the return stack within a loop, you
 have to remove them before the end of the loop and before accessing the
 index of the loop.
@@ -7307,11 +7308,11 @@ limit address.  Gforth has @code{bounds} for getting there from the
 @i{addr ubytes} representation, so you can write a forward loop
 through a cell array @code{v} as:
 
-@example
+@source
 create v 1 , 3 , 7 ,
 : foo v 3 cells bounds U+DO i @ . cell +LOOP ;
 foo
-@end example
+@end source
 
 which prints @code{1 3 7}.  Preprocessing the inputs for walking
 backwards is more involved, so Gforth provide a loop construct of the
@@ -7319,11 +7320,11 @@ form @code{MEM-DO}...@code{LOOP} that does it for you: It takes an
 array in @i{addr ubytes} representation and the element size, and
 iterates over the addresses of the elements in backwards order:
 
-@example
+@source
 create v 1 , 3 , 7 ,
 : foo1 v 3 cell array>mem MEM-DO i @ . LOOP ;
 foo1
-@end example
+@end source
 
 This prints @code{7 3 1}.  @code{ARRAY>MEM} converts the @i{addr
 uelems uelemsize} representation into the @i{addr ubytes uelemsize}
@@ -7334,11 +7335,11 @@ representation expected by @code{MEM-DO}.  This loop is finished with
 Gforth also adds @code{MEM+DO} for completeness.  It takes the same
 parameters as @code{MEM-DO}, but walks forwards through the array:
 
-@example
+@source
 create v 1 , 3 , 7 ,
 : foo2 v 3 cell array>mem MEM+DO i @ . LOOP ;
 foo2
-@end example
+@end source
 
 prints @code{1 3 7}.
 
@@ -7399,8 +7400,8 @@ the fall-through path). Also, you have to ensure that all
 @code{LEAVE}s are resolved (by using one of the loop-ending words or
 @code{DONE}).
 
-@node BEGIN loops with multiple exits, General control structures with CASE, Counted Loops, Control Structures
-@subsection @code{Begin} loops with multiple exits
+@node General loops with multiple exits, General control structures with CASE, Counted Loops, Control Structures
+@subsection General loops with multiple exits
 @cindex Multiple exits from @code{begin}
 
 For counted loops, you can use @code{leave} in several places.  For
@@ -7424,8 +7425,8 @@ the loop, but the whole colon definition.  E.g.,:
   
 The disadvantage of this approach is that, if you want to have some
 common code afterwards, you either have to wrap @code{foo} in another
-word that contains the common code, or you have to call the common
-code several times, from each exit-code.
+definition that contains the common code, or you have to call the
+common code several times, from each exit-code.
 
 Another approach is to use several @code{while}s in a @code{begin}
 loop.  You have to append a @code{then} behind the loop for every
@@ -7460,9 +7461,10 @@ else exit-code1 then
 
 This is relatively hard to comprehend, because the exit-codes are
 relatively far from the exit conditions (it does not help that we are
-not used to such control structures, either).
+not used to such control structures, either).  The following extended
+@code{case} does not have this problem.
 
-@node General control structures with CASE, Arbitrary control structures, BEGIN loops with multiple exits, Control Structures
+@node General control structures with CASE, Arbitrary control structures, General loops with multiple exits, Control Structures
 @subsection  General control structures with @code{case}
 @cindex @code{case} as generalized control structure
 @cindex general control structures (@code{case})
@@ -7505,11 +7507,13 @@ common code afterwards
 @end example
 
 As you can see, this solves both problems of the variants discussed
-above (@pxref{BEGIN loops with multiple exits}).  Note that
+above (@pxref{General loops with multiple exits}).  Note that
 @code{next-case} does not drop a value, unlike
-@code{endcase}.@footnote{@code{Next-case} has a @code{-}, unlike the
-other @code{case} words, because VFX Forth contains a @code{nextcase}
-that drops a value.}
+@code{endcase}.@footnote{The name @code{next-case} has a @code{-},
+unlike the other @code{case} words, because VFX Forth has a
+@code{next-case} that works like Gforth's @code{next-case}, but also
+contains a @code{nextcase} that drops a value; in VFX you need to pair
+@code{next-case} with @code{begincase}, however.}
 
 The last additional word is @code{contof}, which is used instead of
 @code{endof} and starts the next iteration instead of leaving the
@@ -7593,14 +7597,14 @@ doc-cs-pick
 doc-cs-roll
 doc-cs-drop
 
-The Standard words @code{CS-PICK} and @code{CS-ROLL} allow you to
+The Standard words @code{cs-pick} and @code{cs-roll} allow you to
 manipulate the control-flow stack in a portable way. Without them, you
 would need to know how many stack items are occupied by a control-flow
 entry (Many systems use one cell. In Gforth they currently take four
 cells, but this may change in the future).
 
-When using @code{CS-PICK} and @code{CS-DROP} on an orig, you need to
-use one @code{CS-DROP} for every @code{CS-PICK} (and vice versa) of a
+When using @code{cs-pick} and @code{cs-drop} on an orig, you need to
+use one @code{cs-drop} for every @code{cs-pick} (and vice versa) of a
 given orig, because the orig must be resolved by @code{then} exactly
 once.
 
@@ -7617,51 +7621,6 @@ doc-endif
 doc-?dup-if
 doc-?dup-0=-if
 
-
-@subsubsection Programming Style
-@cindex control structures programming style
-@cindex programming style, arbitrary control structures
-
-In order to ensure readability we recommend that you do not create
-arbitrary control structures directly, but define new control structure
-words for the control structure you want and use these words in your
-program. For example, instead of writing:
-
-@example
-BEGIN
-  ...
-IF [ 1 CS-ROLL ]
-  ...
-AGAIN THEN
-@end example
-
-@noindent
-we recommend defining control structure words, e.g.,
-
-@example
-: WHILE ( DEST -- ORIG DEST )
- POSTPONE IF
- 1 CS-ROLL ; immediate
-
-: REPEAT ( orig dest -- )
- POSTPONE AGAIN
- POSTPONE THEN ; immediate
-@end example
-
-@noindent
-and then using these to create the control structure:
-
-@example
-BEGIN
-  ...
-WHILE
-  ...
-REPEAT
-@end example
-
-That's much easier to read, isn't it? Of course, @code{REPEAT} and
-@code{WHILE} are predefined, so in this example it would not be
-necessary to define them.
 
 @node Calls and returns, Exception Handling, Arbitrary control structures, Control Structures
 @subsection Calls and returns
@@ -7688,7 +7647,29 @@ the somewhat cryptic @code{recurse}.  E.g., in a quicksort
 implementation, it is much better to read (and think) ``now sort the
 partitions'' than to read ``now do a recursive call''.
 
-For mutual recursion, use @code{Defer}red words, like this:
+For mutual recursion, Gforth offers the defining word @code{forward}.
+You can use it to create a forward reference which is resolved
+automatically, and does not incur additional costs like the
+indirection of @code{Defer}.  However, these forward definitions only
+work for colon definitions.  Here's a usage example:
+
+@example
+forward foo
+
+: bar ( ... -- ... )
+ ... foo ... ;
+
+: foo ( ... -- ... ) \ resolves the forward definition
+ ... bar ... ;
+@end example
+
+The words used for forward definitions are:
+
+doc-forward
+doc-.unresolved
+
+In Standard Forth, you use @code{Defer}red words for mutual recursion,
+like this:
 
 @example
 Defer foo
@@ -7989,7 +7970,6 @@ Defining words are used to extend Forth by creating new entries in the dictionar
 * Supplying names::             Passing definition names as strings
 * User-defined Defining Words::
 * Deferred Words::              Allow forward references
-* Forward::                     Auto-resolved forward references
 * Aliases::
 @end menu
 
@@ -8765,7 +8745,7 @@ DOES> ( ... -- ... )
        does1
     ELSE
        does2
-    ENDIF ;
+    THEN ;
 @end example
 
 In this example, the selection of whether to use @code{does1} or
@@ -8783,7 +8763,7 @@ necessary to introduce extra definitions @code{does1} and
        [: code1 ;] set-does>
     ELSE
        [: code2 ;] set-does>
-    ENDIF ;
+    THEN ;
 @end example
 
 @cindex @code{DOES>} in interpretation state
@@ -9295,7 +9275,7 @@ A Standard Forth implementation of @code{const-does>} is available in
 @file{compat/const-does.fs}.
 
 
-@node Deferred Words, Forward, User-defined Defining Words, Defining Words
+@node Deferred Words, Aliases, User-defined Defining Words, Defining Words
 @subsection Deferred Words
 @cindex deferred words
 
@@ -9309,7 +9289,7 @@ Where you want to allow the behaviour of a word to be altered later, and
 for all precompiled references to the word to change when its behaviour
 is changed.
 @item
-For mutual recursion; @xref{Calls and returns}.
+For mutual recursion: @xref{Calls and returns}.
 @end itemize
 
 In the following example, @code{foo} always invokes the version of
@@ -9405,18 +9385,7 @@ doc-wrap-xt
 doc-preserve
 
 
-@node Forward, Aliases, Deferred Words, Defining Words
-@subsection Forward
-
-The defining word @code{Forward} in @code{forward.fs} allows you to
-create forward references, which are resolved automatically, and do
-not incur additional costs like the indirection of @code{Defer}.
-However, these forward definitions only work for colon definitions.
-
-doc-forward
-doc-.unresolved
-
-@node Aliases,  , Forward, Defining Words
+@node Aliases,  , Deferred Words, Defining Words
 @subsection Aliases
 @cindex aliases
 @cindex synonyms
@@ -10115,7 +10084,7 @@ execute ( )      \ execute the xt (i.e., ".")
 
 @cindex tick (')
 However, the @code{`} prefix is a Gforth extension, so you may prefer
-to use the standard Forth words:
+to use the Standard Forth words:
 
 doc-'
 doc-[']
@@ -11078,7 +11047,7 @@ even define new ones (@pxref{Defining Recognizers}).
 @subsubsection Default Recognizers
 @cindex Recognizers normal usage
 
-The standard Forth text interpreter recognizes words in the search
+The Standard Forth text interpreter recognizes words in the search
 order (@code{rec-nt}), integer numbers (@code{rec-num}), and floating
 point numbers (@code{rec-float}).  By default Gforth also recognizes
 syntaxes for
@@ -11162,7 +11131,7 @@ recognizer @code{rec-float} recognize, e.g., @code{1.}.  Because
 @code{rec-num} is (by default) first, @code{1.} is recognized as a
 double-cell integer.  If you change the recognizer order to use
 @code{rec-float} first, @code{1.} is recognized as a floating-point
-number, but loading code written in standard Forth may behave in a
+number, but loading code written in Standard Forth may behave in a
 non-standard way.
 
 In any case, it's a good practice to avoid that conflict in your own
@@ -12112,7 +12081,7 @@ not change the blocks file; it simply changes a block buffer's state to
 buffer is needed for another block, or explicitly by @code{flush} or
 @code{save-buffers}.
 
-word @code{Flush} writes all @i{assigned-dirty} blocks back to the
+@code{Flush} writes all @i{assigned-dirty} blocks back to the
 blocks file on disk. Leaving Gforth with @code{bye} also performs a
 @code{flush}.
 
@@ -13165,7 +13134,7 @@ reached through the definition of the local@footnote{In compiler
 construction terminology, all places dominated by the definition of the
 local.}. In other words, it is not visible in places that can be reached
 without going through the definition of the local. E.g., locals defined
-in @code{IF}...@code{ENDIF} are visible until the @code{ENDIF}, locals
+in @code{IF}...@code{THEN} are visible until the @code{THEN}, locals
 defined in @code{BEGIN}...@code{UNTIL} are visible after the
 @code{UNTIL} (until, e.g., a subsequent @code{ENDSCOPE}).
 
@@ -15817,7 +15786,7 @@ the file's definitions compiled at any time:
 @example
 [IFDEF] my-code
     my-code
-[ENDIF]
+[THEN]
 
 marker my-code
 init-included-files
@@ -17695,7 +17664,7 @@ synonym z y
 
 In this case the nt of @code{z} points to the body of @code{z}, while
 the xt of @code{z} points to the body of @code{x}.  Words defined with
-@code{alias} or @code{forward} (@pxref{Forward}) also have different
+@code{alias} or @code{forward} (@pxref{Calls and returns}) also have different
 nts and xts.
 
 The name field is variable-length and is accessed with

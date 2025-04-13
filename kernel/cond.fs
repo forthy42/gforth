@@ -133,7 +133,7 @@ Create scopestart
 
 4 constant cs-item-size
 
-: CS-PICK ( orig0/dest0 orig1/dest1 ... origu/destu u -- ... orig0/dest0 ) \ tools-ext c-s-pick
+: CS-PICK ( dest0/orig0 dest1/orig1 ... destu/origu u -- ... dest0/orig0 ) \ tools-ext c-s-pick
     before-cs-push
     1+ cs-item-size * 1- dup
     >r pick  r@ pick  r@ pick  r@ pick
@@ -146,7 +146,7 @@ Create scopestart
     rdrop
     dup cs-item? ; 
 
-: CS-DROP ( dest -- ) \ gforth
+: CS-DROP ( dest/orig -- ) \ gforth
     cs-item? 2drop drop after-cs-pop ; \ maximum depth information of propagated on pushing
 
 : cs-push-part ( -- stack-state list addr )
@@ -239,8 +239,8 @@ Defer begin-like ( -- )
 
 : BEGIN ( compilation -- dest ; run-time -- ) \ core
     \G The @code{UNTIL}, @code{AGAIN} or @code{REPEAT} that consumes
-    \G the @i{dest} jumps right behind the @code{BEGIN} (@pxref{Simple
-    \G Loops}).
+    \G the @i{dest} jumps right behind the @code{BEGIN}
+    \G (@pxref{General Loops}).
     begin-like cs-push-part dest
     basic-block-end ; immediate restrict
 
@@ -249,7 +249,7 @@ Defer again-like ( stack-state locals-list addr -- stack-state addr )
 
 : AGAIN ( compilation dest -- ; run-time -- ) \ core-ext
     \G At run-time, execution continues after the @code{BEGIN} that
-    \G produced the @i{dest} (@pxref{Simple Loops}).
+    \G produced the @i{dest} (@pxref{General Loops}).
     dest? again-like  POSTPONE branch  <resolve
     pop-stack-state ; immediate restrict
 
@@ -261,14 +261,14 @@ IS until-like
 : UNTIL ( compilation dest -- ; run-time f -- ) \ core
     \G At run-time, if @i{f}=0, execution continues after the
     \G @code{BEGIN} that produced @i{dest}, otherwise right after
-    \G the @code{UNTIL} (@pxref{Simple Loops}).
+    \G the @code{UNTIL} (@pxref{General Loops}).
     dest? ['] ?branch ['] ?branch-lp+!# until-like ; immediate restrict
 
 : WHILE ( compilation dest -- orig dest ; run-time f -- ) \ core
     \G At run-time, if @i{f}=0, execution continues after the
     \G @code{REPEAT} (or @code{THEN} or @code{ELSE}) that consumes the
-    \G @i{orig}, otherwise right after the @code{WHILE} (@pxref{Simple
-    \G Loops}).
+    \G @i{orig}, otherwise right after the @code{WHILE}
+    \G (@pxref{General Loops}).
     POSTPONE if
     1 cs-roll ; immediate restrict
 
@@ -276,7 +276,7 @@ IS until-like
     \G At run-time, execution continues after the @code{BEGIN} that
     \G produced the @i{dest}; the @code{WHILE}, @code{IF},
     \G @code{AHEAD} or @code{ELSE} that pushed @i{orig} jumps right
-    \G after the @code{REPEAT}.  (@pxref{Simple Loops}).
+    \G after the @code{REPEAT}.  (@pxref{General Loops}).
     POSTPONE again
     POSTPONE then ; immediate restrict
 
