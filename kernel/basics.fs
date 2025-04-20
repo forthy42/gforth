@@ -319,10 +319,11 @@ is ?warning
 \ HEX DECIMAL                                           2may93jaw
 
 : decimal ( -- ) \ core
-    \G Set @code{base} to &10 (decimal).  Don't use @code{decimal}, use
-    \G @code{base-execute} instead.
-    a base ! ;
+    \G Set @code{base} to #10 (decimal).  In many cases
+    \G @code{base-execute} is a better alternative.
+    #10 base ! ;
+
 : hex ( -- ) \ core-ext
-    \G Set @code{base} to &16 (hexadecimal).  Don't use @code{hex},
-    \G use @code{base-execute} instead.
-    10 base ! ;
+    \G Set @code{base} to $10 (hexadecimal).  In many cases
+    \G @code{base-execute} is a better alternative.
+    $10 base ! ;
