@@ -478,13 +478,14 @@ $BF000000. 1 cells 8 = [IF] #32 dlshift [THEN] dValue synonym-mask \ do not copy
 
 : buffer: ( u "name" -- ) \ core-ext buffer-colon
     \g Define @i{name} and reserve @i{u} bytes starting at @i{addr}.
-    \g @i{name} run-time: @code{( -- addr )}.  Gforth initializes the
-    \g reserved bytes to 0, but the standard does not guarantee this.
+    \g Gforth initializes the reserved bytes to 0, but the standard
+    \g does not guarantee this.@* @i{name} execution: @code{( -- addr
+    \g )}.
     Create here over 0 fill allot ;
 
 : Variable ( "name" -- ) \ core
-    \g Define @i{name} and reserve a cell starting at @i{addr}.
-    \g @i{name} run-time: @code{( -- addr )}.
+    \g Define @i{name} and reserve a cell at @i{addr}.@* @i{name}
+    \g execution: @code{( -- addr )}.
     Create 0 , ;
 
 : AVariable ( "name" -- ) \ gforth
@@ -494,6 +495,8 @@ $BF000000. 1 cells 8 = [IF] #32 dlshift [THEN] dValue synonym-mask \ do not copy
     Create 0 A, ;
 
 : 2Variable ( "name" -- ) \ double two-variable
+    \g Define @i{name} and reserve two cells starting at @i{addr}.@* @i{name}
+    \g execution: @code{( -- addr )}.
     Create 0 , 0 , ;
 
 : uallot ( n1 -- n2 ) \ gforth

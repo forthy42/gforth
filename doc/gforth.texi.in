@@ -6029,6 +6029,14 @@ doc-2rdrop
 doc-n>r
 doc-nr>
 
+On some platforms (particularly, 32-bit platforms) floating-point
+numbers are not naturally aligned on the return stack and this can
+lead to (usually, but not always) small performance disadvantages.
+
+doc-f>r
+doc-fr>
+doc-fr@
+
 @node Locals stack, Stack pointer manipulation, Return stack, Stack Manipulation
 @subsection Locals stack
 
@@ -7978,9 +7986,7 @@ Defining words are used to extend Forth by creating new entries in the dictionar
 @cindex simple defining words
 @cindex defining words, simple
 
-Defining words are used to create new entries in the dictionary. The
-simplest defining word is @code{CREATE}. @code{CREATE} is used like
-this:
+The simplest defining word is @code{CREATE}, used like this:
 
 @example
 CREATE new-word1
@@ -7989,26 +7995,27 @@ CREATE new-word1
 @code{CREATE} is a parsing word, i.e., it takes an argument from the
 input stream (@code{new-word1} in our example).  It generates a
 dictionary entry for @code{new-word1}. When @code{new-word1} is
-executed, all that it does is leave an address on the stack. The address
-represents the value of the data space pointer (@code{HERE}) at the time
-that @code{new-word1} was defined. Therefore, @code{CREATE} is a way of
-associating a name with the address of a region of memory.
+executed, all that it does is leave an address on the stack. The
+address represents the value of the dictionary pointer (@code{HERE})
+at the time that @code{new-word1} was defined. Therefore,
+@code{CREATE} is a way of associating a name with the address of a
+region of memory.
 
 doc-create
 
-Note that Standard Forth guarantees only for @code{create} that its body
-is in dictionary data space (i.e., where @code{here}, @code{allot}
-etc. work, @pxref{Dictionary allocation}).  Also, in Standard Forth only
-@code{create}d words can be modified with @code{does>}
-(@pxref{User-defined Defining Words}).  And in Standard Forth @code{>body}
-can only be applied to @code{create}d words.
+Note that Standard Forth guarantees only for @code{create} that its
+body is contiguous with the following dictionary allocations (e.g.,
+@code{allot}, @pxref{Dictionary allocation}).  Also, in Standard Forth
+only @code{create}d words can be modified with @code{does>}
+(@pxref{User-defined Defining Words}).  And in Standard Forth
+@code{>body} can only be applied to @code{create}d words.
 
 By extending this example to reserve some memory in data space, we end
 up with something like a @i{variable}. Here are two different ways to do
 it:
 
 @example
-CREATE new-word2 1 cells allot  \ reserve 1 cell - initial value undefined
+CREATE new-word2 1 cells allot  \ reserve 1 cell without initializing it
 CREATE new-word3 4 ,            \ reserve 1 cell and initialise it (to 4)
 @end example
 
@@ -8022,14 +8029,14 @@ new-word2 @@ .      \ get address, fetch from it and display
 
 @cindex arrays
 A similar mechanism can be used to create arrays. For example, an
-80-character text input buffer:
+80-character text buffer:
 
-@example
-CREATE text-buf 80 chars allot
+@source
+CREATE text-buf 80 allot \ uninitialized
 
-text-buf 0 chars + c@@ \ the 1st character (offset 0)
-text-buf 3 chars + c@@ \ the 4th character (offset 3)
-@end example
+text-buf 0 + c@ \ the 1st character (offset 0)
+text-buf 3 + c@ \ the 4th character (offset 3)
+@end source
 
 You can build arbitrarily complex data structures by allocating
 appropriate areas of memory. For further discussions of this, and to
@@ -8041,10 +8048,10 @@ learn about some Gforth tools that make it easier,
 @subsection Variables
 @cindex variables
 
-The previous section showed how a sequence of commands could be used to
-generate a variable.  As a final refinement, the whole code sequence can
-be wrapped up in a defining word (pre-empting the subject of the next
-section), making it easier to create new variables:
+The previous section showed how a sequence of commands could be used
+to generate a variable.  As a final refinement, the whole code
+sequence can be wrapped up in a defining word, making it easier to
+create new variables:
 
 @example
 : myvariableX ( "name" -- a-addr ) CREATE 1 cells allot ;
@@ -8058,16 +8065,16 @@ myvariable0 joe \ whilst joe is initialised to 0
 3 joe +!       \ increment joe by 3.. to 1237
 @end example
 
-Not surprisingly, there is no need to define @code{myvariable}, since
+Not surprisingly, there is no need to define @code{myvariableX}, since
 Forth already has a definition @code{Variable}. Standard Forth does not
 guarantee that a @code{Variable} is initialised when it is created
 (i.e., it may behave like @code{myvariableX}). In contrast, Gforth's
 @code{Variable} initialises the variable to 0 (i.e., it behaves exactly
 like @code{myvariable0}). Forth also provides @code{2Variable} and
 @code{fvariable} for double and floating-point variables, respectively
--- they are initialised to 0. and 0e in Gforth. If you use a @code{Variable} to
+-- they are initialised to #0. and 0e in Gforth. If you use a @code{Variable} to
 store a boolean, you can use @code{on} and @code{off} to toggle its
-state.
+state (@pxref{Boolean Flags}).
 
 doc-variable
 doc-avariable

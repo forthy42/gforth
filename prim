@@ -1620,17 +1620,20 @@ ALIVE_DEBUGGING(w1);
  r> r> drop r> drop >r ;
 
 f>r	( r -- )    gforth-experimental	f_to_r
+""Actual stack effect: @code{( r -- R:r )}""
 Float rval[1] = { r };
 rp -= sizeof(Float)/sizeof(Cell);
 memcpy(rp, rval, sizeof(Float));
 
 fr>	( -- r )    gforth-experimental	f_r_from
+""Actual stack effect: @code{( R:r -- r )}""
 Float rval[1];
 memcpy(rval, rp, sizeof(Float));
 rp += sizeof(Float)/sizeof(Cell);
 r = rval[0];
 
 fr@	( -- r )    gforth-experimental	f_r_fetch
+""Actual stack effect: @code{( R:r -- R:r r )}""
 Float rval[1];
 memcpy(rval, rp, sizeof(Float));
 r = rval[0];

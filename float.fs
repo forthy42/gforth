@@ -219,6 +219,8 @@ translate: translate-float ( r -- | r ) \ gforth-experimental
 ' rec-float ' forth-recognize defer@ >back
 
 : fvariable ( "name" -- ) \ floating f-variable
+    \g Define @i{name} and reserve a float at @i{f-addr}.@* @i{name}
+    \g execution: @code{( -- f-addr )}.
     Create 0.0E0 f, ;
     \ does> ( -- f-addr )
 
