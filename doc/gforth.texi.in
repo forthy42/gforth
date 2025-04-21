@@ -346,6 +346,7 @@ Defining Words
 * Values::                      Initialised variables
 * Varues::
 * Colon Definitions::
+* Inline Definitions::
 * Anonymous Definitions::       Definitions without names
 * Quotations::
 * Supplying names::             Passing definition names as strings
@@ -7973,6 +7974,7 @@ Defining words are used to extend Forth by creating new entries in the dictionar
 * Values::                      Initialised variables
 * Varues::
 * Colon Definitions::
+* Inline Definitions::
 * Anonymous Definitions::       Definitions without names
 * Quotations::
 * Supplying names::             Passing definition names as strings
@@ -8098,8 +8100,8 @@ doc-buffer:
 name. For example:
 
 @example
-12 Constant INCHES-PER-FOOT
-3E+08 fconstant SPEED-O-LIGHT
+12 Constant INCHES-PER-FOOT \ is integer appropriate
+2.54e fconstant CM-PER-INCH
 @end example
 
 A @code{Variable} can be both read and written, so its run-time
@@ -8121,62 +8123,6 @@ doc-aconstant
 doc-2constant
 doc-fconstant
 
-@c that's too deep, and it's not necessarily true for all ANS Forths. - anton
-@c nac-> How could that not be true in an ANS Forth? You can't define a
-@c constant, use it and then delete the definition of the constant..
-
-@c anton->An ANS Forth system can compile a constant to a literal; On
-@c decompilation you would see only the number, just as if it had been used
-@c in the first place.  The word will stay, of course, but it will only be
-@c used by the text interpreter (no run-time duties, except when it is 
-@c POSTPONEd or somesuch).
-
-@c nac:
-@c I agree that it's rather deep, but IMO it is an important difference
-@c relative to other programming languages.. often it's annoying: it
-@c certainly changes my programming style relative to C.
-
-@c anton: In what way?
-
-Constants in Forth behave differently from their equivalents in other
-programming languages. In other languages, a constant (such as an EQU in
-assembler or a #define in C) only exists at compile-time; in the
-executable program the constant has been translated into an absolute
-number and, unless you are using a symbolic debugger, it's impossible to
-know what abstract thing that number represents. In Forth a constant has
-an entry in the header space and remains there after the code that uses
-it has been defined. In fact, it must remain in the dictionary since it
-has run-time duties to perform. For example:
-
-@example
-12 Constant INCHES-PER-FOOT
-: FEET-TO-INCHES ( n1 -- n2 ) INCHES-PER-FOOT * ;
-@end example
-
-@cindex in-lining of constants
-When @code{FEET-TO-INCHES} is executed, it will in turn execute the xt
-associated with the constant @code{INCHES-PER-FOOT}. If you use
-@code{see} to decompile the definition of @code{FEET-TO-INCHES}, you can
-see that it makes a call to @code{INCHES-PER-FOOT}. Some Forth compilers
-attempt to optimise constants by in-lining them where they are used. You
-can force Gforth to in-line a constant like this:
-
-@example
-: FEET-TO-INCHES ( n1 -- n2 ) [ INCHES-PER-FOOT ] LITERAL * ;
-@end example
-
-If you use @code{see} to decompile @i{this} version of
-@code{FEET-TO-INCHES}, you can see that @code{INCHES-PER-FOOT} is no
-longer present. To understand how this works, read
-@ref{Interpret/Compile states}, and @ref{Literals}.
-
-In-lining constants in this way might improve execution time
-fractionally, and can ensure that a constant is now only referenced at
-compile-time. However, the definition of the constant still remains in
-the dictionary. Some Forth compilers provide a mechanism for controlling
-a second dictionary for holding transient words such that this second
-dictionary can be deleted later in order to recover memory
-space. However, there is no standard way of doing this.
 
 
 @node Values, Varues, Constants, Defining Words
@@ -8184,18 +8130,19 @@ space. However, there is no standard way of doing this.
 @cindex values
 
 A @code{Value} behaves like a @code{Constant}, but it can be changed.
-@code{TO} is a parsing word that changes a @code{Values}.  In Gforth
-(not in Standard Forth) you can access (and change) a @code{value} also with
-@code{>body}.
+@code{TO} and @code{+TO} are parsing words that change a value.
+Alternatively, you can change a value @code{v} by writing @code{->v}
+(equivalent to @code{TO v}) or @code{+>v} (equivalent to @code{+TO
+v}).
 
 Here are some
 examples:
 
 @example
-12 Value APPLES     \ Define APPLES with an initial value of 12
-34 TO APPLES        \ Change the value of APPLES. TO is a parsing word
-1 ' APPLES >body +! \ Increment APPLES.  Non-standard usage.
-APPLES              \ puts 35 on the top of the stack.
+12 Value APPLES \ Define APPLES with an initial value of 12
+34 TO APPLES    \ Change the value of APPLES. TO is a parsing word
+1 +TO APPLES    \ Increment APPLES.  Non-standard usage.
+APPLES          \ puts 35 on the top of the stack.
 @end example
 
 doc-value
@@ -8204,8 +8151,6 @@ doc-2value
 doc-fvalue
 doc-to
 doc-+to
-doc-value!
-doc-value+!
 
 @node Varues, Colon Definitions, Values, Defining Words
 @subsection Varues
@@ -8220,9 +8165,8 @@ doc-varue
 doc-2varue
 doc-fvarue
 doc-addr
-doc->addr
 
-@node Colon Definitions, Anonymous Definitions, Varues, Defining Words
+@node Colon Definitions, Inline Definitions, Varues, Defining Words
 @subsection Colon Definitions
 @cindex colon definitions
 
@@ -8242,6 +8186,10 @@ Compilation Semantics}.
 
 doc-:
 doc-;
+
+
+@node Inline Definitions, Anonymous Definitions, Colon Definitions, Defining Words
+@subsection Inline Definitions
 
 We plan to to perform automatic inlining eventually, but for now you
 can perform inlining with
@@ -8304,7 +8252,7 @@ The @code{DROP} and @code{0} are there because @code{compile-my2dup}
 is the implementation of @code{compile,} for @code{my2dup}, and
 @code{compile,} expects an xt (@pxref{User-defined compile-comma}).
 
-@node Anonymous Definitions, Quotations, Colon Definitions, Defining Words
+@node Anonymous Definitions, Quotations, Inline Definitions, Defining Words
 @subsection Anonymous Definitions
 @cindex colon definitions
 @cindex defining words without name
@@ -8348,9 +8296,8 @@ latestxt IS deferred
 @code{noname} works with any defining word, not just @code{:}.
 
 @code{latestxt} also works when the last word was not defined as
-@code{noname}.  It does not work for combined words, though, use
-@code{latestnt}.  It also has the useful property that it is valid as
-soon as the header for a definition has been built. Thus:
+@code{noname}.  It also has the useful property that it is valid as
+soon as the header for a definition has been built.  Thus:
 
 @example
 latestxt . : foo [ latestxt . ] ; ' foo .
@@ -8394,6 +8341,8 @@ execution token at run-time.
 
 doc-[:
 doc-;]
+
+
 
 
 @node Supplying names, User-defined Defining Words, Quotations, Defining Words

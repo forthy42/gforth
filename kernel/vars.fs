@@ -81,6 +81,8 @@ fold1: >body @ postpone up@ postpone lit+ , ;
 : 2constant, ( xt -- )
     execute 2lit, ;
 : 2Constant ( w1 w2 "name" -- ) \ double two-constant
+    \G Define @i{name}.@*
+    \G @i{name} execution: @i{( -- w1 w2 )}
     Create 2,
     ['] 2@ set-does>
     ['] 2constant, set-optimizer ;

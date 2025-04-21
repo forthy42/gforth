@@ -240,15 +240,16 @@ variable nextname$
 : noname ( -- ) \ gforth
     \g The next defined word will be anonymous. The defining word will
     \g leave the input stream alone. The xt of the defined word will
-    \g be given by @code{latestxt}, the nt by @code{latestnt}.
+    \g be given by @code{latestxt}, its nt by @code{latestnt}
+    \g (@pxref{Name token}).
     ['] noname-header IS header-name, ;
 
 : latestnt ( -- nt ) \ gforth
-    \G @i{nt} is the name token of the last word defined in the current section.
+    \G @i{nt} is the name token of the most recent word defined in the current section.
     \ The main purpose of this word is to get the nt of words defined using noname
     lastnt @ ;
 : latestxt ( -- xt ) \ gforth
-    \G @i{xt} is the execution token of the last word defined in the current section.
+    \G @i{xt} is the execution token of the most recent word defined in the current section.
     \ The main purpose of this word is to get the xt of words defined using noname
     lastnt @ name>interpret ;
 
@@ -520,9 +521,8 @@ $BF000000. 1 cells 8 = [IF] #32 dlshift [THEN] dValue synonym-mask \ do not copy
 : (Value)    ['] def#tib create-from reveal ;
 
 : Constant ( w "name" -- ) \ core
-    \G Define a constant @i{name} with value @i{w}.
-    \G  
-    \G @i{name} execution: @i{-- w}
+    \G Define @i{name}.@*
+    \G @i{name} execution: @i{( -- w )}
     (Constant) , ;
 
 : AConstant ( addr "name" -- ) \ gforth
@@ -532,9 +532,9 @@ $BF000000. 1 cells 8 = [IF] #32 dlshift [THEN] dValue synonym-mask \ do not copy
 
 : Value ( w "name" -- ) \ core-ext
     \g Define @i{name} with the initial value @i{w}; this value can be
-    \g changed with @code{to @i{name}} or @code{->@i{name}}.
-    \g  
-    \g @i{name} execution: @i{-- w2}
+    \g changed with @code{to @i{name}} or @code{->@i{name}} @i{( w2 --
+    \g )} or with @code{+to @i{name}} or @code{+>@i{name}} @i{( n|u --
+    \g )}.@* @i{name} execution: @i{( -- w3 )}
     (Value) , ;
 
 : AValue ( w "name" -- ) \ gforth
@@ -770,7 +770,9 @@ Create hmtemplate
     record-name 0 (') (to), ; immediate restrict
 
 ' int-to ' comp-to interpret/compile: TO ( value "name" -- ) \ core-ext
-\g changes the value of @var{name} to @var{value}
+\g Changes the value of @var{name} to be equal to @i{value}.  The type
+\g of @i{value} depends on the type of @i{name}.  An alternative
+\g syntax is to write @code{->@i{name}}.
 
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
@@ -788,8 +790,9 @@ Create hmtemplate
 : [+TO]  record-name 1 (') (to), ; immediate restrict
 
 ' <+TO> ' [+TO] interpret/compile: +TO ( value "name" -- ) \ gforth
-\g increments the value of @var{name} by @var{value}
-
+\g Adds @i{value} to the value of @var{name}.  The type of @i{value}
+\g depends on the type of @i{name}.  An alternative syntax is to write
+\g @code{+>@i{name}}.
 \ \ : ;                                                  	24feb93py
 
 defer :-hook ( sys1 -- sys2 )
