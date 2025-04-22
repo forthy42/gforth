@@ -80,6 +80,8 @@
 : opt-fcon ( xt -- )  >body f@ postpone FLiteral ;
 
 : fconstant  ( r "name" -- ) \ floating f-constant
+    \G Define @i{name}.@*
+    \G @i{name} execution: @i{( -- r )}
     Create f,
     ['] f@ set-does>
     ['] opt-fcon set-optimizer ;
@@ -95,9 +97,10 @@ create dummy-fvalue
 ' fvalue-to set-to
 
 : fvalue ( r "name" -- ) \ floating-ext f-value
-    \g Define @i{name} @code{( -- r1 )} where @i{r1} initially is
-    \g @i{r}; this value can be changed with @code{to @i{name}} or
-    \g @code{->@i{name}}.
+    \g Define @i{name} with the initial value @i{r}; this value can be
+    \g changed with @code{to @i{name}}, @code{->@i{name}}, @code{+to
+    \g @i{name}} or @code{+>@i{name}} @i{( r2 -- )}.@* @i{name}
+    \g execution: @i{( -- r3 )}
     ['] dummy-fvalue create-from reveal f, ;
 
 : fdepth ( -- +n ) \ floating f-depth
@@ -219,6 +222,8 @@ translate: translate-float ( r -- | r ) \ gforth-experimental
 ' rec-float ' forth-recognize defer@ >back
 
 : fvariable ( "name" -- ) \ floating f-variable
+    \g Define @i{name} and reserve a float at @i{f-addr}.@* @i{name}
+    \g execution: @code{( -- f-addr )}.
     Create 0.0E0 f, ;
     \ does> ( -- f-addr )
 

@@ -33,7 +33,7 @@
 
 : Varue  ( w "name" -- ) \ gforth
     \G Like @code{value}, but you can also use @code{addr @i{name}};
-    \G in the future, varues may be less efficient than values.
+    \G varues may be less efficient than values.
     ['] dummy-varue create-from reveal , ;
 
 ' >body 2!a-table to-class: 2varue-to ( addr -- ) \ gforth-internal
@@ -43,7 +43,7 @@
 
 : 2varue ( x1 x2 "name" -- ) \ gforth
     \G Like @code{2value}, but you can also use @code{addr @i{name}};
-    \G in the future, 2varues may be less efficient than 2values.
+    \G 2varues may be less efficient than 2values.
     ['] dummy-2varue create-from reveal 2, ;
 
 ' >body f!a-table to-class: fvarue-to ( r xt-fvalue -- ) \ gforth-internal
@@ -53,7 +53,7 @@
 
 : fvarue ( r "name" -- ) \ gforth
     \G Like @code{fvalue}, but you can also use @code{addr @i{name}};
-    \G in the future, fvarues may be less efficient than fvalues.
+    \G fvarues may be less efficient than fvalues.
     ['] dummy-fvarue create-from reveal f, ;
 
 \ Locals with addrs
@@ -119,11 +119,12 @@ also locals-types
 previous
 
 2 to: addr ( "name" -- addr ) \ gforth
-\g provides the address @var{addr} of the varue, 2varue, or fvarue
-\g @var{name} or a local @var{name} defined with one of @code{wa: ca:
-\g da: fa: xta:}.
+\g @i{Addr} is the address where the value of @i{name} is stored.
+\g @i{Name} is defined with @code{varue}, @code{2varue}, @code{fvarue}
+\g or (in a locals definition) with one of @code{wa: ca: da: fa:
+\g xta:}.
 
-2 to-access: >addr ( xt-varue -- addr ) \ gforth-experimental  to-addr
+2 to-access: >addr ( xt-varue -- addr ) \ gforth-internal  to-addr
     \G Obtain the address @var{addr} of the varue @var{xt-varue}
 
 synonym &of addr \ for SwiftForth compatibility

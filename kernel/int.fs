@@ -441,7 +441,7 @@ drop Constant hmsize \ vtable size
     \G word @i{xt-deferred}.
 4 to-access: defer! ( xt xt-deferred -- ) \ core-ext  defer-store
     \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
-1 to-access: value+! ( n xt-value -- ) \ gforth-experimental  value-plus-store
+1 to-access: value+! ( n xt-value -- ) \ gforth-internal  value-plus-store
     \G Increments the value of @var{xt-value} by @var{n}
 
 : >extra ( nt -- addr )

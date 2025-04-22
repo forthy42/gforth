@@ -467,10 +467,11 @@ Defer wrap! ( wrap-sys -- )
     postpone SCOPE locals-list off
     ['] (;])  :noname  ;
 ' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon
-\G Starts a quotation
+\G Starts a quotation.
 
 : ;] ( compile-time: quotation-sys -- ; run-time: -- xt ) \ gforth semi-bracket
-    \g ends a quotation
+    \g Ends a quotation.  This also restores the notion of ``most
+    \g recent definition'' to what it was before the quotation started.
     POSTPONE ; swap execute ( xt ) ; immediate
 
 \ inline: ;inline

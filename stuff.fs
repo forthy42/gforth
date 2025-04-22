@@ -700,7 +700,12 @@ create dummy-2value
 ' 2@ set-does>
 ' 2value-to set-to
 
-: 2Value ( d "name" -- ) \ double-ext two-value
+: 2Value ( w1 w2 "name" -- ) \ double-ext two-value
+    \g Define @i{name} with the initial values @i{w1 w2}; these values
+    \g can be changed with @code{to @i{name}} or @code{->@i{name}}
+    \g @i{( w3 w4 -- )}, or with @code{+to @i{name}} or
+    \g @code{+>@i{name}} @i{( d -- )}.@* @i{name} execution: @i{( --
+    \g w5 w6 )}
     ['] dummy-2value create-from reveal 2, ;
 
 s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
@@ -876,5 +881,5 @@ fold1:
 
 \ equivalents for defer!
 
-0 to-access: value! ( x xt-value -- ) \ gforth-experimental  to-store
+0 to-access: value! ( value xt-value -- ) \ gforth-internal value-store
     \G Changes the value of @var{xt-value} to @var{x}
