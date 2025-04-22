@@ -467,7 +467,11 @@ font-path+ ~/.fonts
 \sans
     \regular fonts= NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
     fonts[ssm]=same
-{{  $A000  $2E80  $31390 $20000   $FB00  $F900   $FFF0  $FF00 }} 2/ +ranges
+    {{  $A000  $2E80  $31390 $20000   $FB00  $F900   $FFF0  $FF00 }} 2/ +ranges
+[ELSE]
+    "Simplified Chinese failed\n" ' type do-debug
+[THEN]
+[TRY]
     \bold fonts= NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \italic fonts= NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \bold-italic fonts= NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
@@ -481,8 +485,6 @@ font-path+ ~/.fonts
     \bold fonts= NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \italic fonts= NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \bold-italic fonts= NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
-[ELSE]
-    "Simplified Chinese failed\n" ' type do-debug
 [THEN]
 
 [IFUNDEF] android
@@ -492,7 +494,11 @@ font-path+ ~/.fonts
 \sans
     \regular fonts= gkai00mp|NotoSansSC-Regular|NotoSansCJK-Regular
     fonts[ssm]=same
-{{  $A000  $2E80  $31390 $20000   $FB00  $F900   $FFF0  $FF00 }} 2/ +ranges
+    {{  $A000  $2E80  $31390 $20000   $FB00  $F900   $FFF0  $FF00 }} 2/ +ranges
+[ELSE]
+    "Simplified Chinese failed\n" ' type do-debug
+[THEN]
+[TRY]
     \bold fonts= gkai00mp|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular
     \italic fonts= gkai00mp|NotoSansSC-Regular|NotoSansCJK-Regular
     \bold-italic fonts= gkai00mp|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular
@@ -506,8 +512,6 @@ font-path+ ~/.fonts
     \bold fonts= gkai00mp|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular
     \italic fonts= gkai00mp|NotoSansSC-Regular|NotoSansCJK-Regular
     \bold-italic fonts= gkai00mp|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular
-[ELSE]
-    "Simplified Chinese failed\n" ' type do-debug
 [THEN]
 
 [IFDEF] android
@@ -596,6 +600,10 @@ read-unihan
 \regular fonts= NotoSansKR-Regular
 fonts[ssm]=same
 {{ $1200 $1100  $3190 $3130  $A980 $A960  $D7A4 $AC00  $D800 $D7B0 }} 2/ +ranges
+[ELSE]
+    "Hangul failed\n" ' type do-debug
+[THEN]
+[TRY]
 \bold fonts= NotoSansKR-Bold
 \italic fonts= NotoSansKR-Regular
 \bold-italic fonts= NotoSansKR-Bold
@@ -609,8 +617,6 @@ fonts[ssm]=same
 \bold fonts= NotoSansMonoCJKkr-Bold
 \italic fonts= NotoSansMonoCJKkr-Regular
 \bold-italic fonts= NotoSansMonoCJKkr-Bold
-[ELSE]
-    "Hangul failed\n" ' type do-debug
 [THEN]
 
 \ emojis and icons don't differ between different shapes and styles

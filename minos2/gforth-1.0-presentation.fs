@@ -27,14 +27,14 @@ also minos
 ctx 0= [IF]  window-init  [THEN]
 
 require minos2/font-style.fs
+require minos2/text-style.fs
+require minos2/presentation-support.fs
+require unix/open-url.fs
 
 :noname 44e update-size# ; is rescaler
 rescaler
 
-require minos2/text-style.fs
-require presentation-support.fs
-
-m2c:animtime% f@ 0e f* m2c:animtime% f!
+m2c:animtime% f@ 3e f* m2c:animtime% f!
 
 tex: gforth-logo
 ' gforth-logo "logo.png" 0.5e }}image-file Constant gforth-logo-glue drop

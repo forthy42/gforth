@@ -52,6 +52,7 @@ s" Config error" exception Value config-throw
 : config-line ( -- )
 \    current-sourceview .sourceview ." : config line='" source type ." '" cr
     source nip 0= ?EXIT
+    source bl skip ";" string-prefix? ?EXIT
     '=' parse -trailing 2>r
     parse-name config-recognize ?scan-string 2r> rot
     ?dup-IF  configuring  ELSE  2drop .config-err  THEN
