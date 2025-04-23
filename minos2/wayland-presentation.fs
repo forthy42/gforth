@@ -37,7 +37,12 @@ rescaler
 m2c:animtime% f@ 3e f* m2c:animtime% f!
 
 tex: gforth-logo
-' gforth-logo "logo.png" 0.5e }}image-file Constant gforth-logo-glue drop
+' gforth-logo "net2o-minos2.png" 0.5e }}image-file Constant gforth-logo-glue drop
+
+: ``` ( -- )
+    BEGIN  refill  WHILE  source "```" str= 0= WHILE
+		source }}text /left  REPEAT  THEN
+    source nip >in ! ;
 
 : logo-img ( xt xt -- o o-img ) 2>r
     baseline# 0e to baseline#
@@ -81,14 +86,104 @@ tex: gforth-logo
 	l" Was ist Wayland?" /title
 	l" Ein objektbasiertes RPC zur Kommunikation mit dem Compositor" /subsection
 	vt{{
-	    l" Name -c-4 " l" Name comes first" b\\
-	    l" flags+counts -4 " l" Flags: up to 8 bits, count rest of the cell" b\\
-	    l" Link Field -3 " l" To next header" b\\
-	    l" Code Field -2 " l" Moved here" b\\
-	    l" Name–HM -1 " l" Header method table, see next page" b\\
-	    l" Body  0 " l" This is where the xt points to" b\\
+	    l" Protokolle " l" Klassen mit Methoden auf beiden Seiten" b\\
+	    l" XML–Dateien " l" Beschreiben die Protokolle" b\\
+	    l" Callbacks " l" Für die Implementierung der eigenen Seite" b\\
+	    l" Listener " l" Objekt–Instanzen auf der eigenen Seite (mit mehreren Callbacks)" b\\
+	    l" Registry " l" Protokoll, welche Protokolle der Compositor implementiert" b\\
 	    glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 	}}vt
+    }}v box[] >bdr
+}}z box[] /flip dup >slides
+
+\ page 6
+{{
+    $444400FF $FFFFBFFF pres-frame
+    {{
+	l" Ein Protokoll implementieren" /title
+	l" Am Beispiel xdg_wm_base" /subsection
+	\skip \mono
+```
+<cb xdg_wm_base
+:cb ping ( data xdg_wm_base serial -- )
+    serial( dup [: cr ." pong serial: " h. ;] do-debug )
+    dup to last-serial
+    xdg_wm_base_pong drop ;
+cb>
+```
+	\sans
+    }}v box[] >bdr
+}}z box[] /flip dup >slides
+
+\ page 6
+{{
+    $444400FF $FFFFBFFF pres-frame
+    {{
+	l" Ein Protokoll implementieren" /title
+	l" Wie sähe das ohne diese Makros aus?" /subsection
+	\skip \mono
+```
+:noname ( data xdg_wm_base serial -- )
+    serial( dup [: cr ." pong serial: " h. ;] do-debug )
+    dup to last-serial
+    xdg_wm_base_pong drop ; xdg_wm_base_listener-ping:
+Create xdg-wm-base-listener ,
+```
+	\sans
+    }}v box[] >bdr
+}}z box[] /flip dup >slides
+
+\ page 6
+{{
+    $004400FF $BFFFBFFF pres-frame
+    {{
+	l" Komplexeres Protokoll" /title
+	l" Am Beispiel wl_data_source" /subsection
+	\skip \mono \small
+```
+<cb wl_data_source
+:cb action { data source dnd-action -- }
+    wayland( dnd-action [: cr ." ds action: " h. ;] do-debug ) ;
+:cb dnd_finished { data source -- } ;
+:cb dnd_drop_performed { data source -- } ;
+:cb cancelled { data source -- }
+    wayland( [: cr ." ds cancelled" ;] do-debug )
+    0 to data-source  0 to my-clipboard
+    source wl_data_source_destroy ;
+:cb send { data source d: mime-type fd -- }
+    wayland( mime-type data [: cr ." send " id. ." type " type ;] do-debug )
+    data fd clipout$ .set-out ;
+:cb target { data source d: mime-type -- }
+    wayland( data mime-type [: cr ." ds target: " type space id. ;] do-debug ) ;
+cb>
+```
+	\sans \normal
+    }}v box[] >bdr
+}}z box[] /flip dup >slides
+
+\ page 6
+{{
+    $004444FF $BFFFFFFF pres-frame
+    {{
+	l" Trigger–Values" /title
+	l" Values, die bei Zuweisungen Code ausführen" /subsection
+	\skip \mono \small
+```
+0 ' noop trigger-Value wl-compositor \ wayland compositor
+0 ' noop trigger-Value wl-surface    \ wayland surface
+0 ' noop trigger-Value wl-shell      \ wayland shell
+
+wl-registry set-current
+
+5 wl: wl_compositor
+:trigger-on( wl-compositor )
+    wl-compositor wl_compositor_create_surface to wl-surface
+    wl-compositor wl_compositor_create_surface to cursor-surface ;
+1 wl: wl_shell
+:trigger-on( wl-shell wl-surface )
+    wl-shell wl-surface wl_shell_get_shell_surface to shell-surface ;
+```
+	\sans \normal
     }}v box[] >bdr
 }}z box[] /flip dup >slides
 

@@ -110,13 +110,16 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 \ shell surface listener
 
 $Variable cb-prefix
-: >cb-class ( "name" -- )
+: >cb-class ( "name" -- addr u )
     parse-name [: cb-prefix $. ." _listener-" type ':' emit ;] $tmp ;
-: (cb') ( "name" -- )
+: (cb') ( "name" -- xt )
     >cb-class forth-recognize '-error ;
 
 : <cb ( name -- ) parse-name cb-prefix $! depth r> swap >r >r ;
 : cb> ( xt1 .. xtn -- )
+    cb-prefix $@ [: bounds
+	?DO  I c@ '-' over '_' <> select emit
+	LOOP ." -listener" ;] $tmp nextname
     Create depth r> r> swap >r - 0 ?DO , LOOP ;
 
 ${GFORTH_IGNLIB} "true" str= [IF]
@@ -139,11 +142,11 @@ ${GFORTH_IGNLIB} "true" str= [IF]
     serial( dup [: cr ." ping serial: " h. ;] do-debug )
     dup to last-serial
     wl_shell_surface_pong drop ;
-cb> wl-shell-surface-listener
+cb>
 
 <cb wl_callback
 :cb done { data callback done -- } ;
-cb> wl-callback-listener
+cb>
 
 \ time handling
 
@@ -165,6 +168,7 @@ cb> wl-callback-listener
 #120 Value fractional-scale
 0 Value screen-orientation
 0 Value registered
+60e FValue dpy-rate
 
 1e 256e f/ fconstant 1/256
 : scale* ( n1 -- n2 )
@@ -180,6 +184,12 @@ cb> wl-callback-listener
 : n>coord ( n -- r )
     scale*fixed 1/256 fm* ;
 
+User xptimeout  cell uallot drop
+#4 Value looper-to# \ 4ms, don't sleep too long
+: re-timeout ( -- )
+    looper-to# #1000000 um* xptimeout 2! ;
+re-timeout
+
 <cb wl_output
 :cb description { data out d: description -- }
     wayland( description [: cr ." output description: " type ;] do-debug ) ;
@@ -190,11 +200,15 @@ cb> wl-callback-listener
     scale to wl-scale ;
 :cb done { data out -- } ;
 :cb mode { data out flags w h r -- }
-    w h dpy-wh 2! true to registered ;
+    wayland( r 1m fm* h w flags [: cr ." mode: flags" h. ." w=" . ." h=" . ." rate=" f. ;] do-debug )
+    flags WL_OUTPUT_MODE_CURRENT and IF
+	w h dpy-wh 2! r 1m fm* to dpy-rate true to registered
+	dpy-rate 1/f #1000 fm* f>s to looper-to# re-timeout
+    THEN ;
 :cb geometry { data out x y pw ph subp d: make d: model transform -- }
     wayland( pw ph [: cr ." metrics: " . . ;] do-debug )
     pw ph wl-metrics 2! transform to screen-orientation ;
-cb> wl-output-listener
+cb>
 
 [IFDEF] zxdg_output_v1_listener
     <cb zxdg_output_v1
@@ -209,13 +223,13 @@ cb> wl-output-listener
     :cb logical_position { data out x y -- }
 	wayland( y x [: cr ." xdg position: " . . ;] do-debug )
 	x y dpy-xy 2! ;
-    cb> zxdg-output-v1-listener
+    cb>
 [THEN]
 
 <cb xdg_activation_token_v1
 :cb done { data token d: name -- }
     wayland( name [: cr ." activation token: " type ;] do-debug ) ;
-cb> xdg-activation-token-v1-listener
+cb>
 
 require need-x.fs
 
@@ -251,7 +265,7 @@ Defer rescaler ' noop is rescaler
 	scale to fractional-scale  rescaler
 	dpy-unscaled-wh 2@ rescale-win
     ;
-    cb> wp-fractional-scale-v1-listener
+    cb>
 [THEN]
 
 \ As events come in callbacks, push them to an event queue
@@ -341,7 +355,7 @@ Variable wl-time
     serial( s [: cr ." cursor-serial: " . ;] do-debug )
     s to cursor-serial \ on enter, we set the cursor
     x y [{: x y :}h1 x y b-enter ;] master-task send-event ;
-cb> wl-pointer-listener
+cb>
 
 \ keyboard listener
 
@@ -448,7 +462,7 @@ Variable prev-preedit$
     buf size munmap ?ior
     keymap xkb_state_new to xkb-state ;
 previous
-cb> wl-keyboard-listener
+cb>
 
 \ seat listener
 
@@ -467,7 +481,7 @@ cb> wl-keyboard-listener
     caps WL_SEAT_CAPABILITY_TOUCH and IF
 	wl-seat wl_seat_get_touch to wl-touch
     THEN ;
-cb> wl-seat-listener
+cb>
 
 \ xdg-wm-base-listener
 
@@ -476,7 +490,7 @@ cb> wl-seat-listener
     serial( dup [: cr ." pong serial: " h. ;] do-debug )
     dup to last-serial
     xdg_wm_base_pong drop ;
-cb> xdg-wm-base-listener
+cb>
 
 \ input listener
 
@@ -544,7 +558,7 @@ Defer sync+config ' noop is sync+config
 :cb enter { data text-input surface -- }
     text-input zwp_text_input_v3_enable
     text-input send-status-update ;
-cb> text-input-listener
+cb>
 [THEN]
 
 \ data offer listener
@@ -742,7 +756,7 @@ out-writer :method set-out ( addr fd -- )
 :cb offer { data offer d: mime-type -- }
     wayland( mime-type [: cr ." mime-type: " type ;] do-debug )
     mime-type mime-types[] $+[]! ;
-cb> data-offer-listener
+cb>
 
 \ data device listener
 
@@ -775,8 +789,8 @@ Defer dnd-drop
     old-id ?dup-IF  wl_data_offer_destroy  THEN
     id to old-id
     mime-types[] $[]free
-    id ?dup-IF  data-offer-listener 0 wl_data_offer_add_listener drop  THEN ;
-cb> data-device-listener
+    id ?dup-IF  wl-data-offer-listener 0 wl_data_offer_add_listener drop  THEN ;
+cb>
 
 \ primary selection offer listener
 
@@ -784,7 +798,7 @@ cb> data-device-listener
 :cb offer { data offer d: mime-type -- }
     wayland( mime-type [: cr ." primary mime-type: " type ;] do-debug )
     mime-type mime-types[] $+[]! ;
-cb> primary-selection-offer-listener
+cb>
 
 \ primary selection device listener
 
@@ -801,9 +815,9 @@ cb> primary-selection-offer-listener
     old-ps-id ?dup-IF  zwp_primary_selection_offer_v1_destroy  THEN
     id to old-ps-id
     mime-types[] $[]free  0 to my-primary
-    id ?dup-IF  primary-selection-offer-listener 0
+    id ?dup-IF  zwp-primary-selection-offer-v1-listener 0
 	zwp_primary_selection_offer_v1_add_listener  THEN ;
-cb> primary-selection-listener
+cb>
 
 \ data source listener
 
@@ -821,7 +835,7 @@ cb> primary-selection-listener
     data fd clipout$ .set-out ;
 :cb target { data source d: mime-type -- }
     wayland( data mime-type [: cr ." ds target: " type space id. ;] do-debug ) ;
-cb> data-source-listener
+cb>
 
 \ primary selection source listener
 
@@ -833,7 +847,7 @@ cb> data-source-listener
 :cb send { data source d: mime-type fd -- }
     wayland( fd mime-type data [: cr ." ps send " id. ." type: " type ."  fd: " h. ;] do-debug )
     data fd psout$ .set-out ;
-cb> primary-selection-source-listener
+cb>
 
 \ registry listeners: the interface string is searched in a table
 
@@ -876,14 +890,14 @@ Variable cursor-size #24 cursor-size !
     wl-data-device-manager
     wl-seat wl_data_device_manager_get_data_device to data-device ;
 :trigger-on( data-device )
-    data-device data-device-listener 0 wl_data_device_add_listener drop ;
+    data-device wl-data-device-listener 0 wl_data_device_add_listener drop ;
 : ?dd-source ( -- )
     data-source 0= IF
 	wl-data-device-manager
 	wl_data_device_manager_create_data_source
 	to data-source THEN ;
 :trigger-on( data-source )
-    data-source data-source-listener clipboard$ wl_data_source_add_listener drop
+    data-source wl-data-source-listener clipboard$ wl_data_source_add_listener drop
     ds-mime-types[] [: data-source -rot wl_data_source_offer ;] $[]map ;
 
 :trigger-on( zwp-primary-selection-device-manager-v1 wl-seat )
@@ -891,14 +905,16 @@ Variable cursor-size #24 cursor-size !
     zwp-primary-selection-device-manager-v1
     wl-seat zwp_primary_selection_device_manager_v1_get_device to primary-selection-device ;
 :trigger-on( primary-selection-device )
-    primary-selection-device primary-selection-listener 0 zwp_primary_selection_device_v1_add_listener drop ;
+    primary-selection-device zwp-primary-selection-device-v1-listener
+    0 zwp_primary_selection_device_v1_add_listener drop ;
 : ?ps-source ( -- )
     primary-selection-source 0= IF
 	zwp-primary-selection-device-manager-v1
 	zwp_primary_selection_device_manager_v1_create_source
 	to primary-selection-source THEN ;
 :trigger-on( primary-selection-source )
-    primary-selection-source primary-selection-source-listener primary$ zwp_primary_selection_source_v1_add_listener drop
+    primary-selection-source zwp-primary-selection-source-v1-listener
+    primary$ zwp_primary_selection_source_v1_add_listener drop
     ds-mime-types[] [: primary-selection-source -rot zwp_primary_selection_source_v1_offer ;] $[]map ;
 
 : >wl-replaces ( version "name -- )
@@ -976,7 +992,7 @@ wl-registry set-current
     1 wl: zwp_text_input_manager_v3
     :trigger-on( zwp-text-input-manager-v3 wl-seat )
 	zwp-text-input-manager-v3 wl-seat zwp_text_input_manager_v3_get_text_input dup to text-input
-	text-input-listener 0 zwp_text_input_v3_add_listener drop ;
+	zwp-text-input-v3-listener 0 zwp_text_input_v3_add_listener drop ;
 [THEN]
 6 wlal: xdg_wm_base
 1 wl: zxdg_decoration_manager_v1
@@ -1008,7 +1024,7 @@ set-current
 <cb wl_registry
 ' registry- ?cb global_remove
 ' registry+ ?cb global
-cb> registry-listener
+cb>
 
 : get-events ( -- )
     dpy wl_display_roundtrip drop ;
@@ -1027,7 +1043,7 @@ cb> registry-listener
     THEN
     dpy wl_display_get_registry to registry
     registry 0= abort" no wayland registry"
-    registry registry-listener 0 wl_registry_add_listener drop
+    registry wl-registry-listener 0 wl_registry_add_listener drop
     false to registered
     BEGIN  get-events  registered UNTIL  dpy-wh 2@ ;
 
@@ -1050,7 +1066,7 @@ Variable toplevel-states 0 toplevel-states !
     xdg_surface serial xdg_surface_ack_configure
     toplevel-wh 2@ rescale-win
     wl-surface wl_surface_commit ;
-cb> xdg-surface-listener
+cb>
 
 : map-win ( -- )
     BEGIN  get-events mapped  UNTIL ;
@@ -1095,13 +1111,13 @@ cb> xdg-surface-listener
     wayland( [: cr ." display state: " dup h. ;] do-debug )
     \ if suspended, stop rendering!
     1 XDG_TOPLEVEL_STATE_SUSPENDED lshift and 0= 1- rendering ! ;
-cb> xdg-toplevel-listener
+cb>
 
 <cb zxdg_toplevel_decoration_v1
 :cb configure { data decoration mode -- }
     wayland( [: cr ." decorated" ;] do-debug )
     true to configured clear sync ;
-cb> xdg-decoration-listener
+cb>
 
 :trigger-on( xdg-wm-base wl-surface )
     xdg-wm-base wl-surface xdg_wm_base_get_xdg_surface to xdg-surface
@@ -1125,7 +1141,7 @@ cb> xdg-decoration-listener
 :trigger-on( zxdg-decoration-manager-v1 xdg-toplevel )
     zxdg-decoration-manager-v1 xdg-toplevel
     zxdg_decoration_manager_v1_get_toplevel_decoration dup to zxdg-decoration
-    dup xdg-decoration-listener 0
+    dup zxdg-toplevel-decoration-v1-listener 0
     zxdg_toplevel_decoration_v1_add_listener drop
     ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE
     zxdg_toplevel_decoration_v1_set_mode
@@ -1142,9 +1158,6 @@ get-current also forth definitions
 
 previous set-current
 
-User xptimeout  cell uallot drop
-#4 Value looper-to# \ 4ms, don't sleep too long
-looper-to# #1000000 um* xptimeout 2!
 9 Value xpollfd#
 \ events, wayland, clip read, clip write, ps read, ps write, dnd read, dnd write, infile
 User xpollfds
