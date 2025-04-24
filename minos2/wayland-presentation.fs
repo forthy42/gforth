@@ -98,6 +98,23 @@ tex: gforth-logo
 
 \ page 6
 {{
+    $440044FF $FFBFFFFF pres-frame
+    {{
+	l" Was kann Wayland?" /title
+	l" Inzwischen brauchbarer Ersatz für X11" /subsection
+	vt{{
+	    l" Breaks Everything " l" War mal am Anfang, ist inzwischen vorbei" b\\
+	    l" Fractional Scaling " l" Auf aktuellen Displays sehr sinnvoll" b\\
+	    l" Clipboard " l" und Primary Selection gehen (aber blöd implementiert)" b\\
+	    l" Farbmanagement " l" Ist noch eine Baustelle" b\\
+	    l" OpenGLES " l" Ging von Anfang an gut" b\\
+	    glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+	}}vt
+    }}v box[] >bdr
+}}z box[] /flip dup >slides
+
+\ page 6
+{{
     $444400FF $FFFFBFFF pres-frame
     {{
 	l" Ein Protokoll implementieren" /title
