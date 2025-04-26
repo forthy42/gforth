@@ -22,7 +22,7 @@
 \G @i{Xt} is the XT that is currently assigned to @i{name}.
 
 : pow2? ( u -- f ) \ gforth pow-two-query
-    \g @i{f} is true iff @i{u} is a power of two, i.e., there is
+    \g @i{f} is true if and only if @i{u} is a power of two, i.e., there is
     \g exactly one bit set in @i{u}.
     dup dup 1- and 0= and 0<> ;
 
