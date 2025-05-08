@@ -24,7 +24,9 @@ cs-wordlist AConstant macros-wordlist ( -- wid ) \ gforth-experimental
 \G wordlist for string replacement macros
 
 [IFUNDEF] $Value
-    to-table: $!-table  $! $+!
+    [IFUNDEF] $!-table
+	to-table: $!-table  $! $+! [noop]
+    [THEN]
     ' >body $!-table to-class: $value-to
     
     : $Value ( addr u -- )

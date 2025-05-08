@@ -112,7 +112,7 @@ simple-actor :method entered ( -- ) o to inside-move? ;
 simple-actor class
     method do-action
     defer: ck-action ( addr -- )
-    value: data
+    addressable: value: data
 end-class click-actor
 
 ' ck-action click-actor is do-action
@@ -638,7 +638,7 @@ simple-actor class
     defer: edit-next-line
     defer: edit-prev-line
     value: edit-w
-    $value: prev-text$
+    addressable: $value: prev-text$
     defer: edit-enter
     defer: edit-filter
     defer: edit-engaged
