@@ -706,7 +706,7 @@ create dummy-2value
     \g @i{( w3 w4 -- )}, or with @code{+to @i{name}} or
     \g @code{+>@i{name}} @i{( d -- )}.@* @i{name} execution: @i{( --
     \g w5 w6 )}
-    ['] dummy-2value create-from reveal 2, ;
+    ['] dummy-2value create-from reveal ?addressable 2, ;
 
 s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 2>r : basic-help ( -- ) \ gforth-internal

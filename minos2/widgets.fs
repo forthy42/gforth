@@ -354,7 +354,7 @@ object class
     \G pointer to parent widget
     value: act ( -- optr ) \ minos2
     \G pointer to actor
-    $value: name$ ( -- addr u ) \ minos2 name-string
+    addressable: $value: name$ ( -- addr u ) \ minos2 name-string
     \G Widget name for debugging and searching
     sfvalue: x ( -- r ) \ minos2
     \G widget x coordinate
@@ -690,7 +690,7 @@ widget class
     synonym text-color w-color
     sfvalue: text-w
     value: text-font
-    $value: text$
+    addressable: $value: text$
     value: l-text \ located text, placeholder to make sure part-text works
     value: orig-text \ part-text, placeholder to make sure part-edit works
     value: us-mask \ underline or strikethrough

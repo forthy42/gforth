@@ -44,9 +44,9 @@ hex \ everything now hex!                               11may93jaw
 : warn! ( x addr -- ) ! oam-warning ;
 opt: drop postpone ! oam-warning ;
 
-\                  to         +to      addr     defer@   defer!
-Create !-table     ' ! A,     ' +! A,  ' n/a A, ' n/a A, ' warn! A,
-Create defer-table ' warn! A, ' n/a A, ' n/a A, ' @ A,   ' ! A,
+\                  to         +to      addr        defer@   defer!
+Create !-table     ' ! A,     ' +! A,  ' [noop] A, ' n/a A, ' warn! A,
+Create defer-table ' warn! A, ' n/a A, ' [noop] A, ' @ A,   ' ! A,
 
 : >uvalue ( xt -- addr ) \ gforth-internal to-uvalue
     \G @i{Xt} is the xt of a word @i{x} defined with @code{uvalue};
@@ -68,7 +68,7 @@ fold1: >body @ postpone up@ postpone lit+ , ;
 
 : (UValue) ( "name" -- )
     \G Define a per-thread value
-    Create cell uallot ,
+    Create cell ?addressable uallot ,
   DOES> @ up@ + @ ;
 
 : UValue ( "name" -- ) \ gforth

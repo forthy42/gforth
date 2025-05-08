@@ -193,7 +193,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
 	(("event:") definition-starter (font-lock-keyword-face . 1)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
-	(("immediate" "compile-only" "restrict")
+	(("immediate" "compile-only" "restrict" "addressable" "addressable:")
 	 immediate (font-lock-keyword-face . 1))
 	(("does>") definition-starter (font-lock-keyword-face . 1))
 	((":noname" "comp:" "compsem:" "opt:" "fold1:") definition-starter (font-lock-keyword-face . 1))

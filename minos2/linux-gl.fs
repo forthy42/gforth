@@ -276,7 +276,7 @@ object class
     drop 0 XSelectionEvent-requestor value: e.requestor'
     drop 0 XSelectionEvent-property  value: e.property'
     drop 0 XSelectionEvent-target    value: e.target'
-    drop 0 XClientMessageEvent-data  value: e.data
+    drop 0 XClientMessageEvent-data  addressable: value: e.data
     drop 0 XEvent var event
     XEvent var xev \ for sending events
     $100 var look_chars

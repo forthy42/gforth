@@ -44,11 +44,9 @@
 
 \ locals                                               10jan15py
 
-to-table: z!-table z! z+!
-z!-table >to+addr-table: z!a-table
+to-table: z!-table z! z+! [noop]
 
 z!-table locals-to-class: to-z:
-z!a-table locals-to-class: to-za:
 
 : compile-pushlocal-z ( a-addr -- ) ( run-time: z -- )
     locals-size @ alignlp-f float+ float+ dup locals-size !
@@ -65,9 +63,7 @@ also locals-types definitions
     ['] compile-pushlocal-z ;
 : za: ( compilation "name" -- a-addr xt; run-time z -- ) \ gforth z-a-colon
     \G Define varue-flavoured complex local @i{name} @code{( -- z1 )}
-    [: @ lp-offset compile-z@local ;]
-    ['] to-za: create-local
-    ['] compile-pushlocal-z ;
+    addressable: z: ;
 : z^ ( "name" -- a-addr xt )
     w^ drop  ['] compile-pushlocal-z ;
 previous definitions
@@ -75,7 +71,6 @@ previous definitions
 also locals-types
 
 z: some-zlocal 2drop
-za: some-zalocal 2drop
 
 previous
 
@@ -90,9 +85,8 @@ previous
     [: lit, postpone z@ ;] set-optimizer
     ['] z-to set-to ;
 
-' >body z!a-table to-class: za-to
-: ZVarue ( complex -- )
-    ZValue ['] za-to set-to ;
+: ZVarue ( complex -- ) \ gforth-obsolete
+    ZValue addressable ;
 
 \ simple operations                                    02mar05py
 : z+       ( z1 z2 -- z1+z2 ) frot f+ f>l f+ fl> ;

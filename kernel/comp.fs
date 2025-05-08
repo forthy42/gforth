@@ -518,7 +518,10 @@ $BF000000. 1 cells 8 = [IF] #32 dlshift [THEN] dValue synonym-mask \ do not copy
 
 : (Constant) ['] bl create-from reveal ;
 
-: (Value)    ['] def#tib create-from reveal ;
+Variable value-flags \ gforth-experimental
+: ?addressable ( -- ) \ gforth-internal
+    latest IF  reveal 0 value-flags !@ lastflags or!  THEN ;
+: (Value)    ['] def#tib create-from ?addressable ;
 
 : Constant ( w "name" -- ) \ core
     \G Define @i{name}.@*
