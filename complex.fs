@@ -44,7 +44,7 @@
 
 \ locals                                               10jan15py
 
-to-table: z!-table z! z+! [noop]
+to-table: z!-table z! z+!
 
 z!-table locals-to-class: to-z:
 

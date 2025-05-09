@@ -23,26 +23,51 @@ obsolete-mask 2/ Constant addressable-mask
     \G Mark the last word (if named) as addressable
     latest IF  addressable-mask lastflags or!  THEN ;
 : addressable: ( -- ) \ gforth-experimental
-    addressable-mask value-flags or! ;
+    addressable-mask header-flags or! ;
 
 get-current also locals-types definitions
 synonym addressable: addressable:
 previous set-current
 
+: .addr-warning ( xt -- xt ) \ gforth-internal
+    <<# s"  defined here" holds dup name>string holds s" : " holds
+    dup name>view ['] .sourceview $tmp holds #lf hold
+    s"  doesn't support ADDR" holds dup name>string holds #0. #>
+    hold 1- c(warning") #>> ;
+
+: ?addr ( xt -- xt ) \ gforth-internal
+    dup >f+c @ addressable-mask and 0=
+    warnings @ abs 1 > and IF  .addr-warning  THEN ;
+
+:noname record-name 4 (') ?addr [ ' (to) :, ] ;
+:noname record-name 4 (') ?addr (to), ;
+interpret/compile: addr ( "name" -- addr ) \ gforth
+\g @i{Addr} is the address where the value of @i{name} is stored.
+\g @i{Name} is defined with @code{varue}, @code{2varue}, @code{fvarue}
+\g or (in a locals definition) with one of @code{wa: ca: da: fa:
+\g xta:}.
+
+4 to-access: >addr ( xt-varue -- addr ) \ gforth-internal  to-addr
+    \G Obtain the address @var{addr} of the varue @var{xt-varue}
+
+synonym &of addr \ for SwiftForth compatibility
+
+\ obsolete part:
+
 : Varue  ( w "name" -- ) \ gforth-obsolete
     \G Like @code{value}, but you can also use @code{addr @i{name}};
     \G varues may be less efficient than values.
-    Value addressable ;
+    addressable: Value ;
 
 : 2Varue ( x1 x2 "name" -- ) \ gforth-obsolete
     \G Like @code{2value}, but you can also use @code{addr @i{name}};
     \G 2varues may be less efficient than 2values.
-    2Value addressable ;
+    addressable: 2Value ;
 
 : fvarue ( r "name" -- ) \ gforth-obsolete
     \G Like @code{fvalue}, but you can also use @code{addr @i{name}};
     \G fvarues may be less efficient than fvalues.
-    FValue addressable ;
+    addressable: FValue ;
 
 \ Locals with addrs
 
@@ -79,26 +104,3 @@ also locals-types
     \G @code{w:}.
     ['] w:  is default: ;
 previous
-
-: .addr-warning ( xt -- xt ) \ gforth-internal
-    <<# s"  defined here" holds dup name>string holds s" : " holds
-    dup name>view ['] .sourceview $tmp holds #lf hold
-    s"  doesn't support ADDR" holds dup name>string holds #0. #>
-    hold 1- c(warning") #>> ;
-
-: ?addr ( xt -- xt ) \ gforth-internal
-    dup >f+c @ addressable-mask and 0=
-    warnings @ abs 1 > and IF  .addr-warning  THEN ;
-
-:noname record-name 2 (') ?addr [ ' (to) :, ] ;
-:noname record-name 2 (') ?addr (to), ;
-interpret/compile: addr ( "name" -- addr ) \ gforth
-\g @i{Addr} is the address where the value of @i{name} is stored.
-\g @i{Name} is defined with @code{varue}, @code{2varue}, @code{fvarue}
-\g or (in a locals definition) with one of @code{wa: ca: da: fa:
-\g xta:}.
-
-2 to-access: >addr ( xt-varue -- addr ) \ gforth-internal  to-addr
-    \G Obtain the address @var{addr} of the varue @var{xt-varue}
-
-synonym &of addr \ for SwiftForth compatibility

@@ -27,22 +27,17 @@
 
 : to-table: ( "name" "to-word" "+to-word" "addr-word" "action-of-word" "is-word" -- ) \ gforth-experimental to-table-colon
     \G Create a table @i{name} with entries for @code{TO}, @code{+TO},
-    \G @code{ADDR}, @code{ACTION-OF}, and @code{IS}.  The words for
+    \G @code{ACTION-OF}, @code{IS}, and @code{ADDR}.  The words for
     \G these entries are called with @i{xt} on the stack, where xt
     \G belongs to the word behind @code{to} (or @code{+to} etc.).  Use
     \G @code{n/a} to mark unsupported operations.  Unsupported
-    \G operations can be left away at the end of the line.
+    \G operations can be left away at the end of the line, except for @code{ADDR},
+    \G where the default is @code{[NOOP]}.
     Create 0 BEGIN parse-name dup WHILE
 	    forth-recognize '-error , 1+
     REPEAT 2drop
     \ here goes the number of methods supported
-    to-table-size# swap U+DO ['] n/a , LOOP ;
-
-: >to+addr-table: ( table-addr "name" -- ) \ gforth-experimental to-to-plus-addr-table-colon
-    \G @i{Name} is a copy of the table at @i{table-addr}, but in
-    \G @i{name} the @code{ADDR}-method is supported
-    create here to-table-size# cells move
-    ['] [noop] here 2 cells + !  to-table-size# cells allot ;
+    to-table-size# swap U+DO ['] n/a ['] [noop] I' I 1+ <> select , LOOP ;
 
 \ new interpret/compile:, we need it already here
 

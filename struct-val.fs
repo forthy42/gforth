@@ -33,7 +33,7 @@ standard:field
 
 : create+value ( n1 addr "name" -- n3 )
     >r r@ 2 cells + perform
-    r> 2@ create-from reveal ?addressable
+    r> 2@ create-from reveal
     over , + action-of +field, , ;
 
 noname Create latestnt >r \ field-to-class template
@@ -71,13 +71,13 @@ inline: sx@  ( c-addr -- n ) ]]  x@  x>s [[ ;inline
 : $[]-! ( n addr -- x ) $[] ! ;
 : $[]-+! ( n addr -- x ) $[] +! ;
 
-to-table: w!-table  w! w+! [noop]
-to-table: l!-table  l! l+! [noop]
-to-table: sf!-table sf! sf+! [noop]
-to-table: df!-table df! df+! [noop]
-to-table: $!-table  $! $+! [noop]
-to-table: $[]!-table $[]! $[]+! [noop]
-to-table: $[]-!-table $[]-! $[]-+! [noop]
+to-table: w!-table  w! w+!
+to-table: l!-table  l! l+!
+to-table: sf!-table sf! sf+!
+to-table: df!-table df! df+!
+to-table: $!-table  $! $+!
+to-table: $[]!-table $[]! $[]+!
+to-table: $[]-!-table $[]-! $[]-+!
 
 cell      ' aligned   ' @   !-table   wrap+value: value:   ( u1 "name" -- u2 ) \ gforth-experimental
 \G @i{Name} is a varue-flavoured field; in-memory-size: cell; on-stack: cell

@@ -436,13 +436,13 @@ drop Constant hmsize \ vtable size
 : to-access:exec ( xt -- ) @ swap (to) ;
 : to-access:,    ( xt -- ) lits# IF   @ lits> (to),  EXIT  THEN  does, ;
 
-3 to-access: defer@ ( xt-deferred -- xt ) \ core-ext new-defer-fetch
-    \G @i{xt} represents the word currently associated with the deferred
-    \G word @i{xt-deferred}.
-4 to-access: defer! ( xt xt-deferred -- ) \ core-ext  defer-store
-    \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
 1 to-access: value+! ( n xt-value -- ) \ gforth-internal  value-plus-store
     \G Increments the value of @var{xt-value} by @var{n}
+2 to-access: defer@ ( xt-deferred -- xt ) \ core-ext new-defer-fetch
+    \G @i{xt} represents the word currently associated with the deferred
+    \G word @i{xt-deferred}.
+3 to-access: defer! ( xt xt-deferred -- ) \ core-ext  defer-store
+    \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
 
 : >extra ( nt -- addr )
     >namehm @ >hmextra ;

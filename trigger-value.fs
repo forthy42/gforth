@@ -25,7 +25,7 @@ fold1: postpone drop >lits postpone @ ;
 : is-trigger ( xt value-addr xt-addr -- ) nip ! ;
 fold1: postpone drop >lits postpone ! ;
 
-to-table: trigger-table !trigger +!trigger n/a trigger@ is-trigger
+to-table: trigger-table !trigger +!trigger trigger@ is-trigger n/a
 :noname ( xt -- value-addr xt-addr ) >body dup cell+ ;
 fold1: >body dup >lits cell+ >lits ;
 trigger-table to-class: to-trigger

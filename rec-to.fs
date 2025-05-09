@@ -21,7 +21,7 @@
 ' (to) ' (to), ' 2lit, >postponer translate: translate-to
 
 Create to-slots here $100 dup allot $FF fill
-0 "-+'@=" bounds [DO] dup to-slots [I] c@ + c! 1+ [LOOP] drop
+0 "-+@='" bounds [DO] dup to-slots [I] c@ + c! 1+ [LOOP] drop
 
 : rec-to ( addr u -- xt n translate-to | 0 ) \ gforth-experimental
     \G words prefixed with @code{->} are treated as if preceeded by
@@ -34,7 +34,7 @@ Create to-slots here $100 dup allot $FF fill
     -rot  2 /string sp@ 3 cells + fp@ 2>r forth-recognize
     translate-nt? 0= IF  2r> fp! sp! 0 EXIT  THEN  2rdrop
     \ dup >namehm @ >hmto @ ['] n/a = IF  2drop 0 EXIT  THEN
-    over 2 = IF  ?addr  THEN
+    over 4 = IF  ?addr  THEN
     name>interpret ['] translate-to ;
 
 ' rec-to action-of forth-recognize >back

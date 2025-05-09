@@ -165,6 +165,8 @@ unlock set->int ghost s-to gset-to lock
     ['] named>string set-name>string
     ['] named>link set-name>link ;
 
+Variable header-flags \ gforth-experimental
+
 : namehm, ( -- )
     here xt-location drop
     0 A, hmtemplate , here lastnt ! ; \ add location stamps on hm+cf
@@ -172,7 +174,7 @@ unlock set->int ghost s-to gset-to lock
     \G compile the named part of a header
     name-too-long?
     dup here + dup cfaligned >align
-    tuck mem, ,
+    tuck mem, 0 header-flags !@ or ,
     get-current 1 or A,
     \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
@@ -518,10 +520,7 @@ $BF000000. 1 cells 8 = [IF] #32 dlshift [THEN] dValue synonym-mask \ do not copy
 
 : (Constant) ['] bl create-from reveal ;
 
-Variable value-flags \ gforth-experimental
-: ?addressable ( -- ) \ gforth-internal
-    latest IF  reveal 0 value-flags !@ lastflags or!  THEN ;
-: (Value)    ['] def#tib create-from ?addressable ;
+: (Value)    ['] def#tib create-from reveal ;
 
 : Constant ( w "name" -- ) \ core
     \G Define @i{name}.@*
@@ -779,12 +778,12 @@ Create hmtemplate
 
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
-    record-name 4 (') (to) ;
+    record-name 3 (') (to) ;
 
 : [IS] ( compilation "name" -- ; run-time xt -- ) \ gforth-internal bracket-is
     \g At run-time, changes the @code{defer}red word @var{name} to
     \g execute @var{xt}.
-    record-name 4 (') (to), ; immediate restrict
+    record-name 3 (') (to), ; immediate restrict
 
 ' <IS> ' [IS] interpret/compile: IS ( value "name" -- ) \ core-ext
 \g changes the @code{defer}red word @var{name} to execute @var{value}
@@ -890,7 +889,7 @@ interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 ) \ core does
 	then
     then ;
 
-Create voc-table ' (reveal) A, ' drop A, ' n/a A, ' n/a A, ' (reveal) A,
+Create voc-table ' (reveal) A, ' drop A, ' n/a A, ' (reveal) A, ' [noop] A,
 
 ' [noop] voc-table to-class: voc-to ( n voc-xt -- ) \ gforth-internal
     \g this is the TO-method for wordlists

@@ -88,7 +88,7 @@
 
 : f+! ( r addr -- ) dup f@ f+ f! ;
 
-to-table: f!-table f! f+! [noop]
+to-table: f!-table f! f+!
 
 ' >body f!-table to-class: fvalue-to ( r xt-fvalue -- ) \ gforth-internal
 
@@ -101,7 +101,7 @@ create dummy-fvalue
     \g changed with @code{to @i{name}}, @code{->@i{name}}, @code{+to
     \g @i{name}} or @code{+>@i{name}} @i{( r2 -- )}.@* @i{name}
     \g execution: @i{( -- r3 )}
-    ['] dummy-fvalue create-from reveal ?addressable f, ;
+    ['] dummy-fvalue create-from reveal f, ;
 
 : fdepth ( -- +n ) \ floating f-depth
     \G @i{+n} is the current number of (floating-point) values on the

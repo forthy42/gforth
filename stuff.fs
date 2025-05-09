@@ -113,7 +113,7 @@ AUser CSP
 : preserve ( "name" -- ) \ gforth
     \G emit code that reverts a deferred word to the state at
     \G compilation
-    ' dup defer@ lit, 4 swap (to), ; immediate
+    ' dup defer@ lit, 3 swap (to), ; immediate
 
 \ easier definer of noname words that are assigned to a deferred word
 
@@ -215,7 +215,7 @@ Create forth-recognizer ( -- xt ) \ gforth-obsolete
 \G This construct turns a deferred word into a value-like word.
 ' forth-recognize ,
 DOES> @ defer@ ;
-opt: @ 3 swap (to), ;
+opt: @ 2 swap (to), ;
 ' s-to set-to
 : set-forth-recognize ( xt -- ) \ gforth-obsolete
     \G Change the system recognizer
@@ -706,7 +706,7 @@ create dummy-2value
     \g @i{( w3 w4 -- )}, or with @code{+to @i{name}} or
     \g @code{+>@i{name}} @i{( d -- )}.@* @i{name} execution: @i{( --
     \g w5 w6 )}
-    ['] dummy-2value create-from reveal ?addressable 2, ;
+    ['] dummy-2value create-from reveal 2, ;
 
 s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 2>r : basic-help ( -- ) \ gforth-internal

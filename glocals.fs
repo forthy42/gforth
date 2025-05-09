@@ -302,8 +302,7 @@ Defer locals-warning  ' noop is locals-warning
 
 : create-local1 ( does-xt to-xt "name" -- a-addr )
     create locals-warning
-    immediate
-    restrict-mask 0 value-flags !@ or lastflags or!
+    immediate restrict
     set-to set-does>
     here 0 , ( place for the offset ) ;
 
@@ -349,8 +348,8 @@ Defer locals-warning  ' noop is locals-warning
 : c+! ( c addr -- ) dup >r c@ + r> c! ;
 : 2+! ( d addr -- ) dup >r 2@ d+ r> 2! ;
 
-to-table: 2!-table 2! 2+! [noop]
-to-table: c!-table c! c+! [noop]
+to-table: 2!-table 2! 2+!
+to-table: c!-table c! c+!
 
 !-table locals-to-class: to-w:
 defer-table locals-to-class: to-xt:
