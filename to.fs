@@ -30,14 +30,17 @@
     \G @code{ACTION-OF}, @code{IS}, and @code{ADDR}.  The words for
     \G these entries are called with @i{xt} on the stack, where xt
     \G belongs to the word behind @code{to} (or @code{+to} etc.).  Use
-    \G @code{n/a} to mark unsupported operations.  Unsupported
-    \G operations can be left away at the end of the line, except for @code{ADDR},
-    \G where the default is @code{[NOOP]}.
+    \G @code{n/a} to mark unsupported operations.  Default entries
+    \G operations can be left away at the end of the line; the default
+    \G is for the @code{addr} entry is @code{[noop]} while the default
+    \G for the other entries is @code{n/a}.
     Create 0 BEGIN parse-name dup WHILE
 	    forth-recognize '-error , 1+
     REPEAT 2drop
     \ here goes the number of methods supported
-    to-table-size# swap U+DO ['] n/a ['] [noop] I' I 1+ <> select , LOOP ;
+    to-table-size# swap U+DO
+        ['] n/a ['] [noop] I' I 1+ <> select ,
+    LOOP ;
 
 \ new interpret/compile:, we need it already here
 

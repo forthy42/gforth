@@ -19,10 +19,15 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 obsolete-mask 2/ Constant addressable-mask
-: addressable ( -- ) \ gforth-experimental
+
+: addressable ( -- ) \ gforth-internal
     \G Mark the last word (if named) as addressable
     latest IF  addressable-mask lastflags or!  THEN ;
+
 : addressable: ( -- ) \ gforth-experimental
+    \G @code{Addressable:} should be used in front of a defining word
+    \G for a value-flavoured word (e.g., @code{value}).  It allows to
+    \G use @code{addr} on the word defined by that defining word.
     addressable-mask header-flags or! ;
 
 get-current also locals-types definitions
@@ -43,9 +48,8 @@ previous set-current
 :noname record-name 4 (') ?addr (to), ;
 interpret/compile: addr ( "name" -- addr ) \ gforth
 \g @i{Addr} is the address where the value of @i{name} is stored.
-\g @i{Name} is defined with @code{varue}, @code{2varue}, @code{fvarue}
-\g or (in a locals definition) with one of @code{wa: ca: da: fa:
-\g xta:}.
+\g @i{Name} has to be defined with any value-flavoured defining word
+\g (e.g. @code{value}) preceded by @code{addressable:}.
 
 4 to-access: >addr ( xt-varue -- addr ) \ gforth-internal  to-addr
     \G Obtain the address @var{addr} of the varue @var{xt-varue}
@@ -72,19 +76,19 @@ synonym &of addr \ for SwiftForth compatibility
 \ Locals with addrs
 
 get-current also locals-types definitions
-: WA: ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth w-a-colon
+: WA: ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth-obsolete w-a-colon
     \G Define varue-flavoured cell local @i{name} @code{( -- x1 )}
     addressable: w: ;
-: DA: ( compilation "name" -- a-addr xt; run-time x1 x2 -- ) \ gforth w-a-colon
+: DA: ( compilation "name" -- a-addr xt; run-time x1 x2 -- ) \ gforth-obsolete w-a-colon
     \G Define varue-flavoured double local @i{name} @code{( -- x3 x4 )}
     addressable: d: ;
-: CA: ( compilation "name" -- a-addr xt; run-time c -- ) \ gforth c-a-colon
+: CA: ( compilation "name" -- a-addr xt; run-time c -- ) \ gforth-obsolete c-a-colon
     \G Define varue-flavoured char local @i{name} @code{( -- c1 )}
     addressable: c: ;
-: FA: ( compilation "name" -- a-addr xt; run-time f -- ) \ gforth f-a-colon
+: FA: ( compilation "name" -- a-addr xt; run-time f -- ) \ gforth-obsolete f-a-colon
     \G Define varue-flavoured float local @i{name} @code{( -- r1 )}
     addressable: f: ;
-: XTA: ( compilation "name" -- a-addr xt; run-time ... -- ... ) \ gforth x-t-a-colon
+: XTA: ( compilation "name" -- a-addr xt; run-time ... -- ... ) \ gforth-obsolete x-t-a-colon
     \G Define a defer-flavoured local @i{name} on which @code{addr}
     \G can be used.
     addressable: xt: ;
@@ -92,13 +96,13 @@ get-current also locals-types definitions
 previous set-current
 
 also locals-types
-: default-wa: ( -- ) \ gforth-experimental
+: default-wa: ( -- ) \ gforth-obsolete
     \G Allow @code{addr} on locals defined without a type specifyer.
     \G On other words, define locals without a type specifyer using
     \G @code{wa:}.
     ['] wa: is default: ;
 
-: default-w: ( -- ) \ gforth-experimental
+: default-w: ( -- ) \ gforth-obsolete
     \G Forbid @code{addr} on locals defined without a type specifyer.
     \G On other words, define locals without a type specifyer using
     \G @code{w:}.

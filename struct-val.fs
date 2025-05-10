@@ -80,44 +80,48 @@ to-table: $[]!-table $[]! $[]+!
 to-table: $[]-!-table $[]-! $[]-+!
 
 cell      ' aligned   ' @   !-table   wrap+value: value:   ( u1 "name" -- u2 ) \ gforth-experimental
-\G @i{Name} is a varue-flavoured field; in-memory-size: cell; on-stack: cell
+\G @i{Name} is a value-flavoured field; in-memory-size: cell; on-stack: cell
 1         ' noop      ' c@  c!-table  wrap+value: cvalue:  ( u1 "name" -- u2 ) \ gforth-experimental
-\G @i{Name} is a varue-flavoured field; in-memory-size: char; on-stack: unsigned cell
+\G @i{Name} is a value-flavoured field; in-memory-size: char; on-stack: unsigned cell
 2         ' waligned  ' w@  w!-table  wrap+value: wvalue:  ( u1 "name" -- u2 ) \ gforth-experimental
-\G @i{Name} is a varue-flavoured field; in-memory-size: 16 bits; on-stack: unsigned cell
+\G @i{Name} is a value-flavoured field; in-memory-size: 16 bits; on-stack: unsigned cell
 4         ' laligned  ' l@  l!-table  wrap+value: lvalue:  ( u1 "name" -- u2 ) \ gforth-experimental
-\G @i{Name} is a varue-flavoured field; in-memory-size: 32 bits; on-stack: unsigned cell
+\G @i{Name} is a value-flavoured field; in-memory-size: 32 bits; on-stack: unsigned cell
 0 warnings !@
 1         ' noop      ' sc@ c!-table  wrap+value: scvalue: ( u1 "name" -- u2 ) \ gforth-experimental
-\G @i{Name} is a varue-flavoured field; in-memory-size: char; on-stack: signed cell
+\G @i{Name} is a value-flavoured field; in-memory-size: char; on-stack: signed cell
 2         ' waligned  ' sw@ w!-table  wrap+value: swvalue: ( u1 "name" -- u2 ) \ gforth-experimental
-\G @i{Name} is a varue-flavoured field; in-memory-size: 16 bits; on-stack: signed cell
+\G @i{Name} is a value-flavoured field; in-memory-size: 16 bits; on-stack: signed cell
 4         ' laligned  ' sl@ l!-table  wrap+value: slvalue: ( u1 "name" -- u2 ) \ gforth-experimental
-\G @i{Name} is a varue-flavoured field; in-memory-size: 32 bits; on-stack: signed cell
+\G @i{Name} is a value-flavoured field; in-memory-size: 32 bits; on-stack: signed cell
 warnings ! \ yes, these are obsolete, but they are good that way
 2 cells   ' aligned   ' 2@  2!-table  wrap+value: 2value:  ( u1 "name" -- u2 ) \ gforth-experimental
-\G @i{Name} is a varue-flavoured field; in-memory-size: 2 cells;
+\G @i{Name} is a value-flavoured field; in-memory-size: 2 cells;
 \G on-stack: 2 cells; @code{+to} performs double-cell addition
 \G (@code{d+}).
 1 floats  ' faligned  ' f@  f!-table  wrap+value: fvalue:  ( u1 "name" -- u2 ) \ gforth-experimental
-\G @i{Name} is a varue-flavoured field; in-memory-size: float; on-stack: float
+\G @i{Name} is a value-flavoured field; in-memory-size: float; on-stack: float
 1 sfloats ' sfaligned ' sf@ sf!-table wrap+value: sfvalue: ( u1 "name" -- u2 ) \ gforth-experimental
-\G @i{Name} is a varue-flavoured field; in-memory-size: 32-bit float; on-stack: float
+\G @i{Name} is a value-flavoured field; in-memory-size: 32-bit float; on-stack: float
 1 dfloats ' dfaligned ' df@ df!-table wrap+value: dfvalue: ( u1 "name" -- u2 ) \ gforth-experimental
-\G @i{Name} is a varue-flavoured field; in-memory-size: 64-bit float; on-stack: float
+\G @i{Name} is a value-flavoured field; in-memory-size: 64-bit float; on-stack: float
 [IFDEF] z@
     1 complex' ' dfaligned ' z@ z!-table wrap+value: zvalue: ( u1 "name" -- u2 ) \ gforth-experimental
-    \G @i{Name} is a varue-flavoured field; in-memory-size: 2 floats;
+    \G @i{Name} is a value-flavoured field; in-memory-size: 2 floats;
     \G on-stack: 2 floats; @code{+to} performs componentwise addition.
 [THEN]
 cell      ' aligned   ' $@  $!-table       wrap+value: $value: ( u1 "name" -- u2 ) \ gforth-experimental
-\G @i{Name} is a varue-flavoured field; in-memory-size: cell;
+\G @i{Name} is a value-flavoured field; in-memory-size: cell;
 \G on-stack: c-addr u (@pxref{$tring words}); @code{( c-addr u ) +to
 \G @i{name}} appends c-addr u to the string in the field.
 cell      ' aligned   ' perform defer-table wrap+value: defer: ( u1 "name" -- u2 ) \ gforth-experimental
 \G @i{Name} is a defer-flavoured field
 cell      ' aligned   ' $[]-@ $[]-!-table wrap+value: value[]: ( u1 "name" -- u2 ) \ gforth-experimental
+\G @i{Name} is a value-flavoured array field; in-memory-size: cell; on-stack: cell
 cell      ' aligned   ' $[]@ $[]!-table  wrap+value: $value[]: ( u1 "name" -- u2 ) \ gforth-experimental
+\G @i{Name} is a value-flavoured array field; in-memory-size: cell;
+\G on-stack: c-addr u (@pxref{$tring words}); @code{( c-addr u ) +to
+\G @i{name}} appends c-addr u to the string in the array element.
 
 0 [IF] \ test
     begin-structure foo

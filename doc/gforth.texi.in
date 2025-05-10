@@ -344,7 +344,6 @@ Defining Words
 * Variables::                   Variables and user variables
 * Constants::
 * Values::                      Initialised variables
-* Varues::
 * Colon Definitions::
 * Inline Definitions::
 * Anonymous Definitions::       Definitions without names
@@ -370,7 +369,7 @@ User-defined Defining Words
 Structures
 
 * Standard Structures::
-* Varue-Flavoured and Defer-Flavoured Fields::
+* Value-Flavoured and Defer-Flavoured Fields::
 * Structure Extension::
 * Gforth structs::
 
@@ -7972,7 +7971,6 @@ Defining words are used to extend Forth by creating new entries in the dictionar
 * Variables::                   Variables and user variables
 * Constants::
 * Values::                      Initialised variables
-* Varues::
 * Colon Definitions::
 * Inline Definitions::
 * Anonymous Definitions::       Definitions without names
@@ -8125,7 +8123,7 @@ doc-fconstant
 
 
 
-@node Values, Varues, Constants, Defining Words
+@node Values, Colon Definitions, Constants, Defining Words
 @subsection Values
 @cindex values
 
@@ -8139,10 +8137,10 @@ Here are some
 examples:
 
 @example
-12 Value APPLES \ Define APPLES with an initial value of 12
-34 TO APPLES    \ Change the value of APPLES. TO is a parsing word
-1 +TO APPLES    \ Increment APPLES.  Non-standard usage.
-APPLES          \ puts 35 on the top of the stack.
+12 value apples \ Define APPLES with an initial value of 12
+34 to apples    \ Change the value of APPLES. TO is a parsing word
+1 +to apples    \ Increment APPLES.  Non-standard usage.
+apples          \ puts 35 on the top of the stack.
 @end example
 
 doc-value
@@ -8152,21 +8150,41 @@ doc-fvalue
 doc-to
 doc-+to
 
-@node Varues, Colon Definitions, Values, Defining Words
-@subsection Varues
-@cindex varues
+@cindex value-flavoured words
+@cindex variable-flavoured words
+Words that produce their value on execution and that can be changed
+with @code{to} or @code{+to} are called value-flavoured (in contrast
+to the variable-flavoured words that produce their address on
+execution).  They are defined be some of the words listed above, but
+also by some locals definitions words (@pxref{Locals definition
+words}) and some field definition words (@pxref{Value-Flavoured and
+Defer-Flavoured Fields}).
 
-Sometimes you want to take the address of a value-like word.  Because
-this has some disadvantages, Gforth asks you to be explicit about it,
-and use @code{varue} (named that way because it combines
-characteristics of a variable and a value) to declare the name.
+Sometimes you want to take the address of a value-flavoured word.
+Because this has some potential performance disadvantages, Gforth asks
+you to be explicit about it, and define the word as addressable.  Once
+you have done that, you can get the address with @code{addr}.  The
+following example is equivalent to the one above:
 
-doc-varue
-doc-2varue
-doc-fvarue
+@source
+12 addressable: value apples
+34 addr apples ! \ Change the value of APPLES.  ADDR is a parsing word
+1 +to apples     \ Increment APPLES
+addr apples @    \ puts 35 on the top of the stack.
+@end source
+
+doc-addressable:
 doc-addr
 
-@node Colon Definitions, Inline Definitions, Varues, Defining Words
+For now using @code{addr} on a non-@code{addressable:} value results
+in a warning.  In the future, when we change the code generation in a
+way that results in potentially faster code for
+non-@code{addressable:} values, but where the use of @code{addr} on
+such values could produce unexpected results, such usage will result
+in an error.
+
+
+@node Colon Definitions, Inline Definitions, Values, Defining Words
 @subsection Colon Definitions
 @cindex colon definitions
 
@@ -8901,30 +8919,41 @@ is @emph{x}        \ aka `@emph{x} defer!
 @end example
 @cindex @code{to @emph{name}} semantics, changing them
 @cindex @code{+to @emph{name}} semantics, changing them
-@cindex @code{addr @emph{name}} semantics, changing them
 @cindex @code{action-of @emph{name}} semantics, changing them
 @cindex @code{is @emph{name}} semantics, changing them
-@cindex semantics, changing the @code{to}/@code{+to}/@code{addr}/@code{action-of}/@code{is @emph{name}} semantics
+@cindex @code{addr @emph{name}} semantics, changing them
+@cindex semantics, changing the @code{to}/@code{+to}/@code{action-of}/@code{is @emph{name}}/@code{addr} semantics
 
 This is all achieved through a common mechanism described in this
 section.  As an example, let's define @code{dvalue} (it behaves in
 Gforth exactly like @code{2value}, @pxref{Values}).  First, we need a
 table of the various @code{to}-like actions:
 
-@example
+@source
 : d+! ( d addr -- )
-  dup >r 2@@ d+ r> 2! ;
+  dup >r 2@ d+ r> 2! ;
 
-\                  to +to addr action-of is
-to-table: d!-table 2! d+!  n/a    n/a    n/a 
-@end example
+\                  to +to action-of is  addr
+to-table: d!-table 2! d+!    n/a    n/a [noop] 
+@end source
 
 This defines a table @code{d!-table} with a @code{to} and a @code{+to}
-action, and no action for @code{addr}, @code{action-of} and @code{is};
-i.e., for our @emph{x} defined with @code{dvalue}, if you @code{addr
-@emph{x}}, you will get an error message.  At the end of the line you
-can leave trailing @code{n/a}s away, but here we show them for
-completeness.
+action, no action for @code{action-of} and @code{is}, and an
+@code{addr} action.  I.e., for our @emph{x} defined with
+@code{dvalue}, if you @code{is @emph{x}}, you will get an error
+message.  Note that a word using this table must still be declared
+@code{addressable:} in order to legitimately use the @code{addr}
+action.
+
+At the end of the line you can leave trailing @code{[noop]} for the
+@code{addr} entry and any trailing @code{n/a}s for the other entries away,
+but in the above we show them for completeness.  I.e., the table could
+also have been defined as
+
+@source
+\                  to +to action-of is  addr
+to-table: d!-table 2! d+!
+@end source
 
 The entries in the table are words that get an address on the
 top-of-stack.  They possibly also expect some additional data deeper
@@ -8964,16 +8993,17 @@ struct right below the xt); its overall stack effect is @code{( ... xt
 
 Now you can define
 
-@example
+@source
 : dvalue ( d "name" -- )
   create 2,
-  `2@@ set-does>
+  `2@ set-does>
   `dvalue-to set-to ;
-@end example
+@end source
 
 Here the @code{set-to} changes the created word @emph{name} to use the
-methods from @code{dvalue-to} for implementing @code{to} and
-@code{+to} (and the others, but they are defined to deliver errors).
+methods from @code{dvalue-to} for implementing @code{to}, @code{+to}
+and @code{addr} (and the others, but they are defined to deliver
+errors).
 
 Now you can define words with @code{dvalue} and use them:
 
@@ -8987,29 +9017,16 @@ The @code{+to x} first pushes the xt of @code{x}, then performs
 @code{>body} (provided in the definition of @code{dvalue-to}), and
 finally performs the @code{d+!} provided in the @code{d!-table}.
 
-You may want to define another defining word @code{dvarue} that is
-like @code{dvalue}, but also supports @code{addr} (@pxref{Varues}),
-usually using @code{[noop]} as implementation for the part of
-@code{addr} that already receives the address on the stack.  Gforth
-provides @code{>to+addr-table}; it takes a table address on the stack
-and creates a new table with the same entries, except that the
-@code{addr} entry is replaced by @code{[noop]}.  So you can now define
-@code{dvarue} as follows:
+In order to use @code{addr x}, you should have defined @code{x} with
 
-@example
-d!-table >to+addr-table d!a-table
-`>body d!a-table to-class: dvarue-to
-: dvarue ( d "name" -- )
-  create 2,
-  `2@@ set-does>
-  `dvarue-to set-to ;
-@end example
+@source
+#5. addressable: dvalue x
+@end source
 
 These are the words mentioned above:
 
 doc-to-table:
 doc-n/a
-doc->to+addr-table:
 doc-[noop]
 doc-to-class:
 doc->uvalue
@@ -9402,12 +9419,12 @@ the defining words described in this section makes the code more readable.
 
 @menu
 * Standard Structures::
-* Varue-Flavoured and Defer-Flavoured Fields::
+* Value-Flavoured and Defer-Flavoured Fields::
 * Structure Extension::
 * Gforth structs::
 @end menu
 
-@node Standard Structures, Varue-Flavoured and Defer-Flavoured Fields, Structures, Structures
+@node Standard Structures, Value-Flavoured and Defer-Flavoured Fields, Structures, Structures
 @subsection Standard Structures
 @cindex Structures in Forth200x
 
@@ -9517,21 +9534,22 @@ compile a first-field word, no code is generated. So, in the interest
 of readability and maintainability you should include the word for the
 field when accessing the field.
 
-@node Varue-Flavoured and Defer-Flavoured Fields, Structure Extension, Standard Structures, Structures
+
+@node Value-Flavoured and Defer-Flavoured Fields, Structure Extension, Standard Structures, Structures
 @subsection Value-Flavoured and Defer-Flavoured Fields
 
 In addition to the variable-flavoured fields that produce an address
-(@pxref{Standard Structures}), Gforth also provides varue-flavoured
-fields.  Like all fields, varue-flavoured fields consume the start
+(@pxref{Standard Structures}), Gforth also provides value-flavoured
+fields.  Like all fields, value-flavoured fields consume the start
 address of the struct, but they produce their value and you can apply
-@code{to}, @code{+to} and @code{addr} on them.  E.g., we can do
-something like the @code{intlist} definition (@pxref{Standard
-Structures}):
+@code{to}, @code{+to} and (if the field is @code{addressable:},
+@pxref{Values}) @code{addr} on them.  E.g., we can do something like
+the @code{intlist} definition (@pxref{Standard Structures}):
 
 @example
 0
-  value: intlist>next ( intlista -- intlista1 )
-  value: intlist>val  ( intlista -- n )
+               value: intlist>next ( intlista -- intlista1 )
+  addressable: value: intlist>val  ( intlista -- n )
 constant intlista ( -- u )
 @end example
 
@@ -9630,7 +9648,7 @@ example:
 
 @example
 0
-  defer: foo'bar
+  addressable: defer: foo'bar
 constant foo
 
 foo allocate throw constant my-foo
@@ -9650,7 +9668,7 @@ For documentation of @code{is}, @code{action-of}, @code{defer@@},
 used on defer-flavoured fields, all these words consume the start
 address of the structure, unlike for words defined with @code{defer}.
 
-@node Structure Extension, Gforth structs, Varue-Flavoured and Defer-Flavoured Fields, Structures
+@node Structure Extension, Gforth structs, Value-Flavoured and Defer-Flavoured Fields, Structures
 @subsection Structure Extension
 @cindex structure extension
 @cindex extended records
@@ -12941,7 +12959,7 @@ doubles (@code{D:}, @code{DA:}, @code{D^}), floats (@code{F:},
 @code{D:} etc.) produces its value and can be changed with @code{TO}.
 
 @item varue-flavoured
-(@pxref{Varues}) A varue-flavoured local @i{l} (defined with
+(@pxref{Values}) A varue-flavoured local @i{l} (defined with
 @code{WA:} etc.) behaves exactly like a value-flavoured local, except
 that you can use @code{addr @i{l}} to get its address (which becomes
 invalid when the variable's scope is left).  Currently there is no
