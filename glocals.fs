@@ -423,10 +423,10 @@ Defer default: ' W: is default:
 :noname ( c-addr u1 "name" -- a-addr xt ) \ gforth <local>bracket (unnamed)
     W^ drop ['] compile-pushlocal-[ ;
 
-: | ( -- ) \ gforth bar
+: | ( -- ) \ locals-ext bar
     \G Locals defined behind @code{|} are not initialized from the
-    \G stack; so the run-time of words like @code{W:} changes to
-    \G @code{( -- )}.
+    \G stack; so the run-time stack effect of the locals definitions
+    \G after @word{|} is @code{( -- )}.  
     val-part on ['] val-part-off ;
 
 \ you may want to make comments in a locals definitions group:
@@ -504,11 +504,11 @@ locals-types definitions
 synonym :} } ( hmaddr u wid 0 xt1 ... xtn -- ) \ gforth colon-close-brace
 \g Ends locals definitions.
 
-: -- ( hmaddr u wid 0 ... -- ) \ locals- gforth dash-dash
-    \G During locals definitions everything from @code{--} to
-    \G @code{:@}} is ignored.  This is typically used when you want to
-    \G make a locals definition serve double duty as a stack effect
-    \G description.
+: -- ( hmaddr u wid 0 ... -- ) \ locals- locals-ext dash-dash
+    \G During a locals definitions with @word{{:} everything from
+    \G @code{--} to @word{:}} is ignored.  This is typically used
+    \G when you want to make a locals definition serve double duty as
+    \G a stack effect description.
     }
     BEGIN '}' parse dup WHILE
         + 1- c@ dup bl = swap ':' = or UNTIL

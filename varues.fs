@@ -51,8 +51,10 @@ interpret/compile: addr ( "name" -- addr ) \ gforth
 \g @i{Name} has to be defined with any value-flavoured defining word
 \g (e.g. @code{value}) preceded by @code{addressable:}.
 
-4 to-access: >addr ( xt-varue -- addr ) \ gforth-internal  to-addr
-    \G Obtain the address @var{addr} of the varue @var{xt-varue}
+4 to-access: >addr ( ... xt -- addr ) \ gforth-internal  to-addr
+    \G Obtain the address @var{addr} of the addressible
+    \G value-flavoured word @var{xt}.  For some value-flavoured words,
+    \G additional inputs may be consumed.
 
 synonym &of addr \ for SwiftForth compatibility
 

@@ -1,0 +1,6 @@
+\ Forth-2012 syntax elements that Forth-2012 does not document as
+\ words, but Gforth does
+\ this is already in the final format, not the 2012-words format
+answord -- LOCAL-EXT brace-colon \ 13.6.2.2550
+answord | LOCAL-EXT brace-colon \ 13.6.2.2550
+answord :} LOCAL-EXT brace-colon \ 13.6.2.2550

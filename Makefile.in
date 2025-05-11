@@ -693,7 +693,8 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in  \
 	ChangeLog Benchres aclocal.m4 ltmain.sh doc/Makefile.in		     \
 	doc/gforth.texi.in $(wildcard $(srcdir)/doc/words/*-words)	     \
 	doc/words/README doc/gforth.1 doc/gforth.css doc/gforth.js	     \
-	doc/standard-words.awk doc/2012-words doc/version.texi.in	     \
+	doc/standard-words.awk doc/2012-words doc/2012-words-extra           \
+	doc/version.texi.in	                                             \
 	doc/vmgen.texi doc/fdl.texi doc/gpl.texi gforth.el $(ARCHS)	     \
 	siteinit.fs versions.bsh glosgen.glo doc/glossaries.doc $(FORTH_SRC) \
 	$(GEN_SRC) $(LIBCC_DIST_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2)	     \
@@ -1663,11 +1664,13 @@ start-gforth.el:	gforth.el
 
 #Documentation
 
-standard-words.fs: doc/2012-words
+standard-words.fs: doc/2012-words doc/2012-words-extra
 		@echo STANDARD-WORDS
-		echo "\\ generated automatically from "$<", which is cut and pasted from" >$@
+		echo "\\ generated automatically from doc/2012-words, which is cut and pasted from" >$@
 		echo "\\ https://forth-standard.org/standard/alpha" >>$@
+		echo "plus doc/2012-words-extra" >>$@
 		awk -f $(srcdir)/doc/standard-words.awk $< >>$@
+		cat doc/2012-words-extra >>$@
 
 doc/doc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_GEN_SRC)
 		@echo DOC.FD

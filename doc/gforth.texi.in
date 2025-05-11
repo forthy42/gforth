@@ -12876,14 +12876,9 @@ doc-argv
 @cindex locals
 
 Local variables can make Forth programming more enjoyable and Forth
-programs easier to read. Unfortunately, the locals of Standard Forth are
-laden with restrictions. Therefore, we provide not only the Standard Forth
-locals wordset, but also our own, more powerful locals wordset (we
-implemented the Standard Forth locals wordset through our locals wordset).
+programs easier to read.
 
-The ideas in this section have also been published in M. Anton Ertl,
-@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl94l.ps.gz,
-Automatic Scoping of Local Variables}}, EuroForth '94.
+Gforth implements an extended version of the standard Forth locals.
 
 @menu
 * Gforth locals::
@@ -12924,12 +12919,6 @@ locals definition often replaces the stack comment of a word. The order
 of the locals corresponds to the order in a stack comment and everything
 after the @code{--} is really a comment.
 
-This similarity has one disadvantage: It is too easy to confuse locals
-declarations with stack comments, causing bugs and making them hard to
-find. However, this problem can be avoided by appropriate coding
-conventions: Do not use both notations in the same program. If you do,
-they should be distinguished using additional means, e.g. by position.
-
 @cindex types of locals
 @cindex locals types
 The name of the local may be preceded by a type specifier, e.g.,
@@ -12945,46 +12934,40 @@ The name of the local may be preceded by a type specifier, e.g.,
 @cindex flavours of locals
 @cindex locals flavours
 @cindex value-flavoured locals
-@cindex varue-flavoured locals
 @cindex variable-flavoured locals
-Gforth currently supports cells (@code{W:}, @code{WA:}, @code{W^}),
-doubles (@code{D:}, @code{DA:}, @code{D^}), floats (@code{F:},
-@code{FA:}, @code{F^}), characters (@code{C:}, @code{CA:},
-@code{C^}), and xts (@code{xt:}, @code{xta:}) in several flavours:
+Gforth currently supports cells (@code{W:}, @code{W^}), doubles
+(@code{D:}, @code{D^}), floats (@code{F:}, @code{F^}), characters
+(@code{C:}, @code{C^}), and xts (@code{xt:})
+in several flavours:
 
 @table @dfn
 
 @item value-flavoured
 (@pxref{Values}) A value-flavoured local (defined with @code{W:},
-@code{D:} etc.) produces its value and can be changed with @code{TO}.
-
-@item varue-flavoured
-(@pxref{Values}) A varue-flavoured local @i{l} (defined with
-@code{WA:} etc.) behaves exactly like a value-flavoured local, except
-that you can use @code{addr @i{l}} to get its address (which becomes
-invalid when the variable's scope is left).  Currently there is no
-performance difference, but in the long run value-flavoured locals
-will be significantly faster, because they can reside in registers.
+@code{D:} etc.) produces its value and can be changed with @code{TO}
+and @code{+TO}.  Also, if you put @word{addressable:} in front of the
+locals definition, you can get its address with @code{ADDR}
+(@pxref{How long do locals live?}).
 
 @item variable-flavoured
 (@pxref{Variables}) A variable-flavoured local (defined with @code{W^}
-etc.)  produces its address (which becomes invalid when the variable's
-scope is left).  E.g., the standard word @code{emit} can be defined in
-terms of @code{type} like this:
+etc.)  produces its address (@pxref{How long do locals live?}).  E.g.,
+the standard word @code{emit} can be defined in terms of @code{type}
+like this:
 
-@example
-: emit @{: C^ char* -- :@}
+@source
+: emit {: C^ char* -- :}
     char* 1 type ;
-@end example
+@end source
 
 @item defer-flavoured
 (@pxref{Deferred Words}) A defer-flavoured local (defined with
-@code{XT:} or @code{XTA:}) @code{execute}s the xt; you can use
-@code{action-of} (@pxref{Deferred Words}) to get the xt out of a
-defer-flavoured local.  If the local is defined with @code{xta:}, you
-can use @code{addr} to get the address (valid until the end of the
-scope of the local) where the xt is stored.  E.g., the standard word
-@code{execute} can be defined with a defer-flavoured local like this:
+@code{XT:}) @code{execute}s the xt; you can use @code{action-of}
+(@pxref{Deferred Words}) to get the xt out of a defer-flavoured local.
+If the local is defined with @code{addressable: xt:}, you can use
+@code{addr} to get the address where the xt is stored (@pxref{How long
+do locals live?}).  E.g., the standard word @code{execute} can be
+defined with a defer-flavoured local like this:
 
 @example
 : execute @{: xt: x -- :@}
@@ -12995,11 +12978,8 @@ scope of the local) where the xt is stored.  E.g., the standard word
 
 @cindex default type of locals
 @cindex locals, default type
-A local without type specifier is a @code{W:} local.  You can allow or
-disallow the use of @code{addr} with:
-
-doc-default-wa:
-doc-default-w:
+A local without type specifier is a @code{W:} local.  You can also
+leave away the @word{w:} if you use @word{addressable:}.
 
 @cindex locals initialization
 @cindex initialization of locals
@@ -13061,26 +13041,21 @@ doc-:}
 doc-{
 doc-}
 doc-w:
-doc-wa:
 doc-w^
 doc-d:
-doc-da:
 doc-d^
 doc-c:
-doc-ca:
 doc-c^
 doc-f:
-doc-fa:
 doc-f^
 doc-z:
-doc-za:
 doc-xt:
-doc-xta:
 
-Note that @code{|}, @code{--}, @code{:@}} and @code{@}} are not
-normally in the search order (they are in the vocabulary
-@code{locals-types}), and they are not necessarily words in all Forth
-systems; therefore they are documented as Gforth words.
+Note that @code{|}, @code{--} and @word{:}} are not normally in the
+search order (they are in the vocabulary @code{locals-types}), and on
+some Forth systems they may not even be words (and the standard
+documents them under @word{{:}, not as separate word).  @word{}} is
+also in @code{locals-types}.
 
 @node Where are locals visible by name?, How long do locals live?, Locals definition words, Gforth locals
 @subsubsection Where are locals visible by name?
@@ -13127,14 +13102,14 @@ options, read on.
 
 In order to implement this rule, the compiler has to know which places
 are unreachable. It knows this automatically after @code{AHEAD},
-@code{AGAIN}, @code{EXIT} and @code{LEAVE}; in other cases (e.g., after
-most @code{THROW}s), you can use the word @code{UNREACHABLE} to tell the
-compiler that the control flow never reaches that place. If
+@code{AGAIN}, @code{EXIT} and @code{LEAVE}; in other cases (e.g.,
+after most @code{THROW}s), you can use the word @code{UNREACHABLE} to
+tell the compiler that the control flow never reaches that place. If
 @code{UNREACHABLE} is not used where it could, the only consequence is
 that the visibility of some locals is more limited than the rule above
 says. If @code{UNREACHABLE} is used where it should not (i.e., if you
-lie to the compiler), buggy code will be produced.
-
+lie to the compiler), you can produce code whose behaviour is best
+determined by looking at the implementation (which may change).
 
 doc-unreachable
 
@@ -13268,10 +13243,10 @@ handled by inserting an appropriate @code{CS-ROLL} before the
 @code{ASSUME-LIVE} (and changing the control-flow stack manipulation
 behind the @code{ASSUME-LIVE}).
 
-Cases where locals are defined after the @code{BEGIN} (but should be
-visible immediately after the @code{BEGIN}) can only be handled by
-rearranging the loop. E.g., the ``most insidious'' example above can be
-arranged into:
+Cases where locals are defined in a @code{BEGIN} loop and should be
+visible in that loop before the definition can only be handled by
+rearranging the loop. E.g., the ``most insidious'' example above can
+be arranged into:
 @example
 BEGIN
   @{: x :@}
@@ -13281,18 +13256,24 @@ WHILE
 REPEAT
 @end example
 
+The ideas in this section have also been published in M. Anton Ertl,
+@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl94l.ps.gz,
+Automatic Scoping of Local Variables}}, EuroForth '94.
+
+
 @node How long do locals live?, Locals programming style, Where are locals visible by name?, Gforth locals
 @subsubsection How long do locals live?
 @cindex locals lifetime
 @cindex lifetime of locals
 
 The right answer for the lifetime question would be: A local lives at
-least as long as it can be accessed. For a value-flavoured local this
-means: until the end of its visibility. However, a variable-flavoured
-local could be accessed through its address far beyond its visibility
+least as long as it can be accessed. For a regular value-flavoured
+local this means: until the end of its visibility. However, an
+addressable value-flavoured or variable-flavoured local could be
+accessed through its address far beyond its visibility
 scope. Ultimately, this would mean that such locals would have to be
 garbage collected. Since this entails un-Forth-like implementation
-complexities, I adopted the same cowardly solution as some other
+complexities, we adopted the same cowardly solution as some other
 languages (e.g., C): The local lives only as long as it is visible;
 afterwards its address is invalid (and programs that access it
 afterwards are erroneous).
@@ -13385,6 +13366,8 @@ the output of @code{see}, so they are documented here:
 
 doc-@localn
 doc-f@localn
+doc-!localn
+doc-lp+n
 doc-lp+!
 doc-lp!
 doc->l
@@ -13395,14 +13378,7 @@ See also @code{lp@@} (@pxref{Stack pointer manipulation}).
 In addition to these primitives, some specializations of these
 primitives for commonly occurring inline arguments are provided for
 efficiency reasons, e.g., @code{@@local0} as specialization of @code{0
-@@localn}. The following compiling words compile the right specialized
-version, or the general version, as appropriate:
-
-
-@c doc-compile-@local
-@c doc-compile-f@local
-doc-compile-lp+!
-
+@@localn}.
 
 Combinations of conditional branches and @code{lp+!#} like
 @code{?branch-lp+!#} (the locals pointer is only changed if the branch
@@ -13417,12 +13393,14 @@ special area is cleared at the start of every colon definition.
 @cindex word list for defining locals
 A special feature of Gforth's dictionary is used to implement the
 definition of locals without type specifiers: every word list (aka
-vocabulary) has its own methods for searching
-etc. (@pxref{Word Lists}). For the present purpose we defined a word list
-with a special search method: When it is searched for a word, it
-actually creates that word using @code{W:}. @code{@{:} changes the search
-order to first search the word list containing @code{:@}}, @code{W:} etc.,
-and then the word list for defining locals without type specifiers.
+vocabulary) has its own methods for searching etc. (@pxref{Word
+Lists}). For the present purpose we defined a word list with a special
+search method: When it is searched for a word, it actually creates
+that word using @code{W:}. @code{@{:} changes the search order to
+first search the word list containing @code{:@}}, @code{W:} etc., and
+then the word list for defining locals without type specifiers.  This
+implementation was designed before Gforth acquired recognizers; for a
+reimplementation we would use recognizers.
 
 The lifetime rules support a stack discipline within a colon
 definition: The lifetime of a local is either nested with other locals
@@ -13435,7 +13413,7 @@ is the simplest of the other three control flow words. It has to
 restore the locals stack depth of the corresponding @code{BEGIN}
 before branching. The code looks like this:
 @format
-@code{lp+!#} current-locals-size @minus{} dest-locals-size
+current-locals-size dest-locals-size - @code{lp+!}
 @code{branch} <begin>
 @end format
 
@@ -13450,16 +13428,21 @@ The locals stack pointer is only adjusted if the branch is taken.
 
 @code{THEN} can produce somewhat inefficient code:
 @format
-@code{lp+!#} current-locals-size @minus{} orig-locals-size
+current-locals-size dest-locals-size - @code{lp+!}
 <orig target>:
-@code{lp+!#} orig-locals-size @minus{} new-locals-size
+orig-locals-size new-locals-size - @code{lp+!}
 @end format
 The second @code{lp+!#} adjusts the locals stack pointer from the
 level at the @i{orig} point to the level after the @code{THEN}. The
 first @code{lp+!#} adjusts the locals stack pointer from the current
 level to the level at the orig point, so the complete effect is an
 adjustment from the current level to the right level after the
-@code{THEN}.
+@code{THEN}.  This effect happens e.g., if there is an @word{ELSE} and
+the code before the @word{ELSE} defines locals, and they have a
+different size than those after the @word{ELSE}.  In general we
+recommend not to work around this shortcoming (except in
+performance-critical code).  We intend to eliminate this shortcoming
+at some point.
 
 @cindex locals information on the control-flow stack
 @cindex control-flow stack items, locals information
@@ -13521,7 +13504,7 @@ Locals can only be cell-sized values (no type specifiers are allowed).
 @item
 Locals can be defined only outside control structures.
 @item
-Only one locals definition per definition is allowed.
+Only one locals definition is allowed per colon definition.
 @item
 Locals can interfere with explicit usage of the return stack. For the
 exact (and long) rules, see the standard. If you don't use return stack
@@ -13539,13 +13522,12 @@ doc-(local)
 
 The Forth-2012 locals extension wordset also defines a syntax using
 @code{locals|}, but it is so awful that we strongly recommend not to
-use it. We have implemented this syntax to make porting to Gforth
-easy, but do not document it here. The problem with this syntax is
-that the locals are defined in an order reversed with respect to the
-standard stack comment notation, making programs harder to read, and
-easier to misread and miswrite. The only merit of this syntax is that
-it is easy to implement using the Forth-2012 locals wordset, but then,
-so is the @code{@{:} syntax.
+use it and another, better syntax (the one using @word{{:} was
+standardized). We have implemented this syntax to make porting to
+Gforth easy, but do not document it here. The problem with this syntax
+is that the locals are defined in an order reversed with respect to
+the standard stack comment notation, making programs harder to read,
+and easier to misread and miswrite.
 
 @c -------------------------------------------------------------
 @node Object-oriented Forth, Closures, Locals, Words
