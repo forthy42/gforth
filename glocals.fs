@@ -27,7 +27,7 @@
 \ restricted and have an ugly interface.
 
 \ So, we implement the locals wordset, but do not recommend using
-\ locals-ext (which is a really bad user interface for locals).
+\ local-ext (which is a really bad user interface for locals).
 
 \ We also have a nice and powerful user-interface for locals: locals are
 \ defined with
@@ -423,7 +423,7 @@ Defer default: ' W: is default:
 :noname ( c-addr u1 "name" -- a-addr xt ) \ gforth <local>bracket (unnamed)
     W^ drop ['] compile-pushlocal-[ ;
 
-: | ( -- ) \ locals-ext bar
+: | ( -- ) \ local-ext bar
     \G Locals defined behind @code{|} are not initialized from the
     \G stack; so the run-time stack effect of the locals definitions
     \G after @word{|} is @code{( -- )}.  
@@ -504,7 +504,7 @@ locals-types definitions
 synonym :} } ( hmaddr u wid 0 xt1 ... xtn -- ) \ gforth colon-close-brace
 \g Ends locals definitions.
 
-: -- ( hmaddr u wid 0 ... -- ) \ locals- locals-ext dash-dash
+: -- ( hmaddr u wid 0 ... -- ) \ locals- local-ext dash-dash
     \G During a locals definitions with @word{{:} everything from
     \G @code{--} to @word{:}} is ignored.  This is typically used
     \G when you want to make a locals definition serve double duty as

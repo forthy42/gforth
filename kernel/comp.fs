@@ -776,8 +776,9 @@ Create hmtemplate
 
 ' int-to ' comp-to interpret/compile: TO ( value "name" -- ) \ core-ext
 \g Changes the value of @var{name} to be equal to @i{value}.  The type
-\g of @i{value} depends on the type of @i{name}.  An alternative
-\g syntax is to write @code{->@i{name}}.
+\g of @i{value} depends on the type of @i{name} (see the defining word
+\g for @i{name} for the exact stack effect).  An alternative syntax is
+\g to write @code{->@i{name}}.
 
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
@@ -796,9 +797,11 @@ Create hmtemplate
 
 ' <+TO> ' [+TO] interpret/compile: +TO ( value "name" -- ) \ gforth
 \g Adds @i{value} to the value of @var{name}.  The type of @i{value}
-\g depends on the type of @i{name}.  An alternative syntax is to write
+\g depends on the type of @i{name} (see the defining word for @i{name}
+\g for the exact stack effect).  An alternative syntax is to write
 \g @code{+>@i{name}}.
-\ \ : ;                                                  	24feb93py
+
+\ \ : ; 24feb93py
 
 defer :-hook ( sys1 -- sys2 )
 defer ;-hook ( sys2 -- sys1 )
