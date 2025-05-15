@@ -701,11 +701,12 @@ create dummy-2value
 ' 2value-to set-to
 
 : 2Value ( w1 w2 "name" -- ) \ double-ext two-value
-    \g Define @i{name} with the initial values @i{w1 w2}; these values
-    \g can be changed with @code{to @i{name}} or @code{->@i{name}}
-    \g @i{( w3 w4 -- )}, or with @code{+to @i{name}} or
-    \g @code{+>@i{name}} @i{( d -- )}.@* @i{name} execution: @i{( --
-    \g w5 w6 )}
+    \g Define @i{name} with the initial value @i{w} @*
+    \g @i{name} execution: @i{( -- w3 w4 )} push the current value of @i{name}.@*
+    \g @code{to @i{name}} run-time: @i{( w5 w6 -- )} change the value of
+    \g @i{name} to @i{w5 w6}.@*
+    \g @code{+to @i{name}} run-time: @i{( d|ud -- )} increment the value of
+    \g @i{name} by @i{d|ud}
     ['] dummy-2value create-from reveal 2, ;
 
 s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict

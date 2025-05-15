@@ -533,10 +533,12 @@ $BF000000. 1 cells 8 = [IF] #32 dlshift [THEN] dValue synonym-mask \ do not copy
     (Constant) A, ;
 
 : Value ( w "name" -- ) \ core-ext
-    \g Define @i{name} with the initial value @i{w}; this value can be
-    \g changed with @code{to @i{name}} or @code{->@i{name}} @i{( w2 --
-    \g )} or with @code{+to @i{name}} or @code{+>@i{name}} @i{( n|u --
-    \g )}.@* @i{name} execution: @i{( -- w3 )}
+    \g Define @i{name} with the initial value @i{w} @*
+    \g @i{name} execution: @i{( -- w2 )} push the current value of @i{name}.@*
+    \g @code{to @i{name}} run-time: @i{( w3 -- )} change the value of
+    \g @i{name} to @i{w3}.@*
+    \g @code{+to @i{name}} run-time: @i{( n|u -- )} increment the value of
+    \g @i{name} by @i{n|u}
     (Value) , ;
 
 : AValue ( w "name" -- ) \ gforth
@@ -555,9 +557,10 @@ defer defer-default ( -- )
 \ default action for deferred words (overridden by a warning later)
 
 : Defer ( "name" -- ) \ core-ext
-\G Define a deferred word @i{name}; its execution semantics can be
-\G set with @code{defer!} or @code{is} (and they have to, before first
-\G executing @i{name}.
+\G Define a deferred word @i{name}; you have to set it to an xt before
+\G executing it.@* @i{name} execution: execute the most recent xt that
+\G @i{name} has been set to.@* @code{IS @i{name}} run-time: @i{( xt
+\G -- )} Set @i{name} to execute @i{xt}.
     ['] parse-name create-from reveal
     ['] defer-default A, ;
 

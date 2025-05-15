@@ -97,10 +97,12 @@ create dummy-fvalue
 ' fvalue-to set-to
 
 : fvalue ( r "name" -- ) \ floating-ext f-value
-    \g Define @i{name} with the initial value @i{r}; this value can be
-    \g changed with @code{to @i{name}}, @code{->@i{name}}, @code{+to
-    \g @i{name}} or @code{+>@i{name}} @i{( r2 -- )}.@* @i{name}
-    \g execution: @i{( -- r3 )}
+    \g Define @i{name} with the initial value @i{r} @*
+    \g @i{name} execution: @i{( -- r2 )} push the current value of @i{name}.@*
+    \g @code{to @i{name}} run-time: @i{( r3 -- )} change the value of
+    \g @i{name} to @i{r3}.@*
+    \g @code{+to @i{name}} run-time: @i{( r4 -- )} increment the value of
+    \g @i{name} by @i{r4}
     ['] dummy-fvalue create-from reveal f, ;
 
 : fdepth ( -- +n ) \ floating f-depth
