@@ -8139,8 +8139,10 @@ examples:
 @example
 12 value apples \ Define APPLES with an initial value of 12
 34 to apples    \ Change the value of APPLES. TO is a parsing word
-1 +to apples    \ Increment APPLES.  Non-standard usage.
-apples          \ puts 35 on the top of the stack.
+34 ->apples     \ Change the value of APPLES. Non-standard usage
+1  +to apples   \ Increment APPLES.  Non-standard usage.
+1  +>apples     \ Increment APPLES.  Non-standard usage.
+apples          \ puts 36 on the top of the stack.
 @end example
 
 doc-value
@@ -8418,81 +8420,53 @@ are particularly flexible, whereas the children of, e.g.,
 @node User-defined defining words with colon definitions, User-defined defining words using CREATE, User-defined Defining Words, User-defined Defining Words
 @subsubsection User-defined defining words with colon definitions
 
-You can create a new defining word by wrapping defining-time code around
-an existing defining word and putting the sequence in a colon
-definition. 
+Colon definitions are very flexible, so you can write a defining word
+that defines a new colon definition at its run-time.  Here is an
+example:
 
-@c anton: This example is very complex and leads in a quite different
-@c direction from the CREATE-DOES> stuff that follows.  It should probably
-@c be done elsewhere, or as a subsubsection of this subsection (or as a
-@c subsection of Defining Words)
+@source
+: myconstant {: w -- :}
+  : w postpone literal postpone ; ;
+@end source
 
-For example, suppose that you have a word @code{stats} that
-gathers statistics about colon definitions given the @i{xt} of the
-definition, and you want every colon definition in your application to
-make a call to @code{stats}. You can define and use a new version of
-@code{:} like this:
+When defining @code{5 myconstant five}, @word{myconstant} first
+stashes @i{w} in a local (for reasons explained later), then calls
+@word{:}, which starts the definition of @word{five}.  Then it uses
+@code{postpone literal} (@pxref{Compiling words}) to compile @i{w}
+(i.e., 5) into this colon definition, and then @code{postpone ;} to
+end it.  You can look at the result with @code{see five}:
 
-@example
-: stats
-  ( xt -- ) DUP ." (Gathering statistics for " . ." )"
-  ... ;  \ other code
+@source
+: five  #5 ;
+@end source
 
-: my: : latestxt postpone literal ['] stats compile, ;
+Can't we just leave @i{w} on the data stack for consumption by
+@code{postpone literal}?  No: @word{:} pushes a colon-sys on the data
+stack, so we have to first move @i{w} elsewhere so we can later access
+it.  In this example, we used a local variable, but moving @i{w} on
+the return stack and back would also have been an option.
 
-my: foo + - ;
-@end example
+A more convenient, but Gforth-specific way to write @word{myconstant}
+is:
 
-When @code{foo} is defined using @code{my:} these steps occur:
+@source
+: myconstant {: w -- :}
+  : ]] w ; [[ ;
+@end source
 
-@itemize @bullet
-@item
-@code{my:} is executed.
-@item
-The @code{:} within the definition (the one between @code{my:} and
-@code{latestxt}) is executed, and does just what it always does; it parses
-the input stream for a name, builds a dictionary header for the name
-@code{foo} and switches @code{state} from interpret to compile.
-@item
-The word @code{latestxt} is executed. It puts the @i{xt} for the word that is
-being defined -- @code{foo} -- onto the stack.
-@item
-The code that was produced by @code{postpone literal} is executed; this
-causes the value on the stack to be compiled as a literal in the code
-area of @code{foo}.
-@item
-The code @code{['] stats} compiles a literal into the definition of
-@code{my:}. When @code{compile,} is executed, that literal -- the
-execution token for @code{stats} -- is layed down in the code area of
-@code{foo} , following the literal@footnote{Strictly speaking, the
-mechanism that @code{compile,} uses to convert an @i{xt} into something
-in the code area is implementation-dependent. A threaded implementation
-might spit out the execution token directly whilst another
-implementation might spit out a native code sequence.}.
-@item
-At this point, the execution of @code{my:} is complete, and control
-returns to the text interpreter. The text interpreter is in compile
-state, so subsequent text @code{+ -} is compiled into the definition of
-@code{foo} and the @code{;} terminates the definition as always.
-@end itemize
+The features used in this code are explained elsewhere
+(@pxref{Macros}).
 
-You can use @code{see} to decompile a word that was defined using
-@code{my:} and see how it is different from a normal @code{:}
-definition. For example:
+A disadvantage of this approach is that it consumes more memory than
+the approach of the next section: E.g, here are the memory costs of
+defining @code{five} with the two implementations:
 
 @example
-: bar + - ;  \ like foo but using : rather than my:
-see bar
-: bar
-  + - ;
-see foo
-: foo
-  `foo stats + - ;
+builtin  colon def   create does>
+constant myconstant1 myconstant2
+   48         64         48       bytes threaded code
+              23          0       bytes native code on gforth-fast AMD64
 @end example
-
-@code{`foo} is another way of writing @code{['] foo}.
-
-
 
 @node User-defined defining words using CREATE, CREATE..DOES> applications, User-defined defining words with colon definitions, User-defined Defining Words
 @subsubsection User-defined defining words using create
@@ -8577,23 +8551,23 @@ approach is that you can put other code behind it and you can use it
 inside control structures without needing workarounds.  A disadvantage
 is that it is Gforth-specific.
 
-A classic example is that you can define @code{CONSTANT} in this way:
+A classic example is that you can define @code{myconstant2} in this way:
 
-@example
-: CONSTANT ( w "name" -- )
-    CREATE ,
-DOES> ( -- w )
-    @@ ;
-@end example
+@source
+: myconstant2 ( w "name" -- )
+    create ,
+does> ( -- w )
+    @ ;
+@end source
 
 @noindent
-or equivalently
+or slightly more efficiently
 
-@example
-: CONSTANT ( w "name" -- ; name execution: -- w )
+@source
+: myconstant2 ( w "name" -- ; name execution: -- w )
     create ,
-    ['] @@ set-does> ;
-@end example
+    ['] @ set-does> ;
+@end source
 
 @comment There is a beautiful description of how this works and what
 @comment it does in the Forthwrite 100th edition.. as well as an elegant
@@ -10435,8 +10409,14 @@ other features:
 
 @item
 It uses a defer-flavoured (defined with @code{xt:} local @code{xt};
-mentioning the local inside @code{]]}...@code{[[} results in
-@code{compile,}ing the xt in the local.
+mentioning such a local inside @code{]]}...@code{[[} results in
+@code{compile,}ing the xt in the local
+
+@item
+Not used in the example, but related to the previous point: For a
+value-flavoured local, using it inside @code{]]}...@code{[[} compiles
+the value of the local, i.e., @code{]] l [[} is equivalent to @code{l
+]] literal [[}.
 
 @item
 It uses the literal @code{1} inside @code{]]}...@code{[[}.  This

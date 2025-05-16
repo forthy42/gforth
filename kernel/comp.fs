@@ -533,10 +533,12 @@ $BF000000. 1 cells 8 = [IF] #32 dlshift [THEN] dValue synonym-mask \ do not copy
     (Constant) A, ;
 
 : Value ( w "name" -- ) \ core-ext
-    \g Define @i{name} with the initial value @i{w}; this value can be
-    \g changed with @code{to @i{name}} or @code{->@i{name}} @i{( w2 --
-    \g )} or with @code{+to @i{name}} or @code{+>@i{name}} @i{( n|u --
-    \g )}.@* @i{name} execution: @i{( -- w3 )}
+    \g Define @i{name} with the initial value @i{w} @*
+    \g @i{name} execution: @i{( -- w2 )} push the current value of @i{name}.@*
+    \g @code{to @i{name}} run-time: @i{( w3 -- )} change the value of
+    \g @i{name} to @i{w3}.@*
+    \g @code{+to @i{name}} run-time: @i{( n|u -- )} increment the value of
+    \g @i{name} by @i{n|u}
     (Value) , ;
 
 : AValue ( w "name" -- ) \ gforth
@@ -555,9 +557,10 @@ defer defer-default ( -- )
 \ default action for deferred words (overridden by a warning later)
 
 : Defer ( "name" -- ) \ core-ext
-\G Define a deferred word @i{name}; its execution semantics can be
-\G set with @code{defer!} or @code{is} (and they have to, before first
-\G executing @i{name}.
+\G Define a deferred word @i{name}; you have to set it to an xt before
+\G executing it.@* @i{name} execution: execute the most recent xt that
+\G @i{name} has been set to.@* @code{IS @i{name}} run-time: @i{( xt
+\G -- )} Set @i{name} to execute @i{xt}.
     ['] parse-name create-from reveal
     ['] defer-default A, ;
 
@@ -773,8 +776,9 @@ Create hmtemplate
 
 ' int-to ' comp-to interpret/compile: TO ( value "name" -- ) \ core-ext
 \g Changes the value of @var{name} to be equal to @i{value}.  The type
-\g of @i{value} depends on the type of @i{name}.  An alternative
-\g syntax is to write @code{->@i{name}}.
+\g of @i{value} depends on the type of @i{name} (see the defining word
+\g for @i{name} for the exact stack effect).  An alternative syntax is
+\g to write @code{->@i{name}}.
 
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
@@ -793,9 +797,11 @@ Create hmtemplate
 
 ' <+TO> ' [+TO] interpret/compile: +TO ( value "name" -- ) \ gforth
 \g Adds @i{value} to the value of @var{name}.  The type of @i{value}
-\g depends on the type of @i{name}.  An alternative syntax is to write
+\g depends on the type of @i{name} (see the defining word for @i{name}
+\g for the exact stack effect).  An alternative syntax is to write
 \g @code{+>@i{name}}.
-\ \ : ;                                                  	24feb93py
+
+\ \ : ; 24feb93py
 
 defer :-hook ( sys1 -- sys2 )
 defer ;-hook ( sys2 -- sys1 )
