@@ -360,7 +360,7 @@ Defer android-commit
 Defer android-setstring
 :is android-setstring  ( string -- ) jstring>sstring setstring$ $! jfree
     ctrl L inskey ;
-android-inskey ' inskey is android-inskey
+Defer android-inskey ' inskey is android-inskey
 : android-unicode    ( uchar -- )   >xstring inskeys ;
 : android-keycode    ( keycode -- ) keycode>keys ;
 
