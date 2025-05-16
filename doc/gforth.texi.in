@@ -8459,14 +8459,33 @@ The features used in this code are explained elsewhere
 
 A disadvantage of this approach is that it consumes more memory than
 the approach of the next section: E.g, here are the memory costs of
-defining @code{five} with the two implementations:
+defining @code{five} with the various implementations:
 
 @example
-builtin  colon def   create does>
-constant myconstant1 myconstant2
-   48         64         48       bytes threaded code
-              23          0       bytes native code on gforth-fast AMD64
+builtin  : does> set-does>
+   48   64   48     48     bytes header+threaded code
+    0   23    0      0     bytes native code
+   16   16   32     16     compiled threaded code
+    4   23   34      7     compiled native code
 @end example
+
+@i{Builtin} refers to using @word{constant}, @i{:} to using
+@code{myconstant}, @i{does>} to using @word{myconstant2}, and
+@i{set-does>} to using @word{myconstant3}.
+
+The lines where the label starts with ``bytes'' report the space
+consumption of defining the word @code{five} itself; the native code
+is for gforth-fast on AMD64 (native code for the gforth engine is
+larger).
+
+The lines where the label starts with ``compiled'' report the space
+consumption (also in bytes) for the invocation of @code{five} in the
+word @code{: foo five * ;}.  The native code can be bigger or smaller
+in other contexts.  However, with a little more effort you can make
+the compiled code for any self-defined constant variant as small (and
+fast) as that of the builtin @word{constant} (@pxref{User-defined
+compile-comma}).
+
 
 @node User-defined defining words using CREATE, CREATE..DOES> applications, User-defined defining words with colon definitions, User-defined Defining Words
 @subsubsection User-defined defining words using create
@@ -8488,41 +8507,18 @@ def-word name
 @cindex child words
 This fragment defines a @dfn{defining word} @code{def-word} and then
 executes it.  When @code{def-word} executes, it @code{CREATE}s a new
-word @code{name}, and executes the code @i{code1}. The code @i{code2}
-is not executed at this time. The word @code{name} is sometimes called a
+word @i{name}, and executes the code @i{code1}. The code @i{code2}
+is not executed at this time. The word @i{name} is sometimes called a
 @dfn{child} of @code{def-word}.
 
-When you execute @code{name}, the address of the body of @code{name} is
-put on the data stack and @i{code2} is executed (the address of the body
-of @code{name} is the address @code{HERE} returns immediately after the
-@code{CREATE}, i.e., the address a @code{create}d word returns by
-default).
+When you execute @i{name}, the address of the body of @i{name} is
+pushed on the data stack and @i{code2} is executed.  The address of
+the body of @i{name} is the address @code{HERE} returns immediately
+after the @code{CREATE}, i.e., the address a @code{create}d word
+returns by default).
 
-You can use @code{def-word} to define a set of child words that behave
-similarly; they all have a common run-time behaviour determined by
-@i{code2}. Typically, the @i{code1} sequence builds a data area in the
-body of the child word. The structure of the data is common to all
-children of @code{def-word}, but the data values are specific -- and
-private -- to each child word. When a child word is executed, the
-address of its private data area is passed as a parameter on TOS to be
-used and manipulated@footnote{It is legitimate both to read and write to
-this data area.} by @i{code2}.
-
-The two fragments of code that make up the defining words act (are
-executed) at two completely separate times:
-
-@itemize @bullet
-@item
-At @i{define time}, the defining word executes @i{code1} to generate a
-child word
-@item
-At @i{child execution time}, when a child word is invoked, @i{code2}
-is executed, using parameters (data) that are private and specific to
-the child word.
-@end itemize
-
-Another way of understanding the behaviour of @code{def-word} and
-@code{name} is to say that, if you make the following definitions:
+You can understand the behaviour of @code{def-word} and
+@code{name} by considering the following definitions:
 @example
 : def-word1 ( "name" -- )
     CREATE @i{code1} ;
@@ -8534,24 +8530,17 @@ def-word1 name1
 @end example
 
 @noindent
-Then using @code{name1 action1} is equivalent to using @code{name}.
+Using @code{name1 action1} is equivalent to using @code{name}.
 
-@cindex @code{CREATE} ... @code{SET-DOES>}
-Another way of writing @code{def-word} is (@pxref{Quotations}):
+You can use @code{def-word} to define a set of child words that behave
+similarly; they all have a common run-time behaviour determined by
+@i{code2}. Typically, the @i{code1} sequence builds a data area in the
+body of the child word. The structure of the data is common to all
+children of @code{def-word}, but the data values are specific -- and
+private -- to each child word.
 
-@example
-: def-word ( "name" -- ; name execution: ... -- ... )
-    create @i{code1}
-    [: @i{code2} ;] set-does> ;
-@end example
-
-Gforth actually compiles the code using @code{does>} into code
-equivalent to the latter code.  An advantage of the @code{set-does>}
-approach is that you can put other code behind it and you can use it
-inside control structures without needing workarounds.  A disadvantage
-is that it is Gforth-specific.
-
-A classic example is that you can define @code{myconstant2} in this way:
+As an example, here's how you can define @code{myconstant2} with
+@word{does>}:
 
 @source
 : myconstant2 ( w "name" -- )
@@ -8560,63 +8549,82 @@ does> ( -- w )
     @ ;
 @end source
 
-@noindent
-or slightly more efficiently
+Here @word{create} defines a word @i{name}, then @word{,} stores @i{w}
+in @i{name}'s data area, then the @word{does>} changes @i{name}'s
+behaviour and returns to the caller of @word{myconstant2}: When
+@i{name} is invoked, the new behaviour first pushes the address of the
+data area (as before), but then also performs the code after the
+@word{does>}.  In the present case, this code fetches the value of the
+constant from the data area.
+
+@cindex stack effect of @code{DOES>}-parts
+@cindex @code{DOES>}-parts, stack effect
+The stack effect besides the @word{does} reflects the stack effect of
+@i{name} execution, not the stack effect of the code after the
+@code{does>} (this is not common practice yet but we still recommend
+it).
+
+@cindex @code{CREATE} ... @code{SET-DOES>}
+@code{Does>} splits the definition into two subdefinitions and has a
+number of disadvantages.  Alternatively, Gforth allows you to provide
+the second part as an execution token by using @code{set-does>}.  So
+the general scheme is:
+
+@example
+: def-word ( "name" -- ; name execution: ... -- ... )
+    create @i{code1}
+    @i{xt-code2} set-does>
+    @i{code3} ;
+@end example
+
+The difference from the definition using @word{does>} is that on
+@i{name} execution, after pushing the data address, @i{xt-code2} is
+@code{execute}d, rather than calling the code after the @i{does>}.
+This also allows putting @i{code3} in @i{def-word}; this is
+particularly relevant when you want to also use @word{set-optimizer}
+(@pxref{User-defined compile-comma}) on the defined word, because
+@code{does>}/@code{set-does>} calls @word{set-optimizer} itself, so
+using @word{set-optimizer} before @code{does>}/@code{set-does>} has no
+effect.
+
+Here @i{xt-code2} could be the xt of an existing word, or it could be
+provided through a quotation (@pxref{Quotations}).
+
+Another advantage of @code{set-does>} is that the result is a little
+more efficient if the execution token passed to it is that of a
+primitive.  This advantages comes to fruition in:
 
 @source
-: myconstant2 ( w "name" -- ; name execution: -- w )
+: myconstant3 ( w "name" -- ; name execution: -- w )
     create ,
     ['] @ set-does> ;
 @end source
+
+During @i{name} execution, after pushing the body address of @i{name},
+@word{@} is executed.
+
+The efficiency advantage shows up in the comparisons of compiled code
+size (@pxref{User-defined defining words with colon definitions}); the
+execution time also benefits.
 
 @comment There is a beautiful description of how this works and what
 @comment it does in the Forthwrite 100th edition.. as well as an elegant
 @comment commentary on the Counting Fruits problem.
 
-When you create a constant with @code{5 CONSTANT five}, a set of
-define-time actions take place; first a new word @code{five} is
-created, then the value 5 is laid down in the body of @code{five} with
-@code{,}. When @code{five} is executed, the address of the body is put
-on the stack, and @code{@@} retrieves the value 5. The word
-@code{five} has no code of its own; it simply contains a data field
-and the xt of the quotation or of @code{@@}.
+You can access the data area of a @word{create}d word with
+@word{>body}, including words where the behaviour has been changed
+with @code{does>}/@code{set-does>}.  So if you know that @code{five}
+has been defined with, e.g., @word{myconstant3}, you can change its
+value with
 
-The final example in this section is intended to remind you that space
-reserved in @code{CREATE}d words is @i{data} space and therefore can be
-both read and written by a Standard program@footnote{Exercise: use this
-example as a starting point for your own implementation of @code{Value}
-and @code{TO} -- if you get stuck, investigate the behaviour of @code{'} and
-@code{[']}.}:
+@source
+7 ' five >body !
+@end source
 
-@example
-: foo ( "name" -- )
-    CREATE -1 ,
-DOES> ( -- )
-    @@ . ;
-
-foo first-word
-foo second-word
-
-123 ' first-word >BODY !
-@end example
-
-If @code{first-word} had been a @code{CREATE}d word, we could simply
-have executed it to get the address of its data field. However, since it
-was defined to have @code{DOES>} actions, its execution semantics are to
-perform those @code{DOES>} actions. To get the address of its data field
-it's necessary to use @code{'} to get its xt, then @code{>BODY} to
-translate the xt into the address of the data field.  When you execute
-@code{first-word}, it will display @code{123}. When you execute
-@code{second-word} it will display @code{-1}.
-
-@cindex stack effect of @code{DOES>}-parts
-@cindex @code{DOES>}-parts, stack effect
-In the examples above the stack comment after the @code{DOES>} specifies
-the stack effect of the defined words, not the stack effect of the
-following code (the following code expects the address of the body on
-the top of stack, which is not reflected in the stack comment). This is
-the convention that I use and recommend (it clashes a bit with using
-locals declarations for stack effect specification, though).
+and performing @code{five} will then push 7.  By contrast, for words
+defined with @word{myconstant} (defined using @word{:},
+@pxref{User-defined defining words with colon definitions}) you cannot
+change the value in this way.
 
 
 @node CREATE..DOES> applications, CREATE..DOES> details, User-defined defining words using CREATE, User-defined Defining Words
