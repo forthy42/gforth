@@ -1670,7 +1670,7 @@ standard-words.fs: doc/2012-words doc/2012-words-extra
 		echo "\\ https://forth-standard.org/standard/alpha" >>$@
 		echo "plus doc/2012-words-extra" >>$@
 		awk -f $(srcdir)/doc/standard-words.awk $< >>$@
-		cat doc/2012-words-extra >>$@
+		cat $(srcdir)/doc/2012-words-extra >>$@
 
 doc/doc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_GEN_SRC)
 		@echo DOC.FD

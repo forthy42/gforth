@@ -114,9 +114,6 @@ $[]-+!
 $[]-@
 $[].
 $[]@
-$!a-table
-$[]!a-table
-$[]-!a-table
 $+bit
 $-bit
 $bit
@@ -162,6 +159,8 @@ $slurp-line
 $split
 $substitute
 $!-table
+$[]!-table
+$[]-!-table
 $tmp
 $type
 $unescape
@@ -199,7 +198,6 @@ $Variable
 2,
 2/
 2@
-2!a-table
 2compile,
 2constant,
 2Constant
@@ -226,8 +224,7 @@ $Variable
 2value-dummy
 2value-to
 2Variable
-2varue
-2varue-to
+2Varue
 \3
 >3lits
 3lits>
@@ -279,10 +276,16 @@ add-lib
 add-libpath
 .addr.
 >addr
+?addr
 addr
 addr?
+addressable
+addressable:
+addressable:
+addressable-mask
 ADDRESS-UNIT-BITS
 addr>view
+.addr-warning
 adjust-buffer
 adjust-locals-list
 adjust-locals-size
@@ -427,7 +430,6 @@ assert-canary
 assert-level
 assertn
 ASSUME-LIVE
-!a-table
 at-deltaxy
 atfork:
 atfork-cbs
@@ -712,7 +714,6 @@ Carray
 case
 case-depth
 ca-size
-c!a-table
 catch
 catch
 catch-frame
@@ -1217,7 +1218,6 @@ defer,
 defer:
 defer@
 Defer
-defera-table
 defer-default
 defer-dummy
 defered?
@@ -1277,12 +1277,12 @@ df+!
 df@
 dfalign
 dfaligned
-df!a-table
 dffield:
 dfloat%
 dfloat+
 dfloat/
 dfloats
+df!-table
 dfvalue:
 dfvalue-dummy
 df>x
@@ -1400,12 +1400,9 @@ du>
 du>=
 dummy
 dummy-2value
-dummy-2varue
 dummy-fvalue
-dummy-fvarue
 dummy-local,
 dummy-noname
-dummy-varue
 du/mod
 /dump
 dump
@@ -1660,7 +1657,6 @@ fancy-after-l
 fasin
 fasinh
 fast-throw
-f!a-table
 fatan
 fatan2
 fatanh
@@ -1926,7 +1922,6 @@ fvalue-dummy
 fvalue-to
 fvariable
 fvarue
-fvarue-to
 //g
 g
 \G
@@ -2830,6 +2825,7 @@ hash-wordlist
 header
 header,
 header-extra
+header-flags
 header-name,
 >head-noprim
 HEALTH_DONOTUSE
@@ -3181,7 +3177,6 @@ lastlink!
 lastnt
 last-tick
 lastxt
-l!a-table
 latest
 latestnt
 latestxt
@@ -3437,6 +3432,7 @@ lshift
 lsid#
 .lsids
 lsids
+l!-table
 +ltrace
 -ltrace
 LU"
@@ -5147,7 +5143,6 @@ sf+!
 sf@
 sfalign
 sfaligned
-sf!a-table
 sffield:
 sfind
 sfloat%
@@ -5221,6 +5216,7 @@ sf!o8
 sf@o8
 sf!o9
 sf@o9
+sf!-table
 sfvalue:
 sfvalue-dummy
 sf>x
@@ -5290,18 +5286,12 @@ SNR_BAD
 s>number
 s>number?
 snumber?
-some-calocal
 some-clocal
-some-dalocal
 some-dlocal
-some-falocal
 some-flocal
 some-waddr
-some-walocal
 some-wlocal
-some-xtalocal
 some-xtlocal
-some-zalocal
 some-zlocal
 source
 sourcefilename
@@ -5627,16 +5617,12 @@ TO
 to-access:
 to-access:,
 to-access:exec
->to+addr-table:
 to-c:
-to-ca:
 to-class:
 to-d:
-to-da:
 to-errno
 to:exec
 to-f:
-to-fa:
 TOFF_SET
 <to-inst>
 [to-inst]
@@ -5648,11 +5634,8 @@ to-table-size#
 to-this
 toupper
 to-w:
-to-wa:
 to-xt:
-to-xta:
 to-z:
-to-za:
 trace-recognizer
 TRACKERR_SET
 TRACK_SET
@@ -5902,7 +5885,6 @@ vars
 varsmax
 varstack
 Varue
-varue-to
 var-xt
 va-start-double
 va-start-float
@@ -5975,7 +5957,6 @@ warning-error
 warning-recs
 warnings
 warp?
-w!a-table
 watch-does>
 watch-opt:
 wayland
@@ -6078,6 +6059,7 @@ write-line
 wrol
 wror
 w>s
+w!-table
 WTF??
 wvalue:
 wvalue-dummy
@@ -6252,10 +6234,8 @@ zacot
 zacoth
 zasin
 zasinh
-z!a-table
 zatan
 zatanh
-za-to
 zconj
 zcos
 zcosh
