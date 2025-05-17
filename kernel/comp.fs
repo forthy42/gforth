@@ -866,6 +866,11 @@ Create defstart
 
 ' int-does> ' comp-does>
 interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 ) \ core does
+    \G Changes the current word such that it pushes its body address
+    \G and then calls the code behind the @word{does>}.  Also changes
+    \G the @code{compile,} implementation accordingly.  Call
+    \G @code{set-optimizer} afterwards if you want a more efficient
+    \G implementation.
 
 \ for cross-compiler's interpret/compile:
 

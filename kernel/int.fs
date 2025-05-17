@@ -541,9 +541,9 @@ const Create ???
     dup xt? 0= IF  drop ['] ???  THEN ;
 
 has? new-cfa [IF]
-0 0 0 0 field >body ( xt -- a_addr ) \ core to-body
-\G Get the address of the body of the word represented by @i{xt} (the
-\G address of the word's data field).
+0 0 0 0 field >body ( xt -- a-addr ) \ core to-body
+\G @i{a-addr} is the address of the body (aka parameter field or data
+\G field) of the word represented by @i{xt}
 drop drop
 
 0 0 0 0 field body> ( xt -- a_addr )

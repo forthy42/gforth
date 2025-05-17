@@ -8462,16 +8462,18 @@ the approach of the next section: E.g, here are the memory costs of
 defining @code{five} with the various implementations:
 
 @example
-builtin  : does> set-does>
-   48   64   48     48     bytes header+threaded code
-    0   23    0      0     bytes native code
-   16   16   32     16     compiled threaded code
-    4   23   34      7     compiled native code
+builtin  : does> set-does> opt     
+   48   64   48     48      48  bytes header+threaded code
+    0   23    0      0       0  bytes native code
+   16   16   32     16      16  compiled threaded code
+    4   23   34      7       4  compiled native code
 @end example
 
 @i{Builtin} refers to using @word{constant}, @i{:} to using
-@code{myconstant}, @i{does>} to using @word{myconstant2}, and
-@i{set-does>} to using @word{myconstant3}.
+@code{myconstant} (defined above), @i{does>} to using
+@word{myconstant2}, @i{set-does>} to using @word{myconstant3} (both
+from @pxref{User-defined defining words using CREATE}), and opt to
+using @word{myconstant4} (@pxref{User-defined compile-comma}).
 
 The lines where the label starts with ``bytes'' report the space
 consumption of defining the word @code{five} itself; the native code
@@ -8481,10 +8483,7 @@ larger).
 The lines where the label starts with ``compiled'' report the space
 consumption (also in bytes) for the invocation of @code{five} in the
 word @code{: foo five * ;}.  The native code can be bigger or smaller
-in other contexts.  However, with a little more effort you can make
-the compiled code for any self-defined constant variant as small (and
-fast) as that of the builtin @word{constant} (@pxref{User-defined
-compile-comma}).
+in other contexts.
 
 
 @node User-defined defining words using CREATE, CREATE..DOES> applications, User-defined defining words with colon definitions, User-defined Defining Words
@@ -8611,21 +8610,6 @@ execution time also benefits.
 @comment it does in the Forthwrite 100th edition.. as well as an elegant
 @comment commentary on the Counting Fruits problem.
 
-You can access the data area of a @word{create}d word with
-@word{>body}, including words where the behaviour has been changed
-with @code{does>}/@code{set-does>}.  So if you know that @code{five}
-has been defined with, e.g., @word{myconstant3}, you can change its
-value with
-
-@source
-7 ' five >body !
-@end source
-
-and performing @code{five} will then push 7.  By contrast, for words
-defined with @word{myconstant} (defined using @word{:},
-@pxref{User-defined defining words with colon definitions}) you cannot
-change the value in this way.
-
 
 @node CREATE..DOES> applications, CREATE..DOES> details, User-defined defining words using CREATE, User-defined Defining Words
 @subsubsection Applications of @code{CREATE..DOES>}
@@ -8683,9 +8667,9 @@ DOES> ( n2 -- n1+n2 )
 doc-does>
 
 @cindex @code{DOES>} in a separate definition
-This means that you need not use @code{CREATE} and @code{DOES>} in the
-same definition; you can put the @code{DOES>}-part in a separate
-definition. This allows us to, e.g., select among different @code{DOES>}-parts:
+You can put the @code{does>}-part in a different definition than the
+@code{create} part. This allows us to, e.g., select among different
+@code{DOES>}-parts:
 @example
 : does1 
 DOES> ( ... -- ... )
@@ -8705,8 +8689,8 @@ DOES> ( ... -- ... )
 @end example
 
 In this example, the selection of whether to use @code{does1} or
-@code{does2} is made at definition-time; at the time that the child word is
-@code{CREATE}d.
+@code{does2} is made at definition-time, i.e., at the time when the
+child word is @code{CREATE}d.
 
 Note that the property of @code{does>} to end the definition makes it
 necessary to introduce extra definitions @code{does1} and
@@ -8721,6 +8705,8 @@ necessary to introduce extra definitions @code{does1} and
        [: code2 ;] set-does>
     THEN ;
 @end example
+
+doc-set-does>
 
 @cindex @code{DOES>} in interpretation state
 In a standard program you can apply a @code{DOES>}-part only if the last
@@ -8756,8 +8742,37 @@ CREATE name ( ... -- ... )
 [: @i{code} ;] set-does>
 @end example
 
-doc-set-does>
 doc->body
+
+You can access the data area of a @word{create}d word with
+@word{>body}, including words where the behaviour has been changed
+with @code{does>}/@code{set-does>}.  So if you know that @code{five}
+has been defined with, e.g., @word{myconstant3} (@pxref{User-defined
+defining words using CREATE}), you can change its value with
+
+@source
+7 ' five >body !
+@end source
+
+and performing @code{five} will then push 7.  By contrast, for words
+defined with @word{myconstant} (defined using @word{:},
+@pxref{User-defined defining words with colon definitions}) you cannot
+change the value in this way.
+
+However, if a word uses @word{set-optimizer} (@pxref{User-defined
+compile-comma}) for a more efficient implementation of the compiled
+code for a word, in many cases the compiled code does not read data
+from the body of this word, and in that case changing the data by
+using @code{>body} will not have the desired effect.  So looking at
+the source code of a defining word and seeing @word{create} is not
+enough to conclude that you can change the data and it will affect all
+existing uses.  An example of that is @word{myconstant4}
+(@pxref{User-defined compile-comma}).
+
+So it's a good idea to document whether the intention behind a
+defining word using @word{create} is that it's data should be
+changeable through @word{>body}.
+
 
 @node Advanced does> usage example, Words with user-defined TO etc., CREATE..DOES> details, User-defined Defining Words
 @subsubsection Advanced does> usage example
@@ -9036,22 +9051,22 @@ you disable your uses by first defining
 : set-optimizer drop ;
 @end example
 
-As an example of the use of @code{set-optimizer}, we can enhance one
-of the definitions of @code{CONSTANT} above as follows.
+As an example of the use of @code{set-optimizer}, we can enhance
+@word{myconstant3} as follows.
 
-@example
-: CONSTANT ( n "name" -- ; name: -- n )
+@source
+: myconstant4 ( n "name" -- ; name: -- n )
   create ,
-  ['] @@ set-does>
-  [: >body @@ postpone literal ;] set-optimizer
+  ['] @ set-does>
+  [: >body @ postpone literal ;] set-optimizer
 ;
-@end example
+@end source
 
 The only change is the addition of the @code{set-optimizer} line.
 When you define a constant and compile it:
 
 @example
-5 constant five
+5 myconstant4 five
 : foo five ;
 @end example
 
