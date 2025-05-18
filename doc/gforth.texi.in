@@ -8910,9 +8910,9 @@ also change the semantics of
 @example
 to @emph{x}        \ aka ->@emph{x}
 +to @emph{x}       \ aka +>@emph{x}
-addr @emph{x}
 action-of @emph{x} \ aka `@emph{x} defer@@
 is @emph{x}        \ aka `@emph{x} defer!
+addr @emph{x}
 @end example
 @cindex @code{to @emph{name}} semantics, changing them
 @cindex @code{+to @emph{name}} semantics, changing them
@@ -8923,8 +8923,8 @@ is @emph{x}        \ aka `@emph{x} defer!
 
 This is all achieved through a common mechanism described in this
 section.  As an example, let's define @code{dvalue} (it behaves in
-Gforth exactly like @code{2value}, @pxref{Values}).  First, we need a
-table of the various @code{to}-like actions:
+Gforth exactly like @code{2value}, @pxref{Values}).  The code is as
+follows, explained below:
 
 @source
 : d+! ( d addr -- )
@@ -8932,97 +8932,90 @@ table of the various @code{to}-like actions:
 
 \                  to +to action-of is  addr
 to-table: d!-table 2! d+!    n/a    n/a [noop] 
-@end source
 
-This defines a table @code{d!-table} with a @code{to} and a @code{+to}
-action, no action for @code{action-of} and @code{is}, and an
-@code{addr} action.  I.e., for our @emph{x} defined with
-@code{dvalue}, if you @code{is @emph{x}}, you will get an error
-message.  Note that a word using this table must still be declared
-@code{addressable:} in order to legitimately use the @code{addr}
-action.
+' >body d!-table to-class: dvalue-to
 
-At the end of the line you can leave trailing @code{[noop]} for the
-@code{addr} entry and any trailing @code{n/a}s for the other entries away,
-but in the above we show them for completeness.  I.e., the table could
-also have been defined as
-
-@source
-\                  to +to action-of is  addr
-to-table: d!-table 2! d+!
-@end source
-
-The entries in the table are words that get an address on the
-top-of-stack.  They possibly also expect some additional data deeper
-in the stack, but that is data that is provided in the usual use of
-the word.  E.g., in the case of @code{dvalue}, the expectation is that
-you put a double-cell @emph{d} on the stack before you do a @code{to
-@emph{x}}, and that @emph{d} and the address
-where it should be stored is eventually passed to @code{2!}.
-
-In the case of @code{dvalue}, the address is computed from the xt of
-@emph{x} with @code{>body}.  In order to let that be known to the
-system, you write
-
-@example
-`>body d!-table to-class: dvalue-to
-@end example
-
-This defines the method implementations of the methods behind @code{to},
-@code{+to}, @code{addr}, @code{action-of}, and @code{is}, and
-corresponding the methods for @code{value!}, @code{value+!}, @code{>addr},
-@code{defer@@}, and @code{defer!}.  The reason for defining the methods
-in two steps (by first defining the table) is that the same table can be
-used for several to-classes; e.g., @code{!-table} is used for defining
-@code{value-to} (used for @code{value}), but also for @code{uvalue-to}
-used for defining @code{uvalue} (@pxref{Task-local data}) and
-@code{to-w:} (used for the default (@code{w:}) locals).
-
-@code{>body} is appropriate for words with storage in the dictionary,
-such as @code{value}.  But, e.g., for storage in user (task-local)
-storage (e.g., @code{uvalue}), you use @code{>uvalue} instead.  The
-general case is that the system pushes the xt of @emph{x}, and then
-executes the xt that has been passed to @code{to-class:}.  This xt may
-also consume one or more additional values passed on the stack (e.g.,
-for value-flavoured struct fields, xt consumes the address of the
-struct right below the xt); its overall stack effect is @code{( ... xt
--- addr )}.
-
-Now you can define
-
-@source
 : dvalue ( d "name" -- )
   create 2,
-  `2@ set-does>
-  `dvalue-to set-to ;
-@end source
+  ['] 2@ set-does>
+  ['] dvalue-to set-to ;
 
-Here the @code{set-to} changes the created word @emph{name} to use the
-methods from @code{dvalue-to} for implementing @code{to}, @code{+to}
-and @code{addr} (and the others, but they are defined to deliver
-errors).
-
-Now you can define words with @code{dvalue} and use them:
-
-@example
 #5. dvalue x
 #2. +to x
-x d. \ prints "7 "
-@end example
+x d. \ prints 7
+@end source
 
-The @code{+to x} first pushes the xt of @code{x}, then performs
-@code{>body} (provided in the definition of @code{dvalue-to}), and
-finally performs the @code{d+!} provided in the @code{d!-table}.
+First, we define the support word @word{d+!}.
 
-In order to use @code{addr x}, you should have defined @code{x} with
+Next, we define @word{d!-table}, a table of the various @code{to}-like
+actions.
+
+For actions that are not supported, we put @word{n/a} in the table,
+and when you try to use, e.g., @code{is x}, exception -21 (unsupported
+operation) is thrown.
+
+The other actions expect, on the top-of-stack, the address of the data
+area that the value-flavoured word refers to.  Moreover, for @word{to}
+and @word{+to}, the actions expect a value of the appropriate type (a
+double-cell in this example) below the address.  In the @word{addr}
+case, the address is the result, so we use @word{[noop]} as action;
+this action is provided for those cases where a word is defined with
+@code{addressable: dvalue}; without the @word{addressable:} the use of
+@word{addr} results in an error (or, for now, a warning) even with the
+@word{[noop]} table entry.
+
+Next, the defining word @word{to-class:} combines the @code{d!-table}
+with the address-computation word @code{>body}, resulting in the
+definition of @code{dvalue-to}.@footnote{The same to-table is often
+combined with different address computation words (e.g., for global
+values, user values, value-flavoured fields and locals), that's why
+the definition of the to-table is separated from the definition of the
+to-class.}  The address-computation word has the stack effect @code{(
+... xt -- addr )}.  When invoking @code{+to x}, the xt of @code{x} is
+pushed and then the address-computation word (@code{>body}) is called;
+the result is the address that is then passed on to @code{d+!} (from
+@code{d!-table}).
+
+For @code{dvalue} that's all, but in other cases, e.g.,
+value-flavoured fields (@pxref{Value-Flavoured and Defer-Flavoured
+Fields}), additional stack items can be consumed by the
+address-computation word, and those have to be provided by the user as
+stack-top values when invoking, e.g., @code{to @i{field}}.
+
+Next, we have the definition of @code{dvalue}, which is a
+straightforward @code{create}...@code{set-does>} word that also tells
+@i{name} with @word{set-to} how it should behave for @word{to} etc.
+
+Finally, we use @word{dvalue} to define @word{x} and use it.  The line
+using @code{+to} exercises the @code{set-to} mechanism:
 
 @source
-#5. addressable: dvalue x
+#2. +to x
 @end source
+
+performs
+
+@source
+#2. ' x >body d+!
+@end source
+
+The @word{>body} is the address-computation word given in the
+definition of @word{dvalue-to}, and the @word{d+!} is the @word{+to}
+entry in @word{d!-table}.
 
 These are the words mentioned above:
 
 doc-to-table:
+
+The default mechanism means that the table could instead have been
+defined as follows:
+
+@source
+\                  to +to action-of is  addr
+to-table: d!-table 2! d+!
+
+@end source
+
 doc-n/a
 doc-[noop]
 doc-to-class:
