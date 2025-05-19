@@ -760,10 +760,10 @@ Create hmtemplate
 \ by using the TO access method
 ' >hmto Alias reveal-method ( wid -- addr )
 
-' [noop] !-table to-class: value-to ( n value-xt -- ) \ gforth-internal
+' >body !-table to-class: value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values
 
-' [noop] defer-table to-class: defer-is ( n value-xt -- ) \ gforth-internal
+' >body defer-table to-class: defer-is ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for deferred words
 
 : int-to ( "name" x -- ) \ gforth-internal
