@@ -436,13 +436,27 @@ drop Constant hmsize \ vtable size
 : to-access:exec ( xt -- ) @ swap (to) ;
 : to-access:,    ( xt -- ) lits# IF   @ lits> (to),  EXIT  THEN  does, ;
 
-1 to-access: value+! ( n xt-value -- ) \ gforth-internal  value-plus-store
-    \G Increments the value of @var{xt-value} by @var{n}
-2 to-access: defer@ ( xt-deferred -- xt ) \ core-ext new-defer-fetch
-    \G @i{xt} represents the word currently associated with the deferred
-    \G word @i{xt-deferred}.
-3 to-access: defer! ( xt xt-deferred -- ) \ core-ext  defer-store
-    \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
+1 to-access: value+! ( n ... xt-value -- ) \ gforth-internal  value-plus-store
+    \G Adds @i{n} to the value of the location indicated by
+    \G @i{... xt-value}.
+2 to-access: defer@ ( ... xt-deferred -- xt ) \ core-ext defer-fetch
+    \G If @i{xt-deferred} belongs to a word defined with @code{defer},
+    \G @i{xt} represents the word currently associated with the
+    \G deferred word @i{xt-deferred}.@* If @i{xt-deferred} belongs to
+    \G another defer-flavoured word (e.g., a defer-flavoured field),
+    \G @i{xt} is the word associated with the location indicated by
+    \G @i{... xt-deferred} (e.g., for a defer-flavoured field @i{...}
+    \G is the structure address).@* If @i{xt-deferred} is the xt of a
+    \G word that is not defer-flavoured, throw -21 (Unsupported
+    \G operation).
+3 to-access: defer! ( xt xt-deferred -- ) \ core-ext defer-store If
+    \G @i{xt-deferred} belongs to a word defined with @code{defer}, it
+    \G is changed to execute @i{xt} on execution.@* If @i{xt-deferred}
+    \G belongs to another defer-flavoured word (e.g., a
+    \G defer-flavoured field), the location associated with
+    \G @i{... xt-deferred} is changed to execut @i{xt}.@* If
+    \G @i{xt-deferred} is the xt of a word that is not
+    \G defer-flavoured, throw -21 (Unsupported operation).
 
 : >extra ( nt -- addr )
     >namehm @ >hmextra ;

@@ -8954,15 +8954,14 @@ For actions that are not supported, we put @word{n/a} in the table,
 and when you try to use, e.g., @code{is x}, exception -21 (unsupported
 operation) is thrown.
 
-The other actions expect, on the top-of-stack, the address of the data
-area that the value-flavoured word refers to.  Moreover, for @word{to}
-and @word{+to}, the actions expect a value of the appropriate type (a
-double-cell in this example) below the address.  In the @word{addr}
-case, the address is the result, so we use @word{[noop]} as action;
-this action is provided for those cases where a word is defined with
-@code{addressable: dvalue}; without the @word{addressable:} the use of
-@word{addr} results in an error (or, for now, a warning) even with the
-@word{[noop]} table entry.
+For the @code{to} and @code{+to} actions, we have to provide words
+with the stack effect @code{( d addr -- )}, where @i{addr} is the
+address where the data of the value-flavoured word is stored.  For
+@word{addr} (only supported for @word{addressable:} words), we have to
+provide a word with the stack effect @code{( addr1 -- addr2 )}; in the
+usual case, both addresses are the same, and we can just provide
+@word{[noop]}.  For the general case, see the description of
+@word{to-table:} below.
 
 Next, the defining word @word{to-class:} combines the @code{d!-table}
 with the address-computation word @code{>body}, resulting in the
@@ -9007,13 +9006,35 @@ These are the words mentioned above:
 
 doc-to-table:
 
-The default mechanism means that the table could instead have been
-defined as follows:
+The stack effects of the actions are:
+
+@itemize
+
+@item
+For the @word{to} and @word{+to} action: @code{( value addr -- )}, where
+@i{value} has the appropriate type (e.g., a double-cell in our
+@word{dvalue} example).
+
+@item
+For the @word{action-of} action: @code{( addr -- xt )}
+
+@item
+For the @word{is} action: @code{( xt addr -- )}
+
+@item
+For the @word{addr} action: @code{( addr1 -- addr2 )}
+
+@end itemize
+
+The @i{addr} input parameter in all these cases is the address of the
+memory where the value of the xt is stored.
+
+The default mechanism means that @word{d!-table} could instead have
+been defined as follows:
 
 @source
 \                  to +to action-of is  addr
 to-table: d!-table 2! d+!
-
 @end source
 
 doc-n/a
@@ -9636,7 +9657,7 @@ doc-$value[]:
 Finally, you can define defer-flavoured fields.  Here is a usage
 example:
 
-@example
+@source
 0
   addressable: defer: foo'bar
 constant foo
@@ -9644,12 +9665,12 @@ constant foo
 foo allocate throw constant my-foo
 :noname ." test" ; my-foo is foo'bar
 my-foo foo'bar                   \ prints "test"
-my-foo addr foo'bar @@ execute   \ prints "test"
+my-foo addr foo'bar @ execute   \ prints "test"
 my-foo action-of foo'bar execute \ prints "test"
 my-foo `foo'bar defer@ execute   \ prints "test"
 :noname ." test1" ; my-foo `foo'bar defer!
 my-foo foo'bar                   \ prints "test1"
-@end example
+@end source
 
 doc-defer:
 
