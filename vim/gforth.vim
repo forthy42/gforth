@@ -897,6 +897,7 @@ syn region gforthComment start='\<(\*\>' end='\<\*)\>' contains=forthTodo
 " Strings
 
 syn match gforthString /\<'.'\>/
+syn match gforthString /\<"*"\>/ skip=+\\"+
 syn region gforthString start=+\<\S*"\>+ end=+"+ end=+$+ contains=@Spell
 syn region gforthString start=+\<\S*\\"\>+ skip=+\\"+ end=+"+ end=+$+ contains=@Spell
 

@@ -231,7 +231,7 @@ true  to white?
 <a defaultcolor >fg defaultcolor >bg a> to default-color
 <a red >fg defaultcolor >bg a> to error-color
 <a magenta >fg defaultcolor >bg a> to warning-color
-<a green >fg defaultcolor >bg a> to info-color
+<a cyan >fg defaultcolor >bg a> to info-color
 <a green >fg defaultcolor >bg a> to success-color
 <a defaultcolor >fg defaultcolor >bg bold a> to input-color
 <a red >fg defaultcolor >bg underline a> to error-hl-ul
@@ -248,7 +248,7 @@ false to white?
 <a defaultcolor >fg defaultcolor >bg a> to default-color
 <a red >fg defaultcolor >bg bold a> to error-color
 <a yellow >fg defaultcolor >bg bold a> to warning-color
-<a green >fg defaultcolor >bg bold a> to info-color
+<a cyan >fg defaultcolor >bg bold a> to info-color
 <a green >fg defaultcolor >bg bold a> to success-color
 <a defaultcolor >fg defaultcolor >bg bold a> to input-color
 <a red >fg defaultcolor >bg underline bold a> to error-hl-ul
@@ -269,17 +269,25 @@ uncolored-mode
 0 Value term-rgb?
 
 : auto-color ( -- )
+    uncolored-mode \ default mode
     is-terminal? is-color-terminal? and 0= if
         \ TODO: no terminal - switch to other output class
-	uncolored-mode  EXIT
+	EXIT
     then
-    default-bg rgb>mode
+    s" GFORTH_COLOR" getenv 2dup d0<> if
+	2dup s" light"     str= if  2drop  light-mode      EXIT  then
+	2dup s" dark"      str= if  2drop  dark-mode       EXIT  then
+	2dup s" uncolored" str= if  2drop  uncolored-mode  EXIT  then
+	s" auto" str= 0= ?EXIT
+    else  2drop  then
     is-xterm? if
 	s" SSH_CONNECTION" getenv d0= if
 	    term-bg? rgb>mode
 	else \ with a SSH connection, color setting only in interactive mode
 	    2 to term-rgb?
 	then
+    else
+	default-bg rgb>mode
     then ;
 
 :is 'cold auto-color defers 'cold ;
