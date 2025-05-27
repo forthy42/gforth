@@ -301,10 +301,8 @@ set-current
 
 : auto-color ( -- )
     uncolored-mode \ default mode
-    is-terminal? is-color-terminal? and 0= if
-        0 to attr?
-    then
-    2 to term-rgb?
+    is-terminal? is-color-terminal? and 0<>
+    dup 2 and  to term-rgb?  to attr?
     ?gforth-init  attr? 0= term-rgb? 0= or ?EXIT
     is-xterm? if
 	s" SSH_CONNECTION" getenv d0= if
