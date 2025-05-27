@@ -12520,11 +12520,14 @@ doc-light-mode
 doc-dark-mode
 doc-uncolored-mode
 doc-magenta-input
+doc-default-input
 
 Gforth tries to select the best mode automatically.  You can set the
-environment variable @code{GFORTH_COLOR} to @code{light}, @code{dark},
+environment variable @code{GFORTH_INIT} to @code{light}, @code{dark},
 @code{uncolored}, or @code{auto} (same effect if not setting it at all),
-to tell Gforth your preference.
+to tell Gforth your preference, as well as @code{magenta} or
+@code{default} for the input color preference.  Concatenate options with
+space as separator.
 
 @node Single-key input, Line input and conversion, Terminal output, Other I/O
 @subsection Single-key input

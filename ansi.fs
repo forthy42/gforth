@@ -75,9 +75,11 @@ decimal
 : A>    BEGIN over -1 <> WHILE or REPEAT nip ;
 
 User Attr   0 Attr !
+UValue attr? -1 to attr?
 
 : (Attr!) ( attr -- )
     \ set attribute
+    attr? 0= IF  drop  EXIT  THEN
     dup Attr @ = IF drop EXIT THEN
     dup $6600 = Attr @ 0= and IF drop EXIT THEN
     dup Attr !
@@ -261,36 +263,58 @@ uncolored-mode
 
 : magenta-input ( -- ) \ gforth
     \G make input color easily recognizable (useful in presentations)
-    $A601 white? + to input-color ;
+    [ <a magenta >fg defaultcolor >bg bold a> ]L white? + to input-color ;
+: default-input ( -- ) \ gforth
+    \G make input color easily recognizable (useful in presentations)
+    [ <a defaultcolor >fg defaultcolor >bg bold a> ]L to input-color ;
 
 : rgb>mode  ( rgb -- )
     rgb-split + + $17F u> IF  light-mode  ELSE  dark-mode  THEN ;
 
 0 Value term-rgb?
 
+slowvoc on wordlist constant gforth-init slowvoc off
+
+: set-colors { xt: color -- }
+    attr? IF
+	current-theme >r
+	light-mode  color
+	dark-mode   color
+	r> to current-theme !
+    THEN ;
+
+get-current gforth-init set-current
+: light     attr? IF  light-mode     0 to term-rgb? THEN ;
+: dark      attr? IF  dark-mode      0 to term-rgb? THEN ;
+: uncolored attr? IF  uncolored-mode 0 to term-rgb? THEN ;
+: magenta   ['] magenta-input set-colors ;
+: default   ['] default-input set-colors ;
+: auto ;
+set-current
+
+: ?gforth-init ( -- )
+    s" GFORTH_INIT" getenv 2dup d0<> if
+	action-of forth-recognize >r
+	gforth-init is forth-recognize ['] evaluate catch IF 2drop THEN
+	r> is forth-recognize
+    else  2drop  then ;
+
 : auto-color ( -- )
     uncolored-mode \ default mode
     is-terminal? is-color-terminal? and 0= if
-        \ TODO: no terminal - switch to other output class
-	EXIT
+        0 to attr?
     then
-    s" GFORTH_COLOR" getenv 2dup d0<> if
-	2dup s" light"     str= if  2drop  light-mode      EXIT  then
-	2dup s" dark"      str= if  2drop  dark-mode       EXIT  then
-	2dup s" uncolored" str= if  2drop  uncolored-mode  EXIT  then
-	s" auto" str= 0= ?EXIT
-    else  2drop  then
+    2 to term-rgb?
+    ?gforth-init  attr? 0= term-rgb? 0= or ?EXIT
     is-xterm? if
 	s" SSH_CONNECTION" getenv d0= if
-	    term-bg? rgb>mode
-	else \ with a SSH connection, color setting only in interactive mode
-	    2 to term-rgb?
+	    term-bg? rgb>mode  0 to term-rgb?
 	then
     else
 	default-bg rgb>mode
     then ;
 
-:is 'cold defers 'cold auto-color ;
+:is 'cold auto-color defers 'cold ;
 
 \ scrolling etc: (thanks to Ulrich Hoffmann)
 
