@@ -290,7 +290,7 @@ uncolored-mode
 	default-bg rgb>mode
     then ;
 
-:is 'cold auto-color defers 'cold ;
+:is 'cold defers 'cold auto-color ;
 
 \ scrolling etc: (thanks to Ulrich Hoffmann)
 

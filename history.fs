@@ -454,7 +454,7 @@ $80 0 [DO] ' false , [LOOP]
 : xfgcolor ( max span addr pos1 -- max span addr pos2 flag )
     xreformat ;
 : xbgcolor ( max span addr pos1 -- max span addr pos2 flag )
-    ekey-rgb rgb>mode xreformat ;
+    ekey-rgb rgb>mode xreformat -1 attr ! ;
 
 Create xchar-ctrlkeys ( -- )
     ' false        , ' xfirst-pos   , ' xback        , ' false        ,
