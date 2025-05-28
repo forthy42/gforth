@@ -789,8 +789,8 @@ Create hmtemplate
     \g execute @var{xt}.
     record-name 3 (') (to), ; immediate restrict
 
-' <IS> ' [IS] interpret/compile: IS ( value "name" -- ) \ core-ext
-\g changes the @code{defer}red word @var{name} to execute @var{value}
+' <IS> ' [IS] interpret/compile: IS ( xt "name" -- ) \ core-ext
+\g changes the @code{defer}red word @var{name} to execute @var{xt}
 
 : <+TO>  record-name 1 (') (to) ;
 : [+TO]  record-name 1 (') (to), ; immediate restrict

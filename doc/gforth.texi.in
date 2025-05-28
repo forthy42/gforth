@@ -9102,89 +9102,73 @@ here), you must not document that @code{create} is used; and
 conversely, if you document it, you have to write the @code{compile,}
 implementation such that it can deal with changing bodies.
 
-Another example is a better-optimized variant of the @code{fvalue}
-example above:
-
-@example
-: compile-fvalue-to ( xt-value-to -- )
-  drop ]] >body f! [[ ;
-  
-: fvalue-to ( r xt -- )
-  >body f! ;
-' compile-fvalue-to set-optimizer
-
-: fvalue ( r "name" -- ; name: -- r )
-  create f,
-  ['] f@@ set-does>
-  [: >body ]] literal f@@ [[ ;] set-optimizer
-  ['] fvalue-to set-to ;
-
-5e fvalue foo
-: bar foo 1e f+ to foo ;
-see bar
-@end example
-
-Compare the code for @code{bar} with the one for the earlier
-definition.  Here we see the optimization of both the code for reading
-the fvalue (coming from the @code{set-optimizer} in @code{fvalue}) and
-for writing the fvalue (coming from the @code{set-optimizer} applied
-to @code{fvalue-to}.  Because an fvalue can change (unlike a
-constant), the reading part (inside @code{fvalue}) compiles the
-address and a @code{f@@} that is performed at run-time.
-
-For @code{fvalue-to}, the @code{compile,} implementation basically
-just compiles the code executed by @code{fvalue} inline.  The
-compilation semantics of @code{to} compiles the address as literal and
-then the @code{(to)} implementation (i.e., @code{fvalue-to}).  In this
-process the @code{>body} is optimized away.
-@c !! reference the appropriate sections that explain these
-@c optimizations
-
-In practice Gforth's @code{fvalue} includes a few additional twists,
-e.g., to support @code{+TO}.
-
 Note that the call to @code{set-optimizer} has to be performed after
 the call to @code{set-does>} (or @code{does>}, because
 @code{set-does>} overwrites the @code{compile,} implementation itself.
 
-As we can see in the @code{fvalue-to} example, we can also apply
-@code{set-optimizer} to individual words rather than inside a defining
-word like @code{constant} or @code{fvalue}.  In this case, the xt of
+We can also apply @code{set-optimizer} to individual words rather than
+inside a defining word like @code{constant}.  In this case, the xt of
 the word passed to optimizer is usually unnecessary and is
-@code{drop}ped, as in @code{compile-fvalue-to}.
+@code{drop}ped.  As an simple example, let's define a word that is
+inlined when being compiled:
 
-The engine @code{gforth-itc} uses @code{,} for @code{compile,} and
-@code{set-optimizer} has no effect there.
+@source
+: compile-my2dup ( xt -- )
+  drop ]] over over [[ ;
+
+: my2dup over over ;
+' compile-my2dup set-optimizer
+
+: foo my2dup ;
+see my2dup
+@end source
+
+An alternative way to define @word{my2dup} is:
+
+@source
+: my2dup over over ;
+opt: drop ]] over over [[ ;
+@end source
+
+@word{Opt:} starts an anonymous definition that is then (internally)
+attached to @word{my2dup} with @word{set-optimize}.
+
+Finally an even more convenient way to write this is to use
+@word{inline:} (@pxref{Inline Definitions}), but it is limited to
+inlining.
+
+The engine @code{gforth-itc} uses @code{,} for @code{compile,} in
+nearly all cases and @code{set-optimizer} usually has no effect there.
 
 
 @node Creating from a prototype, Making a word current, User-defined compile-comma, User-defined Defining Words
 @subsubsection Creating from a prototype
 
 In the above we show how to define a word by first using
-@code{create}, and then modifying it with @code{set-does>},
-@code{set-to}, @code{set-optimizer} etc.
+@code{create}, and then modifying it with @code{immediate},
+@code{set-does>}, @code{set-to}, @code{set-optimizer} etc.
 
 An alternative way is to create a prototype using these words, and
 then create a new word from that prototype.  This kind of copying does
 not cover the body, so that has to be allocated and initialized
-explicitly.  Taking @code{fvalue} above, we could instead define it
+explicitly.  Taking @code{dvalue} above, we could instead define it
 as:
 
-@example
-create fvalue-prototype ( -- r )
-['] f@@ set-does>
-[: >body ]] literal f@@ [[ ;] set-optimizer
-['] fvalue-to set-to
+@source
+create dvalue-prototype ( -- d )
+`2@ set-does>
+`dvalue-to set-to
 
-: fvalue ( r "name" -- ; name: -- r )
-  ``fvalue-prototype create-from f, reveal ;
-@end example
+: dvalue ( d "name" -- ; name: -- d )
+  ``dvalue-prototype create-from 2, reveal ;
+@end source
 
-An advantage of this approach is that creating @code{fvalue} words is
-now faster, because it does not need to first duplicate the header
-methods of @code{create}, modify them, and eventually deduplicate
-them.  But this advantage is only relevant if the number of words
-created with this defining word is huge.
+An advantage of this approach is that creating words with
+@code{dvalue} is now faster.@footnote{The non-prototype method first
+duplicates the header methods of @code{create}, modify them, and
+eventually deduplicate them.  The @word{create-from} approach
+eliminates this overhead.}  But this advantage is only relevant if the
+number of words created with this defining word is huge.
 
 doc-create-from
 doc-reveal
@@ -9198,11 +9182,11 @@ doc-noname-from
 Here's a usage example:
 
 @example
-``fvalue-prototype noname create-from
-latestnt constant noname-fvalue-prototype
+``dvalue-prototype noname create-from
+latestnt constant noname-dvalue-prototype
 
-: noname-fvalue ( r -- xt ; xt execution: -- r )
-  noname-fvalue-prototype noname-from f,
+: noname-dvalue ( d -- xt ; xt execution: -- d )
+  noname-dvalue-prototype noname-from 2,
   latestxt ;
 @end example
 
@@ -9222,8 +9206,11 @@ doc-make-latest
 @node Const-does>,  , Making a word current, User-defined Defining Words
 @subsubsection @code{Const-does>}
 
-A frequent use of @code{create}...@code{does>} is for transferring some
-values from definition-time to run-time.  Gforth supports this use with
+A frequent use of @code{create}...@code{does>} is for transferring
+some values from definition-time to run-time.  Other ways of achieving
+this are closures (@pxref{Closures}), and with colon definitions
+(@pxref{User-defined defining words with colon definitions}), but
+another way of achieving this is to use
 
 doc-const-does>
 
@@ -9240,7 +9227,8 @@ A typical use of this word is:
 Here the @code{1 0} means that 1 cell and 0 floats are transferred from
 definition to run-time.
 
-The advantages of using @code{const-does>} are:
+The advantages of using @code{const-does>} compared to
+@word{create}...@word{does>} are:
 
 @itemize
 
@@ -9249,16 +9237,20 @@ You don't have to deal with storing and retrieving the values, i.e.,
 your program becomes more writable and readable.
 
 @item
-When using @code{does>}, you have to introduce a @code{@@} that cannot
-be optimized away (because you could change the data using
-@code{>body}...@code{!}); @code{const-does>} avoids this problem.
+When using @code{does>}, you have to introduce a @word{@} that cannot
+be optimized away automatically (because the system does not know
+whether you allow to access the data with @code{>body}...@code{!}).
+You can address this problem with @word{set-optimizer}
+(@pxref{User-defined compile-comma}), but @code{const-does>} avoids
+it; however, the current implementation is still not particularly
+efficient.
 
 @end itemize
 
 A Standard Forth implementation of @code{const-does>} is available in
 @file{compat/const-does.fs}.
 
-
+@c -----------------------------------------------------------------------
 @node Deferred Words, Aliases, User-defined Defining Words, Defining Words
 @subsection Deferred Words
 @cindex deferred words
@@ -9308,22 +9300,6 @@ You should write a stack comment for every deferred word, and put only
 XTs into deferred words that conform to this stack effect.  Otherwise
 it's too difficult to use the deferred word.
 
-A deferred word can be used to improve the statistics-gathering example
-from @ref{User-defined Defining Words}; rather than edit the
-application's source code to change every @code{:} to a @code{my:}, do
-this:
-
-@example
-: real: : ;     \ retain access to the original
-defer :         \ redefine as a deferred word
-' my: IS :      \ use special version of :
-\
-\ load application here
-\
-' real: IS :    \ go back to the original
-@end example
-
-
 One thing to note is that @code{IS} has special compilation semantics,
 such that it parses the name at compile time (like @code{TO}):
 
@@ -9334,7 +9310,27 @@ such that it parses the name at compile time (like @code{TO}):
 ' greet1 set-greet
 @end example
 
-In situations where @code{IS} does not fit, use @code{defer!} instead.
+You can extract the xt of a @word{defer}red word with @code{action-of}:
+
+@source
+action-of greet ( xt ) >name id.
+@end source
+
+As an alternative to @word{is}, which takes a name from the input
+stream, there is also @word{defer!}, which works on an execution token
+passed on the stack.  Likewise, @word{defer@} is the xt-passing
+alternative to @word{action-of}.
+
+For defining a nameless word and assigning it to a deferred word right
+away, there is a shortcut:
+
+@source
+:is greet ." Good evening" ;
+@end source
+
+However, for this example, you would actually prefer to give a name to
+the word, so that you can switch the greting to ``Good evening''
+easily at the start of every evening.
 
 A deferred word can only inherit execution semantics from the xt
 (because that is all that an xt can represent -- for more discussion of
@@ -9357,16 +9353,17 @@ doc-defer!
 doc-is
 doc-defer@
 doc-action-of
-doc-:is
 
 @c Use @code{words-deferred} to see a list of deferred words.
 
 Definitions of these Forth-2012 words in Forth-94 are provided in
 @file{compat/defer.fs}.  In addition, Gforth provides:
 
+doc-:is
 doc-defers
 doc-wrap-xt
 doc-preserve
+
 
 
 @node Aliases,  , Deferred Words, Defining Words
