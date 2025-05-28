@@ -273,7 +273,7 @@ uncolored-mode
 
 0 Value term-rgb?
 
-slowvoc on wordlist constant gforth-init slowvoc off
+slowvoc on wordlist slowvoc off constant gforth-init
 
 : set-colors { xt: color -- }
     attr? IF
