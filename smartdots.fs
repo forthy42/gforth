@@ -119,7 +119,8 @@ debug: .string.( ( -- ) \ gforth-internal dot-string-dot-paren
 	dpth I perform ?LEAVE
     LOOP ;
 
-: wrap-xt {: xt1 xt2 xt: xt3 -- ... :} \ gforth
+: wrap-xt ( ... xt1 xt2 xt3 -- ... ) \ gforth
+    {: xt1 xt2 xt: xt3 :}
     \G Set deferred word xt2 to xt1 and execute xt3.
     \G Restore afterwards.
     xt2 defer@ {: old-xt2 :} try

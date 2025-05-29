@@ -52,36 +52,36 @@ fold1:
 \g An empty structure, used to start a structure definition.
 
 \ type descriptors
-1 aligned   1 cells   2constant cell% ( -- align size ) \ gforth
-1 chars     1 chars   2constant char% ( -- align size ) \ gforth
-1 faligned  1 floats  2constant float% ( -- align size ) \ gforth
-1 dfaligned 1 dfloats 2constant dfloat% ( -- align size ) \ gforth
-1 sfaligned 1 sfloats 2constant sfloat% ( -- align size ) \ gforth
-cell% 2*              2constant double% ( -- align size ) \ gforth
+1 aligned   1 cells   2constant cell% ( -- align size ) \ gforth cell-percent
+1 chars     1 chars   2constant char% ( -- align size ) \ gforth char-percent
+1 faligned  1 floats  2constant float% ( -- align size ) \ gforth float-percent
+1 dfaligned 1 dfloats 2constant dfloat% ( -- align size ) \ gforth d-float-percent
+1 sfaligned 1 sfloats 2constant sfloat% ( -- align size ) \ gforth s-float-percent
+cell% 2*              2constant double% ( -- align size ) \ gforth double-percent
 
 \ memory allocation words
-' drop alias %alignment ( align size -- align ) \ gforth
+' drop alias %alignment ( align size -- align ) \ gforth percent-alignment
 \g The alignment of the structure.
-' nip alias %size ( align size -- size ) \ gforth
+' nip alias %size ( align size -- size ) \ gforth percent-size
 \g The size of the structure.
 
-: %align ( align size -- ) \ gforth
+: %align ( align size -- ) \ gforth percent-align
     \G Align the data space pointer to the alignment @var{align}. 
     drop here swap naligned here - allot ;
 
-: %allot ( align size -- addr ) \ gforth
+: %allot ( align size -- addr ) \ gforth percent-allot
     \g Allot @var{size} address units of data space with alignment
     \g @var{align}; the resulting block of data is found at
     \g @var{addr}.
     tuck %align
     here swap allot ;
 
-: %allocate ( align size -- addr ior ) \ gforth
+: %allocate ( align size -- addr ior ) \ gforth percent-allocate
     \g Allocate @var{size} address units with alignment @var{align},
     \g similar to @code{allocate}.
     nip allocate ;
 
-: %alloc ( align size -- addr ) \ gforth
+: %alloc ( align size -- addr ) \ gforth percent-alloc
     \g Allocate @var{size} address units with alignment @var{align},
     \g giving a data block at @var{addr}; @code{throw} an ior code
     \g if not successful.

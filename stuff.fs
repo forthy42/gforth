@@ -232,13 +232,13 @@ opt: @ 2 swap (to), ;
     \G set the recognizer stack from content on the stack
     ['] forth-recognize set-recognizer-sequence ;
 
-: -stack { x stack -- } \ gforth-experimental
+: -stack { x stack -- } \ gforth-experimental minus-stack
     \G Delete every occurence of @i{x} from anywhere in @i{stack}.
     stack get-stack  0 stack set-stack 0 ?DO
         dup x <> IF  stack >back  ELSE	drop  THEN
     LOOP ;
 
-: +after { x1 x2 stack -- } \ gforth-experimental
+: +after { x1 x2 stack -- } \ gforth-experimental plus-after
     \G Insert @var{x1} below every occurence @var{x2} in @i{stack}.
     stack get-stack  0 stack set-stack 0 ?DO
 	dup stack >back x2 = IF  x1 stack >back  THEN

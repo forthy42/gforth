@@ -52,7 +52,7 @@ standard:field
     0 extend-structure ;
 
 : end-structure ( struct-sys +n -- ) \ facility-ext
-    \g end a structure started wioth @code{begin-structure}
+    \g end a structure started with @code{begin-structure}
     swap ! ;
 
 : cfield: ( u1 "name" -- u2 ) \ facility-ext c-field-colon

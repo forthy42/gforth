@@ -351,7 +351,7 @@ Defining Words
 * Supplying names::             Passing definition names as strings
 * User-defined Defining Words::
 * Deferred Words::              Allow forward references
-* Aliases::
+* Synonyms::
 
 User-defined Defining Words
 
@@ -7978,7 +7978,7 @@ Defining words are used to extend Forth by creating new entries in the dictionar
 * Supplying names::             Passing definition names as strings
 * User-defined Defining Words::
 * Deferred Words::              Allow forward references
-* Aliases::
+* Synonyms::
 @end menu
 
 @node CREATE, Variables, Defining Words, Defining Words
@@ -9251,7 +9251,7 @@ A Standard Forth implementation of @code{const-does>} is available in
 @file{compat/const-does.fs}.
 
 @c -----------------------------------------------------------------------
-@node Deferred Words, Aliases, User-defined Defining Words, Defining Words
+@node Deferred Words, Synonyms, User-defined Defining Words, Defining Words
 @subsection Deferred Words
 @cindex deferred words
 
@@ -9367,6 +9367,8 @@ use of @word{preserve} is shown in this example:
   preserve greet \ Equivalent to: ['] greet2 is greet
 ;
 
+' greet1 is greet
+greet \ "Good Morning" 
 ' smalltalk when-in-rome \ "Buon Giorno! Isn't the weather nice?"
 greet \ "Hello"
 @end source
@@ -9383,6 +9385,7 @@ temporarily and then restore its old run-time value, use
   [: ." Buon Giorno!" ;] ['] greet rot wrap-xt ;
 
 ' greet1 is greet
+greet \ "Good Morning" 
 ' smalltalk when-in-rome2 \ "Buon Giorno! Isn't the weather nice?"
 greet \ "Good Morning"
 @end source
@@ -9416,8 +9419,8 @@ Defer jim
 @c Use @code{words-deferred} to see a list of deferred words.
 
 
-@node Aliases,  , Deferred Words, Defining Words
-@subsection Aliases
+@node Synonyms,  , Deferred Words, Defining Words
+@subsection Synonyms
 @cindex aliases
 @cindex synonyms
 
@@ -9428,32 +9431,39 @@ are two situation where this can be useful:
 @itemize @bullet
 @item
 When you want access to a word's definition from a different word list
-(for an example of this, see the definition of the @code{Root} word list
+(for an example of this, see the definitions in the @code{Root} word list
 in the Gforth source).
 @item
 When you want to create a synonym; a definition that can be known by
-either of two names (for example, @code{THEN} and @code{ENDIF} are
-synonyms).
+either of two names (for example, @code{THEN} and @code{ENDIF} can be
+defined as synonyms).
 @end itemize
 
 doc-synonym
 
-Gforth also offers the non-standard @code{alias}, that does not
-inherit the compilation semantics, @code{to @emph{name}} semantics
-etc. from its parent.  You can then change, e.g., the compilation
-semantics with, e.g., @code{immediate}.
+Gforth also offers the Gforth-specific @code{alias}, that allows to
+define another word with the same execution token, but otherwise
+default semantics (no copying of compilation or other semantics).  You
+can then change, e.g., the compilation semantics with, e.g.,
+@code{immediate}.
 
 doc-alias
 
 Example:
 
-@example
-: foo ... ; immediate
+@source
+: foo ." foo" ; immediate
 
 ' foo Alias bar1           \ bar1 is not an immediate word
 ' foo Alias bar2 immediate \ bar2 is an immediate word
 synonym bar3 foo           \ bar3 is an immediate word
-@end example
+: test-bar1 bar1 ; \ no output
+test-bar1          \ "foo"
+: test-bar2 bar2 ; \ "foo"
+test-bar2          \ no output
+: test-bar3 bar3 ; \ "foo"
+test-bar3          \ no output
+@end source
 
 Both synonyms and aliases have a different nt than the original, but
 ticking it (or using @code{name>interpret}) produces the same xt as
@@ -9514,7 +9524,7 @@ don't run into conflicts when several structures have @code{next} and
 wordlist (i.e., the same name space) as the other words (including
 other field names), and trying to use the search order (@pxref{Word
 Lists}) for avoiding conflicts is rather cumbersome (unless you use
-the scope recognizer !! pxref).
+the scope recognizer @pxref{Dealing with existing Recognizers}).
 
 You can then use that to allocate an instance of that structure and
 then use the field words to access the fields of that instance:
@@ -9818,7 +9828,7 @@ documentation for Gforth's structs.
 @cindex @code{struct} usage
 @cindex @code{end-struct} usage
 
-The @code{list} and @code{intlist} example looks like this with Gforth
+The @code{list} and @code{intlist} examples look like this with Gforth
 structs:
 
 @example
@@ -17681,7 +17691,7 @@ reorganization of the header layout.
 Some of the words expect an nt, some expect an xt.  Given that both nt
 and xt point to the body of a word, what is the difference?  For most
 words, the xt and nt use the same header, and with nt=xt, they point
-to the same place.  However, for a synonym (@pxref{Aliases}) there is
+to the same place.  However, for a synonym (@pxref{Synonyms}) there is
 a difference; consider the example
 
 @example

@@ -467,7 +467,8 @@ $BF000000. 1 cells 8 = [IF] #32 dlshift [THEN] dValue synonym-mask \ do not copy
 : Synonym ( "name" "oldname" -- ) \ tools-ext
     \G Define @i{name} to behave the same way as @i{oldname}: Same
     \G interpretation semantics, same compilation semantics, same
-    \G @code{to}/@code{defer!} and @code{defer@@} semantics.
+    \G @word{to}, @word{+to}, @word{is}, @word{action-of} and
+    \G @word{addr} semantics.
     ['] parse-name create-from
     ?parse-name find-name ?found
     dup >f+c @ synonym-mask and latest >f+c +!
