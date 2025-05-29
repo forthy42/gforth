@@ -9310,27 +9310,92 @@ such that it parses the name at compile time (like @code{TO}):
 ' greet1 set-greet
 @end example
 
+doc-defer
+doc-is
+
 You can extract the xt of a @word{defer}red word with @code{action-of}:
 
 @source
 action-of greet ( xt ) >name id.
 @end source
 
-As an alternative to @word{is}, which takes a name from the input
-stream, there is also @word{defer!}, which works on an execution token
-passed on the stack.  Likewise, @word{defer@} is the xt-passing
-alternative to @word{action-of}.
+doc-action-of
 
-For defining a nameless word and assigning it to a deferred word right
-away, there is a shortcut:
+One usage for deferred words is the definition of a an action (e.g.,
+initialization) in several pieces, each piece in a different source
+file dealing with the matters of that source file.  This can be done
+with
 
 @source
-:is greet ." Good evening" ;
+defer myspeech ( -- )
+:noname cr ." <central message>" ; is myspeech
+
+\ and in every source file where you want to add a piece, something like
+:noname ( -- )
+  cr ." <introduction>"
+  [ action-of myspeech compile, ]
+  cr ." <conclusion>"
+; is myspeech
 @end source
 
-However, for this example, you would actually prefer to give a name to
-the word, so that you can switch the greting to ``Good evening''
-easily at the start of every evening.
+The @code{[ action-of myspeech compile, ]} calls the previous content
+of @word{myspeech}.  Gforth offers the words @word{:is} and
+@word{defers} to express the last definition more conveniently:
+
+@source
+:is myspeech ( -- )
+  cr ." <introduction>"
+  defers myspeech
+  cr ." <conclusion>" ;
+@end source
+
+doc-:is
+doc-defers
+
+Another usage is to change a deferred word temporarily, and later
+change it back.  Gforth provides words for supporting this usage.  The
+use of @word{preserve} is shown in this example:
+
+@source
+: smalltalk ( -- )
+  greet ."  Isn't the weather nice?" ;
+
+\ here GREET perfroms GREET2
+: when-in-rome ( xt -- )
+  [: ." Buon Giorno!" ;] is greet
+  execute
+  preserve greet \ Equivalent to: ['] greet2 is greet
+;
+
+' smalltalk when-in-rome \ "Buon Giorno! Isn't the weather nice?"
+greet \ "Hello"
+@end source
+
+doc-preserve
+
+@word{Preserve} is only appropriate when you want to restore the
+deferred word to a fixed xt.  If you want to change a deferred
+temporarily and then restore its old run-time value, use
+@word{wrap-xt}:
+
+@source
+: when-in-rome2 ( xt -- )
+  [: ." Buon Giorno!" ;] ['] greet rot wrap-xt ;
+
+' greet1 is greet
+' smalltalk when-in-rome2 \ "Buon Giorno! Isn't the weather nice?"
+greet \ "Good Morning"
+@end source
+
+doc-wrap-xt
+
+For implementing words like @word{wrap-xt} to which you pass the xt of
+a deferred word, you cannot use @word{is} and @word{action-of}, which
+consume a name from the input stream.  Instead, you use the words
+@word{defer!} and @word{defer@}.
+
+doc-defer!
+doc-defer@
 
 A deferred word can only inherit execution semantics from the xt
 (because that is all that an xt can represent -- for more discussion of
@@ -9348,22 +9413,7 @@ Defer jim
 ' bar IS fred \ fred is immediate
 @end example
 
-doc-defer
-doc-defer!
-doc-is
-doc-defer@
-doc-action-of
-
 @c Use @code{words-deferred} to see a list of deferred words.
-
-Definitions of these Forth-2012 words in Forth-94 are provided in
-@file{compat/defer.fs}.  In addition, Gforth provides:
-
-doc-:is
-doc-defers
-doc-wrap-xt
-doc-preserve
-
 
 
 @node Aliases,  , Deferred Words, Defining Words

@@ -110,9 +110,13 @@ AUser CSP
 
 \ defer stuff
 
-: preserve ( "name" -- ) \ gforth
-    \G emit code that reverts a deferred word to the state at
-    \G compilation
+: preserve ( compilation "name" -- ; run-time -- ) \ gforth
+    \G @i{Name} has to be a defer-flavoured word that does not consume
+    \G additional stack items for addressing (i.e., not a
+    \G defer-flavoured field).  @code{Preserve @i{name}} changes
+    \G @i{name} at run-time to execute the same XT that it had at
+    \G compile time.  I.e., @code{Preserve @i{name}} is equivalent to
+    \G @code{[ action-of @i{name} ] literal is @i{name}}.
     ' dup defer@ lit, 3 swap (to), ; immediate
 
 \ easier definer of noname words that are assigned to a deferred word
