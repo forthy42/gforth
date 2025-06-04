@@ -18,8 +18,11 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-2 to: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
-\G @i{Xt} is the XT that is currently assigned to @i{name}.
+2 to: action-of ( interpretation "name" ... -- xt; compilation "name" -- ; run-time ... -- xt ) \ core-ext
+\G @i{Name} is a defer-flavoured word, @i{...} is optional additional
+\G addressing information, e.g., for a defer-flavoured field.  At run-time, perform the
+\G @i{action-of @i{name}} semantics: Push the @i{xt}, that @i{name}
+\G (possibly with additional addressing data on the stack) executes.
 
 : pow2? ( u -- f ) \ gforth pow-two-query
     \g @i{f} is true if and only if @i{u} is a power of two, i.e., there is

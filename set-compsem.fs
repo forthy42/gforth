@@ -28,7 +28,7 @@
 
 : intsem: ( -- ) \ gforth-experimental
     \G The current definition's compilation semantics are changed to
-    \G perform its execution semantics (the word becomes immediate).
+    \G perform its execution semantics.
     \G Then its interpretation semantics are changed to perform the
     \G definition starting at the @code{intsem:}.  Note that if you
     \G then call @code{immediate}, the compilation semantics are

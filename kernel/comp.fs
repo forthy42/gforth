@@ -413,8 +413,8 @@ include ./recognizer.fs
 
 : imm>comp  name>interpret ['] execute ;
 : immediate ( -- ) \ core
-    \G Make the compilation semantics of a word be to @code{execute}
-    \G the execution semantics.
+    \G Change the compilation semantics of a word to be the same as
+    \G its interpretation semantics.
     ['] imm>comp set->comp ;
 
 : restrict ( -- ) \ gforth
@@ -560,8 +560,9 @@ defer defer-default ( -- )
 : Defer ( "name" -- ) \ core-ext
 \G Define a deferred word @i{name}; you have to set it to an xt before
 \G executing it.@* @i{name} execution: execute the most recent xt that
-\G @i{name} has been set to.@* @code{IS @i{name}} run-time: @i{( xt
-\G -- )} Set @i{name} to execute @i{xt}.
+\G @i{name} has been set to.@* @code{Is @i{name}} run-time: @i{( xt --
+\G )} Set @i{name} to execute @i{xt}.@* @code{Action-of @i{name}}
+\G run-time: @i{( -- xt )} @i{Xt} is currently assigned to @i{name}.
     ['] parse-name create-from reveal
     ['] defer-default A, ;
 
@@ -775,11 +776,14 @@ Create hmtemplate
     \g Compilation semantics of \code{to}.
     record-name 0 (') (to), ; immediate restrict
 
-' int-to ' comp-to interpret/compile: TO ( value "name" -- ) \ core-ext
-\g Changes the value of @var{name} to be equal to @i{value}.  The type
-\g of @i{value} depends on the type of @i{name} (see the defining word
-\g for @i{name} for the exact stack effect).  An alternative syntax is
-\g to write @code{->@i{name}}.
+' int-to ' comp-to interpret/compile: TO ( value ... "name" -- ) \ core-ext
+\G @i{Name} is a value-flavoured word, @i{...} is optional additional
+\G addressing information, e.g., for a value-flavoured field.  At
+\G run-time, perform the @i{to @i{name}} semantics: change @i{name}
+\G (with the same additional addressing information) to push
+\G @i{value}.  The type of @i{value} depends on the type of @i{name}
+\G (see the defining word for @i{name} for the actual type).
+\G An alternative syntax is to write @code{->@i{name}}.
 
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
@@ -790,17 +794,25 @@ Create hmtemplate
     \g execute @var{xt}.
     record-name 3 (') (to), ; immediate restrict
 
-' <IS> ' [IS] interpret/compile: IS ( xt "name" -- ) \ core-ext
-\g changes the @code{defer}red word @var{name} to execute @var{xt}
+' <IS> ' [IS] interpret/compile: IS ( xt ... "name" -- ) \ core-ext
+\G @i{Name} is a defer-flavoured word, @i{...} is optional additional
+\G addressing information, e.g., for a defer-flavoured field.  At
+\G run-time, perform the @i{is @i{name}} semantics: change @i{name}
+\G (with the same additional addressing information) to execute
+\G @i{xt}.
 
 : <+TO>  record-name 1 (') (to) ;
 : [+TO]  record-name 1 (') (to), ; immediate restrict
 
-' <+TO> ' [+TO] interpret/compile: +TO ( value "name" -- ) \ gforth
-\g Adds @i{value} to the value of @var{name}.  The type of @i{value}
-\g depends on the type of @i{name} (see the defining word for @i{name}
-\g for the exact stack effect).  An alternative syntax is to write
-\g @code{+>@i{name}}.
+' <+TO> ' [+TO] interpret/compile: +TO ( value ... "name" -- ) \ gforth
+\G @i{Name} is a value-flavoured word, @i{...} is optional additional
+\G addressing information, e.g., for a value-flavoured field.  At
+\G run-time, perform the @i{+to @i{name}} semantics: if @i{name} (with
+\G the same additional addressing information) pushed @i{value1}
+\G before, change it to push @i{value2}, the sum of the @i{value1} and
+\G @i{value}.  The type of @i{value} depends on the type of @i{name}
+\G (see the defining word for @i{name} for the actual type).  An
+\G alternative syntax is to write @code{+>@i{name}}.
 
 \ \ : ; 24feb93py
 
