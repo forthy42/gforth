@@ -469,6 +469,7 @@ attitude_t-timeTag
 attitude_t-yaw
 attitude_t-yaw_st
 attr!
+attr?
 (Attr!)
 Attr
 at-xy
@@ -1205,6 +1206,7 @@ default-color
 defaultcolor
 default-i/c
 default-in
+default-input
 default-locale
 default-method
 default-name>comp
@@ -2046,6 +2048,8 @@ get-xkey
 gforth
 gforth
 gforth_create_thread
+?gforth-init
+gforth-init
 gforth-pointers
 GFreeFunc:
 GFunc:
@@ -5094,6 +5098,7 @@ semaphore
 send-event
 set-bn-view
 set-bp
+set-colors
 set->comp
 set-compsem
 setcur
