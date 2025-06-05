@@ -46,13 +46,15 @@ previous set-current
 
 :noname record-name 4 (') ?addr [ ' (to) :, ] ;
 :noname record-name 4 (') ?addr (to), ;
-interpret/compile: addr ( "name" -- addr ) \ gforth
-\g @i{Addr} is the address where the value of @i{name} is stored.
-\g @i{Name} has to be defined with any value-flavoured defining word
-\g (e.g. @code{value}) preceded by @code{addressable:}.
+interpret/compile: addr ( interpretation "name" ... -- addr; compilation "name" -- ; run-time ... -- addr ) \ gforth
+\G @i{Name} is an @code{addressable:} value-flavoured word, @i{...} is
+\G optional additional addressing information, e.g., for a
+\G value-flavoured field.  @i{Addr} is the address where the value of
+\G @i{name} (taking the additional address information into account)
+\G is stored.
 
 4 to-access: >addr ( ... xt -- addr ) \ gforth-internal  to-addr
-    \G Obtain the address @var{addr} of the addressible
+    \G Obtain the address @var{addr} of the @code{addressable:}
     \G value-flavoured word @var{xt}.  For some value-flavoured words,
     \G additional inputs may be consumed.
 
