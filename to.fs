@@ -44,7 +44,9 @@
 
 \ new interpret/compile:, we need it already here
 
-: interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
+: interpret/compile: ( int-xt comp-xt "name" -- ) \ gforth interpret-slash-compile-colon
+    \G Defines @i{name}.@* @i{Name} execution: execute @i{int-xt}.@*
+    \G @i{Name} compilation: execute @i{comp-xt}.
     swap alias ,
     ['] i/c>comp set->comp
     ['] n/a set-to ;

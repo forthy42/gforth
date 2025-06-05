@@ -3267,7 +3267,7 @@ Reference: @ref{Interpretation and Compilation Semantics}.
 
 @code{' word} gives you the execution token (XT) of a word.  The XT is a
 cell representing the interpretation semantics of a word.  You can
-execute this semantics with @code{execute}:
+execute these semantics with @code{execute}:
 
 @example
 ' + .s
@@ -9939,19 +9939,18 @@ interpretation semantics) or immediate compilation semantics (perform
 the interpretation semantics); a few have other combinations of
 interpretation and compilation semantics (combined words).
 
-@cindex interpretation and execution semantics
-@cindex execution and interpretation semantics
+@cindex interpretation/execution semantics
+@cindex execution/interpretation semantics
 @cindex semantics, execution
-@cindex run-time semantics
-@cindex semantics, run-time
-The standard also discusses execution semantics and run-time
-semantics; they are just used to define interpretation and/or
-compilation semantics, so they are not as essential as interpretation
-and compilation semantics.  In particular, for every word in the
-standard that has both interpretation and execution semantics, they
-are the same.  In Gforth (since 1.0), they are always the same, and
-this manual uses the terms interchangeably, usually preferring
-interpretation semantics.
+The standard also discusses execution semantics, but it uses them only
+to define interpretation and/or compilation semantics, so they are not
+as essential as interpretation and compilation semantics.  In
+particular, for every word in the standard that has both
+interpretation and execution semantics, they are the same.  In Gforth
+(since 1.0), they are always the same, and this manual uses the terms
+interchangeably, usually preferring interpretation semantics.  In the
+description of defining words, you see ``@i{name} execution'', which
+describes the interpretation/execution semantics of @i{name}.
 
 Some named words also have some of
 @code{to}/@code{+to}/@code{action-of}/@code{is}/@code{addr @i{name}}
@@ -9975,7 +9974,7 @@ The most common use of the interpretation semantics of a word @i{w} is
 when @i{w} is text-interpreted in interpretation state, the default
 state of the text interpreter.
 
-I.e., when you start Gforth and right away type
+I.e., when you start Gforth and type
 
 @source
 s" hello" type
@@ -9987,6 +9986,10 @@ words @word{s"} and @word{type}.
 Also, when you get the execution token of a word @i{w} with
 @code{`@i{w}}, @code{' @i{w}} or @code{['] @i{w}} (@pxref{Execution
 token}), the execution token represents the interpretation semantics.
+
+When you get the execution token of the most recently defined word
+with @word{latestxt} (@pxref{Anonymous Definitions}), that also refers
+to the interpretation semantics of the word.
 
 Finally, @word{name>interpret} (@pxref{Name token}) produces an
 execution token that represents the interpretation semantics of the
@@ -10005,9 +10008,9 @@ starting a definition with, e.g., @word{:}.
   s" hello" type ;
 @end source
 
-In this example, the text interpreter performs the interpretation
-semantics of @word{:}, and the compilation semantics of
-@word{s"}, @word{type} and @word{;}.
+In this example, the text interpreter performs the compilation
+semantics of @word{s"}, @word{type} and @word{;} (after first
+performing the interpretation semantics of @word{:})
 
 When you postpone a word, you also use the compilation semantics.
 
@@ -10040,19 +10043,46 @@ word @i{w} with @code{``@i{w} name>compile}, @code{comp' @i{w}}, or
 For words built into Gforth, the documentation specifies the semantics.
 
 Most words have default compilation semantics.  For such words (e.g.,
-@word{!}, @pxref{Memory Access}) the documentation specifies the
-interpretation (aka execution) semantics.  Their compilation semantics
-is to compile the interpretation semantics into the current
-definition; the stack effect of the default compilation semantics is
-@code{( -- )}.
+@word{!}, @pxref{Memory Access}) the documentation describes the
+interpretation semantics without explicitly labeling as such.  The
+compilation semantics of these words is to compile the interpretation
+semantics into the current definition; the stack effect of performing
+the default compilation semantics is @code{( -- )}.
 
 Some words have non-default compilation semantics.  This is either
 indicated by labels for interpretation, compilation, and/or run-time
 in the stack effects (e.g., for @word{IF}, @pxref{Arbitrary control
 structures}), or by having separate paragraphs for interpretation,
 compilation, and/or run-time in the prose (e.g., for @word{S"},
-@pxref{String and character literals}).  The standard always takes the
-separate-paragraph approach.  The approach taken here may be more
+@pxref{String and character literals}).
+
+@cindex semantics, run-time
+@cindex run-time semantics
+You may wonder about the run-time semantics mentioned in the previous
+paragraphs.  For some words (e.g., @word{if}), the compilation
+semantics compiles something that is not the interpretation/execution
+semantics.  We (and the standard) describe the behaviour of the code
+that these words compile with under the label ``run-time semantics'';
+if you see ``run-time'' in a word description (e.g., in its stack
+effect), that usually refers to run-time semantics that the
+compilation semantics of the word compiles.
+
+Concerning the description of the various semantics, both the standard
+and this manual describe the interpretation/execution semantics of
+words with default semantics without preceding these semantics with a
+label (the label ``execution'' or ``interpretation'' would be
+appropriate).  The compilation semantics of such words are the implied
+default compilation semantics (@pxref{What sematics do normal
+definitions have?}).
+
+For words that have some non-default semantics, the standard specifies
+the different semantics of the word in separate subsections, each
+preceded with a label (``interpretation:'', ``compilation:'', and, if
+necessary, ``execution:'' or ``run-time:''@footnote{In some cases the
+standard leaves the subsection for interpretation or compilation
+semantics away, and leaves it to the default mechanism to derive those
+semantics from execution semantics.}).  This manual often takes a more
+informal approach.  The approach taken in this manual may be more
 accomodating for everyday use, while the standard approach is more
 precise for reasoning about details of the language.
 
@@ -10066,20 +10096,27 @@ semantics and default compilation semantics; those that do not (e.g,
 appropriately.
 
 @cindex interpretation semantics, default
-The (default) interpretation semantics of the newly defined word
-@i{name} are described in the ``@i{name} execution:'' part of the
-description of the defining word.  Things are a little more
-complicated for colon definitions (@pxref{Colon Definitions}) and
-words using @word{create}...@word{does>} (@pxref{User-defined defining
-words using CREATE}), but again, the description of what these words
-do describes the interpretation semantics.
+The interpretation semantics of the newly defined word @i{name} are
+described in the ``@i{name} execution:'' part of the description of
+the defining word.  Things are a little more complicated for colon
+definitions (@pxref{Colon Definitions}) and words using
+@code{create}...@code{does>} (@pxref{User-defined defining words using
+CREATE}), but again, the description of what these words do is about
+the interpretation semantics.
 
 @cindex compilation semantics, default
-The default compilation semantics of a word @i{w} are to compile the
-interpretation semantics; more formally: to append the interpretation
-semantics of @i{w} to the interpretation semantics of the current
-definition (the one started with @word{:} in case of a colon
-definition).
+For a word @i{w} with default compilation semantics, the compilation
+semantics are to compile the interpretation semantics.  More formally:
+to append the interpretation semantics of @i{w} to the interpretation
+semantics of the current definition.  As an example, consider the
+definition
+
+@example
+: @i{name} ... @i{w} ... ;
+@end example
+
+Here the interpretation semantics of @i{w} is appended to the
+interpretation semantics of @i{name}.
 
 
 @node How to define immediate words, How to define combined words, What sematics do normal definitions have?, Interpretation and Compilation Semantics
@@ -10128,16 +10165,16 @@ Example:
 endif \ "warning: endif is compile-only"
 @end source
 
-The warning is followed by a stack underflow error because the
-@word{then} wants to consume an @i{orig} (@pxref{Arbitrary control
-structures}).
+The warning is followed by a stack underflow error because @word{then}
+wants to consume an @i{orig} (@pxref{Arbitrary control structures}).
 
 Note that compiling code while the text interpreter is in interpret
 state is not a problem in itself, even if a number of words are marked
-@word{compile-only}.  A bigger problem is compiling code if the
-current definition is not an unfinished colon definition.  Gforth
-warns about that even if a word is not marked compile-only or if you
-text-interpret it in compile state:
+@word{compile-only}.  A more serious problem is compiling code if the
+current definition is not an unfinished colon definition: there is no
+way to run the resulting code.  Gforth warns about that even if a word
+is not marked compile-only or if you text-interpret it in compile
+state:
 
 @source
 : compile-+
@@ -10176,12 +10213,13 @@ doc-restrict
 @cindex compilation and interpretation semantics, arbitrary combination
 @cindex NDCS word
 
-I a few cases (and most of those are a bad idea) you want to define a
+In a few cases (and most of those are a bad idea) you want to define a
 word that has some other combination of interpretation and compilation
-semantics than words with default compilation semantics and immediate
-words (a combined word@footnote{Some people call it NDCS, but immediate words
-also have non-default compilation semantics}).  The following contrived
-example shows how you can define such words:
+semantics than words with default compilation semantics or immediate
+words (a combined word@footnote{Some people call combined words
+``NDCS'', but immediate words also have non-default compilation
+semantics}).  The following contrived example shows how you can define
+a combined word:
 
 @source
 : foo ." foo" ;
@@ -10196,18 +10234,18 @@ doc-interpret/compile:
 
 There are two kinds of uses for combined words:
 
-Parsing words that should be copy-pasteable between interpreted and
-compiled code; these words should parse at text-interpret time both in
-their interpretation and their compilation semantics (like an
-immediate word), but then should perform an action in their
-interpretation semantics and compile that action in their compilation
-semantics.  An example is @word{."} in Gforth:
+One use of combined words is parsing words that should be
+copy-pasteable between interpreted and compiled code; these words
+should parse at text-interpret time both in their interpretation and
+their compilation semantics (like an immediate word), but then should
+perform an action in their interpretation semantics and compile that
+action in their compilation semantics, like a normal word.  An example
+is @word{."} in Gforth:
 
 @source
-: ."-int ( 'ccc"' -- )
-  '"' parse type ;
-: ."-comp ( 'ccc"' -- )
-  '"' parse postpone sliteral postpone type ;
+: ."-int ( 'ccc"' -- )  '"' parse type ;
+: ."-comp ( 'ccc"' -- ) '"' parse postpone sliteral postpone type ;
+
 ' ."-int ' ."-comp interpret/compile: ."
 ( interpretation 'ccc"' -- ; compilation 'ccc"' -- ; run-time -- )
 
@@ -10217,46 +10255,48 @@ foo             \ "foo"
 @end source
 
 The parsing code is the same in both cases, the action @word{type} is
-directly executed in one semantics and compiled in the other one.  The
-compilation semantics also contains @code{postpone sliteral} to
-transfer the parsed string from text-interpretation time to the
-run-time of the action.  This kind of parse/literal/action split with
-the use of @word{postpone} is typical for the implementations of the
-compilation semantics of such parsing words, and the interpretation
-semantics consist just of the parse and the action parts.
+directly executed in the interpretation semantics and compiled in the
+compilation semantics.  The compilation semantics also contains
+@code{postpone sliteral} to transfer the parsed string from
+text-interpretation time to the run-time of the action.  This kind of
+parse/literal/action split with the use of @word{postpone} is typical
+for the implementations of the compilation semantics of such parsing
+words, and the interpretation semantics consist just of the parse and
+the action parts.
 
 @cindex state-smart words (are a bad idea)
-We discourage the definition of additional combined words.  While
-using such words in ordinary interpreted and compiled code works as
-intended, their use in other contexts (such as ticking or
-@code{postpone}ing them) can be confusing (although still not as bad
-as @anchor{state-smartness}@code{state}-smart
+We discourage the definition of additional combined words for
+copy-pasteability.  They do not work as intended within
+@code{]]}...@code{[[} (@pxref{Macros}) and their behaviour is also
+confusing in other contexts, e.g., when ticking or @word{postpone}ing
+such a word.  A way to achieve copy-pasteability without needing to
+define combined words is recognizers (@pxref{Recognizers}).
+@code{"foo" type} uses the string recognizer (@pxref{Dealing with
+existing Recognizers}) and can be copied and pasted between
+interpreted code, compiled code and code inside @code{]]}...@code{[[}
+without problem.
+
+On the other hand, combined words are still far better than
+@anchor{state-smartness}@code{state}-smart
 words@footnote{@code{State}-smart words are immediate words that do
-@word{state}-dependent things at run-time}.  For a more detailed
+@word{state}-dependent things at run-time.  For a more detailed
 discussion of this topic, see M. Anton Ertl,
 @cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl98.ps.gz,@code{State}-smartness---Why
-it is Evil and How to Exorcise it}}, EuroForth '98.).
+it is Evil and How to Exorcise it}}, EuroForth '98.}
 
-A way to achieve copy-pasteability without needing to define combined
-words is recognizers (@pxref{Recognizers}).  E.g., an alternative to
-the combined word @word{s\"} is to use the string recognizer
-(@code{"@i{string}"}), and an alternative to use the combined word
-@word{to} is to use the to-recognizer (@code{->@i{value}},
-@pxref{Dealing with existing Recognizers}).
-
-The other kind of use of @word{interpret/compile:} is for defining
-words like @word{[:} (@pxref{Quotations}).  These are not parsing
-words, but @code{[:}...@code{;]} sequences should be copy-pasteable
-between interpreted and compiled code; the whole sequence pushes an xt
-at its run-time.  At text-interpret time, it restores the state at the
-end to what it was at the start.  Ideally we would find a clean way to
+The other kind of use of combined words is for words like @word{[:}
+(@pxref{Quotations}).  These are not parsing words, but
+@code{[:}...@code{;]} sequences should be copy-pasteable between
+interpreted and compiled code; the whole sequence pushes an xt at its
+run-time.  At text-interpret time, it restores the state at the end to
+what it was at the start.  Ideally we would find a clean way to
 implement all this without needing combined words, but for now the
 implementation is pretty messy, including combined words.
 
 Some people also have the idea to use combined words for optimization.
 However, the resulting words do not work as intended with
 @code{[compile]} (@pxref{Macros}).  Gforth has a better mechanism for
-that purpose: @code{set-optimizer} (@pxref{User-defined
+optimization: @code{set-optimizer} (@pxref{User-defined
 compile-comma}).
 
 Some people worry about the aesthetics of @word{interpret/compile:}
