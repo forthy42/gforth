@@ -247,17 +247,19 @@ variable nextname$
     ['] noname-header IS header-name, ;
 
 : latestnt ( -- nt ) \ gforth
-    \G @i{nt} is the name token of the most recent word defined in the current section.
+    \G @i{nt} is the name token of the most recent word (named or
+    \G unnamed) defined in the current section.
     \ The main purpose of this word is to get the nt of words defined using noname
     lastnt @ ;
+
 : latestxt ( -- xt ) \ gforth
     \G @i{xt} is the execution token of the most recent word defined in the current section.
     \ The main purpose of this word is to get the xt of words defined using noname
     lastnt @ name>interpret ;
 
 : latest ( -- nt ) \ gforth
-\G @var{nt} is the name token of the last word defined in the current section; it is 0 if the
-\G last word has no name.
+\G @var{nt} is the name token of the last word defined in the current
+\G section.  @var{nt} is 0 if the last word has no name.
     lastnt @ dup name>string d0<> and ;
 
 \ \ literals							17dec92py
@@ -365,9 +367,7 @@ has? primcentric [IF]
     ['] default-name>comp set->comp ;
 
 : [']  ( compilation. "name" -- ; run-time. -- xt ) \ core      bracket-tick
-    \g @i{xt} represents @i{name}'s interpretation
-    \g semantics. Perform @code{-14 throw} if the word has no
-    \g interpretation semantics.
+    \g @i{xt} represents @i{name}'s interpretation semantics.
     ' postpone Literal ; immediate restrict
 
 : COMP'    ( "name" -- w xt ) \ gforth  comp-tick

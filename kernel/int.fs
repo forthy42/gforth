@@ -313,9 +313,8 @@ Defer where,
 forth-wordlist current !
 
 : find-name-in  ( c-addr u wid -- nt | 0 ) \ gforth
-    \G search the word list identified by @i{wid} for the definition
-    \G named by the string at @i{c-addr u}. Return its @i{nt}, if
-    \G found, otherwise 0.
+    \G Find the name @i{c-addr u} in the word list @i{wid}. Return its
+    \G @i{nt}, if found, otherwise 0.
     execute dup IF  drop  THEN ;
 
 : search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
@@ -622,9 +621,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
     parse-name name-too-short? forth-recognize '-error ;
 
 : '    ( "name" -- xt ) \ core	tick
-    \g @i{xt} represents @i{name}'s interpretation
-    \g semantics. Perform @code{-14 throw} if the word has no
-    \g interpretation semantics.
+    \g @i{xt} represents @i{name}'s interpretation semantics.
     (') name?int ;
 
 \ \ the interpreter loop				  mar92py

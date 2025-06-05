@@ -238,6 +238,8 @@ fp = fp_mem;
 \g control
 
 noop	( -- )		gforth
+""Does nothing.  However, code generation does not optimize it away;
+use @word{[noop]} for that.""
 :
  ;
 

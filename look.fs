@@ -111,12 +111,13 @@ has? rom
 [THEN]
 
 : >name ( xt -- nt|0 ) \ gforth to-name
-    \G The primary name token @i{nt} of the word represented by
+    \G @i{nt} is the primary name token of the word represented by
     \G @i{xt}.  Returns 0 if @i{xt} is not an xt (using a heuristic
     \G check that has a small chance of misidentifying a non-xt as
-    \G xt), or if the primary nt is of an unnamed word.  As of Gforth
-    \G 1.0, every xt has a primary nt, but other named words may have
-    \G the same interpretation sematics xt.
+    \G xt), or (before Gforth 1.0) if the primary nt is of an unnamed
+    \G word.  As of Gforth 1.0, every xt has a primary nt.  Several
+    \G words can have the same xt, but only one of them has the
+    \G primary nt of that xt.
     look and ;
 
 : threaded>name ( ca -- nt|0 )

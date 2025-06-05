@@ -9043,7 +9043,6 @@ to-table: d!-table 2! d+!
 @end source
 
 doc-n/a
-doc-[noop]
 doc-to-class:
 doc->uvalue
 doc-set-to
@@ -9939,9 +9938,9 @@ interpretation semantics) or immediate compilation semantics (perform
 the interpretation semantics); a few have other combinations of
 interpretation and compilation semantics (combined words).
 
-@cindex interpretation/execution semantics
-@cindex execution/interpretation semantics
-@cindex semantics, execution
+@cindex interpretation semantics (aka execution semantics)
+@cindex execution semantics (aka interpretation semantics)
+@cindex semantics, interpretation/execution
 The standard also discusses execution semantics, but it uses them only
 to define interpretation and/or compilation semantics, so they are not
 as essential as interpretation and compilation semantics.  In
@@ -10278,7 +10277,7 @@ without problem.
 
 On the other hand, combined words are still far better than
 @anchor{state-smartness}@code{state}-smart
-words@footnote{@code{State}-smart words are immediate words that do
+words.@footnote{@code{State}-smart words are immediate words that do
 @word{state}-dependent things at run-time.  For a more detailed
 discussion of this topic, see M. Anton Ertl,
 @cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl98.ps.gz,@code{State}-smartness---Why
@@ -10361,13 +10360,8 @@ definition.  Other uses include deferred words (@pxref{Deferred
 Words}).
 
 In particular, there is @emph{the} execution token of a word that
-represents its interpretation semantics aka execution
-semantics.@footnote{The Forth standard has words with undefined
-interpretation semantics (e.g., @code{r@@}) and words without defined
-execution semantics (e.g., @code{s"}) and words with neither (e.g.,
-@code{if}), but in cases where both interpretation and execution
-semantics are defined, they are the same; so we treat them as being
-the same.}
+represents its interpretation semantics (@pxref{Interpretation and
+Compilation Semantics}).
 
 @cindex prefix @code{`}
 @cindex @code{`} prefix
@@ -10376,14 +10370,14 @@ token:
 
 @example
 5 `. ( n xt )
-execute ( )      \ execute the xt (i.e., ".")
+execute ( )        \ "5"
 : foo `. execute ;
-5 foo
+5 foo              \ "5"
 @end example
 
 @cindex tick (')
-However, the @code{`} prefix is a Gforth extension, so you may prefer
-to use the Standard Forth words:
+However, the tick-recognizer that recognizes the @code{`} prefix is a
+Gforth extension, so you may prefer to use the Standard Forth words:
 
 doc-'
 doc-[']
@@ -10394,16 +10388,13 @@ compiled code unintuitive:
 
 @example
 5 ' .   ( n xt ) 
-execute ( )      \ execute the xt of .
-\ does not work as intended:
-\ : foo ' . ;
-\ 5 foo execute
-\ instead:
+execute ( )          \ "5"
+
 : foo ['] . ;
-5 foo execute    \ execute the xt of .
-\ Usage of ' in colon definition:
-: bar ' execute ;
-5 bar .          \ execute the xt of .
+5 foo execute        \ "5"
+
+: bar ' dup ;
+5 bar . drop execute \ "5"
 @end example
 
 @code{'} parses at run-time, so if you put it in a colon definition,
@@ -10416,21 +10407,13 @@ Gforth's @code{`@i{x}}, @code{'} and @code{[']} warn when you use them
 on compile-only words, because such usage may be non-portable between
 different Forth systems.
 
-You can avoid that warning as well as the portability problems by
-defining an immediate variant of the word, e.g.:
+You get the xt of the most recently defined word with @word{latestxt}
+(@pxref{Anonymous Definitions}).  For words defined using
+@word{noname}, this is the usual way of getting a token.
 
-@example
-: if postpone if ; immediate
-: test [ ' if execute ] ." test" then ;
-@end example
-
-The resulting execution token performs the compilation semantics of
-@code{if} when @code{execute}d.
-
-Another way to get an xt is @code{:noname} or @code{latestxt}
-(@pxref{Anonymous Definitions}).  For anonymous words this gives an xt
-for the only behaviour the word has (the execution semantics), but you
-can also use it after defining a named word to get its xt.
+For words defined with @word{:noname}, the definition already pushes
+the xt, so you do not need to use @word{latestxt} for
+@word{:noname}-defined words.
 
 @example
 :noname ." hello" ;
@@ -10449,28 +10432,21 @@ doc-execute
 doc-execute-exit
 doc-perform
 
-@code{Noop} is sometimes used to have a placeholder execution token:
+@code{[Noop]} is sometimes used as a placeholder execution token:
 
+doc-[noop]
 doc-noop
-
 
 @node Name token, Compilation token, Execution token, Tokens for Words
 @subsection Name token
 
-@cindex name token
+@cindex name token (nt)
 @cindex nt (name token)
-Gforth represents named words by the @dfn{name token}, (@i{nt}).  The
-name token is a cell-sized abstract data type that occurs as argument
-or result of the words below.
+A @dfn{name token} (@i{nt}) represents a word, primarily a named word,
+but in Gforth since 1.0 unnamed words have a name token, too.
 
-Since Gforth 1.0, for most words the concrete implementation of their
-nt is the same address as its xt (this is the primary nt for the xt).
-However, synonyms, aliases, and words defined with
-@code{interpret/compile:} get their xt from another word, but still
-have an nt of their own (that is different from the xt).  Therefore,
-you cannot use xts and nts interchangeably, even if you are prepared
-to write code specific to Gforth 1.0.  You do not get these alternate
-nts for the xt with @code{>name}.
+The name token is a cell-sized abstract data type that occurs as
+argument or result of the words below.
 
 You get the nt of a word @i{x} with @code{``@i{x}} (since Gforth 1.0)
 or with
@@ -10497,15 +10473,9 @@ doc-.id
 doc-obsolete?
 doc-name>link
 
-A nameless word usually has no interpretation nor compilation
-semantics, no name, and it's not in a wordlist.  But in Gforth (since
-1.0) all words are equal, so even nameless words have an nt (but they
-are in no wordlist).  You can get that nt with @code{latestnt}, and
-the words above that consume nts do something reasonable for these
-nts.
-
 As a usage example, the following code lists all the words in
-@code{forth-wordlist} with non-default compilation semantics:
+@code{forth-wordlist} with non-default compilation semantics
+(including immediate words):
 
 @example
 : ndcs-words ( wid -- )
@@ -10522,19 +10492,36 @@ xt part of its compilation token is the xt of @code{compile,}.
 @c deviate from this assumption (although it's more likely that a system
 @c that deviates gets it wrong and is non-standard).
 
+Since Gforth 1.0 (but not in earlier versions or many other Forth
+systems), nameless words (@pxref{Anonymous Definitions}) have nts,
+compilation semantics, and @word{name>string} works on them (producing
+a zero-length name).  They are not in a wordlist, however.  You can
+get the nt of a nameless word with @code{latestnt}.
+
+
+Since Gforth 1.0, for most words the concrete implementation of their
+nt is the same address as its xt (this is the primary nt for the xt).
+However, synonyms, aliases, and words defined with
+@code{interpret/compile:} get their xt from another word, but still
+have an nt of their own (that is different from the xt).  Therefore,
+you cannot use xts and nts interchangeably, even if you are prepared
+to write code specific to Gforth 1.0.  You do not get these alternate
+nts for the xt with @code{>name}.
 
 @cindex name field address
 @cindex NFA
 The closest thing to the nt in older Forth systems is the name field
 address (NFA), but there are significant differences: in older Forth
-systems each word had a unique NFA, LFA, CFA and PFA (in this order,
-or LFA, NFA, CFA, PFA) and there were words for getting from one to
-the next.  In contrast, in Gforth several nts can get the same xt from
-@code{name>interpret} xt; there is a link field in the structure
-identified by the name token, but searching usually uses a hash table
-external to these structures; the name in Gforth has a cell-wide
-count-and-flags field, and the nt is not implemented as the address of
-that count field.
+systems each word has a unique NFA, LFA, CFA and PFA (in this order,
+or LFA, NFA, CFA, PFA) and there are words for getting from one to the
+next.  In contrast, in Gforth several nts can get the same xt from
+@code{name>interpret} xt.  All of the header fields of the old system
+correspond to fields in Gforth, but Gforth 1.0 has a few additional
+ones (@pxref{Header fields}).  One difference is that the name field
+usually points to the start of the header, whereas the nt in Gforth
+1.0 points to the body (and header fields are accessed with a negative
+offset).
+
 
 
 @node Compilation token,  , Name token, Tokens for Words
