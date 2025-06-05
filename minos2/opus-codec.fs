@@ -223,6 +223,10 @@ Variable opus-stereo-blocks
     opus-task ?dup-IF  wake  ELSE  opus-block-task  THEN ;
 
 : start-play ( -- )
+    [IFDEF] pa-ready
+	pa-task 0= IF  pulse-init  THEN
+	BEGIN  pa-ready 0= WHILE  1 ms  REPEAT
+    [THEN]
     0 to idx-pos#  0 to play-pos#  opus-go
     [IFDEF] pulse-exec##
 	stream@ ?dup-IF
