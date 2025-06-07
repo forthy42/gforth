@@ -10470,6 +10470,7 @@ doc-name>compile
 doc-name>string
 doc-id.
 doc-.id
+doc-compile-only?
 doc-obsolete?
 doc-name>link
 
@@ -10510,14 +10511,18 @@ nts for the xt with @code{>name}.
 
 @cindex name field address
 @cindex NFA
-The closest thing to the nt in older Forth systems is the name field
-address (NFA), but there are significant differences: in older Forth
-systems each word has a unique NFA, LFA, CFA and PFA (in this order,
-or LFA, NFA, CFA, PFA) and there are words for getting from one to the
-next.  In contrast, in Gforth several nts can get the same xt from
-@code{name>interpret} xt.  All of the header fields of the old system
-correspond to fields in Gforth, but Gforth 1.0 has a few additional
-ones (@pxref{Header fields}).  One difference is that the name field
+The closest thing to the nt in classic Forth systems like fig-Forth is
+the name field address (NFA), but there are significant differences:
+in older Forth systems each word has a unique NFA, LFA, CFA and PFA
+(in this order, or LFA, NFA, CFA, PFA) and there are words for getting
+from one to the next.  By contrast, in Gforth in general there is an
+n:1 relation between name tokens and the xt representing
+interpretation semantics; i.e., when you pass different nts to
+@word{name>interpret}, the result may be the same xt.
+
+Morover, all of the header fields of the old system correspond to
+fields in Gforth, but Gforth 1.0 has a few additional ones
+(@pxref{Header fields}).  One difference is that the name field
 usually points to the start of the header, whereas the nt in Gforth
 1.0 points to the body (and header fields are accessed with a negative
 offset).
@@ -10548,7 +10553,7 @@ unusual compilation tokens (e.g., a compilation token that represents
 the compilation semantics of a literal).
 
 You get the compilation token of, e.g., @code{if} in a standard way
-with @code{name>compile}, e.g., @code{`if name>compile}, but there are
+with @code{name>compile}, e.g., @code{``if name>compile}, but there are
 also parsing words to get the compilation token of a word:
 
 doc-[comp']
@@ -17955,8 +17960,7 @@ The name field is variable-length and is accessed with
 
 The @code{>f+c} field contains flags and the name length (count).  You
 read the count with @code{name>string}, and the flags with
-
-doc-compile-only?
+@word(compile-only?} and @word{obsolete?} (@pxref{Name token}).
 
 The @code{>link} field contains a link to the previous word in the
 same word list.  You can read it with @code{name>link} (@pxref{Name
