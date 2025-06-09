@@ -464,16 +464,15 @@ Defer parser1 ( c-addr u -- ... xt)
     \G the input source is the user input device, attempt to receive
     \G input into the terminal input device. If successful, make the
     \G result the input buffer, set @code{>IN} to 0 and return true;
-    \G otherwise return false. When the input source is a block, add 1
-    \G to the value of @code{BLK} to make the next block the input
-    \G source and current input buffer, and set @code{>IN} to 0;
-    \G return true if the new value of @code{BLK} is a valid block
-    \G number, false otherwise. When the input source is a text file,
-    \G attempt to read the next line from the file. If successful,
-    \G make the result the current input buffer, set @code{>IN} to 0
-    \G and return true; otherwise, return false.  A successful result
+    \G otherwise return false. 
     \G includes receipt of a line containing 0 characters.
-    tib /line swap #tib !
+
+    tib /line
+
+	sourceline# 0< IF 2drop false EXIT THEN
+	accept eof @ 0=
+
+    swap #tib !
     input-start-line ;
 
 : query   ( -- ) \ core-ext
@@ -520,7 +519,7 @@ Defer 'quit
 
 : (quit) ( -- )
     \ exits only through THROW etc.
-    BEGIN  cr refill  WHILE  interpret prompt
+    BEGIN cr refill WHILE interpret prompt
     REPEAT  bye ;
 
 ' (quit) IS 'quit
@@ -528,7 +527,7 @@ Defer 'quit
 : dec.  base @ >r decimal . r> base ! ;
 : DoError ( throw-code -- )
     cr source drop >in @ type ." <<< "
-    dup -2 =  IF  "error @ type  drop  EXIT  THEN
+    dup -2 =  IF  "error @ count type  drop  EXIT  THEN
     .error ;
 
 : quit ( ?? -- ?? ) \ core
@@ -558,7 +557,7 @@ Defer 'quit
 
 : do-execute ( xt -- ) \ Gforth
     \G C calling us
-    catch dup IF  DoError cr  THEN  (bye) ;
+    catch dup IF DoError cr  THEN  (bye) ;
 
 : do-find ( addr u -- )
     find-name dup IF  name>int  THEN  (bye) ;
@@ -567,7 +566,7 @@ Defer 'quit
 
 : gforth ( -- )
     ." Gforth " version-string type 
-    ." , Authors: Anton Ertl, Bernd Paysan
+    ." , Authors: Anton Ertl, Bernd Paysan"
     ." , Copyright (C) 1995-2012,2013,2014,2015,2019 Free Software Foundation, Inc." cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
@@ -598,7 +597,11 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 
 has? new-input 0= [IF]
 : clear-tibstack ( -- )
-    sp@ cell+
+    [ has? tib0 [IF] ]
+        tib0
+    [ [ELSE] ]
+        sp@ cell+
+    [ [THEN] ]
     dup >tib ! tibstack ! #tib off
     input-start-line ;
 [THEN]
