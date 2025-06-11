@@ -17960,7 +17960,7 @@ The name field is variable-length and is accessed with
 
 The @code{>f+c} field contains flags and the name length (count).  You
 read the count with @code{name>string}, and the flags with
-@word(compile-only?} and @word{obsolete?} (@pxref{Name token}).
+@word{compile-only?} and @word{obsolete?} (@pxref{Name token}).
 
 The @code{>link} field contains a link to the previous word in the
 same word list.  You can read it with @code{name>link} (@pxref{Name
