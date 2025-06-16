@@ -56,7 +56,7 @@ z!-table locals-to-class: to-z:
     dup ]] literal f@localn [[ float+ ]] literal f@localn [[ ;
 
 also locals-types definitions
-: z: ( compilation "name" -- a-addr xt; run-time z -- ) \ gforth w-colon
+: z: ( compilation "name" -- a-addr xt; run-time z -- ) \ gforth z-colon
     \G Define value-flavoured complex local @i{name} @code{( -- z1 )}
     [: @ lp-offset compile-z@local ;]
     ['] to-z: create-local

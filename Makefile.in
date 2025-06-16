@@ -1703,7 +1703,7 @@ doc/gforth.texi doc/numuses: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
 		$(DOC_GEN) preforth @kernel_fi@ \
 		$(wildcard $(srcdir)/doc/words/0.*-words)
 		@echo DOC_GEN
-		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" $(DOC_GEN) -e "args-gforth-versions s\" $(srcdir)/doc/gforth.texi.in\" r/o open-file throw ds2texi s\" doc/numuses\" report-#uses-file bye" $(wildcard $(srcdir)/doc/words/*-words) >$@-
+		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" $(DOC_GEN) -e "args-gforth-versions s\" $(srcdir)/doc/gforth.texi.in\" filename-ds2texi s\" doc/numuses\" report-#uses-file bye" $(wildcard $(srcdir)/doc/words/*-words) >$@-
 		$(MV) $@- $@
 
 checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs $(DOC_GEN) answords.fs doc/gforth.texi

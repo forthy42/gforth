@@ -84,6 +84,15 @@ Programming style note:
 @end iftex
 @end macro
 
+@c @link is only supported since Texinfo 7.1 (2023)
+@ifset txicommandconditionals
+@ifcommandnotdefined link
+@macro @link{nodename,label}
+\label\
+@end macro
+@end ifcommandnotdefined
+@end ifset
+
 @comment %**end of header (This is for running Texinfo on a region.)
 @copying
 This manual is for Gforth (version @value{VERSION}, @value{UPDATED}),
@@ -10204,7 +10213,7 @@ matching @word{if} or @word{ahead}.
 doc-restrict
 
 @node How to define combined words,  , How to define immediate words, Interpretation and Compilation Semantics
-@subsection How to define words with non-default semantics
+@subsection How to define combined words
 @anchor{Combined words}
 @cindex combined word
 @cindex semantics, arbitrary combination of interpretation and compilation
@@ -10578,7 +10587,7 @@ between defining words (or for computing data used by defining words
 like @code{constant}). Moreover, @code{Immediate} (@pxref{Interpretation
 and Compilation Semantics} and @code{[}...@code{]} (see below) allow
 running arbitrary code while compiling a colon definition (exception:
-you must not allot dictionary space).
+you must not allot dictionary space in the same section).
 
 @menu
 * Literals::                    Compiling data values
@@ -11099,6 +11108,7 @@ doc-tib
 doc-#tib
 
 doc-interpret
+doc-state
 
 @menu
 * Input Sources::
@@ -13701,11 +13711,10 @@ doc-f@localn
 doc-!localn
 doc-lp+n
 doc-lp+!
-doc-lp!
 doc->l
 doc-f>l
 
-See also @code{lp@@} (@pxref{Stack pointer manipulation}).
+See also @word{lp@}, @word{lp!} (@pxref{Stack pointer manipulation}).
 
 In addition to these primitives, some specializations of these
 primitives for commonly occurring inline arguments are provided for
@@ -17960,7 +17969,7 @@ The name field is variable-length and is accessed with
 
 The @code{>f+c} field contains flags and the name length (count).  You
 read the count with @code{name>string}, and the flags with
-@word(compile-only?} and @word{obsolete?} (@pxref{Name token}).
+@word{compile-only?} and @word{obsolete?} (@pxref{Name token}).
 
 The @code{>link} field contains a link to the previous word in the
 same word list.  You can read it with @code{name>link} (@pxref{Name

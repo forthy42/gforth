@@ -71,6 +71,15 @@ wordlist constant gforth-versions-wl
     [: dup cr name>string type space name>interpret >body 2@ type ;]
     map-wordlist ;
 
+\ #line stuff
+
+2variable ds-filename
+variable ds-linenumber
+1 ds-linenumber !
+
+: .#line ( -- )
+    ." #line " ds-linenumber ? '"' emit ds-filename 2@ type '"' emit cr ;
+
 \ deal with .fd files
 
 script? [IF]
@@ -239,12 +248,13 @@ set-current
     set-current ;
 
 : emittexi ( c -- )
-    >r
-    s" @{}" r@ scan 0<>
-    if
-	'@' emit
-    endif
-    drop r> emit ;
+    case
+        ',' of ." @comma{}" endof
+        '\' of ." @backslashchar{}" endof
+        '#' of ." @hashchar{}" endof
+        s" @{}&" third scan nip 0<> ?of '@' emit emit endof
+        dup emit
+    endcase ;
 
 : typetexi ( addr u -- )
     0
@@ -253,6 +263,60 @@ set-current
 	char+
     loop
     drop ;
+
+: emittexi-min ( c -- )
+    \ only deal with @ { }
+    case
+        s" @{}" third scan nip 0<> ?of '@' emit emit endof
+        dup emit
+    endcase ;
+
+: typetexi-min ( addr u -- )
+    0
+    ?do
+	dup c@ emittexi-min
+	char+
+    loop
+    drop ;
+
+: typeuntexi ( c-addr u -- )
+    bounds u+do
+        1 i i c@ '@' = if
+            s" @{}" i 1+ c@ scan nip 0<> if
+                1+ swap 1+ swap then then
+        c@ emit
+    +loop ;
+
+: untexi ( c-addr1 u1 -- c-addr2 u2 )
+    ['] typeuntexi >string-execute ;
+
+: type-alpha-dash ( c-addr u -- )
+    \ replace all non-letters with "-"
+    bounds ?do
+        i c@ dup toupper 'A' 'Z' 1+ within 0= if drop '-' then emit
+    loop ;
+
+: typeword ( addr u -- )
+    2dup documentation find-name-in dup if
+        name>interpret >body >r
+        ." @link{" r@ doc-wordset 2@ type-alpha-dash ." --"
+                   r@ doc-pronounciation 2@ type ." ,"
+        typetexi
+        ." }" rdrop
+    else
+        drop typetexi
+    then ;
+
+: typetexi1 ( c-addr u -- )
+    \ like typetexi, but prints every word with typeword
+    case {: d: str1 :}
+        str1 (parse-white) {: d: str2 :}
+        str2 nip 0= ?of endof
+        str2 s" \" str= ?of endof
+        str1 drop str2 drop over - type str2 typeword
+        str2 + str1 + over -
+    next-case
+    str1 typetexi ;
 
 : type-replace@word ( addr u -- )
     \ replace @word{<word>}... (terminated by white space) with
@@ -264,7 +328,7 @@ set-current
             ." @code{"
             match w nip /string {: d: match1 :}
             match1 (parse-white) '}' scan-back 1- {: d: word :}
-            word typetexi
+            word typeword
             match1 word nip /string            
     repeat
     type ;
@@ -293,6 +357,8 @@ set-current
 	cr
     endif
     ." @format" cr
+    ." @anchor{" r@ doc-wordset 2@ type-alpha-dash ." --"
+                 r@ doc-pronounciation 2@ typetexi ." }"
     ." @code{" r@ doc-name 2@ typetexi ." } "
     ." ( @i{" r@ doc-stack-effect 2@ type ." }) "
     r@ print-wordset ."  ``"
@@ -322,7 +388,7 @@ set-current
     if \ addr2 u2 is a prefix of addr1 u1
 	r> safe/string -trailing documentation search-wordlist
 	if \ the rest of addr1 u1 is in documentation
-	    execute r> execute true
+	    execute r> execute .#line true
 	else
 	    rdrop false
 	endif
@@ -331,14 +397,14 @@ set-current
     endif ;
 
 defer type-ds ( c-addr u )
-' type-replace@word is type-ds \ typetexi between @source and @end source
+' type-replace@word is type-ds \ typetexi1 between @source and @end source
 
 : process-line ( addr u -- )
     case
         2dup s" doc-"   ['] print-doc   do-doc ?of endof
         2dup s" short-" ['] print-short do-doc ?of endof
         2dup s" @source" string-prefix? ?of
-            .\" @example\n" `typetexi is type-ds endof
+            .\" @example\n" `typetexi1 is type-ds endof
         2dup s" @end source" string-prefix? ?of
             .\" @end example\n" `type-replace@word is type-ds endof
         2dup type-ds cr
@@ -349,16 +415,20 @@ defer type-ds ( c-addr u )
 
 create docline doclinelength chars allot
 
-
 : ds2texi ( file-id -- )
-    >r
+    >r .#line
     begin
-	docline doclinelength r@ read-line throw
+        docline doclinelength r@ read-line throw
     while
-	dup doclinelength = abort" docline too long"
-	docline swap process-line
+            dup doclinelength = abort" docline too long"
+            docline swap process-line
+            1 ds-linenumber +!
     repeat
     drop rdrop ;
+
+: filename-ds2texi ( c-addr u -- )
+    2dup ds-filename 2!
+    r/o open-file throw ds2texi ;
 
 : checkword {: D: wordname D: wordset D: pronounciation -- :}
     wordname documentation search-wordlist
