@@ -379,6 +379,17 @@ k-insert	XKB_KEY_Insert >xkb-key !
 k-delete	XKB_KEY_Delete >xkb-key !
 k-prior	XKB_KEY_Prior >xkb-key !
 k-next	XKB_KEY_Next >xkb-key !
+k-home	XKB_KEY_KP_Home >xkb-key !
+k-end	XKB_KEY_KP_End >xkb-key !
+k-left	XKB_KEY_KP_Left >xkb-key !
+k-up	XKB_KEY_KP_Up >xkb-key !
+k-right	XKB_KEY_KP_Right >xkb-key !
+k-down	XKB_KEY_KP_Down >xkb-key !
+k-insert	XKB_KEY_KP_Insert >xkb-key !
+k-delete	XKB_KEY_KP_Delete >xkb-key !
+k-prior	XKB_KEY_KP_Prior >xkb-key !
+k-next	XKB_KEY_KP_Next >xkb-key !
+k-enter	XKB_KEY_KP_Enter >xkb-key !
 k-f1	XKB_KEY_F1 >xkb-key !
 k-f2	XKB_KEY_F2 >xkb-key !
 k-f3	XKB_KEY_F3 >xkb-key !
