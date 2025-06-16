@@ -199,7 +199,7 @@ si-prefixes count 2/ + Constant zero-exp
 	2drop false
     THEN  rdrop ;
 
-: fp. ( r -- ) \ floating-ext f-e-dot
+: fp. ( r -- ) \ floating-ext f-p-dot
 \G Display @i{r} using SI prefix notation (with exponent dividable
 \G by 3, converted into SI prefixes if available), followed by a space.
     f$ 1- s>d 3 fm/mod 3 * >r 1+ >r

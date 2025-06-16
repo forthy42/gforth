@@ -199,7 +199,7 @@ Variable lang[] \ array
 	cell -LOOP  drop cr
     LOOP ;
 
-: locale-csv-out ( "name" -- ) \ gforth-experimental locale-csv
+: locale-csv-out ( "name" -- ) \ gforth-experimental locale-csv-out
     \G Create file @var{"name"} and write the locale database out to the file
     \G @var{"name"} in CSV format.
     ?parse-name r/w create-file throw >r
