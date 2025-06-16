@@ -87,9 +87,9 @@ Programming style note:
 @c @link is only supported since Texinfo 7.1 (2023)
 @ifset txicommandconditionals
 @ifcommandnotdefined link
-@macro link {nodename, label}
+@rmacro link {nodename, label}
 \label\
-@end macro
+@end rmacro
 @end ifcommandnotdefined
 @end ifset
 
