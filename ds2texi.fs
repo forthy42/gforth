@@ -95,6 +95,7 @@ struct
     cell% 2* field doc-pronounciation
     cell% 2* field doc-description
     cell%    field doc-count
+    cell% 2* field doc-loc
 end-struct doc-entry
 
 create description-buffer 4096 chars allot
