@@ -1364,6 +1364,28 @@ makeinfo not found, INFO and TXT document won't be built."
 	INSTALLTXT="install-txt"
 	;;
 esac
+
+AC_MSG_CHECKING([whether @link works in texinfo files])
+if test -z "$texinfo_link"; then
+    texinfo_link=false
+    cat <<_ACEOF >conftest.texi
+\input texinfo   @c -*-texinfo-*-
+
+@title Sample Title
+
+@link{gforth-experimental--atomic-store-fetch,atomic!@@}
+@anchor{gforth-experimental--atomic-store-fetch}@code{atomic!@@}
+
+@bye
+_ACEOF
+    if $MAKEINFO --html -o /dev/null conftest.texi; then
+        texinfo_link=true
+    fi
+    rm -f conftest.texi
+fi
+AC_MSG_RESULT($texinfo_link)
+AC_SUBST(texinfo_link)
+
 AC_CHECK_PROGS(TEXI2HTML,texi2html,echo texi2html needed )
 case "$TEXI2HTML"
 in

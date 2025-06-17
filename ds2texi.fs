@@ -299,8 +299,10 @@ set-current
 : typeword ( addr u -- )
     2dup documentation find-name-in dup if
         name>interpret >body >r
-        ." @link{" r@ doc-wordset 2@ type-alpha-dash ." --"
-                   r@ doc-pronounciation 2@ type ." ,"
+        texinfo-link if
+            ." @link{" r@ doc-wordset 2@ type-alpha-dash ." --"
+                       r@ doc-pronounciation 2@ type ." ,"
+        then
         typetexi
         ." }" rdrop
     else
@@ -357,8 +359,12 @@ set-current
 	cr
     endif
     ." @format" cr
-    ." @anchor{" r@ doc-wordset 2@ type-alpha-dash ." --"
-                 r@ doc-pronounciation 2@ typetexi ." }"
+    \ The generated @anchors lead to TeX problems with TeXinfo 6.8.
+    \ They are only needed when @link works, so just disable them when not
+    texinfo-link if
+        ." @anchor{" r@ doc-wordset 2@ type-alpha-dash ." --"
+                     r@ doc-pronounciation 2@ typetexi ." }"
+    then
     ." @code{" r@ doc-name 2@ typetexi ." } "
     ." ( @i{" r@ doc-stack-effect 2@ type ." }) "
     r@ print-wordset ."  ``"
