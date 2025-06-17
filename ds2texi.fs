@@ -303,8 +303,10 @@ set-current
             ." @link{" r@ doc-wordset 2@ type-alpha-dash ." --"
                        r@ doc-pronounciation 2@ type ." ,"
         then
-        typetexi
-        ." }" rdrop
+        typetexi rdrop
+        texinfo-link if
+            ." }"
+        then
     else
         drop typetexi
     then ;
