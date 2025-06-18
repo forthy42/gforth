@@ -2283,12 +2283,21 @@ s" ./doc/crossdoc.fd.tmp" r/w create-file throw value doc-file-id
 
 Variable to-doc  to-doc on
 
+\ the next two definitions are duplicated in makedoc.fs
+: loadfilename ( -- c-addr u )
+    loadfilename# @ included-files $[] $@ ;
+
+: hold#line ( -- c-addr u )
+    '"' hold loadfilename holds '"' hold bl hold
+    base @ >r decimal #s r> base !
+    s" #line " holds ;
+
 : cross-doc-entry  ( -- )
     to-doc @ tlast @ 0<> and	\ not an anonymous (i.e. noname) header
     IF
-	s" " doc-file-id write-line throw
+        s" " doc-file-id write-line throw
+        sourceline# 0 <<# hold#line #> doc-file-id write-line throw #>>
 	s" make-doc " doc-file-id write-file throw
-
 	Last-Header-Ghost @ >ghostname doc-file-id write-file throw
 	>in @
 	'(' parse 2drop
