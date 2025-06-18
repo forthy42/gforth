@@ -2288,6 +2288,11 @@ Variable to-doc  to-doc on
     [IFDEF] loadfilename# loadfilename# @ included-files $[] $@
     [ELSE] sourcefilename [THEN] ;
 
+[IFUNDEF] holds
+    : holds ( addr u -- )
+	tuck + swap 0 ?DO  1- dup c@ hold  LOOP  drop ;
+[THEN]
+
 : hold#line ( -- c-addr u )
     '"' hold loadfilename holds '"' hold bl hold
     base @ >r decimal #s r> base !
