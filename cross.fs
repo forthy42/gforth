@@ -2285,7 +2285,8 @@ Variable to-doc  to-doc on
 
 \ the next two definitions are duplicated in makedoc.fs
 : loadfilename ( -- c-addr u )
-    loadfilename# @ included-files $[] $@ ;
+    [IFDEF] loadfilename# loadfilename# @ included-files $[] $@
+    [ELSE] sourcefilename [THEN] ;
 
 : hold#line ( -- c-addr u )
     '"' hold loadfilename holds '"' hold bl hold
