@@ -2283,20 +2283,7 @@ s" ./doc/crossdoc.fd.tmp" r/w create-file throw value doc-file-id
 
 Variable to-doc  to-doc on
 
-\ the next two definitions are duplicated in makedoc.fs
-: loadfilename ( -- c-addr u )
-    [IFDEF] loadfilename# loadfilename# @ included-files $[] $@
-    [ELSE] sourcefilename [THEN] ;
-
-[IFUNDEF] holds
-    : holds ( addr u -- )
-	tuck + swap 0 ?DO  1- dup c@ hold  LOOP  drop ;
-[THEN]
-
-: hold#line ( -- c-addr u )
-    '"' hold loadfilename holds '"' hold bl hold
-    base @ >r decimal #s r> base !
-    s" #line " holds ;
+require hold-number-line.fs
 
 : cross-doc-entry  ( -- )
     to-doc @ tlast @ 0<> and	\ not an anonymous (i.e. noname) header

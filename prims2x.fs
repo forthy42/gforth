@@ -67,6 +67,8 @@ warnings off
 include startup.fs
 [THEN]
 
+require hold-number-line.fs
+
 : struct% struct ; \ struct is redefined in gray
 
 warnings off
@@ -84,8 +86,9 @@ variable rawinput \ pointer to next character to be scanned
 variable endrawinput \ pointer to the end of the input (the char after the last)
 variable cookedinput \ pointer to the next char to be parsed
 variable line \ line number of char pointed to by input
-variable line-start \ pointer to start of current line (for error messages)
 0 line !
+0 0 2value syncline \ #line string at the definition of the last primitive
+variable line-start \ pointer to start of current line (for error messages)
 2variable filename \ filename of original input file
 0 0 filename 2!
 2variable out-filename \ filename of the output file (for sync lines)
@@ -115,13 +118,6 @@ $12340000 immarg !
 : th ( addr1 n -- addr2 )
     cells + ;
 
-: holds ( addr u -- )
-    \ like HOLD, but for a string
-    tuck + swap 0 +do
-	1- dup c@ hold
-    loop
-    drop ;
-
 : insert-wordlist { c-addr u wordlist xt -- }
     \ adds name "addr u" to wordlist using defining word xt
     \ xt may cause additional stack effects
@@ -150,6 +146,9 @@ $12340000 immarg !
 	addr u ['] print-error stderr outfile-execute
 	1 (bye) \ abort
     endif ;
+
+: save#line ( -- )
+    line @ 0 <<# hold#line #> save-mem #>> to syncline ;
 
 : quote ( -- )
     '"' emit ;
@@ -1386,7 +1385,8 @@ is output-c-prim-num
     prim prim-wordset 2@ 2,
     prim prim-c-name 2@ condition-pronounciation 2,
     prim prim-doc 2@ 2,
-    0 , ;
+    0 ,
+    syncline 2, ;
 [THEN]
 
 

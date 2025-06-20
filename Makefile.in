@@ -209,10 +209,11 @@ INCLUDES = engine/forth.h engine/threaded.h engine/io.h engine/longlong.h \
 KERN_SRC = \
 	mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
 	machpc.fs.in \
+	cross.fs \
+	hold-number-line.fs \
 	kernel/aliases0.fs \
 	kernel/args.fs \
 	kernel/cond.fs \
-	cross.fs \
 	kernel/errore.fs \
 	kernel/files.fs \
 	kernel/require.fs \
@@ -1672,17 +1673,17 @@ standard-words.fs: doc/2012-words doc/2012-words-extra
 		awk -f $(srcdir)/doc/standard-words.awk $< >>$@
 		cat $(srcdir)/doc/2012-words-extra >>$@
 
-doc/doc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_GEN_SRC)
+doc/doc.fd:	doc/makedoc.fs hold-number-line.fs gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_GEN_SRC)
 		@echo DOC.FD
 		$(FORTHK) -e "s\" doc/doc.fd.tmp\"" doc/makedoc.fs except.fs startup.fs -e bye
 		$(srcdir)/move-if-change doc/doc.fd.tmp $@
 
-doc/extradoc.fd:	doc/makedoc.fs gforth$(EXT) gforth-light.fi $(EXTRA_DOC) $(LIBCC_GEN_SRC) build-libcc-named
+doc/extradoc.fd: doc/makedoc.fs hold-number-line.fs gforth$(EXT) gforth-light.fi $(EXTRA_DOC) $(LIBCC_GEN_SRC) build-libcc-named
 		@echo EXTRADOC.FD
 		env GFORTH_IGNLIB=true GFORTH_COMPILELIB=no $(FORTHP) -i gforth-light.fi -e "s\" doc/extradoc.fd.tmp\"" doc/makedoc.fs -e "warnings off" $(EXTRA_DOC) -e bye
 		$(srcdir)/move-if-change doc/extradoc.fd.tmp $@
 
-doc/minosdoc.fd:	doc/makedoc.fs gforth$(EXT) gforth-light.fi $(MINOS_DOC) $(LIBCC_GEN_SRC) build-libcc-named
+doc/minosdoc.fd: doc/makedoc.fs hold-number-line.fs gforth$(EXT) gforth-light.fi $(MINOS_DOC) $(LIBCC_GEN_SRC) build-libcc-named
 		@echo MINOSDOC.FD
 		env GFORTH_IGNLIB=true GFORTH_COMPILELIB=no XDG_SESSION_TYPE=x11 $(FORTHP) -i gforth-light.fi -e "s\" doc/minosdoc.fd.tmp\"" doc/makedoc.fs $(MINOS_DOC) -e bye
 		$(srcdir)/move-if-change doc/minosdoc.fd.tmp $@
@@ -1700,7 +1701,7 @@ doc/words/$(RVERSION)-words: gforth$(EXT) $(GFORTH_FI_SRC) $(EXTRA_DOC) $(LIBCC_
 DOC_GEN = doc/crossdoc.fd doc/doc.fd doc/extradoc.fd @minosdoc@
 
 doc/gforth.texi doc/numuses: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
-		$(DOC_GEN) preforth @kernel_fi@ \
+		hold-number-line.fs $(DOC_GEN) preforth @kernel_fi@ \
 		$(wildcard $(srcdir)/doc/words/0.*-words)
 		@echo DOC_GEN
 		$(PREFORTH) -e "@texinfo_link@ constant texinfo-link" ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" $(DOC_GEN) -e "args-gforth-versions s\" $(srcdir)/doc/gforth.texi.in\" filename-ds2texi s\" doc/numuses\" report-#uses-file bye" $(wildcard $(srcdir)/doc/words/*-words) >$@-

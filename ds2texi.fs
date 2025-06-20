@@ -31,6 +31,8 @@
 \ you can output all words with version numbers with
 \ gforth ds2texi.fs -e "args-gforth-versions print-word-versions bye" doc/words/*-words|sort |less
 
+require hold-number-line.fs
+
 #0. 2value gforth-version-string
 wordlist constant gforth-versions-wl
 
@@ -228,6 +230,7 @@ set-current
     2drop 0 ;
 
 : make-doc ( -- )
+    sourceline# 0 <<# hold#line #> save-mem #>> {: d: syncline :}
     parse-name 2dup documentation find-name-in if
         2drop get-description 2drop exit then
     rest-of-line-ok? 0= if
@@ -246,6 +249,7 @@ set-current
 	2,
         get-description save-mem 2,
         0 , \ doc-count
+        syncline 2, \ doc-loc
     set-current ;
 
 : emittexi ( c -- )
@@ -375,8 +379,9 @@ set-current
     rdrop ;
 
 : print-doc ( doc-entry -- )
-    dup
-    >r print-short
+    >r
+    r@ doc-loc 2@ type cr
+    r@ print-short
     1 r@ doc-count +!
     r@ doc-description 2@ dup 0<>
     if
