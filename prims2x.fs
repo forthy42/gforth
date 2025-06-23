@@ -87,7 +87,7 @@ variable endrawinput \ pointer to the end of the input (the char after the last)
 variable cookedinput \ pointer to the next char to be parsed
 variable line \ line number of char pointed to by input
 0 line !
-0 0 2value syncline \ #line string at the definition of the last primitive
+2variable syncline \ #line string at the definition of the last primitive
 variable line-start \ pointer to start of current line (for error messages)
 2variable filename \ filename of original input file
 0 0 filename 2!
@@ -148,7 +148,7 @@ $12340000 immarg !
     endif ;
 
 : save#line ( -- )
-    line @ 0 <<# hold#line #> save-mem #>> to syncline ;
+    line @ 0 <<# hold#line #> save-mem #>> syncline 2! ;
 
 : quote ( -- )
     '"' emit ;
@@ -1386,7 +1386,7 @@ is output-c-prim-num
     prim prim-c-name 2@ condition-pronounciation 2,
     prim prim-doc 2@ 2,
     0 ,
-    syncline 2, ;
+    syncline 2@ 2, ;
 [THEN]
 
 
