@@ -222,6 +222,87 @@ set-current
 : condition-pronounciation ( c-addr1 u1 -- c-addr2 u2 )
     save-mem 2dup replace-_ ;
 
+\ name>pronounciation
+
+33  constant pronounciation-table-low
+127 constant pronounciation-table-hi+1
+
+align here pronounciation-table-hi+1 pronounciation-table-low - 2* cells ( a u )
+dup allot 2dup erase
+drop pronounciation-table-low 2* cells - constant pronounciation-table
+
+: pronounce! ( c c-addr u -- )
+    rot
+    dup pronounciation-table-hi+1 pronounciation-table-low within #-24 and throw
+    2* cells pronounciation-table + 2! ;
+
+'!' "store"         pronounce!
+'"' "quote"         pronounce!
+'#' "number"        pronounce!
+'$' "dollar"        pronounce!
+'%' "percent"       pronounce!
+'&' "and"           pronounce!
+''' "tick"          pronounce!
+'(' "paren"         pronounce!
+')' "close-paren"   pronounce!
+'*' "star"          pronounce!
+'+' "plus"          pronounce!
+',' "comma"         pronounce!
+'.' "dot"           pronounce!
+'/' "slash"         pronounce!
+'0' "zero"          pronounce!
+'1' "one"           pronounce!
+'2' "two"           pronounce!
+'3' "three"         pronounce!
+'4' "four"          pronounce!
+'5' "five"          pronounce!
+'6' "six"           pronounce!
+'7' "seven"         pronounce!
+'8' "eight"         pronounce!
+'9' "nine"          pronounce!
+':' "colon"         pronounce!
+';' "semicolon"     pronounce!
+'<' "less"          pronounce!
+'=' "equals"        pronounce!
+'>' "to"            pronounce!
+'?' "question"      pronounce!
+'@' "fetch"         pronounce!
+'[' "left-bracket"  pronounce!
+'\' "backslash"     pronounce!
+']' "right-bracket" pronounce!
+'^' "caret"         pronounce!
+'`' "backtick"      pronounce!
+'{' "left-brace"    pronounce!
+'|' "bar"           pronounce!
+'}' "right-brace"   pronounce!
+'~' "tilde"         pronounce!
+
+: name>pronounciation-char ( dash?1 c -- dash?2 )
+    dup >r pronounciation-table-low pronounciation-table-hi+1 within if
+        r@ 2* cells pronounciation-table + 2@ dup if ( dash?1 c-addr u )
+            rot if '-' hold then
+            holds -1 rdrop exit
+        then
+        2drop
+    then
+    0< if '-' hold then
+    r> hold 1 ;
+
+: name>pronounciation ( c-addr1 u1 -- c-addr2 u2 )
+    \G c-addr2 u2 is a guess at the pronounciation for c-addr1 u1; if
+    \G you want a different pronounciation, give it explicitly.
+    dup >r assert( dup )
+    <<# 0 -rot over + 1- do ( dashflag )
+        i c@ name>pronounciation-char
+    -1 +loop
+    drop 0 0 #>
+    dup r> <> if
+        save-mem
+    else
+        2drop 0 0
+    then
+    #>> ;
+    
 : rest-of-line-ok? ( -- flag )
     source >in @ /string s" -- " search if
         s" )" search if
@@ -244,7 +325,7 @@ set-current
 	if
 	    condition-pronounciation
 	else
-	    2drop latest name>string skip-prefix
+	    2drop latest name>string skip-prefix name>pronounciation
 	endif
 	2,
         get-description save-mem 2,
@@ -301,12 +382,18 @@ set-current
         i c@ dup toupper 'A' 'Z' 1+ within 0= if drop '-' then emit
     loop ;
 
+: doc-pronounciation-string {: doc -- c-addr u :}
+    \ pronounciation of doc, if present, otherwise wordname
+    doc doc-pronounciation 2@ dup 0= if
+        2drop doc doc-name 2@
+    then ;
+
 : typeword ( addr u -- )
     2dup documentation find-name-in dup if
         name>interpret >body >r
         texinfo-link if
             ." @link{" r@ doc-wordset 2@ type-alpha-dash ." --"
-                       r@ doc-pronounciation 2@ type ." ,"
+                       r@ doc-pronounciation-string type ." ,"
         then
         typetexi rdrop
         texinfo-link if
@@ -370,13 +457,15 @@ set-current
     \ They are only needed when @link works, so just disable them when not
     texinfo-link if
         ." @anchor{" r@ doc-wordset 2@ type-alpha-dash ." --"
-                     r@ doc-pronounciation 2@ typetexi ." }"
+                     r@ doc-pronounciation-string typetexi ." }"
     then
     ." @code{" r@ doc-name 2@ typetexi ." } "
     ." ( @i{" r@ doc-stack-effect 2@ type ." }) "
-    r@ print-wordset ."  ``"
-    r@ doc-pronounciation 2@ type ." ''" cr ." @end format" cr
-    rdrop ;
+    r@ print-wordset 
+    r@ doc-pronounciation 2@ dup if
+        2dup ."  ``" type ." ''" then
+    2drop rdrop
+    cr ." @end format" cr ;
 
 : print-doc ( doc-entry -- )
     >r
@@ -452,9 +541,11 @@ create docline doclinelength chars allot
 	if 
 	    ." wordset: " wordname type ." : '"  doc print-wordset ." ' instead of '" wordset type ." '" cr
 	endif
-	pronounciation doc doc-pronounciation 2@ capscompare
+	pronounciation doc doc-pronounciation-string capscompare
 	if
-	    ." pronounciation: " wordname type ." : '" doc doc-pronounciation 2@ type ." ' instead of '" pronounciation type ." '" cr
+            ." pronounciation: " wordname type ." : '"
+            doc doc-pronounciation-string type ." ' instead of '"
+            pronounciation type ." '" cr
 	endif
     else
 	." undocumented: " wordname type cr
