@@ -105,3 +105,15 @@ c-value zwp_idle_inhibitor_v1_interface &zwp_idle_inhibitor_v1_interface -- a
 c-value wp_tearing_control_manager_v1_interface &wp_tearing_control_manager_v1_interface -- a
 c-value wp_tearing_control_v1_interface &wp_tearing_control_v1_interface -- a
 [THEN]
+?include-wayland color-management-v1.c
+c-value wp_color_manager_v1_interface &wp_color_manager_v1_interface -- a
+c-value wp_color_management_output_v1_interface &wp_color_management_output_v1_interface -- a
+c-value wp_color_management_surface_v1_interface &wp_color_management_surface_v1_interface -- a
+c-value wp_color_management_surface_feedback_v1_interface &wp_color_management_surface_feedback_v1_interface -- a
+[THEN]
+?include-wayland color-representation-v1.c
+c-value wp_image_description_creator_icc_v1_interface &wp_image_description_creator_icc_v1_interface -- a
+c-value wp_image_description_creator_params_v1_interface &wp_image_description_creator_params_v1_interface -- a
+c-value wp_image_description_v1_interface &wp_image_description_v1_interface -- a
+c-value wp_image_description_info_v1_interface &wp_image_description_info_v1_interface -- a
+[THEN]
