@@ -90,6 +90,7 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 0 ' noop trigger-Value primary-selection-source
 0 ' noop trigger-Value wp-tearing-control-manager-v1
 0 ' noop trigger-Value wp-tearing-control-v1
+0 ' noop trigger-Value wp-color-manager-v1
 
 \ set a cursor
 
@@ -265,6 +266,16 @@ Defer rescaler ' noop is rescaler
 	scale to fractional-scale  rescaler
 	dpy-unscaled-wh 2@ rescale-win
     ;
+    cb>
+[THEN]
+
+[IFDEF] wp_color_manager_v1_listener
+    <cb wp_color_manager_v1
+    :cb done { data xdg-activation-token token -- } ;
+    :cb supported_feature { data manager feature -- } ;
+    :cb supported_tf_named { data manager tf -- } ;
+    :cb supported_primaries_named { data manager primaries -- } ;
+    :cb supported_intent { data manager intent -- } ;
     cb>
 [THEN]
 
@@ -1018,6 +1029,9 @@ wl-registry set-current
 	dup to wp-tearing-control-v1
 	WP_TEARING_CONTROL_V1_PRESENTATION_HINT_VSYNC
 	wp_tearing_control_v1_set_presentation_hint ;
+[THEN]
+[IFDEF] wp_color_manager_v1_interface
+    1 wlal: wp_color_manager_v1
 [THEN]
 set-current
 
