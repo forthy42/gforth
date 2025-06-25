@@ -270,12 +270,25 @@ Defer rescaler ' noop is rescaler
 [THEN]
 
 [IFDEF] wp_color_manager_v1_listener
+    0 Value color-features
+    0 Value color-tfs
+    0 Value color-primaries
+    0 Value color-intents
     <cb wp_color_manager_v1
-    :cb done { data xdg-activation-token token -- } ;
-    :cb supported_feature { data manager feature -- } ;
-    :cb supported_tf_named { data manager tf -- } ;
-    :cb supported_primaries_named { data manager primaries -- } ;
-    :cb supported_intent { data manager intent -- } ;
+    :cb done { data xdg-activation-token d: token -- }
+	wayland( token [: cr ." done " type ;] do-debug ) ;
+    :cb supported_feature { data manager feature -- }
+	wayland( feature [: cr ." color feature " h. ;] do-debug )
+	1 feature lshift color-features or to color-features ;
+    :cb supported_tf_named { data manager tf -- }
+	wayland( tf [: cr ." color tf " h. ;] do-debug )
+	1 tf lshift color-tfs or to color-tfs ;
+    :cb supported_primaries_named { data manager primaries -- }
+	wayland( primaries [: cr ." color primaries " h. ;] do-debug )
+	1 primaries lshift color-primaries or to color-primaries ;
+    :cb supported_intent { data manager intent -- }
+	wayland( intent [: cr ." color intent " h. ;] do-debug )
+	1 intent lshift color-intents or to color-intents ;
     cb>
 [THEN]
 
