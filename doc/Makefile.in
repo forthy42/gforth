@@ -22,6 +22,7 @@ srcdir = @srcdir@
 SRCINC = -I $(realpath @srcdir@)
 TEXI2DVI = @TEXI2DVI@ --expand $(SRCINC)
 TEXI2PDF = @TEXI2DVI@ --expand $(SRCINC) --pdf
+TEXINDEX = texindex
 DVI2PS	= dvips -t letterSize -Z
 #you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
 MAKEINFO = @MAKEINFO@ $(SRCINC)
@@ -31,6 +32,10 @@ TEXI2HTML = @TEXI2HTML@ $(SRCINC)
 CP	= cp -p
 RECODE = sed -e "s/‘/'/g" -e "s/’/'/g" -e 's/“/"/g' -e 's/”/"/g' -e 's/•/*/g' -e 's/–/--/g' -e 's/—/---/g' -e 's/−/-/g'
 RECODE_UTF  = @RECODE@ @RECODE_ARGS@
+UNSORTED = gforth.cp  gforth.fn  gforth.ky
+SORTED =   gforth.cps gforth.fns gforth.kys
+VMGEN_UNSORTED = vmgen.cp  vmgen.fn
+VMGEN_SORTED   = vmgen.cps vmgen.fns
 
 VPATH = @srcdir@:.
 
@@ -38,25 +43,37 @@ GFORTH_TEXI =  gforth.texi version.texi fdl.texi gpl.texi
 
 VMGEN_TEXI = vmgen.texi version.texi fdl.texi
 
-gforth.dvi gforth.fns:	$(GFORTH_TEXI)
+$(SORTED): $(GFORTH_TEXI)
+	$(TEXI2DVI) gforth.texi
+	$(TEXINDEX) $(UNSORTED)
+
+gforth.dvi:	$(GFORTH_TEXI) $(SORTED)
 		$(TEXI2DVI) gforth.texi || \
 		$(TEXI2DVI) gforth.texi
 
-gforth.pdf:	$(GFORTH_TEXI)
+gforth.pdf:	$(GFORTH_TEXI) $(SORTED)
 		$(TEXI2PDF) gforth.texi || \
 		$(TEXI2PDF) gforth.texi
 
 gforth-ebook.texi:	$(GFORTH_TEXI)
 		sed -e 's/^@c <ebook>/@/g' <gforth.texi >gforth-ebook.texi
 
-gforth-ebook.pdf:	gforth-ebook.texi
+gforth-ebook.pdf:	gforth-ebook.texi $(SORTED)
 		$(TEXI2PDF) $<
 
-vmgen.dvi:	$(VMGEN_TEXI)
-		$(TEXI2DVI) $<
+$(VMGEN_SORTED): $(VMGEN_TEXI)
+	$(TEXI2DVI) vmgen.texi
+	$(TEXINDEX) $(VMGEN_UNSORTED)
 
-vmgen.pdf:	$(VMGEN_TEXI)
-		$(TEXI2PDF) $<
+
+vmgen.dvi: $(VMGEN_TEXI) $(VMGEN_SORTED)
+		$(TEXI2DVI) vmgen.texi || \
+		$(TEXI2DVI) vmgen.texi
+
+
+vmgen.pdf:	$(VMGEN_TEXI) $(VMGEN_SORTED)
+		$(TEXI2PDF) vmgen.texi || \
+		$(TEXI2PDF) vmgen.texi
 
 gforth.ps:	gforth.dvi
 		$(DVI2PS) gforth.dvi -o $@
