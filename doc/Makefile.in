@@ -62,18 +62,18 @@ gforth-ebook.pdf:	gforth-ebook.texi $(SORTED)
 		$(TEXI2PDF) $<
 
 $(VMGEN_SORTED): $(VMGEN_TEXI)
-	$(TEXI2DVI) vmgen.texi
+	$(TEXI2DVI) $<
 	$(TEXINDEX) $(VMGEN_UNSORTED)
 
 
 vmgen.dvi: $(VMGEN_TEXI) $(VMGEN_SORTED)
-		$(TEXI2DVI) vmgen.texi || \
-		$(TEXI2DVI) vmgen.texi
+		$(TEXI2DVI) $< || \
+		$(TEXI2DVI) $<
 
 
 vmgen.pdf:	$(VMGEN_TEXI) $(VMGEN_SORTED)
-		$(TEXI2PDF) vmgen.texi || \
-		$(TEXI2PDF) vmgen.texi
+		$(TEXI2PDF) $< || \
+		$(TEXI2PDF) $<
 
 gforth.ps:	gforth.dvi
 		$(DVI2PS) gforth.dvi -o $@
