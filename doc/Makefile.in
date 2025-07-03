@@ -43,16 +43,17 @@ GFORTH_TEXI =  gforth.texi version.texi fdl.texi gpl.texi
 
 VMGEN_TEXI = vmgen.texi version.texi fdl.texi
 
-$(SORTED): $(GFORTH_TEXI)
-	$(TEXI2DVI) gforth.texi
-	$(TEXINDEX) $(UNSORTED)
+#$(SORTED): $(GFORTH_TEXI)
+#	$(TEXI2DVI) gforth.texi
 
-gforth.dvi:	$(GFORTH_TEXI) $(SORTED)
+gforth.dvi:	$(GFORTH_TEXI) #$(SORTED)
 		$(TEXI2DVI) gforth.texi || \
+		$(TEXINDEX) $(UNSORTED) || \
 		$(TEXI2DVI) gforth.texi
 
-gforth.pdf:	$(GFORTH_TEXI) $(SORTED)
+gforth.pdf:	$(GFORTH_TEXI) #$(SORTED)
 		$(TEXI2PDF) gforth.texi || \
+		$(TEXINDEX) $(UNSORTED) || \
 		$(TEXI2PDF) gforth.texi
 
 gforth-ebook.texi:	$(GFORTH_TEXI)
@@ -104,6 +105,7 @@ gforth.txt:	$(GFORTH_TEXI)
 vmgen.txt:	$(VMGEN_TEXI)
 		-$(MAKEINFO) --no-headers --no-split $< >vmgen.txt
 
+.PHONY: pdf ebook dvi txt ps html info
 dvi:		gforth.dvi vmgen.dvi
 
 pdf:		gforth.pdf vmgen.pdf
