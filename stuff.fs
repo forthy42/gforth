@@ -306,7 +306,7 @@ constant mem*do-noconstant
 
 : mem-do ( compilation -- w xt do-sys; run-time addr ubytes +nstride -- ) \ gforth-experimental mem-minus-do
     \g Starts a counted loop that starts with @code{I} as
-    \g @i{addr}+@i{ubytes}-@i{ustride} and then steps backwards
+    \g @i{addr}+@i{ubytes}-@i{nstride} and then steps backwards
     \g through memory with -@i{nstride} wide steps as long as
     \g @code{I}>=@i{addr}.  Must be finished with @word{loop}.
     lits# if
@@ -690,7 +690,7 @@ opt: drop ]] cells + [[ ;
 
 \ \\\ - skip to end of file
 
-: \\\ ( -- ) \ gforth
+: \\\ ( -- ) \ gforth triple-backslash
     \G skip remaining source file
     source-id dup 1 -1 within IF
 	dup >r file-size throw r> reposition-file throw
