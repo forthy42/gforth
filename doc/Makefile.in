@@ -43,16 +43,15 @@ GFORTH_TEXI =  gforth.texi version.texi fdl.texi gpl.texi
 
 VMGEN_TEXI = vmgen.texi version.texi fdl.texi
 
-#$(SORTED): $(GFORTH_TEXI)
-#	$(TEXI2DVI) gforth.texi
-#	$(TEXINDEX) $(UNSORTED)
+$(SORTED): $(GFORTH_TEXI)
+	$(TEXI2DVI) gforth.texi
+	$(TEXINDEX) $(UNSORTED)
 
-gforth.dvi:	$(GFORTH_TEXI)
-		$(TEXI2DVI) gforth.texi
-		$(TEXINDEX) $(UNSORTED)
+gforth.dvi:	$(GFORTH_TEXI) $(SORTED)
+		$(TEXI2DVI) gforth.texi || \
 		$(TEXI2DVI) gforth.texi
 
-gforth.pdf:	$(GFORTH_TEXI)
+gforth.pdf:	$(GFORTH_TEXI) gforth.dvi
 		$(TEXI2PDF) gforth.texi || \
 		$(TEXI2PDF) gforth.texi
 
@@ -62,18 +61,16 @@ gforth-ebook.texi:	$(GFORTH_TEXI)
 gforth-ebook.pdf:	gforth-ebook.texi $(SORTED)
 		$(TEXI2PDF) $<
 
-#$(VMGEN_SORTED): $(VMGEN_TEXI)
-#	$(TEXI2DVI) $<
-#	$(TEXINDEX) $(VMGEN_UNSORTED)
+$(VMGEN_SORTED): $(VMGEN_TEXI)
+	$(TEXI2DVI) $<
+	$(TEXINDEX) $(VMGEN_UNSORTED)
 
 
-vmgen.dvi: $(VMGEN_TEXI)
+vmgen.dvi: $(VMGEN_TEXI) $(VMGEN_UNSORTED)
+		$(TEXI2DVI) $< || \
 		$(TEXI2DVI) $<
-		$(TEXINDEX) $(VMGEN_UNSORTED)
-		$(TEXI2DVI) $<
 
-
-vmgen.pdf:	$(VMGEN_TEXI)
+vmgen.pdf:	$(VMGEN_TEXI) vmgen.dvi
 		$(TEXI2PDF) $< || \
 		$(TEXI2PDF) $<
 
