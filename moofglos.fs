@@ -28,7 +28,7 @@
     \G Create a new incarnation of the class @var{class}.
     here over @ allot swap over ! ;
 
-: :: ( class "name" -- ) \ mini-oof colon-colon
+: :: ( class "name" -- ) \ mini-oof double-colon
     \G Compile the method for the selector @var{name} of the class
     \G @var{class} (not immediate!).
     ' >body @ + @ compile, ;

@@ -373,7 +373,11 @@ Variable leave-stack
     until-like  POSTPONE done  POSTPONE unloop ;
 
 : LOOP ( compilation do-sys -- ; run-time loop-sys1 -- | loop-sys2 )	\ core
-    \G @xref{Counted Loops}.
+    \G Finish a counted loop.  If started with @word{mem+do} or
+    \G @word{mem-do}, the stride (increment) and terminating condition
+    \G is given by these words, otherwise the stride is 1 and the loop
+    \G ends when the limit is reached (the last iteration has
+    \G @word{i}=limit-1).
     dup -2 and tuck do-dest? 1 and if \ use matching LOOP for MEM-DO or the like
         cs-item-size pick execute exit then
     ['] (loop) ['] (loop)-lp+!# loop-like ; immediate restrict
