@@ -45,10 +45,11 @@ VMGEN_TEXI = vmgen.texi version.texi fdl.texi
 
 #$(SORTED): $(GFORTH_TEXI)
 #	$(TEXI2DVI) gforth.texi
+#	$(TEXINDEX) $(UNSORTED)
 
 gforth.dvi:	$(GFORTH_TEXI)
-		$(TEXI2DVI) gforth.texi || \
-		$(TEXINDEX) $(VMGEN_UNSORTED) || \
+		$(TEXI2DVI) gforth.texi
+		$(TEXINDEX) $(UNSORTED)
 		$(TEXI2DVI) gforth.texi
 
 gforth.pdf:	$(GFORTH_TEXI)
@@ -67,8 +68,8 @@ gforth-ebook.pdf:	gforth-ebook.texi $(SORTED)
 
 
 vmgen.dvi: $(VMGEN_TEXI)
-		$(TEXI2DVI) $< || \
-		$(TEXINDEX) $(VMGEN_UNSORTED) || \
+		$(TEXI2DVI) $<
+		$(TEXINDEX) $(VMGEN_UNSORTED)
 		$(TEXI2DVI) $<
 
 
