@@ -1719,10 +1719,10 @@ doc/gforth.txt:	txt
 pdf ebook dvi txt ps html info: $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
 		-cd doc; $(MAKE) $@
 
+pdf: dvi
+
 .PHONY: doc
 doc:		info html ps pdf txt
-
-.NOTPARALLEL: doc pdf ebook dvi txt ps html info
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.

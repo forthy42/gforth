@@ -79,7 +79,7 @@ wordlist constant gforth-versions-wl
 variable ds-linenumber
 1 ds-linenumber !
 
-: .#line ( -- )
+: .#line ( -- ) EXIT
     ." #line " ds-linenumber ? '"' emit ds-filename 2@ type '"' emit cr ;
 
 \ deal with .fd files
