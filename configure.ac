@@ -1329,7 +1329,7 @@ INSTALLPDF="install-pdf"
 INSTALLHTML="install-html"
 DOPDF=""
 DOHTML=""
-AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi,echo texi2dvi needed )
+AC_CHECK_PROGS(TEXI2DVI,texi2dvi,echo texi2dvi needed )
 case "$TEXI2DVI"
 in
     echo*)
