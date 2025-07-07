@@ -18,6 +18,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
+ifndef VERBOSE
+.SILENT:
+endif
+
 srcdir = @srcdir@
 SRCINC = -I $(realpath @srcdir@)
 TEXI2DVI = @TEXI2DVI@ --expand $(SRCINC)
@@ -38,6 +42,14 @@ VPATH = @srcdir@:.
 GFORTH_TEXI =  gforth.texi version.texi fdl.texi gpl.texi
 
 VMGEN_TEXI = vmgen.texi version.texi fdl.texi
+
+clean:
+	-rm -rf *.aux *.cp *.cps *.dvi *.fn *.fns *.info* *.ky *.kys *.log \
+	          *.pdf *.ps gforth.texi *.toc *.txt numuses version.texi \
+		  gforth vmgen
+
+distclean: clean
+	-rm Makefile
 
 gforth.dvi:	$(GFORTH_TEXI)
 		$(TEXI2DVI) gforth.texi
