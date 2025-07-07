@@ -42,7 +42,7 @@ VMGEN_TEXI = vmgen.texi version.texi fdl.texi
 gforth.dvi:	$(GFORTH_TEXI)
 		$(TEXI2DVI) gforth.texi
 
-gforth.pdf:	$(GFORTH_TEXI) gforth.dvi
+gforth.pdf:	$(GFORTH_TEXI)
 		$(TEXI2PDF) gforth.texi
 
 gforth-ebook.texi:	$(GFORTH_TEXI)

@@ -1716,10 +1716,10 @@ checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs $(DOC_GEN) answords.fs
 doc/gforth.txt:	txt
 
 .PHONY: pdf ebook dvi txt ps html info
+.NOTPARALLEL: pdf ebook dvi txt ps html info doc
 pdf ebook dvi txt ps html info: $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
-		-cd doc; $(MAKE) $@
-
-pdf: dvi
+		@echo MAKEDOC $@
+		-cd doc; $(MAKE) -j1 $@
 
 .PHONY: doc
 doc:		info html ps pdf txt
