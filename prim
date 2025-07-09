@@ -2194,6 +2194,10 @@ u2 = (c_addr2 == NULL ? 0 : strlen((char *)c_addr2));
 free_l(string);
 
 open-pipe	( c_addr u wfam -- wfileid wior )	gforth	open_pipe
+""Opens a pipe to a shell command @i{c-addr u}.  The @i{wfileid} allows you to
+read from or write to that shell process (depending on the mode @i{wfam},
+which can be either @code{r/o} or @code{w/o}, possibly combined with
+@code{bin}, but not @code{r/w}).""
 char * string = cstr(c_addr,u);
 fflush(stdout);
 wfileid=(Cell)popen(string,pfileattr[wfam]); /* ~ expansion of 1st arg? */
@@ -2201,6 +2205,7 @@ wior = IOR(wfileid==0); /* !! the man page says that errno is not set reliably *
 free_l(string);
 
 close-pipe	( wfileid -- wretval wior )		gforth	close_pipe
+""Closes a pipe @i{wfileid} opened with @code{open-pipe}""
 wretval = pclose((FILE *)wfileid);
 wior = IOR(wretval==-1);
 

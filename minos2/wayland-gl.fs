@@ -91,6 +91,9 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 0 ' noop trigger-Value wp-tearing-control-manager-v1
 0 ' noop trigger-Value wp-tearing-control-v1
 0 ' noop trigger-Value wp-color-manager-v1
+0 ' noop trigger-Value wp-color-management-output-v1
+0 ' noop trigger-Value wp-color-management-surface-v1
+0 ' noop trigger-Value wp-color-management-surface-feedback-v1
 
 \ set a cursor
 
@@ -289,6 +292,102 @@ Defer rescaler ' noop is rescaler
     :cb supported_intent { data manager intent -- }
 	wayland( intent [: cr ." color intent " h. ;] do-debug )
 	1 intent lshift color-intents or to color-intents ;
+    cb>
+
+    0 Value di-r_x
+    0 Value di-g_x
+    0 Value di-b_x
+    0 Value di-w_x
+    0 Value di-r_y
+    0 Value di-g_y
+    0 Value di-b_y
+    0 Value di-w_y
+
+    0 Value di-min-lum
+    0 Value di-max-lum
+    0 Value di-ref-lum
+    
+    0 Value dit-r_x
+    0 Value dit-g_x
+    0 Value dit-b_x
+    0 Value dit-w_x
+    0 Value dit-r_y
+    0 Value dit-g_y
+    0 Value dit-b_y
+    0 Value dit-w_y
+    
+    0 Value dit-min-lum
+    0 Value dit-max-lum
+    0 Value dit-max-cll
+    0 Value dit-max-fall
+    <cb wp_image_description_info_v1
+    :cb done { data desc-info -- }
+	wayland( [: cr ." description done" ;] do-debug ) ;
+    :cb icc_file { data desc-info icc size -- }
+	wayland( size [: cr ." icc file size: " . ;] do-debug ) ;
+    :cb primaries { data desc-info r_x r_y g_x g_y b_x b_y w_x w_y -- }
+	wayland( w_y w_x b_y b_x g_y g_x r_y r_x
+	[: cr ." primaries: " . . . . . . . . ;] do-debug )
+	r_x to di-r_x r_y to di-r_y
+	g_x to di-g_x g_y to di-g_y
+	b_x to di-b_x b_y to di-b_y
+	w_x to di-w_x w_y to di-w_y ;
+    :cb primaries_named { data desc-info primaries -- }
+	wayland( primaries [: cr ." primaries named: " h. ;] do-debug ) ;
+    :cb tf_power { data desc-info eexp -- }
+	wayland( eexp [: cr ." tf_power: " h. ;] do-debug ) ;
+    :cb tf_named { data desc-info tf -- }
+	wayland( tf [: cr ." tf_named: " h. ;] do-debug ) ;
+    :cb luminances { data desc-info min-lum max-lum ref-lum -- }
+	wayland( ref-lum max-lum min-lum [: cr ." luminance: " h. 1 backspaces ." .. " h. ." ref: " h. ;] do-debug )
+	max-lum to di-max-lum
+	min-lum to di-min-lum
+	ref-lum to di-ref-lum ;
+    :cb target_max_fall { data desc-info max-fall -- }
+	wayland( max-fall [: cr ." target max-fall: " h. ;] do-debug )
+	max-fall to dit-max-fall ;
+    :cb target_max_cll { data desc-info max-cll -- }
+	wayland( max-cll [: cr ." target max-cll: " h. ;] do-debug )
+	max-cll to dit-max-cll ;
+    :cb target_luminance { data desc-info min-lum max-lum -- }
+	wayland( max-lum min-lum [: cr ." target luminance: " h. 1 backspaces ." .. " h. ;] do-debug )
+	max-lum to dit-max-lum
+	min-lum to dit-min-lum ;
+    :cb target_primaries { data desc-info r_x r_y g_x g_y b_x b_y w_x w_y -- }
+	wayland( w_y w_x b_y b_x g_y g_x r_y r_x
+	[: cr ." target primaries: " . . . . . . . . ;] do-debug )
+	r_x to dit-r_x r_y to dit-r_y
+	g_x to dit-g_x g_y to dit-g_y
+	b_x to dit-b_x b_y to dit-b_y
+	w_x to dit-w_x w_y to dit-w_y ;
+    cb>
+    
+    0 Value image-description-id
+    <cb wp_image_description_v1
+    :cb ready { data img-desc id -- }
+	wayland( id [: cr ." Image description ready " h. ;] do-debug )
+	id to image-description-id
+	id wp_image_description_info_v1_listener 0
+	wp_image_description_info_v1_add_listener ;
+    :cb failed { data img-desc cause d: string -- }
+	wayland( cause string [: cr ." Image description failed for reason:"
+	cr type cr ." cause: " h. ;] do-debug ) ;
+    cb>
+    
+    0 Value image-description
+    <cb wp_color_management_output_v1
+    :cb image_description_changed { data output-manager -- }
+	image-description ?dup-IF  wp_image_description_v1_destroy  THEN
+	output-manager wp_color_management_output_v1_get_image_description
+	dup to image-description
+	wp-image-description-v1-listener 0
+	wp_image_description_v1_add_listener ;
+    cb>
+
+    0 Value preferred-image-id
+    <cb wp_color_management_surface_feedback_v1
+    :cb preferred_changed { data feddback id -- }
+	to preferred-image-id ;
     cb>
 [THEN]
 
@@ -1045,6 +1144,17 @@ wl-registry set-current
 [THEN]
 [IFDEF] wp_color_manager_v1_interface
     1 wlal: wp_color_manager_v1
+    :trigger-on( wp-color-manager-v1 wl-output wl-surface )
+	wp-color-manager-v1 wl-output wp_color_manager_v1_get_output
+	dup to wp-color-management-output-v1
+	wp-color-management-output-v1-listener 0
+	wp_color_management_output_v1_add_listener drop
+	wp-color-manager-v1 wl-surface wp_color_manager_v1_get_surface
+	to wp-color-management-surface-v1
+	wp-color-manager-v1 wl-surface wp_color_manager_v1_get_surface_feedback
+	dup to wp-color-management-surface-feedback-v1
+	wp-color-management-surface-feedback-v1-listener 0
+	wp_color_management_surface_feedback_v1_add_listener drop ;
 [THEN]
 set-current
 
