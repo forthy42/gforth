@@ -398,6 +398,10 @@ and
 and!
 annotate-cov
 .ansi-cov#
+ANT_OK
+ANT_OPEN
+ANT_SHORT
+ANT_UNK
 any
 any-code!
 append
@@ -789,6 +793,7 @@ char+
 char-
 char/
 char?
+char2str
 char-append-buffer
 CHAR_BIT
 charclass
@@ -860,8 +865,12 @@ c-library-name-create
 c-library-name-setup
 c-libs
 CLIGHT
+CLIGHTAIR
 CLIMBERR_SET
 CLIMB_SET
+clist_t
+clist_t-ch
+clist_t-str
 c-lit
 c-lit+
 c-lit@
@@ -1265,6 +1274,7 @@ devconfig_t-hexdata
 devconfig_t-mincycle
 devconfig_t-parity
 devconfig_t-path
+devconfig_t-sernum
 devconfig_t-stopbits
 devconfig_t-subtype
 devconfig_t-subtype1
@@ -1775,7 +1785,12 @@ fkey.
 [f:l
 f>l
 fl>
+flags2str
 flag-sign
+flist_t
+flist_t-mask
+flist_t-str
+flist_t-val
 flit
 flit,
 flit0
@@ -2097,6 +2112,7 @@ glonass_rangesat_t-prc
 glonass_rangesat_t-rrc
 glonass_rangesat_t-tod
 glonass_rangesat_t-udre
+GLO_PI
 glx?
 g_main_context_acquire
 g_main_context_add_poll
@@ -2269,6 +2285,7 @@ GPS_AMBIGUITY_MODULUS
 gps_clear_att
 gps_clear_dop
 gps_clear_fix
+gps_clear_gst
 gps_clear_log
 gps_close
 GPSD_API_MAJOR_VERSION
@@ -2304,11 +2321,14 @@ gps_data_t-rtcm3
 gps_data_t-satellites_used
 gps_data_t-satellites_visible
 gps_data_t-set
+gps_data_t-set_pending
 gps_data_t-skyview
 gps_data_t-skyview_time
 gps_data_t-source
 gps_data_t-subframe
 gps_data_t-toff
+gps_data_t-update_fd
+gps_data_t-update_fd()
 gps_data_t-version
 gps_data_t-watch
 gpsd_source_spec
@@ -2318,8 +2338,11 @@ gps_fix_t
 gps_fix_t-altHAE
 gps_fix_t-altitude
 gps_fix_t-altMSL
+gps_fix_t-ant_stat
 gps_fix_t-base
 gps_fix_t-climb
+gps_fix_t-clockbias
+gps_fix_t-clockdrift
 gps_fix_t-datum
 gps_fix_t-depth
 gps_fix_t-dgps_age
@@ -2343,6 +2366,7 @@ gps_fix_t-epv
 gps_fix_t-epx
 gps_fix_t-epy
 gps_fix_t-geoid_sep
+gps_fix_t-jam
 gps_fix_t-latitude
 gps_fix_t-longitude
 gps_fix_t-magnetic_track
@@ -2361,6 +2385,7 @@ gps_fix_t_NED-velN
 gps_fix_t-sep
 gps_fix_t-speed
 gps_fix_t-status
+gps_fix_t-temp
 gps_fix_t-time
 gps_fix_t-track
 gps_fix_t-wanglem
@@ -2620,6 +2645,9 @@ gst_t-smajor_deviation
 gst_t-smajor_orientation
 gst_t-sminor_deviation
 gst_t-utctime
+gst_t-ve_err_deviation
+gst_t-vn_err_deviation
+gst_t-vu_err_deviation
 G_THREAD_ERROR_AGAIN
 g_thread_error_quark
 g_thread_exit
@@ -4772,6 +4800,15 @@ rtcm3_1033_t-receiver
 rtcm3_1033_t-serial
 rtcm3_1033_t-setup_id
 rtcm3_1033_t-station_id
+rtcm3_4076_hdr
+rtcm3_4076_hdr-igs_num
+rtcm3_4076_hdr-ssr_epoch
+rtcm3_4076_hdr-ssr_iod
+rtcm3_4076_hdr-ssr_mmi
+rtcm3_4076_hdr-ssr_provider
+rtcm3_4076_hdr-ssr_solution
+rtcm3_4076_hdr-ssr_update
+rtcm3_4076_hdr-ssr_vers
 rtcm3_basic_rtk
 rtcm3_basic_rtk-channel
 rtcm3_basic_rtk-indicator
@@ -4928,6 +4965,7 @@ rtcm3_t_rtcmtypes_rtcm3_1230-l2_ca_bias
 rtcm3_t_rtcmtypes_rtcm3_1230-l2_p_bias
 rtcm3_t_rtcmtypes_rtcm3_1230-signals_mask
 rtcm3_t_rtcmtypes_rtcm3_1230-station_id
+rtcm3_t_rtcmtypes-rtcm3_4076
 rtcm3_t_rtcmtypes-rtcm3_msm
 rtcm3_t-type
 rtk_sat_t
@@ -4977,7 +5015,9 @@ satellite_t-elevation
 satellite_t-freqid
 satellite_t-gnssid
 satellite_t-health
+satellite_t-pr
 satellite_t-PRN
+satellite_t-prRate
 satellite_t-prRes
 satellite_t-qualityInd
 satellite_t-sigid
@@ -5842,6 +5882,7 @@ va-arg-float
 va-arg-int
 va-arg-longlong
 va-arg-ptr
+val2str
 Val-color
 ?valid-method
 val-part
@@ -5920,6 +5961,9 @@ view>filename#
 view>line
 vi-l:c
 vlist
+vlist_t
+vlist_t-str
+vlist_t-val
 VNED_SET
 .voc
 >voc

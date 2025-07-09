@@ -23,6 +23,7 @@
 #define SPA_SENTINEL
 #define SPA_DEPRECATED
 #define SPA_WARN_UNUSED_RESULT
+#define SPA_UNUSED
 
 %apply int { int32_t }
 %apply unsigned int { uint32_t }
