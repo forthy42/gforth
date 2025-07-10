@@ -90,10 +90,6 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 0 ' noop trigger-Value primary-selection-source
 0 ' noop trigger-Value wp-tearing-control-manager-v1
 0 ' noop trigger-Value wp-tearing-control-v1
-0 ' noop trigger-Value wp-color-manager-v1
-0 ' noop trigger-Value wp-color-management-output-v1
-0 ' noop trigger-Value wp-color-management-surface-v1
-0 ' noop trigger-Value wp-color-management-surface-feedback-v1
 
 \ set a cursor
 
@@ -273,6 +269,11 @@ Defer rescaler ' noop is rescaler
 [THEN]
 
 [IFDEF] wp_color_manager_v1_listener
+    0 ' noop trigger-Value wp-color-manager-v1
+    0 ' noop trigger-Value wp-color-management-output-v1
+    0 ' noop trigger-Value wp-color-management-surface-v1
+    0 ' noop trigger-Value wp-color-management-surface-feedback-v1
+
     0 Value color-features
     0 Value color-tfs
     0 Value color-primaries
