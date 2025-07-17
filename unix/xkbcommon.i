@@ -10,6 +10,8 @@
 %apply unsigned long { size_t }
 %apply SWIGTYPE * { va_list }
 
+// unfortunately, there's no version marker in xkbcommon.h
+// prep: sed -e 's/^\(.*\(xkb_components_names_from_rules\|xkb_keymap_mod_get_mask\|xkb_state_update_latched_locked\).*\)$/#ifdef XKBCOMMON_VERSION_0_10`\1`#endif/g' | tr '`' '\n'
 // exec: sed -e 's/" xkbcommon" add-lib/" xkbcommon" add-lib/g' -e 's/^c-library/cs-vocabulary xkbcommon\n\nget-current also xkbcommon definitions\n\nc-library/g' -e 's/^end-c-library/end-c-library\nprevious set-current/g' -e 's/\(_from_buffer .*\) s u /\1 a u /g' | grep -v '^#[1-9][0-9]	constant XKB_KEY' | grep -v '^#[1-9][0-9][0-9]	constant XKB_KEY' | grep -v '^#[1-9][0-9][0-9][0-9]	constant XKB_KEY'
 
 %include <xkbcommon/xkbcommon.h>

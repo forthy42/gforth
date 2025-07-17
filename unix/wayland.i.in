@@ -16,7 +16,7 @@
 #define WL_HIDE_DEPRECATED
 #define WAYLAND_DETAIL(x) x
 
-// prep: sed -e 's/^\(.*\(wl_shm_release\|wl_proxy_get_queue\|wl_display_set_max_buffer_size\|wl_display_create_queue_with_name\|wl_proxy_get_display\|wl_event_queue_get_name\).*\)$/#if WAYLAND_MIN_VER(1,23)`\1`#endif/g' | tr '`' '\n'
+// prep: sed -e 's/^\(.*\(wl_shm_release\|wl_proxy_get_queue\|wl_display_set_max_buffer_size\|wl_display_create_queue_with_name\|wl_proxy_get_display\|wl_event_queue_get_name\).*\)$/#if WAYLAND_MIN_VER(1,23)`\1`#endif/g' -e 's/^\(.*\(wl_proxy_get_interface\|wl_display_dispatch_timeout\|wl_display_dispatch_queue_pending\|wl_fixes_set_user_data\|wl_fixes_get_user_data\|wl_fixes_get_version\|wl_fixes_destroy\|wl_fixes_destroy_registry\).*\)$/#if WAYLAND_MIN_VER(1,24)`\1`#endif/g' | tr '`' '\n'
 // exec: sed -e 's/^c-library\( .*\)/cs-vocabulary wayland``get-current also wayland definitions``c-library\1`s" wayland" open-fpath-file 0= [IF] rot close-file throw add-incdir [THEN]`/g' -e 's|^end-c-library|include unix/wayland-interfaces.fs`end-c-library`previous set-current|g' -e 's/c-funptr \(.*\)() {.*} \(.*\)/c-callback \1: \2/g' -e 's:" wayland" add-lib:" wayland-client -lwayland-egl -lwayland-cursor" add-lib:g' | tr '`' '\n'
 
 %include <wayland-client.h>
