@@ -134,7 +134,7 @@ EXTRAPATH = $(PATHSEP)/usr/share/gforth/site-forth$(PATHSEP)/usr/local/share/gfo
 FORTHPATH = .$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(dataverdir)$(EXTRAPATH)
 FORTHSIZES = @FORTHSIZES@
 FORTHS_ARGS = @check_option@ -p ".$(PATHSEP)$(realpath $(srcdir))$(PATHSEP)$(FORTHPATH)"
-FORTHDEBUGFLAGS = --die-on-signal --debug-mcheck
+FORTHDEBUGFLAGS = --die-on-signal=2 --debug-mcheck
 FORTH_ARGS = $(FORTHDEBUGFLAGS) $(FORTHS_ARGS)
 ENGINE = ./gforth
 DITCENGINE = @DITCENGINE@
