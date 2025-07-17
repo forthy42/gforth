@@ -31,6 +31,6 @@
      LPLOGFONTW, HBRUSH, LPLOGFONTA, LPDEVMODE, HWND, HMODULE, HGLOBAL,
      LPPIXELFORMATDESCRIPTOR };
 
-// exec: sed -e 's/^c-library/cs-vocabulary gdi32\n\nget-current also gdi32 definitions\n\nc-library/g' -e 's/^end-c-library/end-c-library\nprevious set-current/g' -e 's/add-lib/add-lib\ns" opengl32" add-lib\ns" msimg32" add-lib\ns" winspool" add-lib\n/g' -e 's/AlphaBlend a n n n n a n n n n u/&{*(BLENDFUNCTION*)\&}/' -e 's/c-function .*A /\\ &/' -e 's/\(c-function [^ ]*\)W /\1 /g'
+// exec: sed -e 's/^c-library/cs-vocabulary gdi32\nget-current >r also gdi32 definitions\n\nc-library/g' -e 's/^end-c-library/end-c-library\nprevious r> set-current/g' -e 's/add-lib/add-lib\ns" opengl32" add-lib\ns" msimg32" add-lib\ns" winspool" add-lib\n/g' -e 's/AlphaBlend a n n n n a n n n n u/&{*(BLENDFUNCTION*)\&}/' -e 's/c-function .*A /\\ &/' -e 's/\(c-function [^ ]*\)W /\1 /g'
 
 %include <w32api/wingdi.h>

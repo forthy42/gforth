@@ -17,7 +17,7 @@
 #define VKAPI_CALL
 
 // prep: sed -e 's,\(^.*VkAccelerationStructureInstanceKHR.*$\),// \1,g' -e 's,\(^.*Vk.*AccelerationStructure.*NV.*$\),// \1,g'
-// exec: sed -e 's/^c-library\( .*\)/cs-vocabulary vulkan``get-current also vulkan definitions``c-library\1`/g' -e 's/^end-c-library/end-c-library`previous set-current/g'  | tr '`' '\n'
+// exec: sed -e 's/^c-library\( .*\)/cs-vocabulary vulkan`get-current >r also vulkan definitions``c-library\1`/g' -e 's/^end-c-library/end-c-library`previous r> set-current/g'  | tr '`' '\n'
 %include <vulkan/vk_platform.h>
 %include <vulkan/vulkan.h>
 %include <vulkan/vulkan_core.h>
