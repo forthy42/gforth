@@ -10605,7 +10605,7 @@ one string per line:
 @example
 : .strings ( addr u -- ) \ gforth
     2* cells bounds U+DO
-	cr i 2@@ type
+        cr i 2@@ type
     2 cells +LOOP ;  
 @end example
 
@@ -10616,7 +10616,7 @@ all at compile time and compile it into the definition like this:
 @example
 : .strings ( addr u -- ) \ gforth
     2* cells bounds U+DO
-	cr i 2@@ type
+        cr i 2@@ type
     [ 2 cells ] literal +LOOP ;  
 @end example
 
@@ -13181,8 +13181,8 @@ Here's an example program @file{echo.fs} for @code{next-arg}:
 @example
 : echo ( -- )
     begin
-	next-arg 2dup 0 0 d<> while
-	    type space
+        next-arg 2dup 0 0 d<> while
+            type space
     repeat
     2drop ;
 
@@ -20119,10 +20119,10 @@ the following lines to your @file{.emacs} file:
 @example
 (autoload 'forth-mode "gforth.el")
 (setq auto-mode-alist (cons '("\\.fs\\'" . forth-mode) 
-			    auto-mode-alist))
+                            auto-mode-alist))
 (autoload 'forth-block-mode "gforth.el")
 (setq auto-mode-alist (cons '("\\.fb\\'" . forth-block-mode) 
-			    auto-mode-alist))
+                            auto-mode-alist))
 (add-hook 'forth-mode-hook (function (lambda ()
    ;; customize variables here:
    (setq forth-indent-level 4)
