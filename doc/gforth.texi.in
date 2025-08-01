@@ -10748,12 +10748,12 @@ written much shorter as follows:
 
 If you then say @code{see sum-array}, it shows the following code:
 
-@example
+@source
 : sum-array
   #0 over + swap ?do
     i @ + #8 +LOOP
 ;
-@end example
+@end source
 
 In addition to @code{]]}...@code{[[}, this example shows off some
 other features:

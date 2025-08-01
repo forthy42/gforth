@@ -33,6 +33,12 @@
 
 require hold-number-line.fs
 
+wordlist constant gray-wordlist
+get-current gray-wordlist set-current
+gray-wordlist >order
+require gray.fs
+previous set-current
+
 #0. 2value gforth-version-string
 wordlist constant gforth-versions-wl
 
@@ -81,6 +87,10 @@ variable ds-linenumber
 
 : .#line ( -- ) EXIT
     ." #line " ds-linenumber ? '"' emit ds-filename 2@ type '"' emit cr ;
+
+: ds-error ( c-addr u )
+    [: cr ds-filename 2@ type ." :" ds-linenumber ? ." : " type ;]
+    stderr outfile-execute ;
 
 \ deal with .fd files
 
@@ -131,7 +141,7 @@ create description-buffer 4096 chars allot
 	endif
 	1 chars
     +loop ;
-    
+
 : condition-stack-effect ( c-addr1 u1 -- c-addr2 u2 )
     save-mem 2dup replace-_ ;
 
@@ -210,7 +220,7 @@ set-current
         [: cr current-view .sourceview ." :unknown wordset"
         cr source type ;] stderr outfile-execute
     then ;
-    
+
 : condition-wordset ( c-addr1 u1 -- c-addr2 u2 )
     dup 0=
     if
@@ -302,7 +312,7 @@ drop pronounciation-table-low 2* cells - constant pronounciation-table
         2drop 0 0
     then
     #>> ;
-    
+
 : rest-of-line-ok? ( -- flag )
     source >in @ /string s" -- " search if
         s" )" search if
@@ -365,17 +375,6 @@ drop pronounciation-table-low 2* cells - constant pronounciation-table
     loop
     drop ;
 
-: typeuntexi ( c-addr u -- )
-    bounds u+do
-        1 i i c@ '@' = if
-            s" @{}" i 1+ c@ scan nip 0<> if
-                1+ swap 1+ swap then then
-        c@ emit
-    +loop ;
-
-: untexi ( c-addr1 u1 -- c-addr2 u2 )
-    ['] typeuntexi >string-execute ;
-
 : type-alpha-dash ( c-addr u -- )
     \ replace all non-letters with "-"
     bounds ?do
@@ -391,14 +390,16 @@ drop pronounciation-table-low 2* cells - constant pronounciation-table
 : typeword ( addr u -- )
     2dup documentation find-name-in dup if
         name>interpret >body >r
-        texinfo-link if
+        r@ doc-wordset 2@ wordsets find-name-in dup if
+            name>interpret execute then
+        texinfo-link and {: link? :}
+        link? if
             ." @link{" r@ doc-wordset 2@ type-alpha-dash ." --"
                        r@ doc-pronounciation-string type ." ,"
         then
         typetexi rdrop
-        texinfo-link if
-            ." }"
-        then
+        link? if
+            ." }" then
     else
         drop typetexi
     then ;
@@ -425,9 +426,153 @@ drop pronounciation-table-low 2* cells - constant pronounciation-table
             match w nip /string {: d: match1 :}
             match1 (parse-white) '}' scan-back 1- {: d: word :}
             word typeword
-            match1 word nip /string            
+            match1 word nip /string
     repeat
     type ;
+
+\ deal with texi stuff in @example and @code{...}
+
+gray-wordlist >order
+
+255 constant maxchar
+maxchar 1+ constant end-char
+
+end-char max-member \ the whole character set + EOF
+
+variable rawinput    \ pointer to next character to be scanned
+variable startinput  \ pointer to the start of the input
+variable endrawinput \ pointer to the end of the input (the char after the last)
+variable doneinput   \ points behind the part of the input for which
+                     \ output has been generated
+variable in-word     \ true if the current input did not have
+                     \ any texi stuff apart from @@ @{ @}
+variable word$       \ untexified text of the word
+
+: initdo ( -- )
+    \ initialization at the end of a do... word
+    rawinput @ doneinput !
+    word$ $init
+    in-word on ;
+
+: initparse ( c-addr u -- )
+    \ initialize the variables for parsing
+    bounds dup startinput ! rawinput ! endrawinput !
+    initdo ;
+
+: getinput ( -- n )
+    rawinput @ endrawinput @ = if
+        end-char
+    else
+        rawinput @ c@
+    then ;
+
+: to-word ( -- )
+    getinput word$ c$+! ;
+
+: non-word ( -- )
+    in-word off ;
+
+: dotexi ( -- )
+    doneinput @ rawinput @ over - type
+    initdo ;
+
+: do-word-or-texi ( -- )
+    in-word @ if
+        word$ $@ typeword
+    else
+        dotexi
+    then
+    initdo ;
+
+: testchar? ( set -- f )
+    getinput member? ;
+' testchar? test-vector !
+
+: check ( f -- )
+    0= if
+        [:  ." syntax error in: " startinput @ rawinput @ over - type ." <<<<"
+            rawinput @ endrawinput @ over - type
+        ;] >string-execute ds-error
+        1 throw
+    then ;
+
+: check&read ( f -- )
+    check
+    rawinput @ endrawinput @ <> if
+        1 rawinput +!
+    endif ;
+
+: charclass ( set "name" -- )
+    ['] check&read terminal ;
+
+: .. ( c1 c2 -- set )
+    \ creates a set that includes the characters c, c1<=c<=c2 )
+    empty copy-set
+    swap 1+ rot do
+        i over add-member
+    loop ;
+
+: del-member ( set1 u -- set2 )
+    \ changes set to exclude u
+    over >r
+    normalize-bit-addr decode invert over @ and swap !
+    r> ;
+
+'@' singleton charclass [@]
+'{' singleton charclass [{]
+'}' singleton charclass [}]
+bl  singleton charclass bl-char
+bl  255 .. charclass any
+bl  255 .. '@' del-member '{' del-member '}' del-member charclass bl[^@{}]
+'!' 255 .. '@' del-member '{' del-member '}' del-member charclass [^@{}]
+'@' singleton '{' over add-member '}' over add-member charclass [@{}]
+
+nonterminal inside{}
+
+(( bl[^@{}] || (( [@] any )) || (( [{] inside{} [}] ))
+)) ** inside{} rule
+
+(( bl-char ** {{ dotexi }}
+|| (( (( {{ to-word }} [^@{}] )) **
+      (( [@]
+         (( {{ to-word }} [@{}]
+         || {{ non-word }} [^@{}] ++ (( [{] inside{} [}] )) ??
+         ))
+         (( {{ to-word }} [^@{}] )) **
+      )) **
+   )) {{ do-word-or-texi }}
+)) ** parser @example
+
+: te ( c-addr u -- )
+    initparse @example ;
+
+previous
+\ ---
+
+: typeuntexi ( c-addr u -- f )
+    \ if it contains only @@ @{ @} and not other @, type the untexi and
+    \ return true, otherwise type garbage and return false
+    case {: d: s :}
+        s '@' $split {: d: remainder :}
+        2dup type
+        s d= ?of true endof
+        \ there was a @
+        remainder nip 0= ?of "single @" ds-error false endof
+        "@{}" remainder drop c@ dup {: c :} scan nip 0<> ?of
+            c emit remainder 2 /string contof
+        "wrong @: " s s+ ds-error false
+        0 endcase ;
+
+: untexi ( c-addr1 u1 -- c-addr2 u2 )
+    ['] typeuntexi >string-execute ;
+
+: type-texiword ( c-addr u -- )
+    \ c-addr u is a texi string without spaces.  Untexi it and type it
+    \ as a word.
+    untexi typeword ;
+
+: type-replace@example ( c-addr u -- )
+    initparse @example ;
 
 : print-wordset ( doc-entry -- )
     dup >r doc-wordset 2@ 2dup type "gforth" str= if
@@ -461,7 +606,7 @@ drop pronounciation-table-low 2* cells - constant pronounciation-table
     then
     ." @code{" r@ doc-name 2@ typetexi ." } "
     ." ( @i{" r@ doc-stack-effect 2@ type ." }) "
-    r@ print-wordset 
+    r@ print-wordset
     r@ doc-pronounciation 2@ dup if
         2dup ."  ``" type ." ''" then
     2drop rdrop
@@ -510,6 +655,11 @@ defer type-ds ( c-addr u )
             .\" @example\n" `typetexi1 is type-ds endof
         2dup s" @end source" string-prefix? ?of
             .\" @end example\n" `type-replace@word is type-ds endof
+        2dup s" @example" string-prefix? ?of
+            .\" @example\n" `type-replace@example is type-ds endof
+        2dup s" @end example" string-prefix? ?of
+            .\" @end example\n" `type-replace@word is type-ds endof
+
         2dup type-ds cr
         0 endcase
     2drop ;
@@ -538,7 +688,7 @@ create docline doclinelength chars allot
     if
 	execute { doc }
 	wordset doc doc-wordset 2@ capscompare
-	if 
+	if
 	    ." wordset: " wordname type ." : '"  doc print-wordset ." ' instead of '" wordset type ." '" cr
 	endif
 	pronounciation doc doc-pronounciation-string capscompare
