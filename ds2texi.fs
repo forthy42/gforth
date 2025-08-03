@@ -18,9 +18,9 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-\ documentation source can contain lines in the form `doc-word' and
-\ `short-word'. These are converted to appropriate full or short
-\ (without the description) glossary entries for word.
+\ documentation source can contain lines in the form `doc-word'. These
+\ are converted to appropriate full or short (without the description)
+\ glossary entries for word.
 
 \ The glossary entries are generated from data present in the wordlist
 \ `documentation'. Each word resides there under its own name.
@@ -30,6 +30,28 @@
 
 \ you can output all words with version numbers with
 \ gforth ds2texi.fs -e "args-gforth-versions print-word-versions bye" doc/words/*-words|sort |less
+
+\ This code is quite smelly.  The following approach should reduce the
+\ smell:
+\
+\ Scan the document for the first doc- @example @source at the start
+\ of a line.
+\
+\ Everything before is treated as ordinary texinfo text and scanned
+\ for @word{ and @code{, whichever is first.  Anything before that is
+\ output as-is.  For @word{ the end is found as currently (look for
+\ space or newline, and search for the nearest } before that.  For
+\ @code{, use parse-texi-with-words to find the corresponding }.
+\ Treat the contents of @word{ and @code{ as currently.  Repeat this
+\ until all paragraphs before the first doc- @example @source are
+\ exhausted.
+\
+\ Treat doc- as is done now.
+\
+\ For @example, scan for @end example.  Treat the stuff in between is
+\ is done now.  Likewise for @source..@end source.
+\
+\ Repeat until the input is exhausted.
 
 require hold-number-line.fs
 
@@ -709,7 +731,7 @@ defer type-ds ( c-addr u )
     \ limit this to paragraphs to make errors more localized.
     case
         2dup s" doc-" ['] print-doc do-doc ?of endof
-        2dup s" short-" ['] print-short do-doc ?of endof
+        \ 2dup s" short-" ['] print-short do-doc ?of endof
         2dup s" @cindex " string-prefix? ?of
             2dup type cr endof
         2dup s" @source" string-prefix? ?of

@@ -14,6 +14,9 @@
 @c   <word>is escaped; the last } before the first white space is the
 @c   end of <word>.
 
+@c Stuff in @code{..} is considered to be Forth code (documented words
+@c link to the documentation).  If you do not want that, use @samp{..}.
+
 @c s/@c <ebook>/@/g this if you want a smartphone/ebook PDF
 @c <ebook>iftex
 @c <ebook>internalpagesizes{150mm}{97mm}{-0.666in}{-0.95in}{0in}{0in}{160mm}{100mm}
