@@ -85,7 +85,7 @@ wordlist constant gforth-versions-wl
 variable ds-linenumber
 1 ds-linenumber !
 
-: .#line ( -- ) EXIT
+: .#line ( -- ) \ EXIT
     ." #line " ds-linenumber ? '"' emit ds-filename 2@ type '"' emit cr ;
 
 : ds-error ( c-addr u )
@@ -415,21 +415,6 @@ drop pronounciation-table-low 2* cells - constant pronounciation-table
     next-case
     str1 typetexi ;
 
-: type-replace@word ( addr u -- )
-    \ replace @word{<word>}... (terminated by white space) with
-    \ @code{<word>}... where <word> is typetexi'd.
-    s" @word{" {: d: w :}
-    begin {: d: s :}
-        s w search while {: d: match :}
-            s drop match drop over - type
-            ." @code{"
-            match w nip /string {: d: match1 :}
-            match1 (parse-white) '}' scan-back 1- {: d: word :}
-            word typeword
-            match1 word nip /string
-    repeat
-    type ;
-
 \ deal with texi stuff in @example and @code{...}
 
 gray-wordlist >order
@@ -439,6 +424,10 @@ maxchar 1+ constant end-char
 
 end-char max-member \ the whole character set + EOF
 
+0 0 2value allinput  \ contents of the input file, all the variables
+                     \ below point into that block
+0 0 2value restinput \ everything that has not been processed yet
+variable linestart   \ start of the line we are on
 variable rawinput    \ pointer to next character to be scanned
 variable startinput  \ pointer to the start of the input
 variable endrawinput \ pointer to the end of the input (the char after the last)
@@ -460,7 +449,7 @@ variable word$       \ untexified text of the word
     initdo ;
 
 : getinput ( -- n )
-    rawinput @ endrawinput @ = if
+    rawinput @ endrawinput @ assert( 2dup u<= ) = if
         end-char
     else
         rawinput @ c@
@@ -499,6 +488,10 @@ variable word$       \ untexified text of the word
 : check&read ( f -- )
     check
     rawinput @ endrawinput @ <> if
+        getinput #lf = if
+            1 ds-linenumber +!
+            rawinput @ 1+ linestart !
+        then
         1 rawinput +!
     endif ;
 
@@ -518,14 +511,22 @@ variable word$       \ untexified text of the word
     normalize-bit-addr decode invert over @ and swap !
     r> ;
 
+: terminal-set ( terminal -- set )
+    \ the set matched by a terminal
+    compute drop ;
+
+: set-difference ( set1 set2 -- set )
+    \ set=set1-set2
+    ['] notb&and binary-set-operation ;
+
 '@' singleton charclass [@]
 '{' singleton charclass [{]
 '}' singleton charclass [}]
 bl  singleton charclass bl-char
-bl  255 .. charclass any
-bl  255 .. '@' del-member '{' del-member '}' del-member charclass bl[^@{}]
-'!' 255 .. '@' del-member '{' del-member '}' del-member charclass [^@{}]
+bl  255 .. #lf over add-member charclass any
 '@' singleton '{' over add-member '}' over add-member charclass [@{}]
+any terminal-set [@{}] terminal-set set-difference charclass bl[^@{}]
+bl[^@{}] terminal-set copy-set bl del-member charclass [^@{}]
 
 nonterminal inside{}
 
@@ -541,11 +542,31 @@ nonterminal inside{}
          (( {{ to-word }} [^@{}] )) **
       )) **
    )) {{ do-word-or-texi }}
-)) ** parser @example
+)) ** parser parse-texi-with-words
 
-: te ( c-addr u -- )
-    initparse @example ;
+: texi-with-words ( c-addr u -- )
+    initparse parse-texi-with-words ;
+       
+: type-replace@example ( c-addr1 u1 -- c-addr2 u2 )
+    \ process a line in @example
+    texi-with-words
+    rawinput @ endrawinput @ <> abort" @example parse stopped prematurely" ;
 
+: paragraph ( c-addr u1 -- c-addr u2 )
+    \ c-addr u2 is the first paragraph of c-addr u1
+    2dup "\n\n" search if
+        drop nip over -
+    else
+        2drop
+    then ;
+
+: type-replace@code ( c-addr1 u1 -- c-addr2 u2 )
+    \ process the stuff after @code{.  u1 only contains the rest of
+    \ the line, but process the rest of the paragraph if necessary.
+    drop allinput + over - {: c-addr1 u3 :}
+    c-addr1 u3 paragraph texi-with-words
+    rawinput @ allinput + over - #lf $split ->restinput ;
+       
 previous
 \ ---
 
@@ -571,8 +592,37 @@ previous
     \ as a word.
     untexi typeword ;
 
-: type-replace@example ( c-addr u -- )
-    initparse @example ;
+: type-replace@word ( addr u -- )
+    \ replace @word{<word>}... (terminated by white space) with
+    \ @code{<word>}... where <word> is typetexi'd, and possibly add
+    \ "@link"s to @code{...}.  @code{...} may stretch across lines, so
+    \ adjust restrinput, ds-linenumber etc. as necessary.  Limit
+    \ this extension to a paragraph.
+    s" @word{" {: d: w :}
+    s" @code{" {: d: c :}
+    begin {: d: s :}
+        s w search {: wflag :}
+        wflag if {: d: wmatch :}
+            s drop wmatch drop over - c search if {: cmatch :}
+                cmatch drop s + over - true
+            else
+                wmatch false
+            then
+        else
+            c search
+        then {: cflag :}
+        cflag wflag or while {: d: match :}
+            s drop match drop over - type ." @code{"
+            cflag if
+                match c nip /string type-replace@code
+            else
+                match w nip /string {: d: match1 :}
+                match1 (parse-white) '}' scan-back 1- {: d: word :}
+                word typeword
+                match1 word nip /string
+            then
+    repeat
+    type ;
 
 : print-wordset ( doc-entry -- )
     dup >r doc-wordset 2@ 2dup type "gforth" str= if
@@ -612,6 +662,13 @@ previous
     2drop rdrop
     cr ." @end format" cr ;
 
+forward ds2texi1 ( c-addr u -- )
+
+: type-description ( c-addr u -- )
+    allinput 2>r restinput 2>r
+    ds2texi1
+    2r> ->restinput 2r> ->allinput ;
+
 : print-doc ( doc-entry -- )
     >r
     r@ doc-loc 2@ type cr
@@ -620,7 +677,7 @@ previous
     r@ doc-description 2@ dup 0<>
     if
 	\ ." @iftex" cr ." @vskip-0ex" cr ." @end iftex" cr
-	type-replace@word cr cr
+	type-description cr cr
 	\ ." @ifinfo" cr ." @*" cr ." @end ifinfo" cr cr
     else
 	2drop cr
@@ -648,9 +705,13 @@ defer type-ds ( c-addr u )
 ' type-replace@word is type-ds \ typetexi1 between @source and @end source
 
 : process-line ( addr u -- )
+    \ sometimes @code{...} processes beyond the end of the line.  We
+    \ limit this to paragraphs to make errors more localized.
     case
-        2dup s" doc-"   ['] print-doc   do-doc ?of endof
+        2dup s" doc-" ['] print-doc do-doc ?of endof
         2dup s" short-" ['] print-short do-doc ?of endof
+        2dup s" @cindex " string-prefix? ?of
+            2dup type cr endof
         2dup s" @source" string-prefix? ?of
             .\" @example\n" `typetexi1 is type-ds endof
         2dup s" @end source" string-prefix? ?of
@@ -659,25 +720,33 @@ defer type-ds ( c-addr u )
             .\" @example\n" `type-replace@example is type-ds endof
         2dup s" @end example" string-prefix? ?of
             .\" @end example\n" `type-replace@word is type-ds endof
-
         2dup type-ds cr
         0 endcase
     2drop ;
 
-1024 constant doclinelength
+: string-split {: d: s d: sep -- d: first d: rest :}
+    \ split s into first and res, with the first occurence of sep
+    \ being between first and rest
+    s sep search if {: d: match :}
+        s drop match drop over - match sep nip /string
+    else
+        s 0 0
+    then ;
 
-create docline doclinelength chars allot
-
-: ds2texi ( file-id -- )
-    >r .#line
+: ds2texi1 ( c-addr u -- )
+    \ process the string, which may contain several paragraphs of
+    \ texi.in material
+    2dup ->allinput ->restinput
+    allinput #cr scan abort" CR in newline is not supported"
     begin
-        docline doclinelength r@ read-line throw
-    while
-            dup doclinelength = abort" docline too long"
-            docline swap process-line
+        restinput dup while
+            #lf $split ->restinput process-line
             1 ds-linenumber +!
     repeat
-    drop rdrop ;
+    2drop ;
+
+: ds2texi ( file-id -- )
+    .#line slurp-fid ds2texi1 ;
 
 : filename-ds2texi ( c-addr u -- )
     2dup ds-filename 2!

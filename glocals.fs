@@ -784,8 +784,9 @@ previous
     endcase ;
 
 : locals| ( ... "name ..." -- ) \ local-ext locals-bar
-    \ don't use 'locals|'! use '{'! A portable and free '{'
-    \ implementation is compat/anslocals.fs
+    \G Don't use @samp{locals| this read can't you|}!  Use @code{@{:
+    \G you can read this :@}} instead.! A portable and free @word{{:}
+    \G implementation can be found in @file{compat/xlocals.fs}.
     BEGIN
 	parse-name 2dup s" |" str= 0=
     WHILE

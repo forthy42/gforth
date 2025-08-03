@@ -114,7 +114,7 @@ interface%
     cell% 2* field class-inst-size ( class -- addr ) \ objects- objects
     \g Give the size specification for an instance (i.e. an object)
     \g of @var{class};
-    \g used as @code{class-inst-size 2@ ( class -- align size )}.
+    \g used as @code{class-inst-size 2@@ ( class -- align size )}.
 end-struct class%
 
 struct

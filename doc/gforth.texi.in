@@ -3360,7 +3360,7 @@ Forth system just takes @code{'} as one unit and has no idea that it is
 a parsing word (attempts to convenience programmers in this issue have
 usually resulted in even worse pitfalls, see
 @uref{https://www.complang.tuwien.ac.at/papers/ertl98.ps.gz,
-@code{State}-smartness---Why it is evil and How to Exorcise it}).
+@samp{State}-smartness---Why it is evil and How to Exorcise it}).
 
 Note that the state of the interpreter does not come into play when
 creating and executing XTs.  I.e., even when you execute @code{'} in
@@ -5329,9 +5329,9 @@ wordlists, @pxref{Word Lists}).
 @c we think this is a bad idea, you can change all wordlists into tables
 @c like this:
 @c 
-@c @example
+@c @source
 @c ' table-find forth-wordlist wordlist-map @ !
-@c @end example
+@c @end source
 @c 
 @c Note that you now have to type the predefined words in the same case
 @c that we defined them, which are varying.  You may want to convert them
@@ -8592,7 +8592,7 @@ the general scheme is:
 
 The difference from the definition using @word{does>} is that on
 @i{name} execution, after pushing the data address, @i{xt-code2} is
-@code{execute}d, rather than calling the code after the @i{does>}.
+@code{execute}d, rather than calling the code after the @code{does>}.
 This also allows putting @i{code3} in @i{def-word}; this is
 particularly relevant when you want to also use @word{set-optimizer}
 (@pxref{User-defined compile-comma}) on the defined word, because
@@ -10289,7 +10289,7 @@ On the other hand, combined words are still far better than
 words.@footnote{@code{State}-smart words are immediate words that do
 @word{state}-dependent things at run-time.  For a more detailed
 discussion of this topic, see M. Anton Ertl,
-@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl98.ps.gz,@code{State}-smartness---Why
+@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl98.ps.gz,@samp{State}-smartness---Why
 it is Evil and How to Exorcise it}}, EuroForth '98.}
 
 The other kind of use of combined words is for words like @word{[:}
@@ -13382,6 +13382,7 @@ doc-|
 doc-:}
 doc-{
 doc-}
+doc-locals|
 doc-w:
 doc-w^
 doc-d:
