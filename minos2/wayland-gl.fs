@@ -322,28 +322,6 @@ Defer rescaler ' noop is rescaler
     0 Value dit-max-cll
     0 Value dit-max-fall
     <cb wp_image_description_info_v1
-    :cb done { data desc-info -- }
-	wayland( [: cr ." description done" ;] do-debug ) ;
-    :cb icc_file { data desc-info icc size -- }
-	wayland( size [: cr ." icc file size: " . ;] do-debug ) ;
-    :cb primaries { data desc-info r_x r_y g_x g_y b_x b_y w_x w_y -- }
-	wayland( w_y w_x b_y b_x g_y g_x r_y r_x
-	[: cr ." primaries: " . . . . . . . . ;] do-debug )
-	r_x to di-r_x r_y to di-r_y
-	g_x to di-g_x g_y to di-g_y
-	b_x to di-b_x b_y to di-b_y
-	w_x to di-w_x w_y to di-w_y ;
-    :cb primaries_named { data desc-info primaries -- }
-	wayland( primaries [: cr ." primaries named: " h. ;] do-debug ) ;
-    :cb tf_power { data desc-info eexp -- }
-	wayland( eexp [: cr ." tf_power: " h. ;] do-debug ) ;
-    :cb tf_named { data desc-info tf -- }
-	wayland( tf [: cr ." tf_named: " h. ;] do-debug ) ;
-    :cb luminances { data desc-info min-lum max-lum ref-lum -- }
-	wayland( ref-lum max-lum min-lum [: cr ." luminance: " h. 1 backspaces ." .. " h. ." ref: " h. ;] do-debug )
-	max-lum to di-max-lum
-	min-lum to di-min-lum
-	ref-lum to di-ref-lum ;
     :cb target_max_fall { data desc-info max-fall -- }
 	wayland( max-fall [: cr ." target max-fall: " h. ;] do-debug )
 	max-fall to dit-max-fall ;
@@ -361,15 +339,41 @@ Defer rescaler ' noop is rescaler
 	g_x to dit-g_x g_y to dit-g_y
 	b_x to dit-b_x b_y to dit-b_y
 	w_x to dit-w_x w_y to dit-w_y ;
+    :cb luminances { data desc-info min-lum max-lum ref-lum -- }
+	wayland( ref-lum max-lum min-lum [: cr ." luminance: " h. 1 backspaces ." .. " h. ." ref: " h. ;] do-debug )
+	max-lum to di-max-lum
+	min-lum to di-min-lum
+	ref-lum to di-ref-lum ;
+    :cb tf_named { data desc-info tf -- }
+	wayland( tf [: cr ." tf_named: " h. ;] do-debug ) ;
+    :cb tf_power { data desc-info eexp -- }
+	wayland( eexp [: cr ." tf_power: " h. ;] do-debug ) ;
+    :cb primaries_named { data desc-info primaries -- }
+	wayland( primaries [: cr ." primaries named: " h. ;] do-debug ) ;
+    :cb primaries { data desc-info r_x r_y g_x g_y b_x b_y w_x w_y -- }
+	wayland( w_y w_x b_y b_x g_y g_x r_y r_x
+	[: cr ." primaries: " . . . . . . . . ;] do-debug )
+	r_x to di-r_x r_y to di-r_y
+	g_x to di-g_x g_y to di-g_y
+	b_x to di-b_x b_y to di-b_y
+	w_x to di-w_x w_y to di-w_y ;
+    :cb icc_file { data desc-info icc size -- }
+	wayland( icc size [: cr ." icc file size: " . ."  fd: " h. ;] do-debug ) ;
+    :cb done { data desc-info -- }
+	wayland( [: cr ." description done" ;] do-debug ) ;
     cb>
     
     0 Value image-description-id
+    0 Value image-description-info
     <cb wp_image_description_v1
     :cb ready { data img-desc id -- }
 	wayland( id [: cr ." Image description ready " h. ;] do-debug )
 	id to image-description-id
-	id wp_image_description_info_v1_listener 0
-	wp_image_description_info_v1_add_listener ;
+	img-desc wp_image_description_v1_get_information
+	dup to image-description-info
+	wayland( [: cr ." Image description info " dup h. ;] do-debug )
+	( wp_image_description_info_v1_listener 0
+	wp_image_description_info_v1_add_listener ) drop ;
     :cb failed { data img-desc cause d: string -- }
 	wayland( cause string [: cr ." Image description failed for reason:"
 	cr type cr ." cause: " h. ;] do-debug ) ;
@@ -382,7 +386,7 @@ Defer rescaler ' noop is rescaler
 	output-manager wp_color_management_output_v1_get_image_description
 	dup to image-description
 	wp-image-description-v1-listener 0
-	wp_image_description_v1_add_listener ;
+	wp_image_description_v1_add_listener drop ;
     cb>
 
     0 Value preferred-image-id
