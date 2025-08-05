@@ -119,7 +119,7 @@ latestxt optimizes !localn
 
 $Variable peephole-opts
 
-: 2compile, ( xt1 xt2 -- ) \ gforth-experimental two-compile-comma
+: 2compile, ( xt1 xt2 -- ) \ gforth-internal two-compile-comma
     \G equivalent to @code{@i{xt1} compile, @i{xt2} compile,}, but
     \G also applies peephole optimization.
     peephole-opts $@ bounds ?DO

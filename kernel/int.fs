@@ -422,7 +422,8 @@ method name>interpret ( nt -- xt ) \ tools-ext name-to-interpret
 \G @i{nt}.
 
 method name>compile ( nt -- w xt ) \ tools-ext name-to-compile
-\G @i{w xt} is the compilation token for the word @i{nt}.
+\G @i{w xt} is the compilation token for the word @i{nt}
+\G (@pxref{Compilation token}).
 
 method name>string ( nt -- addr u ) \ tools-ext name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.

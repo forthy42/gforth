@@ -73,8 +73,9 @@
     [THEN]
 	f, ;
 : FLiteral ( compilation r -- ; run-time -- r ) \ floating f-literal
-    \G Compile appropriate code such that, at run-time, @i{r} is placed
-    \G on the (floating-point) stack. Interpretation semantics are undefined.
+    \G Compilation semantics: ( @i{r --} ) compile the run-time semantics.@*
+    \G Run-time Semantics: ( @i{ -- r} ).@*
+    \G Interpretation semantics: not defined in the standard.
     flit, ;  immediate
 
 : opt-fcon ( xt -- )  >body f@ postpone FLiteral ;

@@ -10532,13 +10532,13 @@ n:1 relation between name tokens and the xt representing
 interpretation semantics; i.e., when you pass different nts to
 @word{name>interpret}, the result may be the same xt.
 
-Morover, all of the header fields of the old system correspond to
-fields in Gforth, but Gforth 1.0 has a few additional ones
-(@pxref{Header fields}).  One difference is that the name field
-usually points to the start of the header, whereas the nt in Gforth
-1.0 points to the body (and header fields are accessed with a negative
-offset).
+Another difference is that the NFA usually points to the start of the
+header, whereas the nt in Gforth 1.0 points to the body (and header
+fields are accessed with a negative offset).
 
+Moreover, all of the header fields of the old system correspond to
+fields in Gforth, but Gforth 1.0 has a few additional ones
+(@pxref{Header fields}).  
 
 
 @node Compilation token,  , Name token, Tokens for Words
@@ -10546,13 +10546,13 @@ offset).
 
 @cindex compilation token
 @cindex ct (compilation token)
-The compilation semantics of a named word is represented by a
+The compilation semantics of a word is represented by a
 @dfn{compilation token} consisting of two cells: @i{w xt}. The top
 cell @i{xt} is an execution token. The compilation semantics
 represented by the compilation token can be performed with
 @code{execute}, which consumes the whole compilation token, with an
 additional stack effect determined by the represented compilation
-semantics.  
+semantics.
 
 At present, the @i{w} part of a compilation token is an execution token,
 and the @i{xt} part represents either @code{execute} or
@@ -10565,7 +10565,7 @@ unusual compilation tokens (e.g., a compilation token that represents
 the compilation semantics of a literal).
 
 You get the compilation token of, e.g., @code{if} in a standard way
-with @code{name>compile}, e.g., @code{``if name>compile}, but there are
+with @code{name>compile}, e.g., @code{' if name>compile}, but there are
 also parsing words to get the compilation token of a word:
 
 doc-[comp']
@@ -10587,10 +10587,10 @@ doc-postpone,
 In contrast to most other languages, Forth has no strict boundary
 between compilation and run-time.  E.g., you can run arbitrary code
 between defining words (or for computing data used by defining words
-like @code{constant}). Moreover, @code{Immediate} (@pxref{Interpretation
-and Compilation Semantics} and @code{[}...@code{]} (see below) allow
-running arbitrary code while compiling a colon definition (exception:
-you must not allot dictionary space in the same section).
+like @code{constant}). Moreover, @code{Immediate}
+(@pxref{Interpretation and Compilation Semantics}) and
+@code{[}...@code{]} (see @pxref{Literals}) allow running arbitrary
+code while compiling a colon definition (exception: any dictionary space you allot must be in a different section, @pxref{Sections}).
 
 @menu
 * Literals::                    Compiling data values
@@ -10612,9 +10612,9 @@ one string per line:
     2 cells +LOOP ;  
 @end example
 
-With a simple-minded compiler like Gforth's, this computes @code{2
-cells} on every loop iteration.  You can compute this value once and for
-all at compile time and compile it into the definition like this:
+With a simple-minded compiler like Gforth 0.7, this computes @code{2
+cells} on every loop iteration.  You can compute this value at compile
+time and compile it into the definition like this:
 
 @example
 : .strings ( addr u -- ) \ gforth
@@ -10623,17 +10623,21 @@ all at compile time and compile it into the definition like this:
     [ 2 cells ] literal +LOOP ;  
 @end example
 
-@code{[} switches the text interpreter to interpret state (you will get
-an @code{ok} prompt if you type this example interactively and insert a
-newline between @code{[} and @code{]}), so it performs the
+@code{[} switches the text interpreter to interpret state (you will
+get an @code{ok} prompt if you type this example interactively and
+insert a newline between @code{[} and @code{]}), so it performs the
 interpretation semantics of @code{2 cells}; this computes a number.
-@code{]} switches the text interpreter back into compile state.  It then
-performs @code{Literal}'s compilation semantics, which are to compile
-this number into the current word.  You can decompile the word with
-@code{see .strings} to see the effect on the compiled code.
+@code{]} switches the text interpreter back into compile state.  It
+then performs @code{Literal}'s compilation semantics, which are to
+compile this number into the current word.  You can decompile the word
+with @code{see .strings} to see the effect on the compiled
+code.@footnote{In Gforth 1.0, the compiler performs constant folding,
+and @word{see} of the original @word{.strings} will show the same
+effect.}
 
-You can also optimize the @code{2* cells} into @code{[ 2 cells ] literal
-*} in this way.
+You can also optimize the @code{2* cells} into @code{[ 2 cells ]
+literal *} in this way.@footnote{In Gforth 1.0, @code{2 cells *} is
+sufficient.}
 
 doc-[
 doc-]
@@ -10651,15 +10655,21 @@ doc-sliteral
 @cindex colon-sys, passing data across @code{:}
 @cindex @code{:}, passing data across
 You might be tempted to pass data from outside a colon definition to the
-inside on the data stack.  This does not work, because @code{:} puhes a
+inside on the data stack.  This does not work, because @code{:} pushes a
 colon-sys, making stuff below unaccessible.  E.g., this does not work:
 
 @example
 5 : foo literal ; \ error: "unstructured"
 @end example
 
-Instead, you have to pass the value in some other way, e.g., through a
-variable:
+Instead, you have to pass the value in some other way, e.g., through the return stack:
+
+@source
+5 >r : foo [ r> ] literal ;
+@end source
+
+The interpretive use of the return stack is Gforth-specific; the use
+of a variable also works on other Forth systems:
 
 @example
 variable temp
@@ -10691,10 +10701,7 @@ What happens in this example?  @code{Postpone} compiles the compilation
 semantics of @code{+} into @code{compile-+}; later the text interpreter
 executes @code{compile-+} and thus the compilation semantics of +, which
 compile (the execution semantics of) @code{+} into
-@code{foo}.@footnote{A recent RFI answer requires that compiling words
-should only be executed in compile state, so this example is not
-guaranteed to work on all standard systems, but on any decent system it
-will work.}
+@code{foo}.
 
 doc-postpone
 
@@ -10766,18 +10773,20 @@ other features:
 @item
 It uses a defer-flavoured (defined with @code{xt:} local @code{xt};
 mentioning such a local inside @code{]]}...@code{[[} results in
-@code{compile,}ing the xt in the local
+@code{compile,}ing the xt in the local, i.e., @code{]] xt [[} is
+equivalent to @code{action-of xt compile,}.
 
 @item
 Not used in the example, but related to the previous point: For a
-value-flavoured local, using it inside @code{]]}...@code{[[} compiles
-the value of the local, i.e., @code{]] l [[} is equivalent to @code{l
-]] literal [[}.
+normal (value-flavoured) local, using it inside @code{]]}...@code{[[}
+compiles the value of the local, i.e., @code{]] x [[} is equivalent to
+@code{x ]] literal [[}.
 
 @item
 It uses the literal @code{1} inside @code{]]}...@code{[[}.  This
 results in @code{postpone}ing the @code{1}, i.e. compiling it when
-@code{compile-map-array} is run.
+@code{compile-map-array} is run.  @code{]] 1 [[} is equivalent to
+@code{1 ]] literal [[}.
 
 @item
 When @code{compile-map-array} is run, @code{1 cells} is compiled and
@@ -10789,15 +10798,16 @@ Note that parsing words such as @code{s\"} don't parse at postpone
 time and therefore not inside @code{]]}...@code{[[}.  Instead of
 @code{s\" mystring\n"} you can use the string recognizer and write
 @code{"mystring\n"}, which works inside @code{]]}...@code{[[}.
-Likewise for the parsing word @code{[']} and the recognizer notation
-starting with @code{`}.
+Likewise, the parsing word @code{[']} does not parse inside
+@code{]]}...@code{[[} while the recognizer notation starting with
+@code{`} works inside @code{]]}...@code{[[}.
 
 But if you prefer to use @code{s\"} (or have a parsing word that has
 no recognizer replacement), you can do it by switching back to
 compilation:
 
 @example
-]] ... [[ s\" mystring\n" ]] 2literal ... [[
+]] ... [[ s\" mystring\n" ]] sliteral ... [[
 @end example
 
 Definitions of @code{]]} and friends in Standard Forth are provided in
@@ -10847,6 +10857,14 @@ it is compiled:
 foo .
 @end example
 
+A more convenient, but less portable way to write @word{[compile-5]}
+is:
+
+@source
+: [compile-5] ( -- ) \ compiled code: ( -- n )
+  ]] 5 [[ ; immediate
+@end source
+
 You may want to pass parameters to a macro, that the macro should
 compile into the current definition.  If the parameter is a number, then
 you can use @code{postpone literal} (similar for other values).
@@ -10855,29 +10873,41 @@ If you want to pass a word that is to be compiled, the usual way is to
 pass an execution token and @code{compile,} it:
 
 @example
-: twice1 ( xt -- ) \ compiled code: ... -- ...
+: twice ( xt -- ) \ compiled code: ... -- ...
   dup compile, compile, ;
 
 : 2+ ( n1 -- n2 )
-  [ ' 1+ twice1 ] ;
+  [ ' 1+ twice ] ;
 @end example
 
 doc-compile,
-doc-2compile,
+@c doc-2compile,
 
-An alternative available in Gforth, that allows you to pass the
-compilation semantics as parameters is to use the compilation token
-(@pxref{Compilation token}).  The same example in this technique:
+A more convenient, but less portable way to write @word{twice} is:
+
+@source
+: twice {: xt: xt -- :} \ compiled code: ... -- ...
+  ]] xt xt [[ ;
+@end source
+
+An alternative that allows you to pass the compilation semantics as
+parameters is to use the compilation token (@pxref{Compilation
+token}).  The same example in this technique:
 
 @example
-: twice ( ... ct -- ... ) \ compiled code: ... -- ...
+: ctwice ( ... ct -- ... ) \ compiled code: ... -- ...
   2dup 2>r execute 2r> execute ;
 
 : 2+ ( n1 -- n2 )
-  [ comp' 1+ twice ] ;
+  [ ``1+ name>compile ctwice ] ;
 @end example
 
-In the example above @code{2>r} and @code{2r>} ensure that @code{twice}
+In particular, you want to pass the compilation token and
+@word{execute} it in case of words without interpretation semantics or
+with non-default and non-immediate compilation semantics (i.e., not
+for @word{1+}).
+
+In the example above @code{2>r} and @code{2r>} ensure that @code{ctwice}
 works even if the executed compilation semantics has an effect on the
 data stack.
 
@@ -10905,6 +10935,14 @@ see 3-
 
 The sequence @code{>r : r>} is necessary, because @code{:} puts a
 colon-sys on the data stack that makes everything below it unaccessible.
+
+A more convenient, but less portable way to define @word{curry+} is:
+
+@source
+: curry+ ( n1 "name" -- )
+  \ name execution: ( n2 -- n1+n2 )
+  {: n1 :} : ]] n1 + ; [[ ;
+@end source
 
 This way of writing defining words is sometimes more, sometimes less
 convenient than using @code{does>} (@pxref{Advanced does> usage

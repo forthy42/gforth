@@ -42,10 +42,11 @@ Defer previous-section ( -- ) \ gforth
     r> postpone literal ; immediate restrict
 
 : SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
-\G Compilation: compile the string specified by @i{c-addr1},
-\G @i{u} into the current definition. Run-time: return
-\G @i{c-addr2 u} describing the address and length of the
-    \G string.
+    \G Compilation semantics: ( @i{c-addr1 u --} )
+    \G Copy the string described by @i{c-addr1 u} to @i{c-addr2 u} and
+    \g compile the run-time semantics.@*
+    \G Run-time Semantics: ( @i{ -- c-addr2 u} ).@*
+    \G Interpretation semantics: not defined in the standard.
     tuck 2>r next-section here 2r> chars mem, align >r previous-section
     r> postpone literal postpone literal ; immediate restrict
 

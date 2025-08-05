@@ -275,15 +275,16 @@ variable nextname$
     0 litstack set-stack ;
 
 : Literal  ( compilation n -- ; run-time -- n ) \ core
-    \G Compilation semantics: compile the run-time semantics.@*
-    \G Run-time Semantics: push @i{n}.@*
-    \G Interpretation semantics: undefined.
+    \G Compilation semantics: ( @i{n --} ) compile the run-time semantics.@*
+    \G Run-time Semantics: ( @i{ -- n} ).@*
+    \G Interpretation semantics: not defined in the standard.
     >lits ;
 immediate restrict
 
 : 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal
-    \G Compile appropriate code such that, at run-time, @i{w1 w2} are
-    \G placed on the stack. Interpretation semantics are undefined.
+    \G Compilation semantics: ( @i{w1 w2 --} ) compile the run-time semantics.@*
+    \G Run-time Semantics: ( @i{ -- w1 w2} ).@*
+    \G Interpretation semantics: not defined in the standard.
     swap >lits >lits ; immediate restrict
 
 : ALiteral ( compilation addr -- ; run-time -- addr ) \ gforth
