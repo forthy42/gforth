@@ -23,9 +23,11 @@
 user-o current-input
 
 0 0
-umethod source ( -- addr u ) \ core source
-    \G Return address @i{addr} and length @i{u} of the current input
-    \G buffer
+umethod source ( -- c-addr u ) \ core source
+    \G @i{c-addr u} is the input buffer, i.e., the
+    \G line/block/@word{evaluate}d-string currently processed by the
+    \G text interpreter
+
 umethod refill ( -- flag ) \ core-ext,block-ext,file-ext
     \G Attempt to fill the input buffer from the input source.  When
     \G the input source is the user input device, attempt to receive
@@ -49,9 +51,11 @@ umethod source-id ( -- 0 | -1 | fileid ) \ core-ext,file source-i-d
 | umethod (restore-input) ( x1 .. xn n -- ) \ gforth-internal
 
 cell uvar >in ( -- addr ) \ core to-in
-    \G @code{uvar} variable -- @i{a-addr} is the address of a
-    \G cell containing the char offset from the start of the input
-    \G buffer to the start of the parse area.
+    \G @i{Addr} contains the offset into @word{source} where the text
+    \G interpreter or parsing words parse next.  @i{Addr} can be
+    \G different for different tasks, and for different input streams
+    \G within a task.
+
 2 cells uvar input-lexeme ( -- a-addr ) \ gforth-internal
     \G @code{uvar} variable -- @i{a-addr} is the address of two
     \G cells containing the string (in c-addr u form) parsed with
@@ -59,11 +63,14 @@ cell uvar >in ( -- addr ) \ core to-in
     \G own parsing, you can set it with @code{input-lexeme!}.
 2 cells uvar new-where ( -- a-addr ) \ gforth-internal
     \G keep the new where field
+
 cell uvar #tib ( -- addr ) \ core-ext-obsolescent number-t-i-b
-    \G @code{uvar} variable -- @i{a-addr} is the address of a
-    \G cell containing the number of characters in the terminal input
-    \G buffer. OBSOLESCENT: @code{source} superceeds the function of
-    \G this word.
+    \G @i{Addr} is the address of a cell containing the number of
+    \G characters in the terminal input buffer. @i{Addr} can be
+    \G different for different tasks, and for different input streams
+    \G within a task.  OBSOLESCENT: @code{source} supersedes the
+    \G function of this word.
+
 cell uvar max#tib ( -- addr ) \ gforth-internal max-number-t-i-b
     \G @code{uvar} variable -- This cell contains the maximum
     \G size of the current tib.
@@ -77,9 +84,11 @@ has? file [IF]
 cell uvar loadfile ( -- addr ) \ gforth-internal
     \G @code{uvar} variable -- This cell contains the file the
     \G input buffer is associated with (0 if none)
+
 cell uvar blk ( -- addr ) \ block b-l-k
-    \G @code{uvar} variable -- This cell contains the current
-    \G block number (or 0 if the current input source is not a block).
+    \G @i{addr} contains the current block number (or 0 if the current
+    \G input source is not a block).
+
 cell uvar #fill-bytes ( -- addr ) \ gforth-internal
     \G @code{uvar} variable -- number of bytes read via
     \G (read-line) by the last refill

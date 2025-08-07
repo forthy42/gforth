@@ -228,9 +228,13 @@ User >num-state ( -- a-addr ) \ gforth-internal
 0 >num-state !
 
 User state ( -- a-addr ) \ core,tools-ext
-\G Don't use @word{state}!  See @cite{@code{State}-smartness--Why it
-\G is evil and how to exorcise it}.  For an alternative to
-\G @word{state}-smart words, see @ref{How to define combined words}.@*
+\G Don't use @word{state}!  @word{State} is the state of the text
+\G interpreter, and ordinary words should work independently of it; in
+\G particular, @word{state} does not tell you whether the
+\G interpretation semantics or compilation semantics of a word are
+\G being performed.  See @cite{@code{State}-smartness--Why it is evil
+\G and how to exorcise it}.  For an alternative to @word{state}-smart
+\G words, see @ref{How to define combined words}.@*
 \G @i{A-addr} is the address of a cell containing the compilation
 \G state flag. 0 => interpreting, -1 => compiling.  A standard program
 \G must not store into @word{state}, but instead use @word{[} and

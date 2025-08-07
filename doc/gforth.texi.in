@@ -1223,20 +1223,26 @@ startup and compilation.
 
 @end table
 
+@subsection Image-specific options of @file{gforth.fi}
+
 @cindex loading files at startup
 @cindex executing code on startup
 @cindex batch processing with Gforth
+@cindex scripting with Gforth
+@anchor{Scripting mode}
 As explained above, the image-specific command-line arguments for the
 default image @file{gforth.fi} consist of a sequence of filenames and
-@code{-e @var{forth-code}} options that are interpreted in the sequence
-in which they are given. The @code{-e @var{forth-code}} or
-@code{--evaluate @var{forth-code}} option evaluates the Forth code. This
-option takes only one argument; if you want to evaluate more Forth
-words, you have to quote them or use @code{-e} several times. To exit
-after processing the command line (instead of entering interactive mode)
-append @code{-e bye} to the command line.  You can also process the
-command-line arguments with a Forth program (@pxref{OS command line
-arguments}).
+@code{-e @var{forth-code}} options that are interpreted in the
+sequence in which they are given. The @code{-e @var{forth-code}} or
+@code{--evaluate @var{forth-code}} option evaluates the Forth
+code. This option takes only one argument; if you want to evaluate
+more Forth words, you have to quote them or use @code{-e} several
+times. To exit after processing the command line (instead of entering
+interactive mode) append @code{-e bye} to the command line.  You can
+also process the command-line arguments with a Forth program
+(@pxref{OS command line arguments}).  If there is an uncaught
+exception while processing image options, Gforth will exit with a
+non-zero exit code.  This is how you run scripts in Gforth.
 
 @cindex versions, invoking other versions of Gforth
 If you have several versions of Gforth installed, @code{gforth} will
@@ -1245,7 +1251,7 @@ invokes a specific version. If your environment contains the variable
 @code{GFORTHPATH}, you may want to override it by using the
 @code{--path} option.
 
-On startup, before processing any of the image option, the user
+On startup, before processing any of the image options, the user
 initialization file is included, if it exists.  The user
 initialization file is @file{~/.config/gforthrc0}, or, if the
 environment variable @code{GFORTH_ENV} is set, it contains the name of
@@ -10959,196 +10965,79 @@ doc-in-colon-def?
 @section  The Text Interpreter
 @cindex interpreter - outer
 @cindex text interpreter
-@cindex outer interpreter
-
-@c Should we really describe all these ugly details?  IMO the text
-@c interpreter should be much cleaner, but that may not be possible within
-@c ANS Forth. - anton
-@c nac-> I wanted to explain how it works to show how you can exploit
-@c it in your own programs. When I was writing a cross-compiler, figuring out
-@c some of these gory details was very helpful to me. None of the textbooks
-@c I've seen cover it, and the most modern Forth textbook -- Forth Inc's,
-@c seems to positively avoid going into too much detail for some of
-@c the internals.
-
-@c anton: ok.  I wonder, though, if this is the right place; for some stuff
-@c it is; for the ugly details, I would prefer another place.  I wonder
-@c whether we should have a chapter before "Words" that describes some
-@c basic concepts referred to in words, and a chapter after "Words" that
-@c describes implementation details.
-
-The text interpreter@footnote{This is an expanded version of the
-material in @ref{Introducing the Text Interpreter}.} is an endless loop
-that processes input from the current input device. It is also called
-the outer interpreter, in contrast to the inner interpreter
-(@pxref{Engine}) which executes the compiled Forth code on interpretive
-implementations.
 
 @cindex interpret state
 @cindex compile state
-The text interpreter operates in one of two states: @dfn{interpret
-state} and @dfn{compile state}. The current state is defined by the
-aptly-named variable @code{state}.
+The text interpreter processes Forth source code, and performs the
+semantics of the words in the source code.  The text interpreter works
+on Forth source code coming from the standard input (the @dfn{user
+input device} in Forth standard terminology), from a file (through
+@word{included} and friends), from @word{evaluate}, or from a
+@word{load}ed block.
 
-This section starts by describing how the text interpreter behaves when
-it is in interpret state, processing input from the user input device --
-the keyboard. This is the mode that a Forth system is in after it starts
-up.
+@cindex outer interpreter
+@cindex inner interpreter and text interpreter
+The text interpreter is also called the outer interpreter, in contrast
+to the inner interpreter of traditional Forth implementations which
+interprets the threaded code that is the output of the Forth compiler
+on these implementations; many Forth systems nowadays compile to
+native code and have no inner interpreter.  Concerning Gforth's
+approach, @pxref{Engine}.
 
-@cindex input buffer
-@cindex terminal input buffer
-The text interpreter works from an area of memory called the @dfn{input
-buffer}@footnote{When the text interpreter is processing input from the
-keyboard, this area of memory is called the @dfn{terminal input buffer}
-(TIB) and is addressed by the (obsolescent) words @code{TIB} and
-@code{#TIB}.}, which stores your keyboard input when you press the
-@key{RET} key. Starting at the beginning of the input buffer, it skips
-leading spaces (called @dfn{delimiters}) then parses a string (a
-sequence of non-space characters) until it reaches either a space
-character or the end of the buffer. Having parsed a string, it makes two
-attempts to process it:
+@cindex lines and the text interpreter
+The text interpreter works line by line (using @word{refill}).
+Therefore, most parsing words (e.g., @word{'} and @word{s"}) only try
+to find their parsed arguments in the current line; if a word parses
+across line boundaies, that is stated explicitly in the documentation
+of the word.  However, a block is interpreted like one line, their
+division into ``lines'' is just for display purposes; @word{Evaluate}
+interprets the string as a whole.  The current line/block/string is
+available to programs through @word{source}, and its content is valid
+until the current line is changed; it has to be treated as read-only
+region.
 
-@cindex dictionary
-@itemize @bullet
-@item
-It looks for the string in a @dfn{dictionary} of definitions. If the
-string is found, the string names a @dfn{definition} (also known as a
-@dfn{word}) and the dictionary search returns information that allows
-the text interpreter to perform the word's @dfn{interpretation
-semantics}. In most cases, this simply means that the word will be
-executed.
-@item
-If the string is not found in the dictionary, the text interpreter
-attempts to treat it as a number, using the rules described in
-@ref{Number Conversion}. If the string represents a legal number in the
-current radix, the number is pushed onto a parameter stack (the data
-stack for integers, the floating-point stack for floating-point
-numbers).
-@end itemize
+Within a line, the text interpreter parses for white-space-delimited
+words (with @word{parse-name}).  The text interpreter's position
+within the line is stored in @word{>in}, and by changing @word{>in}, a
+program can change where the text interpreter or parsing word
+continues to parse.
 
-If both attempts fail, the text interpreter discards the
-remainder of the input buffer, issues an error message and waits for
-more input. If one of the attempts succeeds, the text interpreter
-repeats the parsing process until the whole of the input buffer has been
-processed, at which point it prints the status message ``@code{ ok}''
-and waits for more input.
+The text interpreter then tries to recognize the word with one of the
+recognizers in the system recognizer sequence.  On success, this
+produces a translator and additional data.  It then performs the
+interpretation, compilation, or postponing action of the translator,
+depending on the state of the text interpreter: Is it inside
+@code{]]}...@code{[[}? If not, what is the value of @word{state}?
+E.g., when a word from the search order is recognized, and the text
+interpreter is in compile state, the compilation semantics of this
+word will be performed.  This translator action may perform additional
+parsing, e.g., when the recognizer has recognized a parsing word.  If
+no recognizer recognizes the word, the text interpreter @word{throw}s
+-13 (``undefined word'').
 
-@c anton: this should be in the input stream subsection (or below it)
+The text interpreter then continues to parse, recognize, and translate
+words.  At the end of the line, it @word{refill}s and continues with
+the next line.  At the end of an input source (e.g., at the end of a
+file), the text interpreter returns to its caller, and that caller
+(e.g., @word{included}) restores the previous input stream before
+returning itself.
 
-@cindex parse area
-The text interpreter keeps track of its position in the input buffer by
-updating a variable called @code{>IN} (pronounced ``to-in''). The value
-of @code{>IN} starts out as 0, indicating an offset of 0 from the start
-of the input buffer. The region from offset @code{>IN @@} to the end of
-the input buffer is called the @dfn{parse area}@footnote{In other words,
-the text interpreter processes the contents of the input buffer by
-parsing strings from the parse area until the parse area is empty.}.
-This example shows how @code{>IN} changes as the text interpreter parses
-the input buffer:
-
-@example
-: remaining source >in @@ /string
-  cr ." ->" type ." <-" ; immediate 
-
-1 2 3 remaining + remaining . 
-
-: foo 1 2 3 remaining swap remaining ;
-@end example
-
-@noindent
-The result is:
-
-@example
-->+ remaining .<-
-->.<-5  ok
-
-->SWAP remaining ;-<
-->;<-  ok
-@end example
-
-@cindex parsing words
-The value of @code{>IN} can also be modified by a word in the input
-buffer that is executed by the text interpreter.  This means that a word
-can ``trick'' the text interpreter into either skipping a section of the
-input buffer@footnote{This is how parsing words work.} or into parsing a
-section twice. For example:
-
-@example
-: lat ." <<foo>>" ;
-: flat ." <<bar>>" >IN DUP @@ 3 - SWAP ! ;
-@end example
-
-@noindent
-When @code{flat} is executed, this output is produced@footnote{Exercise
-for the reader: what would happen if the @code{3} were replaced with
-@code{4}?}:
-
-@example
-<<bar>><<foo>>
-@end example
-
-This technique can be used to work around some of the interoperability
-problems of parsing words.  Of course, it's better to avoid parsing
-words where possible.
-
-@noindent
-Two important notes about the behaviour of the text interpreter:
-
-@itemize @bullet
-@item
-It processes each input string to completion before parsing additional
-characters from the input buffer.
-@item
-It treats the input buffer as a read-only region (and so must your code).
-@end itemize
-
-@noindent
-When the text interpreter is in compile state, its behaviour changes in
-these ways:
-
-@itemize @bullet
-@item
-If a parsed string is found in the dictionary, the text interpreter will
-perform the word's @dfn{compilation semantics}. In most cases, this
-simply means that the execution semantics of the word will be appended
-to the current definition.
-@item
-When a number is encountered, it is compiled into the current definition
-(as a literal) rather than being pushed onto a parameter stack.
-@item
-If an error occurs, @code{state} is modified to put the text interpreter
-back into interpret state.
-@item
-Each time a line is entered from the keyboard, Gforth prints
-``@code{ compiled}'' rather than `` @code{ok}''.
-@end itemize
-
-@cindex text interpreter - input sources
-When the text interpreter is using an input device other than the
-keyboard, its behaviour changes in these ways:
-
-@itemize @bullet
-@item
-When the parse area is empty, the text interpreter attempts to refill
-the input buffer from the input source. When the input source is
-exhausted, the input source is set back to the previous input source.
-@item
-It doesn't print out ``@code{ ok}'' or ``@code{ compiled}'' messages each
-time the parse area is emptied.
-@item
-If an error occurs, the input source is set back to the user input
-device.
-@end itemize
+If an exception is not caught earlier, the same unnesting of input
+streams and the associated calls are performed.  If not @word{catch}
+intervenes, the @word{throw} is eventually caught by the system.  In
+Gforth, the system then prints an error message with a backtrace of
+both the call stack and the stack of nested input streams
+(@pxref{Error messages}).  In interactive mode, Gforth then calls a
+text interpreter for the user input device, while in scripting mode
+(while processing OS command-line arguments, @pxref{Scripting mode})
+Gforth then terminates with a non-zero exit code.
 
 You can read about this in more detail in @ref{Input Sources}.
 
-doc->in
 doc-source
-
+doc->in
 doc-tib
 doc-#tib
-
-doc-interpret
 doc-state
 
 @menu
@@ -11175,22 +11064,21 @@ The user input device -- the keyboard.
 @item
 A file, using the words described in @ref{Forth source files}.
 @item
-A block, using the words described in @ref{Blocks}.
+A text string, using @code{evaluate}; a variant of this is when Gforth
+processes an OS command line argument of the form @samp{-e @i{string}}.
 @item
-A text string, using @code{evaluate}.
+A block, @pxref{Blocks}.
 @end itemize
 
 A program can identify the current input device from the values of
 @code{source-id} and @code{blk}.
 
 
+doc-evaluate
 doc-source-id
 doc-blk
-
 doc-save-input
 doc-restore-input
-
-doc-evaluate
 doc-query
 
 
@@ -11321,19 +11209,19 @@ Directives}).
 
 These words are usually used in interpret state; typically to control
 which parts of a source file are processed by the text
-interpreter. There are only a few Standard Forth Standard words, but Gforth
+interpreter. There are only a few Standard Forth words, but Gforth
 supplements these with a rich set of immediate control structure words
 to compensate for the fact that the non-immediate versions can only be
 used in compile state (@pxref{Control Structures}). Typical usage:
 
 @example
 [undefined] \G [if]
-  : \G ... ; immediate
+  : \G source >in ! drop ; immediate
 [endif]
 @end example
 
-So if the system does not define @code{\G}, compile some replacement
-code (with possibly reduced functionality).
+So if the system does not define @code{\G}, compile replacement code
+(with reduced functionality).
 
 
 doc-[IF]

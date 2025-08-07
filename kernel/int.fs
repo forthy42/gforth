@@ -645,7 +645,7 @@ defer int-execute ( ... xt -- ... )
 \ like EXECUTE, but restores and saves ERRNO if present
 ' execute IS int-execute
 
-: interpret ( ... -- ... ) \ gforth
+: interpret ( ... -- ... ) \ gforth-internal
     \ interpret/compile the (rest of the) input buffer
     [ cell 4 = [IF] ] false >l [ [THEN] ] \ align LP stack for 32 bit engine
     r> >l rp@ backtrace-rp0 !
