@@ -171,7 +171,7 @@ Defer locals-post,
 
 ' translate-nt >body 2@ swap
 ' locals-post,
-translate: translate-locals
+translate: translate-locals ( ... nt -- ... )
 \ undocumented for good reasons
 
 : rec-locals ( addr u -- nt translate-locals | 0 ) \ gforth-experimental

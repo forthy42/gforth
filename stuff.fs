@@ -723,7 +723,10 @@ s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 :noname drop execute ;
 :noname 0> IF execute ELSE compile, THEN ;
 ' 2lit, >postponer
-translate: translate-word
+translate: translate-word ( xt +-1 -- ... ) \ gforth-experimental
+\G This translator is useful for a recognizer that uses @word{find};
+\G i.e., not really.
+
 ' translate-word Constant rectype-word ( takes xt +/-1, i.e. result of find and search-wordlist )
 
 \ concat recognizers to another recognizer

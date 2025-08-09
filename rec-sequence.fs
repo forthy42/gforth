@@ -38,9 +38,11 @@ Defer trace-recognizer  ' drop is trace-recognizer
     0 [ cell 8 = ] [IF] lp+2 [ELSE] lp+ [THEN] ;
 
 : recognizer-sequence: ( xt1 .. xtn n "name" -- ) \ gforth-experimental
-    \G concatenate a stack of recognizers to one recognizer with the
-    \G name @i{"name"}.  @i{xtn} is tried first, @i{xt1} last, just
-    \G like on the recognizer stack
+    \G Define @i{name}, a recognizer sequence that first searches
+    \G @i{xtn} and last searches @i{xt1}.  @i{name} is a recognizer
+    \G itself, which makes recognizer sequences nestable.  The order
+    \G of operands is inspired by @word{get-order} and
+    \G @word{set-order}.
     ['] recognize do-stack: ;
 
 \ : rec-sequence ( xt1 .. xtn n "name" -- ) \ gforth
@@ -51,3 +53,8 @@ Defer trace-recognizer  ' drop is trace-recognizer
 
 ' rec-num ' rec-nt 2 recognizer-sequence: default-recognize
 ' default-recognize is forth-recognize
+
+: rec-nothing ( c-addr u -- 0 ) \ gforth-experimental
+    \G This recognizer recognizes nothing.  It can be useful as a
+    \G placeholder.
+    2drop 0 ;

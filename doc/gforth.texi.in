@@ -252,7 +252,7 @@ Literals in source code
 
 * Integer and character literals::
 * Floating-point number and complex literals::
-* String and Environment variable Literals::
+* String and environment variable literals::
 * Literals for tokens and addresses::
 * Disambiguating recognizers::
 
@@ -417,6 +417,10 @@ The Text Interpreter
 Recognizers
 
 * Default Recognizers::
+* Recognizer order::
+* Define recognizers with existing translators::
+* Defining translators::
+* Performing translator actions::
 * Dealing with existing Recognizers::
 * Defining Recognizers::
 
@@ -4818,7 +4822,7 @@ the exercises in a .fs file in the distribution.
 @menu
 * Integer and character literals::
 * Floating-point number and complex literals::
-* String and Environment variable Literals::
+* String and environment variable literals::
 * Literals for tokens and addresses::
 * Disambiguating recognizers::
 @end menu
@@ -4890,7 +4894,7 @@ away in Gforth.  Note that this also works for non-ASCII characters.
 For many uses, it is more useful to have the character as a string
 rather than as a cell; see below for the string syntax.
 
-@node Floating-point number and complex literals, String and Environment variable Literals, Integer and character literals, Literals in source code
+@node Floating-point number and complex literals, String and environment variable literals, Integer and character literals, Literals in source code
 @section Floating-point number and complex literals
 
 @cindex floating-point numbers, input format
@@ -4975,8 +4979,8 @@ numbers.  E.g., @code{1e+2ei}.  This pushes the values @code{1e} and
 @code{2e} on the floating-point stack, so one might just as well have
 written @code{1e 2e}, but @code{1e+2ei} makes the intent obvious.
 
-@node String and Environment variable Literals, Literals for tokens and addresses, Floating-point number and complex literals, Literals in source code
-@section String and Environment variable Literals
+@node String and environment variable literals, Literals for tokens and addresses, Floating-point number and complex literals, Literals in source code
+@section String and environment variable literals
 
 @cindex String input format
 @cindex input format for strings
@@ -5000,7 +5004,7 @@ surrounding its name with @code{$@{}...@code{@}}, e.g.,
 in the format described above.  This is equivalent to @code{"HOME"
 getenv}, i.e., the environment variable is resolved at run-time.
 
-@node Literals for tokens and addresses, Disambiguating recognizers, String and Environment variable Literals, Literals in source code
+@node Literals for tokens and addresses, Disambiguating recognizers, String and environment variable literals, Literals in source code
 @section Literals for tokens and addresses
 
 Gforth (since 1.0) also recognizes the following literals:
@@ -11263,99 +11267,154 @@ doc-#line
 @subsection Recognizers
 @cindex recongizers
 
-When the text interpreter processes source code, it divides the code
-into blank-delimited strings, and then calls recognizers to identify
-them as words, numbers, etc., until one recognizer identifies
-(recognizes) the string; if the string is not recognized, the text
-interpreter reports an error (@code{undefined word}).
+The recognizers concepts factor the central part of the text
+interpreter: The processing of one word after its name has been
+parsed.
 
-The usual way to deal with recognizers is to just write code that one
-of them identifies (@pxref{Default Recognizers}); however, you can
-also manipulate them (@pxref{Dealing with existing Recognizers}) or
-even define new ones (@pxref{Defining Recognizers}).
+Unfortunately, there is no consensus on the exact words used for
+dealing with recognizers yet, so the words and descriptions in this
+section just reflect what is currently implemented in Gforth.  They
+can and most likely will change in the future.  Therefore, the
+documentation has also received less love than anything expected to
+be of permanent use.
+
+Most programs just use the text interpreter as-is, and you can skip
+this chapter completely in this case, but if you are curious,
+@pxref{Default Recognizers}.  The next level of recognizer usage is to
+change which of the existing recognizers are used and in what order
+(@pxref{Recognizer order}).  You may also want to define a new
+recognizer using an existing translator (@pxref{Define recognizers
+with existing translators}).  If no existing translator fits, you can
+define a new translator (@pxref{Defining translators}).  Finally, you
+may want to process a word using a recognizer (sequence) and the
+resulting translator (@pxref{Performing translator actions}).
 
 @menu
 * Default Recognizers::
+* Recognizer order::
+* Define recognizers with existing translators::
+* Defining translators::
+* Performing translator actions::
 * Dealing with existing Recognizers::
 * Defining Recognizers::
 @end menu
 
-@node Default Recognizers, Dealing with existing Recognizers, Recognizers, Recognizers
+@node Default Recognizers, Recognizer order, Recognizers, Recognizers
 @subsubsection Default Recognizers
 @cindex Recognizers normal usage
 
-The Standard Forth text interpreter recognizes words in the search
-order (@code{rec-nt}), integer numbers (@code{rec-num}), and floating
-point numbers (@code{rec-float}).  By default Gforth also recognizes
-syntaxes for
+You can find out with @word{.recognizers} which recognizers are
+currently being used by Gforth.  When invoked in a colon definition
+after defining a local, the output of @word{.recognizers} is (at the
+time of this writing):
 
-@itemize @bullet
+@code{rec-nt ( rec-locals search-order ( Forth Forth Root ) )
+rec-scope rec-num rec-float rec-complex rec-string rec-to rec-dtick
+rec-tick rec-body rec-env rec-meta}
 
-@item
-strings, e.g., @code{"mystring"}, with @code{rec-string}
+Here the notation @i{name ( name1 ... namen )} indicates that @i{name}
+is a recognizer sequence that contains @i{name1 ... namen}.
 
-@item
-complex numbers, e.g., @code{0e+1ei}, with @code{rec-complex}
+The recognizers in this sequence are:
 
-@item
-storing a value or changing a defered word, e.g., @code{->myvalue},
-with @code{rec-to}
+@table @asis
 
-@item
-the xt representing the interpretation semantics of a word, e.g.,
-@code{`dup}, with @code{rec-tick}
+@item @word{rec-nt}
+Recognizes locals and words in the search order.
 
-@item
-the nt of a word, e.g., @code{``mysynonym}, with @code{rec-dtick}
+@item @word{rec-locals}
+Recognizes locals.
 
-@item
-an address in the body of a word, e.g., @code{<myarray+8>}, with
-@code{rec-body}
+@item @word{search-order}
+Recognizes words in the search order.  This is shown as recognizer
+sequence, because the wordlists (@pxref{Word Lists}) themselves are
+also recognizers: They implement the recognizer interface
+(@pxref{Define recognizers with existing translators}) in addition to working with
+@word{find-name-in}.
 
-@item
-an access to an environment variable of the operating system, e.g.,
-@code{$@{HOME@}}, with @code{rec-env}
+@item @word{rec-scope}
+Recognizes @samp{@i{voc1}:@i{voc2}:..@i{vocn}:@i{word}}, where
+@i{voc1} is a vocabulary in the search order, @i{voc2} is a vocabulary
+found in @i{voc1}, and so on, until @i{word} is found in @i{vocn}; the
+translator of this recognizer performs the semantics of @i{word}.
+Example: @samp{environment:max-n}.
 
-@item
-a word in a vocabulary, e.g., @code{myvoc1:myvoc2:myword}, with @code{rec-scope}
+@item @word{rec-num}
+Single-cell integers (@samp{#-15}, @samp{$-f}), characters
+(@samp{'A'}), and double-cell integers @samp{#-15.}, with or without
+number prefixes (@pxref{Integer and character literals}).
 
-@item
-using a specific recognizer to recognize something, e.g., @code{float?1.}, , with @code{rec-meta}
+@item @word{rec-float}
+Floating-point numbers (@samp{1e}, @pxref{Floating-point number and
+complex literals})
 
-@end itemize
+@item @word{rec-complex}
+Complex numbers (@samp{1e+2ei}, @pxref{Floating-point number and
+complex literals})
 
-You can use @code{locate} (@pxref{Locating source code definitions}) to
-determine which recognizer recognizes a piece of source code.  E.g.:
+@item @word{rec-string}
+Strings (@samp{"abc"}, @pxref{String and environment variable literals}).
 
-@example
-defer mydefer
-locate ->mydefer
-@end example
+@item @word{rec-to}
+Recognizes @code{->@i{v}} (equivalent to @code{to @i{v}} and
+@code{+>@i{v}} (equivalent to @code{+to @i{v}}, where @i{v} is a
+value-flavoured word (@pxref{Values}).
 
-will show that @code{rec-to} recognizes @code{->mydefer}.  However, if
-the recognizer recognizes a dictionary word (e.g., the scope
-recognizer), locate will show that word.
+@item @word{rec-dtick}
+Recognizes @code{``@i{word}} and produces the name token of @i{word}
+(@pxref{Literals for tokens and addresses}).
 
-You can see which recognizers are used and the order of recognizers with
+@item @word{rec-tick}
+Recognizes @code{`@i{word}} and produces the execution token of @i{word}
+(@pxref{Literals for tokens and addresses}).
 
-doc-.recognizers
+@item @word{rec-body}
+Recognizes @code{<@i{word}>} for the body address of @i{word} and
+@code{<@i{word}+@i{num}} for an offset @i{num} from the body address
+of @i{word} (@pxref{Literals for tokens and addresses}).
 
-Recognizers are typically designed to avoid matching the same strings
-as other recognizers.  E.g., @code{rec-env} (the environment variable
-recognizer) requires braces to avoid a conflict with the number
-recognizer for input strings like @code{$ADD}.  There are a few
-exceptions to this policy, however:
+@item @word{rec-env}
+Recognizes @code{$@{@i{env}@}} for the string contained at run-time in
+the environment variable @i{env} @pxref{String and environment
+variable literals}).
+
+@item @word{rec-meta}
+Recognizes @code{@i{rec}?@i{string}}, e.g., @code{float?1.}.
+@code{Rec-@i{rec}} is a recognizer found in the search order (e.g.,
+@word{rec-float}, and this recognizer then tries to recognize
+@i{string} (e.g, @code{1.}), and the result becomes the result of
+@word{rec-meta}.  This may be useful in cases where you want to use a
+specific recognizer, e.g., to deal with conflicts.
+
+@end table
+
+The order of the recognizers is significant, because they are tried
+from left to right, and the first recognizer that recognizes a word is
+actually used.  E.g., if you define a local @samp{b}, it will
+supersede Gforth's predefined word @word{b}.
+
+In most cases, however, recognizers are designed to avoid matching the
+same strings as other recognizers.  E.g., @code{rec-env} (the
+environment variable recognizer) requires braces to avoid a conflict
+with the number recognizer when recognizing environment variables like
+@samp{ADD}; i.e., @word{rec-env} recognizes @word{${ADD}}.
+
+There are a few cases where Gforth's recognizers can recognize the
+same string, however:
 
 @itemize @bullet
 
 @item
 Word names can be anything, so they can conflict with any other
-recognizer (and the search order is searched before other
+recognizer (and locals and the search order are searched before other
 recognizers).
 
-However, they tend not to start with @code{0} (and if they do, they
-contain special characters), so if your base is @code{hex}, it is a
-good practice to let your numbers start with @code{0}.
+However, there are no conflicts of Gforth-defined words with decimal
+numbers prefixed with @samp{#} or hex numbers prefixed with @samp{$},
+so it is a good practice to use these prefixes (that's also a good
+idea to make sure that the right base is used).  An older practice
+(before number prefixes were introduced) was to prefix hex numbers
+with @samp{0}.
 
 In the code bases we have looked at, starting words with @code{'}
 (quote aka tick) is much more common than starting them with @code{`}
@@ -11383,7 +11442,171 @@ avoid a conflict by using @code{to myvalue} or @code{to?->myvalue}
 
 @end itemize
 
-@node Dealing with existing Recognizers, Defining Recognizers, Default Recognizers, Recognizers
+Note that most Forth systems do not support all the recognizers we
+describe above, but @code{rec-locals search-order rec-num rec-float}
+are relatively common (even if a system uses a hard-coded text
+interpreter instead of the flexible recognizer system).
+
+You can use @code{locate} (@pxref{Locating source code definitions}) to
+determine which recognizer recognizes a piece of source code.  E.g.:
+
+@example
+locate float?1.
+@end example
+
+will show that @code{rec-meta} recognizes @code{float?1.}.  However,
+if the recognizer recognizes a dictionary word (e.g., the scope
+recognizer), locate will show that word.
+
+As can be seen by the search order being shown as recognizer list
+containing the wordlists, wordlists are also recognizers.  A wordlist
+recognize the words that they contain.  Just @word{execute} the
+wordlist-id, and it will behave as a recognizer:
+
+@source
+"dup" forth-wordlist execute
+@end source
+
+produces the translator token of @word{translate-nt} on the
+top-of-stack, and the name token of @word{dup} below that.
+
+doc-.recognizers
+doc-rec-nt
+doc-rec-locals
+doc-rec-scope
+doc-rec-num
+doc-rec-float
+doc-rec-complex
+doc-rec-string
+doc-rec-to
+doc-rec-dtick
+doc-rec-tick
+doc-rec-body
+doc-rec-env
+doc-rec-meta
+
+@node Recognizer order, Define recognizers with existing translators, Default Recognizers, Recognizers
+@subsubsection Recognizer order
+
+You may prefer to use a different recognizer sequence, but with (some
+of the) existing recognizers.  You can use the following words for
+that:
+
+doc-forth-recognize
+doc-recognizer-sequence:
+
+You probably don't want to create a new recognizer sequence every time
+you want to change the system recognizer sequence.  There are two
+ways to change an existing recognizer sequence:
+
+@itemize @bullet
+
+@item
+Put one or more @word{defer}red words in a recognizer sequence.  If
+you do not want such a deferred word to recognize anything for now,
+put @word{rec-nothing} in it.
+
+@item
+The body of a recognizer sequence is a @word{stack}
+(@pxref{User-defined Stacks}), and you can use the words for
+manipulating stacks on it.  In particular, if you add a recognizer
+with @word{>stack}, that recognizer will be tried first; if you add it
+with @word{>back}, it will be tried last.
+
+@end itemize
+
+doc-rec-nothing
+
+Here is an example of adding @word{rec-nothing} as last recognizer to
+the system recognizers:
+
+@source
+' rec-nothing action-of forth-recognize >body >back
+@end source
+
+@c doc-recognize
+@c doc-get-recognizers
+@c doc-set-recognizers
+@c doc-forth-recognizer
+@c doc-set-forth-recognize
+
+@node Define recognizers with existing translators, Defining translators, Recognizer order, Recognizers
+@subsubsection Define recognizers with existing translators
+
+A recognizer is a Forth word with the stack effect @samp{( @i{c-addr u
+-- ... translator | 0} )}.  @i{c-addr u} describes the string to be
+recognized.  If the recognizer does not recognize the string, it
+returns 0.  If it does recognize the string, it returns a translator,
+and additional data (``...'') that the translator later uses when
+performing some semantics of the recognized word.  E.g., when you perform
+
+@example
+"5" rec-num
+@end example
+
+it pushes @samp{5 `translate-num} on the stack, and when the
+compilation semantics represented by @samp{5 `translate-num} are
+performed, both stack items are removed from the stack, and a literal
+5 is compiled into the current definition, such that, when that
+definition is executed, 5 is pushed on the data stack.
+
+You typically write a recognizer as ordinary colon definition that
+examines the string in some way, and if the string is accepted by this
+recognizer, produces the translator and additional data.  E.g.,
+@word{rec-tick} can be implemented as follows:
+
+@source
+: rec-tick ( addr u -- xt translate-num | 0 )
+    over c@ '`' = if
+        1 /string find-name dup if
+            name>interpret ['] translate-num exit then
+        exit then
+    2drop 0 ;
+@end source            
+
+The only appropriate use of a translator is with one of the words for
+performing translator actions (@pxref{Performing translator actions}).
+But someone thinks that it's a clever idea to implement the tranlator
+token as xt of the translator, so you have to tick translators every
+time you use one in a recognizer.
+
+It also means that the translator has a translator-specific stack
+effect.  Because this stack effect encompasses three actions
+(interpretation, compilation, postpone), the stack effect is a mess,
+but if you pass the translator to one of the action-performing words,
+the resulting stack effect is sensible (@pxref{Performing translator
+actions}).  When you write a recognizer, the only part of the stack
+effect that is relevant is the one before the @samp{--}, because it
+tells you what your recognizer should put on the stack in addition to
+the xt of the translator.
+
+A number of translators already exist in Gforth and can be used in a
+recognizer you write.  If none of them is appropriate for your
+recognizer, read the next section about defining your own translators.
+
+doc-translate-nt
+doc-translate-num
+doc-translate-dnum
+doc-translate-float
+doc-translate-complex 
+doc-translate-string
+doc-scan-translate-string
+doc-translate-env
+doc-translate-to
+@c doc-translate-locals
+@c doc-translate-word
+ 
+
+
+@node  Defining translators, Performing translator actions, Define recognizers with existing translators, Recognizers
+@subsubsection Defining translators
+
+@node Performing translator actions, Dealing with existing Recognizers, Defining translators, Recognizers
+@subsubsection Performing translator actions
+
+
+
+@node Dealing with existing Recognizers, Defining Recognizers, Performing translator actions, Recognizers
 @subsubsection Dealing with existing Recognizers
 @cindex Recognizers, dealing with
 
@@ -11413,31 +11636,8 @@ recognizers in the same way as the vocabulary stack.  Recognizer stacks
 are themselves recognizers, i.e. they are executable, take a string and
 return a translator.
 
-doc-rec-nt
-doc-rec-num
-doc-rec-float
-doc-rec-complex
-doc-rec-string
-doc-rec-to
-doc-rec-tick
-doc-rec-dtick
-doc-rec-body
-doc-rec-env
-doc-rec-scope
-doc-rec-meta
-doc-get-recognizers
-doc-set-recognizers
-doc-recognize
-doc-recognizer-sequence:
-doc-forth-recognize
-doc-forth-recognizer
-doc-set-forth-recognize
 doc-?found
 doc-translate:
-doc-translate-nt
-doc-translate-num
-doc-translate-dnum
-doc-translate-float
 doc-try-recognize
 doc-interpreting
 doc-compiling

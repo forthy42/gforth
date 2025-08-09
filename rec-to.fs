@@ -18,12 +18,17 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-' (to) ' (to), ' 2lit, >postponer translate: translate-to
+' (to) ' (to), ' 2lit, >postponer
+translate: translate-to ( n xt -- ... ) \ gforth-experimental
+\G @i{xt} belongs to a value-flavoured word, @i{n} is the index into
+\G the @word{to-table:} for @i{xt} (@pxref{Words with user-defined TO
+\G etc.}).
+
 
 Create to-slots here $100 dup allot $FF fill
 0 "-+@='" bounds [DO] dup to-slots [I] c@ + c! 1+ [LOOP] drop
 
-: rec-to ( addr u -- xt n translate-to | 0 ) \ gforth-experimental
+: rec-to ( addr u -- n xt translate-to | 0 ) \ gforth-experimental
     \G words prefixed with @code{->} are treated as if preceeded by
     \G @code{TO}, with @code{+>} as @code{+TO}, with
     \G @code{'>} as @code{ADDR}, with @code{@@>} as @code{ACTION-OF}, and

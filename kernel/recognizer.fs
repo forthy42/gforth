@@ -69,19 +69,20 @@ forth-wordlist is rec-nt
 :noname name?int  execute-;s ;
 ' name-compsem
 :noname  lit, postpone name-compsem ;
-translate: translate-nt ( i*x nt -- j*x ) \ gforth-experimental
-\G translate a name token
+translate: translate-nt ( ... nt -- ... ) \ gforth-experimental
+\G Translate @i{nt}.  The @i{...} are there because the interpretation
+\G or compilation semantics of @i{nt} might have a stack effect.
 
 ' noop
 ' lit,
 :noname lit, postpone lit, ;
-translate: translate-num ( x -- | x ) \ gforth-experimental
+translate: translate-num ( x -- ... ) \ gforth-experimental
 \G translate a number
 
 ' noop
 ' 2lit,
 :noname 2lit, postpone 2lit, ;
-translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
+translate: translate-dnum ( dx -- ... ) \ gforth-experimental
 \G translate a double number
 
 : ?found ( token|0 -- token|never ) \ gforth-experimental
@@ -143,7 +144,9 @@ translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
 ( ' rec-num ' rec-nt 2 combined-recognizer: default-recognize ) \ see pass.fs
 \G The system recognizer
 Defer forth-recognize ( c-addr u -- ... translate-xt ) \ recognizer
-\G The system recognizer
+\G The system recognizer: @word{forth-recognize} is a @word{defer}red
+\G word that contains a recognizer (sequence).  The system's text
+\G interpreter calls @word{forth-recognize}.
 ' minimal-recognize is forth-recognize
 
 : [ ( -- ) \  core	left-bracket

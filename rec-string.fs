@@ -34,12 +34,15 @@ s" Scanned string not in input buffer" exception >r
 ' scan-string
 :noname scan-string slit, ;
 :noname scan-string slit, postpone 2lit, ;
-translate: scan-translate-string
+translate: scan-translate-string ( c-addr u 'ccc"' -- ... ) \ gforth-experimental
+\g This translator parses until the end of the string, concatenates
+\g the first part @i{c-addr u} with the parsed part, and does string
+\g translation for the result.
 
 ' noop
 ' slit,
 :noname slit, postpone 2lit, ;
-translate: translate-string
+translate: translate-string ( c-addr u -- ... ) \ gforth-experimental
 
 : ?scan-string ( addr u scan-translate-string -- addr' u' translate-string  |  ... translator -- ... translator ) \ gforth-experimental
     \G Check if the token is an incomplete (side effect free) string,
