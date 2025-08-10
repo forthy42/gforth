@@ -32,17 +32,31 @@
 \ and the table contains three actions (as array of three xts):
 \ interpret it, compile it, postpone it.
 
-' >lits Alias lit, ( n -- )
-: 2lit, ( n -- ) postpone 2literal ;
+' >lits Alias lit, ( x -- ) \ gforth
+\G This is a non-immediate variant of @word{literal}@*
+\G Execution semantics: Compile the following semantis:@*
+\G Compiled semantics: ( @i{ -- x} ).
+
+: 2lit, ( x1 x2 -- ) postpone 2literal ;
+\G This is a non-immediate variant of @word{2literal}@*
+\G Execution semantics: Compile the following semantis:@*
+\G Compiled semantics: ( @i{ -- x1 x2} ).
 
 : no.extensions  ( -- ) #-13 throw ;
 
 : do-translate ( ... translator -- ... ) \ gforth-internal
     state @ abs cells + @ execute-;s ;
 : translate: ( int-xt comp-xt post-xt "name" -- ) \ gforth-experimental
-    \G create a new recognizer table.  Items are in order of
-    \G @var{STATE} value, which are 0 or negative.  Up to 7 slots
-    \G are available for extensions.
+    \G Defines @i{name}, a translator containing @i{int-xt},
+    \G @i{comp-xt}, and @i{post-xt}.  In all the following
+    \G descriptions @i{data} is the data that the recognizer pushes
+    \G below the translator.@*
+    \G Executing @i{int-xt} @samp{( @i{... data -- ...} )} performs
+    \G the interpretation semantics represented by @i{data xt-name}.@*
+    \G Executing @i{comp-xt} @samp{( @i{... data -- ...} )} performs
+    \G the compilations semantics represented by @i{data xt-name}.@*
+    \G Executing @i{post-xt} @samp{( @i{data -- } )} compiles the
+    \G compilation semantics represented by @i{data xt-name}.
     Create swap rot , , , 7 0 DO  ['] no.extensions ,  LOOP
     ['] do-translate set-does> ;
 

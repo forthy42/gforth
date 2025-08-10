@@ -10652,6 +10652,7 @@ sufficient.}
 doc-[
 doc-]
 doc-literal
+doc-lit,
 doc-aliteral
 doc-]L
 
@@ -10659,8 +10660,11 @@ There are also words for compiling other data types than single cells as
 literals:
 
 doc-2literal
+doc-2lit,
 doc-fliteral
+doc-flit,
 doc-sliteral
+doc-slit,
 
 @cindex colon-sys, passing data across @code{:}
 @cindex @code{:}, passing data across
@@ -11601,8 +11605,121 @@ doc-translate-to
 @node  Defining translators, Performing translator actions, Define recognizers with existing translators, Recognizers
 @subsubsection Defining translators
 
+A translator is a table of three actions: interpretation, compilation,
+and postponing.  Each action consumes the data shown as input in the
+stack effect of the translator, possibly performs additional parsing
+(but most translators don't parse), and then performs some action,
+which may have a stack effect on its own:
+
+@itemize @bullet
+
+@item
+@word{Translate-nt} performs the interpretation or compilation
+semantics of a word, which may have a stack effect (the stack effect
+of postponing a word is @samp{( -- )}).
+
+@item
+The interpretation action of a literal translator (most translators,
+e.g., @word{translate-num}) is to push (actually keep) the literal on
+the stack.
+
+@end itemize
+
+You define a translator with
+
+doc-translate:
+
+To make this a little more concrete, here is an implementation for
+@word{translate-num}:
+
+@source
+' noop ( x -- x )                                                   \ int-xt
+' lit,                       ( compilation: x -- ; run-time: -- x ) \ comp-xt
+:noname lit, postpone lit, ; ( postponing: x -- ;  run-time: -- x ) \ post-xt
+translate: translate-num
+@end source
+
+A recognizer that recognizes a string as a value that can be converted
+to a cell-sized value @i{x} at recognition time and @i{x} should be
+pushed at run-time, the recognizer puts @i{x} on the stack, and the xt
+of @word{translate-num} on top of it.  When the interpretation
+semantics is needed, @i{int-xt} is @code{execute}d, and @i{x} stays on
+the stack.  For the compilation semantics, @i{x} is compiled into the
+current definition as literal.
+
+For postponing, @i{x} needs to be pushed by the definition @i{d2} that
+was the current definition when the definition @i{d1} that was current
+when the postponing occured.  This is achieved in two steps: first the
+@word{lit,} compiles @i{x} into @i{d1}, and when @i{d1} runs, it first
+pushes @i{x}, but that is then consumed by the @word{lit,} coming from
+@code{postpone lit,}; this @word{lit,} compiles @i{x} into @i{d2}.
+
+Many literal translators follow this scheme.
+
+A translator that is quite different is @word{translate-nt}.  Here's
+an implementation:
+
+@source
+: name-intsem ( ... nt -- ... )
+  name>interpret execute-exit ;
+: name-compsem ( ... nt -- ... )
+  name>compile execute-exit ;
+: name-compcompsem ( nt -- )
+  lit, postpone name-compsem ;
+' name-intsem ' name-compsem ' name-compcompsem translate: translate-nt
+@end source
+
+@word{Name-intsem} performs the interpretation semantics of @i{nt}, by
+getting the xt of the interpretation semantics and executing it.  Here
+@word{execute-exit} is used, in order for return-stack words to work
+(that's a Gforth 1.0 feature).  Also, in Gforth 1.0 all words have
+interpretation semantics, so the result of @word{name-interpret} is
+not tested for 0.
+
+@word{Name-compsem} performs the compilation semantics of @i{nt}.
+
+@word{Name-compcompsem} compiles the compilation semantics of @i{nt}.
+This is achieved by compiling @i{nt} and @word{name-compsem} into the
+current definition.  When that definition is run, the result performs
+the compilation semantics of @i{nt} at that time.
+
+
 @node Performing translator actions, Dealing with existing Recognizers, Defining translators, Recognizers
 @subsubsection Performing translator actions
+
+There are the following words for performing the various translator
+actions:
+
+doc-interpreting
+doc-compiling
+doc-postponing
+
+Their typical use is in a text interpreter.  A simple text interpreter
+could look like this:
+
+@source
+: myinterpret ( -- )
+  \ refill happens outside
+  begin
+    parse-name dup while
+      forth-recognize state @ if compiling else interpreting then
+  repeat
+  2drop ;
+@end source
+
+This text interpreter itself does not deal with postponing; @word{]]}
+can be implemented as a text interpreter that performs the postponing:
+
+@source
+: ]] ( -- )
+  \ works only within a line
+  begin
+    parse-name dup while
+      2dup "[[" ~~ str= ~~ 0= while
+        forth-recognize postponing
+   repeat then
+   2drop ; immediate
+@end source
 
 
 
@@ -11637,11 +11754,7 @@ are themselves recognizers, i.e. they are executable, take a string and
 return a translator.
 
 doc-?found
-doc-translate:
 doc-try-recognize
-doc-interpreting
-doc-compiling
-doc-postponing
 doc-translate-method:
 doc-set-state
 doc-get-state

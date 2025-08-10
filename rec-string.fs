@@ -29,7 +29,12 @@ s" Scanned string not in input buffer" exception >r
     drop source drop - 1+ >in !
     ['] multiline-string \"-parse  save-mem ;
 
-: slit,  postpone sliteral ;
+: slit, ( c-addr1 u -- ) \ gforth
+    \G This is a non-immediate variant of @word{sliteral}@*
+    \G Execution semantics: Copy the string described by @i{c-addr1 u}
+    \G to @i{c-addr2 u} and Compile the following semantis:@*
+    \G Compiled semantics: ( @i{ -- c-addr2 u} ).
+    postpone sliteral ;
 
 ' scan-string
 :noname scan-string slit, ;

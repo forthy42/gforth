@@ -64,14 +64,18 @@
     \G @i{f} in the space.
     1 floats small-allot f! ;
 
-: flit, ( r -- )
+: flit, ( r -- ) \ gforth
+    \G This is a non-immediate variant of @word{fliteral}@*
+    \G Execution semantics: Compile the following semantis:@*
+    \G Compiled semantics: ( @i{ -- r} ).
     [ cell 4 = ] [IF]
 	here cell+ dup faligned <>
 	IF  postpone flit1 0 ,  ELSE  postpone flit0  THEN
     [ELSE]
-	postpone flit
+        postpone flit
     [THEN]
-	f, ;
+    f, ;
+
 : FLiteral ( compilation r -- ; run-time -- r ) \ floating f-literal
     \G Compilation semantics: ( @i{r --} ) compile the run-time semantics.@*
     \G Run-time Semantics: ( @i{ -- r} ).@*
@@ -210,7 +214,8 @@ si-prefixes count 2/ + Constant zero-exp
 	zero-exp r> - c@ emit space
     ELSE  'E emit r> .  THEN ;
 
-: >postponer ( xt1 xt2 -- xt1 xt3 ) >r dup >r
+: >postponer ( xt1 xt2 -- xt1 xt3 )
+    >r dup >r
     :noname r> r> compile, lit, postpone compile, postpone ; ;
 
 ' noop ' fliteral dup >postponer
