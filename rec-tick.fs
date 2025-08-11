@@ -19,24 +19,27 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-?: ?rec-nt ( addr u -- nt true / 0 )
-    [: ['] translate-nt = ;] try-recognize ;
+?: forth-recognize-nt? ( c-addr u -- nt | 0 ) \ gforth-experimental
+    \G If @word{forth-recognize} produces a result @i{nt
+    \G @code{translate-nt}}, return @i{nt}, otherwise 0.
+    [: ['] translate-nt = dup if drop then ;] try-recognize ;
 
 : rec-tick ( addr u -- xt translate-num | 0 ) \ gforth-experimental
     \G words prefixed with @code{`} return their xt.
-    \G Example: @code{`dup} gives the xt of dup
+    \G Example: @code{`dup} gives the xt of dup.
     over c@ '`' = if
-        1 /string ?rec-nt if
-            ?compile-only name>interpret ['] translate-num exit  then
-        0 exit  then
+        1 /string forth-recognize-nt? dup if
+            ?compile-only name>interpret ['] translate-num then
+        exit  then
     2drop 0 ;
 
 : rec-dtick ( addr u -- nt translate-num | 0 ) \ gforth-experimental
     \G words prefixed with @code{``} return their nt.
-    \G Example: @code{``S"} gives the nt of @code{S"}
+    \G Example: @code{``S"} gives the nt of @code{S"}.
     2dup "``" string-prefix? if
-	2 /string ?rec-nt if  ['] translate-num exit then
-        0 exit  then
+        2 /string forth-recognize-nt? dup if
+            ['] translate-num then
+        exit  then
     2drop 0 ;
 
 ' rec-dtick action-of forth-recognize >back

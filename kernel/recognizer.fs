@@ -54,7 +54,7 @@
     \G Executing @i{int-xt} @samp{( @i{... data -- ...} )} performs
     \G the interpretation semantics represented by @i{data xt-name}.@*
     \G Executing @i{comp-xt} @samp{( @i{... data -- ...} )} performs
-    \G the compilations semantics represented by @i{data xt-name}.@*
+    \G the compilation semantics represented by @i{data xt-name}.@*
     \G Executing @i{post-xt} @samp{( @i{data -- } )} compiles the
     \G compilation semantics represented by @i{data xt-name}.
     Create swap rot , , , 7 0 DO  ['] no.extensions ,  LOOP
@@ -99,9 +99,9 @@ translate: translate-num ( x -- ... ) \ gforth-experimental
 translate: translate-dnum ( dx -- ... ) \ gforth-experimental
 \G translate a double number
 
-: ?found ( token|0 -- token|never ) \ gforth-experimental
-    \G performs an undefined word @code{throw} if the @var{token} is 0.
-    dup 0= IF  #-13 throw  THEN ;
+: ?found ( token|0 -- token ) \ gforth-experimental
+    \G @code{throw}s -13 (undefined word) if @var{token} is 0.
+    dup 0= #-13 and throw ;
 : translate-nt? ( token -- flag )
     \G check if name token; postpone action may differ
     dup IF  >body 2@ ['] translate-nt >body 2@ d=  THEN ;

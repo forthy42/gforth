@@ -41,7 +41,7 @@ Defer previous-section ( -- ) \ gforth
     2>r next-section here 2r> string, align >r  previous-section
     r> postpone literal ; immediate restrict
 
-: SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
+: SLiteral ( Compilation c-addr1 u -- ; run-time -- c-addr2 u ) \ string
     \G Compilation semantics: ( @i{c-addr1 u --} )
     \G Copy the string described by @i{c-addr1 u} to @i{c-addr2 u} and
     \g compile the run-time semantics.@*

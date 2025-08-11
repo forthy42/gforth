@@ -244,15 +244,16 @@ opt: @ 2 swap (to), ;
 	dup stack >back x2 = IF  x1 stack >back  THEN
     LOOP ;
 
-: try-recognize ( addr u xt -- results | false ) \ gforth-experimental
-    \G For nested recognizers: try to recognize @var{addr u}, and execute
-    \G @var{xt} to check if the result is desired.  If @var{xt} returns false,
-    \G clean up all side effects of the recognizer, and return false.
-    \G Otherwise return the results of the call to @var{xt}, of which the
-    \G topmost is non-zero.
-    { xt: xt }  sp@ fp@ 2>r
+: try-recognize ( c-addr u xt -- ... translator | 0 ) \ gforth-experimental
+    \G Try to recognize @var{c-addr u} with @word{forth-recognize},
+    \G then execute @var{xt} @samp{( @i{... translator -- ... true |
+    \G false } )}.  If @var{xt} returns 0, reset the stacks to the
+    \G depths at the start of @word{try-recognize}, drop three data
+    \G stack items, and push 0.  Otherwise return the results
+    \G of executing @var{xt}.
+    { xt: xt } sp@ fp@ 2>r
     forth-recognize xt dup
-    if    2rdrop
+    if 2rdrop
     else
 	2r> fp! sp! 2drop false
     then ;

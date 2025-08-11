@@ -421,8 +421,6 @@ Recognizers
 * Define recognizers with existing translators::
 * Defining translators::
 * Performing translator actions::
-* Dealing with existing Recognizers::
-* Defining Recognizers::
 
 Word Lists
 
@@ -9550,7 +9548,7 @@ don't run into conflicts when several structures have @code{next} and
 wordlist (i.e., the same name space) as the other words (including
 other field names), and trying to use the search order (@pxref{Word
 Lists}) for avoiding conflicts is rather cumbersome (unless you use
-the scope recognizer @pxref{Dealing with existing Recognizers}).
+the scope recognizer @pxref{Default Recognizers}).
 
 You can then use that to allocate an instance of that structure and
 then use the field words to access the fields of that instance:
@@ -10292,10 +10290,9 @@ copy-pasteability.  They do not work as intended within
 confusing in other contexts, e.g., when ticking or @word{postpone}ing
 such a word.  A way to achieve copy-pasteability without needing to
 define combined words is recognizers (@pxref{Recognizers}).
-@code{"foo" type} uses the string recognizer (@pxref{Dealing with
-existing Recognizers}) and can be copied and pasted between
-interpreted code, compiled code and code inside @code{]]}...@code{[[}
-without problem.
+@code{"foo" type} uses the string recognizer (@pxref{Default
+Recognizers}) and can be copied and pasted between interpreted code,
+compiled code and code inside @code{]]}...@code{[[} without problem.
 
 On the other hand, combined words are still far better than
 @anchor{state-smartness}@code{state}-smart
@@ -11271,7 +11268,7 @@ doc-#line
 @subsection Recognizers
 @cindex recongizers
 
-The recognizers concepts factor the central part of the text
+The recognizer concepts factor the central part of the text
 interpreter: The processing of one word after its name has been
 parsed.
 
@@ -11299,15 +11296,13 @@ resulting translator (@pxref{Performing translator actions}).
 * Define recognizers with existing translators::
 * Defining translators::
 * Performing translator actions::
-* Dealing with existing Recognizers::
-* Defining Recognizers::
 @end menu
 
 @node Default Recognizers, Recognizer order, Recognizers, Recognizers
 @subsubsection Default Recognizers
 @cindex Recognizers normal usage
 
-You can find out with @word{.recognizers} which recognizers are
+Type @word{.recognizers} to find out with which recognizers are
 currently being used by Gforth.  When invoked in a colon definition
 after defining a local, the output of @word{.recognizers} is (at the
 time of this writing):
@@ -11317,7 +11312,8 @@ rec-scope rec-num rec-float rec-complex rec-string rec-to rec-dtick
 rec-tick rec-body rec-env rec-meta}
 
 Here the notation @i{name ( name1 ... namen )} indicates that @i{name}
-is a recognizer sequence that contains @i{name1 ... namen}.
+is a recognizer sequence that contains the recognizers @i{name1
+... namen}.
 
 The recognizers in this sequence are:
 
@@ -11360,9 +11356,13 @@ complex literals})
 Strings (@samp{"abc"}, @pxref{String and environment variable literals}).
 
 @item @word{rec-to}
-Recognizes @code{->@i{v}} (equivalent to @code{to @i{v}} and
-@code{+>@i{v}} (equivalent to @code{+to @i{v}}, where @i{v} is a
-value-flavoured word (@pxref{Values}).
+Recognizes @code{->@i{v}} (equivalent to @code{to @i{v}}),
+@code{+>@i{v}} (equivalent to @code{+to @i{v}}), and @code{'>@i{v}}
+(equivalent to @code{addr @i{v}}), where @i{v} is a value-flavoured
+word (@pxref{Values}).  Also recognizes @code{@@>@i{d}} (equivalent to
+@code{action-of @i{d}}), and @code{=>@i{d}} (equivalent to @code{is
+@i{d}}), where @i{d} is a defer-flavoured word (@pxref{Deferred
+Words}).
 
 @item @word{rec-dtick}
 Recognizes @code{``@i{word}} and produces the name token of @i{word}
@@ -11401,7 +11401,8 @@ In most cases, however, recognizers are designed to avoid matching the
 same strings as other recognizers.  E.g., @code{rec-env} (the
 environment variable recognizer) requires braces to avoid a conflict
 with the number recognizer when recognizing environment variables like
-@samp{ADD}; i.e., @word{rec-env} recognizes @word{${ADD}}.
+@samp{ADD}; i.e., @word{rec-env} recognizes @word{${ADD}}, while
+@word{rec-num} recognizes @word{$ADD}.
 
 There are a few cases where Gforth's recognizers can recognize the
 same string, however:
@@ -11462,10 +11463,10 @@ will show that @code{rec-meta} recognizes @code{float?1.}.  However,
 if the recognizer recognizes a dictionary word (e.g., the scope
 recognizer), locate will show that word.
 
-As can be seen by the search order being shown as recognizer list
-containing the wordlists, wordlists are also recognizers.  A wordlist
-recognize the words that they contain.  Just @word{execute} the
-wordlist-id, and it will behave as a recognizer:
+Wordlists are also recognizers, as can be seen by the search order
+being shown as recognizer sequence containing the wordlists, .  A
+wordlist recognizes the words that it contains.  Just @word{execute}
+the wordlist-id, and it will behave as a recognizer:
 
 @source
 "dup" forth-wordlist execute
@@ -11506,9 +11507,10 @@ ways to change an existing recognizer sequence:
 @itemize @bullet
 
 @item
-Put one or more @word{defer}red words in a recognizer sequence.  If
-you do not want such a deferred word to recognize anything for now,
-put @word{rec-nothing} in it.
+Put one or more @word{defer}red words in a recognizer sequence, and
+change the recognizer in this word later.  If you do not want such a
+deferred word to recognize anything for now, put @word{rec-nothing} in
+it.
 
 @item
 The body of a recognizer sequence is a @word{stack}
@@ -11541,29 +11543,29 @@ A recognizer is a Forth word with the stack effect @samp{( @i{c-addr u
 -- ... translator | 0} )}.  @i{c-addr u} describes the string to be
 recognized.  If the recognizer does not recognize the string, it
 returns 0.  If it does recognize the string, it returns a translator,
-and additional data (``...'') that the translator later uses when
-performing some semantics of the recognized word.  E.g., when you perform
+and a translator-specific amount of additional data (``...'').  When
+performing a translator action, the translator consumes this
+additional data.  E.g., when you perform
 
 @example
 "5" rec-num
 @end example
 
 it pushes @samp{5 `translate-num} on the stack, and when the
-compilation semantics represented by @samp{5 `translate-num} are
-performed, both stack items are removed from the stack, and a literal
-5 is compiled into the current definition, such that, when that
-definition is executed, 5 is pushed on the data stack.
+compilation action of @word{translate-num} is performed, both stack
+items are removed from the stack.  This compilation action also
+compiles a literal 5 is compiled into the current definition.
 
 You typically write a recognizer as ordinary colon definition that
 examines the string in some way, and if the string is accepted by this
-recognizer, produces the translator and additional data.  E.g.,
-@word{rec-tick} can be implemented as follows:
+recognizer, produces the translator and additional data.  E.g., a
+simple variant of @word{rec-tick} can be implemented as follows:
 
 @source
 : rec-tick ( addr u -- xt translate-num | 0 )
     over c@ '`' = if
         1 /string find-name dup if
-            name>interpret ['] translate-num exit then
+            name>interpret ['] translate-num then
         exit then
     2drop 0 ;
 @end source            
@@ -11600,6 +11602,19 @@ doc-translate-to
 @c doc-translate-locals
 @c doc-translate-word
  
+One way to write a recognizer is to call @word{forth-recognize} on a
+substring, and then look at the result to see if something was
+recognized that the whole-string recognizer actually deals with.
+E.g., @word{rec-tick} and @word{rec-dtick} do this and then check
+whether @word{forth-recognize} has pushed @i{nt @code{translate-nt}};
+the benefit of this approach is that, e.g. @word{`environment:max-n}
+works, where @word{rec-scope} recognizes @word{environment:max-n}.
+The specific check for an nt used in @word{rec-tick} and
+@word{rec-dtick} is @word{forth-recognize-nt?}; it is implemented on top of the
+more general @word{try-recognize}.
+
+doc-try-recognize
+doc-forth-recognize-nt?
 
 
 @node  Defining translators, Performing translator actions, Define recognizers with existing translators, Recognizers
@@ -11614,8 +11629,9 @@ which may have a stack effect on its own:
 @itemize @bullet
 
 @item
-@word{Translate-nt} performs the interpretation or compilation
-semantics of a word, which may have a stack effect (the stack effect
+The interpretation or compilation actions of @i{nt
+@code{translate-nt}} performs the respective semantics of @i{nt}, and
+these semantics may have a stack effect of their own (the stack effect
 of postponing a word is @samp{( -- )}).
 
 @item
@@ -11639,20 +11655,23 @@ To make this a little more concrete, here is an implementation for
 translate: translate-num
 @end source
 
-A recognizer that recognizes a string as a value that can be converted
-to a cell-sized value @i{x} at recognition time and @i{x} should be
-pushed at run-time, the recognizer puts @i{x} on the stack, and the xt
-of @word{translate-num} on top of it.  When the interpretation
+If a recognizer for a single-cell literal (e.g., @word{rec-tick})
+matches the input string, it pushes the value @i{x} of the literal
+(the xt of the ticked word in case of @word{rec-tick}) on the data
+stack and the xt of @word{translate-num}.  When the interpretation
 semantics is needed, @i{int-xt} is @code{execute}d, and @i{x} stays on
 the stack.  For the compilation semantics, @i{x} is compiled into the
 current definition as literal.
 
-For postponing, @i{x} needs to be pushed by the definition @i{d2} that
-was the current definition when the definition @i{d1} that was current
-when the postponing occured.  This is achieved in two steps: first the
-@word{lit,} compiles @i{x} into @i{d1}, and when @i{d1} runs, it first
-pushes @i{x}, but that is then consumed by the @word{lit,} coming from
-@code{postpone lit,}; this @word{lit,} compiles @i{x} into @i{d2}.
+For postponing, more time levels are involved: at text-interpretation
+time (when the recognizer runs and the translator action is performed)
+the current definition is @i{d1}.  When @i{d1} runs, the current
+definition is @i{d2}@footnote{If there is no current definition when
+something is compiled, Gforth outputs a warning.}.  The @i{post-xt} of
+the @word{translate-num} implementation above first compiles @i{x}
+into @i{d1} and also compiles @word{lit,} into @i{d1} (that's the
+@code{postpone lit,} part).  When @i{d1} runs, it pushes @i{x} and
+then the @word{lit,} compiles @i{x} into @i{d2}.
 
 Many literal translators follow this scheme.
 
@@ -11680,11 +11699,11 @@ not tested for 0.
 
 @word{Name-compcompsem} compiles the compilation semantics of @i{nt}.
 This is achieved by compiling @i{nt} and @word{name-compsem} into the
-current definition.  When that definition is run, the result performs
-the compilation semantics of @i{nt} at that time.
+current definition @i{d1}.  When @i{d1} runs, the result performs the
+compilation semantics of @i{nt} at that time.
 
 
-@node Performing translator actions, Dealing with existing Recognizers, Defining translators, Recognizers
+@node Performing translator actions,  , Defining translators, Recognizers
 @subsubsection Performing translator actions
 
 There are the following words for performing the various translator
@@ -11693,6 +11712,7 @@ actions:
 doc-interpreting
 doc-compiling
 doc-postponing
+doc-?found
 
 Their typical use is in a text interpreter.  A simple text interpreter
 could look like this:
@@ -11702,7 +11722,7 @@ could look like this:
   \ refill happens outside
   begin
     parse-name dup while
-      forth-recognize state @ if compiling else interpreting then
+      forth-recognize ?found state @ if compiling else interpreting then
   repeat
   2drop ;
 @end source
@@ -11714,53 +11734,18 @@ can be implemented as a text interpreter that performs the postponing:
 : ]] ( -- )
   \ works only within a line
   begin
-    parse-name dup while
-      2dup "[[" ~~ str= ~~ 0= while
-        forth-recognize postponing
-   repeat then
+    parse-name dup 0= abort" [[ missing"
+    2dup "[[" str= 0= while
+      forth-recognize ?found postponing
+   repeat
    2drop ; immediate
 @end source
 
-
-
-@node Dealing with existing Recognizers, Defining Recognizers, Performing translator actions, Recognizers
-@subsubsection Dealing with existing Recognizers
-@cindex Recognizers, dealing with
-
-A recognizer is a word to which you pass a string.  If the recognizer
-recognizes the string, it typically returns some data and the xt of a
-word for processing the data; this word is called the translator.  If
-the recognizer does not recognize the string, it returns 0.
-
-All recognizers have the stack effect ( c-addr u -- i*x xt | 0 ).
-
-
-
-Recognizers take a string and on success return some data and a
-translator for interpreting that data.  Gforth implements that
-translator as xt (executing it will perform the appropriate action to
-handle the token in the current state), but other Forth systems may
-implement it as actual table, with three xts inside.  The first xt is
-the interpretation/run-time xt, it performs the interpretation semantics
-on the data (usually, this means it just leaves the data on the stack).
-The second xt performs the compilation semantics, it gets the data and
-the run-time semantics xt.  The third xt perfoms the postpone semantics,
-it also gets the data and the run-time semantics xt.  You can use
-@code{postponing} to postpone the run-time xt.
-
-Recognizers are organized as stack, so you can arrange the sequence of
-recognizers in the same way as the vocabulary stack.  Recognizer stacks
-are themselves recognizers, i.e. they are executable, take a string and
-return a translator.
-
-doc-?found
-doc-try-recognize
-doc-translate-method:
-doc-set-state
-doc-get-state
-
-@node Defining Recognizers,  , Dealing with existing Recognizers, Recognizers
-@subsubsection Defining Recognizers
+@c What's the use case for translate-method: ?
+@c doc-translate-method:
+@c The use cases for these words are somewhat esoteric
+@c doc-set-state
+@c doc-get-state
 
 
 
