@@ -10,7 +10,7 @@
  * run it on an old OS that doesn't.  Installing several glibcs alongside is
  * also not supported well (essentially, you need a chroot or a container for
  * that).  So well, as workaround, just like people did for the memmove case
- * in glibc 2.14, you can define the symver explicitely.  Note that only a few
+ * in glibc 2.14, you can define the symver explicitly.  Note that only a few
  * platforms actually support that stuff, and they have different versions for
  * th older symbol.  Therefore, we don't activate that here, you need a GCC
  * option.

@@ -21,7 +21,7 @@
 \	07-12-2001  used built-in Forth words <# #s #> for conversions,
 \	              added ud>string and d>string. f>string now can handle
 \                     decimal places greater than 8  km
-\	09-21-2001  changed occurences of DO to ?DO  km
+\	09-21-2001  changed occurrences of DO to ?DO  km
 \	10-02-2001  added parse_args  km
 \	10-10-2001  fixed problem with f>string when number is 0e  km
 \	10-15-2001  added /STRING  km

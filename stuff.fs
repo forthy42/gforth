@@ -122,12 +122,12 @@ AUser CSP
 \ easier definer of noname words that are assigned to a deferred word
 
 : :is ( "name" -- ) \ gforth-experimental
-    \G define a noname that is assigned to the deffered word @var{name}
+    \G define a noname that is assigned to the deferred word @var{name}
     \G at @code{;}.
     :noname colon-sys-xt-offset n>r drop
     record-name (') ['] defer! nr> drop ;
 : :method ( class "name" -- ) \ gforth-experimental
-    \G define a noname that is assigned to the deffered word @var{name}
+    \G define a noname that is assigned to the deferred word @var{name}
     \G in @var{class} at @code{;}.
     :noname colon-sys-xt-offset n>r drop
     swap record-name (') ['] defer! nr> drop ;
@@ -233,13 +233,13 @@ opt: @ 2 swap (to), ;
     ['] forth-recognize set-recognizer-sequence ;
 
 : -stack { x stack -- } \ gforth-experimental minus-stack
-    \G Delete every occurence of @i{x} from anywhere in @i{stack}.
+    \G Delete every occurrence of @i{x} from anywhere in @i{stack}.
     stack get-stack  0 stack set-stack 0 ?DO
         dup x <> IF  stack >back  ELSE	drop  THEN
     LOOP ;
 
 : +after { x1 x2 stack -- } \ gforth-experimental plus-after
-    \G Insert @var{x1} below every occurence @var{x2} in @i{stack}.
+    \G Insert @var{x1} below every occurrence @var{x2} in @i{stack}.
     stack get-stack  0 stack set-stack 0 ?DO
 	dup stack >back x2 = IF  x1 stack >back  THEN
     LOOP ;

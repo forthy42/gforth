@@ -181,7 +181,7 @@ struct%
  cell%    field item-stack  \ descriptor for the stack used, 0 is default
  cell%    field item-type   \ descriptor for the item type
  cell%    field item-offset \ offset in stack items, 0 for the deepest element
- cell%	  field item-first  \ true if this is the first occurence of the item
+ cell%	  field item-first  \ true if this is the first occurrence of the item
 end-struct item%
 
 struct%

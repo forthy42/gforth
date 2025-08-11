@@ -438,7 +438,7 @@ short-where
 : where ( "name" -- ) \ gforth
     \g Show all places where @i{name} is used (text-interpreted).  You
     \g can then use @code{ww}, @code{nw} or @code{bw} to inspect
-    \g specific occurences more closely.  Gforth's @code{where} does
+    \g specific occurrences more closely.  Gforth's @code{where} does
     \g not show the definition of @i{name}; use @code{locate} for
     \g that.
     ['] noop ['] filename>display
@@ -513,7 +513,7 @@ Variable browse-results
     \g @i{subname} is defined (@code{mwords}-like, @pxref{Word
     \g Lists}).  You can then use @code{ww}, @code{nw} or @code{bw}
     \g (@pxref{Locating uses of a word}) to inspect specific
-    \g occurences more closely.
+    \g occurrences more closely.
     ['] noop ['] filename>display
     [: where-setup source-pos# source-line# 2>r
 	(browse) 2r> where-reset ;] wrap-xt ;
@@ -670,7 +670,7 @@ interpret/compile: s` ( "eval-string" -- addr u )
     \g Like @code{where}, but puts the output in the editor.  In
     \g Emacs, you can then use the compilation-mode commands
     \g (@pxref{Compilation Mode,,,emacs,GNU Emacs Manual}) to inspect
-    \g specific occurences more closely.
+    \g specific occurrences more closely.
     delete-whereg
     s` mktemp /tmp/gforth-whereg-XXXXXX` 1- save-mem 2dup whereg-filename 2!
     2dup r/w open-file throw

@@ -747,7 +747,7 @@ defer type-ds ( c-addr u )
     2drop ;
 
 : string-split {: d: s d: sep -- d: first d: rest :}
-    \ split s into first and res, with the first occurence of sep
+    \ split s into first and rest, with the first occurrence of sep
     \ being between first and rest
     s sep search if {: d: match :}
         s drop match drop over - match sep nip /string

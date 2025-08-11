@@ -1059,7 +1059,7 @@ static void prepare_super_table()
           if (is_relocatable(i)) {
             if (c->state_in==CANONICAL_STATE && c->state_out==CANONICAL_STATE) {
               /* this is actually from the ip-update series */
-              assert(ip_update0 == 0); /* no second occurence */
+              assert(ip_update0 == 0); /* no second occurrence */
               ip_update0 = i;
               min_ip_update = priminfos[i].min_ip_offset;
               max_ip_update = priminfos[i].max_ip_offset;

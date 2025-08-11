@@ -736,7 +736,7 @@ Create hmtemplate
     \ This here needs to be optimizing even for gforth-itc, because
     \ otherwise this code won't work: for locals, the xt is no longer
     \ valid at run-time, so we have to optimize it away at compile
-    \ time; this is achived by explicitly calling >LITS and
+    \ time; this is achieved by explicitly calling >LITS and
     \ OPT!-COMPILE,.
 ;
 

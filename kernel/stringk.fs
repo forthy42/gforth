@@ -113,7 +113,7 @@
 : $split ( c-addr u char -- c-addr u1 c-addr2 u2 ) \ gforth string-split
     \G Divides a string @i{c-addr u} into two, with @i{char} as
     \G separator.  @i{U1} is the length of the string up to, but
-    \G excluding the first occurence of the separator, @i{c-addr2 u2}
+    \G excluding the first occurrence of the separator, @i{c-addr2 u2}
     \G is the part of the input string behind the separator.  If the
     \G separator does not occur in the string, @i{u1}=@i{u}, @i{u2}=0
     \G and @i{c-addr2}=@i{c-addr}+@i{u}.

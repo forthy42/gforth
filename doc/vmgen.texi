@@ -60,7 +60,7 @@ Software Foundation raise funds for GNU development.''
 * Input File Format::           
 * Error messages::              reported by Vmgen
 * Using the generated code::    
-* Hints::                       VM archictecture, efficiency
+* Hints::                       VM architecture, efficiency
 * The future::                  
 * Changes::                     from earlier versions
 * Contact::                     Bug reporting etc.
@@ -682,7 +682,7 @@ the @samp{\C}).  This is useful mainly for conditional compilation
 
 @cindex sync lines
 @cindex @code{#line}
-In addition to the syntax given in the grammer, Vmgen also processes
+In addition to the syntax given in the grammar, Vmgen also processes
 sync lines (lines starting with @samp{#line}), as produced by @samp{m4
 -s} (@pxref{Invoking m4, , Invoking m4, m4.info, GNU m4}) and similar
 tools.  This allows associating C compiler error messages with the
@@ -1099,7 +1099,7 @@ lit_sub = lit sub
 action as the sequence @code{lit} and @code{sub}.  It is generated
 automatically by the VM code generation functions whenever that sequence
 occurs, so if you want to use this superinstruction, you just need to
-add this definition (and even that can be partially automatized,
+add this definition (and even that can be partially automated,
 @pxref{VM profiler}).
 
 @cindex prefixes of superinstructions
@@ -1779,7 +1779,7 @@ VM instruction table.
 @cindex @file{profile.c}
 @cindex @file{-profile.i} output file
 
-The VM profiler is designed for getting execution and occurence counts
+The VM profiler is designed for getting execution and occurrence counts
 for VM instruction sequences, and these counts can then be used for
 selecting sequences as superinstructions.  The VM profiler is probably
 not useful as profiling tool for the interpretive system.  I.e., the VM
@@ -1802,8 +1802,8 @@ executed 9227465 times.
 @cindex @file{stat.awk}
 @cindex @file{seq2rule.awk}
 This output can be combined in various ways.  E.g.,
-@file{vmgen-ex/stat.awk} adds up the occurences of a given sequence wrt
-dynamic execution, static occurence, and per-program occurence.  E.g.,
+@file{vmgen-ex/stat.awk} adds up the occurrences of a given sequence wrt
+dynamic execution, static occurrence, and per-program occurrence.  E.g.,
 
 @example
       2      16        36910041 loadlocal lit 
@@ -1882,7 +1882,7 @@ The simpler approach is to use a separate floating-point stack.  This
 allows you to choose FP value size without considering the size of the
 integers/pointers, and you avoid a number of performance problems.  The
 main downside is that this needs an FP stack pointer (and that may not
-fit in the register file on the 386 arhitecture, costing some
+fit in the register file on the 386 architecture, costing some
 performance, but comparatively little if you take the other option into
 account).  If you use a separate FP stack (with stack pointer @code{fp}),
 using an fpTOS is helpful on most machines, but some spill the fpTOS

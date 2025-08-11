@@ -390,7 +390,7 @@ Interpretation and Compilation Semantics
 * Where are interpretation semantics used?::
 * Where are compilation semantics used?::
 * Which semantics do existing words have?::
-* What sematics do normal definitions have?::
+* What semantics do normal definitions have?::
 * How to define immediate words::
 * How to define combined words::
 
@@ -1089,7 +1089,7 @@ static superinstructions.
 @item --ss-min-nexts
 Use specified metric for determining the cost of a primitive or static
 superinstruction for static superinstruction selection.  @code{Codesize}
-is the native code size of the primive or static superinstruction,
+is the native code size of the primitive or static superinstruction,
 @code{ls} is the number of loads and stores, @code{lsu} is the number of
 loads, stores, and updates, and @code{nexts} is the number of dispatches
 (not taking dynamic superinstructions into account), i.e. every
@@ -1153,13 +1153,13 @@ E.g., one line might look like:
 ?branch           1-1  0   21 1575   73 0x5573e4048c33 len= 4+ 25+ 3 send=0
 @end example
 
-The colums are, from left to right: name of the primitive,
+The columns are, from left to right: name of the primitive,
 stack-caching state transition (from a state with 1 stack item in a
 register to the same state in the example), IP offset for this version
 of the primitive (0 for most primitives, but, e.g., for @code{?branch}
 there are also versions with 0-zero offset), index of the primitive,
 index of the corresponding branch-to-IP variant (in case of a branch),
-static number of occurences of the primitive in the loaded/compiled
+static number of occurrences of the primitive in the loaded/compiled
 code, address of the code of the primitive (or @code{(nil)} if the
 primitive is not relocatable), length of the parts of this code:
 ip-update+main+dispatch, and whether the primitive ends a superblock
@@ -1944,7 +1944,7 @@ gforth @var{code.fs} @var{tests.fs} -e bye
 restart this command without ado.
 
 The advantage of this approach is that the tests can be repeated easily
-every time the program ist changed, making it easy to catch bugs
+every time the program is changed, making it easy to catch bugs
 introduced by the change.
 
 Reference: @ref{Forth source files}.
@@ -4194,7 +4194,7 @@ two cards, work out that their sum is 6, shuffle them into the pack,
 look for a 6 and place that on the table. You now have just one item on
 the stack. What happens if you try to do a third addition? Pick up the
 first card, pick up the second card -- ah! There is no second card. This
-is called a @dfn{stack underflow} and consitutes an error. If you try to
+is called a @dfn{stack underflow} and constitutes an error. If you try to
 do the same thing with Forth it often reports an error (probably a Stack
 Underflow or an Invalid Memory Address error).
 
@@ -4266,7 +4266,7 @@ To examine these claims in more detail, consider these sums:
 If you're just learning maths or your maths is very rusty, you will
 probably come up with the answer 44 for the first and 26 for the
 second. If you are a bit of a whizz at maths you will remember the
-@i{convention} that multiplication takes precendence over addition, and
+@i{convention} that multiplication takes precedence over addition, and
 you'd come up with the answer 26 both times. To explain the answer 26
 to someone who got the answer 44, you'd probably rewrite the first sum
 like this:
@@ -4414,7 +4414,7 @@ words of your own.
 @c be better to keep them (or add run-time semantics), to make it easier to
 @c explain what compilation semantics usually does. - anton
 
-@c nac-> I removed the term ``default compilation sematics'' from the
+@c nac-> I removed the term ``default compilation semantics'' from the
 @c introductory chapter. Removing ``execution semantics'' was making
 @c everything simpler to explain, then I think the use of this term made
 @c everything more complex again. I replaced it with ``default
@@ -4793,15 +4793,15 @@ the whole of this manual and find out what you've missed.
 @section Exercises
 @cindex exercises
 
-TODO: provide a set of programming excercises linked into the stuff done
+TODO: provide a set of programming exercises linked into the stuff done
 already and into other sections of the manual. Provide solutions to all
 the exercises in a .fs file in the distribution.
 
 @c Get some inspiration from Starting Forth and Kelly&Spies.
 
-@c excercises:
+@c exercises:
 @c 1. take inches and convert to feet and inches.
-@c 2. take temperature and convert from fahrenheight to celcius;
+@c 2. take temperature and convert from fahrenheit to celsius;
 @c    may need to care about symmetric vs floored??
 @c 3. take input line and do character substitution
 @c    to encipher or decipher
@@ -5175,7 +5175,7 @@ parentheses that display the stack picture at this point; there is no
 @code{--} in these places, because there is no before-after
 situation.
 
-@cindex pronounciation of words
+@cindex pronunciation of words
 @item pronunciation
 How the word is pronounced.
 
@@ -5633,7 +5633,7 @@ data in @code{reci[} to compute the quotient.
 There are some limitations: Only positive divisors are supported for
 @code{/f-stage1m}; for @code{u/-stage1m} you can use a divisor of 2 or
 higher.  You get an error if you try to use an unsupported divisor.
-You must initalize the reciprocal buffer for the floored second-stage
+You must initialize the reciprocal buffer for the floored second-stage
 words with @code{/f-stage1m} and for the unsigned second-stage words
 with @code{u/-stage1m}.  You must not modify the reciprocal buffer
 between the first stage and the second stage; basically, don't treat
@@ -6072,7 +6072,7 @@ reasons for its existence, in @ref{Locals implementation}.
 @subsection Stack pointer manipulation
 @cindex stack pointer manipulation words
 
-In the stack effects of the following words, ignore the occurences of
+In the stack effects of the following words, ignore the occurrences of
 ``...''  in the stack-pointer fetching words.
 
 @c removed s0 r0 l0 -- they are obsolete aliases for sp0 rp0 lp0
@@ -7001,7 +7001,7 @@ doc-string,
 Control structures in Forth cannot be used interpretively, only in a
 colon definition@footnote{To be precise, in Standard Forth the
 control-flow words have no interpretation semantics, and in Gforth the
-interpetation semantics of the control-flow words are not useful for
+interpretation semantics of the control-flow words are not useful for
 interpretive control flow (@pxref{Interpretation and Compilation
 Semantics}).}. We do not like this limitation, but have not seen a
 satisfying way around it yet, although many schemes have been
@@ -7896,7 +7896,7 @@ However, you have to ensure that this code does not cause an exception
 itself, otherwise the @code{iferror}/@code{restore} code will loop.
 Moreover, you should also make sure that the stack contents needed by
 the @code{iferror}/@code{restore} code exist everywhere between
-@code{try} and @code{endtry}; in our example this is achived by
+@code{try} and @code{endtry}; in our example this is achieved by
 putting the data in a local before the @code{try} (you cannot use the
 return stack because the exception frame (@i{sys1}) is in the way
 there).
@@ -8381,7 +8381,7 @@ such a word anonymously inside @code{print-some-warning}:
   [: cr ." warning# " . ;] stderr outfile-execute ;
 @end example
 
-The quotation is bouded by @code{[:} and @code{;]}.  It produces an
+The quotation is bounded by @code{[:} and @code{;]}.  It produces an
 execution token at run-time.
 
 doc-[:
@@ -8803,7 +8803,7 @@ changeable through @word{>body}.
 @subsubsection Advanced does> usage example
 
 The MIPS disassembler (@file{arch/mips/disasm.fs}) contains many words
-for disassembling instructions, that follow a very repetetive scheme:
+for disassembling instructions, that follow a very repetitive scheme:
 
 @example
 :noname @var{disasm-operands} s" @var{inst-name}" type ;
@@ -9384,7 +9384,7 @@ use of @word{preserve} is shown in this example:
 : smalltalk ( -- )
   greet ."  Isn't the weather nice?" ;
 
-\ here GREET perfroms GREET2
+\ here GREET performs GREET2
 : when-in-rome ( xt -- )
   [: ." Buon Giorno!" ;] is greet
   execute
@@ -9980,7 +9980,7 @@ semantics, but these are mostly discussed elsewhere (@pxref{Values},
 * Where are interpretation semantics used?::
 * Where are compilation semantics used?::
 * Which semantics do existing words have?::
-* What sematics do normal definitions have?::
+* What semantics do normal definitions have?::
 * How to define immediate words::
 * How to define combined words::
 @end menu
@@ -10056,7 +10056,7 @@ word @i{w} with @code{``@i{w} name>compile}, @code{comp' @i{w}}, or
 @i{w} and then accesses the compilation token with
 @word{name>compile}.
 
-@node Which semantics do existing words have?, What sematics do normal definitions have?, Where are compilation semantics used?, Interpretation and Compilation Semantics
+@node Which semantics do existing words have?, What semantics do normal definitions have?, Where are compilation semantics used?, Interpretation and Compilation Semantics
 @subsection Which semantics do existing words have?
 
 For words built into Gforth, the documentation specifies the semantics.
@@ -10091,7 +10091,7 @@ and this manual describe the interpretation/execution semantics of
 words with default semantics without preceding these semantics with a
 label (the label ``execution'' or ``interpretation'' would be
 appropriate).  The compilation semantics of such words are the implied
-default compilation semantics (@pxref{What sematics do normal
+default compilation semantics (@pxref{What semantics do normal
 definitions have?}).
 
 For words that have some non-default semantics, the standard specifies
@@ -10102,12 +10102,12 @@ standard leaves the subsection for interpretation or compilation
 semantics away, and leaves it to the default mechanism to derive those
 semantics from execution semantics.}).  This manual often takes a more
 informal approach.  The approach taken in this manual may be more
-accomodating for everyday use, while the standard approach is more
+accommodating for everyday use, while the standard approach is more
 precise for reasoning about details of the language.
 
 
-@node What sematics do normal definitions have?, How to define immediate words, Which semantics do existing words have?, Interpretation and Compilation Semantics
-@subsection What sematics do normal definitions have?
+@node What semantics do normal definitions have?, How to define immediate words, Which semantics do existing words have?, Interpretation and Compilation Semantics
+@subsection What semantics do normal definitions have?
 
 Most defining words normally produce words with default interpretation
 semantics and default compilation semantics; those that do not (e.g,
@@ -10138,7 +10138,7 @@ Here the interpretation semantics of @i{w} is appended to the
 interpretation semantics of @i{name}.
 
 
-@node How to define immediate words, How to define combined words, What sematics do normal definitions have?, Interpretation and Compilation Semantics
+@node How to define immediate words, How to define combined words, What semantics do normal definitions have?, Interpretation and Compilation Semantics
 @subsection How to define immediate words
 @cindex immediate words
 
@@ -10212,7 +10212,7 @@ then      \ warning: THEN is compile-only
 [
 @end source
 
-Note thet switching to compile state in the last four lines silences
+Note that switching to compile state in the last four lines silences
 the ``is compile-only'' warnings, because in these lines the
 compilation semantics of the words is performed.
 
@@ -10445,7 +10445,7 @@ In Standard Forth the xt is just an abstract data type (i.e., defined
 by the operations that produce or consume it).  The concrete
 implementation (since Gforth 1.0) is the body address (for old
 hands: PFA) of the word; in Gforth 0.7 and earlier, the xt was
-implemented as code field addres (CFA, 2 cells before the PFA).
+implemented as code field address (CFA, 2 cells before the PFA).
 
 doc-execute
 doc-execute-exit
@@ -10731,7 +10731,7 @@ accordingly produces:
 1 2 foo .
 @end example
 
-You will occassionally find the need to POSTPONE several words;
+You will occasionally find the need to POSTPONE several words;
 putting POSTPONE before each such word is cumbersome, so Gforth
 provides a more convenient syntax: @code{]] ... [[}.  This
 allows us to write @code{[compile-+]} as:
@@ -12083,7 +12083,7 @@ doc-xchar-encoding
 doc-max-xchar
 doc-xchar-maxmem
 
-Several environemtal queries are there for determining the presence of
+Several environmental queries are there for determining the presence of
 the Forth-94 version of a wordset; they all have the stack effect
 @code{( -- f )} if the string is present (so the @code{environment?}
 stack effect for these queries is @code{( c-addr u -- false / f true
@@ -12575,7 +12575,7 @@ When you read and write blocks under program control, Gforth uses a
 number of @dfn{block buffers} as intermediate storage. These buffers are
 not used when you use @code{load} to interpret the contents of a block.
 
-The behaviour of the block buffers is analagous to that of a cache.
+The behaviour of the block buffers is analogous to that of a cache.
 Each block buffer has three states:
 
 @itemize @bullet
@@ -12954,7 +12954,7 @@ doc-.\"
 doc-."
 doc-.(
 
-If you don't want to worry about wether to use @code{.( hello)} or
+If you don't want to worry about whether to use @code{.( hello)} or
 @code{." hello"}, you can write @code{"hello" type}, which gives you
 what you usually want (but is less portable to other Forth systems).
 
@@ -13057,7 +13057,7 @@ doc-compile-color
 @c doc-attr!
 
 @subsubsection Color themes
-Depending on wether you prefer bright or dark background the
+Depending on whether you prefer bright or dark background the
 foreground colors-theme can be changed by:
 
 doc-light-mode
@@ -13201,7 +13201,7 @@ doc-simple-fkey-string
 @subsection Line input and conversion
 @cindex line input from terminal
 @cindex input, linewise from terminal
-@cindex convertin strings to numbers
+@cindex converting strings to numbers
 @cindex I/O - see input
 
 For ways of storing character strings in memory see @ref{String
@@ -14844,7 +14844,7 @@ interface. The positive offsets in the map are reserved for class
 methods, therefore interface map pointers have negative
 offsets. Interfaces have offsets that are unique throughout the
 system, unlike class selectors, whose offsets are only unique for the
-classes where the selector is available (invokable).
+classes where the selector is available (invocable).
 
 This structure means that interface selectors have to perform one
 indirection more than class selectors to find their method. Their body
@@ -15310,7 +15310,7 @@ end-class circle \ "graphical" is the parent class
 @end example
 
 There is no implicit init method, so we have to define one. The creation
-code of the object now has to call init explicitely.
+code of the object now has to call init explicitly.
 
 @example
 circle new Constant my-circle
@@ -15609,7 +15609,7 @@ As an example, consider a word that sums up the results of a function
   loop ;
 @end source
 
-You can add up the values of the functon 1/n for n=1..10 with:
+You can add up the values of the function 1/n for n=1..10 with:
 
 @source
 11 1 [: s>f -1e f** ;] sum f.
@@ -16290,12 +16290,12 @@ doc-dump
 @c  anton: other, maybe better places for this subsection: Defining Words;
 @c  Dictionary allocation.  At least a reference should be there.
 
-Forth allows you to forget words (and everything that was alloted in the
-dictonary after them) in a LIFO manner.
+Forth allows you to forget words (and everything that was allotted in the
+dictionary after them) in a LIFO manner.
 
 doc-marker
 
-The most common use of this feature is during progam development: when
+The most common use of this feature is during program development: when
 you change a source file, forget all the words it defined and load it
 again (since you also forget everything defined after the source file
 was loaded, you have to reload that, too).  Note that effects like
@@ -16356,9 +16356,9 @@ doc-debug-fid
 
 @cindex filenames in @code{~~} output
 @code{~~} (and assertions) will usually print the wrong file name if a
-marker is executed in the same file after their occurance.  They will
+marker is executed in the same file after their occurrence.  They will
 print @samp{*somewhere*} as file name if a marker is executed in the
-same file before their occurance.
+same file before their occurrence.
 
 doc-once
 doc-~~bt
@@ -16438,9 +16438,9 @@ probably more appropriate than an assertion).
 
 @cindex filenames in assertion output
 Assertions (and @code{~~}) will usually print the wrong file name if a
-marker is executed in the same file after their occurance.  They will
+marker is executed in the same file after their occurrence.  They will
 print @samp{*somewhere*} as file name if a marker is executed in the
-same file before their occurance.
+same file before their occurrence.
 
 Definitions in Standard Forth for these assertion words are provided
 in @file{compat/assert.fs}.
@@ -16708,7 +16708,7 @@ are really concurrent tasks (at least on a multi-core CPU), and
 therefore, several techniques to avoid conflicts when accessing the same
 resources.
 
-Semaphores can only be aquired by one thread, all other threads have to
+Semaphores can only be acquired by one thread, all other threads have to
 wait until the semapohre is released.
 
 doc-semaphore
@@ -17117,7 +17117,7 @@ generated, the tools used to generated them (in particular, the C
 compiler and libtool) are no longer needed, so the interface can be used
 even on machines that do not have the tools installed.  The build system
 of Gforth can even cross-compile these libraries, so that the libraries
-are available for plattforms on which build tools aren't installed.
+are available for platforms on which build tools aren't installed.
 
 doc-c-library-name
 doc-c++-library-name
@@ -17135,7 +17135,7 @@ doc-end-c-library
 For calling some C functions, you need to link with a specific
 OS-level library that contains that function.  E.g., the @code{sin}
 function requires linking a special library by using the command line
-switch @code{-lm}.  In our C iterface you do the equivalent thing by
+switch @code{-lm}.  In our C interface you do the equivalent thing by
 calling @code{add-lib} as follows:
 
 @example
@@ -17475,7 +17475,7 @@ between Gforth versions, or even between different compilations of the
 same Gforth version (e.g., if you use a different GCC version).  If
 you are using @code{CODE} instead of @code{ABI-CODE}, and you want to
 refer to Gforth's registers (e.g., the stack pointer or TOS), I
-recommend defining your own words for refering to these registers, and
+recommend defining your own words for referring to these registers, and
 using them later on; then you can adapt to a changed register
 assignment.
 
@@ -17752,7 +17752,7 @@ ABI-CODE aRDTSC   ( -- TSCl TSCh )
                            RDTSC        \ DX:AX := TSC
    $FFFFFFFF #     AX      AND          \ Clear upper 32 bit AX
   0xFFFFFFFF #     DX      AND          \ Clear upper 32 bit DX
-       AX          R8      MOV          \ Tempory save AX
+       AX          R8      MOV          \ Temporarily save AX
    -16 DI  D)      AX      LEA          \ SPout := SPin + 2
        R8      8   AX  D)  MOV          \ TOS-1 := saved AX = TSC low
        DX          AX  )   MOV          \ TOS := Dx = TSC high
@@ -17767,7 +17767,7 @@ ABI-CODE RDTSC   ( -- TSC )
                            RDTSC        \ DX:AX := TSC
    $FFFFFFFF #     AX      AND          \ Clear upper 32 bit AX
    32  #           DX      SHL          \ Move lower 32 bit DX to upper 32 bit
-       AX          DX      OR           \ Combine AX wit DX in DX
+       AX          DX      OR           \ Combine AX with DX in DX
    -8  DI  D)      AX      LEA          \ SPout := SPin + 1
        DX          AX  )   MOV          \ TOS := DX
                            RET
@@ -18421,7 +18421,7 @@ doc-doabicode:
 For a word @i{X} defined with @code{set-does>}, the code address
 points to @code{dodoes:}, and the @code{>hmextra} field of the header
 methods contains the xt of the word that is called after pushing the
-body addres of @i{X}.
+body address of @i{X}.
 
 If you want to know whether a word is a @code{DOES>}-defined word, and
 what Forth code it executes, @code{>does-code} tells you that:
@@ -18657,7 +18657,7 @@ empty line (in interpretation state) against these depths at the last
 empty line (in interpretation state).  If the depths are not equal,
 the position in the file and the stack contents are printed with
 @code{~~} (@pxref{Debugging}).  This indicates that a stack depth
-change has occured in the paragraph of non-empty lines before the
+change has occurred in the paragraph of non-empty lines before the
 indicated line.  It is a good idea to leave an empty line at the end
 of the file, so the last paragraph is checked, too.
 
@@ -18671,7 +18671,7 @@ gforth depth-changes.fs -e "' all-lines is depth-changes-filter" my-file.fs
 @end example
 
 This checks the stack depth at every end-of-line.  So the depth change
-occured in the line reported by the @code{~~} (not in the line
+occurred in the line reported by the @code{~~} (not in the line
 before).
 
 Note that, while this offers better accuracy in indicating where the
@@ -19126,7 +19126,7 @@ These are located in writable memory and can be modified.
 @item overflow of the pictured numeric output string:
 @cindex overflow of the pictured numeric output string
 @cindex pictured numeric output string, overflow
-@code{-17 throw} (Pictured numeric ouput string overflow).
+@code{-17 throw} (Pictured numeric output string overflow).
 
 @item parsed string overflow:
 @cindex parsed string overflow
@@ -21159,7 +21159,7 @@ There are various schemes that distribute the different operations of
 NEXT between these parts in several ways; in general, different schemes
 perform best on different processors.  We use a scheme for most
 architectures that performs well for most processors of this
-architecture; in the future we may switch to benchmarking and chosing
+architecture; in the future we may switch to benchmarking and choosing
 the scheme on installation time.
 
 
@@ -21684,7 +21684,7 @@ while you usually can't execute the code compiled by cross, because the
 code you are compiling is typically for a different computer than the
 one you are compiling on.
 
-@c anton: This chapter is somewhat different from waht I would expect: I
+@c anton: This chapter is somewhat different from what I would expect: I
 @c would expect an explanation of the cross language and how to create an
 @c application image with it.  The section explains some aspects of
 @c creating a Gforth kernel.

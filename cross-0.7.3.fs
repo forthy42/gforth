@@ -850,7 +850,7 @@ Struct
   \ whereas >exec-compile contains the semantic of s"
   cell% field >comp
 
-  \ Compilation sematics (while parsing) of this ghost. E.g. 
+  \ Compilation semantics (while parsing) of this ghost. E.g. 
   \ "\" will skip the rest of line.
   \ These semantics are defined by Cond: and
   \ if a word is made immediate in instant, then the >exec2 field
