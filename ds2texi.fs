@@ -126,7 +126,7 @@ struct
     cell% 2* field doc-name
     cell% 2* field doc-stack-effect
     cell% 2* field doc-wordset
-    cell% 2* field doc-pronounciation
+    cell% 2* field doc-pronunciation
     cell% 2* field doc-description
     cell%    field doc-count
     cell% 2* field doc-loc
@@ -251,22 +251,22 @@ set-current
         save-mem 2dup check-wordset
     endif ;
 
-: condition-pronounciation ( c-addr1 u1 -- c-addr2 u2 )
+: condition-pronunciation ( c-addr1 u1 -- c-addr2 u2 )
     save-mem 2dup replace-_ ;
 
-\ name>pronounciation
+\ name>pronunciation
 
-33  constant pronounciation-table-low
-127 constant pronounciation-table-hi+1
+33  constant pronunciation-table-low
+127 constant pronunciation-table-hi+1
 
-align here pronounciation-table-hi+1 pronounciation-table-low - 2* cells ( a u )
+align here pronunciation-table-hi+1 pronunciation-table-low - 2* cells ( a u )
 dup allot 2dup erase
-drop pronounciation-table-low 2* cells - constant pronounciation-table
+drop pronunciation-table-low 2* cells - constant pronunciation-table
 
 : pronounce! ( c c-addr u -- )
     rot
-    dup pronounciation-table-hi+1 pronounciation-table-low within #-24 and throw
-    2* cells pronounciation-table + 2! ;
+    dup pronunciation-table-hi+1 pronunciation-table-low within #-24 and throw
+    2* cells pronunciation-table + 2! ;
 
 '!' "store"         pronounce!
 '"' "quote"         pronounce!
@@ -309,9 +309,9 @@ drop pronounciation-table-low 2* cells - constant pronounciation-table
 '}' "right-brace"   pronounce!
 '~' "tilde"         pronounce!
 
-: name>pronounciation-char ( dash?1 c -- dash?2 )
-    dup >r pronounciation-table-low pronounciation-table-hi+1 within if
-        r@ 2* cells pronounciation-table + 2@ dup if ( dash?1 c-addr u )
+: name>pronunciation-char ( dash?1 c -- dash?2 )
+    dup >r pronunciation-table-low pronunciation-table-hi+1 within if
+        r@ 2* cells pronunciation-table + 2@ dup if ( dash?1 c-addr u )
             rot if '-' hold then
             holds -1 rdrop exit
         then
@@ -320,12 +320,12 @@ drop pronounciation-table-low 2* cells - constant pronounciation-table
     0< if '-' hold then
     r> hold 1 ;
 
-: name>pronounciation ( c-addr1 u1 -- c-addr2 u2 )
-    \G c-addr2 u2 is a guess at the pronounciation for c-addr1 u1; if
-    \G you want a different pronounciation, give it explicitly.
+: name>pronunciation ( c-addr1 u1 -- c-addr2 u2 )
+    \G c-addr2 u2 is a guess at the pronunciation for c-addr1 u1; if
+    \G you want a different pronunciation, give it explicitly.
     dup >r assert( dup )
     <<# 0 -rot over + 1- do ( dashflag )
-        i c@ name>pronounciation-char
+        i c@ name>pronunciation-char
     -1 +loop
     drop 0 0 #>
     dup r> <> if
@@ -353,11 +353,11 @@ drop pronounciation-table-low 2* cells - constant pronounciation-table
 	latest name>string skip-prefix 2,		\ name
 	')' parse save-mem 2,	\ stack-effect
 	parse-name condition-wordset 2,	\ wordset
-	parse-name dup	\ pronounciation
+	parse-name dup	\ pronunciation
 	if
-	    condition-pronounciation
+	    condition-pronunciation
 	else
-	    2drop latest name>string skip-prefix name>pronounciation
+	    2drop latest name>string skip-prefix name>pronunciation
 	endif
 	2,
         get-description save-mem 2,
@@ -403,9 +403,9 @@ drop pronounciation-table-low 2* cells - constant pronounciation-table
         i c@ dup toupper 'A' 'Z' 1+ within 0= if drop '-' then emit
     loop ;
 
-: doc-pronounciation-string {: doc -- c-addr u :}
-    \ pronounciation of doc, if present, otherwise wordname
-    doc doc-pronounciation 2@ dup 0= if
+: doc-pronunciation-string {: doc -- c-addr u :}
+    \ pronunciation of doc, if present, otherwise wordname
+    doc doc-pronunciation 2@ dup 0= if
         2drop doc doc-name 2@
     then ;
 
@@ -417,7 +417,7 @@ drop pronounciation-table-low 2* cells - constant pronounciation-table
         texinfo-link and {: link? :}
         link? if
             ." @link{" r@ doc-wordset 2@ type-alpha-dash ." --"
-                       r@ doc-pronounciation-string type ." ,"
+                       r@ doc-pronunciation-string type ." ,"
         then
         typetexi rdrop
         link? if
@@ -674,12 +674,12 @@ previous
     \ They are only needed when @link works, so just disable them when not
     texinfo-link if
         ." @anchor{" r@ doc-wordset 2@ type-alpha-dash ." --"
-                     r@ doc-pronounciation-string typetexi ." }"
+                     r@ doc-pronunciation-string typetexi ." }"
     then
     ." @code{" r@ doc-name 2@ typetexi ." } "
     ." ( @i{" r@ doc-stack-effect 2@ type ." }) "
     r@ print-wordset
-    r@ doc-pronounciation 2@ dup if
+    r@ doc-pronunciation 2@ dup if
         2dup ."  ``" type ." ''" then
     2drop rdrop
     cr ." @end format" cr ;
@@ -774,7 +774,7 @@ defer type-ds ( c-addr u )
     2dup ds-filename 2!
     r/o open-file throw ds2texi ;
 
-: checkword {: D: wordname D: wordset D: pronounciation -- :}
+: checkword {: D: wordname D: wordset D: pronunciation -- :}
     wordname documentation search-wordlist
     if
 	execute { doc }
@@ -782,17 +782,17 @@ defer type-ds ( c-addr u )
 	if
 	    ." wordset: " wordname type ." : '"  doc print-wordset ." ' instead of '" wordset type ." '" cr
 	endif
-	pronounciation doc doc-pronounciation-string capscompare
+	pronunciation doc doc-pronunciation-string capscompare
 	if
-            ." pronounciation: " wordname type ." : '"
-            doc doc-pronounciation-string type ." ' instead of '"
-            pronounciation type ." '" cr
+            ." pronunciation: " wordname type ." : '"
+            doc doc-pronunciation-string type ." ' instead of '"
+            pronunciation type ." '" cr
 	endif
     else
 	." undocumented: " wordname type cr
     endif ;
 
-: answord ( "name wordset pronounciation" -- )
+: answord ( "name wordset pronunciation" -- )
     \ check the documentaion of an ans word
     parse-name parse-name parse-name checkword ;
 
@@ -808,15 +808,15 @@ defer type-ds ( c-addr u )
         #tab parse save-mem {: D: section :}
         #tab parse save-mem {: D: name :}
         #tab parse dup if 1 /string 1- save-mem else name then
-           {: D: pronounciation :}
+           {: D: pronunciation :}
         #tab parse save-mem 2dup hyphenate {: D: wordset :}
-        name wordset pronounciation checkword
-        \ cr ." answord " name type ." |" wordset type ." |" pronounciation type
+        name wordset pronunciation checkword
+        \ cr ." answord " name type ." |" wordset type ." |" pronunciation type
     refill 0= until ;
 
 : file-checkwords ( c-addr u -- )
     \ check all the words in the file named c-addr u
-    \ The file is tab-separated: section name "pronounciation" wordset
+    \ The file is tab-separated: section name "pronunciation" wordset
     r/o open-file throw ['] input-stream-checkwords execute-parsing-file ;
 
 : report-#use {: nt -- f :}

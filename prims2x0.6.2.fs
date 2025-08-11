@@ -1023,7 +1023,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     prim prim-name 2@ 2,
     prim prim-stack-string 2@ condition-stack-effect 2,
     prim prim-wordset 2@ 2,
-    prim prim-c-name 2@ condition-pronounciation 2,
+    prim prim-c-name 2@ condition-pronunciation 2,
     prim prim-doc 2@ 2, ;
 [THEN]
 

@@ -274,7 +274,7 @@ true constant block \ environment- environment
 true constant block-ext
 set-current
 
-' bye defered? [IF]
+' bye deferred? [IF]
     :noname ( -- ) \ tools-ext
 	\ Return control to the host operating system (if any).
 	['] flush catch-nobt drop defers bye ; is bye

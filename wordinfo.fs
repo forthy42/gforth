@@ -44,7 +44,7 @@ require look.fs
     ((name>))
     >does-code 0<> ;
 
-: defered? ( nfa -- flag )
+: deferred? ( nfa -- flag )
     ((name>)) >code-address dodefer: = ;
 
 : colon? ( nfa -- flag )
@@ -85,7 +85,7 @@ CREATE InfoTable
         ' Con?     , ' Con-color ,
         ' Var?     , ' Var-color ,
         ' Value?   , ' Val-color ,
-        ' Defered? , ' Def-color ,
+       ' Deferred? , ' Def-color ,
         ' Does?    , ' Doe-color ,
         ' Colon?   , ' Col-color ,
 	' User?    , ' Use-color ,
