@@ -371,9 +371,8 @@ Defer rescaler ' noop is rescaler
 	id to image-description-id
 	img-desc wp_image_description_v1_get_information
 	dup to image-description-info
-	wayland( [: cr ." Image description info " dup h. ;] do-debug )
-	( wp_image_description_info_v1_listener 0
-	wp_image_description_info_v1_add_listener ) drop ;
+	wp_image_description_info_v1_listener 0
+	wp_image_description_info_v1_add_listener drop ;
     :cb failed { data img-desc cause d: string -- }
 	wayland( cause string [: cr ." Image description failed for reason:"
 	cr type cr ." cause: " h. ;] do-debug ) ;
