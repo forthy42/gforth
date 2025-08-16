@@ -5,23 +5,7 @@ before_script:
   image: forthy42/gforth-builder-linux-$ARCH:$DISTRIBUTION
   script:
     - ./autogen.sh
-    - case $ARCH in
-      i386)
-        export BARCH=i686-pc-linux-gnu
-        ;;
-      amd64)
-        export BARCH=x86_64-pc-linux-gnu
-        ;;
-      arm64)
-        export BARCH=aarch64-pc-linux-gnu
-        ;;
-      armel)
-        export BARCH=arm-pc-linux-gnueabi
-        ;;
-      armhf)
-        export BARCH=arm-pc-linux-gnueabihf
-        ;;
-      esac
+    - export BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g')
     - ./configure --with-extra-libs --host=$BARCH --build=$BARCH
     - make distclean
     - dpkg-buildpackage -uc -us -d -b -j1 -a$ARCH
