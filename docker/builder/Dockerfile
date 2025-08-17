@@ -19,7 +19,7 @@ RUN apt-get -y update \
            wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
        	   tar zxf gforth-0.7.3.tar.gz; \
 	   BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g') \
-      (cd gforth-0.7.3; ./configure --host=$BARCH --build=$BARCH; make; make install); ;; \
+      (cd gforth-0.7.3; ./configure --prefix=/usr --host=$BARCH --build=$BARCH; make; make install); ;; \
        *) apt-get -y install gforth gforth-lib gforth-common; ;; esac \
   && if [ "`lsb_release -sc`" = "forky" -a "`gcc -v 2>&1 | tr ' ' '\n' | grep -- --host | cut -f2 -d= | cut -f1 -d-`" = "x86_64" ]; then apt-get -y install texlive-base texlive-latex-base; fi \
   && apt-get clean
