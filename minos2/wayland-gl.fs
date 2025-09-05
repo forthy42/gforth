@@ -1146,7 +1146,7 @@ wl-registry set-current
 	WP_TEARING_CONTROL_V1_PRESENTATION_HINT_VSYNC
 	wp_tearing_control_v1_set_presentation_hint ;
 [THEN]
-[IFDEF] wp_color_manager_v1_interface
+[IFDEF] wp_color_manager_v1_interface_xxx \ disable for now
     1 wlal: wp_color_manager_v1
     :trigger-on( wp-color-manager-v1 wl-output wl-surface )
 	wp-color-manager-v1 wl-output wp_color_manager_v1_get_output

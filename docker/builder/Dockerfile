@@ -6,7 +6,7 @@ ENV LANG=C.UTF-8
 
 RUN apt-get -y update \
   && apt-get upgrade -y \
-  && apt-get -y install libffi-dev libltdl7 libsoil-dev libtool make gcc g++ \
+  && apt-get -y install libffi-dev libltdl7 libsoil-dev libtool make gcc gcc-14 g++ \
      automake texinfo texi2html install-info dpkg-dev debhelper libtool-bin \
      libltdl-dev autoconf-archive \
      libx11-dev libx11-xcb-dev libxrandr-dev libgles2-mesa-dev libglew-dev \
@@ -19,7 +19,7 @@ RUN apt-get -y update \
            wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
        	   tar zxf gforth-0.7.3.tar.gz; \
 	   BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g'); \
-      (cd gforth-0.7.3; ./configure --prefix=/usr --host=$BARCH --build=$BARCH; make; make install); ;; \
+      (cd gforth-0.7.3; ./configure CC=gcc-14 --prefix=/usr --host=$BARCH --build=$BARCH; make; make install); ;; \
        *) apt-get -y install gforth gforth-lib gforth-common; ;; esac \
   && if [ "`lsb_release -sc`" = "forky" -a "`gcc -v 2>&1 | tr ' ' '\n' | grep -- --host | cut -f2 -d= | cut -f1 -d-`" = "x86_64" ]; then apt-get -y install texlive-base texlive-latex-base; fi \
   && apt-get clean
