@@ -53,7 +53,7 @@ translate: translate-string ( c-addr u -- ... ) \ gforth-experimental
     \G Check if the token is an incomplete (side effect free) string,
     \G and scan the string to complete it.
     case
-	['] scan-translate-string of  scan-string ['] translate-string  endof
+	scan-translate-string of  scan-string translate-string  endof
 	0
     endcase ;
 
@@ -61,7 +61,7 @@ translate: translate-string ( c-addr u -- ... ) \ gforth-experimental
     \G Convert strings enclosed in double quotes into string literals,
     \G escapes are treated as in @code{S\"}.
     2dup s\" \"" string-prefix?
-    IF    ['] scan-translate-string
+    IF    scan-translate-string
     ELSE  2drop 0  THEN ;
 
 ' rec-string action-of forth-recognize >back

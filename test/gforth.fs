@@ -168,12 +168,12 @@ T{ :noname 1 ;  :noname 2 ;  :noname 3  ; translate: translate-1 -> }T
 T{ :noname 10 ; :noname 20 ; :noname 30 ; translate: translate-2 -> }T
 
 \ really stupid: 1 character length or 2 characters
-T{ : rec-1 NIP 1 = IF ['] translate-1 ELSE 0 THEN ; -> }T
-T{ : rec-2 NIP 2 = IF ['] translate-2 ELSE 0 THEN ; -> }T
+T{ : rec-1 NIP 1 = IF translate-1 ELSE 0 THEN ; -> }T
+T{ : rec-2 NIP 2 = IF translate-2 ELSE 0 THEN ; -> }T
 
-T{ ' translate-1 interpreting  -> 1 }T
-T{ ' translate-1 compiling     -> 2 }T
-T{ ' translate-1 postponing    -> 3 }T
+T{ translate-1 interpreting  -> 1 }T
+T{ translate-1 compiling     -> 2 }T
+T{ translate-1 postponing    -> 3 }T
 
 \ set and get methods
 T{ 0 ' RS set-recognizer-sequence -> }T
@@ -189,10 +189,10 @@ T{ ' RS get-recognizer-sequence -> ' rec-1 ' rec-2 2 }T
 T{         0 ' RS set-recognizer-sequence -> }T
 T{ S" 1"     RS   -> 0 }T
 T{ ' rec-1 1 ' RS set-recognizer-sequence -> }T
-T{ S" 1"     RS   -> ' translate-1 }T
+T{ S" 1"     RS   -> translate-1 }T
 T{ S" 10"    RS   -> 0 }T
 T{ ' rec-2 ' rec-1 2 ' RS set-recognizer-sequence -> }T
-T{ S" 10"    RS   -> ' translate-2 }T
+T{ S" 10"    RS   -> translate-2 }T
 
 \ extended synonym behaviour
 t{ create coc1 -> }t
@@ -362,8 +362,8 @@ t{ ``needs -> "needs" find-name }t
 : eval-rec-interpret ( addr u -- )
     [: parse-name forth-recognize interpreting ;] execute-parsing ;
 
-t{ s" needs" forth-recognize -> ``needs `translate-nt }t
-t{ s\" \"a string 123\"" eval-rec -rot s\" \"a" str= -> `scan-translate-string true }t
+t{ s" needs" forth-recognize -> ``needs translate-nt }t
+t{ s\" \"a string 123\"" eval-rec -rot s\" \"a" str= -> scan-translate-string true }t
 t{ s\" \"a string 123\"" eval-rec-interpret s" a string 123" str= -> true }t
 t{ "->#123." forth-recognize -> 0 }t
 t{ "+>123e" forth-recognize -> 0 }t
@@ -371,7 +371,7 @@ t{ "`#123." forth-recognize -> 0 }t
 t{ "``#123." forth-recognize -> 0 }t
 t{ "`123e" forth-recognize -> 0 }t
 t{ "``123e" forth-recognize -> 0 }t
-t{ "${HOME}" forth-recognize -rot "HOME" str= -> `translate-env true }t 
+t{ "${HOME}" forth-recognize -rot "HOME" str= -> translate-env true }t 
 t{ "${HOME}" eval-rec-interpret s" HOME" getenv str= -> true }t 
 t{ "`xlerb" forth-recognize -> 0 }t
 t{ "``xlerb" forth-recognize -> 0 }t

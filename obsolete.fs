@@ -152,23 +152,23 @@ inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline obsolete
 
 : rectype ( int-xt comp-xt post-xt -- rectype ) \ gforth-obsolete
     \G create a new unnamed recognizer token
-    noname translate: latestxt ; 
+    noname (translate:) latestxt ; 
 
 : rectype: ( int-xt comp-xt post-xt "name" -- ) \ gforth-obsolete
     \G create a new recognizer table
     rectype Constant ;
 
 0 Constant rectype-null \ gforth-obsolete
-' translate-nt AConstant rectype-nt \ gforth-obsolete
-' translate-num AConstant rectype-num \ gforth-obsolete
-' translate-dnum AConstant rectype-dnum \ gforth-obsolete
-' translate-to Constant rectype-to \ gforth-obsolete
+translate-nt AConstant rectype-nt \ gforth-obsolete
+translate-num AConstant rectype-num \ gforth-obsolete
+translate-dnum AConstant rectype-dnum \ gforth-obsolete
+translate-to Constant rectype-to \ gforth-obsolete
 [ifdef] translate-eval
-    ' translate-eval Constant rectype-eval \ gforth-obsolete
+    translate-eval Constant rectype-eval \ gforth-obsolete
 [then]
-' translate-env Constant rectype-env \ gforth-obsolete
+translate-env Constant rectype-env \ gforth-obsolete
 [IFDEF] translate-string
-    ' translate-string Constant rectype-string \ gforth-obsolete
+    translate-string Constant rectype-string \ gforth-obsolete
 [THEN]
 
 \ from ekey.fs

@@ -40,6 +40,6 @@ Create to-slots here $100 dup allot $FF fill
     translate-nt? 0= IF  2r> fp! sp! 0 EXIT  THEN  2rdrop
     \ dup >namehm @ >hmto @ ['] n/a = IF  2drop 0 EXIT  THEN
     over 4 = IF  ?addr  THEN
-    name>interpret ['] translate-to ;
+    name>interpret translate-to ;
 
 ' rec-to action-of forth-recognize >back

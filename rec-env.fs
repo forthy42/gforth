@@ -33,7 +33,7 @@ translate: translate-env ( c-addr u -- ... ) \ gforth-experimental
     2dup s" ${" string-prefix? 0= >r
     2dup + 1- c@ '}' <> r> or
     IF  2drop  0  EXIT  THEN
-    2 /string 1- ['] translate-env ;
+    2 /string 1- translate-env ;
 
 ' rec-env action-of forth-recognize >back
 

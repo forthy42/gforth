@@ -268,7 +268,7 @@ Variable rec'[]
     forth-recognize ?found
     dup translate-nt? IF  drop rec'[] $free
     ELSE
-	dup ['] translate-num = IF
+	dup translate-num = IF
 	    drop dup xt? 0= IF  drop rec'@  THEN
 	ELSE  drop  rec'@  THEN
     THEN

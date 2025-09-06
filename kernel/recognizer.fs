@@ -46,7 +46,7 @@
 
 : do-translate ( ... translator -- ... ) \ gforth-internal
     state @ abs cells + @ execute-;s ;
-: translate: ( int-xt comp-xt post-xt "name" -- ) \ gforth-experimental
+: (translate:) ( int-xt comp-xt post-xt "name" -- ) \ gforth-experimental
     \G Defines @i{name}, a translator containing @i{int-xt},
     \G @i{comp-xt}, and @i{post-xt}.  In all the following
     \G descriptions @i{data} is the data that the recognizer pushes
@@ -59,6 +59,8 @@
     \G compilation semantics represented by @i{data xt-name}.
     Create swap rot , , , 7 0 DO  ['] no.extensions ,  LOOP
     ['] do-translate set-does> ;
+: translate: ( int-xt comp-xt post-xt "name" -- ) \ gforth-experimental
+    noname (translate:) latestxt Constant ;
 
 0 Value translate-fallback-error \ set to true to prevent fallback
 
@@ -83,20 +85,23 @@ forth-wordlist is rec-nt
 :noname name?int  execute-;s ;
 ' name-compsem
 :noname  lit, postpone name-compsem ;
-translate: translate-nt ( ... nt -- ... ) \ gforth-experimental
+(translate:) translate-nt,
+' translate-nt, AConstant translate-nt ( ... nt -- ... ) \ gforth-experimental
 \G Translate @i{nt}.  The @i{...} are there because the interpretation
 \G or compilation semantics of @i{nt} might have a stack effect.
 
 ' noop
 ' lit,
 :noname lit, postpone lit, ;
-translate: translate-num ( x -- ... ) \ gforth-experimental
+(translate:) translate-num,
+' translate-num, AConstant translate-num ( x -- ... ) \ gforth-experimental
 \G translate a number
 
 ' noop
 ' 2lit,
 :noname 2lit, postpone 2lit, ;
-translate: translate-dnum ( dx -- ... ) \ gforth-experimental
+(translate:) translate-dnum,
+' translate-dnum, AConstant translate-dnum ( dx -- ... ) \ gforth-experimental
 \G translate a double number
 
 : ?found ( token|0 -- token ) \ gforth-experimental
@@ -104,9 +109,9 @@ translate: translate-dnum ( dx -- ... ) \ gforth-experimental
     dup 0= #-13 and throw ;
 : translate-nt? ( token -- flag )
     \G check if name token; postpone action may differ
-    dup IF  >body 2@ ['] translate-nt >body 2@ d=  THEN ;
+    dup IF  >body 2@ translate-nt >body 2@ d=  THEN ;
 : nt>rec ( nt / 0 -- nt translate-nt / 0 )
-    dup IF  dup where, ['] translate-nt  THEN ;
+    dup IF  dup where, translate-nt  THEN ;
 
 \ snumber? should be implemented as recognizer stack
 
@@ -114,7 +119,7 @@ translate: translate-dnum ( dx -- ... ) \ gforth-experimental
     \G converts a number to a single/double integer
     snumber?  dup
     IF
-	0> IF  ['] translate-dnum  ELSE  ['] translate-num  THEN  EXIT
+	0> translate-dnum translate-num rot select  EXIT
     THEN ;
 
 \ generic stack get/set; actually, we don't need this for

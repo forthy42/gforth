@@ -220,7 +220,7 @@ translate: translate-complex ( rr ri -- ... ) \ gforth-experimental
     2dup + 1- c@ 'i' = IF
 	1- '+' $split 2swap prefix-number >r prefix-number r>
 	2dup <> IF  fdrop  THEN  and
-	['] translate-complex and
+	translate-complex and
     ELSE  2drop 0  THEN ;
 
 ' rec-complex ' rec-float action-of forth-recognize +after

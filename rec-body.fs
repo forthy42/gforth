@@ -29,10 +29,10 @@ require rec-tick.fs
     1 /string 1- '+' $split 2>r forth-recognize-nt? dup 0= if
         2rdrop exit then
     name>interpret >body
-    2r> dup 0= if  2drop ['] translate-num  exit  then
+    2r> dup 0= if  2drop translate-num  exit  then
     case  rec-num
-    ['] translate-dnum of  drop + ['] translate-num   endof
-    ['] translate-num  of       + ['] translate-num   endof
-    swap  endcase ;
+	translate-dnum of  drop + translate-num   endof
+	translate-num  of       + translate-num   endof
+	swap  endcase ;
 
 ' rec-body action-of forth-recognize >back

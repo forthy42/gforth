@@ -169,7 +169,7 @@ slowvoc !
 : no-post -48 throw ;
 Defer locals-post,
 
-' translate-nt >body 2@ swap
+translate-nt >body 2@ swap
 ' locals-post,
 translate: translate-locals ( ... nt -- ... )
 \ undocumented for good reasons
@@ -178,7 +178,7 @@ translate: translate-locals ( ... nt -- ... )
     \G search the locals wordlist and if found replace
     \G the translator with @code{translate-locals}.
     [ ' locals >wordlist compile, ]
-    dup ['] translate-nt = IF  drop ['] translate-locals  THEN ;
+    dup translate-nt = IF  drop translate-locals  THEN ;
 
 ' search-order ' rec-locals 2 recognizer-sequence: rec-nt-locals
 
@@ -805,7 +805,7 @@ previous
 	[ comp' some-xtlocal drop >does-code ] literal of >body @ lp-offset compile-@local postpone compile, endof
 	no-post
     endcase ; is locals-post,
-' locals-post, ' translate-locals >body 2 cells + ! \ replace stub
+' locals-post, translate-locals >body 2 cells + ! \ replace stub
 
 \ we define peephole using locals, so it needs to be here
 

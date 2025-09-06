@@ -22,7 +22,7 @@ Variable countif
 Variable endif?  -1 cells allot -1 1 cells c,s
 
 : dummy ;  immediate
-: scan-rec  @ (listlfind)  dup 0=  IF  drop ['] dummy  THEN  ['] translate-nt ;
+: scan-rec  @ (listlfind)  dup 0=  IF  drop ['] dummy  THEN  translate-nt ;
 
 Create [struct]-search    0 , ' drop A,  ' voc-to A,  ' scan-rec A,
 ' noop A, ' default-name>comp A, ' noname>string A, ' noname>link A,
