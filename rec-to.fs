@@ -19,11 +19,17 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 ' (to) ' (to), ' 2lit, >postponer
-translate: translate-to ( n xt -- ... ) \ gforth-experimental
-\G @i{xt} belongs to a value-flavoured word, @i{n} is the index into
-\G the @word{to-table:} for @i{xt} (@pxref{Words with user-defined TO
-\G etc.}).
-
+translate: translate-to ( -- translate-to ) \ gforth-experimental
+\G @i{xt} belongs to a value-flavoured (or defer-flavoured) word,
+\G @i{n} is the index into the @word{to-table:} for @i{xt}
+\G (@pxref{Words with user-defined TO etc.}).@*
+\G @code{( @i{n xt translate-to} ) interpreting}
+\G performs the to-action with index @i{n} in the @word{to-table:} of
+\G @i{xt}.  Additional stack effects depend on @i{n} and @i{xt}.@*
+\ \G @code{( @i{n xt translate-to} ) compiling} compiles code that,
+\ \G at run-time performs the to-action with index @i{n} in the
+\ \G @word{to-table:} of @i{xt}.  At run-time there usually are
+\ \G additional stack effects that depend on @i{n} and @i{xt}.@*
 
 Create to-slots here $100 dup allot $FF fill
 0 "-+@='" bounds [DO] dup to-slots [I] c@ + c! 1+ [LOOP] drop

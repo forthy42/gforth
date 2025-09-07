@@ -11009,16 +11009,19 @@ continues to parse.
 
 The text interpreter then tries to recognize the word with one of the
 recognizers in the system recognizer sequence.  On success, this
-produces a translator and additional data.  It then performs the
-interpretation, compilation, or postponing action of the translator,
-depending on the state of the text interpreter: Is it inside
-@code{]]}...@code{[[}? If not, what is the value of @word{state}?
-E.g., when a word from the search order is recognized, and the text
-interpreter is in compile state, the compilation semantics of this
-word will be performed.  This translator action may perform additional
-parsing, e.g., when the recognizer has recognized a parsing word.  If
-no recognizer recognizes the word, the text interpreter @word{throw}s
--13 (``undefined word'').
+produces a @emph{translator} and additional data, which represents the
+recognized word on the stack, as far as the text interpreter is
+concerned (@pxref{Define recognizers with existing translators}).
+
+It then performs the interpretation, compilation, or postponing action
+of the translator, depending on the state of the text interpreter: Is
+it inside @code{]]}...@code{[[}? If not, what is the value of
+@word{state}?  E.g., when a word from the search order is recognized,
+and the text interpreter is in compile state, the compilation
+semantics of this word will be performed.  This translator action may
+perform additional parsing, e.g., when the recognizer has recognized a
+parsing word.  If no recognizer recognizes the word, the text
+interpreter @word{throw}s -13 (``undefined word'').
 
 The text interpreter then continues to parse, recognize, and translate
 words.  At the end of the line, it @word{refill}s and continues with
@@ -11551,44 +11554,45 @@ additional data.  E.g., when you perform
 "5" rec-num
 @end example
 
-it pushes @samp{5 `translate-num} on the stack, and when the
+it pushes @samp{5 translate-num} on the stack, and when the
 compilation action of @word{translate-num} is performed, both stack
 items are removed from the stack.  This compilation action also
-compiles a literal 5 is compiled into the current definition.
+compiles a literal 5 into the current definition.
 
 You typically write a recognizer as ordinary colon definition that
 examines the string in some way, and if the string is accepted by this
-recognizer, produces the translator and additional data.  E.g., a
-simple variant of @word{rec-tick} can be implemented as follows:
+recognizer, the recognizer pushes a translator and (below that)
+additional data.  E.g., a simple variant of @word{rec-tick} can be
+implemented as follows:
 
 @source
 : rec-tick ( addr u -- xt translate-num | 0 )
     over c@ '`' = if
         1 /string find-name dup if
-            name>interpret ['] translate-num then
+            name>interpret translate-num then
         exit then
     2drop 0 ;
 @end source            
 
-The only appropriate use of a translator is with one of the words for
-performing translator actions (@pxref{Performing translator actions}).
-But someone thinks that it's a clever idea to implement the tranlator
-token as xt of the translator, so you have to tick translators every
-time you use one in a recognizer.
-
-It also means that the translator has a translator-specific stack
-effect.  Because this stack effect encompasses three actions
-(interpretation, compilation, postpone), the stack effect is a mess,
-but if you pass the translator to one of the action-performing words,
-the resulting stack effect is sensible (@pxref{Performing translator
-actions}).  When you write a recognizer, the only part of the stack
-effect that is relevant is the one before the @samp{--}, because it
-tells you what your recognizer should put on the stack in addition to
-the xt of the translator.
+The only appropriate use of a translator (plus data) on the stack is
+to pass it to one of the words for performing translator actions
+(@pxref{Performing translator actions}).
 
 A number of translators already exist in Gforth and can be used in a
 recognizer you write.  If none of them is appropriate for your
 recognizer, read the next section about defining your own translators.
+
+The following translators have several translation actions.  All
+translation actions for a given translatore consume the same stack
+items and possibly perform the same scanning, when the action is
+invoked, shown in the form of a stack comment.
+
+The rest differs by translator.  It is described explicitly for the
+@word{interpreting} action for every translator, and we call that the
+@word{interpreting} run-time in the following.  Unless otherwise
+specified the @word{compiling} run-time is to compile the
+@word{interpreting} run-time.  The @word{postponing} run-time is to
+compile the @word{compiling} run-time.
 
 doc-translate-nt
 doc-translate-num
@@ -11601,7 +11605,7 @@ doc-translate-env
 doc-translate-to
 @c doc-translate-locals
 @c doc-translate-word
- 
+
 One way to write a recognizer is to call @word{forth-recognize} on a
 substring, and then look at the result to see if something was
 recognized that the whole-string recognizer actually deals with.
@@ -11623,21 +11627,21 @@ doc-forth-recognize-nt?
 A translator is a table of three actions: interpretation, compilation,
 and postponing.  Each action consumes the data shown as input in the
 stack effect of the translator, possibly performs additional parsing
-(but most translators don't parse), and then performs some action,
-which may have a stack effect on its own:
+(but most translators don't parse), and then performs the action's
+run-time, which may have a stack effect on its own:
 
 @itemize @bullet
 
 @item
-The interpretation or compilation actions of @i{nt
-@code{translate-nt}} performs the respective semantics of @i{nt}, and
-these semantics may have a stack effect of their own (the stack effect
-of postponing a word is @samp{( -- )}).
+The @word{interpretation} run-time or @word{compilation} run-time of
+@i{nt @code{translate-nt}} performs the respective semantics of
+@i{nt}, and these semantics may have a stack effect of their own (the
+stack effect of postponing a word is @samp{( -- )}).
 
 @item
-The interpretation action of a literal translator (most translators,
-e.g., @word{translate-num}) is to push (actually keep) the literal on
-the stack.
+The @word{interpretation} run-time of a literal translator (most
+translators, e.g., @word{translate-num}) is to push the literal on the
+stack.
 
 @end itemize
 

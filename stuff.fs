@@ -246,7 +246,7 @@ opt: @ 2 swap (to), ;
 
 : try-recognize ( c-addr u xt -- ... translator | 0 ) \ gforth-experimental
     \G Try to recognize @var{c-addr u} with @word{forth-recognize},
-    \G then execute @var{xt} @samp{( @i{... translator -- ... true |
+    \G then execute @var{xt} @code{( @i{... translator -- ... true |
     \G false } )}.  If @var{xt} returns 0, reset the stacks to the
     \G depths at the start of @word{try-recognize}, drop three data
     \G stack items, and push 0.  Otherwise return the results

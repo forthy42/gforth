@@ -65,7 +65,12 @@
 0 Value translate-fallback-error \ set to true to prevent fallback
 
 Create postponing ( translator -- ) \ gforth-experimental
-\G perform postpone action of translator
+\G Perform the postponing action of @i{translator}.  For a
+\G system-defined translator, first consume the stack items and
+\G possibly perform additional scanning specified for the translator,
+\G then compile the @word{compiling} run-time.  For a user-defined
+\G translator, remove @i{translator} from the stack and execute its
+\G @i{post-xt}.
 2 cells ,
 DOES> @ over >does-code ['] do-translate = IF
       + @ execute-;s  THEN
@@ -86,23 +91,26 @@ forth-wordlist is rec-nt
 ' name-compsem
 :noname  lit, postpone name-compsem ;
 (translate:) translate-nt,
-' translate-nt, AConstant translate-nt ( ... nt -- ... ) \ gforth-experimental
-\G Translate @i{nt}.  The @i{...} are there because the interpretation
-\G or compilation semantics of @i{nt} might have a stack effect.
+' translate-nt, AConstant translate-nt ( -- translate-nt ) \ gforth-experimental
+\G @code{( @i{nt translate-nt} ) interpreting} performs the
+\G interpretation semantics of @i{nt}, which may have an additional
+\G stack effect.@*
+\G @code{( @i{nt translate-nt} ) compiling} performs the
+\G compilation semantics of @i{nt}, which may have an additional stack effect.
 
 ' noop
 ' lit,
 :noname lit, postpone lit, ;
 (translate:) translate-num,
-' translate-num, AConstant translate-num ( x -- ... ) \ gforth-experimental
-\G translate a number
+' translate-num, AConstant translate-num ( -- translate-num ) \ gforth-experimental
+\G @code{( @i{x translate-num} ) interpreting} pushes @i{x}.
 
 ' noop
 ' 2lit,
 :noname 2lit, postpone 2lit, ;
 (translate:) translate-dnum,
-' translate-dnum, AConstant translate-dnum ( dx -- ... ) \ gforth-experimental
-\G translate a double number
+' translate-dnum, AConstant translate-dnum ( -- translate-dnum ) \ gforth-experimental
+\G @code{( @i{xd translate-dnum} ) interpreting} pushes @i{xd}.
 
 : ?found ( token|0 -- token ) \ gforth-experimental
     \G @code{throw}s -13 (undefined word) if @var{token} is 0.

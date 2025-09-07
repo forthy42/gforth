@@ -45,12 +45,24 @@ translator-max-offset# 0 [DO] ' noop , [LOOP]
     translator-offset ,  cell +to translator-offset ;
 
 translate-method: interpreting ( translator -- ) \ gforth-experimental
-\G perform interpreter action of translator
+\G Perform the interpreting action of @i{translator}.  For a
+\G system-defined translator, first consume the stack items and
+\G possibly perform additional scanning specified for the translator,
+\G then perform the @word{interpreting} run-time specified for the
+\G translator.  For a user-defined translator, remove @i{translator}
+\G from the stack and execute its @i{int-xt}.
+
 translate-method: compiling ( translator -- ) \ gforth-experimental
-\G perform compile action of translator
+\G Perform the compiling action of @i{translator}.  For a
+\G system-defined translator, first consume the stack items and
+\G possibly perform additional scanning specified for the translator,
+\G then perform the @word{compiling} run-time specified for the
+\G translator, or, if none is specified, compile the
+\G @word{interpreting} run-time.  For a user-defined translator,
+\G remove @i{translator} from the stack and execute its @i{comp-xt}.
+
 \ we already have defined this in the kernel
 \ translate-method: postponing ( translator -- ) \ gforth-experimental
-\ \G perform postpone action of translator
 ' postponing translate-methods translator-offset + !
 cell +to translator-offset
 

@@ -21,10 +21,9 @@
 : env$, ( addr u -- )  slit, postpone getenv ;
 
 ' getenv ' env$, ' slit, >postponer
-translate: translate-env ( c-addr u -- ... ) \ gforth-experimental
-\G @i{c-addr u} describes the name of the environment variable.  The
-\G translator actions produce the contents of the environment
-\G variable.
+translate: translate-env ( -- translate-env ) \ gforth-experimental
+\G @code{( @i{c-addr u translate-env} ) interpreting}
+\G pushes the content of the environment variable with the name @i{c-addr u}.@*
 
 : rec-env ( addr u -- addr u translate-env | 0 ) \ gforth
     \G words enclosed by @code{$@{} and @code{@}} are passed to @code{getenv}
