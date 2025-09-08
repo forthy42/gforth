@@ -11582,17 +11582,29 @@ A number of translators already exist in Gforth and can be used in a
 recognizer you write.  If none of them is appropriate for your
 recognizer, read the next section about defining your own translators.
 
-The following translators have several translation actions.  All
-translation actions for a given translatore consume the same stack
-items and possibly perform the same scanning, when the action is
-invoked, shown in the form of a stack comment.
+For each translator, @emph{additional data} is documented; a
+recognizer that returns a certain translator also has to return the
+additional data below it.
 
-The rest differs by translator.  It is described explicitly for the
-@word{interpreting} action for every translator, and we call that the
-@word{interpreting} run-time in the following.  Unless otherwise
-specified the @word{compiling} run-time is to compile the
-@word{interpreting} run-time.  The @word{postponing} run-time is to
-compile the @word{compiling} run-time.
+@c !! move this further down?
+The text interpreter passes the output of the recognizer to a
+translator action (@pxref{Performing translator actions}), which
+removes the translator and all the additional data from the stack, may
+perform additional parsing, and then invokes the interpreting run-time of
+the translator, or the compiling run-time, or the postponing run-time.
+
+For each system-defined translator we specify the interpreting
+run-time explicitly.  Unless otherwise specified the compiling
+run-time compiles the interpreting run-time.  The postponing run-time
+compiles the compiling run-time.
+
+In the @word{rec-tick} example above, if the recognizer recognizes,
+say, @code{`dup}, it returns @i{xt translator}, where @i{translator}
+is the value returned by @word{translate-num}, and @i{xt} is the
+execution token of @word{dup}.  So @i{xt} is the additional data for
+this translator.  If the text interpreter then performs the compiling
+action, that action first removes these two stack items, and compiles
+code that pushes @i{xt}.
 
 doc-translate-nt
 doc-translate-num
@@ -11625,25 +11637,14 @@ doc-forth-recognize-nt?
 @subsubsection Defining translators
 
 A translator is a table of three actions: interpretation, compilation,
-and postponing.  Each action consumes the data shown as input in the
-stack effect of the translator, possibly performs additional parsing
-(but most translators don't parse), and then performs the action's
-run-time, which may have a stack effect on its own:
-
-@itemize @bullet
-
-@item
-The @word{interpretation} run-time or @word{compilation} run-time of
-@i{nt @code{translate-nt}} performs the respective semantics of
-@i{nt}, and these semantics may have a stack effect of their own (the
-stack effect of postponing a word is @samp{( -- )}).
-
-@item
-The @word{interpretation} run-time of a literal translator (most
-translators, e.g., @word{translate-num}) is to push the literal on the
-stack.
-
-@end itemize
+and postponing.  You should design the translator and its actions like
+the system-defined translators, with additional data, maybe some
+parsing, and at least an interpreting run-time (and in the normal case
+let the compiling run-time and postponing run-time follow from that,
+@pxref{Define recognizers with existing translators}).  You then have
+to define the action words to implement the sequence: consume the
+additional data, possibly scan, then perform the run-time appropriate
+for the action.
 
 You define a translator with
 
@@ -11653,7 +11654,7 @@ To make this a little more concrete, here is an implementation for
 @word{translate-num}:
 
 @source
-' noop ( x -- x )                                                   \ int-xt
+' noop                       ( x -- x )                             \ int-xt
 ' lit,                       ( compilation: x -- ; run-time: -- x ) \ comp-xt
 :noname lit, postpone lit, ; ( postponing: x -- ;  run-time: -- x ) \ post-xt
 translate: translate-num

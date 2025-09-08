@@ -64,20 +64,20 @@
 
 0 Value translate-fallback-error \ set to true to prevent fallback
 
-Create postponing ( translator -- ) \ gforth-experimental
+Create postponing ( ... translator -- ) \ gforth-experimental
 \G Perform the postponing action of @i{translator}.  For a
-\G system-defined translator, first consume the stack items and
-\G possibly perform additional scanning specified for the translator,
-\G then compile the @word{compiling} run-time.  For a user-defined
-\G translator, remove @i{translator} from the stack and execute its
-\G @i{post-xt}.
+\G system-defined translator, first consume the translator and
+\G translator-specific additional stack items and possibly perform
+\G additional scanning specified for the translator, then compile the
+\G @word{compiling} run-time.  For a user-defined translator, remove
+\G @i{translator} from the stack and execute its @i{post-xt}.
 2 cells ,
 DOES> @ over >does-code ['] do-translate = IF
-      + @ execute-;s  THEN
+      + @ execute-;s THEN
   \ fallback for combined translators
-  translate-fallback-error IF  #-21 throw  THEN
+  translate-fallback-error IF #-21 throw THEN
   true warning" translator not defined by translate:"
-  cell/ dup state @ abs = IF  drop execute-;s  THEN
+  cell/ dup state @ abs = IF drop execute-;s THEN
   negate state !@ >r execute r> state ! ;
 
 : name-compsem ( ... nt -- ... )
@@ -91,26 +91,28 @@ forth-wordlist is rec-nt
 ' name-compsem
 :noname  lit, postpone name-compsem ;
 (translate:) translate-nt,
-' translate-nt, AConstant translate-nt ( -- translate-nt ) \ gforth-experimental
-\G @code{( @i{nt translate-nt} ) interpreting} performs the
-\G interpretation semantics of @i{nt}, which may have an additional
-\G stack effect.@*
-\G @code{( @i{nt translate-nt} ) compiling} performs the
-\G compilation semantics of @i{nt}, which may have an additional stack effect.
+' translate-nt, AConstant translate-nt ( -- translator ) \ gforth-experimental
+\G Additional data: @code{( @i{nt} )}.@*
+\G Interpreting run-time: @code{( @i{... -- ...} )}@*
+\G Perform the interpretation semantics of @i{nt}.@*
+\G Compiling run-time:  @code{( @i{... -- ...} )}@*
+\G Perform the compilation semantics of @i{nt}.
 
 ' noop
 ' lit,
 :noname lit, postpone lit, ;
 (translate:) translate-num,
-' translate-num, AConstant translate-num ( -- translate-num ) \ gforth-experimental
-\G @code{( @i{x translate-num} ) interpreting} pushes @i{x}.
+' translate-num, AConstant translate-num ( -- translator ) \ gforth-experimental
+\G Additional data: @code{( @i{x} )}.@*
+\G Interpreting run-time: @code{( @i{ -- x} )}
 
 ' noop
 ' 2lit,
 :noname 2lit, postpone 2lit, ;
 (translate:) translate-dnum,
-' translate-dnum, AConstant translate-dnum ( -- translate-dnum ) \ gforth-experimental
-\G @code{( @i{xd translate-dnum} ) interpreting} pushes @i{xd}.
+' translate-dnum, AConstant translate-dnum ( -- translator ) \ gforth-experimental
+\G Additional data: @code{( @i{xd} )}.@*
+\G Interpreting run-time: @code{( @i{ -- dx} )}
 
 : ?found ( token|0 -- token ) \ gforth-experimental
     \G @code{throw}s -13 (undefined word) if @var{token} is 0.

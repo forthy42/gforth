@@ -44,25 +44,27 @@ translator-max-offset# 0 [DO] ' noop , [LOOP]
     latestxt translate-methods translator-offset + !
     translator-offset ,  cell +to translator-offset ;
 
-translate-method: interpreting ( translator -- ) \ gforth-experimental
+translate-method: interpreting ( ... translator -- ... ) \ gforth-experimental
 \G Perform the interpreting action of @i{translator}.  For a
-\G system-defined translator, first consume the stack items and
-\G possibly perform additional scanning specified for the translator,
-\G then perform the @word{interpreting} run-time specified for the
-\G translator.  For a user-defined translator, remove @i{translator}
-\G from the stack and execute its @i{int-xt}.
+\G system-defined translator, first consume the translator and
+\G translator-specific additional stack items and possibly perform
+\G additional scanning specified for the translator, then perform the
+\G @word{interpreting} run-time specified for the translator.  For a
+\G user-defined translator, remove @i{translator} from the stack and
+\G execute its @i{int-xt}.
 
-translate-method: compiling ( translator -- ) \ gforth-experimental
+translate-method: compiling ( ... translator -- ... ) \ gforth-experimental
 \G Perform the compiling action of @i{translator}.  For a
-\G system-defined translator, first consume the stack items and
-\G possibly perform additional scanning specified for the translator,
-\G then perform the @word{compiling} run-time specified for the
-\G translator, or, if none is specified, compile the
-\G @word{interpreting} run-time.  For a user-defined translator,
-\G remove @i{translator} from the stack and execute its @i{comp-xt}.
+\G system-defined translator, first consume the translator and
+\G translator-specific additional stack items and possibly perform
+\G additional scanning specified for the translator, then perform the
+\G @word{compiling} run-time specified for the translator, or, if none
+\G is specified, compile the @word{interpreting} run-time.  For a
+\G user-defined translator, remove @i{translator} from the stack and
+\G execute its @i{comp-xt}.
 
 \ we already have defined this in the kernel
-\ translate-method: postponing ( translator -- ) \ gforth-experimental
+\ translate-method: postponing ( ... translator -- ) \ gforth-experimental
 ' postponing translate-methods translator-offset + !
 cell +to translator-offset
 

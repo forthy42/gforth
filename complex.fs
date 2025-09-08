@@ -204,8 +204,9 @@ Defer fc.       :noname f. 1 backspaces ; IS fc.
 
 : zliteral ( z -- ) fswap ]] fliteral fliteral [[ ; immediate
 ' noop ' zliteral dup >postponer
-translate: translate-complex ( -- translate-complex ) \ gforth-experimental
-\G @code{( @i{r1 r2 translate-complex} ) interpreting} pushes @i{r1 r2}.@*
+translate: translate-complex ( -- translator ) \ gforth-experimental
+\G Additional data: @code{( @i{r1 r2} )}.@*
+\G Interpreting run-time: @code{( @i{ -- r1 r2} )}
 
 :noname ( locals-nt -- )
     dup name>interpret >does-code [ comp' some-zlocal drop >does-code ]L =

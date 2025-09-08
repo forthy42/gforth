@@ -219,8 +219,9 @@ si-prefixes count 2/ + Constant zero-exp
     :noname r> r> compile, lit, postpone compile, postpone ; ;
 
 ' noop ' fliteral dup >postponer
-translate: translate-float ( -- translate-float ) \ gforth-experimental
-\G @code{( @i{r translate-float} ) interpreting} pushes @i{r}.@*
+translate: translate-float ( -- translator ) \ gforth-experimental
+\G Additional data: @code{( @i{r} )}.@*
+\G Interpreting run-time: @code{( @i{ -- r} )}
 ' translate-float Constant rectype-float
 
 : rec-float ( addr u -- r translate-float | 0 ) \ gforth-experimental

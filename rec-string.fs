@@ -39,25 +39,22 @@ s" Scanned string not in input buffer" exception >r
 ' scan-string
 :noname scan-string slit, ;
 :noname scan-string slit, postpone 2lit, ;
-translate: scan-translate-string (  -- ... ) \ gforth-experimental
-\G When a translation action is performed, it not only consumes
-\G @i{c-addr u}, but also parses until it finds a non-escaped string
-\G terminator @code{"}.  The string @i{c-addr u} and the parsed input
-\G are concatenated, then the @code{\}-escapes are translated, giving
+translate: scan-translate-string (  -- translator ) \ gforth-experimental
+\G Additional data: @code{( @i{c-addr1 u1 'ccc"'} )}.@*
+\G Every translator action also parses until the first non-escaped
+\G @code{"}.  The string @i{c-addr u} and the parsed input are
+\G concatenated, then the @code{\}-escapes are translated, giving
 \G @i{c-addr2 u2}.@*
-\G @code{( @i{c-addr u 'ccc"' scan-translate-string} ) interpreting}
-\G pushes @i{c-addr2 u2}.@*
-\ \G @code{( @i{c-addr u 'ccc"' scan-translate-string} ) compiling}
-\ \G compiles code that pushes @i{c-addr2 u2} at run-time.
+\G Interpreting run-time: @code{( @i{ -- c-addr2 u2} )}
 
 ' noop
 ' slit,
 :noname slit, postpone 2lit, ;
-translate: translate-string ( -- translate-string ) \ gforth-experimental
+translate: translate-string ( -- translator ) \ gforth-experimental
+\G Additional data: @code{( @i{c-addr1 u1} )}.@*
+\G Interpreting run-time: @code{( @i{ -- c-addr2 u2} )}@*
 \G @i{c-addr2 u2} is the result of translating the @code{\}-escapes in
-\G @i{c-addr u}.@*
-\G @code{( @i{c-addr u translate-string} ) interpreting}
-\G pushes @i{c-addr2 u2}.@*
+\G @i{c-addr1 u1}.
 
 : ?scan-string ( addr u scan-translate-string -- addr' u' translate-string  |  ... translator -- ... translator ) \ gforth-experimental
     \G Check if the token is an incomplete (side effect free) string,
