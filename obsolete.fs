@@ -159,9 +159,9 @@ inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline obsolete
     rectype Constant ;
 
 0 Constant rectype-null \ gforth-obsolete
-translate-nt AConstant rectype-nt \ gforth-obsolete
-translate-num AConstant rectype-num \ gforth-obsolete
-translate-dnum AConstant rectype-dnum \ gforth-obsolete
+translate-nt Constant rectype-nt \ gforth-obsolete
+translate-num Constant rectype-num \ gforth-obsolete
+translate-dnum Constant rectype-dnum \ gforth-obsolete
 translate-to Constant rectype-to \ gforth-obsolete
 [ifdef] translate-eval
     translate-eval Constant rectype-eval \ gforth-obsolete
