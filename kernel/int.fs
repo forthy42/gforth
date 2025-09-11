@@ -329,13 +329,13 @@ forth-wordlist current !
 	(name>intn)
     then ;
 
-Defer rec-nt ( addr u -- nt translate-nt | 0 ) \ gforth-experimental
+Defer rec-name ( addr u -- nt translate-nt | 0 ) \ gforth-experimental
 \G recognize a name token
 
 : find-name ( c-addr u -- nt | 0 ) \ gforth
     \g Find the name @i{c-addr u} in the current search
     \g order. Return its @i{nt}, if found, otherwise 0.
-    ['] rec-nt find-name-in ;
+    ['] rec-name find-name-in ;
 
 \ \ header, finding, ticks                              17dec92py
 

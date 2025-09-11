@@ -51,7 +51,7 @@ Defer trace-recognizer  ' drop is trace-recognizer
 \ 	]] dup IF 2rdrop EXIT THEN drop [[
 \     LOOP ]] 2rdrop ; [[ ;
 
-' rec-num ' rec-nt 2 recognizer-sequence: default-recognize
+' rec-num ' rec-name 2 recognizer-sequence: default-recognize
 ' default-recognize is rec-forth
 
 : rec-nothing ( c-addr u -- 0 ) \ gforth-experimental

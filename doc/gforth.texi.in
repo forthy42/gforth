@@ -5037,7 +5037,7 @@ above) between the word name and the closing @code{>} (e.g.,
 plus the number.  This feature exists to allow copying
 and pasting the output of @code{...} (@pxref{Examining data}).
 
-In addition, by default Gforth recognizes words with @code{rec-nt} and
+In addition, by default Gforth recognizes words with @code{rec-name} and
 @code{rec-scope}, and stores in or adds to value-flavoured words with
 @code{rec-to}, but these do not recognize literals, so they are
 discussed elsewhere (@pxref{Default Recognizers}).
@@ -11310,7 +11310,7 @@ currently being used by Gforth.  When invoked in a colon definition
 after defining a local, the output of @word{recs} is (at the
 time of this writing):
 
-@code{rec-nt ( rec-local search-order ( Forth Forth Root ) )
+@code{rec-name ( rec-local search-order ( Forth Forth Root ) )
 rec-scope rec-num rec-float rec-complex rec-string rec-to rec-dtick
 rec-tick rec-body rec-env rec-meta}
 
@@ -11322,7 +11322,7 @@ The recognizers in this sequence are:
 
 @table @asis
 
-@item @word{rec-nt}
+@item @word{rec-name}
 Recognizes locals and words in the search order.
 
 @item @word{rec-local}
@@ -11479,7 +11479,7 @@ produces the translator token of @word{translate-nt} on the
 top-of-stack, and the name token of @word{dup} below that.
 
 doc-recs
-doc-rec-nt
+doc-rec-name
 doc-rec-local
 doc-rec-scope
 doc-rec-num

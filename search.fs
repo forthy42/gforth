@@ -136,7 +136,7 @@ Only Forth also definitions
 
 Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
 
-' search-order is rec-nt \ our dictionary search order becomes the law ( -- )
+' search-order is rec-name \ our dictionary search order becomes the law ( -- )
 
 ' Forth >wordlist to Forth-wordlist \ "forth definitions get-current" and "forth-wordlist" should produce the same wid
 

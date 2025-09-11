@@ -84,8 +84,8 @@ DOES> @ over >does-code ['] do-translate = IF
     \ perform compilation semantics of nt
     ?obsolete name>compile execute-;s ;
 
-forth-wordlist is rec-nt
-:noname ['] rec-nt >body ; is context
+forth-wordlist is rec-name
+:noname ['] rec-name >body ; is context
 
 :noname name?int  execute-;s ;
 ' name-compsem
@@ -167,10 +167,10 @@ forth-wordlist is rec-nt
     $@len cell/ ;
 
 : minimal-recognize ( addr u -- ... translate-xt / 0 ) \ gforth-internal
-    \g Sequence of @code{rec-nt} and @code{rec-num}
-    2>r 2r@ rec-nt dup 0= IF  drop 2r@ rec-num  THEN  2rdrop ;
+    \g Sequence of @code{rec-name} and @code{rec-num}
+    2>r 2r@ rec-name dup 0= IF  drop 2r@ rec-num  THEN  2rdrop ;
 
-( ' rec-num ' rec-nt 2 combined-recognizer: default-recognize ) \ see pass.fs
+( ' rec-num ' rec-name 2 combined-recognizer: default-recognize ) \ see pass.fs
 \G The system recognizer
 Defer rec-forth ( c-addr u -- ... translate-xt ) \ recognizer
 \G The system recognizer: @word{rec-forth} is a @word{defer}red

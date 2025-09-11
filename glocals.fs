@@ -97,7 +97,7 @@ User locals-size \ this is the current size of the locals stack
     ' make-latest set-optimizer ;
 
 : xts, ( "name1" .. "namen" -- )
-    BEGIN  parse-name  dup WHILE  rec-nt '-error ,  REPEAT  2drop ;
+    BEGIN  parse-name  dup WHILE  rec-name '-error ,  REPEAT  2drop ;
     
 : opt-table: ( unit -- )
     Create 0 , , xts,
@@ -180,13 +180,13 @@ translate: translate-locals ( ... nt -- ... )
     [ ' locals >wordlist compile, ]
     dup translate-nt = IF  drop translate-locals  THEN ;
 
-' search-order ' rec-local 2 recognizer-sequence: rec-nt-locals
+' search-order ' rec-local 2 recognizer-sequence: rec-name-locals
 
-: activate-locals   ['] rec-nt-locals is rec-nt ;
-: deactivate-locals ['] search-order is rec-nt ;
+: activate-locals   ['] rec-name-locals is rec-name ;
+: deactivate-locals ['] search-order is rec-name ;
 
-:noname defers wrap@ ['] rec-nt defer@ deactivate-locals ; is wrap@
-:noname is rec-nt defers wrap! ; is wrap!
+:noname defers wrap@ ['] rec-name defer@ deactivate-locals ; is wrap@
+:noname is rec-name defers wrap! ; is wrap!
 
 : alignlp-w ( n1 -- n2 )
     \ cell-align size and generate the corresponding code for aligning lp
