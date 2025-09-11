@@ -294,9 +294,9 @@ set-current
 
 : ?gforth-init ( -- )
     s" GFORTH_INIT" getenv 2dup d0<> if
-	action-of forth-recognize >r
-	gforth-init is forth-recognize ['] evaluate catch IF 2drop THEN
-	r> is forth-recognize
+	action-of rec-forth >r
+	gforth-init is rec-forth ['] evaluate catch IF 2drop THEN
+	r> is rec-forth
     else  2drop  then ;
 
 : auto-color ( -- )

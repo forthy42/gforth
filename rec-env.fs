@@ -36,5 +36,5 @@ translate: translate-env ( -- translator ) \ gforth-experimental
     IF  2drop  0  EXIT  THEN
     2 /string 1- translate-env ;
 
-' rec-env action-of forth-recognize >back
+' rec-env action-of rec-forth >back
 

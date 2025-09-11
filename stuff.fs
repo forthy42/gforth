@@ -214,17 +214,6 @@ UValue $? ( -- n ) \ gforth dollar-question
 : set-recognizer-sequence ( x1 .. xtn n recs-xt -- )
     defers@ set-stack ;
 
-Create forth-recognizer ( -- xt ) \ gforth-obsolete
-\G backward compatible to Matthias Trute recognizer API.
-\G This construct turns a deferred word into a value-like word.
-' forth-recognize ,
-DOES> @ defer@ ;
-opt: @ 2 swap (to), ;
-' s-to set-to
-: set-forth-recognize ( xt -- ) \ gforth-obsolete
-    \G Change the system recognizer
-    is forth-recognize ;
-
 : -stack { x stack -- } \ gforth-experimental minus-stack
     \G Delete every occurrence of @i{x} from anywhere in @i{stack}.
     stack get-stack  0 stack set-stack 0 ?DO
@@ -238,14 +227,14 @@ opt: @ 2 swap (to), ;
     LOOP ;
 
 : try-recognize ( c-addr u xt -- ... translator | 0 ) \ gforth-experimental
-    \G Try to recognize @var{c-addr u} with @word{forth-recognize},
+    \G Try to recognize @var{c-addr u} with @word{rec-forth},
     \G then execute @var{xt} @code{( @i{... translator -- ... true |
     \G false } )}.  If @var{xt} returns 0, reset the stacks to the
     \G depths at the start of @word{try-recognize}, drop three data
     \G stack items, and push 0.  Otherwise return the results
     \G of executing @var{xt}.
     { xt: xt } sp@ fp@ 2>r
-    forth-recognize xt dup
+    rec-forth xt dup
     if 2rdrop
     else
 	2r> fp! sp! 2drop false
@@ -255,13 +244,13 @@ opt: @ 2 swap (to), ;
 
 : rec-[[ ( addr u -- token | 0 ) \ gforth-internal rec-left-bracket-bracket
     \ recognizer for "[["; when it is recognized, postpone state ends.
-    s" [[" str=  [: ] action-of forth-recognize stack> drop ;] and ;
+    s" [[" str=  [: ] action-of rec-forth stack> drop ;] and ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G Switch into postpone state: All words and recognizers are
     \G processed as if they were preceded by @code{postpone}.
     \G Postpone state ends when @code{[[} is recognized.
-    ['] rec-[[ action-of forth-recognize >stack
+    ['] rec-[[ action-of rec-forth >stack
     ['] postponing set-state ; immediate restrict
 
 \ mem+do...mem+loop mem-do...mem-loop array>mem

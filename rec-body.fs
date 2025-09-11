@@ -35,4 +35,4 @@ require rec-tick.fs
 	translate-num  of       + translate-num   endof
 	swap  endcase ;
 
-' rec-body action-of forth-recognize >back
+' rec-body action-of rec-forth >back

@@ -35,7 +35,7 @@
     \G is for the @code{addr} entry is @code{[noop]} while the default
     \G for the other entries is @code{n/a}.
     Create 0 BEGIN parse-name dup WHILE
-	    forth-recognize '-error , 1+
+	    rec-forth '-error , 1+
     REPEAT 2drop
     \ here goes the number of methods supported
     to-table-size# swap U+DO

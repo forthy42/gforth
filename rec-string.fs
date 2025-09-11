@@ -71,7 +71,7 @@ translate: translate-string ( -- translator ) \ gforth-experimental
     IF    scan-translate-string
     ELSE  2drop 0  THEN ;
 
-' rec-string action-of forth-recognize >back
+' rec-string action-of rec-forth >back
 
 0 [IF] \ dot-quoted strings, we don't need them
 : .slit slit, postpone type ;
@@ -85,5 +85,5 @@ translate: translate-string ( -- translator ) \ gforth-experimental
     IF    ['] scan-translate-."
     ELSE  2drop 0  THEN ;
 
-' rec-." action-of forth-recognize >back
+' rec-." action-of rec-forth >back
 [THEN]

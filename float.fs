@@ -228,7 +228,7 @@ translate: translate-float ( -- translator ) \ gforth-experimental
     \G recognize floating point numbers
     prefix-number translate-float and ;
 
-' rec-float ' forth-recognize defer@ >back
+' rec-float ' rec-forth defer@ >back
 
 : fvariable ( "name" -- ) \ floating f-variable
     \g Define @i{name} and reserve a float at @i{f-addr}.@* @i{name}

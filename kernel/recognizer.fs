@@ -172,11 +172,11 @@ forth-wordlist is rec-nt
 
 ( ' rec-num ' rec-nt 2 combined-recognizer: default-recognize ) \ see pass.fs
 \G The system recognizer
-Defer forth-recognize ( c-addr u -- ... translate-xt ) \ recognizer
-\G The system recognizer: @word{forth-recognize} is a @word{defer}red
+Defer rec-forth ( c-addr u -- ... translate-xt ) \ recognizer
+\G The system recognizer: @word{rec-forth} is a @word{defer}red
 \G word that contains a recognizer (sequence).  The system's text
-\G interpreter calls @word{forth-recognize}.
-' minimal-recognize is forth-recognize
+\G interpreter calls @word{rec-forth}.
+' minimal-recognize is rec-forth
 
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.
@@ -188,5 +188,5 @@ Defer forth-recognize ( c-addr u -- ... translate-xt ) \ recognizer
 
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
-    parse-name forth-recognize ?found postponing
+    parse-name rec-forth ?found postponing
 ; immediate restrict

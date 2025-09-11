@@ -358,24 +358,24 @@ t{ ``needs -> "needs" find-name }t
 
 \ more standard recognizers
 : eval-rec ( addr u -- )
-    [: parse-name forth-recognize ;] execute-parsing ;
+    [: parse-name rec-forth ;] execute-parsing ;
 : eval-rec-interpret ( addr u -- )
-    [: parse-name forth-recognize interpreting ;] execute-parsing ;
+    [: parse-name rec-forth interpreting ;] execute-parsing ;
 
-t{ s" needs" forth-recognize -> ``needs translate-nt }t
+t{ s" needs" rec-forth -> ``needs translate-nt }t
 t{ s\" \"a string 123\"" eval-rec -rot s\" \"a" str= -> scan-translate-string true }t
 t{ s\" \"a string 123\"" eval-rec-interpret s" a string 123" str= -> true }t
-t{ "->#123." forth-recognize -> 0 }t
-t{ "+>123e" forth-recognize -> 0 }t
-t{ "`#123." forth-recognize -> 0 }t
-t{ "``#123." forth-recognize -> 0 }t
-t{ "`123e" forth-recognize -> 0 }t
-t{ "``123e" forth-recognize -> 0 }t
-t{ "${HOME}" forth-recognize -rot "HOME" str= -> translate-env true }t 
+t{ "->#123." rec-forth -> 0 }t
+t{ "+>123e" rec-forth -> 0 }t
+t{ "`#123." rec-forth -> 0 }t
+t{ "``#123." rec-forth -> 0 }t
+t{ "`123e" rec-forth -> 0 }t
+t{ "``123e" rec-forth -> 0 }t
+t{ "${HOME}" rec-forth -rot "HOME" str= -> translate-env true }t 
 t{ "${HOME}" eval-rec-interpret s" HOME" getenv str= -> true }t 
-t{ "`xlerb" forth-recognize -> 0 }t
-t{ "``xlerb" forth-recognize -> 0 }t
-t{ "->xlerb" forth-recognize -> 0 }t
+t{ "`xlerb" rec-forth -> 0 }t
+t{ "``xlerb" rec-forth -> 0 }t
+t{ "->xlerb" rec-forth -> 0 }t
 
 0 warnings !@ >r
 : eval-catch ( addr u -- throwcode | results 0 )

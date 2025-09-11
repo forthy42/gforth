@@ -173,10 +173,21 @@ translate-env Constant rectype-env \ gforth-obsolete
 
 : get-recognizers ( -- xt1 .. xtn n ) \ gforth-obsolete
     \G push the content on the recognizer stack
-    ['] forth-recognize get-recognizer-sequence ;
+    ['] rec-forth get-recognizer-sequence ;
 : set-recognizers ( xt1 .. xtn n -- ) \ gforth-obsolete
     \G set the recognizer stack from content on the stack
-    ['] forth-recognize set-recognizer-sequence ;
+    ['] rec-forth set-recognizer-sequence ;
+
+Create forth-recognizer ( -- xt ) \ gforth-obsolete
+\G backward compatible to Matthias Trute recognizer API.
+\G This construct turns a deferred word into a value-like word.
+' rec-forth ,
+DOES> @ defer@ ;
+opt: @ 2 swap (to), ;
+' s-to set-to
+: set-rec-forth ( xt -- ) \ gforth-obsolete
+    \G Change the system recognizer
+    is rec-forth ;
 
 \ from ekey.fs
 ' k-f1  alias k1  ( -- u ) \ gforth-obsolete

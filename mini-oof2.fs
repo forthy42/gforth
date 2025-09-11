@@ -137,12 +137,12 @@ translate-moof2 Constant rectype-moof2
     \G Very simplistic dot-parser, transforms @code{.}@var{selector/ivar} to
     \G @code{>o} @var{selector/ivar} @code{o>}.
     over c@ '.' = over 1 > and
-    IF 1 /string sp@ >r forth-recognize
+    IF 1 /string sp@ >r rec-forth
 	translate-nt? IF rdrop translate-moof2
 	ELSE r> sp!  2drop 0 THEN
     ELSE 2drop 0 THEN ;
 
-' rec-moof2 action-of forth-recognize >back
+' rec-moof2 action-of rec-forth >back
 
 standard:field
 

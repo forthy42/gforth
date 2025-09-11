@@ -42,5 +42,5 @@
         exit  then
     2drop 0 ;
 
-' rec-dtick action-of forth-recognize >back
-' rec-tick action-of forth-recognize >back
+' rec-dtick action-of rec-forth >back
+' rec-tick action-of rec-forth >back

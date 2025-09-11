@@ -619,7 +619,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
     ?found translate-nt? 0= #-32 and throw ;
 
 : (') ( "name" -- nt ) \ gforth-internal
-    parse-name name-too-short? forth-recognize '-error ;
+    parse-name name-too-short? rec-forth '-error ;
 
 : '    ( "name" -- xt ) \ core	tick
     \g @i{xt} represents @i{name}'s interpretation semantics.
@@ -653,7 +653,7 @@ defer int-execute ( ... xt -- ... )
     BEGIN
 	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
     WHILE
-	forth-recognize ?found execute
+	rec-forth ?found execute
     REPEAT
     2drop @local0 >r lp+ ;
 

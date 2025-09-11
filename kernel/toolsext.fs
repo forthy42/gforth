@@ -75,7 +75,7 @@ UNLOCK Tlast @ swap Tlast ! LOCK
 : [defined] ( "<spaces>name" -- flag ) \ tools-ext bracket-defined
     \G returns true if name is found in current search order.  Immediate word.
     sp@ fp@ 2>r
-    parse-name forth-recognize translate-nt?
+    parse-name rec-forth translate-nt?
     2r> rot >r fp! sp! r> ; immediate
 ' [defined] alias defined immediate
 : [undefined] ( "<spaces>name" -- flag ) \ tools-ext bracket-undefined

@@ -132,23 +132,21 @@ has? rom
 
 \ print recognizer stack
 
-[IFDEF] forth-recognize
-    : .recognizer-sequence ( recognizer -- )
-	get-recognizer-sequence 0 ?DO
-	    dup defers@ >does-code ['] recognize =
-	    IF  dup >r  ELSE  0 >r  THEN
-	    dup >voc >does-code [ ' forth >does-code ] Literal = IF
-		>voc
-	    THEN
+: .recognizer-sequence ( recognizer -- )
+    get-recognizer-sequence 0 ?DO
+	dup defers@ >does-code ['] recognize =
+	IF  dup >r  ELSE  0 >r  THEN
+	dup >voc >does-code [ ' forth >does-code ] Literal = IF
+	    >voc
+	THEN
 \	    name>string 2dup s" rec-" string-prefix? IF
 \		4 /string  9 attr! ." ~"  0 attr!
 \	    THEN  type space
-	    id.  r> ?dup-IF
-		." ( " recurse ." ) "
-	    THEN
-	LOOP ;
-    : recs ( -- ) \ gforth-experimental
-        \G Print the system recognizer order, with the first-searched
-	\G recognizer leftmost.
-	['] forth-recognize .recognizer-sequence ;
-[THEN]
+	id.  r> ?dup-IF
+	    ." ( " recurse ." ) "
+	THEN
+    LOOP ;
+: recs ( -- ) \ gforth-experimental
+    \G Print the system recognizer order, with the first-searched
+    \G recognizer leftmost.
+    ['] rec-forth .recognizer-sequence ;

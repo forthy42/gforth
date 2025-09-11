@@ -223,4 +223,4 @@ translate: translate-complex ( -- translator ) \ gforth-experimental
 	translate-complex and
     ELSE  2drop 0  THEN ;
 
-' rec-complex ' rec-float action-of forth-recognize +after
+' rec-complex ' rec-float action-of rec-forth +after

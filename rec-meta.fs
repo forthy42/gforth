@@ -31,4 +31,4 @@
     THEN
     2drop 0 ;
 
-' rec-meta action-of forth-recognize >back
+' rec-meta action-of rec-forth >back

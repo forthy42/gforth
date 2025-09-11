@@ -52,7 +52,7 @@ Defer trace-recognizer  ' drop is trace-recognizer
 \     LOOP ]] 2rdrop ; [[ ;
 
 ' rec-num ' rec-nt 2 recognizer-sequence: default-recognize
-' default-recognize is forth-recognize
+' default-recognize is rec-forth
 
 : rec-nothing ( c-addr u -- 0 ) \ gforth-experimental
     \G This recognizer recognizes nothing.  It can be useful as a

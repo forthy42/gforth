@@ -43,8 +43,8 @@
     \G last (rightmost) wordlist.
     ['] search-order scope-split ;
 
-action-of forth-recognize get-stack 1+ ' rec-scope -rot
-action-of forth-recognize set-stack
+action-of rec-forth get-stack 1+ ' rec-scope -rot
+action-of rec-forth set-stack
 
 : current-execute ( xt -- ) \ gforth-experimental
     \G execute current-changing word and revert current afterwards
