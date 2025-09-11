@@ -225,13 +225,6 @@ opt: @ 2 swap (to), ;
     \G Change the system recognizer
     is forth-recognize ;
 
-: get-recognizers ( -- xt1 .. xtn n ) \ gforth-obsolete
-    \G push the content on the recognizer stack
-    ['] forth-recognize get-recognizer-sequence ;
-: set-recognizers ( xt1 .. xtn n -- ) \ gforth-obsolete
-    \G set the recognizer stack from content on the stack
-    ['] forth-recognize set-recognizer-sequence ;
-
 : -stack { x stack -- } \ gforth-experimental minus-stack
     \G Delete every occurrence of @i{x} from anywhere in @i{stack}.
     stack get-stack  0 stack set-stack 0 ?DO
