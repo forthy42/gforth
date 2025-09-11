@@ -11305,12 +11305,12 @@ resulting translator (@pxref{Performing translator actions}).
 @subsubsection Default Recognizers
 @cindex Recognizers normal usage
 
-Type @word{.recognizers} to find out with which recognizers are
+Type @word{recs} to find out with which recognizers are
 currently being used by Gforth.  When invoked in a colon definition
-after defining a local, the output of @word{.recognizers} is (at the
+after defining a local, the output of @word{recs} is (at the
 time of this writing):
 
-@code{rec-nt ( rec-locals search-order ( Forth Forth Root ) )
+@code{rec-nt ( rec-local search-order ( Forth Forth Root ) )
 rec-scope rec-num rec-float rec-complex rec-string rec-to rec-dtick
 rec-tick rec-body rec-env rec-meta}
 
@@ -11325,7 +11325,7 @@ The recognizers in this sequence are:
 @item @word{rec-nt}
 Recognizes locals and words in the search order.
 
-@item @word{rec-locals}
+@item @word{rec-local}
 Recognizes locals.
 
 @item @word{search-order}
@@ -11451,7 +11451,7 @@ avoid a conflict by using @code{to myvalue} or @code{to?->myvalue}
 @end itemize
 
 Note that most Forth systems do not support all the recognizers we
-describe above, but @code{rec-locals search-order rec-num rec-float}
+describe above, but @code{rec-local search-order rec-num rec-float}
 are relatively common (even if a system uses a hard-coded text
 interpreter instead of the flexible recognizer system).
 
@@ -11478,9 +11478,9 @@ the wordlist-id, and it will behave as a recognizer:
 produces the translator token of @word{translate-nt} on the
 top-of-stack, and the name token of @word{dup} below that.
 
-doc-.recognizers
+doc-recs
 doc-rec-nt
-doc-rec-locals
+doc-rec-local
 doc-rec-scope
 doc-rec-num
 doc-rec-float
@@ -11500,7 +11500,7 @@ You may prefer to use a different recognizer sequence, but with (some
 of the) existing recognizers.  You can use the following words for
 that:
 
-doc-forth-recognize
+doc-rec-forth
 doc-recognizer-sequence:
 
 You probably don't want to create a new recognizer sequence every time

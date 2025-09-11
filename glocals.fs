@@ -174,13 +174,13 @@ translate-nt >body 2@ swap
 translate: translate-locals ( ... nt -- ... )
 \ undocumented for good reasons
 
-: rec-locals ( addr u -- nt translate-locals | 0 ) \ gforth-experimental
+: rec-local ( addr u -- nt translate-locals | 0 ) \ gforth-experimental
     \G search the locals wordlist and if found replace
     \G the translator with @code{translate-locals}.
     [ ' locals >wordlist compile, ]
     dup translate-nt = IF  drop translate-locals  THEN ;
 
-' search-order ' rec-locals 2 recognizer-sequence: rec-nt-locals
+' search-order ' rec-local 2 recognizer-sequence: rec-nt-locals
 
 : activate-locals   ['] rec-nt-locals is rec-nt ;
 : deactivate-locals ['] search-order is rec-nt ;
