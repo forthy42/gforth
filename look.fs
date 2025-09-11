@@ -147,7 +147,7 @@ has? rom
 		." ( " recurse ." ) "
 	    THEN
 	LOOP ;
-    : .recognizers ( -- ) \ gforth-experimental dot-recognizers
+    : recs ( -- ) \ gforth-experimental
         \G Print the system recognizer order, with the first-searched
 	\G recognizer leftmost.
 	['] forth-recognize .recognizer-sequence ;
