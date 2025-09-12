@@ -67,17 +67,14 @@ pre.example-preformatted, pre.example, code {
     color: #33691e;
     background-color: #f1f8e9;
     border-radius: 3px;
-    font-family: Liberation Mono, FreeMono, Courier New, monospace;
+    font-family: "Liberation Mono", "FreeMono", "Courier New", monospace;
 }
-code > a {
-    text-decoration-color: #d1e8c9;
-}
-pre > a {
+pre > a, code > a {
     text-decoration-color: #d1e8c9;
 }
 pre {
     color: #33691e;
-    font-family: Courier New, monospace;
+    font-family: "Liberation Mono", "FreeMono", "Courier New", monospace;
 }
 
 /* responsive */
