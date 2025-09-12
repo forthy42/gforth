@@ -20,7 +20,7 @@
 
 [IFUNDEF] recognize-execute
     : recognize-execute ( xt recognizer -- )
-	['] forth-recognize rot wrap-xt ;
+	['] rec-forth rot wrap-xt ;
 [THEN]
 
 : rec-xemit ( addr u -- n/d table )
