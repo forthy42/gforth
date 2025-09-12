@@ -22,7 +22,7 @@ Variable countif
 Variable endif?  -1 cells allot -1 1 cells c,s
 
 : dummy ;  immediate
-: scan-rec  @ (listlfind)  dup 0=  IF  drop ['] dummy  THEN  translate-nt ;
+: scan-rec  @ (listlfind)  dup 0=  IF  drop ['] dummy  THEN  translate-name ;
 
 Create [struct]-search    0 , ' drop A,  ' voc-to A,  ' scan-rec A,
 ' noop A, ' default-name>comp A, ' noname>string A, ' noname>link A,
@@ -75,7 +75,7 @@ UNLOCK Tlast @ swap Tlast ! LOCK
 : [defined] ( "<spaces>name" -- flag ) \ tools-ext bracket-defined
     \G returns true if name is found in current search order.  Immediate word.
     sp@ fp@ 2>r
-    parse-name rec-forth translate-nt?
+    parse-name rec-forth translate-name?
     2r> rot >r fp! sp! r> ; immediate
 ' [defined] alias defined immediate
 : [undefined] ( "<spaces>name" -- flag ) \ tools-ext bracket-undefined

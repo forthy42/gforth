@@ -37,7 +37,7 @@ Defer trace-recognizer  ' drop is trace-recognizer
     -1 rec-level +!
     0 [ cell 8 = ] [IF] lp+2 [ELSE] lp+ [THEN] ;
 
-: recognizer-sequence: ( xt1 .. xtn n "name" -- ) \ gforth-experimental
+: rec-sequence: ( xt1 .. xtn n "name" -- ) \ gforth-experimental
     \G Define @i{name}, a recognizer sequence that first searches
     \G @i{xtn} and last searches @i{xt1}.  @i{name} is a recognizer
     \G itself, which makes recognizer sequences nestable.  The order
@@ -51,10 +51,12 @@ Defer trace-recognizer  ' drop is trace-recognizer
 \ 	]] dup IF 2rdrop EXIT THEN drop [[
 \     LOOP ]] 2rdrop ; [[ ;
 
-' rec-num ' rec-name 2 recognizer-sequence: default-recognize
+' rec-num ' rec-name 2 rec-sequence: default-recognize
 ' default-recognize is rec-forth
 
-: rec-nothing ( c-addr u -- 0 ) \ gforth-experimental
+0 Constant translate-none \ stub
+
+: rec-none ( c-addr u -- translate-none ) \ gforth-experimental
     \G This recognizer recognizes nothing.  It can be useful as a
     \G placeholder.
-    2drop 0 ;
+    2drop translate-none ;

@@ -42,7 +42,7 @@ Vocabulary )bracket
 s" brackets.db" ' included ' brackets-recognizer recognize-execute
 s" quotation.db" ' included ' brackets-recognizer recognize-execute
 
-' bracket( >wordlist ' )bracket >wordlist 2 recognizer-sequence: brackets
+' bracket( >wordlist ' )bracket >wordlist 2 rec-sequence: brackets
 
 : ?notfound ( nt rectype-nt / 0 -- value )
     0= IF  0  ELSE  execute  THEN ;

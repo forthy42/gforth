@@ -11475,7 +11475,7 @@ the wordlist-id, and it will behave as a recognizer:
 "dup" forth-wordlist execute
 @end source
 
-produces the translator token of @word{translate-nt} on the
+produces the translator token of @word{translate-name} on the
 top-of-stack, and the name token of @word{dup} below that.
 
 doc-recs
@@ -11501,7 +11501,9 @@ of the) existing recognizers.  You can use the following words for
 that:
 
 doc-rec-forth
-doc-recognizer-sequence:
+doc-rec-sequence:
+doc-get-recs
+doc-set-recs
 
 You probably don't want to create a new recognizer sequence every time
 you want to change the system recognizer sequence.  There are two
@@ -11512,7 +11514,7 @@ ways to change an existing recognizer sequence:
 @item
 Put one or more @word{defer}red words in a recognizer sequence, and
 change the recognizer in this word later.  If you do not want such a
-deferred word to recognize anything for now, put @word{rec-nothing} in
+deferred word to recognize anything for now, put @word{rec-none} in
 it.
 
 @item
@@ -11524,13 +11526,13 @@ with @word{>back}, it will be tried last.
 
 @end itemize
 
-doc-rec-nothing
+doc-rec-none
 
-Here is an example of adding @word{rec-nothing} as last recognizer to
+Here is an example of adding @word{rec-none} as last recognizer to
 the system recognizers:
 
 @source
-' rec-nothing action-of forth-recognize >body >back
+' rec-none action-of forth-recognize >body >back
 @end source
 
 @c doc-recognize
@@ -11606,7 +11608,7 @@ this translator.  If the text interpreter then performs the compiling
 action, that action first removes these two stack items, and compiles
 code that pushes @i{xt}.
 
-doc-translate-nt
+doc-translate-name
 doc-translate-num
 doc-translate-dnum
 doc-translate-float
@@ -11622,7 +11624,7 @@ One way to write a recognizer is to call @word{forth-recognize} on a
 substring, and then look at the result to see if something was
 recognized that the whole-string recognizer actually deals with.
 E.g., @word{rec-tick} and @word{rec-dtick} do this and then check
-whether @word{forth-recognize} has pushed @i{nt @code{translate-nt}};
+whether @word{forth-recognize} has pushed @i{nt @code{translate-name}};
 the benefit of this approach is that, e.g. @word{`environment:max-n}
 works, where @word{rec-scope} recognizes @word{environment:max-n}.
 The specific check for an nt used in @word{rec-tick} and
@@ -11680,7 +11682,7 @@ then the @word{lit,} compiles @i{x} into @i{d2}.
 
 Many literal translators follow this scheme.
 
-A translator that is quite different is @word{translate-nt}.  Here's
+A translator that is quite different is @word{translate-name}.  Here's
 an implementation:
 
 @source
@@ -11690,7 +11692,7 @@ an implementation:
   name>compile execute-exit ;
 : name-compcompsem ( nt -- )
   lit, postpone name-compsem ;
-' name-intsem ' name-compsem ' name-compcompsem translate: translate-nt
+' name-intsem ' name-compsem ' name-compcompsem translate: translate-name
 @end source
 
 @word{Name-intsem} performs the interpretation semantics of @i{nt}, by

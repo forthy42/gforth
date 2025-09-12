@@ -209,9 +209,13 @@ UValue $? ( -- n ) \ gforth dollar-question
 : defers@ ( xt -- xt' )
     BEGIN  dup ['] defer@ catch-nobt 0= WHILE  nip  REPEAT  drop ;
 
-: get-recognizer-sequence ( recs-xt -- x1 .. xtn n )
+: get-recs ( recs-xt -- xtu .. xt1 u ) \ gforth-experimental
+    \G Obtain the xts the recognizer sequence @i{recs-xt} in the
+    \G same order as used to define it.
     defers@ get-stack ;
-: set-recognizer-sequence ( x1 .. xtn n recs-xt -- )
+: set-recs ( xu .. xt1 u recs-xt -- ) \ gforth-experimental
+    \G Set the xts the recognizer sequence @i{recs-xt} in the
+    \G same order as used to define it.
     defers@ set-stack ;
 
 : -stack { x stack -- } \ gforth-experimental minus-stack

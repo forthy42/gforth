@@ -25,7 +25,7 @@ require rec-sequence.fs
     ' name>comp alias name>compile
 [THEN]
 
-0 recognizer-sequence: search-order
+0 rec-sequence: search-order
 
 : >back ( x stack -- ) \ gforth-experimental to-back
     \G Insert @i{x} at the bottom of @i{stack}.

@@ -162,7 +162,7 @@ t{ 7 x1 -> 7 22 11 34 17 52 26 13 40 20 10 5 16 8 4 2 1 }t
 
 \ recognizer tests
 
-T{ 0 recognizer-sequence: RS -> }T
+T{ 0 rec-sequence: RS -> }T
 
 T{ :noname 1 ;  :noname 2 ;  :noname 3  ; translate: translate-1 -> }T
 T{ :noname 10 ; :noname 20 ; :noname 30 ; translate: translate-2 -> }T
@@ -176,22 +176,22 @@ T{ translate-1 compiling     -> 2 }T
 T{ translate-1 postponing    -> 3 }T
 
 \ set and get methods
-T{ 0 ' RS set-recognizer-sequence -> }T
-T{ ' RS get-recognizer-sequence -> 0 }T
+T{ 0 ' RS set-recs -> }T
+T{ ' RS get-recs -> 0 }T
 
-T{ ' rec-1 1 ' RS set-recognizer-sequence -> }T
-T{ ' RS get-recognizer-sequence -> ' rec-1 1 }T
+T{ ' rec-1 1 ' RS set-recs -> }T
+T{ ' RS get-recs -> ' rec-1 1 }T
 
-T{ ' rec-1 ' rec-2 2 ' RS set-recognizer-sequence -> }T
-T{ ' RS get-recognizer-sequence -> ' rec-1 ' rec-2 2 }T
+T{ ' rec-1 ' rec-2 2 ' RS set-recs -> }T
+T{ ' RS get-recs -> ' rec-1 ' rec-2 2 }T
 
 \ testing RECOGNIZE
-T{         0 ' RS set-recognizer-sequence -> }T
+T{         0 ' RS set-recs -> }T
 T{ S" 1"     RS   -> 0 }T
-T{ ' rec-1 1 ' RS set-recognizer-sequence -> }T
+T{ ' rec-1 1 ' RS set-recs -> }T
 T{ S" 1"     RS   -> translate-1 }T
 T{ S" 10"    RS   -> 0 }T
-T{ ' rec-2 ' rec-1 2 ' RS set-recognizer-sequence -> }T
+T{ ' rec-2 ' rec-1 2 ' RS set-recs -> }T
 T{ S" 10"    RS   -> translate-2 }T
 
 \ extended synonym behaviour
@@ -362,7 +362,7 @@ t{ ``needs -> "needs" find-name }t
 : eval-rec-interpret ( addr u -- )
     [: parse-name rec-forth interpreting ;] execute-parsing ;
 
-t{ s" needs" rec-forth -> ``needs translate-nt }t
+t{ s" needs" rec-forth -> ``needs translate-name }t
 t{ s\" \"a string 123\"" eval-rec -rot s\" \"a" str= -> scan-translate-string true }t
 t{ s\" \"a string 123\"" eval-rec-interpret s" a string 123" str= -> true }t
 t{ "->#123." rec-forth -> 0 }t

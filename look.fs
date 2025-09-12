@@ -133,7 +133,7 @@ has? rom
 \ print recognizer stack
 
 : .recognizer-sequence ( recognizer -- )
-    get-recognizer-sequence 0 ?DO
+    get-recs 0 ?DO
 	dup defers@ >does-code ['] recognize =
 	IF  dup >r  ELSE  0 >r  THEN
 	dup >voc >does-code [ ' forth >does-code ] Literal = IF

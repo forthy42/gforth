@@ -246,7 +246,7 @@ struct
     cell% field wordlist-extend \ wordlist extensions (eg bucket offset)
 end-struct wordlist-struct
 
-: rec-f83 ( addr len wordlist-id-addr -- nt translate-nt / 0 )
+: rec-f83 ( addr len wordlist-id-addr -- nt translate-name / 0 )
     @ (listlfind) nt>rec ;
 
 \ : initvoc		( wid -- )
@@ -329,7 +329,7 @@ forth-wordlist current !
 	(name>intn)
     then ;
 
-Defer rec-name ( addr u -- nt translate-nt | 0 ) \ gforth-experimental
+Defer rec-name ( addr u -- nt translate-name | 0 ) \ gforth-experimental
 \G recognize a name token
 
 : find-name ( c-addr u -- nt | 0 ) \ gforth
@@ -613,10 +613,10 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 
 \ ticks in interpreter
 
-: '-error ( nt translate-nt | ... translate-some -- nt | never ) \ gforth-internal
+: '-error ( nt translate-name | ... translate-some -- nt | never ) \ gforth-internal
     \G check if there is a name token on the stack, return the corresponding
     \G @var{nt} or throw @code{wrong argument name} if not.
-    ?found translate-nt? 0= #-32 and throw ;
+    ?found translate-name? 0= #-32 and throw ;
 
 : (') ( "name" -- nt ) \ gforth-internal
     parse-name name-too-short? rec-forth '-error ;

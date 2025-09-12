@@ -90,8 +90,8 @@ forth-wordlist is rec-name
 :noname name?int  execute-;s ;
 ' name-compsem
 :noname  lit, postpone name-compsem ;
-(translate:) translate-nt,
-' translate-nt, AConstant translate-nt ( -- translator ) \ gforth-experimental
+(translate:) translate-name,
+' translate-name, AConstant translate-name ( -- translator ) \ gforth-experimental
 \G Additional data: @code{( @i{nt} )}.@*
 \G Interpreting run-time: @code{( @i{... -- ...} )}@*
 \G Perform the interpretation semantics of @i{nt}.@*
@@ -117,11 +117,11 @@ forth-wordlist is rec-name
 : ?found ( token|0 -- token ) \ gforth-experimental
     \G @code{throw}s -13 (undefined word) if @var{token} is 0.
     dup 0= #-13 and throw ;
-: translate-nt? ( token -- flag )
+: translate-name? ( token -- flag )
     \G check if name token; postpone action may differ
-    dup IF  >body 2@ translate-nt >body 2@ d=  THEN ;
-: nt>rec ( nt / 0 -- nt translate-nt / 0 )
-    dup IF  dup where, translate-nt  THEN ;
+    dup IF  >body 2@ translate-name >body 2@ d=  THEN ;
+: nt>rec ( nt / 0 -- nt translate-name / 0 )
+    dup IF  dup where, translate-name  THEN ;
 
 \ snumber? should be implemented as recognizer stack
 

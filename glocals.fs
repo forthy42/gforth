@@ -169,20 +169,20 @@ slowvoc !
 : no-post -48 throw ;
 Defer locals-post,
 
-translate-nt >body 2@ swap
+translate-name >body 2@ swap
 ' locals-post,
-translate: translate-locals ( ... nt -- ... )
+translate: translate-local ( ... nt -- ... )
 \ undocumented for good reasons
 
-: rec-local ( addr u -- nt translate-locals | 0 ) \ gforth-experimental
+: rec-local ( addr u -- nt translate-local | 0 ) \ gforth-experimental
     \G search the locals wordlist and if found replace
-    \G the translator with @code{translate-locals}.
+    \G the translator with @code{translate-local}.
     [ ' locals >wordlist compile, ]
-    dup translate-nt = IF  drop translate-locals  THEN ;
+    dup translate-name = IF  drop translate-local  THEN ;
 
-' search-order ' rec-local 2 recognizer-sequence: rec-name-locals
+' search-order ' rec-local 2 rec-sequence: rec-name/local
 
-: activate-locals   ['] rec-name-locals is rec-name ;
+: activate-locals   ['] rec-name/local is rec-name ;
 : deactivate-locals ['] search-order is rec-name ;
 
 :noname defers wrap@ ['] rec-name defer@ deactivate-locals ; is wrap@
@@ -467,7 +467,7 @@ w^ some-waddr 2drop
     ELSE  ['] default: defer@  THEN  nt>rec ;
 previous
 
-' rec-new-locals  ' locals-types >wordlist 2 recognizer-sequence: new-locals
+' rec-new-locals  ' locals-types >wordlist 2 rec-sequence: new-locals
 
 \ and now, finally, the user interface words
 : { ( -- hmaddr u wid 0 ) \ gforth open-brace
@@ -805,7 +805,7 @@ previous
 	[ comp' some-xtlocal drop >does-code ] literal of >body @ lp-offset compile-@local postpone compile, endof
 	no-post
     endcase ; is locals-post,
-' locals-post, translate-locals >body 2 cells + ! \ replace stub
+' locals-post, translate-local >body 2 cells + ! \ replace stub
 
 \ we define peephole using locals, so it needs to be here
 

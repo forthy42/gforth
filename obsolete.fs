@@ -159,7 +159,7 @@ inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline obsolete
     rectype Constant ;
 
 0 Constant rectype-null \ gforth-obsolete
-translate-nt Constant rectype-nt \ gforth-obsolete
+translate-name Constant rectype-nt \ gforth-obsolete
 translate-num Constant rectype-num \ gforth-obsolete
 translate-dnum Constant rectype-dnum \ gforth-obsolete
 translate-to Constant rectype-to \ gforth-obsolete
@@ -173,10 +173,10 @@ translate-env Constant rectype-env \ gforth-obsolete
 
 : get-recognizers ( -- xt1 .. xtn n ) \ gforth-obsolete
     \G push the content on the recognizer stack
-    ['] rec-forth get-recognizer-sequence ;
+    ['] rec-forth get-recs ;
 : set-recognizers ( xt1 .. xtn n -- ) \ gforth-obsolete
     \G set the recognizer stack from content on the stack
-    ['] rec-forth set-recognizer-sequence ;
+    ['] rec-forth set-recs ;
 
 Create forth-recognizer ( -- xt ) \ gforth-obsolete
 \G backward compatible to Matthias Trute recognizer API.

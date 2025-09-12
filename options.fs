@@ -48,6 +48,6 @@ previous forth definitions
 
 ' required constant `required
 
-' `required ' options >wordlist 2 recognizer-sequence: process-voc-option ( addr u -- ... xt | 0 )
+' `required ' options >wordlist 2 rec-sequence: process-voc-option ( addr u -- ... xt | 0 )
 
 ' process-voc-option is process-option

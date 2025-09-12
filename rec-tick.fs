@@ -21,8 +21,8 @@
 
 ?: forth-recognize-nt? ( c-addr u -- nt | 0 ) \ gforth-experimental
     \G If @word{forth-recognize} produces a result @i{nt
-    \G @code{translate-nt}}, return @i{nt}, otherwise 0.
-    [: translate-nt = dup if drop then ;] try-recognize ;
+    \G @code{translate-name}}, return @i{nt}, otherwise 0.
+    [: translate-name = dup if drop then ;] try-recognize ;
 
 : rec-tick ( addr u -- xt translate-num | 0 ) \ gforth-experimental
     \G words prefixed with @code{`} return their xt.

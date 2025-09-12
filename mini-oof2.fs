@@ -138,7 +138,7 @@ translate-moof2 Constant rectype-moof2
     \G @code{>o} @var{selector/ivar} @code{o>}.
     over c@ '.' = over 1 > and
     IF 1 /string sp@ >r rec-forth
-	translate-nt? IF rdrop translate-moof2
+	translate-name? IF rdrop translate-moof2
 	ELSE r> sp!  2drop 0 THEN
     ELSE 2drop 0 THEN ;
 
