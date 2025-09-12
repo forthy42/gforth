@@ -30,7 +30,7 @@ require rec-tick.fs
         2rdrop exit then
     name>interpret >body
     2r> dup 0= if  2drop translate-cell  exit  then
-    case  rec-num
+    case  rec-number
 	translate-dcell of  drop + translate-cell   endof
 	translate-cell  of       + translate-cell   endof
 	swap  endcase ;

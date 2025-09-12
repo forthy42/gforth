@@ -51,7 +51,7 @@ Defer trace-recognizer  ' drop is trace-recognizer
 \ 	]] dup IF 2rdrop EXIT THEN drop [[
 \     LOOP ]] 2rdrop ; [[ ;
 
-' rec-num ' rec-name 2 rec-sequence: default-recognize
+' rec-number ' rec-name 2 rec-sequence: default-recognize
 ' default-recognize is rec-forth
 
 0 Constant translate-none \ stub

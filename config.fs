@@ -25,7 +25,7 @@ translate-method: configuring
 Vocabulary config
 ' config >wordlist Value config-wl
 
-' rec-string ' rec-num ' rec-float 3 rec-sequence: config-recognize
+' rec-string ' rec-number ' rec-float 3 rec-sequence: config-recognize
 \ The config recognizer
 
 s" Config error" exception Value config-throw

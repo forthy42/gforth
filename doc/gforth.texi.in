@@ -5053,7 +5053,7 @@ name of the recognizer without the @code{rec-} prefix, and
 @code{@i{string}} is the string you want to recognize.  E.g.,
 @code{float?1.} uses @code{rec-float} to recognize a string that would
 otherwise be recognized as a double-cell integer number (because
-@code{rec-num} is earlier in the recognizer sequence than
+@code{rec-number} is earlier in the recognizer sequence than
 @code{rec-float}).
 
 
@@ -11311,7 +11311,7 @@ after defining a local, the output of @word{recs} is (at the
 time of this writing):
 
 @code{rec-name ( rec-local search-order ( Forth Forth Root ) )
-rec-scope rec-num rec-float rec-complex rec-string rec-to rec-dtick
+rec-scope rec-number rec-float rec-complex rec-string rec-to rec-dtick
 rec-tick rec-body rec-env rec-meta}
 
 Here the notation @i{name ( name1 ... namen )} indicates that @i{name}
@@ -11342,7 +11342,7 @@ found in @i{voc1}, and so on, until @i{word} is found in @i{vocn}; the
 translator of this recognizer performs the semantics of @i{word}.
 Example: @samp{environment:max-n}.
 
-@item @word{rec-num}
+@item @word{rec-number}
 Single-cell integers (@samp{#-15}, @samp{$-f}), characters
 (@samp{'A'}), and double-cell integers @samp{#-15.}, with or without
 number prefixes (@pxref{Integer and character literals}).
@@ -11405,7 +11405,7 @@ same strings as other recognizers.  E.g., @code{rec-env} (the
 environment variable recognizer) requires braces to avoid a conflict
 with the number recognizer when recognizing environment variables like
 @samp{ADD}; i.e., @word{rec-env} recognizes @word{${ADD}}, while
-@word{rec-num} recognizes @word{$ADD}.
+@word{rec-number} recognizes @word{$ADD}.
 
 There are a few cases where Gforth's recognizers can recognize the
 same string, however:
@@ -11430,9 +11430,9 @@ In the code bases we have looked at, starting words with @code{'}
 @code{`} to reduce the number of conflicts.
 
 @item
-Both the integer recognizer @code{rec-num} and the floating-point
+Both the integer recognizer @code{rec-number} and the floating-point
 recognizer @code{rec-float} recognize, e.g., @code{1.}.  Because
-@code{rec-num} is (by default) first, @code{1.} is recognized as a
+@code{rec-number} is (by default) first, @code{1.} is recognized as a
 double-cell integer.  If you change the recognizer order to use
 @code{rec-float} first, @code{1.} is recognized as a floating-point
 number, but loading code written in Standard Forth may behave in a
@@ -11451,7 +11451,7 @@ avoid a conflict by using @code{to myvalue} or @code{to?->myvalue}
 @end itemize
 
 Note that most Forth systems do not support all the recognizers we
-describe above, but @code{rec-local search-order rec-num rec-float}
+describe above, but @code{rec-local search-order rec-number rec-float}
 are relatively common (even if a system uses a hard-coded text
 interpreter instead of the flexible recognizer system).
 
@@ -11482,7 +11482,7 @@ doc-recs
 doc-rec-name
 doc-rec-local
 doc-rec-scope
-doc-rec-num
+doc-rec-number
 doc-rec-float
 doc-rec-complex
 doc-rec-string
@@ -11553,11 +11553,11 @@ performing a translator action, the translator consumes this
 additional data.  E.g., when you perform
 
 @example
-"5" rec-num
+"5" rec-number
 @end example
 
-it pushes @samp{5 translate-num} on the stack, and when the
-compilation action of @word{translate-num} is performed, both stack
+it pushes @samp{5 translate-cell} on the stack, and when the
+compilation action of @word{translate-cell} is performed, both stack
 items are removed from the stack.  This compilation action also
 compiles a literal 5 into the current definition.
 
@@ -11568,10 +11568,10 @@ additional data.  E.g., a simple variant of @word{rec-tick} can be
 implemented as follows:
 
 @source
-: rec-tick ( addr u -- xt translate-num | 0 )
+: rec-tick ( addr u -- xt translate-cell | 0 )
     over c@ '`' = if
         1 /string find-name dup if
-            name>interpret translate-num then
+            name>interpret translate-cell then
         exit then
     2drop 0 ;
 @end source            
@@ -11602,15 +11602,15 @@ compiles the compiling run-time.
 
 In the @word{rec-tick} example above, if the recognizer recognizes,
 say, @code{`dup}, it returns @i{xt translator}, where @i{translator}
-is the value returned by @word{translate-num}, and @i{xt} is the
+is the value returned by @word{translate-cell}, and @i{xt} is the
 execution token of @word{dup}.  So @i{xt} is the additional data for
 this translator.  If the text interpreter then performs the compiling
 action, that action first removes these two stack items, and compiles
 code that pushes @i{xt}.
 
 doc-translate-name
-doc-translate-num
-doc-translate-dnum
+doc-translate-cell
+doc-translate-dcell
 doc-translate-float
 doc-translate-complex 
 doc-translate-string
@@ -11653,19 +11653,19 @@ You define a translator with
 doc-translate:
 
 To make this a little more concrete, here is an implementation for
-@word{translate-num}:
+@word{translate-cell}:
 
 @source
 ' noop                       ( x -- x )                             \ int-xt
 ' lit,                       ( compilation: x -- ; run-time: -- x ) \ comp-xt
 :noname lit, postpone lit, ; ( postponing: x -- ;  run-time: -- x ) \ post-xt
-translate: translate-num
+translate: translate-cell
 @end source
 
 If a recognizer for a single-cell literal (e.g., @word{rec-tick})
 matches the input string, it pushes the value @i{x} of the literal
 (the xt of the ticked word in case of @word{rec-tick}) on the data
-stack and the xt of @word{translate-num}.  When the interpretation
+stack and the xt of @word{translate-cell}.  When the interpretation
 semantics is needed, @i{int-xt} is @code{execute}d, and @i{x} stays on
 the stack.  For the compilation semantics, @i{x} is compiled into the
 current definition as literal.
@@ -11675,7 +11675,7 @@ time (when the recognizer runs and the translator action is performed)
 the current definition is @i{d1}.  When @i{d1} runs, the current
 definition is @i{d2}@footnote{If there is no current definition when
 something is compiled, Gforth outputs a warning.}.  The @i{post-xt} of
-the @word{translate-num} implementation above first compiles @i{x}
+the @word{translate-cell} implementation above first compiles @i{x}
 into @i{d1} and also compiles @word{lit,} into @i{d1} (that's the
 @code{postpone lit,} part).  When @i{d1} runs, it pushes @i{x} and
 then the @word{lit,} compiles @i{x} into @i{d2}.

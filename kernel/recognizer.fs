@@ -125,7 +125,7 @@ forth-wordlist is rec-name
 
 \ snumber? should be implemented as recognizer stack
 
-: rec-num ( addr u -- n/d table | 0 ) \ gforth-experimental
+: rec-number ( addr u -- n/d table | 0 ) \ gforth-experimental
     \G converts a number to a single/double integer
     snumber?  dup
     IF
@@ -167,10 +167,10 @@ forth-wordlist is rec-name
     $@len cell/ ;
 
 : minimal-recognize ( addr u -- ... translate-xt / 0 ) \ gforth-internal
-    \g Sequence of @code{rec-name} and @code{rec-num}
-    2>r 2r@ rec-name dup 0= IF  drop 2r@ rec-num  THEN  2rdrop ;
+    \g Sequence of @code{rec-name} and @code{rec-number}
+    2>r 2r@ rec-name dup 0= IF  drop 2r@ rec-number  THEN  2rdrop ;
 
-( ' rec-num ' rec-name 2 combined-recognizer: default-recognize ) \ see pass.fs
+( ' rec-number ' rec-name 2 combined-recognizer: default-recognize ) \ see pass.fs
 \G The system recognizer
 Defer rec-forth ( c-addr u -- ... translate-xt ) \ recognizer
 \G The system recognizer: @word{rec-forth} is a @word{defer}red
