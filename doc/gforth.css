@@ -62,11 +62,22 @@ div.example > pre.example {
     margin-left: 1em;
     border-left: 2px solid #33691e;
 }
-pre.example, code {
+pre.example-preformatted, pre.example, code {
     padding: 3px 5px;
     color: #33691e;
     background-color: #f1f8e9;
     border-radius: 3px;
+    font-family: Liberation Mono, FreeMono, Courier New, monospace;
+}
+code > a {
+    text-decoration-color: #d1e8c9;
+}
+pre > a {
+    text-decoration-color: #d1e8c9;
+}
+pre {
+    color: #33691e;
+    font-family: Courier New, monospace;
 }
 
 /* responsive */

@@ -66,15 +66,15 @@ tex: gforth-logo
 	{{
 	    {{
 		glue*l }}glue
-		tex: burladingen-wappen
-		' burladingen-wappen "Wappen_Burladingen.svg.png" 0.5e }}image-file
-		Constant wappen-burladingen-glue /center
+		tex: hamburg-wappen
+		' hamburg-wappen "hamburg-wappen.png" 0.5e }}image-file
+		Constant wappen-hamburg-glue /center
 		glue*l }}glue
 	    }}v
 	    glue*2 }}glue
 	}}z
 	l" Bernd Paysan" /author
-	l" Forth–Tagung 2025 in Burladingen" /location
+	l" EuroForth 2025 in Hamburg" /location
 	glue*l }}glue \ ) $CCDDDD3F color, 4e }}frame dup .button1
     }}v box[] >o font-size# to border o Value title-page o o>
 }}z box[] dup >slides
@@ -83,14 +83,14 @@ tex: gforth-logo
 {{
     $440044FF $FFBFFFFF pres-frame
     {{
-	l" Was ist Wayland?" /title
-	l" Ein objektbasiertes RPC zur Kommunikation mit dem Compositor" /subsection
+	l" What is Wayland?" /title
+	l" An object oriented RPC to communicate with the compositor" /subsection
 	vt{{
-	    l" Protokolle " l" Klassen mit Methoden auf beiden Seiten" b\\
-	    l" XML–Dateien " l" Beschreiben die Protokolle" b\\
-	    l" Callbacks " l" Für die Implementierung der eigenen Seite" b\\
-	    l" Listener " l" Objekt–Instanzen auf der eigenen Seite (mit mehreren Callbacks)" b\\
-	    l" Registry " l" Protokoll, welche Protokolle der Compositor implementiert" b\\
+	    l" Protocols " l" Classes with methods on both sides" b\\
+	    l" XML files " l" Describe the protocols" b\\
+	    l" Callbacks " l" To implement the local side" b\\
+	    l" Listener " l" Object instances on the local side with multiple methods" b\\
+	    l" Registry " l" Meta protocol that lists the protocols implemented by the compositor" b\\
 	    glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 	}}vt
     }}v box[] >bdr
@@ -100,14 +100,14 @@ tex: gforth-logo
 {{
     $440044FF $FFBFFFFF pres-frame
     {{
-	l" Was kann Wayland?" /title
-	l" Inzwischen brauchbarer Ersatz für X11" /subsection
+	l" What can Wayland do for you?" /title
+	l" Meanwhile a useable alternative for X11" /subsection
 	vt{{
-	    l" Breaks Everything " l" War mal am Anfang, ist inzwischen vorbei" b\\
-	    l" Fractional Scaling " l" Auf aktuellen Displays sehr sinnvoll" b\\
-	    l" Clipboard " l" und Primary Selection gehen (aber blöd implementiert)" b\\
-	    l" Farbmanagement " l" Ist noch eine Baustelle" b\\
-	    l" OpenGLES " l" Ging von Anfang an gut" b\\
+	    l" Breaks Everything " l" Used to be at the beginning, no longer the case" b\\
+	    l" Fractional Scaling " l" On high-res displays very useful" b\\
+	    l" Clipboard " l" and primary selection work (but the protocol sucks)" b\\
+	    l" Color Management " l" Just appeared, and works" b\\
+	    l" OpenGLES " l" Was perfect from start" b\\
 	    glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 	}}vt
     }}v box[] >bdr
@@ -117,8 +117,8 @@ tex: gforth-logo
 {{
     $444400FF $FFFFBFFF pres-frame
     {{
-	l" Ein Protokoll implementieren" /title
-	l" Am Beispiel xdg_wm_base" /subsection
+	l" Implement a protocol" /title
+	l" Example: xdg_wm_base" /subsection
 	\skip \mono
 ```
 <cb xdg_wm_base
@@ -136,8 +136,8 @@ cb>
 {{
     $444400FF $FFFFBFFF pres-frame
     {{
-	l" Ein Protokoll implementieren" /title
-	l" Wie sähe das ohne diese Makros aus?" /subsection
+	l" Implement a protocol" /title
+	l" How would it look without macros?" /subsection
 	\skip \mono
 ```
 :noname ( data xdg_wm_base serial -- )
@@ -154,8 +154,8 @@ Create xdg-wm-base-listener ,
 {{
     $004400FF $BFFFBFFF pres-frame
     {{
-	l" Komplexeres Protokoll" /title
-	l" Am Beispiel wl_data_source" /subsection
+	l" More complex protocols" /title
+	l" Example: wl_data_source" /subsection
 	\skip \mono \small
 ```
 <cb wl_data_source
@@ -183,7 +183,7 @@ cb>
     $004444FF $BFFFFFFF pres-frame
     {{
 	l" Trigger–Values" /title
-	l" Values, die bei Zuweisungen Code ausführen" /subsection
+	l" Values, which execute code at assignments" /subsection
 	\skip \mono \small
 ```
 0 ' noop trigger-Value wl-compositor \ wayland compositor
