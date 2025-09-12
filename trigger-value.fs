@@ -43,7 +43,7 @@ trigger-table to-class: to-trigger
 : >trigger-stack ( "value1" .. "valuen" "<rparen>" -- )
     trigger-stack $free
     BEGIN  parse-name ")" 2over string-prefix? 0= WHILE
-	    forth-recognize '-error trigger-stack >stack
+	    rec-forth '-error trigger-stack >stack
     REPEAT  2drop ;
 : +trigger ( xt1 xt2 -- )
     dup >r defer@ dup ['] noop <> IF

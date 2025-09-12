@@ -113,7 +113,7 @@ $Variable cb-prefix
 : >cb-class ( "name" -- addr u )
     parse-name [: cb-prefix $. ." _listener-" type ':' emit ;] $tmp ;
 : (cb') ( "name" -- xt )
-    >cb-class forth-recognize '-error ;
+    >cb-class rec-forth '-error ;
 
 : <cb ( name -- ) parse-name cb-prefix $! depth r> swap >r >r ;
 : cb> ( xt1 .. xtn -- )
@@ -128,7 +128,7 @@ ${GFORTH_IGNLIB} "true" str= [IF]
 	:noname colon-sys-xt-offset n>r drop
 	record-name (cb') drop ['] noop nr> drop ;
 [ELSE]
-    : ?cb ( xt "name" -- addr ) >cb-class forth-recognize ?found execute ;
+    : ?cb ( xt "name" -- addr ) >cb-class rec-forth ?found execute ;
     : :cb ( xt -- 0 )
 	:noname colon-sys-xt-offset n>r drop
 	record-name (cb') nr> drop ;
