@@ -226,7 +226,7 @@ translate: translate-float ( -- translator ) \ gforth-experimental
 
 : rec-float ( addr u -- r translate-float | 0 ) \ gforth-experimental
     \G recognize floating point numbers
-    prefix-number translate-float and ;
+    prefix-number translate-float translate-none rot select ;
 
 ' rec-float ' rec-forth defer@ >back
 

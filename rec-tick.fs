@@ -31,16 +31,16 @@
         1 /string forth-recognize-nt? dup if
             ?compile-only name>interpret translate-cell then
         exit  then
-    2drop 0 ;
+    rec-none ;
 
-: rec-dtick ( addr u -- nt translate-cell | 0 ) \ gforth-experimental
+: rec-dtick ( addr u -- translation ) \ gforth-experimental
     \G words prefixed with @code{``} return their nt.
     \G Example: @code{``S"} gives the nt of @code{S"}.
     2dup "``" string-prefix? if
         2 /string forth-recognize-nt? dup if
             translate-cell then
         exit  then
-    2drop 0 ;
+    rec-none ;
 
 ' rec-dtick action-of rec-forth >back
 ' rec-tick action-of rec-forth >back

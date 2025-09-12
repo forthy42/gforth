@@ -23,15 +23,15 @@
     \G separator does not occur in the input string of @code{$split}.
     dup 0= IF  over >r 2over + r> =  ELSE  false  THEN ;
 
-: scope-split ( addr u wid -- nt rectype-nt | 0 )
+: scope-split ( addr u wid -- translation )
     BEGIN  >r
 	':' $split nosplit? IF  2drop r> execute  EXIT  THEN
 	2swap r> execute  WHILE
 	    dup >does-code [ ' forth >does-code ]L = WHILE
 		>wordlist  REPEAT  drop  THEN
-    2drop 0 ;
+    rec-none ;
 
-: rec-scope ( addr u -- nt rectype-nt | 0 ) \ gforth-experimental
+: rec-scope ( addr u -- translation ) \ gforth-experimental
     \G Recognizes strings of the form (simplified)
     \G @code{@i{wordlist}:@i{word}}, where wordlist is found in the
     \G search order.  The result is the same as for @code{rec-nt} for

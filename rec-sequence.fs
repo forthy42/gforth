@@ -54,8 +54,6 @@ Defer trace-recognizer  ' drop is trace-recognizer
 ' rec-number ' rec-name 2 rec-sequence: default-recognize
 ' default-recognize is rec-forth
 
-0 Constant translate-none \ stub
-
 : rec-none ( c-addr u -- translate-none ) \ gforth-experimental
     \G This recognizer recognizes nothing.  It can be useful as a
     \G placeholder.

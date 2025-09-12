@@ -248,7 +248,9 @@ UValue $? ( -- n ) \ gforth dollar-question
 
 : rec-[[ ( addr u -- token | 0 ) \ gforth-internal rec-left-bracket-bracket
     \ recognizer for "[["; when it is recognized, postpone state ends.
-    s" [[" str=  [: ] action-of rec-forth stack> drop ;] and ;
+    s" [[" str=
+    [: ] action-of rec-forth stack> drop ;]
+    translate-none rot select ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G Switch into postpone state: All words and recognizers are

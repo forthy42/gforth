@@ -114,23 +114,25 @@ forth-wordlist is rec-name
 \G Additional data: @code{( @i{xd} )}.@*
 \G Interpreting run-time: @code{( @i{ -- dx} )}
 
+0 Constant translate-none \ stub
+
 : ?found ( token|0 -- token ) \ gforth-experimental
     \G @code{throw}s -13 (undefined word) if @var{token} is 0.
     dup 0= #-13 and throw ;
 : translate-name? ( token -- flag )
     \G check if name token; postpone action may differ
     dup IF  >body 2@ translate-name >body 2@ d=  THEN ;
-: nt>rec ( nt / 0 -- nt translate-name / 0 )
-    dup IF  dup where, translate-name  THEN ;
+: nt>rec ( nt / 0 -- nt translate-name / translate-none )
+    dup IF  dup where, translate-name  ELSE  drop translate-none  THEN ;
 
 \ snumber? should be implemented as recognizer stack
 
-: rec-number ( addr u -- n/d table | 0 ) \ gforth-experimental
+: rec-number ( addr u -- translation ) \ gforth-experimental
     \G converts a number to a single/double integer
     snumber?  dup
     IF
 	0> translate-dcell translate-cell rot select  EXIT
-    THEN ;
+    ELSE  drop translate-none  THEN ;
 
 \ generic stack get/set; actually, we don't need this for
 \ the recognizer any more, but other parts of the kernel use it.

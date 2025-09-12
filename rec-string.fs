@@ -69,7 +69,7 @@ translate: translate-string ( -- translator ) \ gforth-experimental
     \G escapes are treated as in @code{S\"}.
     2dup s\" \"" string-prefix?
     IF    scan-translate-string
-    ELSE  2drop 0  THEN ;
+    ELSE  rec-none  THEN ;
 
 ' rec-string action-of rec-forth >back
 
@@ -83,7 +83,7 @@ translate: translate-string ( -- translator ) \ gforth-experimental
 : rec-."  ( addr u -- addr u' translate-." | 0 )
     2dup ".\"" string-prefix?
     IF    ['] scan-translate-."
-    ELSE  2drop 0  THEN ;
+    ELSE  rec-none  THEN ;
 
 ' rec-." action-of rec-forth >back
 [THEN]

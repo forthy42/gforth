@@ -31,17 +31,17 @@ translate: translate-to ( -- translator ) \ gforth-experimental
 Create to-slots here $100 dup allot $FF fill
 0 "-+@='" bounds [DO] dup to-slots [I] c@ + c! 1+ [LOOP] drop
 
-: rec-to ( addr u -- n xt translate-to | 0 ) \ gforth-experimental
+: rec-to ( addr u -- translation ) \ gforth-experimental
     \G words prefixed with @code{->} are treated as if preceeded by
     \G @code{TO}, with @code{+>} as @code{+TO}, with
     \G @code{'>} as @code{ADDR}, with @code{@@>} as @code{ACTION-OF}, and
     \G with @code{=>} as @code{IS}.
-    dup 3 u< IF  2drop 0  EXIT  THEN
-    over 1+ c@ '>' <> IF  2drop 0  EXIT  THEN
-    over c@ to-slots + c@ dup $FF = IF  drop 2drop 0  EXIT  THEN
+    dup 3 u< IF  rec-none  EXIT  THEN
+    over 1+ c@ '>' <> IF  rec-none  EXIT  THEN
+    over c@ to-slots + c@ dup $FF = IF  drop rec-none  EXIT  THEN
     -rot  2 /string sp@ 3 cells + fp@ 2>r rec-forth
-    translate-name? 0= IF  2r> fp! sp! 0 EXIT  THEN  2rdrop
-    \ dup >namehm @ >hmto @ ['] n/a = IF  2drop 0 EXIT  THEN
+    translate-name? 0= IF  2r> fp! sp! translate-none EXIT  THEN  2rdrop
+    \ dup >namehm @ >hmto @ ['] n/a = IF  rec-none EXIT  THEN
     over 4 = IF  ?addr  THEN
     name>interpret translate-to ;
 

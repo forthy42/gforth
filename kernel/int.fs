@@ -329,7 +329,7 @@ forth-wordlist current !
 	(name>intn)
     then ;
 
-Defer rec-name ( addr u -- nt translate-name | 0 ) \ gforth-experimental
+Defer rec-name ( addr u -- translation ) \ gforth-experimental
 \G recognize a name token
 
 : find-name ( c-addr u -- nt | 0 ) \ gforth

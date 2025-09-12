@@ -29,6 +29,6 @@
 	    name?int execute  EXIT
 	THEN
     THEN
-    2drop 0 ;
+    rec-none ;
 
 ' rec-meta action-of rec-forth >back
