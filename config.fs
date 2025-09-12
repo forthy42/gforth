@@ -43,9 +43,9 @@ s" Config error" exception Value config-throw
 :noname '$' ['] $! [: drop free throw ;] exec-config ;
 translate-string is configuring
 :noname '#' ['] !  ['] drop exec-config ;
-translate-num    is configuring
+translate-cell   is configuring
 :noname '&' ['] 2! ['] 2drop exec-config ;
-translate-dnum   is configuring
+translate-dcell  is configuring
 :noname '%' ['] f! ['] fdrop exec-config ;
 translate-float  is configuring
 

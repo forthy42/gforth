@@ -24,21 +24,21 @@
     \G @code{translate-name}}, return @i{nt}, otherwise 0.
     [: translate-name = dup if drop then ;] try-recognize ;
 
-: rec-tick ( addr u -- xt translate-num | 0 ) \ gforth-experimental
+: rec-tick ( addr u -- xt translate-cell | 0 ) \ gforth-experimental
     \G words prefixed with @code{`} return their xt.
     \G Example: @code{`dup} gives the xt of dup.
     over c@ '`' = if
         1 /string forth-recognize-nt? dup if
-            ?compile-only name>interpret translate-num then
+            ?compile-only name>interpret translate-cell then
         exit  then
     2drop 0 ;
 
-: rec-dtick ( addr u -- nt translate-num | 0 ) \ gforth-experimental
+: rec-dtick ( addr u -- nt translate-cell | 0 ) \ gforth-experimental
     \G words prefixed with @code{``} return their nt.
     \G Example: @code{``S"} gives the nt of @code{S"}.
     2dup "``" string-prefix? if
         2 /string forth-recognize-nt? dup if
-            translate-num then
+            translate-cell then
         exit  then
     2drop 0 ;
 

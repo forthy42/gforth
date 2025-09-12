@@ -268,7 +268,7 @@ Variable rec'[]
     rec-forth ?found
     dup translate-name? IF  drop rec'[] $free
     ELSE
-	dup translate-num = IF
+	dup translate-cell = IF
 	    drop dup xt? 0= IF  drop rec'@  THEN
 	ELSE  drop  rec'@  THEN
     THEN

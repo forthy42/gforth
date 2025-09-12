@@ -101,16 +101,16 @@ forth-wordlist is rec-name
 ' noop
 ' lit,
 :noname lit, postpone lit, ;
-(translate:) translate-num,
-' translate-num, AConstant translate-num ( -- translator ) \ gforth-experimental
+(translate:) translate-cell,
+' translate-cell, AConstant translate-cell ( -- translator ) \ gforth-experimental
 \G Additional data: @code{( @i{x} )}.@*
 \G Interpreting run-time: @code{( @i{ -- x} )}
 
 ' noop
 ' 2lit,
 :noname 2lit, postpone 2lit, ;
-(translate:) translate-dnum,
-' translate-dnum, AConstant translate-dnum ( -- translator ) \ gforth-experimental
+(translate:) translate-dcell,
+' translate-dcell, AConstant translate-dcell ( -- translator ) \ gforth-experimental
 \G Additional data: @code{( @i{xd} )}.@*
 \G Interpreting run-time: @code{( @i{ -- dx} )}
 
@@ -129,7 +129,7 @@ forth-wordlist is rec-name
     \G converts a number to a single/double integer
     snumber?  dup
     IF
-	0> translate-dnum translate-num rot select  EXIT
+	0> translate-dcell translate-cell rot select  EXIT
     THEN ;
 
 \ generic stack get/set; actually, we don't need this for

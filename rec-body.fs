@@ -21,7 +21,7 @@
 
 require rec-tick.fs
 
-: rec-body ( addr u -- xt translate-num | 0 ) \ gforth-experimental
+: rec-body ( addr u -- xt translate-cell | 0 ) \ gforth-experimental
     \G words bracketed with @code{'<'} @code{'>'} return their body.
     \G Example: @code{<dup>} gives the body of dup
     over c@ '<' <> >r  2dup + 1- c@ '>' <> r> or
@@ -29,10 +29,10 @@ require rec-tick.fs
     1 /string 1- '+' $split 2>r forth-recognize-nt? dup 0= if
         2rdrop exit then
     name>interpret >body
-    2r> dup 0= if  2drop translate-num  exit  then
+    2r> dup 0= if  2drop translate-cell  exit  then
     case  rec-num
-	translate-dnum of  drop + translate-num   endof
-	translate-num  of       + translate-num   endof
+	translate-dcell of  drop + translate-cell   endof
+	translate-cell  of       + translate-cell   endof
 	swap  endcase ;
 
 ' rec-body action-of rec-forth >back
