@@ -11573,7 +11573,7 @@ implemented as follows:
         1 /string find-name dup if
             name>interpret translate-cell then
         exit then
-    2drop 0 ;
+    rec-none ;
 @end source            
 
 The only appropriate use of a translator (plus data) on the stack is
