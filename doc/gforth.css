@@ -62,7 +62,7 @@ div.example > pre.example {
     margin-left: 1em;
     border-left: 2px solid #33691e;
 }
-pre.example-preformatted, pre.example, code {
+pre.example-preformatted, pre.example, code, samp {
     padding: 3px 5px;
     color: #33691e;
     background-color: #f1f8e9;
