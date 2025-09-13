@@ -310,6 +310,7 @@ GFORTH_FI_SRC2=\
 	help.txt \
 	history.fs \
 	iloops.fs \
+	latest-name.fs \
 	libcc.fs \
 	locals.fs \
 	locate1.fs \

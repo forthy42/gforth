@@ -112,36 +112,46 @@ $Variable window-app-id$ s" ΜΙΝΟΣ2" window-app-id$ $!
 $Variable cb-prefix
 : >cb-class ( "name" -- addr u )
     parse-name [: cb-prefix $. ." _listener-" type ':' emit ;] $tmp ;
+: >cb-offset ( "name" -- addr u )
+    parse-name [: cb-prefix $. ." _listener-" type ;] $tmp ;
 : (cb') ( "name" -- xt )
     >cb-class rec-forth '-error ;
+: (cb#) ( "name" -- n )
+    >cb-offset rec-forth '-error ;
 
-: <cb ( name -- ) parse-name cb-prefix $! depth r> swap >r >r ;
-: cb> ( xt1 .. xtn -- )
-    cb-prefix $@ [: bounds
+: _2- ( addr u -- addr' u' )
+    [: bounds
 	?DO  I c@ '-' over '_' <> select emit
-	LOOP ." -listener" ;] $tmp nextname
-    Create depth r> r> swap >r - 0 ?DO , LOOP ;
+	LOOP ;] $tmp ;
+: <cb ( name -- )
+    parse-name cb-prefix $!
+    cb-prefix $@ _2- [: type ." -listener" ;] $tmp nextname Create
+    cb-prefix $@ [: type ." _listener" ;] $tmp evaluate allot ;
+: cb> ( -- ) ;
 
 ${GFORTH_IGNLIB} "true" str= [IF]
-    : ?cb ( xt -- 0 ) drop >cb-class 2drop 0 ;
-    : :cb ( xt "name" -- addr )
+    : ?cb ( xt -- 0 ) drop >cb-class 2drop ;
+    : :cb ( "name" -- colon-sys )
 	:noname colon-sys-xt-offset n>r drop
-	record-name (cb') drop ['] noop nr> drop ;
+	record-name (cb') drop ['] drop nr> drop ;
 [ELSE]
-    : ?cb ( xt "name" -- addr ) >cb-class rec-forth ?found execute ;
-    : :cb ( xt -- 0 )
-	:noname colon-sys-xt-offset n>r drop
-	record-name (cb') nr> drop ;
+    : cb! ( xt callback offset -- )
+	>r execute get-current latest-name-in r> execute ! ;
+    : cb-pair ( "name" -- callback offset )
+	record-name >in @ >r (cb') r> >in ! (cb#) ;
+    : ?cb ( xt "name" -- ) cb-pair cb! ;
+    : :cb ( "name" -- colon-sys )
+	:noname colon-sys-xt-offset n>r drop cb-pair ['] cb! nr> drop ;
 [THEN]
 
 <cb wl_shell_surface
-:cb popup_done { data surface -- } ;
-:cb configure { data surface edges w h -- }
-    win w h 0 0 wl_egl_window_resize ;
 :cb ping ( data surface serial -- )
     serial( dup [: cr ." ping serial: " h. ;] do-debug )
     dup to last-serial
     wl_shell_surface_pong drop ;
+:cb configure { data surface edges w h -- }
+    win w h 0 0 wl_egl_window_resize ;
+:cb popup_done { data surface -- } ;
 cb>
 
 <cb wl_callback

@@ -67,6 +67,7 @@ require ansi.fs
 require ekey.fs
 require history.fs
 require varues.fs
+require latest-name.fs
 require rec-string.fs
 require rec-to.fs
 require rec-tick.fs
