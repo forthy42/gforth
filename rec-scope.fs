@@ -31,16 +31,16 @@
 		>wordlist  REPEAT  drop  THEN
     rec-none ;
 
-: rec-scope ( addr u -- translation ) \ gforth-experimental
-    \G Recognizes strings of the form (simplified)
-    \G @code{@i{wordlist}:@i{word}}, where wordlist is found in the
-    \G search order.  The result is the same as for @code{rec-nt} for
-    \G @i{word} (the ordinary word recognizer) if the search order
-    \G consists only of @i{wordlist}.  The general form can have
-    \G several wordlists preceding @i{word}, separated by @code{:};
-    \G the first (leftmost) wordlist is found in the search order, the
-    \G second in the first, etc.  @i{word} is the looked up in the
-    \G last (rightmost) wordlist.
+: rec-scope ( c-addr u -- translation ) \ gforth-experimental
+    \G Recognizes (@pxref{Define recognizers with existing translation
+    \G tokens}) strings of the form (simplified)
+    \G @code{@i{vocabulary}:@i{word}}, where @i{vocabulary} is found
+    \G in the search order.  Otherwise the behaviour is like that of
+    \G @word{rec-name}.  The general form can have several
+    \G vocabularies preceding @i{word}, separated by @code{:}; the
+    \G first (leftmost) vocabulary is found in the search order, the
+    \G second in the first, etc.  @i{word} is looked up in the
+    \G rightmost vocabulary.
     ['] search-order scope-split ;
 
 action-of rec-forth get-stack 1+ ' rec-scope -rot

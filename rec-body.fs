@@ -22,8 +22,11 @@
 require rec-tick.fs
 
 : rec-body ( addr u -- translation ) \ gforth-experimental
-    \G words bracketed with @code{'<'} @code{'>'} return their body.
-    \G Example: @code{<dup>} gives the body of dup
+    \G Recognizes (@pxref{Define recognizers with existing translation
+    \G tokens}) @code{<@i{word}>} and @code{<@i{word}+@i{number}>}.
+    \G If successful, @i{translation} represents pushing the sum of
+    \G the body address @i{word} and @i{number} (0 if absent) at
+    \G run-time (see @word{translate-cell}).
     over c@ '<' <> >r  2dup + 1- c@ '>' <> r> or
     if 2drop 0 exit then
     1 /string 1- '+' $split 2>r forth-recognize-nt? dup 0= if

@@ -64,9 +64,15 @@ translate: translate-string ( -- translator ) \ gforth-experimental
 	0
     endcase ;
 
-: rec-string ( addr u -- addr u' scan-translate-string | 0 ) \ gforth-experimental
-    \G Convert strings enclosed in double quotes into string literals,
-    \G escapes are treated as in @code{S\"}.
+: rec-string ( c-addr u -- translation ) \ gforth-experimental
+    \G A string starts and ends with @code{"} and may contain escaped
+    \G characters, including @code{\"} (see @word{s\"}) If @i{c-addr
+    \G u} is the start of a string, the translation represents parsing
+    \G the rest of the string, if necessary, converting the escaped
+    \G characters, and pushing the string at run-time
+    \G (@word{translate-string} @word{scan-translate-string}).  If
+    \G @i{c-addr u} is not recognized as the start of a string,
+    \G translation is @word{translate-none}.
     2dup s\" \"" string-prefix?
     IF    scan-translate-string
     ELSE  rec-none  THEN ;

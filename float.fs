@@ -224,8 +224,13 @@ translate: translate-float ( -- translator ) \ gforth-experimental
 \G Interpreting run-time: @code{( @i{ -- r} )}
 ' translate-float Constant rectype-float
 
-: rec-float ( addr u -- r translate-float | 0 ) \ gforth-experimental
-    \G recognize floating point numbers
+: rec-float ( c-addr u -- translation ) \ gforth-experimental
+    \G Recognizes (@pxref{Define recognizers with existing translation
+    \G tokens}) a floating-point number, @i{translation} represents
+    \G pushing that number at run-time (see @word{translate-float}).
+    \G In Gforth, numbers containing decimal digits and a dot are also
+    \G recognized as FP numbers (but by default shadowed by
+    \G double-cell numbers).
     prefix-number translate-float translate-none rot select ;
 
 ' rec-float ' rec-forth defer@ >back

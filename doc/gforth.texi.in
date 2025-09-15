@@ -418,9 +418,9 @@ Recognizers
 
 * Default Recognizers::
 * Recognizer order::
-* Define recognizers with existing translators::
-* Defining translators::
-* Performing translator actions::
+* Define recognizers with existing translation tokens::
+* Defining translation tokens::
+* Performing translation actions::
 
 Word Lists
 
@@ -11011,7 +11011,8 @@ The text interpreter then tries to recognize the word with one of the
 recognizers in the system recognizer sequence.  On success, this
 produces a @emph{translator} and additional data, which represents the
 recognized word on the stack, as far as the text interpreter is
-concerned (@pxref{Define recognizers with existing translators}).
+concerned (@pxref{Define recognizers with existing translation
+tokens}).
 
 It then performs the interpretation, compilation, or postponing action
 of the translator, depending on the state of the text interpreter: Is
@@ -11275,30 +11276,36 @@ The recognizer concepts factor the central part of the text
 interpreter: The processing of one word after its name has been
 parsed.
 
-Unfortunately, there is no consensus on the exact words used for
-dealing with recognizers yet, so the words and descriptions in this
-section just reflect what is currently implemented in Gforth.  They
-can and most likely will change in the future.  Therefore, the
-documentation has also received less love than anything expected to
-be of permanent use.
+The words and descriptions in this section are those that have found
+consensus in the standardization committee and will probably be
+standardized.  There are also additional words implemented by Gforth
+and described in this section.  Currently this manual does not tell
+which words are planned to be standardized and which are not.  If you
+want to know that, see
+@cite{@uref{https://forth-standard.org/proposals/recognizer-committee-proposal-2025-09-11?hideDiff#reply-1535,Recognizer
+committee proposal 2025-09-11}}.
 
 Most programs just use the text interpreter as-is, and you can skip
 this chapter completely in this case, but if you are curious,
 @pxref{Default Recognizers}.  The next level of recognizer usage is to
 change which of the existing recognizers are used and in what order
-(@pxref{Recognizer order}).  You may also want to define a new
-recognizer using an existing translator (@pxref{Define recognizers
-with existing translators}).  If no existing translator fits, you can
-define a new translator (@pxref{Defining translators}).  Finally, you
-may want to process a word using a recognizer (sequence) and the
-resulting translator (@pxref{Performing translator actions}).
+(@pxref{Recognizer order}).
+
+You may also want to define a new recognizer; a recognizer produces an
+on-stack representation of the recognized string, called a
+@dfn{translation}, which contains a @dfn{translation token}.  You can
+use predefined translation tokens for defining your recognizer
+(@pxref{Define recognizers with existing translation tokens}), or
+first define a new tranlation token (@pxref{Defining translation
+tokens}).  Finally, you may want to process the translation
+(@pxref{Performing translation actions}).
 
 @menu
 * Default Recognizers::
 * Recognizer order::
-* Define recognizers with existing translators::
-* Defining translators::
-* Performing translator actions::
+* Define recognizers with existing translation tokens::
+* Defining translation tokens::
+* Performing translation actions::
 @end menu
 
 @node Default Recognizers, Recognizer order, Recognizers, Recognizers
@@ -11332,15 +11339,15 @@ Recognizes locals.
 Recognizes words in the search order.  This is shown as recognizer
 sequence, because the wordlists (@pxref{Word Lists}) themselves are
 also recognizers: They implement the recognizer interface
-(@pxref{Define recognizers with existing translators}) in addition to working with
-@word{find-name-in}.
+(@pxref{Define recognizers with existing translation tokens}) in
+addition to working with @word{find-name-in}.
 
 @item @word{rec-scope}
 Recognizes @samp{@i{voc1}:@i{voc2}:..@i{vocn}:@i{word}}, where
 @i{voc1} is a vocabulary in the search order, @i{voc2} is a vocabulary
-found in @i{voc1}, and so on, until @i{word} is found in @i{vocn}; the
-translator of this recognizer performs the semantics of @i{word}.
-Example: @samp{environment:max-n}.
+found in @i{voc1}, and so on, until @i{word} is found in @i{vocn}.
+The result behaves as if @i{word} had been found directly in the
+search order.  Example: @samp{environment:max-n}.
 
 @item @word{rec-number}
 Single-cell integers (@samp{#-15}, @samp{$-f}), characters
@@ -11377,7 +11384,7 @@ Recognizes @code{`@i{word}} and produces the execution token of @i{word}
 
 @item @word{rec-body}
 Recognizes @code{<@i{word}>} for the body address of @i{word} and
-@code{<@i{word}+@i{num}} for an offset @i{num} from the body address
+@code{<@i{word}+@i{num}>} for an offset @i{num} from the body address
 of @i{word} (@pxref{Literals for tokens and addresses}).
 
 @item @word{rec-env}
@@ -11419,8 +11426,8 @@ recognizers).
 
 However, there are no conflicts of Gforth-defined words with decimal
 numbers prefixed with @samp{#} or hex numbers prefixed with @samp{$},
-so it is a good practice to use these prefixes (that's also a good
-idea to make sure that the right base is used).  An older practice
+so it is a good practice to use these prefixes (it's also a good idea
+to make sure that the right @word{base} is used).  An older practice
 (before number prefixes were introduced) was to prefix hex numbers
 with @samp{0}.
 
@@ -11451,7 +11458,7 @@ avoid a conflict by using @code{to myvalue} or @code{to?->myvalue}
 @end itemize
 
 Note that most Forth systems do not support all the recognizers we
-describe above, but @code{rec-local search-order rec-number rec-float}
+describe above, but @code{rec-name rec-number rec-float}
 are relatively common (even if a system uses a hard-coded text
 interpreter instead of the flexible recognizer system).
 
@@ -11464,7 +11471,7 @@ locate float?1.
 
 will show that @code{rec-meta} recognizes @code{float?1.}.  However,
 if the recognizer recognizes a dictionary word (e.g., the scope
-recognizer), locate will show that word.
+recognizer), @word{locate} will show that word.
 
 Wordlists are also recognizers, as can be seen by the search order
 being shown as recognizer sequence containing the wordlists, .  A
@@ -11475,8 +11482,15 @@ the wordlist-id, and it will behave as a recognizer:
 "dup" forth-wordlist execute
 @end source
 
-produces the translator token of @word{translate-name} on the
-top-of-stack, and the name token of @word{dup} below that.
+produces the same result as
+
+@source
+"dup" rec-name
+@end source
+
+Actually, @word{rec-name} searches all wordlists in the search order;
+with the default search order, that finds the @word{dup} in
+@word{forth-wordlist}.
 
 doc-recs
 doc-rec-name
@@ -11493,7 +11507,7 @@ doc-rec-body
 doc-rec-env
 doc-rec-meta
 
-@node Recognizer order, Define recognizers with existing translators, Default Recognizers, Recognizers
+@node Recognizer order, Define recognizers with existing translation tokens, Default Recognizers, Recognizers
 @subsubsection Recognizer order
 
 You may prefer to use a different recognizer sequence, but with (some
@@ -11518,6 +11532,10 @@ deferred word to recognize anything for now, put @word{rec-none} in
 it.
 
 @item
+Use @word{set-recs} on the recognizer sequence, possibly after getting
+the current sequence with @word{get-recs} and modifying it.
+
+@item
 The body of a recognizer sequence is a @word{stack}
 (@pxref{User-defined Stacks}), and you can use the words for
 manipulating stacks on it.  In particular, if you add a recognizer
@@ -11532,81 +11550,84 @@ Here is an example of adding @word{rec-none} as last recognizer to
 the system recognizers:
 
 @source
-' rec-none action-of forth-recognize >body >back
+' rec-none action-of rec-forth get-recs 1+ action-of rec-forth set-recs
+
+\ alternative
+' rec-none action-of rec-forth >body >back
 @end source
 
-@c doc-recognize
-@c doc-get-recognizers
-@c doc-set-recognizers
-@c doc-forth-recognizer
-@c doc-set-forth-recognize
-
-@node Define recognizers with existing translators, Defining translators, Recognizer order, Recognizers
-@subsubsection Define recognizers with existing translators
+@node Define recognizers with existing translation tokens, Defining translation tokens, Recognizer order, Recognizers
+@subsubsection Define recognizers with existing translation tokens
 
 A recognizer is a Forth word with the stack effect @samp{( @i{c-addr u
--- ... translator | 0} )}.  @i{c-addr u} describes the string to be
-recognized.  If the recognizer does not recognize the string, it
-returns 0.  If it does recognize the string, it returns a translator,
-and a translator-specific amount of additional data (``...'').  When
-performing a translator action, the translator consumes this
-additional data.  E.g., when you perform
+-- translation} )}.  @i{c-addr u} describes the string to be
+recognized.  The returned @dfn{translation} is an abstract, but
+transparent data type: On the top of stack, there is a single-cell
+@dfn{translation token}.  If the recognizer does not recognize the
+string, it returns the translation token @word{translate-none}.  If it
+does recognize the string, it returns a translation with a different
+translation token.  The translation token also identifies how many
+other stack items the translation contains and how the translation
+will be processed later.
+
+E.g., when you perform
 
 @example
 "5" rec-number
 @end example
 
-it pushes @samp{5 translate-cell} on the stack, and when the
-compilation action of @word{translate-cell} is performed, both stack
-items are removed from the stack.  This compilation action also
-compiles a literal 5 into the current definition.
+it pushes @code{5 translate-cell} on the stack, which is a translation
+with the translation token @word{translate-cell}.
 
 You typically write a recognizer as ordinary colon definition that
-examines the string in some way, and if the string is accepted by this
-recognizer, the recognizer pushes a translator and (below that)
-additional data.  E.g., a simple variant of @word{rec-tick} can be
+examines the string in some way, and then pushes the appropriate
+translation.  E.g., a simple variant of @word{rec-tick} can be
 implemented as follows:
 
 @source
 : rec-tick ( addr u -- xt translate-cell | 0 )
-    over c@ '`' = if
+    2dup "`" string-prefix? if
         1 /string find-name dup if
             name>interpret translate-cell then
         exit then
     rec-none ;
 @end source            
 
-The only appropriate use of a translator (plus data) on the stack is
-to pass it to one of the words for performing translator actions
-(@pxref{Performing translator actions}).
+The only appropriate use of a translation is to pass it to one of the
+words for performing translation actions (@pxref{Performing
+translation actions}).
 
-A number of translators already exist in Gforth and can be used in a
-recognizer you write.  If none of them is appropriate for your
-recognizer, read the next section about defining your own translators.
+A number of translation tokens already exist in Gforth and can be used
+in a recognizer you write.  If none of them is appropriate for your
+recognizer, read the next section about defining your own translation
+tokens.
 
-For each translator, @emph{additional data} is documented; a
-recognizer that returns a certain translator also has to return the
-additional data below it.
+The system-defined translators are documented as removing some stack
+items and pushing a complete translation on the stack, e.g., for
+@word{tanslate-cell} @code{( x -- translation )}.  This makes the
+documentation uniform and avoids cumbersome descriptions.  However,
+actually the current translation tokens just push a cell-sized value
+on the stack, and, combined with the additional stack items, the
+result is a translation.
 
 @c !! move this further down?
 The text interpreter passes the output of the recognizer to a
-translator action (@pxref{Performing translator actions}), which
-removes the translator and all the additional data from the stack, may
-perform additional parsing, and then invokes the interpreting run-time of
-the translator, or the compiling run-time, or the postponing run-time.
+translation action (@pxref{Performing translation actions}).  Every
+translation action removes the translation from the stack, then may
+perform additional parsing, and finally performs the interpreting
+run-time of the translation token, or the compiling run-time, or the
+postponing run-time.
 
-For each system-defined translator we specify the interpreting
+For each system-defined translation token we specify the interpreting
 run-time explicitly.  Unless otherwise specified the compiling
 run-time compiles the interpreting run-time.  The postponing run-time
 compiles the compiling run-time.
 
 In the @word{rec-tick} example above, if the recognizer recognizes,
-say, @code{`dup}, it returns @i{xt translator}, where @i{translator}
-is the value returned by @word{translate-cell}, and @i{xt} is the
-execution token of @word{dup}.  So @i{xt} is the additional data for
-this translator.  If the text interpreter then performs the compiling
-action, that action first removes these two stack items, and compiles
-code that pushes @i{xt}.
+say, @code{`dup}, it returns @i{xt-dup translate-cell}.  If the text
+interpreter then performs the compiling action, that action first
+removes these two stack items, and compiles code that pushes
+@i{xt-dup}.
 
 doc-translate-name
 doc-translate-cell
@@ -11617,38 +11638,46 @@ doc-translate-string
 doc-scan-translate-string
 doc-translate-env
 doc-translate-to
-@c doc-translate-locals
+@c doc-translate-local
 @c doc-translate-word
 
-One way to write a recognizer is to call @word{forth-recognize} on a
+One way to write a recognizer is to call @word{rec-forth} on a
 substring, and then look at the result to see if something was
 recognized that the whole-string recognizer actually deals with.
-E.g., @word{rec-tick} and @word{rec-dtick} do this and then check
-whether @word{forth-recognize} has pushed @i{nt @code{translate-name}};
-the benefit of this approach is that, e.g. @word{`environment:max-n}
-works, where @word{rec-scope} recognizes @word{environment:max-n}.
-The specific check for an nt used in @word{rec-tick} and
-@word{rec-dtick} is @word{forth-recognize-nt?}; it is implemented on top of the
-more general @word{try-recognize}.
+E.g., the actual implementations of @word{rec-tick} and
+@word{rec-dtick} do this and then check whether @word{rec-forth} has
+pushed @i{nt @code{translate-name}}; the benefit of this approach is
+that, e.g. @word{`environment:max-n} works, where @word{rec-scope}
+recognizes @word{environment:max-n}.  The specific check for an nt
+used in @word{rec-tick} and @word{rec-dtick} is
+@word{forth-recognize-nt?}; it is implemented on top of the more
+general @word{try-recognize}.
 
 doc-try-recognize
 doc-forth-recognize-nt?
 
 
-@node  Defining translators, Performing translator actions, Define recognizers with existing translators, Recognizers
-@subsubsection Defining translators
+@node  Defining translation tokens, Performing translation actions, Define recognizers with existing translation tokens, Recognizers
+@subsubsection Defining translation tokens
 
-A translator is a table of three actions: interpretation, compilation,
-and postponing.  You should design the translator and its actions like
-the system-defined translators, with additional data, maybe some
-parsing, and at least an interpreting run-time (and in the normal case
-let the compiling run-time and postponing run-time follow from that,
-@pxref{Define recognizers with existing translators}).  You then have
-to define the action words to implement the sequence: consume the
-additional data, possibly scan, then perform the run-time appropriate
-for the action.
+Before you define a translation token, you should think about the
+interpreting run-time, compiling run-time, and postponing run-time
+that the corresponding actions should perform for translations with
+this translation token.  Also, you should think about whether the
+translation actions should perform additional scanning (like
+@word{scan-translate-string}).
 
-You define a translator with
+You then need to define three words, one for the interpreting action,
+one for the compiling action, and one for the postponing action.
+
+Each of these words will eventually be called after removing the
+translation token from the stack (but the remainder of the translation
+is still on the stack(s)).  It should remove this remainder, perform
+the additional scanning (if any), and then perform the appropriate
+run-time.
+
+Once you have these three words, you can define a translation token by
+passing the xts of these words to
 
 doc-translate:
 
@@ -11662,16 +11691,18 @@ To make this a little more concrete, here is an implementation for
 translate: translate-cell
 @end source
 
-If a recognizer for a single-cell literal (e.g., @word{rec-tick})
-matches the input string, it pushes the value @i{x} of the literal
-(the xt of the ticked word in case of @word{rec-tick}) on the data
-stack and the xt of @word{translate-cell}.  When the interpretation
-semantics is needed, @i{int-xt} is @code{execute}d, and @i{x} stays on
-the stack.  For the compilation semantics, @i{x} is compiled into the
-current definition as literal.
+If a recognizer recognizes something as a single-cell literal @i{x},
+it pushes @i{x} and then calls @word{translate-cell}.  Later the text
+interpreter (or @word{postpone} or other consumer of translations)
+removes the translation token and executes one of the three xts above
+(depending on what translation action is desired).
+
+When the interpretation semantics is needed, @i{int-xt} is
+@code{execute}d, and @i{x} stays on the stack.  For the compilation
+semantics, @i{x} is compiled into the current definition as literal.
 
 For postponing, more time levels are involved: at text-interpretation
-time (when the recognizer runs and the translator action is performed)
+time (when the recognizer runs and the translation token action is performed)
 the current definition is @i{d1}.  When @i{d1} runs, the current
 definition is @i{d2}@footnote{If there is no current definition when
 something is compiled, Gforth outputs a warning.}.  The @i{post-xt} of
@@ -11680,10 +11711,10 @@ into @i{d1} and also compiles @word{lit,} into @i{d1} (that's the
 @code{postpone lit,} part).  When @i{d1} runs, it pushes @i{x} and
 then the @word{lit,} compiles @i{x} into @i{d2}.
 
-Many literal translators follow this scheme.
+Many literal translation tokens follow this scheme.
 
-A translator that is quite different is @word{translate-name}.  Here's
-an implementation:
+A translation token that is quite different is @word{translate-name}.
+Here's an implementation:
 
 @source
 : name-intsem ( ... nt -- ... )
@@ -11709,11 +11740,10 @@ This is achieved by compiling @i{nt} and @word{name-compsem} into the
 current definition @i{d1}.  When @i{d1} runs, the result performs the
 compilation semantics of @i{nt} at that time.
 
+@node Performing translation actions,  , Defining translation tokens, Recognizers
+@subsubsection Performing translation actions
 
-@node Performing translator actions,  , Defining translators, Recognizers
-@subsubsection Performing translator actions
-
-There are the following words for performing the various translator
+There are the following words for performing the various translation token
 actions:
 
 doc-interpreting
