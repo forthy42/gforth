@@ -315,7 +315,7 @@ forth-wordlist current !
 : find-name-in  ( c-addr u wid -- nt | 0 ) \ gforth
     \G Find the name @i{c-addr u} in the word list @i{wid}. Return its
     \G @i{nt}, if found, otherwise 0.
-    execute dup IF  drop  THEN ;
+    execute translate-none = IF  0  THEN ;
 
 : search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
     \G Search the word list identified by @i{wid} for the definition

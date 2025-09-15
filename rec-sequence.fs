@@ -27,7 +27,7 @@ Defer trace-recognizer  ' drop is trace-recognizer
     1 rec-level +!  -rot >l >l
     $@ bounds cell- swap cell- U-DO
 	@local0 @local1 I perform
-	dup  IF
+	dup translate-none <> IF
 	    -1 rec-level +!
 	    I @ trace-recognizer  UNLOOP  [ cell 8 = ] [IF] lp+2 [ELSE] lp+ [THEN] EXIT  THEN  drop
 	cell [ 2 cells ] Literal I cell- 2@ <> select \ skip double entries
@@ -48,7 +48,7 @@ Defer trace-recognizer  ' drop is trace-recognizer
 \ : rec-sequence ( xt1 .. xtn n "name" -- ) \ gforth
 \     n>r : nr> ]] 2>r [[ 0 ?DO
 \ 	]] 2r@ [[ compile,
-\ 	]] dup IF 2rdrop EXIT THEN drop [[
+\ 	]] dup translate-none <> IF 2rdrop EXIT THEN drop [[
 \     LOOP ]] 2rdrop ; [[ ;
 
 ' rec-number ' rec-name 2 rec-sequence: default-recognize

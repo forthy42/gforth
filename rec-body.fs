@@ -25,8 +25,8 @@ require rec-tick.fs
     \G words bracketed with @code{'<'} @code{'>'} return their body.
     \G Example: @code{<dup>} gives the body of dup
     over c@ '<' <> >r  2dup + 1- c@ '>' <> r> or
-    if 2drop 0 exit then
-    1 /string 1- '+' $split 2>r forth-recognize-nt? dup 0= if
+    if rec-none exit then
+    1 /string 1- '+' $split 2>r forth-recognize-nt? dup translate-none = if
         2rdrop drop translate-none exit then
     name>interpret >body
     2r> dup 0= if  2drop translate-cell  exit  then

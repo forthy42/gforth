@@ -26,7 +26,7 @@
 : scope-split ( addr u wid -- translation )
     BEGIN  >r
 	':' $split nosplit? IF  2drop r> execute  EXIT  THEN
-	2swap r> execute  WHILE
+	2swap r> execute  translate-none <>  WHILE
 	    dup >does-code [ ' forth >does-code ]L = WHILE
 		>wordlist  REPEAT  drop  THEN
     rec-none ;

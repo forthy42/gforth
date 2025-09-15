@@ -169,7 +169,7 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
     ['] shadow-warning ?warning IF  2drop  EXIT  THEN
     warnings @ >r warnings off
     sp@ fp@ 2>r 2dup warning-recs recognize 2r> rot >r
-    fp! sp! r> 0<>  r> dup warnings ! 0<> and
+    fp! sp! r> translate-none <>  r> dup warnings ! 0<> and
     ['] shadow-num-warning ?warning
     s" xlerb" str= warning" 'xlerb' shall remain undefined"
 ; is check-shadow

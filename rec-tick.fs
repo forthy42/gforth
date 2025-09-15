@@ -19,17 +19,17 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-?: forth-recognize-nt? ( c-addr u -- nt | 0 ) \ gforth-experimental
+?: forth-recognize-nt? ( c-addr u -- nt | translate-none ) \ gforth-experimental
     \G If @word{forth-recognize} produces a result @i{nt
-    \G @code{translate-name}}, return @i{nt}, otherwise 0.
+    \G @code{translate-name}}, return @i{nt}, otherwise translate-none.
     [: translate-name = dup if drop then ;] try-recognize ;
 
-: rec-tick ( addr u -- xt translate-cell | 0 ) \ gforth-experimental
+: rec-tick ( addr u -- xt translate-cell | translate-none ) \ gforth-experimental
     \G words prefixed with @code{`} return their xt.
     \G Example: @code{`dup} gives the xt of dup.
     over c@ '`' = if
-        1 /string forth-recognize-nt? dup if
-            ?compile-only name>interpret translate-cell then
+        1 /string forth-recognize-nt? dup translate-none <> if
+            ?compile-only name>interpret translate-cell exit  then
         exit  then
     rec-none ;
 
@@ -37,8 +37,8 @@
     \G words prefixed with @code{``} return their nt.
     \G Example: @code{``S"} gives the nt of @code{S"}.
     2dup "``" string-prefix? if
-        2 /string forth-recognize-nt? dup if
-            translate-cell then
+        2 /string forth-recognize-nt? dup translate-none <> if
+            translate-cell exit  then
         exit  then
     rec-none ;
 
