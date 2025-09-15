@@ -44,12 +44,12 @@ s" quotation.db" ' included ' brackets-recognizer recognize-execute
 
 ' bracket( >wordlist ' )bracket >wordlist 2 rec-sequence: brackets
 
-: ?notfound ( nt rectype-nt / 0 -- value )
-    0= IF  0  ELSE  execute  THEN ;
+: ?nobracket ( nt rectype-nt / translate-none -- value )
+    translate-none = IF  0  ELSE  execute  THEN ;
 
 : bracket<> ( xchar -- xchar' / 0 )
-    ['] xemit $tmp brackets ?notfound ;
+    ['] xemit $tmp brackets ?nobracket ;
 : bracket< ( xchar -- xchar' / 0 )
-    ['] xemit $tmp [ ' bracket( >wordlist compile, ] ?notfound ;
+    ['] xemit $tmp [ ' bracket( >wordlist compile, ] ?nobracket ;
 : bracket> ( xchar -- xchar' / 0 )
-    ['] xemit $tmp [ ' )bracket >wordlist compile, ] ?notfound ;
+    ['] xemit $tmp [ ' )bracket >wordlist compile, ] ?nobracket ;

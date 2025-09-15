@@ -140,11 +140,12 @@ cb>
 	l" How would it look without macros?" /subsection
 	\skip \mono
 ```
+Create xdg-wm-base-listener xdg_wm_base_listener allot
 :noname ( data xdg_wm_base serial -- )
     serial( dup [: cr ." pong serial: " h. ;] do-debug )
     dup to last-serial
     xdg_wm_base_pong drop ; xdg_wm_base_listener-ping:
-Create xdg-wm-base-listener ,
+    get-current latest-name-in xdg_wm_base_listener-ping !
 ```
 	\sans
     }}v box[] >bdr

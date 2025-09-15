@@ -48,6 +48,9 @@ translate-cell   is configuring
 translate-dcell  is configuring
 :noname '%' ['] f! ['] fdrop exec-config ;
 translate-float  is configuring
+translate-none [IF]
+    ' .config-err ' translate-none is configuring
+[THEN]
 
 : config-line ( -- )
 \    current-sourceview .sourceview ." : config line='" source type ." '" cr
@@ -55,7 +58,10 @@ translate-float  is configuring
     source bl skip ";" string-prefix? ?EXIT
     '=' parse -trailing 2>r
     parse-name config-recognize ?scan-string 2r> rot
-    ?dup-IF  configuring  ELSE  2drop .config-err  THEN
+    [ translate-none ] [IF]  configuring
+    [ELSE]
+	?dup-IF  configuring  ELSE  2drop .config-err  THEN
+    [THEN]
     postpone \ ;
 
 : read-config-loop ( -- )

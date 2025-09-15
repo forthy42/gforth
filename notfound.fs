@@ -32,12 +32,12 @@ notfound: postpone-notfound1 ( addr u -- )
 ' interpret-notfound1
 ' compiler-notfound1
 ' postpone-notfound1
-translate: notfound
+translate: translate-none
 
 : ?notfound ( token -- token  |  0 -- addr u notfound )
     \G if your code relies on @code{notfound} returned instead of 0, you can
     \G use @code{forth-recognize ?notfound}, which will deliver the historical
     \G stack effect
-    dup 0= IF  drop input-lexeme 2@ ['] notfound  THEN ;
+    dup 0= IF  drop input-lexeme 2@ translate-none  THEN ;
 
 ' bt-rp0-catch ' interpret [DO] [I] @ ' ?found = [IF] ' ?notfound [I] ! [THEN] cell [+LOOP]
