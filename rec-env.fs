@@ -27,9 +27,11 @@ translate: translate-env ( -- translator ) \ gforth-experimental
 \G @i{c-addr2 u2} is the content of the environment variable with name
 \G @i{c-addr1 u1}.
 
-: rec-env ( addr u -- translation ) \ gforth
-    \G words enclosed by @code{$@{} and @code{@}} are passed to @code{getenv}
-    \G to get the OS-environment variable as string.
+: rec-env ( c-addr u -- translation ) \ gforth
+    \G Recognizes (@pxref{Define recognizers with existing translation
+    \G tokens}) @code{$@{@i{envvar}@}}.  If successful,
+    \G @i{translation} represents passing @i{envvar} to @word{getenv}
+    \G at run-time (see @word{translate-env}).
     \G Example: @code{$@{HOME@}} gives the home directory.
     2dup s" ${" string-prefix? 0= >r
     2dup + 1- c@ '}' <> r> or

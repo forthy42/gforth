@@ -31,18 +31,22 @@ translate: translate-to ( -- translator ) \ gforth-experimental
 Create to-slots here $100 dup allot $FF fill
 0 "-+@='" bounds [DO] dup to-slots [I] c@ + c! 1+ [LOOP] drop
 
-: rec-to ( addr u -- translation ) \ gforth-experimental
-    \G words prefixed with @code{->} are treated as if preceeded by
-    \G @code{TO}, with @code{+>} as @code{+TO}, with
-    \G @code{'>} as @code{ADDR}, with @code{@@>} as @code{ACTION-OF}, and
-    \G with @code{=>} as @code{IS}.
-    dup 3 u< IF  rec-none  EXIT  THEN
-    over 1+ c@ '>' <> IF  rec-none  EXIT  THEN
-    over c@ to-slots + c@ dup $FF = IF  drop rec-none  EXIT  THEN
-    -rot  2 /string sp@ 3 cells + fp@ 2>r rec-forth
-    translate-name? 0= IF  2r> fp! sp! translate-none EXIT  THEN  2rdrop
-    \ dup >namehm @ >hmto @ ['] n/a = IF  rec-none EXIT  THEN
-    over 4 = IF  ?addr  THEN
+: rec-to ( c-addr u -- translation ) \ gforth-experimental
+    \G Recognizes (@pxref{Define recognizers with existing translation
+    \G tokens}) @code{->@i{v}} (@code{TO @i{v}}), @code{+>@i{v}}
+    \G (@code{+TO @i{v}}), @code{'>@i{v}} (@code{ADDR @i{v}}),
+    \G @code{@@>@i{d}} as @code{ACTION-OF @i{d}} and @code{=>@i{d}} as
+    \G @code{IS @i{d}}, where @i{v} is a value-flavoured word and
+    \G @i{d} is a defer-flavoured word.  If successful,
+    \G @i{translation} represents performing the operation on
+    \G @i{v}/@i{d} at run-time.
+    dup 3 u< IF rec-none EXIT THEN
+    over 1+ c@ '>' <> IF rec-none EXIT THEN
+    over c@ to-slots + c@ dup $FF = IF drop rec-none EXIT THEN
+    -rot 2 /string sp@ 3 cells + fp@ 2>r rec-forth
+    translate-name? 0= IF 2r> fp! sp! translate-none EXIT THEN 2rdrop
+    \ dup >namehm @ >hmto @ ['] n/a = IF rec-none EXIT THEN
+    over 4 = IF ?addr THEN
     name>interpret translate-to ;
 
 ' rec-to action-of rec-forth >back

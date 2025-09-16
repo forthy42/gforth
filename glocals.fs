@@ -174,11 +174,13 @@ translate-name >body 2@ swap
 translate: translate-local ( ... nt -- ... )
 \ undocumented for good reasons
 
-: rec-local ( addr u -- nt translate-local | 0 ) \ gforth-experimental
-    \G search the locals wordlist and if found replace
-    \G the translator with @code{translate-local}.
+: rec-local ( c-addr u -- translation ) \ gforth-experimental
+    \G Recognizes (@pxref{Define recognizers with existing translation
+    \G tokens}) a visible local.  If successful, @i{translation}
+    \G represents pushing the value of the local at run-time (for
+    \G details @pxref{Gforth locals} and @pxref{Macros}).
     [ ' locals >wordlist compile, ]
-    dup translate-name = IF  drop translate-local  THEN ;
+    dup translate-name = IF drop translate-local THEN ;
 
 ' search-order ' rec-local 2 rec-sequence: rec-name/local
 

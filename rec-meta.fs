@@ -19,10 +19,11 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : rec-meta ( addr u -- xt translate-to | 0 ) \ gforth
-    \G words prefixed with @var{recognizer}@code{?} are processed by
-    \G @code{rec-}@var{recognizer} to disambiguate recognizers.
-    \G Example: @code{hex num?cafe num?add} will be parsed as number only
-    \G Example: @code{float?123.} will be parsed as float
+    \G Recognizes (@pxref{Define recognizers with existing translation
+    \G tokens}) @code{@i{myrec}?@i{mystring}}.  Produces the result of
+    \G passing @i{mystring} to @code{rec-@i{myrec}}.@*
+    \G Example: @code{hex num?cafe num?add} will be recognized as number only.@*
+    \G Example: @code{float?123.} will be recognized as float.@*
     '?' $split dup 0= IF  2drop
     ELSE
 	2swap [: ." rec-" type ;] $tmp find-name ?dup-IF

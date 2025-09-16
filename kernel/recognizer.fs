@@ -127,12 +127,16 @@ forth-wordlist is rec-name
 
 \ snumber? should be implemented as recognizer stack
 
-: rec-number ( addr u -- translation ) \ gforth-experimental
-    \G converts a number to a single/double integer
+: rec-number ( c-addr u -- translation ) \ gforth-experimental
+    \G Recognizes (@pxref{Define recognizers with existing translation
+    \G tokens}) a single or double number (without or with prefix), or
+    \G a character.  If successful, @i{translation} represents pushing
+    \G that number at run-time (see @word{translate-cell} and
+    \G @word{translate-dcell}).
     snumber?  dup
     IF
-	0> translate-dcell translate-cell rot select  EXIT
-    ELSE  drop translate-none  THEN ;
+	0> translate-dcell translate-cell rot select EXIT
+    ELSE drop translate-none THEN ;
 
 \ generic stack get/set; actually, we don't need this for
 \ the recognizer any more, but other parts of the kernel use it.

@@ -329,8 +329,12 @@ forth-wordlist current !
 	(name>intn)
     then ;
 
-Defer rec-name ( addr u -- translation ) \ gforth-experimental
-\G recognize a name token
+Defer rec-name ( c-addr u -- translation ) \ gforth-experimental
+    \G Recognizes (@pxref{Define recognizers with existing translation
+    \G tokens}) a visible local or a visible named word.  If
+    \G successful, @i{translation} represents the text-interpretation
+    \G semantics (interpreting, compiling, postponing) of that word
+    \G (see @word{translate-name}).
 
 : find-name ( c-addr u -- nt | 0 ) \ gforth
     \g Find the name @i{c-addr u} in the current search
