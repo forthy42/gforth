@@ -225,8 +225,8 @@ translate: translate-float ( -- translator ) \ gforth-experimental
 ' translate-float Constant rectype-float
 
 : rec-float ( c-addr u -- translation ) \ gforth-experimental
-    \G Recognizes (@pxref{Define recognizers with existing translation
-    \G tokens}) a floating-point number, @i{translation} represents
+    \G Recognizes (@pxref{Defining recognizers})
+    \G a floating-point number, @i{translation} represents
     \G pushing that number at run-time (see @word{translate-float}).
     \G In Gforth, numbers containing decimal digits and a dot are also
     \G recognized as FP numbers (but by default shadowed by

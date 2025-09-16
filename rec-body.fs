@@ -22,8 +22,8 @@
 require rec-tick.fs
 
 : rec-body ( addr u -- translation ) \ gforth-experimental
-    \G Recognizes (@pxref{Define recognizers with existing translation
-    \G tokens}) @code{<@i{word}>} and @code{<@i{word}+@i{number}>}.
+    \G Recognizes (@pxref{Defining recognizers})
+    \G @code{<@i{word}>} and @code{<@i{word}+@i{number}>}.
     \G If successful, @i{translation} represents pushing the sum of
     \G the body address @i{word} and @i{number} (0 if absent) at
     \G run-time (see @word{translate-cell}).

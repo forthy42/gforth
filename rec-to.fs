@@ -32,11 +32,11 @@ Create to-slots here $100 dup allot $FF fill
 0 "-+@='" bounds [DO] dup to-slots [I] c@ + c! 1+ [LOOP] drop
 
 : rec-to ( c-addr u -- translation ) \ gforth-experimental
-    \G Recognizes (@pxref{Define recognizers with existing translation
-    \G tokens}) @code{->@i{v}} (@code{TO @i{v}}), @code{+>@i{v}}
+    \G Recognizes (@pxref{Defining recognizers})
+    \G @code{->@i{v}} (@code{TO @i{v}}), @code{+>@i{v}}
     \G (@code{+TO @i{v}}), @code{'>@i{v}} (@code{ADDR @i{v}}),
-    \G @code{@@>@i{d}} as @code{ACTION-OF @i{d}} and @code{=>@i{d}} as
-    \G @code{IS @i{d}}, where @i{v} is a value-flavoured word and
+    \G @code{@@>@i{d}} (@code{ACTION-OF @i{d}}) and @code{=>@i{d}}
+    \G (@code{IS @i{d}}), where @i{v} is a value-flavoured word and
     \G @i{d} is a defer-flavoured word.  If successful,
     \G @i{translation} represents performing the operation on
     \G @i{v}/@i{d} at run-time.

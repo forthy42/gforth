@@ -175,8 +175,8 @@ translate: translate-local ( ... nt -- ... )
 \ undocumented for good reasons
 
 : rec-local ( c-addr u -- translation ) \ gforth-experimental
-    \G Recognizes (@pxref{Define recognizers with existing translation
-    \G tokens}) a visible local.  If successful, @i{translation}
+    \G Recognizes (@pxref{Defining recognizers})
+    \G a visible local.  If successful, @i{translation}
     \G represents pushing the value of the local at run-time (for
     \G details @pxref{Gforth locals} and @pxref{Macros}).
     [ ' locals >wordlist compile, ]

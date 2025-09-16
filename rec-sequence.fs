@@ -37,12 +37,20 @@ Defer trace-recognizer  ' drop is trace-recognizer
     -1 rec-level +!
     0 [ cell 8 = ] [IF] lp+2 [ELSE] lp+ [THEN] ;
 
-: rec-sequence: ( xt1 .. xtn n "name" -- ) \ gforth-experimental
-    \G Define @i{name}, a recognizer sequence that first searches
-    \G @i{xtn} and last searches @i{xt1}.  @i{name} is a recognizer
-    \G itself, which makes recognizer sequences nestable.  The order
-    \G of operands is inspired by @word{get-order} and
-    \G @word{set-order}.
+: rec-sequence: ( xtu .. xt1 u "name" -- ) \ gforth-experimental
+    \G Define a recognizer sequence @i{name}.  @i{xtu}..@i{xt1} are
+    \G xts of recognizers, and are the initial contents of the
+    \G recognizer sequence, with @i{xt1} searched first.  The order of
+    \G operands is inspired by @word{get-order} and @word{set-order}.@*
+    \G @i{name} execution: ( c-addr u -- translation )@*
+    \G Execute the first xt in the recognizer sequence @i{name}.  If
+    \G the resulting translation has a translation token other than
+    \G @word{translate-none}, this is the result of @i{name} and no
+    \G further recognizers are tried.  Otherwise, the stacks are
+    \G restored to the initial state (@i{c-addr u}), and the next xt
+    \G is tried.  If all xts produce @word{translate-none},
+    \G @i{translation} is @code{translate-none}.  @i{name} is a
+    \G recognizer itself, which makes recognizer sequences nestable.
     ['] recognize do-stack: ;
 
 \ : rec-sequence ( xt1 .. xtn n "name" -- ) \ gforth

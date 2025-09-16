@@ -25,11 +25,10 @@
     [: translate-name = dup if drop then ;] try-recognize ;
 
 : rec-tick ( c-addr u -- translation ) \ gforth-experimental
-    \G Recognizes (@pxref{Define recognizers with existing translation
-    \G tokens}) @code{`@i{word}}.  If successful, @i{translation}
-    \G represents pushing the execution token of @i{word} at run-time
-    \G (see @word{translate-cell}).  Example: @code{`dup} gives the xt
-    \G of dup.
+    \G Recognizes (@pxref{Defining recognizers}) @code{`@i{word}}.  If
+    \G successful, @i{translation} represents pushing the execution
+    \G token of @i{word} at run-time (see @word{translate-cell}).
+    \G Example: @code{`dup} gives the xt of dup.
     over c@ '`' = if
         1 /string forth-recognize-nt? dup translate-none <> if
             ?compile-only name>interpret translate-cell exit  then
@@ -37,10 +36,9 @@
     rec-none ;
 
 : rec-dtick ( c-addr u -- translation ) \ gforth-experimental
-    \G Recognizes (@pxref{Define recognizers with existing translation
-    \G tokens}) @code{``@i{word}}.  If successful, @i{translation}
-    \G represents pushing the name token of @i{word} at run-time (see
-    \G @word{translate-cell}).
+    \G Recognizes (@pxref{Defining recognizers}) @code{``@i{word}}.
+    \G If successful, @i{translation} represents pushing the name
+    \G token of @i{word} at run-time (see @word{translate-cell}).
     \G Example: @code{``S"} gives the nt of @code{S"}.
     2dup "``" string-prefix? if
         2 /string forth-recognize-nt? dup translate-none <> if

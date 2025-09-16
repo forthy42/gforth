@@ -28,8 +28,8 @@ translate: translate-env ( -- translator ) \ gforth-experimental
 \G @i{c-addr1 u1}.
 
 : rec-env ( c-addr u -- translation ) \ gforth
-    \G Recognizes (@pxref{Define recognizers with existing translation
-    \G tokens}) @code{$@{@i{envvar}@}}.  If successful,
+    \G Recognizes (@pxref{Defining recognizers})
+    \G @code{$@{@i{envvar}@}}.  If successful,
     \G @i{translation} represents passing @i{envvar} to @word{getenv}
     \G at run-time (see @word{translate-env}).
     \G Example: @code{$@{HOME@}} gives the home directory.

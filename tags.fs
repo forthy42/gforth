@@ -115,7 +115,7 @@ create tags-line 128 chars allot
 	latest name>string put-tags-string
     then ;
 
-' bye deferred? [IF]
+true ( ' bye deferred? ) [IF]
     :noname ( -- )
 	tags-file-id ?dup-IF  tags-file off close-pipe throw drop  THEN
 	defers bye ; is bye

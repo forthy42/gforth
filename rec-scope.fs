@@ -32,8 +32,7 @@
     rec-none ;
 
 : rec-scope ( c-addr u -- translation ) \ gforth-experimental
-    \G Recognizes (@pxref{Define recognizers with existing translation
-    \G tokens}) strings of the form (simplified)
+    \G Recognizes (@pxref{Defining recognizers})
     \G @code{@i{vocabulary}:@i{word}}, where @i{vocabulary} is found
     \G in the search order.  Otherwise the behaviour is like that of
     \G @word{rec-name}.  The general form can have several

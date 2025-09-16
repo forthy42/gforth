@@ -210,12 +210,17 @@ UValue $? ( -- n ) \ gforth dollar-question
     BEGIN  dup ['] defer@ catch-nobt 0= WHILE  nip  REPEAT  drop ;
 
 : get-recs ( recs-xt -- xtu .. xt1 u ) \ gforth-experimental
-    \G Obtain the xts the recognizer sequence @i{recs-xt} in the
-    \G same order as used to define it.
+    \G @i{Recs-xt} is the execution token of a recognizer sequence. @i{xt1}
+    \G is the first recognizer searched by this sequence, @i{xtu} is
+    \G the last one.  If @i{recs-xt} refers to a deferred word, perform
+    \G @code{defer@@ get-recs}.
     defers@ get-stack ;
-: set-recs ( xu .. xt1 u recs-xt -- ) \ gforth-experimental
-    \G Set the xts the recognizer sequence @i{recs-xt} in the
-    \G same order as used to define it.
+: set-recs ( xtu .. xt1 u recs-xt -- ) \ gforth-experimental
+    \G @i{rec-xt} is the execution token of a recognizer sequence.
+    \G Replace the contents of this sequence with @i{xtu...xt_1},
+    \G where @i{xt1} is searched first, and @i{xtu} is searched last.
+    \G If @i{recs-xt} refers to a deferred word, perform
+    \G @code{defer@@ set-recs}.
     defers@ set-stack ;
 
 : -stack { x stack -- } \ gforth-experimental minus-stack

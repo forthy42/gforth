@@ -148,5 +148,10 @@ has? rom
     LOOP ;
 : recs ( -- ) \ gforth-experimental
     \G Print the system recognizer order, with the first-searched
-    \G recognizer leftmost.
+    \G recognizer leftmost.  For recognizer sequences, first the name
+    \G is printed, then @samp{(}, then the content of the sequence,
+    \G then @samp{)}.  For a deferred word, the name of the deferred
+    \G word is shown, not that of the recognizer inside; if it
+    \G contains a recognizer sequence, the name of the deferred word
+    \G and the contents of the sequence are shown.
     ['] rec-forth .recognizer-sequence ;

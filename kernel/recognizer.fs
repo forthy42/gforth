@@ -112,7 +112,7 @@ forth-wordlist is rec-name
 (translate:) translate-dcell,
 ' translate-dcell, AConstant translate-dcell ( -- translator ) \ gforth-experimental
 \G Additional data: @code{( @i{xd} )}.@*
-\G Interpreting run-time: @code{( @i{ -- dx} )}
+\G Interpreting run-time: @code{( @i{ -- xd} )}
 
 0 Constant translate-none \ stub
 
@@ -128,8 +128,8 @@ forth-wordlist is rec-name
 \ snumber? should be implemented as recognizer stack
 
 : rec-number ( c-addr u -- translation ) \ gforth-experimental
-    \G Recognizes (@pxref{Define recognizers with existing translation
-    \G tokens}) a single or double number (without or with prefix), or
+    \G Recognizes (@pxref{Defining recognizers})
+    \G a single or double number (without or with prefix), or
     \G a character.  If successful, @i{translation} represents pushing
     \G that number at run-time (see @word{translate-cell} and
     \G @word{translate-dcell}).
@@ -177,8 +177,8 @@ forth-wordlist is rec-name
     2>r 2r@ rec-name dup 0= IF  drop 2r@ rec-number  THEN  2rdrop ;
 
 ( ' rec-number ' rec-name 2 combined-recognizer: default-recognize ) \ see pass.fs
-\G The system recognizer
-Defer rec-forth ( c-addr u -- ... translate-xt ) \ recognizer
+
+Defer rec-forth ( c-addr u -- translation ) \ gforth-experimental
 \G The system recognizer: @word{rec-forth} is a @word{defer}red
 \G word that contains a recognizer (sequence).  The system's text
 \G interpreter calls @word{rec-forth}.

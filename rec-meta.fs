@@ -19,11 +19,13 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : rec-meta ( addr u -- xt translate-to | 0 ) \ gforth
-    \G Recognizes (@pxref{Define recognizers with existing translation
-    \G tokens}) @code{@i{myrec}?@i{mystring}}.  Produces the result of
-    \G passing @i{mystring} to @code{rec-@i{myrec}}.@*
-    \G Example: @code{hex num?cafe num?add} will be recognized as number only.@*
+    \G Recognizes (@pxref{Defining recognizers})
+    \G @code{@i{myrec}?@i{mystring}}.  Produces the result of passing
+    \G @i{mystring} to @code{rec-@i{myrec}}.@*
+    \G Example: @code{hex num?cafe} will be recognized as number even
+    \G if a word @word{cafe} is in the search order.@*
     \G Example: @code{float?123.} will be recognized as float.@*
+
     '?' $split dup 0= IF  2drop
     ELSE
 	2swap [: ." rec-" type ;] $tmp find-name ?dup-IF

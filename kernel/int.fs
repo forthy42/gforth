@@ -330,8 +330,8 @@ forth-wordlist current !
     then ;
 
 Defer rec-name ( c-addr u -- translation ) \ gforth-experimental
-    \G Recognizes (@pxref{Define recognizers with existing translation
-    \G tokens}) a visible local or a visible named word.  If
+    \G Recognizes (@pxref{Defining recognizers})
+    \G a visible local or a visible named word.  If
     \G successful, @i{translation} represents the text-interpretation
     \G semantics (interpreting, compiling, postponing) of that word
     \G (see @word{translate-name}).

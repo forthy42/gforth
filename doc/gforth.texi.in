@@ -418,7 +418,7 @@ Recognizers
 
 * Default Recognizers::
 * Recognizer order::
-* Define recognizers with existing translation tokens::
+* Defining recognizers::
 * Defining translation tokens::
 * Performing translation actions::
 
@@ -6734,7 +6734,7 @@ limitations we recommend avoiding them, especially as input parameters
 of words.  @xref{Counted string words}.
 
 @node String and character literals, String words, String representations, Strings and Characters
-@subsection String and Character literals
+@subsection String and character literals
 @cindex character literals
 @cindex string literals
 @cindex literals for characters and strings
@@ -11011,8 +11011,7 @@ The text interpreter then tries to recognize the word with one of the
 recognizers in the system recognizer sequence.  On success, this
 produces a @emph{translator} and additional data, which represents the
 recognized word on the stack, as far as the text interpreter is
-concerned (@pxref{Define recognizers with existing translation
-tokens}).
+concerned (@pxref{Defining recognizers}).
 
 It then performs the interpretation, compilation, or postponing action
 of the translator, depending on the state of the text interpreter: Is
@@ -11295,7 +11294,7 @@ You may also want to define a new recognizer; a recognizer produces an
 on-stack representation of the recognized string, called a
 @dfn{translation}, which contains a @dfn{translation token}.  You can
 use predefined translation tokens for defining your recognizer
-(@pxref{Define recognizers with existing translation tokens}), or
+(@pxref{Defining recognizers}), or
 first define a new tranlation token (@pxref{Defining translation
 tokens}).  Finally, you may want to process the translation
 (@pxref{Performing translation actions}).
@@ -11303,7 +11302,7 @@ tokens}).  Finally, you may want to process the translation
 @menu
 * Default Recognizers::
 * Recognizer order::
-* Define recognizers with existing translation tokens::
+* Defining recognizers::
 * Defining translation tokens::
 * Performing translation actions::
 @end menu
@@ -11339,31 +11338,31 @@ Recognizes locals.
 Recognizes words in the search order.  This is shown as recognizer
 sequence, because the wordlists (@pxref{Word Lists}) themselves are
 also recognizers: They implement the recognizer interface
-(@pxref{Define recognizers with existing translation tokens}) in
+(@pxref{Defining recognizers}) in
 addition to working with @word{find-name-in}.
 
 @item @word{rec-scope}
-Recognizes @samp{@i{voc1}:@i{voc2}:..@i{vocn}:@i{word}}, where
+Recognizes @code{@i{voc1}:@i{voc2}:..@i{vocn}:@i{word}}, where
 @i{voc1} is a vocabulary in the search order, @i{voc2} is a vocabulary
 found in @i{voc1}, and so on, until @i{word} is found in @i{vocn}.
 The result behaves as if @i{word} had been found directly in the
-search order.  Example: @samp{environment:max-n}.
+search order.  Example: @code{environment:max-n}.
 
 @item @word{rec-number}
-Single-cell integers (@samp{#-15}, @samp{$-f}), characters
-(@samp{'A'}), and double-cell integers @samp{#-15.}, with or without
+Single-cell integers (@code{#-15}, @code{$-f}), characters
+(@code{'A'}), and double-cell integers @code{#-15.}, with or without
 number prefixes (@pxref{Integer and character literals}).
 
 @item @word{rec-float}
-Floating-point numbers (@samp{1e}, @pxref{Floating-point number and
+Floating-point numbers (@code{1e}, @pxref{Floating-point number and
 complex literals})
 
 @item @word{rec-complex}
-Complex numbers (@samp{1e+2ei}, @pxref{Floating-point number and
+Complex numbers (@code{1e+2ei}, @pxref{Floating-point number and
 complex literals})
 
 @item @word{rec-string}
-Strings (@samp{"abc"}, @pxref{String and environment variable literals}).
+Strings (@code{"abc"}, @pxref{String and environment variable literals}).
 
 @item @word{rec-to}
 Recognizes @code{->@i{v}} (equivalent to @code{to @i{v}}),
@@ -11404,14 +11403,14 @@ specific recognizer, e.g., to deal with conflicts.
 
 The order of the recognizers is significant, because they are tried
 from left to right, and the first recognizer that recognizes a word is
-actually used.  E.g., if you define a local @samp{b}, it will
+actually used.  E.g., if you define a local @code{b}, it will
 supersede Gforth's predefined word @word{b}.
 
 In most cases, however, recognizers are designed to avoid matching the
 same strings as other recognizers.  E.g., @code{rec-env} (the
 environment variable recognizer) requires braces to avoid a conflict
 with the number recognizer when recognizing environment variables like
-@samp{ADD}; i.e., @word{rec-env} recognizes @word{${ADD}}, while
+@code{ADD}; i.e., @word{rec-env} recognizes @word{${ADD}}, while
 @word{rec-number} recognizes @word{$ADD}.
 
 There are a few cases where Gforth's recognizers can recognize the
@@ -11425,11 +11424,11 @@ recognizer (and locals and the search order are searched before other
 recognizers).
 
 However, there are no conflicts of Gforth-defined words with decimal
-numbers prefixed with @samp{#} or hex numbers prefixed with @samp{$},
+numbers prefixed with @code{#} or hex numbers prefixed with @code{$},
 so it is a good practice to use these prefixes (it's also a good idea
 to make sure that the right @word{base} is used).  An older practice
 (before number prefixes were introduced) was to prefix hex numbers
-with @samp{0}.
+with @code{0}.
 
 In the code bases we have looked at, starting words with @code{'}
 (quote aka tick) is much more common than starting them with @code{`}
@@ -11439,7 +11438,7 @@ In the code bases we have looked at, starting words with @code{'}
 @item
 Both the integer recognizer @code{rec-number} and the floating-point
 recognizer @code{rec-float} recognize, e.g., @code{1.}.  Because
-@code{rec-number} is (by default) first, @code{1.} is recognized as a
+@code{rec-number} is (by default) earlier, @code{1.} is recognized as a
 double-cell integer.  If you change the recognizer order to use
 @code{rec-float} first, @code{1.} is recognized as a floating-point
 number, but loading code written in Standard Forth may behave in a
@@ -11507,7 +11506,7 @@ doc-rec-body
 doc-rec-env
 doc-rec-meta
 
-@node Recognizer order, Define recognizers with existing translation tokens, Default Recognizers, Recognizers
+@node Recognizer order, Defining recognizers, Default Recognizers, Recognizers
 @subsubsection Recognizer order
 
 You may prefer to use a different recognizer sequence, but with (some
@@ -11520,7 +11519,7 @@ doc-get-recs
 doc-set-recs
 
 You probably don't want to create a new recognizer sequence every time
-you want to change the system recognizer sequence.  There are two
+you want to change the system recognizer sequence.  There are several
 ways to change an existing recognizer sequence:
 
 @itemize @bullet
@@ -11556,12 +11555,15 @@ the system recognizers:
 ' rec-none action-of rec-forth >body >back
 @end source
 
-@node Define recognizers with existing translation tokens, Defining translation tokens, Recognizer order, Recognizers
-@subsubsection Define recognizers with existing translation tokens
+@node Defining recognizers, Defining translation tokens, Recognizer order, Recognizers
+@subsubsection Defining recognizers
+@cindex recognizer, stack effect
+@cindex translation
+@cindex translation token
 
-A recognizer is a Forth word with the stack effect @samp{( @i{c-addr u
--- translation} )}.  @i{c-addr u} describes the string to be
-recognized.  The returned @dfn{translation} is an abstract, but
+A @dfn{recognizer} is a Forth word with the stack effect @code{(
+@i{c-addr u -- translation} )}.  @i{c-addr u} describes the string to
+be recognized.  The returned @dfn{translation} is an abstract, but
 transparent data type: On the top of stack, there is a single-cell
 @dfn{translation token}.  If the recognizer does not recognize the
 string, it returns the translation token @word{translate-none}.  If it
@@ -11585,11 +11587,11 @@ translation.  E.g., a simple variant of @word{rec-tick} can be
 implemented as follows:
 
 @source
-: rec-tick ( addr u -- xt translate-cell | 0 )
+: rec-tick ( addr u -- translation )
     2dup "`" string-prefix? if
         1 /string find-name dup if
-            name>interpret translate-cell then
-        exit then
+            name>interpret translate-cell exit then
+        drop translate-none exit then
     rec-none ;
 @end source            
 
@@ -11619,15 +11621,15 @@ run-time of the translation token, or the compiling run-time, or the
 postponing run-time.
 
 For each system-defined translation token we specify the interpreting
-run-time explicitly.  Unless otherwise specified the compiling
+run-time explicitly.  Unless otherwise specified, the compiling
 run-time compiles the interpreting run-time.  The postponing run-time
 compiles the compiling run-time.
 
 In the @word{rec-tick} example above, if the recognizer recognizes,
 say, @code{`dup}, it returns @i{xt-dup translate-cell}.  If the text
 interpreter then performs the compiling action, that action first
-removes these two stack items, and compiles code that pushes
-@i{xt-dup}.
+removes this translation (these two cells), and compiles code that
+pushes @i{xt-dup}.
 
 doc-translate-name
 doc-translate-cell
@@ -11657,7 +11659,7 @@ doc-try-recognize
 doc-forth-recognize-nt?
 
 
-@node  Defining translation tokens, Performing translation actions, Define recognizers with existing translation tokens, Recognizers
+@node  Defining translation tokens, Performing translation actions, Defining recognizers, Recognizers
 @subsubsection Defining translation tokens
 
 Before you define a translation token, you should think about the
