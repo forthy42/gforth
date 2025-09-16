@@ -130,7 +130,6 @@ Create n>lits ' noop , ' >lits , ' >2lits , ' >3lits , ' >4lits ,
 ' fold2-1 folds min max umin umax
 ' fold2-1 folds nip
 ' fold2-1 folds rshift lshift arshift rol ror
-' fold2-1 folds = > >= < <= u> u>= u< u<=
 ' fold2-1 folds d0> d0< d0=
 ' fold2-1 folds /s mods
 
@@ -237,3 +236,25 @@ latestxt optimizes @
 ' fold1-1 noname foldn-from:
 [: ( xt -- ) drop lits> compile, ;] 1 set-fold#
 latestxt optimizes execute
+
+\ optimize 0+comparison
+
+: 0lit? ( lit:0 -- true | lit:x -- lit:x false )
+    lits# dup IF  drop lits> dup IF  >lits true  THEN invert  THEN ;
+
+Create ~>0~
+' = , ' 0= ,
+' <> , ' 0<> ,
+' < , ' 0< ,
+' > , ' 0> ,
+' <= , ' 0<= ,
+' >= , ' 0>= ,
+here latestxt - >r
+DOES>  [ r> ] Literal bounds DO
+      dup I @ = IF  drop I cell+ @  UNLOOP  EXIT  THEN
+      2 cells +LOOP ;
+
+' fold2-1 noname foldn-from:
+[: ( xt -- )  0lit? IF  ~>0~ compile,   ELSE  peephole-compile,  THEN ;] 1 set-fold#
+latestxt folds = <> < > <= >=
+' fold2-1 folds u> u>= u< u<=
