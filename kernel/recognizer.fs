@@ -47,30 +47,28 @@
 : do-translate ( ... translator -- ... ) \ gforth-internal
     state @ abs cells + @ execute-;s ;
 : (translate:) ( int-xt comp-xt post-xt "name" -- ) \ gforth-experimental
-    \G Defines @i{name}, a translator containing @i{int-xt},
-    \G @i{comp-xt}, and @i{post-xt}.  In all the following
-    \G descriptions @i{data} is the data that the recognizer pushes
-    \G below the translator.@*
-    \G Executing @i{int-xt} @samp{( @i{... data -- ...} )} performs
-    \G the interpretation semantics represented by @i{data xt-name}.@*
-    \G Executing @i{comp-xt} @samp{( @i{... data -- ...} )} performs
-    \G the compilation semantics represented by @i{data xt-name}.@*
-    \G Executing @i{post-xt} @samp{( @i{data -- } )} compiles the
-    \G compilation semantics represented by @i{data xt-name}.
     Create swap rot , , , 7 0 DO  ['] no.extensions ,  LOOP
     ['] do-translate set-does> ;
 : translate: ( int-xt comp-xt post-xt "name" -- ) \ gforth-experimental
+    \G Defines @i{name}, a translation token (@pxref{Defining recognizers}).@*
+    \G @i{name} execution: ( @i{ -- translation-token } )@*
+    \G @i{name} interpreting action: ( @i{ ... translation -- ... } )@*
+    \G Remove the translation token from the stack and execute @i{int-xt}.@*
+    \G @i{name} compiling action: ( @i{ ... translation -- ... } )@*
+    \G Remove the translation token from the stack and execute @i{comp-xt}.@*
+    \G @i{name} postponing action: ( @i{ translation -- } )@*
+    \G Remove the translation token from the stack and execute @i{post-xt}.
     noname (translate:) latestxt Constant ;
 
 0 Value translate-fallback-error \ set to true to prevent fallback
 
-Create postponing ( ... translator -- ) \ gforth-experimental
-\G Perform the postponing action of @i{translator}.  For a
-\G system-defined translator, first consume the translator and
-\G translator-specific additional stack items and possibly perform
-\G additional scanning specified for the translator, then compile the
-\G @word{compiling} run-time.  For a user-defined translator, remove
-\G @i{translator} from the stack and execute its @i{post-xt}.
+Create postponing ( ... translation -- ) \ gforth-experimental
+\G Perform the postponing action of @i{translation}.  For a
+\G system-defined translation token, first remove @i{translation} from
+\G the stack, then possibly perform additional scanning specified for
+\G the translation token, and finally perform the compiling run-time
+\G of the translation token.  For a user-defined translation token,
+\G remove it from the stack and execute its @i{post-xt}.
 2 cells ,
 DOES> @ over >does-code ['] do-translate = IF
       + @ execute-;s THEN
@@ -113,9 +111,15 @@ forth-wordlist is rec-name
 
 0 Constant translate-none \ stub
 
-: ?found ( token|0 -- token ) \ gforth-experimental
+: ?found ( nt|0 -- nt ) \ gforth-experimental
     \G @code{throw}s -13 (undefined word) if @var{token} is 0.
     dup 0= #-13 and throw ;
+
+: ?rec-found ( translation -- translation )
+    \G @code{throw}s -13 (undefined word) if @i{translation} is
+    \G @code{translate-none}.
+    dup translate-none = #-13 and throw ;
+
 : translate-name? ( token -- flag )
     \G check if name token; postpone action may differ
     dup IF  >body 2@ translate-name >body 2@ d=  THEN ;
@@ -191,5 +195,5 @@ Defer rec-forth ( c-addr u -- translation ) \ gforth-experimental
 
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
-    parse-name rec-forth ?found postponing
+    parse-name rec-forth ?rec-found postponing
 ; immediate restrict

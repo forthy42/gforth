@@ -265,7 +265,7 @@ Variable rec'[]
     rec'[] $free  action-of trace-recognizer >r
     sp@ 2 cells + fp@ 2>r  name-too-short?
     [: rec-level @ rec'[] $[] ! ;] is trace-recognizer
-    rec-forth ?found
+    rec-forth ?rec-found
     dup translate-name? IF  drop rec'[] $free
     ELSE
 	dup translate-cell = IF

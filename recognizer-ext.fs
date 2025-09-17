@@ -44,27 +44,23 @@ translator-max-offset# 0 [DO] ' noop , [LOOP]
     latestxt translate-methods translator-offset + !
     translator-offset ,  cell +to translator-offset ;
 
-translate-method: interpreting ( ... translator -- ... ) \ gforth-experimental
-\G Perform the interpreting action of @i{translator}.  For a
-\G system-defined translator, first consume the translator and
-\G translator-specific additional stack items and possibly perform
-\G additional scanning specified for the translator, then perform the
-\G @word{interpreting} run-time specified for the translator.  For a
-\G user-defined translator, remove @i{translator} from the stack and
-\G execute its @i{int-xt}.
+translate-method: interpreting ( ... translation -- ... ) \ gforth-experimental
+\G Perform the interpreting action of @i{translation}.  For a
+\G system-defined translation token, first remove @i{translation} from
+\G the stack, then possibly perform additional scanning specified for
+\G the translation token, and finally perform the interpreting
+\G run-time of the translation token.  For a user-defined translation
+\G token, remove it from the stack and execute its @i{int-xt}.
 
-translate-method: compiling ( ... translator -- ... ) \ gforth-experimental
-\G Perform the compiling action of @i{translator}.  For a
-\G system-defined translator, first consume the translator and
-\G translator-specific additional stack items and possibly perform
-\G additional scanning specified for the translator, then perform the
-\G @word{compiling} run-time specified for the translator, or, if none
-\G is specified, compile the @word{interpreting} run-time.  For a
-\G user-defined translator, remove @i{translator} from the stack and
-\G execute its @i{comp-xt}.
+translate-method: compiling ( ... translation -- ... ) \ gforth-experimental
+\G Perform the compiling action of @i{translation}.  For a
+\G system-defined translation token, first remove @i{translation} from
+\G the stack, then possibly perform additional scanning specified for
+\G the translation token, and finally perform the compiling run-time
+\G of the translation token.  For a user-defined translation token,
+\G remove it from the stack and execute its @i{comp-xt}.
 
-\ we already have defined this in the kernel
-\ translate-method: postponing ( ... translator -- ) \ gforth-experimental
+\ we already have defined POSTPONING in the kernel
 ' postponing translate-methods translator-offset + !
 cell +to translator-offset
 

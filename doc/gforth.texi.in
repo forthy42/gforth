@@ -11652,12 +11652,12 @@ whole input of @i{r} or a substring) that recognizes more strings
 (e.g., @code{rec-forth}), and then look at the result to see if
 something was recognized that @i{r} actually deals with.
 
-E.g., the actual implementations of @word{rec-tick} passes its input
+E.g., the actual implementation of @word{rec-tick} passes its input
 without the prefix @samp{`} to @word{rec-forth} and checks whether the
 resulting translation-token is @i{nt translate-name}, then converts
 @i{nt} to @i{xt}, and replaces @i{translate-name} with
 @i{translate-cell}.  The benefit of this approach compared to our
-example implementation above is that, e.g. @word{`environment:max-n}
+example implementation above is that, e.g., @word{`environment:max-n}
 works, where @word{rec-scope} recognizes @word{environment:max-n}.
 
 The specific check for an nt used in @word{rec-tick} is
@@ -11704,13 +11704,15 @@ translate: translate-cell
 
 If a recognizer recognizes something as a single-cell literal @i{x},
 it pushes @i{x} and then calls @word{translate-cell}.  Later the text
-interpreter (or @word{postpone} or other consumer of translations)
-removes the translation token and executes one of the three xts above
-(depending on what translation action is desired).
+interpreter (or @word{postpone} or some other consumer of
+translations) removes the translation token and executes one of the
+three xts above (depending on what translation action is desired).
 
-When the interpretation semantics is needed, @i{int-xt} is
-@code{execute}d, and @i{x} stays on the stack.  For the compilation
-semantics, @i{x} is compiled into the current definition as literal.
+When the interpretation semantics is needed, @i{int-xt} is executed,
+and @i{x} stays on the stack.
+
+For the compilation semantics, @i{x} is compiled into the current
+definition as literal.
 
 For postponing, more time levels are involved: at text-interpretation
 time (when the recognizer runs and the translation token action is performed)
@@ -11760,7 +11762,7 @@ actions:
 doc-interpreting
 doc-compiling
 doc-postponing
-doc-?found
+doc-?rec-found
 
 Their typical use is in a text interpreter.  A simple text interpreter
 could look like this:
@@ -11770,7 +11772,7 @@ could look like this:
   \ refill happens outside
   begin
     parse-name dup while
-      forth-recognize ?found state @ if compiling else interpreting then
+      forth-recognize ?rec-found state @ if compiling else interpreting then
   repeat
   2drop ;
 @end source
@@ -11784,7 +11786,7 @@ can be implemented as a text interpreter that performs the postponing:
   begin
     parse-name dup 0= abort" [[ missing"
     2dup "[[" str= 0= while
-      forth-recognize ?found postponing
+      forth-recognize ?rec-found postponing
    repeat
    2drop ; immediate
 @end source

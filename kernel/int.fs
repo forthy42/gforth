@@ -657,7 +657,7 @@ defer int-execute ( ... xt -- ... )
     BEGIN
 	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
     WHILE
-	rec-forth ?found execute
+	rec-forth ?rec-found execute
     REPEAT
     2drop @local0 >r lp+ ;
 
