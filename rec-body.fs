@@ -29,7 +29,7 @@ require rec-tick.fs
     \G run-time (see @word{translate-cell}).
     over c@ '<' <> >r  2dup + 1- c@ '>' <> r> or if
         rec-none exit then
-    1 /string 1- '+' $split 2>r rec-forth-nt? dup if
+    1 /string 1- '+' $split 2>r rec-forth-nt? dup 0= if
         2rdrop drop translate-none exit then
     name>interpret >body
     2r> dup 0= if  2drop translate-cell  exit  then

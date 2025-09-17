@@ -390,10 +390,10 @@ Defer defer3
 t{ "3 ->value1" eval-catch value1 -> 0 3 }t
 t{ "2 +>value1" eval-catch value1 -> 0 5 }t
 \ t{ "'>value1" eval-catch value1 -> -2054 5 }t
-\ t{ "@>value1" eval-catch value1 -> -21 5 }t
+t{ "@>value1" eval-catch value1 -> -21 5 }t
 t{ "3 ->Varue2" eval-catch Varue2 -> 0 3 }t
 t{ "2 +>Varue2" eval-catch Varue2 -> 0 5 }t
-\ t{ "'>Varue2" eval-catch Varue2 -> <Varue2> 0 5 }t
+t{ "'>Varue2" eval-catch Varue2 -> <Varue2> 0 5 }t
 t{ "@>Varue2" eval-catch Varue2 -> -21 5 }t
 t{ "@>defer3" eval-catch -> ' dup 0 }t
 t{ "' noop =>defer3" eval-catch @>defer3 -> 0 ' noop }t
