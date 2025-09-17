@@ -365,17 +365,17 @@ t{ ``needs -> "needs" find-name }t
 t{ s" needs" rec-forth -> ``needs translate-name }t
 t{ s\" \"a string 123\"" eval-rec -rot s\" \"a" str= -> scan-translate-string true }t
 t{ s\" \"a string 123\"" eval-rec-interpret s" a string 123" str= -> true }t
-t{ "->#123." rec-forth -> 0 }t
-t{ "+>123e" rec-forth -> 0 }t
-t{ "`#123." rec-forth -> 0 }t
-t{ "``#123." rec-forth -> 0 }t
-t{ "`123e" rec-forth -> 0 }t
-t{ "``123e" rec-forth -> 0 }t
+t{ "->#123." rec-forth -> translate-none }t
+t{ "+>123e" rec-forth -> translate-none }t
+t{ "`#123." rec-forth -> translate-none }t
+t{ "``#123." rec-forth -> translate-none }t
+t{ "`123e" rec-forth -> translate-none }t
+t{ "``123e" rec-forth -> translate-none }t
 t{ "${HOME}" rec-forth -rot "HOME" str= -> translate-env true }t 
 t{ "${HOME}" eval-rec-interpret s" HOME" getenv str= -> true }t 
-t{ "`xlerb" rec-forth -> 0 }t
-t{ "``xlerb" rec-forth -> 0 }t
-t{ "->xlerb" rec-forth -> 0 }t
+t{ "`xlerb" rec-forth -> translate-none }t
+t{ "``xlerb" rec-forth -> translate-none }t
+t{ "->xlerb" rec-forth -> translate-none }t
 
 0 warnings !@ >r
 : eval-catch ( addr u -- throwcode | results 0 )
