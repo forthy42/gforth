@@ -21,8 +21,7 @@
 : env$, ( addr u -- )  slit, postpone getenv ;
 
 ' getenv ' env$, ' slit, >postponer
-translate: translate-env ( -- translator ) \ gforth-experimental
-\G Additional data: @code{( @i{c-addr1 u1} )}.@*
+translate: translate-env ( c-addr1 u1 -- translation ) \ gforth-experimental
 \G Interpreting run-time: @code{( @i{ -- c-addr2 u2} )}@*
 \G @i{c-addr2 u2} is the content of the environment variable with name
 \G @i{c-addr1 u1}.

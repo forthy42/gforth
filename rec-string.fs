@@ -39,9 +39,8 @@ s" Scanned string not in input buffer" exception >r
 ' scan-string
 :noname scan-string slit, ;
 :noname scan-string slit, postpone 2lit, ;
-translate: scan-translate-string (  -- translator ) \ gforth-experimental
-\G Additional data: @code{( @i{c-addr1 u1 'ccc"'} )}.@*
-\G Every translator action also parses until the first non-escaped
+translate: scan-translate-string ( c-addr1 u1 'ccc"' -- translation ) \ gforth-experimental
+\G Every translation action also parses until the first non-escaped
 \G @code{"}.  The string @i{c-addr u} and the parsed input are
 \G concatenated, then the @code{\}-escapes are translated, giving
 \G @i{c-addr2 u2}.@*
@@ -50,13 +49,12 @@ translate: scan-translate-string (  -- translator ) \ gforth-experimental
 ' noop
 ' slit,
 :noname slit, postpone 2lit, ;
-translate: translate-string ( -- translator ) \ gforth-experimental
-\G Additional data: @code{( @i{c-addr1 u1} )}.@*
+translate: translate-string ( c-addr1 u1 -- translation ) \ gforth-experimental
 \G Interpreting run-time: @code{( @i{ -- c-addr2 u2} )}@*
 \G @i{c-addr2 u2} is the result of translating the @code{\}-escapes in
 \G @i{c-addr1 u1}.
 
-: ?scan-string ( addr u scan-translate-string -- addr' u' translate-string  |  ... translator -- ... translator ) \ gforth-experimental
+: ?scan-string ( addr u 'ccc"' scan-translate-string -- addr' u' translate-string  |  translation -- translation ) \ gforth-experimental
     \G Check if the token is an incomplete (side effect free) string,
     \G and scan the string to complete it.
     case

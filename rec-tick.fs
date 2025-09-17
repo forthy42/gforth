@@ -19,20 +19,35 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-?: forth-recognize-nt? ( c-addr u -- nt | translate-none ) \ gforth-experimental
-    \G If @word{forth-recognize} produces a result @i{nt
-    \G @code{translate-name}}, return @i{nt}, otherwise translate-none.
-    [: translate-name = dup if drop then ;] try-recognize ;
+: rec-filter {: c-addr u xt: filter xt: rec -- translation :} \ gforth-experimental
+    \G Execute @i{rec @code{( @i{c-addr u} -- @i{translation1} )}};
+    \G @i{translation1} is then examined with @i{filter @code{(
+    \G @i{translation1} -- @i{translation1 f} )}}.  If @i{f} is
+    \G non-zero, @i{translation} is @i{translation1}, otherwise
+    \G @i{translation} is @i{translate-none}.
+    sp@ fp@ 2>r
+    c-addr u rec filter 0= if
+        2r@ fp! sp! translate-none then
+    2rdrop ;
+
+: rec-forth-nt? ( c-addr u -- nt | 0 ) \ gforth-experimental
+    \G If @word{rec-forth} produces a result @i{nt
+    \G @code{translate-name}}, return @i{nt}, otherwise 0.
+    [: dup translate-name = ;] ['] rec-forth rec-filter 0= if
+        0
+    then ;
 
 : rec-tick ( c-addr u -- translation ) \ gforth-experimental
     \G Recognizes (@pxref{Defining recognizers}) @code{`@i{word}}.  If
     \G successful, @i{translation} represents pushing the execution
     \G token of @i{word} at run-time (see @word{translate-cell}).
     \G Example: @code{`dup} gives the xt of dup.
-    over c@ '`' = if
-        1 /string forth-recognize-nt? dup translate-none <> if
-            ?compile-only name>interpret translate-cell exit  then
-        exit  then
+    2dup s" `" string-prefix? if
+        1 /string rec-forth-nt? dup if
+            ?compile-only name>interpret translate-cell exit
+        then
+        drop translate-none exit
+    then
     rec-none ;
 
 : rec-dtick ( c-addr u -- translation ) \ gforth-experimental
@@ -41,9 +56,11 @@
     \G token of @i{word} at run-time (see @word{translate-cell}).
     \G Example: @code{``S"} gives the nt of @code{S"}.
     2dup "``" string-prefix? if
-        2 /string forth-recognize-nt? dup translate-none <> if
-            translate-cell exit  then
-        exit  then
+        2 /string rec-forth-nt? dup if
+            translate-cell exit
+        then
+        drop translate-none exit
+    then
     rec-none ;
 
 ' rec-dtick action-of rec-forth >back

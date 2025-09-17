@@ -19,8 +19,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 ' (to) ' (to), ' 2lit, >postponer
-translate: translate-to ( -- translator ) \ gforth-experimental
-\G Additional data: @code{( @i{n xt} )}.@*
+translate: translate-to ( n xt -- translation ) \ gforth-experimental
 \G @i{xt} belongs to a value-flavoured (or defer-flavoured) word,
 \G @i{n} is the index into the @word{to-table:} for @i{xt}
 \G (@pxref{Words with user-defined TO etc.}).@*

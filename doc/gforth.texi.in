@@ -11604,13 +11604,17 @@ in a recognizer you write.  If none of them is appropriate for your
 recognizer, read the next section about defining your own translation
 tokens.
 
-The system-defined translators are documented as removing some stack
-items and pushing a complete translation on the stack, e.g., for
-@word{tanslate-cell} @code{( x -- translation )}.  This makes the
-documentation uniform and avoids cumbersome descriptions.  However,
-actually the current translation tokens just push a cell-sized value
-on the stack, and, combined with the additional stack items, the
-result is a translation.
+@cindex translation token words, stack effect
+The system-defined translation token words are documented as removing
+some stack items and pushing a complete translation on the stack,
+e.g., for @word{translate-cell} @code{( x -- translation )}.  This
+makes the documentation uniform and avoids cumbersome descriptions.
+However, actually the current translation token words just push a
+cell-sized translation token on the stack (for @word{translate-cell}:
+@code{( -- translate-cell )}), and, combined with the additional stack
+items (for @word{translate-cell}: @code{( x -- x translate-cell )}),
+the result is a translation (for @word{translate-cell}: @code{( x --
+translation )}).
 
 @c !! move this further down?
 The text interpreter passes the output of the recognizer to a
@@ -11622,8 +11626,8 @@ postponing run-time.
 
 For each system-defined translation token we specify the interpreting
 run-time explicitly.  Unless otherwise specified, the compiling
-run-time compiles the interpreting run-time.  The postponing run-time
-compiles the compiling run-time.
+run-time compiles the interpreting run-time.  Unless otherwise
+specified, the postponing run-time compiles the compiling run-time.
 
 In the @word{rec-tick} example above, if the recognizer recognizes,
 say, @code{`dup}, it returns @i{xt-dup translate-cell}.  If the text
@@ -11643,20 +11647,25 @@ doc-translate-to
 @c doc-translate-local
 @c doc-translate-word
 
-One way to write a recognizer is to call @word{rec-forth} on a
-substring, and then look at the result to see if something was
-recognized that the whole-string recognizer actually deals with.
-E.g., the actual implementations of @word{rec-tick} and
-@word{rec-dtick} do this and then check whether @word{rec-forth} has
-pushed @i{nt @code{translate-name}}; the benefit of this approach is
-that, e.g. @word{`environment:max-n} works, where @word{rec-scope}
-recognizes @word{environment:max-n}.  The specific check for an nt
-used in @word{rec-tick} and @word{rec-dtick} is
-@word{forth-recognize-nt?}; it is implemented on top of the more
-general @word{try-recognize}.
+One way to write a recognizer @i{r} is to call a recognizer (for the
+whole input of @i{r} or a substring) that recognizes more strings
+(e.g., @code{rec-forth}), and then look at the result to see if
+something was recognized that @i{r} actually deals with.
 
-doc-try-recognize
-doc-forth-recognize-nt?
+E.g., the actual implementations of @word{rec-tick} passes its input
+without the prefix @samp{`} to @word{rec-forth} and checks whether the
+resulting translation-token is @i{nt translate-name}, then converts
+@i{nt} to @i{xt}, and replaces @i{translate-name} with
+@i{translate-cell}.  The benefit of this approach compared to our
+example implementation above is that, e.g. @word{`environment:max-n}
+works, where @word{rec-scope} recognizes @word{environment:max-n}.
+
+The specific check for an nt used in @word{rec-tick} is
+@word{rec-forth-nt?}; it is implemented on top of the more
+general @word{rec-filter}.
+
+doc-rec-filter
+doc-rec-forth-nt?
 
 
 @node  Defining translation tokens, Performing translation actions, Defining recognizers, Recognizers

@@ -91,8 +91,7 @@ forth-wordlist is rec-name
 ' name-compsem
 :noname  lit, postpone name-compsem ;
 (translate:) translate-name,
-' translate-name, AConstant translate-name ( -- translator ) \ gforth-experimental
-\G Additional data: @code{( @i{nt} )}.@*
+' translate-name, AConstant translate-name ( nt -- translation ) \ gforth-experimental
 \G Interpreting run-time: @code{( @i{... -- ...} )}@*
 \G Perform the interpretation semantics of @i{nt}.@*
 \G Compiling run-time:  @code{( @i{... -- ...} )}@*
@@ -102,16 +101,14 @@ forth-wordlist is rec-name
 ' lit,
 :noname lit, postpone lit, ;
 (translate:) translate-cell,
-' translate-cell, AConstant translate-cell ( -- translator ) \ gforth-experimental
-\G Additional data: @code{( @i{x} )}.@*
+' translate-cell, AConstant translate-cell ( x -- translation ) \ gforth-experimental
 \G Interpreting run-time: @code{( @i{ -- x} )}
 
 ' noop
 ' 2lit,
 :noname 2lit, postpone 2lit, ;
 (translate:) translate-dcell,
-' translate-dcell, AConstant translate-dcell ( -- translator ) \ gforth-experimental
-\G Additional data: @code{( @i{xd} )}.@*
+' translate-dcell, AConstant translate-dcell ( xd -- translation ) \ gforth-experimental
 \G Interpreting run-time: @code{( @i{ -- xd} )}
 
 0 Constant translate-none \ stub

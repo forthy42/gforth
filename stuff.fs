@@ -235,20 +235,6 @@ UValue $? ( -- n ) \ gforth dollar-question
 	dup stack >back x2 = IF  x1 stack >back  THEN
     LOOP ;
 
-: try-recognize ( c-addr u xt -- ... translator | 0 ) \ gforth-experimental
-    \G Try to recognize @var{c-addr u} with @word{rec-forth},
-    \G then execute @var{xt} @code{( @i{... translator -- ... true |
-    \G false } )}.  If @var{xt} returns 0, reset the stacks to the
-    \G depths at the start of @word{try-recognize}, drop three data
-    \G stack items, and push 0.  Otherwise return the results
-    \G of executing @var{xt}.
-    { xt: xt } sp@ fp@ 2>r
-    rec-forth xt dup
-    if 2rdrop
-    else
-	2r> fp! sp! 2drop false
-    then ;
-
 \ ]] ... [[
 
 : rec-[[ ( addr u -- token | 0 ) \ gforth-internal rec-left-bracket-bracket
