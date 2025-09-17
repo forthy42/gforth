@@ -365,17 +365,17 @@ t{ ``needs -> "needs" find-name }t
 t{ s" needs" rec-forth -> ``needs translate-name }t
 t{ s\" \"a string 123\"" eval-rec -rot s\" \"a" str= -> scan-translate-string true }t
 t{ s\" \"a string 123\"" eval-rec-interpret s" a string 123" str= -> true }t
-t{ "->#123." rec-forth -> 0 }t
-t{ "+>123e" rec-forth -> 0 }t
-t{ "`#123." rec-forth -> 0 }t
-t{ "``#123." rec-forth -> 0 }t
-t{ "`123e" rec-forth -> 0 }t
-t{ "``123e" rec-forth -> 0 }t
+t{ "->#123." rec-forth -> translate-none }t
+t{ "+>123e" rec-forth -> translate-none }t
+t{ "`#123." rec-forth -> translate-none }t
+t{ "``#123." rec-forth -> translate-none }t
+t{ "`123e" rec-forth -> translate-none }t
+t{ "``123e" rec-forth -> translate-none }t
 t{ "${HOME}" rec-forth -rot "HOME" str= -> translate-env true }t 
 t{ "${HOME}" eval-rec-interpret s" HOME" getenv str= -> true }t 
-t{ "`xlerb" rec-forth -> 0 }t
-t{ "``xlerb" rec-forth -> 0 }t
-t{ "->xlerb" rec-forth -> 0 }t
+t{ "`xlerb" rec-forth -> translate-none }t
+t{ "``xlerb" rec-forth -> translate-none }t
+t{ "->xlerb" rec-forth -> translate-none }t
 
 0 warnings !@ >r
 : eval-catch ( addr u -- throwcode | results 0 )
@@ -393,7 +393,7 @@ t{ "2 +>value1" eval-catch value1 -> 0 5 }t
 t{ "@>value1" eval-catch value1 -> -21 5 }t
 t{ "3 ->Varue2" eval-catch Varue2 -> 0 3 }t
 t{ "2 +>Varue2" eval-catch Varue2 -> 0 5 }t
-t{ "'>Varue2" eval-catch Varue2 -> <Varue2> 0 5 }t
+t{ "'>Varue2" eval-catch Varue2 -> `Varue2 0 5 }t
 t{ "@>Varue2" eval-catch Varue2 -> -21 5 }t
 t{ "@>defer3" eval-catch -> ' dup 0 }t
 t{ "' noop =>defer3" eval-catch @>defer3 -> 0 ' noop }t
