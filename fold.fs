@@ -242,6 +242,11 @@ latestxt optimizes execute
 : 0lit? ( lit:0 -- true | lit:x -- lit:x false )
     lits# dup IF  drop lits> dup IF  >lits true  THEN invert  THEN ;
 
+: >true drop true ;
+opt: drop postpone drop postpone true ;
+: >false drop false ;
+opt: drop postpone drop postpone false ;
+
 Create ~>0~
 ' = , ' 0= ,
 ' <> , ' 0<> ,
@@ -249,6 +254,10 @@ Create ~>0~
 ' > , ' 0> ,
 ' <= , ' 0<= ,
 ' >= , ' 0>= ,
+' u<= , ' 0= ,
+' u> , ' 0<> ,
+' u>= , ' >true ,
+' u< , ' >false ,
 here latestxt - >r
 DOES>  [ r> ] Literal bounds DO
       dup I @ = IF  drop I cell+ @  UNLOOP  EXIT  THEN
@@ -256,5 +265,4 @@ DOES>  [ r> ] Literal bounds DO
 
 ' fold2-1 noname foldn-from:
 [: ( xt -- )  0lit? IF  ~>0~ compile,   ELSE  peephole-compile,  THEN ;] 1 set-fold#
-latestxt folds = <> < > <= >=
-' fold2-1 folds u> u>= u< u<=
+latestxt folds = <> < > <= >= u<= u>= u< u>
