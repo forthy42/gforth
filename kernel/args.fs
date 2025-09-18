@@ -92,11 +92,11 @@ evaluate-input 0 cells + @ \ evaluate::source
 
 \ main words
 
-: (process-option) ( addr u -- addr u run-args )
+: (process-option) ( addr u -- translation )
     \ process option, possibly consuming further arguments
     2dup s" -e"         str= >r
     2dup s" --evaluate" str= r> or if
-	2drop refill IF  ['] interpret  ELSE  ['] noop  THEN exit endif
+	2drop refill IF  ['] interpret  ELSE  translate-none  THEN exit endif
     ['] required ;
 
 Defer process-option ( addr u -- ... xt | 0 ) \ gforth

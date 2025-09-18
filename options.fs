@@ -46,8 +46,7 @@ options also definitions
 
 previous forth definitions
 
-' required constant `required
-
-' `required ' options >wordlist 2 rec-sequence: process-voc-option ( addr u -- ... xt | 0 )
+' required noname constant
+latestxt ' options >wordlist 2 rec-sequence: process-voc-option ( addr u -- translation )
 
 ' process-voc-option is process-option
