@@ -506,7 +506,10 @@ defer compile, ( xt -- ) \ core-ext compile-comma
 : name?int ( nt -- xt ) \ gforth-internal name-question-int
 \G Like @code{name>interpret}, but warns when encountering a word marked
 \G compile-only or obsolete
-    ?compile-only ?obsolete name>interpret ;
+    \ opportunistic check for speed
+    dup >f+c @ [ restrict-mask obsolete-mask or ] Literal and
+    IF  ?compile-only ?obsolete  THEN
+    name>interpret ;
 
 : named>string ( nt -- addr count ) \ gforth-internal     named-to-string
     >f+c dup @ lcount-mask and tuck - swap ;

@@ -173,6 +173,7 @@ $value-to
 $[]Variable
 $Variable
 \0
+~>0~
 0<
 0<=
 0<>
@@ -181,6 +182,7 @@ $Variable
 0>=
 !!0.7-style!!
 0-adjust-locals-size
+0lit?
 0name,
 (0s)
 0x.
@@ -1664,6 +1666,7 @@ facosh
 falign
 faligned
 falog
+>false
 false
 fancy-after-l
 fasin
@@ -1864,7 +1867,6 @@ form
 Format
 Forth
 forth-lx
-forth-recognize-nt?
 forth-recognizer
 forthstart
 forth-wordlist
@@ -3210,6 +3212,8 @@ lastnt
 last-tick
 lastxt
 latest
+latest-name
+latest-name-in
 latestnt
 latestxt
 LATLON_SET
@@ -4435,8 +4439,11 @@ rec-complex
 rec-dtick
 rec-env
 rec-f83
+rec-filter
 rec-float
 rec-forth
+rec-forth-nt?
+?rec-found
 rec-level
 rec-local
 rec-meta
@@ -4498,7 +4505,6 @@ repl-included-files
 reposition-file
 represent
 require
-`required
 required
 RESERVED
 reserved_code
@@ -5729,13 +5735,13 @@ TR_BETTER_0200
 TR_BETTER_0500
 TR_BETTER_2000
 TR_BETTER_5000
+>true
 true
 TR_UNKNOWN
 TR_WORSE_5001
 (try)
 try
 try-read-dir
-try-recognize
 tt
 tuck
 (type)

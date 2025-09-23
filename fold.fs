@@ -242,10 +242,10 @@ latestxt optimizes execute
 : 0lit? ( lit:0 -- true | lit:x -- lit:x false )
     lits# dup IF  drop lits> dup IF  >lits true  THEN invert  THEN ;
 
-: >true drop true ;
-opt: drop postpone drop postpone true ;
-: >false drop false ;
+:noname drop false ;
 opt: drop postpone drop postpone false ;
+:noname drop true ;
+opt: drop postpone drop postpone true ;
 
 Create ~>0~
 ' = , ' 0= ,
@@ -256,8 +256,8 @@ Create ~>0~
 ' >= , ' 0>= ,
 ' u<= , ' 0= ,
 ' u> , ' 0<> ,
-' u>= , ' >true ,
-' u< , ' >false ,
+' u>= , ,
+' u< , ,
 here latestxt - >r
 DOES>  [ r> ] Literal bounds DO
       dup I @ = IF  drop I cell+ @  UNLOOP  EXIT  THEN
