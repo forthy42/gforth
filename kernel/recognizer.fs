@@ -173,17 +173,15 @@ forth-wordlist is rec-name
 : stack# ( stack -- elements )
     $@len cell/ ;
 
-: minimal-recognize ( addr u -- ... translate-xt / 0 ) \ gforth-internal
+: rec-kernel ( addr u -- ... translate-xt / 0 ) \ gforth-internal
     \g Sequence of @code{rec-name} and @code{rec-number}
     2>r 2r@ rec-name dup 0= IF  drop 2r@ rec-number  THEN  2rdrop ;
-
-( ' rec-number ' rec-name 2 combined-recognizer: default-recognize ) \ see pass.fs
 
 Defer rec-forth ( c-addr u -- translation ) \ gforth-experimental
 \G The system recognizer: @word{rec-forth} is a @word{defer}red
 \G word that contains a recognizer (sequence).  The system's text
 \G interpreter calls @word{rec-forth}.
-' minimal-recognize is rec-forth
+' rec-kernel is rec-forth
 
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.
