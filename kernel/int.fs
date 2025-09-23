@@ -507,7 +507,7 @@ defer compile, ( xt -- ) \ core-ext compile-comma
 \G Like @code{name>interpret}, but warns when encountering a word marked
 \G compile-only or obsolete
     \ opportunistic check for speed
-    dup >f+c @ [ restrict-mask obsolete-mask or ] Literal and
+    dup >f+c @ lit [ $C0000000. 1 cells 8 = [IF] #32 dlshift [THEN] d, ] and
     IF  ?compile-only ?obsolete  THEN
     name>interpret ;
 
