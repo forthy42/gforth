@@ -483,9 +483,7 @@ defer compile, ( xt -- ) \ core-ext compile-comma
     name>compile nip ['] compile, <> ;
 : compile-only? ( nt -- flag ) \ gforth
     \G true if @i{nt} is marked as compile-only.
-    dup name>string nip IF
-	>f+c @ restrict-mask and 0<>
-    ELSE drop false THEN ;
+    >f+c @ restrict-mask and 0<> ;
 : ?compile-only ( nt -- nt )
     dup compile-only? IF
 	<<# s"  is compile-only" holds dup name>string holds #0. #>
@@ -494,9 +492,7 @@ defer compile, ( xt -- ) \ core-ext compile-comma
 : obsolete? ( nt -- flag ) \ gforth
     \G true if @i{nt} is obsolete, i.e., will be removed in a future
     \G version of Gforth.
-    dup name>string nip IF
-	>f+c @ obsolete-mask and 0<>
-    ELSE drop false THEN ;
+    >f+c @ obsolete-mask and 0<> ;
 : ?obsolete ( nt -- nt )
     dup obsolete? warnings @ abs 1 > and IF
 	<<# s"  is obsolete" holds dup name>string holds #0. #>
