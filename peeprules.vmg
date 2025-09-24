@@ -386,6 +386,10 @@ forlocal(`15',`\E prim-states @o%i')
 \ \E prim-states x><
 \E prim-states o
 \E prim-states up@
+\E prim-states abs
+\E prim-states th
+\E prim-states th@
+\E prim-states th!
 
 \E gen-ip-updates noop
 

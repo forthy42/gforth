@@ -45,7 +45,7 @@
 : no.extensions  ( -- ) #-13 throw ;
 
 : do-translate ( ... translator -- ... ) \ gforth-internal
-    state @ abs cells + @ execute-;s ;
+    state @ abs th@ execute-;s ;
 : (translate:) ( int-xt comp-xt post-xt "name" -- ) \ gforth-experimental
     Create swap rot , , , 7 0 DO  ['] no.extensions ,  LOOP
     ['] do-translate set-does> ;

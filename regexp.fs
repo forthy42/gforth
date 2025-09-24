@@ -128,11 +128,11 @@ Variable varstack #10 cells allot
 Variable varsmax
 : >var ( -- addr )
     vars @+ swap 2* cells +
-    vars @ varstack @+ swap cells + !
+    vars @ varstack @+ swap th!
     1 vars +! 1 varstack +! ;
 : var> ( -- addr )
     -1 varstack +!
-    varstack @+ swap cells + @
+    varstack @+ swap th@
     1+ 2* cells vars + ;
 Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
 : greed' ( -- addr )  greed-counts dup @ + ;

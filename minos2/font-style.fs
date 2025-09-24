@@ -292,11 +292,11 @@ also freetype-gl
 : font-loader ( fontaddr atlas -- fontaddr )
     swap { fontdes }
     fontdes cell+ $@
-    0 font-size# font-size% f* fontdes 2 cells + f@ f*
+    0 font-size# font-size% f* fontdes 2 th f@ f*
     open-font referenced { font }
     font 0 fontdes $[] !
     font-sizes# 1 ?DO
-	font I font-size# font-size% f* fontdes 2 cells + f@ f*
+	font I font-size# font-size% f* fontdes 2 th f@ f*
 	clone-font referenced I fontdes $[] !
     LOOP
     fontdes ;

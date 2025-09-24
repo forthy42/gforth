@@ -94,10 +94,10 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
     dpy screen XRootWindow to root-win
     dpy root-win XRRGetScreenResourcesCurrent to rr-res
     rr-res XRRScreenResources-noutput l@ 0 ?DO
-	dpy rr-res dup XRRScreenResources-crtcs @ I cells + @
+	dpy rr-res dup XRRScreenResources-crtcs @ I th@
 	XRRGetCrtcInfo to rr-crt0
 	rr-crt0 XRRCrtcInfo-noutput l@ 0 ?DO
-	    dpy rr-res rr-crt0 XRRCrtcInfo-outputs @ I cells + @
+	    dpy rr-res rr-crt0 XRRCrtcInfo-outputs @ I th@
 	    XRRGetOutputInfo
 	    dup XRROutputInfo-npreferred l@
 	    over XRROutputInfo-connection w@ 0= and
@@ -562,7 +562,7 @@ handler-class :method DoClientMessage ( -- )  e.data
 ' noop handler-class is DoGenericEvent
 ' noop handler-class is ?looper-timeouts
 
-: handle-event ( -- ) e.type cells o -1 cells + @ + perform ;
+: handle-event ( -- ) e.type cells o -1 th@ + perform ;
 #16 Value looper-to# \ 16ms, don't sleep too long
 : get-events ( -- )
     \ looper-to# #1000000 um* ntime d+ { d: timeout }

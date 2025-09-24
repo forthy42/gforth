@@ -125,14 +125,14 @@ Defer check-xy  ' noop IS check-xy
     $E0C00000 lbe ,
     $F0C0C000 lbe ,
     $F8C0C0C0 lbe ,
-      DOES> ( len -- mask ) swap cells + @ ;
+      DOES> ( len -- mask ) swap th@ ;
     Create (u8fit)
     $0 ,
     $00000000 lbe ,
     $C0800000 lbe ,
     $E0808000 lbe ,
     $F0808080 lbe ,
-      DOES> ( len -- mask ) swap cells + @ ;
+      DOES> ( len -- mask ) swap th@ ;
 
     : u8?invalid ( u8-addr u -- flag len )
 	over c@ (u8addrlen) >r ( u8-addr u r:len )
@@ -300,7 +300,7 @@ here wc-table - Constant #wc-table
 
 : xc-width ( xc -- n ) \ xchar-ext x-c-width
     wc-table #wc-table bounds ?DO
-	dup I 2@ within IF  I 2 cells + @  UNLOOP EXIT  THEN
+	dup I 2@ within IF  I 2 th@  UNLOOP EXIT  THEN
     3 cells +LOOP  1 ;
 [ELSE]
     ' wcwidth Alias xc-width ( xc -- n ) \ xchar-ext x-c-width

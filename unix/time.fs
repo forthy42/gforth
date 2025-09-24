@@ -53,6 +53,6 @@ tm buffer: tm1
     [ tm1 tm_year ]L l@ 1900 + ;
 
 : tz? ( daylight -- addr u )
-    0<> negate >r tzname r> cells + @ cstring>sstring ;
+    0<> negate >r tzname r> th@ cstring>sstring ;
 
 tzset \ needs to run once

@@ -25,7 +25,7 @@ Create status-colors
 ' compile-color ,
 ' postpone-color ,
 ' error-color 7 0 [DO] dup , [LOOP] drop
-DOES> state @ abs translator-max-offset# umin cells + perform ;
+DOES> state @ abs translator-max-offset# umin th@ execute ;
 
 : redraw-status ( addr u -- )
     save-cursor-position

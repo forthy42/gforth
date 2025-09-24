@@ -263,7 +263,7 @@ Variable rec'[]
 
 : (view') ( addr u -- xt )
     rec'[] $free  action-of trace-recognizer >r
-    sp@ 2 cells + fp@ 2>r  name-too-short?
+    sp@ 2 th fp@ 2>r  name-too-short?
     [: rec-level @ rec'[] $[] ! ;] is trace-recognizer
     rec-forth ?rec-found
     dup translate-name? IF  drop rec'[] $free

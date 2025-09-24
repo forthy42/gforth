@@ -304,10 +304,10 @@ host? [IF] ?looper [THEN] \ init-opengl ." Screen size: " dpy-w ? dpy-h ? cr
 \    r@ cell+ swap compile-shader r> cell- ! ;
 
 : recompile-shader ( addr -- )  >body dup
-    >r 2 cells + r@ cell+ @ compile-shader r> ! ;
+    >r 2 th r@ cell+ @ compile-shader r> ! ;
 
 : shader>string ( xt -- addr u )
-    >body 2 cells + @ cstring>sstring ;
+    >body 2 th@ cstring>sstring ;
 
 : >word ( addr u -- addr' u' ) bounds ?DO
 	I c@ bl > IF  I delta-I unloop  EXIT  THEN

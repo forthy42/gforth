@@ -101,11 +101,11 @@ User locals-size \ this is the current size of the locals stack
     
 : opt-table: ( unit -- )
     Create 0 , , xts,
-    here latestxt >body dup >r 2 cells + - cell/ r> !
+    here latestxt >body dup >r 2 th - cell/ r> !
     DOES> ( xt table -- )
     >r lits# 1 u>= if
         lits> dup r@ cell+ @ /mod swap 0= over r@ @ u< and if
-            cells r> 2 cells + + @ compile, 2drop exit then
+            cells r> 2 th + @ compile, 2drop exit then
 	drop >lits then
     rdrop peephole-compile, ;
 
@@ -124,7 +124,7 @@ $Variable peephole-opts
     \G also applies peephole optimization.
     peephole-opts $@ bounds ?DO
 	2dup I 2@ d= IF
-	    2drop I 2 cells + @ opt-compile,  UNLOOP  EXIT
+	    2drop I 2 th@ opt-compile,  UNLOOP  EXIT
 	THEN
     3 cells +LOOP
     >r opt-compile, r> compile, ;
@@ -342,7 +342,7 @@ Defer locals-warning  ' noop is locals-warning
 : locals-to:exec ( .. u xt1 xt2 -- .. )
     -14 throw ;
 : locals-to:,  ( u lits:xt2 table-addr -- )
-    @ swap cells + @ lits> @ lp-offset >lits ['] lp+n swap 2compile, ;
+    @ swap th@ lits> @ lp-offset >lits ['] lp+n swap 2compile, ;
 
 : locals-to-class: ( !-table -- )
     Create , ['] locals-to:exec set-does> ['] locals-to:, set-optimizer ;
@@ -807,13 +807,13 @@ previous
 	[ comp' some-xtlocal drop >does-code ] literal of >body @ lp-offset compile-@local postpone compile, endof
 	no-post
     endcase ; is locals-post,
-' locals-post, translate-local >body 2 cells + ! \ replace stub
+' locals-post, translate-local >body 2 th! \ replace stub
 
 \ we define peephole using locals, so it needs to be here
 
 : peephole ( xt1 xt2 "name" -- )
     {: | xts[ 3 cells ] :}
-    xts[ 2! ' xts[ 2 cells + !
+    xts[ 2! ' xts[ 2 th!
     xts[ 3 cells peephole-opts $+! ;
 
 ' lp+n ' @ peephole @localn

@@ -60,7 +60,7 @@ Create defer-table ' warn! A, ' n/a A, ' @ A,   ' ! A,     ' [noop] A,
 fold1: >body @ postpone up@ postpone lit+ , ;
 
 : to:exec ( .. u xt1 xt2 -- .. ) rot >r 2@ r> cells + >r execute r> perform ;
-: to:,    ( u xt2 -- ) 2@ rot cells + @ >r compile, r> compile, ;
+: to:,    ( u xt2 -- ) 2@ rot th@ >r compile, r> compile, ;
 
 ' >uvalue !-table to-class: uvalue-to
 

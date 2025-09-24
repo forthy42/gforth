@@ -1878,6 +1878,24 @@ inc#   ( #a_addr -- )	gforth-internal	one_plus_store
 :
  1 r> dup cell+ >r @ +! ;
 
+th    ( a_addr1 n -- a_addr2 )	gforth	th
+""Array address calculator, @code{cells +}""
+a_addr2 = a_addr1+n;
+:
+ cells + ;
+
+th@    ( a_addr n -- u )	gforth	th_fetch
+""Array fetch, @code{cells + @}""
+u = a_addr[n];
+:
+ cells + @ ;
+
+th!   ( u a_addr n -- )	gforth	th_store
+""Array store, @code{cells + !}""
+a_addr[n] = u;
+:
+ cells + ! ;
+
 \g compiler
 
 \+f83headerstring

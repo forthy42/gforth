@@ -116,16 +116,16 @@ here version-string>internal here over -
 
 : return-stack-cells ( -- n ) \ environment
     \G Maximum size of the return stack, in cells.
-    [ forthstart section-desc + #2 cells + ] literal @ cell/ ;
+    [ forthstart section-desc + #2 th ] literal @ cell/ ;
 
 : stack-cells ( -- n ) \ environment
     \G Maximum size of the data stack, in cells.
-    [ forthstart section-desc + #0 cells + ] literal @ cell/ ;
+    [ forthstart section-desc + #0 th ] literal @ cell/ ;
 
 : floating-stack ( -- n ) \ environment
     \G @var{n} is non-zero, showing that Gforth maintains a separate
     \G floating-point stack of depth @var{n}.
-    [ forthstart section-desc + #1 cells + ] literal @
+    [ forthstart section-desc + #1 th ] literal @
     [IFDEF] float/  float/  [ELSE]  [ 1 floats ] Literal / [THEN] ;
 
 100 constant #locals ( -- n ) \ environment number-locals

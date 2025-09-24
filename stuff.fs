@@ -664,9 +664,11 @@ synonym hex. h. ( u -- ) \ gforth
 
 \ th
 
+[IFUNDEF] th
 : th ( addr1 u -- addr2 )
     cells + ;
 opt: drop ]] cells + [[ ;
+[THEN]
 
 \ \\\ - skip to end of file
 
@@ -738,7 +740,7 @@ end-struct buffer% ( u1 u2 -- ) \ gforth-experimental buffer-percent
 : try-read-dir { buf handle -- n flag }
     BEGIN  buf $@ handle read-dir dup >r  WHILE
 	    over buf $@len = over and  WHILE
-		buf $@len 3 cells + 2* buf $!len
+		buf $@len 3 th 2* buf $!len
 		rdrop 2drop  REPEAT  buf $free  r> throw  EXIT
     THEN  rdrop ;
 

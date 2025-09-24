@@ -278,9 +278,9 @@ VARIABLE Branches
     SearchPointer @ BEGIN
 	dup BranchPointer @ u< WHILE
 	    dup @ third <> WHILE
-		3 cells +
+		3 th
 	REPEAT
-	nip dup  3 cells + SearchPointer ! true
+	nip dup  3 th SearchPointer ! true
     ELSE
 	2drop false THEN ;
 
@@ -293,7 +293,7 @@ VARIABLE Branches
     BranchTable cell+ BEGIN
 	dup BranchPointer @ u< WHILE
 	    dup @ third u<= WHILE
-		3 cells + REPEAT
+		3 th REPEAT
 	2drop false
     ELSE
 	2drop true THEN ;
@@ -327,7 +327,7 @@ VARIABLE Branches
 		over r@ cell+ @ u> IF
 		    2drop rdrop true EXIT THEN
 	    THEN
-	    r> 3 cells + >r REPEAT
+	    r> 3 th >r REPEAT
     2drop rdrop false ;
 
 : ,Branch ( a-addr -- )
@@ -398,16 +398,16 @@ VARIABLE Branches
 	    drop c-call EXIT
 	endif
     endif
-    over 4 cells + over = if
-	over 1 cells + @decompile-prim ['] call xt= >r
-	over 3 cells + @decompile-prim ['] ;S xt=
+    over 4 th over = if
+	over 1 th @decompile-prim ['] call xt= >r
+	over 3 th @decompile-prim ['] ;S xt=
 	r> and if
-	    over 2 cells + @ ['] set-does> >body = if  drop
-		S" DOES> " ['] Com-color ?.string 4 cells + EXIT endif
+	    over 2 th@ ['] set-does> >body = if  drop
+		S" DOES> " ['] Com-color ?.string 4 th EXIT endif
 	endif
 	[IFDEF] !;abi-code
-	    over 2 cells + @ ['] !;abi-code >body = if  drop
-		S" ;abi-code " ['] Com-color ?.string   4 cells +
+	    over 2 th@ ['] !;abi-code >body = if  drop
+		S" ;abi-code " ['] Com-color ?.string   4 th
 		c-stop on
 		Display? if
 		    dup   dup  next-head   over - discode 
@@ -477,18 +477,18 @@ VARIABLE Branches
     >r @decompile-prim ['] lit xt= 0= if rdrop false exit endif
     r@ cell+ @ over cell+ <> if rdrop false exit endif
     \ we have at least C"
-    r@ 2 cells + @decompile-prim dup ['] lit xt= if
-	drop r@ 3 cells + @ over cell+ + aligned r@ = if
+    r@ 2 th @decompile-prim dup ['] lit xt= if
+	drop r@ 3 th@ over cell+ + aligned r@ = if
 	    \ we have at least s"
-	    r@ 4 cells + @decompile-prim ['] lit-perform xt=
-	    r@ 5 cells + @ ['] type >body = and if
+	    r@ 4 th @decompile-prim ['] lit-perform xt=
+	    r@ 5 th@ ['] type >body = and if
 		6 s\" .\\\" "
 	    else
 		4 s\" s\\\" "
 	    endif
 	    \ !! make newline if string too long?
 	    display? if
-		['] default-color .string r@ cell+ @ r@ 3 cells + @ c-\type '" cemit bl cemit
+		['] default-color .string r@ cell+ @ r@ 3 th@ c-\type '" cemit bl cemit
 	    else
 		2drop
 	    endif
@@ -499,13 +499,13 @@ VARIABLE Branches
 	display? if
 	    r@ cell+ @ f@ 10 8 16 f>str-rdp ['] default-color .string bl cemit
 	endif
-	drop r> 3 cells + true exit
+	drop r> 3 th true exit
     endif
     \ !! check if count matches space?
     display? if
 	s\" c\" " ['] default-color .string r@ cell+ @ count ['] default-color .string '" cemit bl cemit
     endif
-    drop r> 2 cells + true ;
+    drop r> 2 th true ;
 
 : Forward? ( a-addr true | false -- a-addr true | false )
     \ a-addr is pointer into branch table
@@ -678,7 +678,7 @@ VARIABLE Branches
     : search-u#gen ( 0 offset1 offset2 nt -- xt/0 offset1 offset2 flag )
 	dup >code-address docol: = IF
 	    dup >body @decompile-prim u#what @ xt=
-	    over >body 3 cells + @decompile-prim ['] ;S xt= and
+	    over >body 3 th @decompile-prim ['] ;S xt= and
 	    IF  >r 2dup r@ >body cell+ 2@ d=
 		IF  r> -rot 2>r nip 2r> false  EXIT  THEN
 		r>
@@ -691,10 +691,10 @@ VARIABLE Branches
 	    2drop
 	    ?dup-IF
 		>name name>string ['] Com-color .string bl cemit
-		2 cells + EXIT  THEN
+		2 th EXIT  THEN
 	    u#what @ name>string ['] Com-color .string bl cemit
 	    dup @ c-. cell+ dup @ c-. cell+
-	ELSE  2 cells +  THEN ;
+	ELSE  2 th  THEN ;
 
     : c-u#exec ( addr -- addr' )  ['] u#exec u#what ! c-u#gen ;
     : c-u#+    ( addr -- addr' )  ['] u#+    u#what ! c-u#gen ;
@@ -813,7 +813,7 @@ c-extender !
 	\ jump over to extender, if any 26jan97jaw
 	third swap xt= 0=
     WHILE
-	    2 cells +
+	    2 th
     REPEAT
     nip cell+ perform
     true
@@ -934,7 +934,7 @@ c-extender !
     then ;
 : umethod? ( xt -- flag )
     >body dup @decompile-prim ['] u#exec xt= swap
-    3 cells + @decompile-prim ['] ;S xt= and ;
+    3 th @decompile-prim ['] ;S xt= and ;
 
 \ user visible words
 

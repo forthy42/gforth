@@ -1,4 +1,4 @@
-\ Wayland window for GLES
+1\ Wayland window for GLES
 
 \ Author: Bernd Paysan
 \ Copyright (C) 2017,2019,2023,2024 Free Software Foundation, Inc.
@@ -664,7 +664,7 @@ Create cursor-xywh #200 , #300 , #1 , #10 ,
 	zwp_text_input_v3_set_content_type
 	cursor-xywh 4 cells old-cursor-xywh over str= 0= IF
 	    text-input
-	    cursor-xywh 2@  cursor-xywh 2 cells + 2@
+	    cursor-xywh 2@  cursor-xywh 2 th 2@
 	    zwp_text_input_v3_set_cursor_rectangle
 	    cursor-xywh old-cursor-xywh 4 cells move
 	THEN
@@ -676,7 +676,7 @@ Create cursor-xywh #200 , #300 , #1 , #10 ,
 : >cursor-xyxy { f: x0 f: y0 f: x1 f: y1 -- }
     wayland( y1 x1 y0 x0 [: cr ." >cursor-xyxy " f. f. f. f. ." offset " xy-offset z. ;] do-debug )
     x0 y1 xy-offset z+ point>coord cursor-xywh 2!
-    x1 y0  x0 y1 z- point>coord cursor-xywh 2 cells + 2!
+    x1 y0  x0 y1 z- point>coord cursor-xywh 2 th 2!
     text-input ?dup-IF  send-status-update  THEN ;
 
 Defer sync+config ' noop is sync+config

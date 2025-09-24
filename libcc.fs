@@ -1105,8 +1105,8 @@ latestnt Constant ft-vtable
 	r@ setup-callback
     THEN
     >r :noname r> compile, ]] 0 (bye) ; [[
-    >body r@ ccb-ips @ r@ ccb-num @ cells + !
-    r@ ccb-cfuns @ r@ ccb-num @ cells + @
+    >body r@ ccb-ips @ r@ ccb-num @ th!
+    r@ ccb-cfuns @ r@ ccb-num @ th@
     -1 r> ccb-num +! ;
 
 : (c-callback) ( xt "forth-name" "@{type@}" "---" "type" -- ) \ gforth-internal
@@ -1191,7 +1191,7 @@ init-libcc
     [: [: ( lib -- )
 	    case dup >does-code
 		['] call-c@        of  off  endof
-		['] callback-does> of  #0. rot 2 cells + 2!  endof
+		['] callback-does> of  #0. rot 2 th 2!  endof
 		drop endcase
 	    true ;] swap traverse-wordlist ;] map-vocs ;
 

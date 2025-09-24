@@ -323,7 +323,7 @@ Defer before-word-profile ( -- )
     profile-this
     current-profile-point @ { thisbb }
     thisbb new-call { call-node }
-    over 3 cells + @ ['] dinc >body = if
+    over 3 th@ ['] dinc >body = if
 	\ non-library call
     !! update profile-bblenpi of last and current pp
 	addr cell+ @ { callee-pp }

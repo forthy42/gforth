@@ -36,7 +36,7 @@
 : 4lits> ( -- q )  2lits> 2lits> 2swap ;
 : >4lits ( q -- )  2swap >2lits >2lits ;
 
-: nth ( n addr -- ) swap cells + @ ;
+: nth ( n addr -- ) swap th@ ;
 Create nlits> ' noop , ' lits> , ' 2lits> , ' 3lits> , ' 4lits> ,
 ' nth set-does>
 Create n>lits ' noop , ' >lits , ' >2lits , ' >3lits , ' >4lits ,
@@ -69,7 +69,7 @@ Create n>lits ' noop , ' >lits , ' >2lits , ' >3lits , ' >4lits ,
 : set-foldmax ( -- addr )
     lastfold @ set-fold# ;
 : get-foldmax ( opt-xt -- xt )
-    dup @ 1+ cells + @ ;
+    dup @ 1+ th@ ;
 
 : (foldn:) ( xt n "name" -- )
     create  latestxt to lastfold

@@ -42,7 +42,7 @@ Create to-slots here $100 dup allot $FF fill
     dup 3 u< IF rec-none EXIT THEN
     over 1+ c@ '>' <> IF rec-none EXIT THEN
     over c@ to-slots + c@ dup $FF = IF drop rec-none EXIT THEN
-    -rot 2 /string sp@ 3 cells + fp@ 2>r rec-forth
+    -rot 2 /string sp@ 3 th fp@ 2>r rec-forth
     translate-name? 0= IF 2r> fp! sp! translate-none EXIT THEN 2rdrop
     \ dup >namehm @ >hmto @ ['] n/a = IF rec-none EXIT THEN
     over 4 = IF ?addr THEN

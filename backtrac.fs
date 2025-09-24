@@ -34,7 +34,7 @@
     else \ throw by signal handler with insufficient information
 	handler @ cell- \ beyond that we know nothing
 	extra-backtrace# ?dup-IF  cells -
-	    rp0 @ [ forthstart section-desc + #2 cells + ]L @ - $FFF + -$1000 and umax
+	    rp0 @ [ forthstart section-desc + #2 th ]L @ - $FFF + -$1000 and umax
 	    BEGIN  dup @ 0=  WHILE  cell+  REPEAT
 	THEN
     then
@@ -79,7 +79,7 @@ defer .backtrace-pos ( addr -- )
 
 : .bt ( -- ) \ gforth-internal
     \G backtrace for interactive use
-    backtrace-rp0 @ #10 cells + dup 3 cells - @ cell- print-backtrace ;
+    backtrace-rp0 @ #10 th dup -3 th@ cell- print-backtrace ;
 opt: drop ]] store-backtrace dobacktrace [[ ;
 
 :noname ( -- )

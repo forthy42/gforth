@@ -32,15 +32,15 @@ standard:field
 : vfield-comp, ( body -- ) lits> >r 2@ >lits r> 2compile, ;
 
 : create+value ( n1 addr "name" -- n3 )
-    >r r@ 2 cells + perform
+    >r r@ 2 th@ execute
     r> 2@ create-from reveal
     over , + action-of +field, , ;
 
 noname Create latestnt >r \ field-to-class template
 DOES> ( .. u xt1 xt2 -- .. )
-    rot >r @ r> cells + @ vfield-int, ;
+    rot >r @ r> th@ vfield-int, ;
 opt: ( u xt2 -- )
-    @ swap cells + @ lits> swap >lits vfield-comp, ;
+    @ swap th@ lits> swap >lits vfield-comp, ;
 
 : wrapper-xts ( xt@ !-table "name" -- dummy-xt ) { xt@ xt! }
     :noname xt@ >lits ]] vfield-int, [[ postpone ; >r \ xt-does

@@ -106,12 +106,12 @@ Create ostack 0 , 16 cells allot
 : >o ( o -- )
     state @
     IF    postpone ^ postpone >r postpone op!
-    ELSE  1 ostack +! ^ ostack dup @ cells + ! op!
+    ELSE  1 ostack +! ^ ostack dup @ th! op!
     THEN  ; immediate
 : o> ( -- )
     state @
     IF    postpone r> postpone op!
-    ELSE  ostack dup @ cells + @ op! -1 ostack +!
+    ELSE  ostack dup @ th@ op! -1 ostack +!
     THEN  ; immediate
 : o[] ( n -- ) o@ :var# + @ * ^ + op! ;
 
@@ -374,8 +374,8 @@ Variable ob-interface
 \ instance variables inside objects                    27dec93py
 
 : instvar,    ( addr -- ) dup , here 0 , 0 vallot swap !
-    'link @ 2 cells + @  IF  'link @ link,  THEN
-    'link @ >r dup r@ cell+ ! :var# + @ dup vars +! r> 2 cells + !
+    'link @ 2 th@  IF  'link @ link,  THEN
+    'link @ >r dup r@ cell+ ! :var# + @ dup vars +! r> 2 th!
     DOES>  dup 2@ swap state @ IF  o+,  ELSE  ^ + nip nip  THEN
            early, ;
 

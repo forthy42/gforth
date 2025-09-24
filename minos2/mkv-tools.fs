@@ -475,7 +475,7 @@ previous
     seeks $[]# 0 ?DO  I seeks $[]@ .seekseg cr LOOP ;
 : .cues ( -- )
     cue-tags $@ bounds ?DO
-	." Time: " I @ . ." Track: " I cell+ @ . ." Pos: " I 2 cells + 2@ dh. cr
+	." Time: " I @ . ." Track: " I cell+ @ . ." Pos: " I 2 th 2@ dh. cr
     4 cells +LOOP ;
 
 : .mkv-info ( -- )
@@ -520,10 +520,10 @@ $1F43B675 Constant cluster-id
 
 : read-cue { cue end -- }
     sdtflush ppflush
-    cue 2 cells + 2@ seek-mkv  mkvbuf  random-access on
+    cue 2 th 2@ seek-mkv  mkvbuf  random-access on
     BEGIN
 	read-cluster
-	cue 4 cells + end u<  IF  dup addr>pos  cue 6 cells + 2@ du>=
+	cue 4 th end u<  IF  dup addr>pos  cue 6 th 2@ du>=
 	ELSE  dup id@+ nip cluster-id <>  THEN
     UNTIL  drop ;
 

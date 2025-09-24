@@ -66,8 +66,8 @@ drop
 
 : >tag ( index -- tag )
     dup maxdoer-tag > IF
-	$21 1 DO  dup tag-offsets I cells + @ < IF
-		tag-offsets I 1- cells + @ - I 1- 9 lshift + negate
+	$21 1 DO  dup tag-offsets I th@ < IF
+		tag-offsets I 1- th@ - I 1- 9 lshift + negate
 		UNLOOP  EXIT  THEN  LOOP
     THEN  -2 swap - ;
 

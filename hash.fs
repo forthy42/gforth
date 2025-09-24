@@ -270,6 +270,6 @@ has? cross 0=
 \         1 swap cells hashhist + +!
 \     cell +LOOP
 \     0 0 $100 0 DO
-\         hashhist I cells + @ dup IF
+\         hashhist I th@ dup IF
 \     	cr I 0 .r ." : " dup .  THEN tuck I * + >r + r>
 \     LOOP cr ." Total: " 0 .r ." /" . cr ;
