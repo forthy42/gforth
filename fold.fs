@@ -211,10 +211,7 @@ optimizes fpick
 
 ' fold2-1 noname foldn-from:
 [: 0 lits> rot execute ?dup-if ['] lit+ peephole-compile, , then ;] 1 set-fold#
-latestxt folds + -
-' fold2-1 noname foldn-from:
-[: drop lits> ?dup-if ['] lit+ peephole-compile, cells , then ;] 1 set-fold#
-latestxt folds th
+latestxt folds + - th
 
 ' fold2-1 noname foldn-from:
 [: lits> case
