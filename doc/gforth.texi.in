@@ -6593,7 +6593,6 @@ constraints that @code{create} currently does not satisfy.}
 Note that the Standard Forth word @code{char} has nothing to do with address
 arithmetic.
 
-
 doc-chars
 doc-char+
 doc-char-
@@ -6625,6 +6624,16 @@ doc-laligned
 doc-lalign
 doc-xaligned
 doc-xalign
+
+For cell-based addess calculations, there are three shortcuts, based on
+
+@example
+: th ( a-addr0 n -- a-addr1 ) cells + ;
+@end example
+
+doc-th
+doc-th@
+doc-th!
 
 The environmental query @code{address-unit-bits} (@pxref{Environmental
 Queries}) and the following words may be useful to those who want to

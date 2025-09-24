@@ -1885,7 +1885,7 @@ a_addr2 = a_addr1+n;
  cells + ;
 
 th@    ( a_addr n -- u )	gforth	th_fetch
-""Array fetch, @code{cells + @}""
+""Array fetch, @code{cells + @@}""
 u = a_addr[n];
 :
  cells + @ ;
