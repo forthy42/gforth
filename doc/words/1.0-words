@@ -1666,7 +1666,6 @@ facosh
 falign
 faligned
 falog
->false
 false
 fancy-after-l
 fasin
@@ -3567,7 +3566,6 @@ methods
 method-xt
 MILES_TO_METERS
 min
-minimal-recognize
 minos?
 =mkdir
 mkdir-parents
@@ -4444,6 +4442,7 @@ rec-float
 rec-forth
 rec-forth-nt?
 ?rec-found
+rec-kernel
 rec-level
 rec-local
 rec-meta
@@ -5591,6 +5590,8 @@ term-rgb@
 term-rgb$
 tfile
 th
+th!
+th@
 theme!
 theme:
 theme@
@@ -5735,7 +5736,6 @@ TR_BETTER_0200
 TR_BETTER_0500
 TR_BETTER_2000
 TR_BETTER_5000
->true
 true
 TR_UNKNOWN
 TR_WORSE_5001

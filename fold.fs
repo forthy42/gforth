@@ -126,7 +126,7 @@ Create n>lits ' noop , ' >lits , ' >2lits , ' >3lits , ' >4lits ,
 ' fold2-0 folds 2drop
 
 2 1 fold-constant: fold2-1
-' fold2-1 folds * and or xor th
+' fold2-1 folds * and or xor
 ' fold2-1 folds min max umin umax
 ' fold2-1 folds nip
 ' fold2-1 folds rshift lshift arshift rol ror
@@ -212,6 +212,9 @@ optimizes fpick
 ' fold2-1 noname foldn-from:
 [: 0 lits> rot execute ?dup-if ['] lit+ peephole-compile, , then ;] 1 set-fold#
 latestxt folds + -
+' fold2-1 noname foldn-from:
+[: drop lits> ?dup-if ['] lit+ peephole-compile, cells , then ;] 1 set-fold#
+latestxt folds th
 
 ' fold2-1 noname foldn-from:
 [: lits> case
