@@ -23,6 +23,6 @@
     0 [: nip false ;] rot traverse-wordlist ;
 
 : latest-name ( -- nt ) \ gforth-experimental
-    \G return the @code{LATEST-NAME-IN} for the compilation wordlist
+    \G return the @code{LATEST-NAME-IN} in the current wordlist
     \G if it is not empty, or throw an exception otherwise.
     get-current latest-name-in dup 0= -80 and throw ;
