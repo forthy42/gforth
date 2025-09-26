@@ -145,7 +145,7 @@ Create xdg-wm-base-listener xdg_wm_base_listener allot
     serial( dup [: cr ." pong serial: " h. ;] do-debug )
     dup to last-serial
     xdg_wm_base_pong drop ; xdg_wm_base_listener-ping:
-    get-current latest-name-in xdg_wm_base_listener-ping !
+    latest-name xdg_wm_base_listener-ping !
 ```
 	\sans
     }}v box[] >bdr
