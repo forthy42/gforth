@@ -24,6 +24,5 @@
     result [{: r :}l r ! false ;] swap traverse-wordlist
     result @ ;
 : latest-name ( -- nt ) \ gforth-experimental
-    \G return the @code{LATEST-NAME-IN} the first vocabulary in the
-    \G search order.
-    context @ latest-name-in ;
+    \G return the @code{LATEST-NAME-IN} in the current wordlist
+    get-current latest-name-in ;
