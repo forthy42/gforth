@@ -18,12 +18,11 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: latest-name-in ( wid -- nt ) \ gforth-experimental
+: latest-name-in ( wid -- nt|0 ) \ gforth-experimental
     \G return the latest name defined in a vocabulary or 0 if none
-    { | w^ result }
-    result [{: r :}l r ! false ;] swap traverse-wordlist
-    result @ ;
+    0 [: nip false ;] rot traverse-wordlist ;
+
 : latest-name ( -- nt ) \ gforth-experimental
-    \G return the @code{LATEST-NAME-IN} the first vocabulary in the
-    \G search order.
-    context @ latest-name-in ;
+    \G return the @code{LATEST-NAME-IN} for the compilation wordlist
+    \G if it is not empty, or throw an exception otherwise.
+    get-current latest-name-in dup 0= -80 and throw ;
