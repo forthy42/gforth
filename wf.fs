@@ -595,7 +595,7 @@ longtags set-current
 definitions
 
 : LT  get-order longtags swap 1+ set-order
-    parse-name forth-recognize execute previous ; immediate
+    parse-name rec-forth execute previous ; immediate
 
 \ Table
 

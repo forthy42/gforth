@@ -996,7 +996,7 @@ for i in $CHECKFLAGS
 do
     ac_i=$(echo ac_$i | tr '=\-' '__')
     case "$i" in
-        llvm=*)
+        "llvm="*)
 	    i="-m$i"
 	    ;;
         -m*)
@@ -2244,7 +2244,9 @@ AC_CHECK_PROG(LOLCAT_NEUTRAL, lolcat, lolcat -i --seed=15 -F 0.02, cat)
 AC_CHECK_PROG(LOLCAT_FAIL, lolcat, lolcat -i --seed=50 -F 0.02, cat)
 
 AC_CHECK_PROG(COWSAY_SUCCESS, cowsay, cowsay -f dragon-and-cow -n, cat)
+(echo Check | eval $COWSAY_SUCCESS >/dev/null) || COWSAY_SUCCESS=cat
 AC_CHECK_PROG(COWSAY_FAIL, cowsay, cowsay -f dragon -n, cat)
+(echo Check | eval $COWSAY_FAIL >/dev/null) || COWSAY_FAIL=cat
 
 AC_SUBST(LOGDIR)
 AC_SUBST(LOLCAT_SUCCESS)

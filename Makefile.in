@@ -690,23 +690,23 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in  \
 	gforthker.in gforthp.in README.vmgen NEWS.vmgen autogen.sh	     \
 	configure.ac configure config.sub config.guess elisp-comp stamp-h.in \
 	envos.fs.in kernel/version.fs.in iss.sh wininst.sh modpath.iss	     \
-	firewall.iss install-sh INSTALL.md NEWS README README.md ToDo BUGS   \
+	firewall.iss install-sh INSTALL.md NEWS README.md ToDo BUGS	     \
 	BUILD-FROM-SCRATCH model COPYING COPYING.LIB COPYING.DOC AUTHORS     \
 	ChangeLog Benchres aclocal.m4 ltmain.sh doc/Makefile.in		     \
 	doc/gforth.texi.in $(wildcard $(srcdir)/doc/words/*-words)	     \
 	doc/words/README doc/gforth.1 doc/gforth.css doc/gforth.js	     \
-	doc/standard-words.awk doc/2012-words doc/2012-words-extra           \
-	doc/version.texi.in	                                             \
-	doc/vmgen.texi doc/fdl.texi doc/gpl.texi gforth.el $(ARCHS)	     \
-	siteinit.fs versions.bsh glosgen.glo doc/glossaries.doc $(FORTH_SRC) \
-	$(GEN_SRC) $(LIBCC_DIST_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2)	     \
-	$(FREETYPE_GL_SRC) timings.sc test/coretest.out test/checkans.out    \
-	test/gforth.out test/read-line.input test/read-line2.input	     \
-	test/read-line.out test/fp/fptest.out test/regexp.out $(wildcard     \
-	$(srcdir)/cache*.vmg) peeprules.vmg prim debian/rules.in	     \
-	debian/control.in debian/changelog.in debian/compat gforth.ico	     \
-	.travis.yml install-deps.sh install-swig.sh install-freetype-gl.sh   \
-	$(patsubst %.fs,unix/%-fsi.c, $(SWIGDISTFSI)) m4/ax_gcc_builtin.m4   \
+	doc/standard-words.awk doc/2012-words doc/2012-words-extra	     \
+	doc/version.texi.in doc/vmgen.texi doc/fdl.texi doc/gpl.texi	     \
+	gforth.el $(ARCHS) siteinit.fs versions.bsh glosgen.glo		     \
+	doc/glossaries.doc $(FORTH_SRC) $(GEN_SRC) $(LIBCC_DIST_SRC)	     \
+	$(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) $(FREETYPE_GL_SRC) timings.sc     \
+	test/coretest.out test/checkans.out test/gforth.out		     \
+	test/read-line.input test/read-line2.input test/read-line.out	     \
+	test/fp/fptest.out test/regexp.out $(wildcard $(srcdir)/cache*.vmg)  \
+	peeprules.vmg prim debian/rules.in debian/control.in		     \
+	debian/changelog.in debian/compat gforth.ico .travis.yml	     \
+	install-deps.sh install-swig.sh install-freetype-gl.sh $(patsubst    \
+	%.fs,unix/%-fsi.c, $(SWIGDISTFSI)) m4/ax_gcc_builtin.m4		     \
 	move-if-change nonreloc-canon $(DOCKER)
 
 CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen preforth libforth \
