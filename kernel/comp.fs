@@ -314,8 +314,6 @@ is basic-block-end
 
 \ record locations
 
-40 value bt-pos-width
-
 Defer xt-location
 : xt-location1 ( addr -- addr )
 \ note that an xt was compiled at addr, for backtrace-locate functionality

@@ -94,10 +94,12 @@ is defer-default
 
 \ print backtrace location
 
+40 value bt-pos-width
+
 : .sourceview-width ( view -- u )
     \ prints sourceview, returns width of printed string
     [: .sourceview ':' emit ;] $tmp 2dup type x-width ;
-    
+
 : .backtrace-view ( addr -- )
     addr>view dup IF
 	.sourceview-width THEN

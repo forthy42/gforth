@@ -713,6 +713,7 @@ Variable comp-state
 3 Constant assembling
 
 : compiling? comp-state @ compiling = ;
+: resolving? comp-state @ resolving = ;
 
 : pi-undefined -1 ABORT" Plugin undefined" ;
 
@@ -3701,7 +3702,12 @@ T has? ec H [IF]
 \ compile: g>body X @ lit, ;compile
 
 Builder (Value)
-compile: g>body compile lit@ T a, H ;compile
+compile: g>body
+    resolving? IF
+	compile lit@ T a, H
+    ELSE
+	alit, compile @
+    THEN ;compile
 
 \ this changes also Variable, AVariable and 2Variable
 Builder Create
