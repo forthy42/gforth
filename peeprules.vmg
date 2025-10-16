@@ -43,13 +43,13 @@
 \ super16 = + @
 \ super17 = lit @ ?branch
 \ super18 = lit ! ;s
-\ super19 = lit@ and
+\ super19 = lit @ and
 \ super21 = lit lit !
 \ super22 = @ ?branch
 \ super23 = useraddr !
 \ super24 = dup ?branch
 \ super25 = @ ;s
-\ super26 = lit@ +
+\ super26 = lit @ +
 \ super27 = dup @
 \ super28 = lit execute \ currently not supported
 \ super29 = o+ @
@@ -150,7 +150,7 @@ csswaplstore = >r l>< r> l!
 \E prim-states @                    \ 2244351
 \E S2 S1 state-offset-prim ?branch  \ 1134432
 \E S2 state-enabled? 0= [if] S1 S1 state-offset-prim ?branch [then] \ 1134432
-\E prim-states-offsets lit@                 \ 1051813
+\ \E prim-states-offsets lit@                 \ 1051813
 \E prim-states swap                 \ 737988
 \E S0 S2 state-prim swap
 \E S1 S2 state-prim swap

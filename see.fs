@@ -752,7 +752,7 @@ CREATE C-Table \ primitives map to code only
 [IFDEF] does-xt ' does-xt A,        ' c-callxt A, [THEN]
 [IFDEF] extra-exec ' extra-exec A,	    ' c-callxt A, [THEN]
 [IFDEF] extra-xt ' extra-xt A,	    ' c-callxt A, [THEN]
-		' lit@ A,	    ' c-lit@ A,
+[IFDEF] lit@	' lit@ A,	    ' c-lit@ A, [THEN]
 [IFDEF] call	' call A,           ' c-call A, [THEN]
 [IFDEF] call-loc ' call-loc A,      ' c-call A, [THEN]
 \		' useraddr A,	    ....

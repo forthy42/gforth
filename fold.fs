@@ -227,11 +227,6 @@ latestxt folds + - th
     endcase drop ;] 1 set-fold#
 latestxt optimizes *
 
-\ optimize lit @ into lit@
-' fold1-1 noname foldn-from:
-[: drop lits> ['] lit@ peephole-compile, , ;] 1 set-fold#
-latestxt optimizes @
-
 \ optimize lit execute into call
 ' fold1-1 noname foldn-from:
 [: ( xt -- ) drop lits> compile, ;] 1 set-fold#
