@@ -21,7 +21,7 @@
 defer call-check ( xt -- xt ) ' noop is call-check
 defer does-check ( xt -- xt ) ' noop is does-check
 
-: value, >body ['] lit@ peephole-compile, , ;
+: value, >body ['] lit peephole-compile, , ['] @ peephole-compile, ;
 : constant, >body @ lit, ;
 : :, ( xt -- ) call-check >body ['] call peephole-compile, , ;
 : variable, >body lit, ;
