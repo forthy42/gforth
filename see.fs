@@ -238,7 +238,7 @@ VARIABLE C-Stop
 	sp@ >r  smart.s-skip off
 	['] smart.quotation. smart<> >back
 	litstack get-stack  litstack $free
-	dup 0 ?DO  dup I - pick smart.s.  LOOP  drop
+	dup 0 ?DO  dup I - pick ['] smart.s. $tmp ctype  LOOP  drop
 	smart<> back> drop  r> sp!
     ELSE
 	litstack $free
