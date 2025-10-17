@@ -136,7 +136,7 @@ ${GFORTH_IGNLIB} "true" str= [IF]
 	record-name (cb') drop ['] drop nr> drop ;
 [ELSE]
     : cb! ( xt callback offset -- )
-	>r execute get-current latest-name-in r> execute ! ;
+	>r execute latest-name r> execute ! ;
     : cb-pair ( "name" -- callback offset )
 	record-name >in @ >r (cb') r> >in ! (cb#) ;
     : ?cb ( xt "name" -- ) cb-pair cb! ;
