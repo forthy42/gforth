@@ -40,6 +40,28 @@ does> 6 cell array>mem MEM+DO
       dup I @ = if  drop true unloop  exit  then
   LOOP  drop false ;
 
+: .h-holds ( x -- )
+    0 ['] #s $10 base-execute 2drop '$' hold ;
+
+: .body-holds ( addr -- )
+    \ print addr as body address in hold buffer
+    dup which-section? ?dup-if
+        @ >body over [ 1 maxaligned negate ]L and U-DO
+            I body> xt? if
+                I body> name>string 2dup string? if
+                    '>' hold
+                    {: d: wordname :} I - ?dup-if
+                        .h-holds '+' hold then
+                    wordname holds '<' hold unloop EXIT
+                else  2drop  then
+            then
+        [ 1 maxaligned ]L -LOOP
+    then
+    .h-holds ;
+
+: .body ( addr -- )
+    <<# .body-holds 0 0 #> type #>> space ;
+
 : .addr. ( addr -- ) dup >r
     [:  dup xt? if
 	    dup name>string 2dup string? if
@@ -48,19 +70,9 @@ does> 6 cell array>mem MEM+DO
 	    else
 		2drop
 	    then
-	then
-	dup which-section? ?dup-if
-	    @ >body over [ 1 maxaligned negate ]L and U-DO
-		I body> xt? if
-		    I body> name>string 2dup string? if
-			'<' emit type I - ?dup-if
-			    ." +$" 0 ['] u.r $10 base-execute  then
-			'>' emit space unloop  EXIT
-		    else  2drop  then
-		then
-	    [ 1 maxaligned ]L -LOOP
-	then
-	h. ;] catch-nobt IF  drop r> h.  ELSE  rdrop  THEN ;
+        then
+        .body
+    ;] catch-nobt IF  drop r> h.  ELSE  rdrop  THEN ;
 
 : .var. ( addr -- )
     dup body> >name dup IF  id. drop  ELSE  drop h.  THEN ;

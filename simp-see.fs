@@ -22,6 +22,8 @@ require see.fs
 
 get-current also see-voc definitions
 
+variable addr-width \ number of characters for printing the last address
+
 : xt-range ( xt -- addr1 addr2 )
     \ get the range of threaded-code addresses for (possibly deferred)
     \ colon def xt
@@ -36,7 +38,8 @@ get-current also see-voc definitions
     then ;
 
 : see-word.addr ( addr -- )
-    xpos off h. ;
+    xpos off
+    <<# .body-holds 0 0 #> dup >r type #>> addr-width @ 1+ r> - spaces ;
 
 : .transition ( ustart uend -- )
     swap 4 spaces 0 .r ." ->" . ;
@@ -57,6 +60,7 @@ set-current
 
 : simple-see-range ( addr1 addr2 -- ) \ gforth
     \G Decompile code in [@i{addr1},@i{addr2}) like @code{simple-see}
+    dup <<# .body-holds 0 0 #> addr-width ! drop #>>
     swap u+do
 	cr i simple-see-word
     cell +loop ;

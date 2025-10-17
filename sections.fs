@@ -59,7 +59,8 @@ constant extra-section-error
     0 [: over defers addr>view dup 0= select ;] sections-execute nip ;
 is addr>view
 
-: which-section? ( x -- f )
+: which-section? ( addr1 -- addr2|0 )
+    \ if addr1 is in a section, addr2 is the start of the section; if not, 0
     0 [: over in-dictionary1? section-start @ and over select ;]
     sections-execute nip ;
 :noname which-section? 0<> ; is in-dictionary?
