@@ -2,8 +2,16 @@
 which sudo || alias sudo=eval
 install_debian() {
   sudo apt-get -y update
-  sudo apt-get -y install libffi-dev libltdl7 libsoil-dev libtool make gcc automake m4 texinfo texi2html texlive-base install-info dpkg-dev debhelper yodl bison libpcre3-dev libboost-dev git g++ # yodl, bison, ... git: are for swig
-  test `lsb_release -sc` = "buster" && sudo apt-get -y install texlive-latex-base
+  sudo apt-get -y install libffi-dev libltdl7 libsoil-dev libtool make gcc automake m4 texinfo texi2html texlive-base install-info dpkg-dev debhelper yodl bison libboost-dev git g++ # yodl, bison, ... git: are for swig
+  case "`lsb_release -sc`" in
+      trixie|forky)
+	  git clone https://github.com/nektro/pcre-8.45.git
+	  (cd pcre-8.45; ./configure && sed -e 's/1[.]16/1.17/g' <Makefile >Makefile.new; mv Makefile.new Makefile; make && sudo make install)
+	  ;;
+      *) sudo apt-get install -y libpcre3-dev
+	  ;;
+  esac  
+  test `lsb_release -sc` = "forky" && sudo apt-get -y install texlive-base texlive-latex-base
   sudo apt-get -y install libtool-bin
   sudo apt-get -y install libltdl-dev
   sudo apt-get -y install libffi-dev
@@ -107,7 +115,16 @@ install_gforth_osx() {
 }
 
 install_gforth_debian() {
-    sudo apt-get -y install gforth gforth-lib gforth-common
+    case "`lsb_release -sc`" in
+	trixie|forky)
+            wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz
+       	    tar zxf gforth-0.7.3.tar.gz
+	    BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g')
+	    (cd gforth-0.7.3; ./configure CC=gcc-14 --prefix=/usr --host=$BARCH --build=$BARCH; make; sudo make install)
+	    ;;
+	*) sudo apt-get -y install gforth gforth-lib gforth-common
+	    ;;
+    esac
 }
 
 install_gforth_ubuntu() {
