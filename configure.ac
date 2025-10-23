@@ -509,7 +509,7 @@ case "$host_cpu" in
 		case "$host" in
 		    *gnueabihf)
 			# don't build for thumb
-			CFLAGS="$CFLAGS -marm -march=armv6"
+			CFLAGS="$CFLAGS -marm -march=armv6+fp"
 			FAST="yes" # build extra fast libraries
 			;;
 		    *gnueabi*)
