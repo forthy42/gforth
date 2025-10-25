@@ -78,8 +78,13 @@ DOES> state @ abs translator-max-offset# umin th@ execute ;
     status$ $free
     1 to status-offset ;
 
-: +status ['] .status-line is .status ['] .unstatus-line is .unstatus ;
-: -status ['] noop is .status ['] noop is .unstatus ;
+: +status ( -- ) \ gforth
+    \G Turn on the status bar at the bottom of the screen
+    ['] .status-line is .status ['] .unstatus-line is .unstatus ;
+
+: -status ( -- ) \ gforth
+    \G Turn off the status bar at the bottom of the screen
+    ['] noop is .status ['] noop is .unstatus ;
 
 :noname
     defers bootmessage

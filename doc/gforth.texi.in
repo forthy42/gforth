@@ -515,6 +515,7 @@ Closures
 
 Programming Tools
 
+* Text interpreter status::
 * Locating source code definitions::  and editing
 * Locating uses of a word::     @code{where}.
 * Locating exception source::   Examining backtraces.
@@ -16111,6 +16112,7 @@ Examples can be found in @code{test/regexp-test.fs}.
 @c !! move this and assembler down below OO stuff.
 
 @menu
+* Text interpreter status::
 * Locating source code definitions::  and editing
 * Locating uses of a word::     @code{where}.
 * Locating exception source::   Examining backtraces.
@@ -16123,7 +16125,39 @@ Examples can be found in @code{test/regexp-test.fs}.
 * Code Coverage::               Measure execution frequency.
 @end menu
 
-@node Locating source code definitions, Locating uses of a word, Programming Tools, Programming Tools
+@node Text interpreter status, Locating source code definitions, Programming Tools, Programming Tools
+@subsection Text interpreter status
+@cindex status bar
+@cindex prompt
+@cindex @code{ok} prompt
+@cindex @code{compiling} prompt
+@cindex @code{postponing} prompt
+
+In interactive usage Gforth shows the status after processing each
+line.  The status consists of the ``prompt'' behind the end of the
+output of the words on the line and optionally a status bar at the
+bottom (on by default if the terminal is a colour terminal).
+
+The prompt shows the current text interpreter state (@code{ok}
+(interpretation), @code{compiling}, or @code{postponing}) and the
+number of items on the data stack (nothing shown if empty) and the FP
+stack (nothing shown if empty).  E.g., if there are two items on the
+data stack and one item on the FP stack, @code{2 f:1} is shown.
+
+The status bar is in blue for interpretation, magenta for compilation,
+and red for postponing state.  By default it shows the contents of
+@word{base} in decimal (not shown when the base is decimal), the
+number of items on the data stack and the top items of the data stack,
+the number of items on the FP stack, and the top items on the FP
+stack, the search order and the current wordlist.  What is shown can
+be changed by changing the contents of @code{status-xts}, but that is
+currently not documented, apart from turning the status bar off
+completely:
+
+doc--status
+doc-+status
+
+@node Locating source code definitions, Locating uses of a word, Text interpreter status, Programming Tools
 @subsection Locating source code definitions
 @cindex source code of a word
 @cindex @code{view} (called @code{locate} in Gforth)
