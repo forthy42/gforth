@@ -6,30 +6,26 @@ ENV LANG=C.UTF-8
 
 RUN apt-get -y update \
   && apt-get upgrade -y \
-  && apt-get -y install libffi-dev libltdl7 libsoil-dev libtool make gcc gcc-14 g++ \
+  && apt-get -y -m install libffi-dev libltdl7 libsoil-dev libtool make gcc gcc-14 g++ \
      automake texinfo texi2html install-info dpkg-dev debhelper libtool-bin \
      libltdl-dev autoconf-archive \
      libx11-dev libx11-xcb-dev libxrandr-dev libgles2-mesa-dev libglew-dev \
      libgl1-mesa-dev libwayland-dev wayland-protocols libvulkan-dev libpng-dev \
      libfreetype-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
      libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
-     libxkbcommon-dev libwebp-dev emacs-nox \
-  && case "`lsb_release -sc`" in \
-       trixie|forky) \
-           wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
-       	   tar zxf gforth-0.7.3.tar.gz; \
-	   BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g'); \
-      (cd gforth-0.7.3; ./configure CC=gcc-14 --prefix=/usr --host=$BARCH --build=$BARCH; make; make install); ;; \
-       *) apt-get -y install gforth gforth-lib gforth-common; ;; esac \
+     libxkbcommon-dev libwebp-dev emacs-nox gforth gforth-lib gforth-common \
+     yodl bison libpcre3-dev libboost-dev git \
+  && if ! which gforth >/dev/null 2>&1; then \
+         wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
+       	 tar zxf gforth-0.7.3.tar.gz; \
+	 BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g'); \
+         (cd gforth-0.7.3; ./configure CC=gcc-14 --prefix=/usr --host=$BARCH --build=$BARCH; make; make install); fi \
   && if [ "`lsb_release -sc`" = "forky" -a "`gcc -v 2>&1 | tr ' ' '\n' | grep -- --host | cut -f2 -d= | cut -f1 -d-`" = "x86_64" ]; then apt-get -y install texlive-base texlive-latex-base; fi \
   && apt-get clean
 RUN cd /tmp/ \
-    && case "`lsb_release -sc`" in \
-       trixie|forky) \
-        apt-get install -y yodl bison libboost-dev git; \
-        git clone https://github.com/nektro/pcre-8.45.git; \
-    	(cd pcre-8.45; ./configure && sed -e 's/1[.]16/1.17/g' <Makefile >Makefile.new; mv Makefile.new Makefile; make && make install); ;; \
-       *) apt-get install -y yodl bison libpcre3-dev libboost-dev git; ;; esac \
+    && if ! which pcre-config; then \
+         git clone https://github.com/nektro/pcre-8.45.git; \
+    	 (cd pcre-8.45; ./configure && sed -e 's/1[.]16/1.17/g' <Makefile >Makefile.new; mv Makefile.new Makefile; make && make install); fi \
     && git clone https://github.com/GeraldWodni/swig.git \
     && cd swig \
     && ./autogen.sh \
