@@ -102,9 +102,11 @@ forth-wordlist is rec-name
 ' translate-cell, AConstant translate-cell ( x -- translation ) \ gforth-experimental
 \G Interpreting run-time: @code{( @i{ -- x} )}
 
-' noop
-' 2lit,
-:noname 2lit, postpone 2lit, ;
+Defer ?warn#  ' noop is ?warn#
+
+' ?warn#
+:noname ?warn# 2lit, ;
+:noname ?warn# 2lit, postpone 2lit, ;
 (translate:) translate-dcell,
 ' translate-dcell, AConstant translate-dcell ( xd -- translation ) \ gforth-experimental
 \G Interpreting run-time: @code{( @i{ -- xd} )}
@@ -137,7 +139,8 @@ forth-wordlist is rec-name
     snumber?  dup
     IF
 	0> translate-dcell translate-cell rot select EXIT
-    ELSE drop translate-none THEN ;
+    THEN
+    drop translate-none ;
 
 \ generic stack get/set; actually, we don't need this for
 \ the recognizer any more, but other parts of the kernel use it.

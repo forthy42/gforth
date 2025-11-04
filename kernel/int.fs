@@ -114,11 +114,9 @@ has? os 0= [IF]
     endif
     x@+/string 0 s" '" 2rot string-prefix? ;
 
-Defer ?warn#  ' noop is ?warn#
-
 : s>unumber? ( c-addr u -- ud flag ) \ gforth
     \G converts string c-addr u into ud, flag indicates success
-    dpl on
+    dpl on >num-state off
     over c@ '' = if
 	1 /string s'>unumber? exit
     endif
@@ -142,7 +140,7 @@ Defer ?warn#  ' noop is ?warn#
         THEN
     ELSE
         drop 2drop #0. false  dpl on  THEN
-    r> base !  ?warn#  >num-state off ;
+    r> base ! ;
 
 \ ouch, this is complicated; there must be a simpler way - anton
 : s>number? ( addr u -- d f ) \ gforth
