@@ -80,20 +80,20 @@ decimal
     2dup s" 0X" string-prefix? r> or
     base @ &34 < and if
 	hex 2 /string
-	1 >num-state @ or >num-state !  EXIT
+	1 >num-warnings +!  EXIT
     endif
     over c@ '#' - dup 4 u<
     IF
 	cells bases + @ base ! 1 /string
-	1 >num-state @ or >num-state !
+	1 >num-warnings +!
     ELSE
 	drop
     THEN ;
 
 : sign? ( addr u -- addr1 u1 flag )
-    over c@ '-' = >num-state @ 2 and 0= and  dup >r
+    over c@ '-' = >num-warnings @ 2 and 0= and  dup >r
     IF
-	1 /string  2 >num-state +!
+	1 /string  2 >num-warnings +!
     THEN
     r> ;
 
@@ -116,14 +116,15 @@ has? os 0= [IF]
 
 : s>unumber? ( c-addr u -- ud flag ) \ gforth
     \G converts string c-addr u into ud, flag indicates success
-    dpl on >num-state off
+    dpl on >num-warnings off
     over c@ '' = if
 	1 /string s'>unumber? exit
     endif
     base @ >r  getbase sign?
     over if
 	>r #0. 2swap
-	over c@ '. = over 1 u> and IF  1 /string dup dpl !  THEN
+	over c@ '. = over 1 u> and IF
+	    1 /string dup dpl !  8 4 third select >num-warnings +!  THEN
 	\ allow an initial '.' to shadow all floating point without 'e'
         BEGIN ( d addr len )
             dup >r >number_ dup
@@ -132,14 +133,15 @@ has? os 0= [IF]
             WHILE \ the last >number_ parsed something
                     dup 1- dpl ! over c@ '. =
                 WHILE \ the current char is '.'
-                        1 /string
+			1 /string
+			8 4 third select >num-warnings @ or >num-warnings !
                 REPEAT  THEN \ there are unparseable characters left
-            2drop rdrop false  dpl on
+            2drop rdrop false  dpl on  >num-warnings off
         ELSE
             rdrop 2drop r> ?dnegate true
         THEN
     ELSE
-        drop 2drop #0. false  dpl on  THEN
+	drop 2drop #0. false  dpl on  >num-warnings off  THEN
     r> base ! ;
 
 \ ouch, this is complicated; there must be a simpler way - anton

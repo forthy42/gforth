@@ -182,10 +182,10 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
     THEN ;
 
 : ?warn-dp ( -- )
-    >num-state @ >num-state off 1 and 0= dpl @ 0>= and warnings @ abs 1 > and
+    >num-warnings @ dup $C and 0<> swap 1 and 0= and warnings @ abs 1 > and
     [: '' emit input-lexeme 2@ type
 	." ' is a double-cell integer; type `help' for more info" ;] ?warning
-    warnings @ abs 2 > input-lexeme 2@ '. scan nip 1 > and dpl @ 0>= and
+    >num-warnings @ $8 and 0<> warnings @ abs 2 > and
     [: '' emit input-lexeme 2@ type
 	." ' is a non-standard double: only trailing '.' standard" ;] ?warning ;
 

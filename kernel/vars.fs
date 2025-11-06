@@ -223,9 +223,15 @@ User dpl ( -- a-addr ) \ gforth Decimal_PLace
 \G 0. After the conversion of 234123.9 it contains 1, and so forth.
 -1 dpl !
 
-User >num-state ( -- a-addr ) \ gforth-internal
-\G Internal state of the number conversion
-0 >num-state !
+User >num-warnings ( -- a-addr ) \ gforth-internal
+\G Internal bits for warnings after the number conversion
+0 >num-warnings !
+\ Bits:
+\ 1 - has explicit base
+\ 2 - has a sign
+\ 3 - has a dot at the end
+\ 4 - has a dot in the middle
+\ 5 - has a non-standard exponent
 
 User state ( -- a-addr ) \ core,tools-ext
 \G Don't use @word{state}!  @word{State} is the state of the text
