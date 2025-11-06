@@ -138,7 +138,11 @@ Defer ?warn#  ' noop is ?warn#
     \G @word{translate-dcell}).
     snumber?  dup
     IF
-	0> translate-dcell translate-cell rot select EXIT
+	dup 0> >num-warnings @ 1 and 0= and dot-is-float @ and  IF
+	    2drop >num-warnings off  dpl on
+	ELSE
+	    0> translate-dcell translate-cell rot select EXIT
+	THEN
     THEN
     drop translate-none ;
 

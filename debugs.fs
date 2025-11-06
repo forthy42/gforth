@@ -187,7 +187,14 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 	." ' is a double-cell integer; type `help' for more info" ;] ?warning
     >num-warnings @ $8 and 0<> warnings @ abs 2 > and
     [: '' emit input-lexeme 2@ type
-	." ' is a non-standard double: only trailing '.' standard" ;] ?warning ;
+	." ' is a non-standard double: only trailing '.' standard" ;] ?warning
+    >num-warnings @ $10 and 0<> warnings @ abs 2 > and
+    [: '' emit input-lexeme 2@ type
+	." ' float without 'e' is non-standard" ;] ?warning
+    >num-warnings @ $20 and 0<> warnings @ abs 2 > and
+    [: '' emit input-lexeme 2@ type
+	." ' is a float using engineering notation" ;] ?warning
+    >num-warnings off ;
 
 ' ?warn-dp is ?warn#
 

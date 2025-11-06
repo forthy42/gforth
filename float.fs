@@ -179,6 +179,7 @@ Create si-prefixes ," Q  R  Y  Z  X  P  T  G  M  kh  d%m  u  n  p  f  a  z  y  r
 si-prefixes count 2/ + Constant zero-exp
 
 : prefix-number ( c-addr u -- r true | false )
+    >num-warnings off
     base @ #10 <> IF  2drop false  EXIT  THEN
     2dup 'e' scan nip >r 2dup 'E' scan nip r> or dup
     >r 0= IF
@@ -188,7 +189,7 @@ si-prefixes count 2/ + Constant zero-exp
 		    1 = IF  1- '.'  ELSE  I c@  THEN
 		    >float1
 		    dup IF  #10 s>f zero-exp I - s>f f** f*
-			warnings @ abs 3 >= warning" use of engineering notation is non-standard"
+			$20 >num-warnings +!
 		    THEN
 		    UNLOOP  rdrop EXIT  THEN  drop
 	    THEN
@@ -198,8 +199,7 @@ si-prefixes count 2/ + Constant zero-exp
     2dup '.' scan nip r@ or
     IF
 	'.' >float1
-	dup r@ 0= and warnings @ abs 2 >= and
-	warning" float without 'e' is non-standard"
+	dup r@ 0= and $10 and >num-warnings +!
     ELSE
 	2drop false
     THEN  rdrop ;
@@ -218,7 +218,7 @@ si-prefixes count 2/ + Constant zero-exp
     >r dup >r
     :noname r> r> compile, lit, postpone compile, postpone ; ;
 
-' noop ' fliteral dup >postponer
+' ?warn# :noname ?warn# postpone fliteral ; dup >postponer
 translate: translate-float ( r -- translation ) \ gforth-experimental
 \G Interpreting run-time: @code{( @i{ -- r} )}
 ' translate-float Constant rectype-float

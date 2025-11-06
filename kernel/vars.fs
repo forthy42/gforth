@@ -227,11 +227,16 @@ User >num-warnings ( -- a-addr ) \ gforth-internal
 \G Internal bits for warnings after the number conversion
 0 >num-warnings !
 \ Bits:
-\ 1 - has explicit base
-\ 2 - has a sign
-\ 3 - has a dot at the end
-\ 4 - has a dot in the middle
-\ 5 - has a non-standard exponent
+\ 1 - double with explicit base
+\ 2 - double with sign (do we need that?)
+\ 3 - double with a dot at the end
+\ 4 - double with a dot in the middle
+\ 5 - float without 'e'
+\ 6 - float with non-standard exponent
+
+User dot-is-float ( -- a-addr ) \ gforth-experimental
+\G if set, numbers with dot are treated as float
+0 dot-is-float !
 
 User state ( -- a-addr ) \ core,tools-ext
 \G Don't use @word{state}!  @word{State} is the state of the text
