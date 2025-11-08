@@ -136,15 +136,16 @@ Defer ?warn#  ' noop is ?warn#
     \G a character.  If successful, @i{translation} represents pushing
     \G that number at run-time (see @word{translate-cell} and
     \G @word{translate-dcell}).
-    snumber?  dup
+    dpl @ >num-warnings @ 2>r snumber?  dup
     IF
 	dup 0> >num-warnings @ 1 and 0= and dot-is-float @ and  IF
-	    2drop >num-warnings off  dpl on
+	    2drop
 	ELSE
-	    0> translate-dcell translate-cell rot select EXIT
+	    0> translate-dcell translate-cell rot select
+	    2rdrop EXIT
 	THEN
     THEN
-    drop translate-none ;
+    2r> >num-warnings !  dpl ! drop translate-none ;
 
 \ generic stack get/set; actually, we don't need this for
 \ the recognizer any more, but other parts of the kernel use it.

@@ -230,7 +230,9 @@ translate: translate-float ( r -- translation ) \ gforth-experimental
     \G In Gforth, numbers containing decimal digits and a dot are also
     \G recognized as FP numbers (but by default shadowed by
     \G double-cell numbers).
-    prefix-number translate-float translate-none rot select ;
+    >num-warnings @ >r  prefix-number
+    IF    rdrop translate-float
+    ELSE  r> >num-warnings !  translate-none THEN ;
 
 ' rec-float ' rec-forth defer@ >back
 

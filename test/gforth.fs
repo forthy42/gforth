@@ -521,7 +521,10 @@ t{ 0 0 ' + combiner #1234 #5678 third >body 2! execute -> #6912 }t
 	    -1 k +!
 	    k @ B @ x1 x2 x3 x4 A ;] dup B !
 	execute  THEN ;
-: man-or-boy? ( n -- n' ) [: 1 ;] [: -1 ;] 2dup swap [: 0 ;] A ;
+1 constant 1
+-1 constant -1
+0 constant 0
+: man-or-boy? ( n -- n' ) `1 `-1 `-1 `1 `0 A ;
 r> warnings !
 
 t{ 0 man-or-boy? -> 1 }t
