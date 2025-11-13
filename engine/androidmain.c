@@ -305,9 +305,9 @@ int checkFiles(char ** patharg, char * filedirs[])
   LOGI("Extra arg: %s\n", paths);
   *patharg=paths;
 
-  asprintf(&logfile, "%s/gforthout.log", rootdir);
+  asprintf(&logfile, "%s/gforthout.txt", rootdir);
   freopen(logfile, "w+", stdout);
-  asprintf(&logfile, "%s/gfortherr.log", rootdir);
+  asprintf(&logfile, "%s/gfortherr.txt", rootdir);
   freopen(logfile, "w+", stderr);
   free(logfile);
 
@@ -470,8 +470,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
   
   LOGI("Enter onload\n");
   
-  // freopen("/sdcard/gforthout.log", "w+", stdout);
-  // freopen("/sdcard/gfortherr.log", "w+", stderr);
+  // freopen("/sdcard/gforthout.txt", "w+", stdout);
+  // freopen("/sdcard/gfortherr.txt", "w+", stderr);
 
   pipe(startargs.ke_fd);
 
