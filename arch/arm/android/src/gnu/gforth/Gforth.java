@@ -948,9 +948,7 @@ public class Gforth
 	Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
     public static String[] REQUEST_STRING_NEW = {
-	Manifest.permission.READ_MEDIA_IMAGES,
-	Manifest.permission.READ_MEDIA_VIDEO,
-	Manifest.permission.READ_MEDIA_AUDIO,
+	Manifest.permission.READ_MEDIA_AUDIO
     };
     public boolean verifyStoragePermissions(Activity activity) {
 	// Check if we have write permission

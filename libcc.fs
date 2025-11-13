@@ -798,23 +798,30 @@ Create callback-&style c-var c,
 : .bytes ( addr u -- )
     false -rot bounds ?DO  IF ',' emit  THEN  ." 0x" I c@ .xx true  LOOP drop ;
 
+: .hash-check ( addr1 addr2 -- )
+    2dup d0= IF  2drop
+	[: ." libcc module " lib-modulename $. ."  doesn't have a hash value" cr ;]
+    ELSE  [: ." libcc hash mismatch in module '"
+	    lib-modulename $. ." ': expected " 16 .hashxx
+	    ."  got " 16 .hashxx cr ;]
+    THEN  do-debug ;
+
 : check-c-hash ( -- flag )
     c-hash-ok?
     IF  2drop true
-    ELSE
-	2dup d0= IF
-	    [: ." libcc module " lib-modulename $. ."  doesn't have a hash value" cr ;]
-	ELSE  [: ." libcc hash mismatch in module '"
-		lib-modulename $. ." ': expected " 16 .hashxx
-		."  got " 16 .hashxx cr ;]
-	THEN  do-debug
+    ELSE  .hash-check
 	lib-handle close-lib  0 lib-handle!  false
   THEN ;
 
 : open-olib ( addr u -- file-id ior )
-    ofile $@ open-lib dup IF
+    ofile $@ open-lib
+    warnings @ abs 3 >= IF
+	[: cr ." try open lib: " ofile $. ."  result: " dup hex. ;] do-debug
+    THEN
+    dup IF
 	lib-handle!
-	c-hash-ok? IF  2drop lib-handle 0  EXIT  THEN  2drop
+	c-hash-ok? IF  2drop lib-handle 0  EXIT  THEN
+	warnings @ abs 2 >= IF  .hash-check  ELSE  2drop  THEN
 	lib-handle close-lib  0 lib-handle!  0
     THEN  #-514 ;
 

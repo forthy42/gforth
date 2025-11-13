@@ -27,19 +27,19 @@ TOOLCHAIN=$(which $TARGET-gcc | sed -e s,/bin/.*-gcc,,g)
 
 case "$TARGET" in
     arm64*|aarch64*|mips64*)
-	export CC="$TARGET-gcc -D__ANDROID_API__=21"
+	export CC="$TARGET-gcc -D__ANDROID_API__=21 -std=c99"
 	;;
     *)
-	export CC="$TARGET-gcc -D__ANDROID_API__=21"
+	export CC="$TARGET-gcc -D__ANDROID_API__=21 -std=c99"
 	;;
 esac
 
-FREETYPE=freetype-2.13.3
+FREETYPE=freetype-2.14.1
 HARFBUZZ=harfbuzz-5.3.1
 LIBPNG=libpng-1.6.37
 BZIP2=bzip2-1.0.8
 OPUS=opus-1.3.1
-BROTLI=brotli-1.0.9
+BROTLI=brotli-1.1.0
 WEBP=libwebp-1.4.0
 
 fine=yes
@@ -90,19 +90,19 @@ function gen_brotli {
      test -f $BROTLI.tar.gz || wget https://github.com/google/brotli/archive/refs/tags/v${BROTLI#*-}.tar.gz && mv v${BROTLI#*-}.tar.gz $BROTLI.tar.gz)
     tar zxvf ~/Downloads/$BROTLI.tar.gz
     (cd $BROTLI
-     ./configure-cmake --prefix=$TOOLCHAIN/sysroot/usr CC="$TARGET-gcc" CFLAGS="-D__ANDROID_API__=21 -fPIC"
-     for i in $(find . -name link.txt); do \
-	 sed -e 's/\(soname,[^ ]*\.so\)[0-9.]*/\1/g' $i > $i+; \
-	 mv $i+ $i; \
-	 done &&
-	 make -j$nprocs &&
-	 make install
-     (cd $TOOLCHAIN/sysroot/usr/lib;
-      for i in libbrotli*.so
-      do
-	  rm $i $i.1
-	  mv $i.${BROTLI#*-} $i
-      done))
+     mkdir out && cd out
+     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TOOLCHAIN/sysroot/usr ..
+     for i in $(find . -name link.txt); do
+         sed -e 's/\(soname,[^ ]*\.so\)[0-9.]*/\1/g' $i > $i+;
+         mv $i+ $i;
+     done
+     cmake --build . --config Release --target install)
+    (cd $TOOLCHAIN/sysroot/usr/lib;
+     for i in libbrotli*.so
+     do
+         rm $i $i.1
+         mv $i.${BROTLI#*-} $i
+     done)
 }
 
 #make and install webp
