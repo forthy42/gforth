@@ -288,6 +288,7 @@ addressable-mask
 ADDRESS-UNIT-BITS
 addr>view
 .addr-warning
+addr-width
 adjust-buffer
 adjust-locals-list
 adjust-locals-size
@@ -591,10 +592,12 @@ block-offset
 block-position
 Blue
 bn-view
+.body
 >body
 ~~>body
 body>
 Body
+.body-holds
 Bold
 boot
 boot[][]
@@ -1386,6 +1389,7 @@ dop_t-xdop
 dop_t-ydop
 do-stack:
 DoTable
+dot-is-float
 do-translate
 double
 double%
@@ -2584,6 +2588,7 @@ _GSource-context
 g_source_destroy
 GSourceDisposeFunc:
 GSourceDummyMarshal:
+g_source_dup_context
 _GSource-flags
 GSourceFunc:
 _GSourceFuncs
@@ -2833,6 +2838,7 @@ has?
 hash
 hash-alloc
 hashbits
+.hash-check
 hash-cold
 hash-cover
 hash-c-source
@@ -2882,6 +2888,7 @@ hex.
 HEXDATA_MAX
 hex.r
 H_GEOMETRIC
+.h-holds
 history
 history-cold
 history-file
@@ -3748,7 +3755,7 @@ nt>rec
 >number
 >number_
 number
->num-state
+>num-warnings
 nw
 !o+
 //o
