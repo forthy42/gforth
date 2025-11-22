@@ -39,7 +39,7 @@ variable addr-width \ number of characters for printing the last address
 
 : see-word.addr ( addr -- )
     xpos off
-    <<# .body-holds 0 0 #> dup >r type #>> addr-width @ 1+ r> - spaces ;
+    <<# .body-holds 0 0 #> dup >r type #>> addr-width @ 1+ r> - 1 max spaces ;
 
 : .transition ( ustart uend -- )
     swap 4 spaces 0 .r ." ->" . ;
@@ -58,9 +58,13 @@ variable addr-width \ number of characters for printing the last address
 
 set-current
 
+: set-addr-width ( addr -- )
+    \ addr is the end address of the area to be decompiled
+    <<# .body-holds 0 0 #> #13 max addr-width ! drop #>> ;
+    
 : simple-see-range ( addr1 addr2 -- ) \ gforth
     \G Decompile code in [@i{addr1},@i{addr2}) like @code{simple-see}
-    dup <<# .body-holds 0 0 #> addr-width ! drop #>>
+    dup set-addr-width
     swap u+do
 	cr i simple-see-word
     cell +loop ;
@@ -78,6 +82,7 @@ set-current
 
 : see-code-range { addr1 addr2 -- } \ gforth
     \G Decompile code in [@i{addr1},@i{addr2}) like @code{see-code}.
+    addr2 set-addr-width
     0 0 `noop { d: codeblock xt: cr? }
     addr1 begin { addr }
         addr addr2 u< while
