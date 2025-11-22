@@ -69,6 +69,9 @@ require ./io.fs
     \G pictured numeric output string.
     0< IF '-' hold THEN ;
 
+: digit ( n --  c )
+    dup 9 u> [ char A char 9 1+ - ] Literal and + '0' + ;
+
 : # ( ud1 -- ud2 ) \ core		number-sign
     \G Used between @code{<<#} and @code{#>}. Prepend the
     \G least-significant digit (according to @code{base}) of @var{ud1}
@@ -77,9 +80,7 @@ require ./io.fs
     \G digits.
     \ special-casing base=#10 does not pay off:
     \ <2022Mar11.130937@mips.complang.tuwien.ac.at>
-    base @ ud/mod rot dup 9 u>
-    [ char A char 9 1+ - ] Literal and +
-    '0' + hold ;
+    base @ ud/mod rot digit hold ;
 
 : #s      ( ud -- 0 0 ) \ core	number-sign-s
     \G Used between @code{<<#} and @code{#>}.  Prepend all digits of
@@ -87,9 +88,15 @@ require ./io.fs
     \G convert at least one digit. Therefore, if @var{ud} is 0,
     \G @code{#s} will prepend a ``0'' to the pictured numeric output
     \G string.
-    BEGIN
-	# 2dup or 0=
-    UNTIL ;
+    dup if
+        begin
+            #
+        dup 0= until
+    then
+    drop begin
+        base @ u/mod swap digit hold
+    dup 0= until
+    0 ;
 
 : holds ( addr u -- ) \ core-ext
     \G Used between @code{<<#} and @code{#>}. Prepend the string @code{addr u}

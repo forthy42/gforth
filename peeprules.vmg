@@ -219,6 +219,7 @@ csswaplstore = >r l>< r> l!
 \E prim-states arshift
 \ \E prim-states /modf                 \ 164670
 \ \E prim-states /mods
+\E prim-states u/mod
 \E prim-states >r                   \ 145247
 \E prim-states r>                   \ 133792
 \ \E S1 S1 state-offset-prim does-xt  \ 120944 \ new DOES, reduces executions
