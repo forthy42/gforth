@@ -93,9 +93,18 @@ require ./io.fs
             #
         dup 0= until
     then
-    drop begin
-        base @ u/mod swap digit hold
-    dup 0= until
+    drop
+    base @ #10 = if
+        begin
+            #10 u/mod swap '0' + hold
+            \ optimizing #10 u/mod further slows down Rocket Lake
+            \ <2025Nov23.103631@mips.complang.tuwien.ac.at>
+        dup 0= until
+    else
+        begin
+            base @ u/mod swap digit hold
+        dup 0= until
+    then
     0 ;
 
 : holds ( addr u -- ) \ core-ext
