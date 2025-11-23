@@ -803,7 +803,7 @@ Create callback-&style c-var c,
 	[: ." libcc module " lib-modulename $. ."  doesn't have a hash value" cr ;]
     ELSE  [: ." libcc hash mismatch in module '"
 	    lib-modulename $. ." ': expected " 16 .hashxx
-	    ."  got " 16 .hashxx cr ;]
+	    ."  got " 16 .hashxx ."  loaded from: " ofile $. cr ;]
     THEN  do-debug ;
 
 : check-c-hash ( -- flag )
