@@ -146,7 +146,7 @@ c-library pthread
     c-function pthread_mutex_lock pthread_mutex_lock a -- n ( mutex -- r )
     c-function pthread_mutex_unlock pthread_mutex_unlock a -- n ( mutex -- r )
     c-function sched_yield sched_yield -- void ( -- )
-    c-function pthread_detach_attr pthread_detach_attr -- a ( -- addr )
+    c-function pthread_detach pthread_detach a{*(pthread_t*)} -- n ( addr -- r )
     c-function pthread_cond_init pthread_cond_init a a -- n ( cond attr -- r )
     c-function pthread_cond_destroy pthread_cond_destroy a -- n ( cond -- r )
     c-function pthread_cond_signal pthread_cond_signal a -- n ( cond -- r ) \ gforth-experimental
@@ -179,6 +179,7 @@ opt: @ ]] literal * [[ ;
 require ./libc.fs
 require set-compsem.fs
 
+User pthread-joinwait
 User pthread-id
 -1 cells pthread+ aligned uallot drop
 
@@ -216,9 +217,11 @@ s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
 [THEN]
 
 :noname ( -- )
+    pthread-joinwait @ 0= IF  pthread-id pthread_detach drop  THEN
     epiper @ ?dup-if epiper off close-file drop  THEN
     epipew @ ?dup-if epipew off close-file drop  THEN
-    tmp$[] $[]free 0 (bye) ;
+    tmp$[] $[]free
+    0 (bye) ;
 IS kill-task
 
 Defer prepare-fork  ' noop is prepare-fork
@@ -270,7 +273,7 @@ Defer thread-init
 : (activate) ( task -- ) \ gforth-internal
     \G activates task, the current procedure will be continued there
     r> swap >r  save-task r@ 's !
-    pthread-id r@ 's pthread_detach_attr thread_start r> pthread_create drop ; compile-only
+    pthread-id r@ 's 0 thread_start r> pthread_create drop ; compile-only
 
 : activate ( run-time nest-sys1 task -- ) \ gforth-experimental
     \G Let @i{task} perform the code behind @code{activate}, and
@@ -283,7 +286,7 @@ Defer thread-init
     r> swap >r  save-task r@ 's !
     1+ dup cells negate  sp0 r@ 's @ -rot  sp0 r@ 's +!
     sp0 r@ 's @ swap 0 ?DO  tuck ! cell+  LOOP  drop
-    pthread-id r@ 's pthread_detach_attr thread_start r> pthread_create drop ; compile-only
+    pthread-id r@ 's 0 thread_start r> pthread_create drop ; compile-only
 
 : pass ( x1 .. xn n task -- ) \ gforth-experimental
     \G Pull @i{x1 .. xn n} from the current task's data stack and push
@@ -419,10 +422,17 @@ synonym sleep halt ( task -- ) \ gforth-experimental
 	BEGIN  stop  wake# @ r@ =  UNTIL  rdrop
     THEN ;
 
+: join ( task -- ) \ gforth-experimental
+    \G wait for the task to terminate
+    up@ over user' pthread-joinwait + !
+    user' pthread-id + { thread-id[ 0 pthread+ ] }
+    thread-id[ 0 pthread_join drop ;
+
 : (kill) ( task xt -- ) \ gforth-experimental
-    \G Terminate @i{task} by executing @i{xt}.
-    over user' pthread-id + { xt: xt thread-id[ 0 pthread+ ] }
-    xt  thread-id[ 0 pthread_join drop ;
+    \G Terminate @i{task} by executing @i{xt}, which has the stack effect @code{( task -- )}.
+    up@ over user' pthread-joinwait + !
+    over user' pthread-id + { thread-id[ 0 pthread+ ] }
+    execute  thread-id[ 0 pthread_join drop ;
 
 : kill ( task -- ) \ gforth-experimental
     \G Terminate @i{task}.
