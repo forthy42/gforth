@@ -1309,6 +1309,7 @@ dictionary-end
 dict-new
 die-on-signal
 digit
+digit
 digit?
 Dim
 dirname
@@ -3103,6 +3104,7 @@ is-xterm?
 Italic
 i>x
 j
+join
 JOIN
 json_oscillator_read
 json_pps_read
@@ -4371,10 +4373,11 @@ pthread_cond_t
 pthread_cond_timedwait
 pthread_cond_wait
 pthread_create
-pthread_detach_attr
+pthread_detach
 pthread_exit
 pthread-id
 pthread_join
+pthread-joinwait
 pthread_kill
 pthread-mutex+
 pthread_mutex_destroy
@@ -5155,6 +5158,7 @@ selector-offset
 sema
 semaphore
 send-event
+set-addr-width
 set-bn-view
 set-bp
 set-colors
