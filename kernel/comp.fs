@@ -412,8 +412,8 @@ include ./recognizer.fs
 
 : imm>comp  name>interpret ['] execute ;
 : immediate ( -- ) \ core
-    \G Change the compilation semantics of a word to be the same as
-    \G its interpretation semantics.
+    \G Change the compilation semantics of the most recently defined
+    \G word to be the same as its interpretation semantics.
     ['] imm>comp set->comp ;
 
 : restrict ( -- ) \ gforth

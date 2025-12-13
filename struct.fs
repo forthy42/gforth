@@ -58,6 +58,7 @@ fold1:
 1 dfaligned 1 dfloats 2constant dfloat% ( -- align size ) \ gforth d-float-percent
 1 sfaligned 1 sfloats 2constant sfloat% ( -- align size ) \ gforth s-float-percent
 cell% 2*              2constant double% ( -- align size ) \ gforth double-percent
+\G describes a double cell (equivalent to @code{cell% 2*}).
 
 \ memory allocation words
 ' drop alias %alignment ( align size -- align ) \ gforth percent-alignment

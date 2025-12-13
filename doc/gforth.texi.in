@@ -9586,8 +9586,7 @@ my-intlist1 my-intlist2 intlist-next !
 my-intlist2 intlist-sum . \ prints "12"
 @end example
 
-In addition to @code{field:} for cell-aligned and cell-sized fields,
-you can define fields sized and aligned for various types with:
+The words for defining structures and fields of various types are:
 
 doc-begin-structure
 doc-end-structure
@@ -9939,7 +9938,7 @@ to also support resource-constrained systems that allocate fixed-size
 stacks, where exceeding the stack size results in an error.  So you
 should provide the size parameter accordingly.
 
-A stacks is represented on the data stack by a cell.
+A stack is represented on the data stack by a cell.
 
 doc-stack
 doc-stack:
@@ -10053,11 +10052,15 @@ When you postpone a word, you also use the compilation semantics.
 see foo
 @end source
 
-Here the @code{POSTPONE +} compiles (rather than performs) the
-compilation semantics of @word{+} into @word{compile-+}.  In the
-definition of @word{foo}, (the interpretation semantics of)
-@code{compile-+} is performed, which in turn performs the compilation
-semantics of @word{+}, i.e., it compiles @word{+} into @word{foo}.
+Here the @code{POSTPONE +} compiles the compilation semantics of
+@word{+} into @word{compile-+} (By contrast, just writing @word{+} in
+this place would result in @emph{performing} the compilation semantics
+of @word{+}, and because this is a word with default compilation
+semantics, that would compile the @emph{execution/interpretation}
+semantics of @word{+}).  In the definition of @word{foo}, (the
+interpretation semantics of) @code{compile-+} is performed, which in
+turn performs the compilation semantics of @word{+}, i.e., it compiles
+@word{+} into @word{foo}.
 
 The compilation semantics is represented by a compilation token
 (@pxref{Compilation token}).  You can get the compilation token of a
@@ -10073,10 +10076,10 @@ For words built into Gforth, the documentation specifies the semantics.
 
 Most words have default compilation semantics.  For such words (e.g.,
 @word{!}, @pxref{Memory Access}) the documentation describes the
-interpretation semantics without explicitly labeling as such.  The
-compilation semantics of these words is to compile the interpretation
-semantics into the current definition; the stack effect of performing
-the default compilation semantics is @code{( -- )}.
+interpretation/execution semantics without explicitly labeling it as
+such.  The compilation semantics of these words is to compile the
+interpretation semantics into the current definition; the stack effect
+of performing the default compilation semantics is @code{( -- )}.
 
 Some words have non-default compilation semantics.  This is either
 indicated by labels for interpretation, compilation, and/or run-time
@@ -10245,10 +10248,10 @@ doc-restrict
 In a few cases (and most of those are a bad idea) you want to define a
 word that has some other combination of interpretation and compilation
 semantics than words with default compilation semantics or immediate
-words (a combined word@footnote{Some people call combined words
-``NDCS'', but immediate words also have non-default compilation
-semantics}).  The following contrived example shows how you can define
-a combined word:
+words; we call such a word a combined word@footnote{Some people call
+combined words ``NDCS'', but immediate words also have non-default
+compilation semantics}).  The following contrived example shows how
+you can define a combined word:
 
 @source
 : foo ." foo" ;
