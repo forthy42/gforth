@@ -10429,11 +10429,11 @@ execute ( )          \ "5"
 5 bar . drop execute \ "5"
 @end example
 
-@code{'} parses at run-time, so if you put it in a colon definition,
-as in @code{bar}, it does not consume the next word in the colon
-definition, but the next word at run-time (i.e., the @code{.} in the
-invocation of @code{bar}).  If you want to put a literal xt in a colon
-definition without writing @code{`@i{x}}, write @code{['] @i{x}}.
+@code{'} parses at run-time, so if you put @code{'} in a colon
+definition, as in @code{bar}, it does not consume the next word in the
+colon definition, but the next word at run-time (i.e., the @code{.} in
+the invocation of @code{bar}).  If you want to push the xt of @i{x}
+inside a colon definition, write @code{`@i{x}} or @code{['] @i{x}}.
 
 Gforth's @code{`@i{x}}, @code{'} and @code{[']} warn when you use them
 on compile-only words, because such usage may be non-portable between
@@ -10479,6 +10479,12 @@ but in Gforth since 1.0 unnamed words have a name token, too.
 
 The name token is a cell-sized abstract data type that occurs as
 argument or result of the words below.
+
+The difference between name token and execution token is that an
+execution token represents one behaviour, whereas a name token
+represents a word and all its properties, in particular its name and
+its behaviours (interpretation semantics, compilation semantics,
+possibly @code{TO @i{word}} semantics, etc.)
 
 You get the nt of a word @i{x} with @code{``@i{x}} (since Gforth 1.0)
 or with
@@ -10526,20 +10532,20 @@ xt part of its compilation token is the xt of @code{compile,}.
 @c that deviates gets it wrong and is non-standard).
 
 Since Gforth 1.0 (but not in earlier versions or many other Forth
-systems), nameless words (@pxref{Anonymous Definitions}) have nts,
+systems), nameless words (@pxref{Anonymous Definitions}) have nts and
 compilation semantics, and @word{name>string} works on them (producing
 a zero-length name).  They are not in a wordlist, however.  You can
 get the nt of a nameless word with @code{latestnt}.
 
 
 Since Gforth 1.0, for most words the concrete implementation of their
-nt is the same address as its xt (this is the primary nt for the xt).
-However, synonyms, aliases, and words defined with
-@code{interpret/compile:} get their xt from another word, but still
-have an nt of their own (that is different from the xt).  Therefore,
-you cannot use xts and nts interchangeably, even if you are prepared
-to write code specific to Gforth 1.0.  You do not get these alternate
-nts for the xt with @code{>name}.
+nt has the same numeric value as the xt that @word{name>interpret}
+produces for the nt.  However for word @i{w} that is a synonym, alias,
+or is defined with @code{interpret/compile:}, @word{intsem:} etc., the
+xt produced by @word{name>interpret} has a different numeric value
+than the nt (and using @word{>name} on these xts will not produce the
+nt of @i{w}).  Therefore, you cannot use xts and nts interchangeably,
+even if you are prepared to write code specific to Gforth 1.0.
 
 @cindex name field address
 @cindex NFA
@@ -10556,7 +10562,7 @@ Another difference is that the NFA usually points to the start of the
 header, whereas the nt in Gforth 1.0 points to the body (and header
 fields are accessed with a negative offset).
 
-Moreover, all of the header fields of the old system correspond to
+Moreover, all of the header fields of the old systems correspond to
 fields in Gforth, but Gforth 1.0 has a few additional ones
 (@pxref{Header fields}).  
 

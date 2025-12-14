@@ -366,13 +366,20 @@ Variable rec'[]
 	h.
     then ;
 
+: .>int ( xt -- )
+    dup ['] noop = if
+        [ s" default-name>int" find-name ]L id.
+    else
+        .name?
+    then ;
+
 : .hm ( nt -- ) \ gforth dot-h-m
     \G print the header methods of @i{nt}
     >namehm @ cr
     ." opt:     " dup >hmcompile, @ .name? cr
     ." to:      " dup >hmto       @ .name? cr
     ." extra:   " dup >hmextra    @ .name? cr
-    ." >int:    " dup >hm>int     @ .name? cr
+    ." >int:    " dup >hm>int     @ .>int  cr
     ." >comp:   " dup >hm>comp    @ .name? cr
     ." >string: " dup >hm>string  @ .name? cr
     ." >link:   "     >hm>link    @ .name? ;

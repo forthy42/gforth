@@ -257,10 +257,10 @@ variable nextname$
     \ The main purpose of this word is to get the xt of words defined using noname
     lastnt @ name>interpret ;
 
-: latest ( -- nt ) \ gforth
-\G @var{nt} is the name token of the last word defined in the current
-\G section.  @var{nt} is 0 if the last word has no name.
-    lastnt @ dup name>string d0<> and ;
+: latest ( -- nt|0 ) \ gforth
+    \g If the most recent word defined in the current section has a
+    \g name, @i{nt} is its name token; otherwise, return 0.
+    latestnt dup name>string d0<> and ;
 
 \ \ literals							17dec92py
 
@@ -361,8 +361,12 @@ has? primcentric [IF]
 
 ' compile, AConstant default-name>comp ( nt -- w xt ) \ gforth-internal default-name-to-comp
 
+0 0 0 0 field default-name>int ( nt -- xt ) \ gforth-internal default-name-to-int
+\G The @word{name>interpret} implementation of most words.
+drop drop
+
 : default-i/c ( -- )
-    ['] noop set->int
+    ['] default-name>int  set->int
     ['] default-name>comp set->comp ;
 
 : [']  ( compilation. "name" -- ; run-time. -- xt ) \ core      bracket-tick

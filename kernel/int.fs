@@ -584,8 +584,8 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 [THEN]
 
 0 0 0 0 field xt>name ( xt -- nt ) \ gforth xt-to-name
-\G Produces the primary nt for an xt.  If @i{xt} is not an xt, @i{nt}
-\G is not guaranteed to be an nt.
+\G If @i{xt} is an execution token, produces the same @i{nt} as
+\G @word{>name}.  Otherwise, @i{nt} is an arbitrary value.
     drop drop
 
 : >does-code ( xt1 -- xt2 ) \ gforth
