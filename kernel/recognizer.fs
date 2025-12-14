@@ -32,15 +32,16 @@
 \ and the table contains three actions (as array of three xts):
 \ interpret it, compile it, postpone it.
 
-' >lits Alias lit, ( x -- ) \ gforth
+' >lits Alias lit, ( x -- ) \ gforth lit-comma
 \G This is a non-immediate variant of @word{literal}@*
-\G Execution semantics: Compile the following semantis:@*
+\G Execution semantics: ( @i{x --} ) Compile the following semantics:@*
 \G Compiled semantics: ( @i{ -- x} ).
 
-: 2lit, ( x1 x2 -- ) postpone 2literal ;
+: 2lit, ( x1 x2 -- ) \ gforth two-lit-comma
 \G This is a non-immediate variant of @word{2literal}@*
-\G Execution semantics: Compile the following semantis:@*
-\G Compiled semantics: ( @i{ -- x1 x2} ).
+\G Execution semantics: ( @i{x1 x2 --} ) Compile the following semantics:@*
+\G Compiled semantics: ( @i{-- x1 x2} ).
+    postpone 2literal ;
 
 : no.extensions  ( -- ) #-13 throw ;
 

@@ -74,7 +74,7 @@ decimal
     \g semantics.  If @i{name} has default compilation semantics
     \g (i.e., is a normal word), compiling @code{[compile] @i{name}}
     \g is equivalent to compiling @i{name} (i.e. @code{[compile]} is
-    \g redundant in this case.
+    \g redundant in this case).
     comp' drop
     dup [ comp' exit drop ] literal = if
 	execute \ EXIT has default compilation semantics, perform them

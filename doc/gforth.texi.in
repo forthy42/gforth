@@ -1428,7 +1428,7 @@ would be @file{/usr/local/share/gforth/1.0:.}.
 @code{LC_CTYPE} -- If this variable contains ``UTF-8'' on Gforth
 startup, Gforth uses the UTF-8 encoding for strings internally and
 expects its input and produces its output in UTF-8 encoding, otherwise
-the encoding is 8bit (see @pxref{Xchars and Unicode}).  If this
+the encoding is 8bit (@pxref{Xchars and Unicode}).  If this
 environment variable is unset, Gforth looks in @code{LC_ALL}, and if
 that is unset, in @code{LANG}.
 
@@ -10618,7 +10618,7 @@ between compilation and run-time.  E.g., you can run arbitrary code
 between defining words (or for computing data used by defining words
 like @code{constant}). Moreover, @code{Immediate}
 (@pxref{Interpretation and Compilation Semantics}) and
-@code{[}...@code{]} (see @pxref{Literals}) allow running arbitrary
+@code{[}...@code{]} (@pxref{Literals}) allow running arbitrary
 code while compiling a colon definition (exception: any dictionary space you allot must be in a different section, @pxref{Sections}).
 
 @menu
@@ -10687,15 +10687,17 @@ doc-slit,
 
 @cindex colon-sys, passing data across @code{:}
 @cindex @code{:}, passing data across
-You might be tempted to pass data from outside a colon definition to the
-inside on the data stack.  This does not work, because @code{:} pushes a
-colon-sys, making stuff below unaccessible.  E.g., this does not work:
+You might be tempted to pass data from outside a colon definition to
+the inside on the data stack.  The straightforward approach to do this
+does not work, because @code{:} pushes a colon-sys, making stuff below
+unaccessible.  E.g., this does not work:
 
 @example
 5 : foo literal ; \ error: "unstructured"
 @end example
 
-Instead, you have to pass the value in some other way, e.g., through the return stack:
+Instead, you have to pass the value in some other way, e.g., through
+the return stack:
 
 @source
 5 >r : foo [ r> ] literal ;
@@ -10804,7 +10806,7 @@ other features:
 @itemize
 
 @item
-It uses a defer-flavoured (defined with @code{xt:} local @code{xt};
+It uses a defer-flavoured (defined with @code{xt:}) local @code{xt};
 mentioning such a local inside @code{]]}...@code{[[} results in
 @code{compile,}ing the xt in the local, i.e., @code{]] xt [[} is
 equivalent to @code{action-of xt compile,}.
@@ -10822,8 +10824,9 @@ results in @code{postpone}ing the @code{1}, i.e. compiling it when
 @code{1 ]] literal [[}.
 
 @item
-When @code{compile-map-array} is run, @code{1 cells} is compiled and
-optimized into @code{#8} by Gforth's constant folding.
+When @code{compile-map-array} is run (while @word{sum-array} is
+compiled), @code{1 cells} is compiled and optimized into @code{#8} by
+Gforth's constant folding.
 
 @end itemize
 
@@ -10864,17 +10867,12 @@ or other code-generating software.
 
 @item
 Macros defined using @code{postpone} etc. deal with the language at a
-higher level than strings; name binding happens at macro definition
-time, so you can avoid the pitfalls of name collisions that can happen
-in C macros.  Of course, Forth is a liberal language and also allows to
-shoot yourself in the foot with text-interpreted macros like
+higher level than strings; name binding and other resolutions happen
+at macro definition time, so you can avoid the pitfalls of name
+collisions that can happen in C macros.  Of course, Forth is a liberal
+language and also allows you to define text-based macros using
+@word{evaluate} (see below).
 
-@example
-: [compile-+] s" +" evaluate ; immediate
-@end example
-
-Apart from binding the name at macro use time, using @code{evaluate}
-also makes your definition @code{state}-smart (@pxref{state-smartness}).
 @end itemize
 
 You may want the macro to compile a number into a word.  The word to do
@@ -10982,10 +10980,55 @@ convenient than using @code{does>} (@pxref{Advanced does> usage
 example}).  One advantage of this method is that it can be optimized
 better, because the compiler knows that the value compiled with
 @code{literal} is fixed, whereas the data associated with a
-@code{create}d word can be changed.
+@code{create}d word can be changed.  But if you use
+@code{does>}/@code{set-does>} with @code{set-optimizer}, the resulting
+code will be at least as good, and the defined word will consume less
+memory.
 
 doc-[compile]
 doc-in-colon-def?
+
+Some people argue in favour of @word{evaluate}-based macros like:
+
+@example
+: my2dup s" over over" evaluate ; immediate
+@end example
+
+We do not recommend using this technique, because it moves a number of
+decisions to macro-use time, when the setup may be different than you
+intended:
+
+@itemize
+
+@item
+The recognizer order may be different.  This will usually not make a
+difference, but in case of doubt, you can use @word{rec-meta} to
+reduce potential ambiguity.
+
+@item
+The search order and the contents of individual wordlists may be
+different.  You can use @word{rec-scope} to eliminate the search
+order dependency, but there is no easy way to eliminate the changes in
+the wordlists, except to avoid @word{evaluate}-based macros
+altogether.
+
+@item
+@word{State} may be different, and if this influences the behaviour of
+the macro, it will be @word{state}-smart (@pxref{state-smartness}).
+
+@item
+@word{Base} may be different, potentially changing the meaning of
+multi-digit numbers.  Use number prefixes to avoid this problem.
+
+@end itemize
+
+An advantage of an @word{evaluate}-based macros is that you may be
+able to use it interpretively, whereas @word{postpone}-based macros
+are useful only inside colon definitions and other macros.  Our
+recommended alternative is to instead define a colon definition and an
+optimizer for it (e.g., see the @code{my2dup} examples in
+@ref{User-defined compile-comma}).
+
 
 @c ----------------------------------------------------------
 @node The Text Interpreter, The Input Stream, Compiling words, Words
@@ -16974,7 +17017,7 @@ with a SWIG plugin.
 @cindex C functions, calls to
 @cindex calling C functions
 
-Once a C function is declared (see @pxref{Declaring C Functions}), you
+Once a C function is declared (@pxref{Declaring C Functions}), you
 can call it as follows: You push the arguments on the stack(s), and
 then call the word for the C function.  The arguments have to be
 pushed in the same order as the arguments appear in the C

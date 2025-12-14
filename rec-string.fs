@@ -31,8 +31,9 @@ s" Scanned string not in input buffer" exception >r
 
 : slit, ( c-addr1 u -- ) \ gforth
     \G This is a non-immediate variant of @word{sliteral}@*
-    \G Execution semantics: Copy the string described by @i{c-addr1 u}
-    \G to @i{c-addr2 u} and Compile the following semantis:@*
+    \G Execution semantics: ( @i{ c-addr1 u --} )
+    \G Copy the string described by @i{c-addr1 u}
+    \G to @i{c-addr2 u} and compile the following semantics:@*
     \G Compiled semantics: ( @i{ -- c-addr2 u} ).
     postpone sliteral ;
 

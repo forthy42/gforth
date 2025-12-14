@@ -66,7 +66,7 @@
 
 : flit, ( r -- ) \ gforth
     \G This is a non-immediate variant of @word{fliteral}@*
-    \G Execution semantics: Compile the following semantis:@*
+    \G Execution semantics: ( @i{r --} ) Compile the following semantics:@*
     \G Compiled semantics: ( @i{ -- r} ).
     [ cell 4 = ] [IF]
 	here cell+ dup faligned <>

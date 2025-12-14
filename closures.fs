@@ -125,8 +125,9 @@ forth definitions
 
 [IFUNDEF] in-colon-def?
     0 Value in-colon-def? ( -- flag ) \ gforth-experimental
-    \G allows to check if there currently is an active colon
-    \G definition where you can append code to.
+    \G @i{flag} is true if and only if there is an active colon
+    \G definition to which @word{compile,} and friends would append
+    \G code.
 [THEN]
 
 : closure-:-hook ( sys -- sys addr xt n )
