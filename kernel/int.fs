@@ -425,8 +425,8 @@ method name>interpret ( nt -- xt ) \ tools-ext name-to-interpret
 \G @i{xt} represents the interpretation semantics of the word
 \G @i{nt}.
 
-method name>compile ( nt -- w xt ) \ tools-ext name-to-compile
-\G @i{w xt} is the compilation token for the word @i{nt}
+method name>compile ( nt -- xt1 xt2 ) \ tools-ext name-to-compile
+\G @i{xt1 xt2} is the compilation token for the word @i{nt}
 \G (@pxref{Compilation token}).
 
 method name>string ( nt -- addr u ) \ tools-ext name-to-string

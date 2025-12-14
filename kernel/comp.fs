@@ -373,17 +373,17 @@ drop drop
     \g @i{xt} represents @i{name}'s interpretation semantics.
     ' postpone Literal ; immediate restrict
 
-: COMP'    ( "name" -- w xt ) \ gforth  comp-tick
-    \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
+: COMP'    ( "name" -- xt1 xt2 ) \ gforth  comp-tick
+    \g Compilation token @i{xt1 xt2} represents @i{name}'s compilation semantics.
     ?parse-name rec-forth '-error name>compile ;
 
-: [COMP']  ( compilation "name" -- ; run-time -- w xt ) \ gforth bracket-comp-tick
-    \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
+: [COMP']  ( compilation "name" -- ; run-time -- xt1 xt2 ) \ gforth bracket-comp-tick
+    \g Compilation token @i{xt1 xt2} represents @i{name}'s compilation semantics.
     COMP' swap POSTPONE literal POSTPONE Literal ; immediate restrict
 
-: postpone, ( w xt -- ) \ gforth	postpone-comma
+: postpone, ( xt1 xt2 -- ) \ gforth	postpone-comma
     \g Compile the compilation semantics represented by the
-    \g compilation token @i{w xt}.
+    \g compilation token @i{xt1 xt2}.
     dup ['] execute =
     if
 	drop compile,
@@ -700,7 +700,7 @@ Create hmtemplate
     \G method of the current word to @i{xt}.
     0 >hm>int hm! ;
 : set->comp ( xt -- ) \ gforth set-to-comp
-    \G Sets the implementation of the @code{name>compile ( nt -- w xt2 )}
+    \G Sets the implementation of the @code{name>compile ( nt -- xt1 xt2 )}
     \G method of the current word to @i{xt}.
     0 >hm>comp hm! ;
 : set-name>string ( xt -- ) \ gforth set-name-to-string

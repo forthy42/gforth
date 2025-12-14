@@ -10573,36 +10573,39 @@ fields in Gforth, but Gforth 1.0 has a few additional ones
 @cindex compilation token
 @cindex ct (compilation token)
 The compilation semantics of a word is represented by a
-@dfn{compilation token} consisting of two cells: @i{w xt}. The top
-cell @i{xt} is an execution token. The compilation semantics
-represented by the compilation token can be performed with
-@code{execute}, which consumes the whole compilation token, with an
-additional stack effect determined by the represented compilation
-semantics.
-
-At present, the @i{w} part of a compilation token is an execution token,
-and the @i{xt} part represents either @code{execute} or
-@code{compile,}@footnote{Depending upon the compilation semantics of the
-word. If the word has default compilation semantics, the @i{xt} will
-represent @code{compile,}. Otherwise (e.g., for immediate words), the
-@i{xt} will represent @code{execute}.}. However, don't rely on that
-knowledge, unless necessary; future versions of Gforth may introduce
-unusual compilation tokens (e.g., a compilation token that represents
-the compilation semantics of a literal).
+@dfn{compilation token} consisting of two cells: @i{xt1 xt2}.
 
 You get the compilation token of, e.g., @code{if} in a standard way
-with @code{name>compile}, e.g., @code{' if name>compile}, but there are
-also parsing words to get the compilation token of a word:
+with @code{name>compile}, e.g., @code{s" if" find-name name>compile},
+but there are also parsing words to get the compilation token of a
+word:
 
 doc-[comp']
 doc-comp'
 
-You can perform the compilation semantics represented by the compilation
-token with @code{execute}.  You can compile the compilation semantics
-with @code{postpone,}. I.e., @code{``@i{x} name>compile postpone,} is
-equivalent to @code{postpone @i{x}}.
+You can perform the compilation semantics represented by the
+compilation token with @code{execute}.  @word{Execute}ing the
+compilation token consumes the whole compilation token and there is
+possibly an additional stack effect determined by the represented
+compilation semantics (e.g., @word{execute}ing the compilation token
+of @word{if} pushes an orig).
+
+You can compile the compilation semantics represented by a compilation
+token with @code{postpone,}. I.e., @code{``@i{x} name>compile
+postpone,} is equivalent to @code{postpone @i{x}}.
 
 doc-postpone,
+
+Implementation: The top cell @i{xt2} of a compilation token @i{xt1
+xt2} is an execution token that represents either @code{execute} or
+@code{compile,}@footnote{Depending upon the compilation semantics of
+the word. If the word has default compilation semantics, @i{xt2} will
+represent @code{compile,}. Otherwise (e.g., for immediate words),
+@i{xt2} will represent @code{execute}.}  @i{Xt1} is more specific to
+the represented word; for most words, it is the xt produced by
+@word{name>interpret}, but there are exceptions, e.g., for words
+defined with @word{interpret/compile:}.
+
 
 @c ----------------------------------------------------------
 @node Compiling words, The Text Interpreter, Tokens for Words, Words
