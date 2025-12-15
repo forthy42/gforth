@@ -84,8 +84,9 @@ decimal
 
 \ CONVERT                                               17may93jaw
 
-: convert ( ud1 c-addr1 -- ud2 c-addr2 ) \ core-ext-obsolescent
-    \G Obsolescent: superseded by @code{>number}.
+: convert ( ud1 c-addr1 -- ud2 c-addr2 ) \ gforth-obsolete
+    \G OBSOLETE: This word has been de-standardized in Forth-2012.  It
+    \G is superseded by @code{>number}.
     char+ true >number drop ;
 
 \ ERASE                                                 17may93jaw
@@ -134,18 +135,21 @@ decimal
 
 \ EXPECT SPAN                                           17may93jaw
 
-variable span ( -- c-addr ) \ core-ext-obsolescent
-\G @code{Variable} -- @i{c-addr} is the address of a cell that stores the
-\G length of the last string received by @code{expect}. OBSOLESCENT.
+variable span ( -- c-addr ) \ gforth-obsolete
+\G @code{Variable} -- @i{c-addr} is the address of a cell that stores
+\G the length of the last string received by @code{expect}. OBSOLETE:
+\G This word has been de-standardized in Forth-2012.  Use
+\G @word{accept} instead.
 
-: expect ( c-addr +n -- ) \ core-ext-obsolescent
+: expect ( c-addr +n -- ) \ gforth-obsolete
     \G Receive a string of at most @i{+n} characters, and store it
     \G in memory starting at @i{c-addr}. The string is
     \G displayed. Input terminates when the <return> key is pressed or
     \G @i{+n} characters have been received. The normal Gforth line
     \G editing capabilites are available. The length of the string is
     \G stored in @code{span}; it does not include the <return>
-    \G character. OBSOLESCENT: superceeded by @code{accept}.
+    \G character. OBSOLETE: This word has been de-standardized in
+    \G Forth-2012.  Use @code{accept} instead.
     everyline
     0 rot over
     BEGIN ( maxlen span c-addr pos1 )

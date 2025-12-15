@@ -408,7 +408,6 @@ Compiling words
 The Text Interpreter
 
 * Input Sources::
-* Number Conversion::
 * Interpret/Compile states::
 * Interpreter Directives::
 * Recognizers::
@@ -443,6 +442,7 @@ Search Paths
 
 Other I/O
 
+* Number Conversion::
 * Simple numeric output::       Predefined formats
 * Formatted numeric output::    Formatted (pictured) output
 * Floating-point output::
@@ -4870,12 +4870,15 @@ both orders.
 You can put a decimal point @code{.} at the end of a number (or,
 non-standardly, anywhere else except before a prefix) to get a
 double-cell integer (e.g., @code{#-123.} or @code{#-.123} (the same
-number)).  If users experienced in another programming language see or
-write such a number without base prefix (e.g., @code{-123.}), they may
-expect that the number represents a floating-point value.  To clear up
-the confusion early, Gforth warns of such usage; to avoid the
-warnings, the best approach is to always write double numbers with a
-base prefix (e.g., @code{#-123.})
+number)).
+
+By default (setting @code{dot-is-float off}), prefixless numbers with
+a decimal point (e.g., @code{-123.}) are also recognized as
+double-cell integers.  This is confusing to users experienced in other
+programming language.  To clear up the confusion early, Gforth warns
+of such usage; to avoid the warnings, the best approach is to always
+write double numbers with a base prefix (e.g., @code{#-123.}).  This
+also works in the setting @code{dot-is-float on}.
 
 Here are some examples, with the equivalent decimal number shown after
 in braces:
@@ -4899,15 +4902,23 @@ rather than as a cell; see below for the string syntax.
 @cindex floating-point numbers, input format
 @cindex input format for floating-point numbers
 For floating-point numbers in Forth, you recognize them due to their
-exponent.  I.e. @code{1.} is a double-cell integer, and @code{1e0} is
-a floating-point number; the latter can be (and usually is) shortened
-to @code{1e}.  Both the significand (the part before the @code{e} or
-@code{E}) and the exponent may have signs (including @code{+}); the
-significand must contain at least one digit and may contain a decimal
-point, the exponent can be empty.  Floating-point numbers always use
-decimal base for both significand and exponent, and are only
-recognized when the base is decimal.  Examples are: @code{1e 1e0 1.e
-1.e0 +1e+0} (which all represent the same number) @code{+12.E-4}.
+exponent.  I.e., by default @code{1.} is a double-cell integer, and
+@code{1e0} is a floating-point number; the latter can be (and usually
+is) shortened to @code{1e}.  Both the significand (the part before the
+@code{e} or @code{E}) and the exponent may have signs (including
+@code{+}); the significand must contain at least one digit and may
+contain a decimal point, the exponent can be empty.  Floating-point
+numbers always use decimal base for both significand and exponent, and
+are only recognized when the base is decimal.  Examples are: @code{1e
+1e0 1.e 1.e0 +1e+0} (which all represent the same number)
+@code{+12.E-4}.
+
+With the setting @code{dot-is-float on}, Gforth (since 1.0) does not
+recognize prefixless numbers with a decimal point as double-cell
+integers, but recognizes them as FP numbers instead.  Note that
+standard Forth systems (such as the default setting of Gforth) behave
+differently, so we recommend always using @code{e} to signify FP
+numbers.
 
 A Gforth extension (since 1.0) is to write a floating-point number in
 scaled notation: It can optionally have a sign, then one or more
@@ -9167,7 +9178,19 @@ opt: drop ]] over over [[ ;
 @word{Opt:} starts an anonymous definition that is then (internally)
 attached to @word{my2dup} with @word{set-optimize}.
 
-Finally an even more convenient way to write this is to use
+One disadvantage of these approaches is that @code{over over} occurs
+twice.  This can be avoided by using @word{compile-my2dup} to define
+@word{my2dup}:
+
+@example
+: compile-my2dup ( xt -- )
+    drop ]] over over [[ ;
+
+: my2dup [ 0 compile-my2dup ] ;
+' compile-my2dup set-optimizer
+@end example
+
+Finally, a convenient way to write words like @word{my2dup} is to use
 @word{inline:} (@pxref{Inline Definitions}), but it is limited to
 inlining.
 
@@ -9262,7 +9285,7 @@ Here the @code{1 0} means that 1 cell and 0 floats are transferred from
 definition to run-time.
 
 The advantages of using @code{const-does>} compared to
-@word{create}...@word{does>} are:
+@code{create}...@code{does>} are:
 
 @itemize
 
@@ -11025,7 +11048,8 @@ multi-digit numbers.  Use number prefixes to avoid this problem.
 An advantage of an @word{evaluate}-based macros is that you may be
 able to use it interpretively, whereas @word{postpone}-based macros
 are useful only inside colon definitions and other macros.  Our
-recommended alternative is to instead define a colon definition and an
+recommended alternative is to instead use an inline definition
+(@pxref{Inline Definitions}) or define a colon definition and an
 optimizer for it (e.g., see the @code{my2dup} examples in
 @ref{User-defined compile-comma}).
 
@@ -11074,16 +11098,16 @@ continues to parse.
 
 The text interpreter then tries to recognize the word with one of the
 recognizers in the system recognizer sequence.  On success, this
-produces a @emph{translator} and additional data, which represents the
-recognized word on the stack, as far as the text interpreter is
-concerned (@pxref{Defining recognizers}).
+produces a @emph{translation} (a translation token and additional
+data), which represents the recognized word on the stack, as far as
+the text interpreter is concerned (@pxref{Defining recognizers}).
 
 It then performs the interpretation, compilation, or postponing action
-of the translator, depending on the state of the text interpreter: Is
+of the translation, depending on the state of the text interpreter: Is
 it inside @code{]]}...@code{[[}? If not, what is the value of
 @word{state}?  E.g., when a word from the search order is recognized,
 and the text interpreter is in compile state, the compilation
-semantics of this word will be performed.  This translator action may
+semantics of this word will be performed.  This translation action may
 perform additional parsing, e.g., when the recognizer has recognized a
 parsing word.  If no recognizer recognizes the word, the text
 interpreter @word{throw}s -13 (``undefined word'').
@@ -11111,18 +11135,16 @@ doc-source
 doc->in
 doc-tib
 doc-#tib
-doc-state
 
 @menu
 * Input Sources::
-* Number Conversion::
 * Interpret/Compile states::
 * Interpreter Directives::
 * Recognizers::
 * Text Interpreter Hooks::
 @end menu
 
-@node Input Sources, Number Conversion, The Text Interpreter, The Text Interpreter
+@node Input Sources, Interpret/Compile states, The Text Interpreter, The Text Interpreter
 @subsection Input Sources
 @cindex input sources
 @cindex text interpreter - input sources
@@ -11155,54 +11177,7 @@ doc-restore-input
 doc-query
 
 
-
-@node Number Conversion, Interpret/Compile states, Input Sources, The Text Interpreter
-@subsection Number Conversion
-@cindex number conversion
-
-You get an overview of how the text interpreter converts its numeric
-input in @ref{Literals in source code}.  This section describes some
-related words.
-
-By default, the number base used for integer number conversion is
-given by the contents of the variable @code{base}.  Note that a lot of
-confusion can result from unexpected values of @code{base}.  If you
-change @code{base} anywhere, make sure to save the old value and
-restore it afterwards; better yet, use @code{base-execute}, which does
-this for you.  In general I recommend keeping @code{base} decimal, and
-using the prefixes described in @ref{Literals in source code} for the
-popular non-decimal bases.
-
-doc-base-execute
-doc-base
-doc-hex
-doc-decimal
-doc-dpl
-
-@cindex number conversion - traps for the unwary
-@noindent
-Number conversion has a number of traps for the unwary:
-
-@itemize @bullet
-@item
-You cannot determine the current number base using the code sequence
-@code{base @@ .} -- the number base is always 10 in the current number
-base. Instead, use something like @code{base @@ dec.}
-@item
-There is a word @code{bin} but it does @i{not} set the number base!
-(@pxref{General files}).
-@item
-Standard Forth requires the @code{.} of a double-precision number to be the
-final character in the string.  Gforth allows the @code{.} to be
-anywhere.
-@item
-The number conversion process does not check for overflow.
-@end itemize
-
-You can read numbers into your programs with the words described in
-@ref{Line input and conversion}.
-
-@node Interpret/Compile states, Interpreter Directives, Number Conversion, The Text Interpreter
+@node Interpret/Compile states, Interpreter Directives, Input Sources, The Text Interpreter
 @subsection Interpret/Compile states
 @cindex Interpret/Compile states
 
@@ -11218,6 +11193,7 @@ can be used to compile a literal (for an example, @pxref{Literals}) or
 for conditional compilation (for an example, @pxref{Interpreter
 Directives}).
 
+doc-state
 
 @c This is a bad example: It's non-standard, and it's not necessary.
 @c However, I can't think of a good example for switching into compile
@@ -11459,7 +11435,7 @@ variable literals}).
 @item @word{rec-meta}
 Recognizes @code{@i{rec}?@i{string}}, e.g., @code{float?1.}.
 @code{Rec-@i{rec}} is a recognizer found in the search order (e.g.,
-@word{rec-float}, and this recognizer then tries to recognize
+@word{rec-float}), and this recognizer then tries to recognize
 @i{string} (e.g, @code{1.}), and the result becomes the result of
 @word{rec-meta}.  This may be useful in cases where you want to use a
 specific recognizer, e.g., to deal with conflicts.
@@ -11557,10 +11533,16 @@ with the default search order, that finds the @word{dup} in
 @word{forth-wordlist}.
 
 doc-recs
+
+All recognizers produce the translation @word{translate-none} if they
+do not recognize the string.  This is not mentioned every time in the
+following descriptions.
+
 doc-rec-name
 doc-rec-local
 doc-rec-scope
 doc-rec-number
+doc-dot-is-float
 doc-rec-float
 doc-rec-complex
 doc-rec-string
@@ -11669,12 +11651,12 @@ in a recognizer you write.  If none of them is appropriate for your
 recognizer, read the next section about defining your own translation
 tokens.
 
-@cindex translation token words, stack effect
-The system-defined translation token words are documented as removing
+@cindex translation-token words, stack effect
+The system-defined translation-token words are documented as removing
 some stack items and pushing a complete translation on the stack,
 e.g., for @word{translate-cell} @code{( x -- translation )}.  This
 makes the documentation uniform and avoids cumbersome descriptions.
-However, actually the current translation token words just push a
+However, actually the current translation-token words just push a
 cell-sized translation token on the stack (for @word{translate-cell}:
 @code{( -- translate-cell )}), and, combined with the additional stack
 items (for @word{translate-cell}: @code{( x -- x translate-cell )}),
@@ -12824,6 +12806,7 @@ doc-block-included
 @cindex I/O - keyboard and display
 
 @menu
+* Number Conversion::
 * Simple numeric output::       Predefined formats
 * Formatted numeric output::    Formatted (pictured) output
 * Floating-point output::
@@ -12839,7 +12822,58 @@ doc-block-included
 * CSV reading and writing::
 @end menu
 
-@node Simple numeric output, Formatted numeric output, Other I/O, Other I/O
+@node Number Conversion, Simple numeric output, Other I/O, Other I/O
+@subsection Number Conversion
+@cindex number conversion, @code{base}
+@cindex integer conversion, @code{base}
+
+@word{Base} and related words affect both input integer conversion
+(@pxref{Literals in source code}) (unless a number prefix is used) and
+output integer conversion (@pxref{Simple numeric output},
+@pxref{Formatted numeric output}), but in Gforth it does not affect
+floating-point conversion.
+
+By default, the number base used for integer number conversion is
+given by the contents of the variable @code{base}.  Note that a lot of
+confusion can result from unexpected values of @code{base}.  If you
+change @code{base} anywhere, make sure to save the old value and
+restore it afterwards; better yet, use @code{base-execute}, which does
+this for you.  In general I recommend keeping @code{base} decimal, and
+using the prefixes described in @ref{Literals in source code} for the
+popular non-decimal bases.
+
+doc-base-execute
+doc-base
+doc-hex
+doc-decimal
+doc-dpl
+
+@cindex number conversion - traps for the unwary
+@noindent
+Number conversion has a number of traps for the unwary:
+
+@itemize @bullet
+@item
+You cannot determine the current number base using the code sequence
+@code{base @@ .} -- the number base is always 10 in the current number
+base. Instead, use something like @code{base @@ dec.}
+@item
+There is a word @code{bin} but it does @i{not} set the number base!
+(@pxref{General files}).
+@item
+Standard Forth requires the @code{.} of a double-precision number to be the
+final character in the string.  Gforth allows the @code{.} to be
+anywhere.
+@item
+The number conversion process does not check for overflow.
+@end itemize
+
+You can read numbers into your programs with the words described in
+@ref{Line input and conversion}.
+
+
+
+@node Simple numeric output, Formatted numeric output, Number Conversion, Other I/O
 @subsection Simple numeric output
 @cindex numeric output - simple/free-format
 

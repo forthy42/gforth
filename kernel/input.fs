@@ -139,7 +139,7 @@ terminal-input @       \ source -> terminal-input::source
 : restore-input ( x1 .. xn n -- flag ) \ core-ext
     \G Attempt to restore the input source specification to the state
     \G described by the @i{n} entries @i{xn - x1}. @i{flag} is true if
-    \G the restore fails.  In recent (how recent?) Gforth, it is
+    \G the restore fails.  In Gforth 1.0, it is
     \G possible to save and restore between different active input
     \G streams. Note that closing the input streams must happen in the
     \G reverse order as they have been opened, but as long as they are
@@ -180,11 +180,11 @@ terminal-input @       \ source -> terminal-input::source
     s" *evaluated string*" execute-parsing-wrapper ;
 
 : evaluate ( ... addr u -- ... ) \ core,block
-\G Save the current input source specification. Store @code{-1} in
-\G @code{source-id} and @code{0} in @code{blk}. Set @code{>IN} to
-\G @code{0} and make the string @i{c-addr u} the input source and
-\G input buffer. Interpret. When the parse area is empty, restore the
-\G input source specification.
+\G Save the current input source.  Store @code{-1} in @code{source-id}
+\G and @code{0} in @code{blk}. Set @code{>IN} to @code{0} and make the
+\G string @i{c-addr u} the input source and input
+\G buffer. Tex-interpret the input buffer. When the parse area is
+\G empty, restore the input source.
     ['] interpret2 execute-parsing ;
 
 \ clear tibstack
@@ -195,7 +195,7 @@ terminal-input @       \ source -> terminal-input::source
     current-input @ 0= IF  create-input  THEN
     BEGIN  old-input @  WHILE  0 pop-file drop  REPEAT ;
 
-: query ( -- ) \ core-ext-obsolescent
+: query ( -- ) \ gforth-obsolete
     \G Make the user input device the input source. Receive input into
     \G the Terminal Input Buffer. Set @code{>IN} to zero. OBSOLETE:
     \G This Forth-94 word has been de-standardized in Forth-2012.  It
@@ -205,7 +205,8 @@ terminal-input @       \ source -> terminal-input::source
 \ load a file
 
 defer line-end-hook ( -- ) \ gforth
-\G called at every end-of-line when text-interpreting from a file    
+\G Deferred word called at every end-of-line when text-interpreting
+\G from a file
 \ alternatively we could use a wrapper for REFILL
 ' noop is line-end-hook
 Defer eof-warning

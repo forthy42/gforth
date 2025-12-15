@@ -215,7 +215,7 @@ User base ( -- a-addr ) \ core
 \G input and output.  Don't store to @code{base}, use
 \G @code{base-execute} instead.
                        A base !
-User dpl ( -- a-addr ) \ gforth Decimal_PLace
+User dpl ( -- a-addr ) \ gforth d-p-l
 \G @code{User} variable -- @i{a-addr} is the address of a cell that stores the 		
 \G position of the decimal point in the most recent numeric conversion.
 \G Initialised to -1. After the conversion of a number containing no
@@ -235,8 +235,11 @@ User >num-warnings ( -- a-addr ) \ gforth-internal
 \ 6 - float with non-standard exponent
 
 User dot-is-float ( -- a-addr ) \ gforth-experimental
-\G if set, numbers with dot are treated as float
-0 dot-is-float !
+\G If this user variable contains 0 (default), @word{rec-number}
+\G recognizes numbers without prefix that contain a decimal point as
+\G double-cell numbers.  Otherwise @word{rec-number} does not
+\G recognize the number, and, if present, @word{rec-float} will
+\G recognize it as a floating-point number.
 
 User state ( -- a-addr ) \ core,tools-ext
 \G Don't use @word{state}!  @word{State} is the state of the text

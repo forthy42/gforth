@@ -51,10 +51,11 @@ umethod source-id ( -- 0 | -1 | fileid ) \ core-ext,file source-i-d
 | umethod (restore-input) ( x1 .. xn n -- ) \ gforth-internal
 
 cell uvar >in ( -- addr ) \ core to-in
-    \G @i{Addr} contains the offset into @word{source} where the text
-    \G interpreter or parsing words parse next.  @i{Addr} can be
-    \G different for different tasks, and for different input streams
-    \G within a task.
+\G @i{Addr} contains the offset into @word{source} where the text
+\G interpreter or parsing words parse next.  A word can write to
+\G @i{addr} in order to change what is parsed next.  @i{Addr} can be
+\G different for different tasks, and for different input streams
+\G within a task.
 
 2 cells uvar input-lexeme ( -- a-addr ) \ gforth-internal
     \G @code{uvar} variable -- @i{a-addr} is the address of two
@@ -64,12 +65,13 @@ cell uvar >in ( -- addr ) \ core to-in
 2 cells uvar new-where ( -- a-addr ) \ gforth-internal
     \G keep the new where field
 
-cell uvar #tib ( -- addr ) \ core-ext-obsolescent number-t-i-b
+cell uvar #tib ( -- addr ) \ gforth-obsolete number-t-i-b
     \G @i{Addr} is the address of a cell containing the number of
     \G characters in the terminal input buffer. @i{Addr} can be
     \G different for different tasks, and for different input streams
-    \G within a task.  OBSOLESCENT: @code{source} supersedes the
-    \G function of this word.
+    \G within a task.  OBSOLETE: This word has been de-standardized in
+    \G Forth-2012.  @code{source} supersedes the function of this
+    \G word.
 
 cell uvar max#tib ( -- addr ) \ gforth-internal max-number-t-i-b
     \G @code{uvar} variable -- This cell contains the maximum
@@ -96,7 +98,10 @@ cell uvar loadfilename# ( -- addr ) \ gforth-internal
     \G @code{uvar} variable -- n describes index of currently
     \G interpreted input into loaded filenames
 [THEN]
-0 uvar tib ( -- addr ) \ core-ext-obsolescent t-i-b
+0 uvar tib ( -- addr ) \ gforth-obsolete t-i-b
+\G @i{Addr} is the start of the input buffer.  OBSOLETE: This word has
+\G been de-standardized in Forth-2012.  @code{source} supersedes the
+\G function of this word.
 
 Constant tib+
 drop

@@ -67,7 +67,7 @@ Create postponing ( ... translation -- ) \ gforth-experimental
 \G Perform the postponing action of @i{translation}.  For a
 \G system-defined translation token, first remove @i{translation} from
 \G the stack, then possibly perform additional scanning specified for
-\G the translation token, and finally perform the compiling run-time
+\G the translation token, and finally perform the postponing run-time
 \G of the translation token.  For a user-defined translation token,
 \G remove it from the stack and execute its @i{post-xt}.
 2 cells ,
@@ -118,7 +118,7 @@ Defer ?warn#  ' noop is ?warn#
     \G @code{throw}s -13 (undefined word) if @var{token} is 0.
     dup 0= #-13 and throw ;
 
-: ?rec-found ( translation -- translation )
+: ?rec-found ( translation -- translation ) \ gforth-experimental
     \G @code{throw}s -13 (undefined word) if @i{translation} is
     \G @code{translate-none}.
     dup translate-none = #-13 and throw ;
@@ -136,10 +136,12 @@ Defer ?warn#  ' noop is ?warn#
     \G a single or double number (without or with prefix), or
     \G a character.  If successful, @i{translation} represents pushing
     \G that number at run-time (see @word{translate-cell} and
-    \G @word{translate-dcell}).
+    \G @word{translate-dcell}).  If and only if @word{dot-is-float}
+    \G contains 0, strings without prefix that contain a dot are
+    \G recognized as double numbers.
     dpl @ >num-warnings @ 2>r snumber?  dup
     IF
-	dup 0> >num-warnings @ 1 and 0= and dot-is-float @ and  IF
+	dup 0> >num-warnings @ 1 and 0= and dot-is-float @ and IF
 	    2drop
 	ELSE
 	    0> translate-dcell translate-cell rot select

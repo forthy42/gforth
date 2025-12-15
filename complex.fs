@@ -213,13 +213,12 @@ translate: translate-complex ( r1 r2 -- translation ) \ gforth-experimental
     ELSE  defers locals-post,
     THEN ; is locals-post,
 
-: rec-complex ( c-addr u -- translation ) \ gforth
+: rec-complex ( c-addr u -- translation ) \ gforth-experimental
     \G A complex number has the format @code{@i{a}+@i{b}i}, where
     \G @i{a} and @i{b} are floating point numbers including their
     \G signs. If @i{c-addr u} is a complex number, translation
     \G represents pushing that number at run-time (see
-    \G @word{translate-complex}).  If @i{c-addr u} is not recognized
-    \G as a complex number, translation is @word{translate-none}.
+    \G @word{translate-complex}).
     2dup + 1- c@ 'i' = IF
 	1- '+' $split 2swap prefix-number >r prefix-number r>
 	2dup <> IF  fdrop  THEN  and

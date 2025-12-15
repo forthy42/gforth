@@ -70,9 +70,7 @@ translate: translate-string ( c-addr1 u1 -- translation ) \ gforth-experimental
     \G translation represents parsing the rest of the string, if
     \G necessary, converting the escaped characters, and pushing the
     \G string at run-time (@word{translate-string}
-    \G @word{scan-translate-string}).  If @i{c-addr u} is not
-    \G recognized as the start of a string, translation is
-    \G @word{translate-none}.
+    \G @word{scan-translate-string}).
     2dup s\" \"" string-prefix?
     IF    scan-translate-string
     ELSE  rec-none  THEN ;

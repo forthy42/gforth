@@ -64,7 +64,7 @@ loop-indices stack> (i) !  input-drop
 
 : INT-[I] ( -- n ) \ gforth int-bracket-i
     \G Push the loop index of the @code{[do]} iteration at
-    \G text interpretation time.
+    \G text-interpretation time.
     (i) @ ; immediate
 
 : comp-[i] ( run-time -- n )
@@ -73,8 +73,8 @@ loop-indices stack> (i) !  input-drop
 ' int-[i] ' comp-[i] interpret/compile: [I] ( run-time -- n ) \ gforth bracket-i
 \G At run-time, @code{[I]} pushes the loop index of the
 \G text-interpretation-time @code{[do]} iteration.  If you want to
-\G process the index at interpretation time, interpret @code{[I]}
-\G interpretevely, or use @code{INT-[I]}.
+\G process the index at text-interpretation time, use @code{INT-[I]}
+\G or perform the interpretation semantics of @code{[I]}.
 
 : [BEGIN] ( -- ) \ gforth bracket-begin
     >input ;                                          immediate
