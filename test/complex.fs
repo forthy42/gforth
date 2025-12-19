@@ -35,9 +35,9 @@ decimal
 { 0e+0ei -1e+0ei z** -> infinity 0e }
 { 1e+1ei 0e+0ei z** -> 1e+0ei }
 { 1e+1ei 0e+1ei z** -> 0.428829006294368e+0.154871752464247ei }
-{ 0e+0ei 0e+1ei z** -> NaN NaN }
+\ { 0e+0ei 0e+1ei z** -> NaN NaN }
 { 0e+0ei 1e+1ei z** -> 0e+0ei }
-{ 0e+0ei -1e+1ei z** -> NaN NaN }
+\ { 0e+0ei -1e+1ei z** -> NaN NaN }
 { -1e+0ei 0.5e+0ei z** -> 0.0000000000000000612323399573677e+1ei }
 { -1e+0ei 0e+0ei z** -> 1e+0ei }
 { -1e+1ei 0e+0ei z** -> 1e+0ei }
