@@ -84,11 +84,11 @@ Variable slowvoc   0 slowvoc !
   mappedwordlist ;
 
 : Vocabulary ( "name" -- ) \ gforth
-  \G Create a definition "name" and associate a new word list with it.
-  \G The run-time effect of "name" is to replace the @i{wid} at the
-  \G top of the search order with the @i{wid} associated with the new
-  \G word list.
+    \G Create a definition "name" and associate a new word list @i{wid1} with it.@*
+    \G @i{name} execution: ( -- ) replace the @i{wid2} at the
+    \G top of the search order with @i{wid1}.
   Create  [: 0 wordlist-start - context ! ;] set-does> wordlist drop ;
+
 (field) >wordlist ( voc-xt -- wordlist ) 0 wordlist-start negate >body ,
 (field) >voc ( wordlist -- voc-xt ) 0 >body negate wordlist-start ,
 
@@ -121,9 +121,9 @@ Vocabulary Forth ( -- ) \ search-ext
 
 
 Vocabulary Root ( -- ) \ gforth
-  \G Add the root wordlist to the search order stack.  This vocabulary
-  \G makes up the minimum search order and contains only a
-  \G search-order words.
+  \G Replace the top of the search order by the root wordlist.  This
+  \G vocabulary makes up the minimum search order and contains only a
+  \G few search-order words.
 
 : Only ( -- ) \ search-ext
   \G Set the search order to the implementation-defined minimum search

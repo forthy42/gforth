@@ -167,7 +167,9 @@ UValue $? ( -- n ) \ gforth dollar-question
 
 \ !! rewrite slurp-file using slurp-fid
 : slurp-file ( c-addr1 u1 -- c-addr2 u2 ) \ gforth
-    \G @var{c-addr1 u1} is the filename, @var{c-addr2 u2} is the file's contents
+    \G @var{c-addr1 u1} is the filename, @var{c-addr2 u2} is the
+    \G file's contents.  You should @word{free} @i{c-addr2} when you no
+    \G longer need the contents of the file.
     r/o bin open-file throw dup
     >r file-size throw abort" file too large"
     dup allocate throw swap
@@ -176,8 +178,10 @@ UValue $? ( -- n ) \ gforth dollar-question
     ELSE  nip  THEN
     r> close-file throw ;
 
-: slurp-fid ( fid -- addr u ) \ gforth
-\G @var{addr u} is the content of the file @var{fid}
+: slurp-fid ( fid -- c-addr u ) \ gforth
+    \G @var{C-addr u} is the content of the file @var{fid}.  You
+    \G should @word{free} @i{c-addr} when you no longer need the
+    \G contents of the file.
     { fid }
     0 0 begin ( awhole uwhole )
 	dup 1024 + dup >r extend-mem ( anew awhole uwhole R: unew )

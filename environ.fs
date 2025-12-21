@@ -76,7 +76,8 @@ get-order environment-wordlist swap 1+ set-order
 \G Size of one address unit, in bits.
 
 1 ADDRESS-UNIT-BITS chars lshift 1- constant MAX-CHAR ( -- u ) \ environment
-\G Maximum value of any character in the character set
+\G Maximum value of any character in the character set (there is also
+\G @word{max-xchar}).
 
 MAX-CHAR constant /COUNTED-STRING ( -- n ) \ environment slash-counted-string
 \G Maximum size of a counted string, in characters.

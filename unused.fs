@@ -42,12 +42,13 @@
     2dup + r> - 1+ r> min >in ! ;
 
 : word   ( char "<chars>ccc<char>-- c-addr ) \ core
-    \G We recommend to use @code{parse-name} instead of @code{word}.
-    \G Skip leading delimiters. Parse @i{ccc}, delimited by
-    \G @i{char}, in the parse area. @i{c-addr} is the address of a
-    \G transient region containing the parsed string in
-    \G counted-string format. If the parse area was empty or
-    \G contained no characters other than delimiters, the resulting
+    \G We recommend to use @code{parse-name} instead of @code{bl word}
+    \G and, for other delimiters, @word{parse} instead of @word{word}.@*
+    \G Skip leading delimiters. Parse @i{ccc}, delimited by @i{char},
+    \G in the parse area. @i{c-addr} is the address of a transient
+    \G region containing the parsed string in counted-string format
+    \G (@pxref{Counted string words}. If the parse area is empty or
+    \G contains no characters other than delimiters, the resulting
     \G string has zero length. A program may replace characters within
     \G the counted string. OBSOLESCENT: the counted string has a
     \G trailing space that is not included in its length.
@@ -66,7 +67,7 @@
     \G We recommend to use @code{find-name} instead of @code{find}.
     \G Search all word lists in the current search order for the
     \G definition named by the counted string at @i{c-addr}.  If the
-    \G definition is not found, return 0. If the definition is found
+    \G definition is not found, return 0. If the definition is found,
     \G return 1 (if the definition has non-default compilation
     \G semantics) or -1 (if the definition has default compilation
     \G semantics).  The @i{xt} returned in interpret state represents

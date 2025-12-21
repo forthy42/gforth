@@ -30,7 +30,13 @@
 \ default is rw-rw-rw-
 
 : +fmode ( fam1 rwxrwxrwx -- fam2 ) \ gforth plus-f-mode
-    \G add file access mode to fam - for create-file only
+    \G @i{Rwxrwxrwx} is a 9-bit number; e.g. @code{%110_010_000}
+    \G specifies that the owner can read and write a file, the group
+    \G can read a file, and others cannot access the file.  When
+    \G passing @i{fam2} to @word{create-file}, the created file will
+    \G have the mode specified by @i{rwxrwxrwx}, modified by the
+    \G umask.  Default: @code{%110_110_110} i.e. RW for everyone
+    \G (modified by umask).
     $1B6 xor 4 lshift or ;
 
 \ BIN WRITE-LINE                                        11jun93jaw

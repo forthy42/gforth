@@ -66,7 +66,7 @@ has? file [IF]
     \G CRLF.  A non-zero @i{wior} indicates an error.  A false
     \G @i{flag} indicates that @code{read-line} has been invoked at
     \G the end of the file. @i{u2} indicates the line length (without
-    \G terminator): @i{u2}$<$@i{u1} indicates that the line is @i{u2}
+    \G terminator): @i{u2}<@i{u1} indicates that the line is @i{u2}
     \G chars long; @i{u2}=@i{u1} indicates that the line is at least
     \G @i{u1} chars long, the @i{u1} chars of the buffer have been
     \G filled with chars from the line, and the next slice of the line
@@ -206,7 +206,7 @@ terminal-input @       \ source -> terminal-input::source
 
 defer line-end-hook ( -- ) \ gforth
 \G Deferred word called at every end-of-line when text-interpreting
-\G from a file
+\G from a file.
 \ alternatively we could use a wrapper for REFILL
 ' noop is line-end-hook
 Defer eof-warning

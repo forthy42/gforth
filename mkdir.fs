@@ -44,8 +44,9 @@
 #-512 EEXIST - Constant file-exist#
 
 : mkdir-parents {: c-addr u mode -- ior :} \ gforth
-    \G create the directory @i{c-addr u} and all its parents with
-    \G mode @i{mode} (modified by umask)
+    \G create the directory @i{c-addr u} and all its parents with mode
+    \G @i{mode} (modified by umask).  @i{mode} is a 9-bit number
+    \G rwxrwxrwx (see @word{+fmode}, @pxref{General files}).
     c-addr u begin { d: s }
         s 1 /string '/' scan 2dup while ( s1 s1addr )
 	    c-addr tuck - 2dup [: type '/' emit ;] $tmp file-status nip

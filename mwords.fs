@@ -38,8 +38,10 @@ Defer mword-match
 
 : wordlist-mwords ( addr u wid -- )  wid>words[] .mwords[] words[] $free ;
 : mwords ( ["pattern"] -- ) \ gforth
-    \G list all words matching the optional parameter @var{pattern};
-    \G if none, all words match.  Words are listed old to new.
-    \G Pattern match like @code{search} (default), you can switch to
-    \G globbing with @code{' mword-filename-match is mword-match}.
+    \G List all words in the word list on top of the search order.  If
+    \G a pattern is given, show only the words matching @var{pattern}.
+    \G Words are listed old to new (reverse from @word{words}).  By
+    \G default @word{search} is used to determine matching.  You can
+    \G switch to globbing as used by shells for files with @code{'
+    \G mword-filename-match is mword-match}.
     parse-name context @ wordlist-mwords ;

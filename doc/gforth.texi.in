@@ -423,9 +423,8 @@ Recognizers
 
 Word Lists
 
-* Vocabularies::
 * Why use word lists?::
-* Word list example::
+* Wordlist and vocabulary usage::
 
 Files
 
@@ -11920,10 +11919,11 @@ words by name (and you can remove words in a restricted way with
 markers).  Every named (and @code{reveal}ed) word is in one wordlist.
 
 @cindex search order stack
-The text interpreter searches the wordlists present in the search order
-(a stack of wordlists), from the top to the bottom.  Within each
-wordlist, the search starts conceptually at the newest word; i.e., if
-two words in a wordlist have the same name, the newer word is found.
+The text interpreter searches the wordlists present in the search
+order (a stack of wordlists, @pxref{User-defined Stacks}), from the
+top to the bottom.  Within each wordlist, the search starts
+conceptually at the newest word; i.e., if two words in a wordlist have
+the same name, the newer word is found.
 
 @cindex compilation word list
 New words are added to the @dfn{compilation wordlist} (aka current
@@ -11990,54 +11990,11 @@ doc-context
 doc-map-vocs
 
 @menu
-* Vocabularies::
 * Why use word lists?::
-* Word list example::
+* Wordlist and vocabulary usage::
 @end menu
 
-@node Vocabularies, Why use word lists?, Word Lists, Word Lists
-@subsection Vocabularies
-@cindex Vocabularies, detailed explanation
-
-Here is an example of creating and using a new wordlist using Standard
-Forth words:
-
-@example
-wordlist constant my-new-words-wordlist
-: my-new-words get-order nip my-new-words-wordlist swap set-order ;
-
-\ add it to the search order
-also my-new-words
-
-\ alternatively, add it to the search order and make it
-\ the compilation word list
-also my-new-words definitions
-\ type "order" to see the problem
-@end example
-
-The problem with this example is that @code{order} has no way to
-associate the name @code{my-new-words} with the wid of the word list (in
-Gforth, @code{order} and @code{vocs} will display @code{???}  for a wid
-that has no associated name). There is no Standard way of associating a
-name with a wid.
-
-In Gforth, this example can be re-coded using @code{vocabulary}, which
-associates a name with a wid:
-
-@example
-vocabulary my-new-words
-
-\ add it to the search order
-also my-new-words
-
-\ alternatively, add it to the search order and make it
-\ the compilation word list
-my-new-words definitions
-\ type "order" to see that the problem is solved
-@end example
-
-
-@node Why use word lists?, Word list example, Vocabularies, Word Lists
+@node Why use word lists?, Wordlist and vocabulary usage, Word Lists, Word Lists
 @subsection Why use word lists?
 @cindex word lists - why use them?
 
@@ -12095,7 +12052,10 @@ The downsides of using wordlists are:
 @itemize
 
 @item
-Debugging becomes more cumbersome.
+Debugging becomes more cumbersome, because you have to use the scope
+recognizer or put the wordlist in the search order in order to refer
+to a word in a wordlist.  Neither @word{locate} nor (currently)
+@word{see} show the names of words with their wordlist or vocabulary.
 
 @item
 Name conflicts worked around with wordlists are still there, and you
@@ -12106,33 +12066,87 @@ help seeing which of several possible words the name resolves to in such
 cases).  @code{See} displays just the name of the words, not what
 wordlist they belong to, so it might be misleading.  Using unique names
 is a better approach to avoid name conflicts.
-
-@item
-You have to explicitly undo any changes to the search order.  In many
-cases it would be more convenient if this happened implicitly.  Gforth
-currently does not provide such a feature, but it may do so in the
-future.
 @end itemize
 
 
-@node Word list example,  , Why use word lists?, Word Lists
-@subsection Word list example
-@cindex word lists - example
+@node Wordlist and vocabulary usage,  , Why use word lists?, Word Lists
+@subsection Wordlist and vocabulary usage
+@cindex Vocabularies, usage
+@cindex wordlist usage
+@cindex vocabularies vs. wordlists
 
-The following example is from the
-@uref{https://www.complang.tuwien.ac.at/forth/garbage-collection.zip,
-garbage collector} and uses wordlists to separate public words from
-helper words:
+@c !! maybe divide into wordlist and vocabulary part and put it before
+@c the doc-...
+If you have an existing wordlist in constant @word{foo-wordlist} and
+want to push it on the search order, here's how you do it:
 
-@example
+@source
+foo-wordlist >order
+... \ code that may use words from foo-wordlist
+previous
+\ now the search order is back to where we started
+@end source
+
+If instead you have a vocabulary @word{foo}, the same task can be
+accomplished as follows:
+
+@source
+also foo
+... \ code that may use words from foo
+previous
+\ now the search order is back to where we started
+@end source
+
+Also, if you need only one or a few words from @word{foo}, you can use
+the scope recognizer (@word{rec-scope}, @pxref{Default Recognizers})
+and write @code{foo:@i{word}}.  Currently the scope recognizer only
+uses vocabularies for the scope, not wordlists.
+
+A common usage is to define implementation words (which would be
+private in other programming languages) in a separate wordlist, and
+(public) interface words in a wordlist for public words (usually
+@word{forth-wordlist}).  This can be achieved as follows:
+
+@source
+wordlist constant foo-wordlist \ the implementation wordlist
 get-current ( wid )
-vocabulary garbage-collector also garbage-collector definitions
-... \ define helper words
-( wid ) set-current \ restore original (i.e., public) compilation wordlist
-... \ define the public (i.e., API) words
-    \ they can refer to the helper words
-previous \ restore original search order (helper words become invisible)
-@end example
+foo-wordlist >order definitions
+\ foo-wordlist is now visible and definitions go into it
+... \ define implementation words
+( wid ) set-current
+\ foo-wordlist is visible, but definitions go into wid
+... \ define interface words
+previous
+\ search order and current wordlist are back to where we started
+@end source
+
+The same can be done with vocabularies as follows:
+
+@source
+vocabulary foo \ the implementation vocabulary
+get-current ( wid )
+also foo definitions
+\ foo is now visible and definitions go into it
+... \ define implementation words
+( wid ) set-current
+\ foo is visible, but definitions go into wid
+... \ define interface words
+previous
+\ search order and current wordlist are back to where we started
+@end source
+
+If you want to define just one word in a given wordlist, you can do it
+as follows:
+
+@source
+foo-wordlist in-wordlist : bar ... ;
+@end source
+
+For vocabularies, the corresponding usage is:
+
+@source
+in foo : bar ... ;
+@end source
 
 @c -------------------------------------------------------------
 @node Environmental Queries, Files, Word Lists, Words
@@ -12146,12 +12160,16 @@ be recognised by a system, and a way of querying them:
 
 doc-environment?
 
-Note that, whilst the documentation for (e.g.)
-@code{ADDRESS-UNIT-BITS} shows it returning one cell on the stack,
+Note that, while the documentation for (e.g.)
+@code{ADDRESS-UNIT-BITS} shows that it returns one cell on the stack,
 querying it using @code{environment?}  will return an additional item;
 the @code{true} flag that shows that the string was recognised; so for
 querying @code{ADDRESS-UNIT-BITS} the stack effect of
-@code{environment?} is @code{( c-addr u -- n true )}.
+@code{environment?} may be @code{( c-addr u -- n true )} or @code{(
+c-addr u -- false )}.  The support of various environmental queries by
+systems (even on hardware with enough memory) is somewhat lackluster,
+so you have to take the possibility of @word{environment?} returning
+false seriously.
 
 @c Get all the words in environment-wordlist:
 @c gforth -e "environment-wordlist wordlist-words cr bye"|sed 's/[ ]/\n/g'|sed '/^$/d'|tac
@@ -12212,7 +12230,8 @@ string-ext}
 These wordset queries were rarely used and implemented, so Forth-2012
 did not introduce a way to query for the Forth-2012 variants of the
 wordsets.  Instead, the idea is that you use @code{[defined]}
-(@pxref{Interpreter Directives}) instead.
+(@pxref{Interpreter Directives}) for checking the presence of
+individual standard words instead.
 
 Forth-200x (a group that works on the next standard; the documents
 that they produce are also called Forth-200x) defines extension
@@ -12337,15 +12356,7 @@ environment-wordlist wordlist-words
 @cindex I/O - file-handling
 
 Gforth provides facilities for accessing files that are stored in the
-host operating system's file-system. Files that are processed by Gforth
-can be divided into two categories:
-
-@itemize @bullet
-@item
-Files that are processed by the Text Interpreter (@dfn{Forth source files}).
-@item
-Files that are processed by some other program (@dfn{general files}).
-@end itemize
+host operating system's file-system.
 
 @menu
 * Forth source files::
@@ -12362,7 +12373,7 @@ Files that are processed by some other program (@dfn{general files}).
 @cindex Forth source files
 
 The simplest way to interpret the contents of a file is to use one of
-these two formats:
+these two equivalent syntaxes:
 
 @example
 include mysource.fs
@@ -12370,32 +12381,36 @@ s" mysource.fs" included
 @end example
 
 You usually want to include a file only if it is not included already
-(by, say, another source file). In that case, you can use one of these
-three formats:
+(by, say, another source file). In that case, you can replace @word{include} with @word{require}:
 
 @example
 require mysource.fs
-needs mysource.fs
 s" mysource.fs" required
 @end example
 
 @cindex stack effect of included files
 @cindex including files, stack effect
-It is good practice to write your source files such that interpreting them
-does not change the stack. Source files designed in this way can be used with
-@code{required} and friends without complications. For example:
+It is good practice to write your source files such that interpreting
+them does not change the stack. Source files designed in this way can
+be used with @code{required} and friends without complications. For
+example, assume that including @file{foo.fs} has the stack effect
+@code{( u -- u )} (@i{u} might be a configuration parameter, such as a
+buffer size).  Then you can use it with @word{require}:
 
 @example
 1024 require foo.fs drop
 @end example
 
-Here you want to pass the argument 1024 (e.g., a buffer size) to
-@file{foo.fs}.  Interpreting @file{foo.fs} has the stack effect ( n -- n
-), which allows its use with @code{require}.  Of course with such
-parameters to required files, you have to ensure that the first
-@code{require} fits for all uses (i.e., @code{require} it early in the
-master load file).
+If @word{require} actually includes @file{foo.fs}, the 1024 will be on
+the stack at the end, just like if @word{require} does nothing.  With
+such parameters to required files, you have to ensure that the first
+@code{require} fits for all uses (i.e., @code{require} the file early
+in the master load file).
 
+Another alternative is to pass configuration parameters by defining
+words (often constants) for them.
+
+@c !! maybe a little bit more prose?
 doc-include-file
 doc-included
 doc-included?

@@ -26,8 +26,9 @@ $[]Variable included-files
     \G The name of the source file which is currently the input
     \G source.  The result is valid only while the file is being
     \G loaded.  If the current input source is no (stream) file, the
-    \G result is undefined.  In Gforth, the result is valid during the
-    \G whole session (but not across @code{savesystem} etc.).
+    \G result is an arbitrary string.  In Gforth, the result is valid
+    \G during the whole session (but not across @code{savesystem}
+    \G etc.).
     loadfilename# @ included-filename[] ;
 
 : included-filename[] ( index -- c-addr u ) \ gforth-internal
@@ -43,7 +44,7 @@ $[]Variable included-files
     \G The line number of the line that is currently being interpreted
     \G from a (stream) file. The first line has the number 1. If the
     \G current input source is not a (stream) file, the result is
-    \G undefined.
+    \G an unspecified number.
     loadline @ ;
 
 : str>loadfilename# ( addr u -- n )

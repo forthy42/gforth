@@ -318,13 +318,16 @@ forth-wordlist current !
     execute translate-none = IF  0  THEN ;
 
 : search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
+    \G We recommend to use @word{find-name-in} instead of
+    \G @word{search-wordlist}.@*
     \G Search the word list identified by @i{wid} for the definition
     \G named by the string at @i{c-addr count}.  If the definition is
     \G not found, return 0. If the definition is found return 1 (if
-    \G the definition is immediate) or -1 (if the definition is not
-    \G immediate) together with the @i{xt}.  In Gforth, the @i{xt}
-    \G returned represents the interpretation semantics.  Forth-2012
-    \G does not specify clearly what @i{xt} represents.
+    \G the definition has non-default compilation semantics) or -1 (if
+    \G the definition has default compilation semantics) together with
+    \G the @i{xt}.  In Gforth, the @i{xt} returned represents the
+    \G interpretation semantics.  Forth-2012 does not specify clearly
+    \G what @i{xt} represents.
     find-name-in dup if
 	(name>intn)
     then ;

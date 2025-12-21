@@ -2404,7 +2404,7 @@ read-file	( c_addr u1 wfileid -- u2 wior )	file	read_file
 ""Read @i{u1} characters from file @i{wfileid} into the buffer at
 @i{c_addr}.  A non-zero @i{wior} indicates an error.  @i{U2} indicates
 the length of the read data.  End-of-file is not an error and is
-indicated by @i{u2}$<$@i{u1} and @i{wior}=0.""
+indicated by @i{u2}<@i{u1} and @i{wior}=0.""
 /* !! fread does not guarantee enough */
 u2 = 0;
 do {
@@ -2466,7 +2466,7 @@ flag = FLAG(feof((FILE *) wfileid));
 
 open-dir	( c_addr u -- wdirid wior )	gforth	open_dir
 ""Open the directory specified by @i{c-addr, u}
-and return @i{dir-id} for futher access to it.""
+and return @i{wdirid} for futher access to it.""
 char * string = tilde_cstr(c_addr,u);
 wdirid = (Cell)opendir(string);
 wior =  IOR(wdirid == 0);
@@ -2474,7 +2474,7 @@ free_l(string);
 
 read-dir	( c_addr u1 wdirid -- u2 flag wior )	gforth	read_dir
 ""Attempt to read the next entry from the directory specified
-by @i{dir-id} to the buffer of length @i{u1} at address @i{c-addr}. 
+by @i{wdirid} to the buffer of length @i{u1} at address @i{c-addr}. 
 If the attempt fails because there is no more entries,
 @i{ior}=0, @i{flag}=0, @i{u2}=0, and the buffer is unmodified.
 If the attempt to read the next entry fails because of any other reason, 
@@ -2505,7 +2505,7 @@ close-dir	( wdirid -- wior )	gforth	close_dir
 wior = IOR(closedir((DIR *)wdirid));
 
 filename-match	( c_addr1 u1 c_addr2 u2 -- flag )	gforth	match_file
-""match the file name @var{c_addr1 u1} with the pattern @var{c_addr2 u2}.
+""match the file name @var{c-addr1 u1} with the pattern @var{c-addr2 u2}.
 Patterns match char by char except for the special characters '*' and '?',
 which are wildcards for several ('*') or one ('?') character.""
 char * string = cstr(c_addr1, u1);
@@ -2522,8 +2522,10 @@ wior = IOR(chdir(string));
 free_l(string);
 
 get-dir	( c_addr1 u1 -- c_addr2 u2 )	gforth get_dir
-""Store the current directory in the buffer specified by @i{c-addr1, u1}.
-If the buffer size is not sufficient, return 0 0""
+""Store the current directory name in the buffer specified by
+@i{c-addr1, u1}; if there is sufficient space, @i{c-addr2}=@i{c-addr1}
+and @i{u2} is the length of the directory name.  If the buffer size is
+not sufficient, return 0 0""
 c_addr2 = (Char *)getcwd((char *)c_addr1, u1);
 if(c_addr2 != NULL) {
   u2 = strlen((char *)c_addr2);
@@ -2532,7 +2534,9 @@ if(c_addr2 != NULL) {
 }
 
 =mkdir ( c_addr u wmode -- wior )        gforth equals_mkdir
-""Create directory @i{c-addr u} with mode @i{wmode}.""
+""Create directory @i{c-addr u} with mode @i{wmode} modified by umask.
+@i{wmode} is a 9-bit number rwxrwxrwx (see @word{+fmode},
+@pxref{General files}).""
 char * string = tilde_cstr(c_addr,u);
 wior = IOR(mkdir(string,wmode));
 free_l(string);

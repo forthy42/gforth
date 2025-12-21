@@ -31,17 +31,17 @@ umethod source ( -- c-addr u ) \ core source
 umethod refill ( -- flag ) \ core-ext,block-ext,file-ext
     \G Attempt to fill the input buffer from the input source.  When
     \G the input source is the user input device, attempt to receive
-    \G input into the terminal input device. If successful, make the
-    \G result the input buffer, set @code{>IN} to 0 and return true;
-    \G otherwise return false. When the input source is a block, add 1
-    \G to the value of @code{BLK} to make the next block the input
-    \G source and current input buffer, and set @code{>IN} to 0;
-    \G return true if the new value of @code{BLK} is a valid block
-    \G number, false otherwise. When the input source is a text file,
-    \G attempt to read the next line from the file. If successful,
-    \G make the result the current input buffer, set @code{>IN} to 0
-    \G and return true; otherwise, return false.  A successful result
-    \G includes receipt of a line containing 0 characters.
+    \G input into the terminal input device. If successful (including
+    \G lines of length 0), make the result the input buffer, set
+    \G @code{>IN} to 0 and return true; otherwise return false.@* When
+    \G the input source is a text file, attempt to read the next line
+    \G from the file. If successful, make the result the current input
+    \G buffer, set @code{>IN} to 0 and return true; otherwise, return
+    \G false.@* When the input source is a block, add 1 to the value
+    \G of @code{BLK} to make the next block the input source and
+    \G current input buffer, and set @code{>IN} to 0; return true if
+    \G the new value of @code{BLK} is a valid block number, false
+    \G otherwise.
 umethod source-id ( -- 0 | -1 | fileid ) \ core-ext,file source-i-d
     \G Return 0 (the input source is the user input device), -1 (the
     \G input source is a string being processed by @code{evaluate}) or
