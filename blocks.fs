@@ -75,7 +75,8 @@ block-cold
 Defer flush-blocks ( -- ) \ gforth-internal
 
 : open-blocks ( c-addr u -- ) \ gforth
-\g Use the file, whose name is given by @i{c-addr u}, as the blocks file.
+    \g @i{C-addr u} is the name of a file; @word{open-blocks} opens
+    \g this file as the current blocks file.
     try ( c-addr u )
 	2dup open-fpath-file throw
 	rot close-file throw  2dup file-status throw bin open-file throw
@@ -90,7 +91,7 @@ Defer flush-blocks ( -- ) \ gforth-internal
     block-fid ! ;
 
 : use ( "file" -- ) \ gforth
-    \g Use @i{file} as the blocks file.
+    \g Open @i{file} as the current blocks file.
     parse-name name-too-short? open-blocks ;
 
 \ the file is opened as binary file, since it either will contain text
@@ -105,7 +106,7 @@ Defer flush-blocks ( -- ) \ gforth-internal
     then
     block-fid @ ;
 
-: block-position ( u -- ) \ block
+: block-position ( u -- ) \ gforth-internal
 \G Position the block file to the start of block @i{u}.
     dup block-limit u>= -35 and throw
     offset @ - chars/block chars um* get-block-fid reposition-file throw ;
@@ -114,7 +115,7 @@ Defer flush-blocks ( -- ) \ gforth-internal
     \G Mark the state of the current block buffer as assigned-dirty.
     last-block @ ?dup-IF  buffer-dirty on  THEN ;
 
-: save-buffer ( buffer -- ) \ gforth
+: save-buffer ( buffer -- ) \ gforth-internal
     dup
     >r buffer-dirty @
     if
@@ -126,7 +127,7 @@ Defer flush-blocks ( -- ) \ gforth-internal
     endif
     rdrop ;
 
-: empty-buffer ( buffer -- ) \ gforth
+: empty-buffer ( buffer -- ) \ gforth-internal
     dup buffer-block on buffer-dirty off ;
 
 : save-buffers  ( -- ) \ block
@@ -153,13 +154,12 @@ Defer flush-blocks ( -- ) \ gforth-internal
 : get-buffer ( u -- a-addr ) \ gforth-internal
     0 buffers um/mod drop buffer-struct %size * block-buffers @ + ;
 
-: block ( u -- a-addr ) \ block
-    \G If a block buffer is assigned for block @i{u}, return its
-    \G start address, @i{a-addr}. Otherwise, assign a block buffer
-    \G for block @i{u} (if the assigned block buffer has been
-    \G @code{update}d, transfer the contents to mass storage), read
-    \G the block into the block buffer and return its start address,
-    \G @i{a-addr}.
+: block ( u -- addr ) \ block
+    \G The contents of block @i{u} are found at @i{addr} (and the
+    \G following 1023 bytes).  @i{Addr} is valid until there is
+    \G another call to @word{block} or @word{buffer} (possibly inside
+    \G another block-access word).  If the block is not yet in a
+    \G buffer, @word{block} reads it from mass storage.
     dup offset @ u< -35 and throw
     dup get-buffer >r
     dup r@ buffer-block @ <>
@@ -177,37 +177,31 @@ Defer flush-blocks ( -- ) \ gforth-internal
     then
     r> dup last-block ! block-buffer ;
 
-: buffer ( u -- a-addr ) \ block
-    \G If a block buffer is assigned for block @i{u}, return its
-    \G start address, @i{a-addr}. Otherwise, assign a block buffer
-    \G for block @i{u} (if the assigned block buffer has been
-    \G @code{update}d, transfer the contents to mass storage) and
-    \G return its start address, @i{a-addr}.  The subtle difference
-    \G between @code{buffer} and @code{block} mean that you should
-    \G only use @code{buffer} if you don't care about the previous
-    \G contents of block @i{u}. In Gforth, this simply calls
-    \G @code{block}.
-    \ reading in the block is unnecessary, but simpler
+: buffer ( u -- addr ) \ block
+    \G @code{Addr} (and the following 1023 bytes) are the buffer of
+    \G block @i{u}; this memory area is initialized arbitrarily.
+    \G @i{Addr} is valid until there is another call to @word{block}
+    \G or @word{buffer} (possibly inside another block-access word).
+    \G The subtle difference between @code{buffer} and @code{block}
+    \G mean that you should only use @code{buffer} if you don't care
+    \G about the previous contents of block @i{u}.
     block ;
 
 User scr ( -- a-addr ) \ block-ext s-c-r
-    \G @code{User} variable containing
-    \G the block number of the block most recently processed by
-    \G @code{list}.
+    \G User variable containing the block number of the block most
+    \G recently processed by @code{list}.
 0 scr !
 
 \ nac31Mar1999 moved "scr @" to list to make the stack comment correct
-: updated?  ( n -- f ) \ gforth
-    \G Return true if @code{updated} has been used to mark block @i{n}
-    \G as assigned-dirty.
+: updated?  ( u -- f ) \ gforth
+    \G If and only if there is a buffer for block @i{u} and it has
+    \G been @word{update}d, return true.
     buffer
     [ 0 buffer-dirty 0 block-buffer - ] Literal + @ ;
 
 : list ( u -- ) \ block-ext
-    \G Display block @i{u}. In Gforth, the block is displayed as 16
-    \G numbered lines, each of 64 characters.
-    \ calling block again and again looks inefficient but is necessary
-    \ in a multitasking environment
+    \G Display block @i{u} as 16 numbered lines, each of 64
+    \G characters.
     dup scr !
     ." Screen " u.
     scr @ updated?  0= IF ." not "  THEN  ." modified     " cr
@@ -232,7 +226,7 @@ Create block-input   A, A, A, A, A,
     ['] interpret bt-rp0-catch pop-file throw ;
 
 : thru ( i*x n1 n2 -- j*x ) \ block-ext
-    \G @code{load} the blocks @i{n1} through @i{n2} in sequence.
+    \G @code{load} the blocks @i{n1} up to and including @i{n2} in sequence.
     1+ swap ?DO  I load  LOOP ;
 
 : +load ( i*x n -- j*x ) \ gforth
@@ -242,10 +236,10 @@ Create block-input   A, A, A, A, A,
 
 : +thru ( i*x n1 n2 -- j*x ) \ gforth
     \G Used within a block to load the range of blocks specified as the
-    \G current block + @i{n1} thru the current block + @i{n2}.
+    \G current block + @i{n1} up to and including the current block + @i{n2}.
     1+ swap ?DO  I +load  LOOP ;
 
-: --> ( -- ) \ gforthman- gforth chain
+: --> ( -- ) \ gforthman- gforth dash-dash-greater-than
     \G If this symbol is encountered whilst loading block @i{n},
     \G discard the remainder of the block and load block @i{n+1}. Used
     \G for chaining multiple blocks together as a single loadable

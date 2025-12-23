@@ -12647,15 +12647,11 @@ s" libm.so" mypath open-path-file throw type close-file \ output:"/lib/libm.so"
 @cindex I/O - blocks
 @cindex blocks
 
-When you run Gforth on a modern desk-top computer, it runs under the
-control of an operating system which provides certain services.  One of
-these services is @var{file services}, which allows Forth source code
-and data to be stored in files and read into Gforth (@pxref{Files}).
-
-Traditionally, Forth has been an important programming language on
-systems where it has interfaced directly to the underlying hardware with
-no intervening operating system. Forth provides a mechanism, called
-@dfn{blocks}, for accessing mass storage on such systems.
+Traditionally, Forth has been used on systems without an operating
+system@footnote{This is called @dfn{native}, whereas Forth running on
+top of an OS is called @dfn{hosted}.}, and in particular without a
+file system.  Forth provides a mechanism, called @dfn{blocks}, for
+accessing mass storage on such systems.
 
 A block is a 1024-byte data area, which can be used to hold data or
 Forth source code. No structure is imposed on the contents of the
@@ -12683,12 +12679,9 @@ having specified a blocks file, Gforth defaults to the blocks file
 locate a blocks file (@pxref{Source Search Paths}).
 
 @cindex block buffers
-When you read and write blocks under program control, Gforth uses a
-number of @dfn{block buffers} as intermediate storage. These buffers are
-not used when you use @code{load} to interpret the contents of a block.
-
-The behaviour of the block buffers is analogous to that of a cache.
-Each block buffer has three states:
+When you access blocks, Gforth uses a number of @dfn{block buffers} as
+intermediate storage.  The behaviour of the block buffers is analogous
+to that of a cache.  Each block buffer has three states:
 
 @itemize @bullet
 @item
@@ -12703,23 +12696,18 @@ Initially, all block buffers are @i{unassigned}. In order to access a
 block, the block (specified by its block number) must be assigned to a
 block buffer.
 
-The assignment of a block to a block buffer is performed by @code{block}
-or @code{buffer}. Use @code{block} when you wish to modify the existing
-contents of a block. Use @code{buffer} when you don't care about the
-existing contents of the block@footnote{The Standard Forth definition of
-@code{buffer} is intended not to cause disk I/O; if the data associated
-with the particular block is already stored in a block buffer due to an
-earlier @code{block} command, @code{buffer} will return that block
-buffer and the existing contents of the block will be
-available. Otherwise, @code{buffer} will simply assign a new, empty
-block buffer for the block.}.
+The assignment of a block to a block buffer is performed by
+@code{block} or @code{buffer}. Use @code{block} when you wish to
+modify the existing contents of a block. Use @code{buffer} don't care
+about the existing contents of the block and just want to overwrite
+it.
 
 Once a block has been assigned to a block buffer using @code{block} or
 @code{buffer}, that block buffer becomes the @i{current block
 buffer}. Data may only be manipulated (read or written) within the
 current block buffer.
 
-When the contents of the current block buffer has been modified it is
+When the contents of the current block buffer has been modified, it is
 necessary, @emph{before calling @code{block} or @code{buffer} again}, to
 either abandon the changes (by doing nothing) or mark the block as
 changed (assigned-dirty), using @code{update}. Using @code{update} does
@@ -12732,26 +12720,19 @@ buffer is needed for another block, or explicitly by @code{flush} or
 blocks file on disk. Leaving Gforth with @code{bye} also performs a
 @code{flush}.
 
-In Gforth, @code{block} and @code{buffer} use a @i{direct-mapped}
-algorithm to assign a block buffer to a block. That means that any
-particular block can only be assigned to one specific block buffer,
-called (for the particular operation) the @i{victim buffer}. If the
-victim buffer is @i{unassigned} or @i{assigned-clean} it is allocated to
-the new block immediately. If it is @i{assigned-dirty} its current
-contents are written back to the blocks file on disk before it is
-allocated to the new block.
-
-Although no structure is imposed on the contents of a block, it is
-traditional to display the contents as 16 lines each of 64 characters.  A
-block provides a single, continuous stream of input (for example, it
-acts as a single parse area) -- there are no end-of-line characters
-within a block, and no end-of-file character at the end of a
-block. There are two consequences of this:
+When a block is used for storing source code, it is traditional to
+display the contents as 16 lines each of 64 characters (with
+@word{list}).  A block provides a single, continuous stream of input
+(for example, it acts as a single parse area) -- there are no
+end-of-line characters within a block, and no end-of-file character at
+the end of a block. There are two consequences of this:
 
 @itemize @bullet
 @item
-The last character of one line wraps straight into the first character
-of the following line
+The last character of one line A is contiguous with the first
+character of the following line B, so you need to either put at least
+one blank at the end of A, or at the start of B in order to separate
+the last word of A from the first word of B.
 @item
 The word @code{\} -- comment to end of line -- requires special
 treatment; in the context of a block it causes all characters until the
@@ -12789,28 +12770,28 @@ integrated into a Forth programming environment.
 
 doc-open-blocks
 doc-use
-doc-block-offset
 doc-get-block-fid
-doc-block-position
-
-doc-list
-doc-scr
-
+doc-block-offset
 doc-block
 doc-buffer
-
-doc-empty-buffers
-doc-empty-buffer
 doc-update
 doc-updated?
 doc-save-buffers
-doc-save-buffer
+doc-empty-buffers
 doc-flush
-
+doc-list
+doc-scr
 doc-load
 doc-thru
 doc-+load
 doc-+thru
+
+
+@c !! the following words use the buffer struct, but there is no
+@c documented way to get a buffer struct
+@c doc-empty-buffer
+@c doc-save-buffer
+
 doc---gforthman--->
 doc-block-included
 
