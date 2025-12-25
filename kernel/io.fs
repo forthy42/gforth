@@ -37,7 +37,7 @@ UValue debug-fid ( -- file-id ) \ gforth @i{File-id} is used by
 \G @code{stderr}.
 
 User out ( -- addr ) \ gforth
-\g @code{Addr} contains a number that tries to give the position of
+\g @i{Addr} contains a number that tries to give the position of
 \g the cursor within the current line on the user output device: It
 \g resets to 0 on @code{cr}, increases by the number of characters by
 \g @code{type} and @code{emit}, and decreases on @code{backspaces}.

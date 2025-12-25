@@ -383,8 +383,8 @@ constant mem*do-noconstant
 : f>str-rdp ( rf +nr +nd +np -- c-addr nr ) \ gforth
 \G Convert @i{rf} into a string at @i{c-addr nr}.  The conversion
 \G rules and the meanings of @i{nr +nd np} are the same as for
-\G @code{f.rdp}.  The result in in the pictured numeric output buffer
-\G and will be destroyed by anything destroying that buffer.
+\G @code{f.rdp}.  The result is in in the pictured numeric output buffer
+\G and will be destroyed by anything overwriting that buffer.
     rot holdptr @ 1- 0 rot negate /string ( rf +nd np c-addr nr )
     over holdbuf u< -&17 and throw
     2tuck 2>r f>buf-rdp 2r> ;

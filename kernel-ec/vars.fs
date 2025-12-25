@@ -82,13 +82,13 @@ AUser prev-task        main-task prev-task !
 AUser save-task        0 save-task !
 [THEN]
 AUser sp0 ( -- a-addr ) \ gforth
-\G @code{User} variable -- initial value of the data stack pointer.
+\G User variable -- initial value of the data stack pointer.
 \ sp0 is used by douser:, must be user
 \    ' sp0 Alias s0 ( -- a-addr ) \ gforth
 \G OBSOLETE alias of @code{sp0}
 
 AUser rp0 ( -- a-addr ) \ gforth
-\G @code{User} variable -- initial value of the return stack pointer.
+\G User variable -- initial value of the return stack pointer.
 \    ' rp0 Alias r0 ( -- a-addr ) \ gforth
 \G OBSOLETE alias of @code{rp0}
 
@@ -106,25 +106,25 @@ AUser "error            0 "error !
     User tibstack		\ saves >tib in execute
     User >tib		\ pointer to terminal input buffer
     User #tib ( -- a-addr ) \ core-ext number-t-i-b
-    \G @code{User} variable -- @i{a-addr} is the address of a cell containing
+    \G User variable -- @i{a-addr} is the address of a cell containing
 	\G the number of characters in the terminal input buffer.
     \G OBSOLESCENT: @code{source} superceeds the function of this word.
 	
     User >in ( -- a-addr ) \ core to-in
-    \G @code{User} variable -- @i{a-addr} is the address of a cell containing the
+    \G User variable -- @i{a-addr} is the address of a cell containing the
     \G char offset from the start of the input buffer to the start of the
     \G parse area.
     0 >in ! \ char number currently processed in tib
 [THEN]
 
 User base ( -- a-addr ) \ core
-\G @code{User} variable -- @i{a-addr} is the address of a cell that
+\G User variable -- @i{a-addr} is the address of a cell that
 \G stores the number base used by default for number conversion during
 \G input and output.  Don't store to @code{base}, use
 \G @code{base-execute} instead.
                        A base !
 User dpl ( -- a-addr ) \ gforth
-\G @code{User} variable -- @i{a-addr} is the address of a cell that stores the 		
+\G User variable -- @i{a-addr} is the address of a cell that stores the 		
 \G position of the decimal point in the most recent numeric conversion.
 \G Initialised to -1. After the conversion of a number containing no
 \G decimal point, @code{dpl} is -1. After the conversion of @code{2.} it holds
@@ -132,17 +132,17 @@ User dpl ( -- a-addr ) \ gforth
 -1 dpl !
 
 User dp-char ( -- a-addr ) \ VFX
-\G @code{User} variable -- @i{a-addr} is the address of a cell that stores the
+\G User variable -- @i{a-addr} is the address of a cell that stores the
 \G decimal point character for double number conversion
 '.' dp-char !
 
 User fp-char ( -- a-addr ) \ VFX
-\G @code{User} variable -- @i{a-addr} is the address of a cell that stores the
+\G User variable -- @i{a-addr} is the address of a cell that stores the
 \G decimal point character for floating point number conversion
 '.' fp-char !
 
 User state ( -- a-addr ) \ core,tools-ext
-\G @code{User} variable -- @i{a-addr} is the address of a cell
+\G User variable -- @i{a-addr} is the address of a cell
 \G containing the compilation state flag. 0 => interpreting, -1 =>
 \G compiling.  A program shall not directly alter the value of
 \G @code{state}. The following Standard words alter the value in

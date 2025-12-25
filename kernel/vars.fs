@@ -145,21 +145,21 @@ AUser prev-task        main-task prev-task !
 AUser save-task        0 save-task !
 [THEN]
 AUser sp0 ( -- a-addr ) \ gforth
-\G @code{User} variable -- initial value of the data stack pointer.
+\G User variable -- initial value of the data stack pointer.
 \ sp0 is used by douser:, must be user
 
 AUser rp0 ( -- a-addr ) \ gforth
-\G @code{User} variable -- initial value of the return stack pointer.
+\G User variable -- initial value of the return stack pointer.
 
 has? floating [IF]
 AUser fp0 ( -- a-addr ) \ gforth
-\G @code{User} variable -- initial value of the floating-point stack pointer.
+\G User variable -- initial value of the floating-point stack pointer.
 \ no f0, because this leads to unexpected results when using hex
 [THEN]
 
 has? glocals [IF]
 AUser lp0 ( -- a-addr ) \ gforth
-\G @code{User} variable -- initial value of the locals stack pointer.
+\G User variable -- initial value of the locals stack pointer.
 [THEN]
 
 AUser throw-entry  \ pointer to task-specific signal handler
@@ -210,17 +210,18 @@ AUser holdptr dup holdptr !
 AUser holdend     holdend !
 
 User base ( -- a-addr ) \ core
-\G @code{User} variable -- @i{a-addr} is the address of a cell that
+\G User variable -- @i{a-addr} is the address of a cell that
 \G stores the number base used by default for number conversion during
 \G input and output.  Don't store to @code{base}, use
 \G @code{base-execute} instead.
                        A base !
 User dpl ( -- a-addr ) \ gforth d-p-l
-\G @code{User} variable -- @i{a-addr} is the address of a cell that stores the 		
-\G position of the decimal point in the most recent numeric conversion.
-\G Initialised to -1. After the conversion of a number containing no
-\G decimal point, @code{dpl} is -1. After the conversion of @code{2.} it holds
-\G 0. After the conversion of 234123.9 it contains 1, and so forth.
+\G User variable -- @i{a-addr} is the address of a cell that stores
+\G the position of the decimal point in the most recent input integer
+\G conversion.  After the conversion of a number containing no decimal
+\G point, @code{dpl} is -1. After the conversion of @code{2341239.} it
+\G holds 0. After the conversion of 234123.9 it contains 1, and so
+\G forth.
 -1 dpl !
 
 User >num-warnings ( -- a-addr ) \ gforth-internal

@@ -33,8 +33,9 @@ require ./io.fs
     holdptr @ dup holdbuf u< -&17 and throw ;
 
 : hold    ( char -- ) \ core
-    \G Used between @code{<<#} and @code{#>}. Prepend the character
-    \G @var{char} to the pictured numeric output string.
+    \G Used between @code{<<#} and @code{#>}. Prepend the ASCII character
+    \G @var{char} to the pictured numeric output string.  Use
+    \G @word{holds} for prepending non-ASCII characters.
     1 +hold c! ;
 
 : <# ( -- ) \ core	less-number-sign
@@ -119,10 +120,11 @@ require ./io.fs
     over - spaces type ;
 
 : d.r ( d n -- ) \ double	d-dot-r
-    \G Display @var{d} right-aligned in a field @var{n} characters wide. If more than
-    \G @var{n} characters are needed to display the number, all digits are displayed.
-    \G If appropriate, @var{n} must include a character for a leading ``-''.
-    >r tuck  dabs  <<# #s  rot sign #>
+    \G Display @var{d} right-aligned in a field @var{n} characters
+    \G wide. If more than @var{n} characters are needed to display the
+    \G number, all digits and, if necessary, the sign ``-'', are
+    \G displayed.
+    >r tuck dabs <<# #s rot sign #>
     r> type-r #>> ;
 
 : ud.r ( ud n -- ) \ gforth	u-d-dot-r
@@ -131,9 +133,10 @@ require ./io.fs
     >r <<# #s #> r> type-r #>> ;
 
 : .r ( n1 n2 -- ) \ core-ext	dot-r
-    \G Display @var{n1} right-aligned in a field @var{n2} characters wide. If more than
-    \G @var{n2} characters are needed to display the number, all digits are displayed.
-    \G If appropriate, @var{n2} must include a character for a leading ``-''.
+    \G Display @var{n1} right-aligned in a field @var{n2} characters
+    \G wide. If more than @var{n2} characters are needed to display
+    \G the number, all digits and, if necessary, the sign ``-'', are
+    \G displayed.
     >r s>d r> d.r ;
 
 : u.r ( u n -- )  \ core-ext	u-dot-r
