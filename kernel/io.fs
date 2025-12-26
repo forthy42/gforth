@@ -94,8 +94,10 @@ umethod type ( c-addr u -- ) \ core
   \G If @var{u}>0, display @var{u} characters from a string starting
   \G with the character stored at @var{c-addr}.
 umethod emit ( c -- ) \ core
-  \G Send the byte @i{c} to the current output; for ASCII characters,
-  \G @code{emit} is equivalent to @code{xemit}.
+  \G Display the byte @i{c}; for ASCII characters, @code{emit} is
+  \G equivalent to @code{xemit}; for multi-byte characters, additional
+  \G @word{emit} or @word{type} calls may be needed to display a
+  \G complete character.
 umethod cr ( -- ) \ core c-r
     \G Output a newline (of the favourite kind of the host OS).  Note
     \G that due to the way the Forth command line interpreter inserts
@@ -124,22 +126,19 @@ umethod theme-color! ( u -- )
 
 user-o ip-vector
 0 0
-umethod key-ior ( -- char|ior ) \ gforth
-\G Receive (but do not display) one character, @var{char}, in case of an
+umethod key-ior ( -- c|ior ) \ gforth
+\G Receive (but do not display) one byte @i{c}.  In case of an
 \G error or interrupt, return the negative @var{ior} instead.
 umethod key? ( -- flag ) \ facility key-question
-\G Determine whether a character is available. If a character is
-\G available, @var{flag} is true; the next call to @code{key} will
-\G yield the character. Once @code{key?} returns true, subsequent
-\G calls to @code{key?} before calling @code{key} or @code{ekey} will
-\G also return true.
+\G If a byte is available for receiving with @word{key}, return true,
+\G otherwise false.
 2drop
 
 : (cr) ( -- )
     newline type 0 out ! ;
 
-: key ( -- char ) \ core
-\G Receive (but do not display) one character, @var{char}.
+: key ( -- c ) \ core
+\G Receive (but do not display) one byte @i{c}.
     BEGIN  key-ior dup EINTR =  WHILE  drop  REPEAT
     dup 0< IF  throw  THEN ;
 
@@ -226,27 +225,46 @@ Variable theme-color#
   DOES> @ theme-color! ;
 
 theme-color: default-color ( -- ) \ gforth
-\G use system-default color
+\G Future terminal output will use the system-default color
+
 theme-color: error-color   ( -- ) \ gforth
-\G error color: red
+\G Future terminal output will use the error color (red)
+
 theme-color: warning-color ( -- ) \ gforth
-\G color for warnings: blue/yellow on black terminals
+\G Future terminal output will use the color for warnings
+\G (@word{light-mode}: blue, @word{dark-mode}: yellow)
+
 theme-color: info-color    ( -- ) \ gforth
-\G color for info: green/cyan on black terminals
+\G Future terminal output will use the color for informative output
+\G (@word{light-mode}: green, @word{dark-mode}: cyan)
+
 theme-color: success-color ( -- ) \ gforth
-\G color for success: green
+\G Future terminal output will use the color for success (green)
+
 theme-color: input-color   ( -- ) \ gforth
-\G color for user-input: black/white (both bold)
+\G Future terminal output will use the color for user-input
+\G (@word{light-mode}: bold black, @word{dark-mode}: bold white,
+\G @word{magenta-input}: magenta)
+
 theme-color: error-hl-ul ( -- ) \ gforth
-\G color mod for error highlight underline
+\G Future terminal output will be shown in the error color (red) and
+\G underlined.
+
 theme-color: error-hl-inv ( -- ) \ gforth
-\G color mod for error highlight inverse
+\G Future terminal output will be shown in the inverted error color
+\G (background color on red)
+
 theme-color: status-color ( -- ) \ gforth
-\G color mod for status bar
+\G Future terminal output will be shown in the color for the
+\G interpret-state status bar (inverted blue)
+
 theme-color: compile-color ( -- ) \ gforth
-\G color mod for status bar in compile mode
+\G Future terminal output will be shown in the color for the
+\G compile-state status bar (inverted magenta)
+
 theme-color: postpone-color ( -- ) \ gforth
-\G color mod for status bar in compile mode
+\G Future terminal output will be shown in the color for the
+\G postpone-state status bar (inverted red)
 
 \ space spaces		                                21mar93py
 

@@ -446,8 +446,10 @@ constant mem*do-noconstant
 	f.s-precision 7 max dup 0 f.rdp space LOOP
     drop ; 
 
-: typewhite ( addr n -- ) \ gforth
-\G Like type, but white space is printed instead of the characters.
+: typewhite ( c-addr u -- ) \ gforth
+\G Like @word{type}, but white space is printed instead of the
+\G characters.  For now, only works correctly for strings of ASCII
+\G characters.
     \ bounds u+do
     0 max bounds ?do
 	i c@ #tab = if \ check for tab

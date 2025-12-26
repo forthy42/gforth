@@ -456,6 +456,11 @@ Other I/O
 * Substitute::                  Text macro substitution
 * CSV reading and writing::
 
+Terminal output
+
+* Color output::
+* Color themes::
+
 Locals
 
 * Gforth locals::
@@ -13135,11 +13140,15 @@ my-word        \ prints "text-2text-4"
 "text-6" type  \ prints "text-6"
 @end example
 
+If you want to understand why this code behaves this way, the
+explanations for this concrete example are:
+
 @itemize @bullet
 @item
-Messages @code{text-1} and @code{text-3} are displayed because @code{.(} 
-is an immediate word; it behaves in the same way whether it is used inside
-or outside a colon definition.
+Messages @code{text-1} and @code{text-3} are displayed because
+@code{.(} is an immediate word; it behaves in the same way whether it
+is used inside or outside a colon definition (@pxref{Interpretation
+and Compilation Semantics}).
 @item
 Message @code{text-2} is not displayed during the definition of
 @word{my-word}, because the text interpreter performs the compilation
@@ -13147,12 +13156,15 @@ semantics for @code{."}.  Later the interpretation semantics of
 @word{my-word} are performed, and they perform the run-time semantics
 of @word{."}.
 @item
-Message @code{text-4} is @i{not} displayed during the definition of
-@word{my-wordd}, because @code{"text-4" type} is compiled into
-@code{my-word}.  Later the interpretation semantics of @word{my-word}
-are performed, and they perform the interpretation action of
-@code{"text-4"} and the execution/interpretation semantics of
-@word{type}.
+Message @code{text-4} is not displayed during the definition of
+@word{my-word}, because @code{"text-4"} (see @word{rec-string},
+@word{translate-string}) performs the compiling run-time for the
+string, which compiles the interpreting run-time (@pxref{Defining
+recognizers}) into @word{my-word}, and @word{type} compiles the
+interpretation/execution semantics of @word{type} into @word{my-word}.
+Later the interpretation semantics of @word{my-word} are performed,
+and they perform the compiled interpreting run-time and interpretation
+semantics.
 @item
 Message @code{text-5} is displayed because of Gforth's added interpretation
 semantics for @code{."}.
@@ -13196,13 +13208,23 @@ And sometimes you want to use:
 
 doc-page
 
-Note that on non-terminals you should use @code{12 emit}, not
+Note that on non-terminals you should use @code{#ff emit}, not
 @code{page}, to get a form feed.
 
+@menu
+* Color output::
+* Color themes::
+@end menu
+
+@node Color output, Color themes, Terminal output, Terminal output
 @subsubsection Color output
+@cindex color output to the terminal
+
 The following words are used to create (semantic) colorful output;
 further output is produced in the color and style given by the word;
-the actual color and style depends on the theme (see below).
+the actual color and style depends on the theme (@pxref{Color themes})
+and on your terminal
+setup.@footnote{@uref{https://www.complang.tuwien.ac.at/anton/xterm-colors/}}
 
 doc-default-color
 doc-error-color
@@ -13214,13 +13236,29 @@ doc-success-color
 doc-input-color
 doc-status-color
 doc-compile-color
+doc-postpone-color
 @c !! Commented out, because it makes no sense to document attr! without
 @c    documenting how to produce an attr
 @c doc-attr!
 
+@node Color themes,  , Color output, Terminal output
 @subsubsection Color themes
-Depending on whether you prefer bright or dark background the
-foreground colors-theme can be changed by:
+@cindex color themes
+
+Depending on whether you use a light or dark background, some colors
+tend to lead to too-low contrast.  Therefore, Gforth supports
+adjusting its colors to the background with @word{light-mode} (for
+light background) and @word{dark-mode} for dark background.  
+
+Gforth tries to select the right mode automatically, but that does not
+always work.  In order to avoid having to set the theme every time you
+enter Gforth, you can set the environment variable @code{GFORTH_INIT}
+before starting Gforth.  Possible values are: @code{light},
+@code{dark}, @code{uncolored}, or @code{auto} (default).
+
+In addition, you can specify an input theme (separated from the
+mode theme by a space in @code{GFORTH_INIT} if both are present):
+@code{magenta} or @code{default} (default).
 
 doc-light-mode
 doc-dark-mode
@@ -13228,25 +13266,20 @@ doc-uncolored-mode
 doc-magenta-input
 doc-default-input
 
-Gforth tries to select the best mode automatically.  You can set the
-environment variable @code{GFORTH_INIT} to @code{light}, @code{dark},
-@code{uncolored}, or @code{auto} (same effect if not setting it at all),
-to tell Gforth your preference, as well as @code{magenta} or
-@code{default} for the input color preference.  Concatenate options with
-space as separator.
 
 @node Single-key input, Line input and conversion, Terminal output, Other I/O
 @subsection Single-key input
 @cindex single-key input
 @cindex input, single-key
 
-If you want to get a single printable character, you can use
-@code{key}; to check whether a character is available for @code{key},
-you can use @code{key?}.
+If you want to get a single byte, you can use @code{key}; to check
+whether a character is available for @code{key}, you can use
+@code{key?}.
 
 doc-key
 doc-key-ior
 doc-key?
+doc-xkey
 doc-xkey?
 
 If you want to process a mix of printable and non-printable
@@ -13321,7 +13354,7 @@ doc-k-enter
 doc-k-backspace
 doc-k-tab
 
-Moreover, there the following key codes for keys and other events:
+Moreover, there are the following key codes for keys and other events:
 
 doc-k-winch
 doc-k-pause
@@ -13479,10 +13512,12 @@ doc-+x/string
 doc-x\string-
 doc--trailing-garbage
 doc-x-width
-doc-xkey
 doc-xc-width
 doc-xhold
 doc-xc,
+
+See also @word{xkey} (@pxref{Single-key input}).
+
 
 @node i18n and l10n, Substitute, Xchars and Unicode, Other I/O
 @subsection Internationalization and Localization
@@ -16238,7 +16273,7 @@ Examples can be found in @code{test/regexp-test.fs}.
 In interactive usage Gforth shows the status after processing each
 line.  The status consists of the ``prompt'' behind the end of the
 output of the words on the line and optionally a status bar at the
-bottom (on by default if the terminal is a colour terminal).
+bottom (on by default if the terminal is a color terminal).
 
 The prompt shows the current text interpreter state (@code{ok}
 (interpretation), @code{compiling}, or @code{postponing}) and the

@@ -26,10 +26,13 @@
 user-o xc-vector
 0 0
 umethod xemit ( xc -- ) \ xchar x-emit
-\G Prints an xchar on the terminal.
+\G Display extended char @i{xc}.
+
 umethod xkey ( -- xc ) \ xchar x-key
-\G Reads an xchar from the terminal. This will discard all input
-\G events up to the completion of the xchar.
+\G Reads an extended character @i{xc} xchar from the terminal without
+\G printing it. This will discard all input events until all bytes of
+\G @i{xc} have been received.
+
 umethod xchar+ ( xc-addr1 -- xc-addr2 ) \ xchar x-char-plus
 \G Adds the size of the xchar stored at @var{xc-addr1} to this address,
 \G giving @var{xc-addr2}.

@@ -103,7 +103,10 @@ keycode k-f11 ( -- u ) \ facility-ext k-f-11
 keycode k-f12 ( -- u ) \ facility-ext k-f-12
 
 keycode k-winch ( -- u ) \ gforth
-\G A key code that may be generated when the user changes the window size.
+\G This key code may be generated when the user changes the window
+\G size; if you have cached the value returned by @word{form}, this
+\G indicates that you should update your cache.
+
 keycode k-pause ( -- u ) \ gforth
 keycode k-mute  ( -- u ) \ gforth
 keycode k-volup ( -- u ) \ gforth
@@ -314,9 +317,13 @@ set-current
 	    clear-ekey-buffer
 	then ;
     : xkey? ( -- flag ) \ xchar x-key-query
+        \G Ideally this word would return true if a complete extended
+        \G char is available for input, otherwise false.
+        \G Unfortunately, currently also a partial extended character
+        \G results in returning true.
 	key? dup if
 	    drop key read-xkey ekey-buffer $@ unkeys
-	    clear-ekey-buffer  then ;
+	    clear-ekey-buffer then ;
 [THEN]
 
 0 Value ekey-rgb
@@ -352,15 +359,18 @@ Defer ekey-extension ' noop is ekey-extension
 
 [IFDEF] max-single-byte
 : ekey>char ( u -- u false | c true ) \ facility-ext e-key-to-char
-    \G Convert keyboard event @var{u} into character @code{c} if
-    \G possible.  Note that non-ASCII characters produce @code{false}
-    \G from both @code{ekey>char} and @code{ekey>fkey}.  Instead of
-    \G @code{ekey>char}, use @code{ekey>xchar} if available.
+    \G Convert keyboard event @i{u} into the ASCII char @i{c}.  If
+    \G that is possible, return @i{c} and true, otherise @i{u} and
+    \G false.  Instead of @code{ekey>char}, use @code{ekey>xchar}
+    \G if available.
     dup max-single-byte u< ; \ k-left must be first!
+
 : ekey>xchar ( u -- u false | xc true ) \ xchar-ext e-key-to-x-char
-    \G Convert keyboard event @var{u} into xchar @code{xc} if
-    \G possible.
+    \G Convert keyboard event @i{u} into extended char @i{xc}.  If
+    \G that is possible, return @i{xt} and true, otherise @i{u} and
+    \G @i{false}.
     dup k-left u< ; \ k-left must be first!
+
 : ekey>fkey ( u1 -- u2 f ) \ facility-ext e-key-to-f-key
 \G If u1 is a keyboard event in the special key set, convert
 \G keyboard event @var{u1} into key id @var{u2} and return true;
@@ -368,14 +378,13 @@ Defer ekey-extension ' noop is ekey-extension
     ekey>xchar 0= ;
 
 ' xkey? alias ekey? ( -- flag ) \ facility-ext e-key-question
+\G If a keyboard event is available for receiving with @word{ekey},
+\G return true, otherwise false.
+
 [ELSE]
 : ekey>char ( u -- u false | c true ) \ facility-ext e-key-to-char
-    \G Convert keyboard event @var{u} into character @code{c} if possible.
     dup k-left u< ; \ k-left must be first!
 : ekey>fkey ( u1 -- u2 f ) \ facility-ext
-\G If u1 is a keyboard event in the special key set, convert
-\G keyboard event @var{u1} into key id @var{u2} and return true;
-\G otherwise return @var{u1} and false.
     ekey>char 0= ;
 
 ' key? alias ekey? ( -- flag ) \ facility-ext e-key-question
@@ -385,7 +394,6 @@ Defer ekey-extension ' noop is ekey-extension
 
 ' ekey is edit-key
 
-\G True if a keyboard event is available.
 
 \  : esc? ( -- flag ) recursive
 \      key? 0=

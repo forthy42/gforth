@@ -208,6 +208,10 @@ $Variable term-rgb$
 0 Value default-bg
 
 theme: uncolored-mode ( -- ) \ gforth
+\G ``Color theme'' that does not set colors: all the color output
+\G words (@pxref{Color output}) just set the default colors or (for
+\G status bar colors) the inverted default colors.
+
 \G This mode does not set colors, but uses the default ones.
 
 uncolored-mode
@@ -226,7 +230,8 @@ false to error-hl-inv
 <a invers a> to postpone-color
 
 theme: light-mode ( -- ) \ gforth
-\G color theme for white background
+\G Color theme for white background: sets the colors for future uses
+\G of color output words (@pxref{Color output}).
 
 light-mode
 true  to white?
@@ -243,7 +248,8 @@ true  to white?
 <a white >fg red >bg bold a> to postpone-color
 
 theme: dark-mode ( -- ) \ gforth
-\G color theme for black background
+\G Color theme for black background: sets the colors for future uses
+\G of color output words (@pxref{Color output}).
 
 dark-mode
 false to white?
@@ -262,10 +268,14 @@ false to white?
 uncolored-mode
 
 : magenta-input ( -- ) \ gforth
-    \G make input color easily recognizable (useful in presentations)
+    \G Future use of @word{input-color} will result in further output
+    \G in magenta, which may be easier to recognize in presentations
+    \G than just bold.
     [ <a magenta >fg defaultcolor >bg bold a> ]L white? + to input-color ;
+
 : default-input ( -- ) \ gforth
-    \G make input color easily recognizable (useful in presentations)
+    \G Future use of @word{input-color} will result in further output
+    \G in bold foreground color (the default setting).
     [ <a defaultcolor >fg defaultcolor >bg bold a> ]L to input-color ;
 
 : rgb>mode  ( rgb -- )
