@@ -235,12 +235,8 @@ User >num-warnings ( -- a-addr ) \ gforth-internal
 \ 5 - float without 'e'
 \ 6 - float with non-standard exponent
 
-User dot-is-float ( -- a-addr ) \ gforth-experimental
-\G If this user variable contains 0 (default), @word{rec-number}
-\G recognizes numbers without prefix that contain a decimal point as
-\G double-cell numbers.  Otherwise @word{rec-number} does not
-\G recognize the number, and, if present, @word{rec-float} will
-\G recognize it as a floating-point number.
+User user-flags ( -- a-addr ) \ gforth-experimental
+\G Bit vector to store user flags
 
 User state ( -- a-addr ) \ core,tools-ext
 \G Don't use @word{state}!  @word{State} is the state of the text
