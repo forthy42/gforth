@@ -416,7 +416,7 @@ The Text Interpreter
 
 Recognizers
 
-* Default Recognizers::
+* Default recognizers::
 * Recognizer order::
 * Defining recognizers::
 * Defining translation tokens::
@@ -455,7 +455,7 @@ Other I/O
 * Displaying characters and strings::  Other stuff
 * Terminal output::             Cursor positioning etc.
 * Single-key input::
-* Line input and conversion::
+* String input from the terminal::
 * Pipes::                       How to create your own pipes
 * Xchars and Unicode::          Non-ASCII characters
 * i18n and l10n::               Internationalization and Localization
@@ -5062,7 +5062,7 @@ and pasting the output of @code{...} (@pxref{Examining data}).
 In addition, by default Gforth recognizes words with @code{rec-name} and
 @code{rec-scope}, and stores in or adds to value-flavoured words with
 @code{rec-to}, but these do not recognize literals, so they are
-discussed elsewhere (@pxref{Default Recognizers}).
+discussed elsewhere (@pxref{Default recognizers}).
 
 @node Disambiguating recognizers,  , Literals for tokens and addresses, Literals in source code
 @section Disambiguating recognizers
@@ -9592,7 +9592,7 @@ don't run into conflicts when several structures have @code{next} and
 wordlist (i.e., the same name space) as the other words (including
 other field names), and trying to use the search order (@pxref{Word
 Lists}) for avoiding conflicts is rather cumbersome (unless you use
-the scope recognizer @pxref{Default Recognizers}).
+the scope recognizer @pxref{Default recognizers}).
 
 You can then use that to allocate an instance of that structure and
 then use the field words to access the fields of that instance:
@@ -10338,7 +10338,7 @@ confusing in other contexts, e.g., when ticking or @word{postpone}ing
 such a word.  A way to achieve copy-pasteability without needing to
 define combined words is recognizers (@pxref{Recognizers}).
 @code{"foo" type} uses the string recognizer (@pxref{Default
-Recognizers}) and can be copied and pasted between interpreted code,
+recognizers}) and can be copied and pasted between interpreted code,
 compiled code and code inside @code{]]}...@code{[[} without problem.
 
 On the other hand, combined words are still far better than
@@ -11338,7 +11338,7 @@ committee proposal 2025-09-11}}.
 
 Most programs just use the text interpreter as-is, and you can skip
 this chapter completely in this case, but if you are curious,
-@pxref{Default Recognizers}.  The next level of recognizer usage is to
+@pxref{Default recognizers}.  The next level of recognizer usage is to
 change which of the existing recognizers are used and in what order
 (@pxref{Recognizer order}).
 
@@ -11352,15 +11352,15 @@ tokens}).  Finally, you may want to process the translation
 (@pxref{Performing translation actions}).
 
 @menu
-* Default Recognizers::
+* Default recognizers::
 * Recognizer order::
 * Defining recognizers::
 * Defining translation tokens::
 * Performing translation actions::
 @end menu
 
-@node Default Recognizers, Recognizer order, Recognizers, Recognizers
-@subsubsection Default Recognizers
+@node Default recognizers, Recognizer order, Recognizers, Recognizers
+@subsubsection Default recognizers
 @cindex Recognizers normal usage
 
 Type @word{recs} to find out with which recognizers are
@@ -11564,7 +11564,7 @@ doc-rec-body
 doc-rec-env
 doc-rec-meta
 
-@node Recognizer order, Defining recognizers, Default Recognizers, Recognizers
+@node Recognizer order, Defining recognizers, Default recognizers, Recognizers
 @subsubsection Recognizer order
 
 You may prefer to use a different recognizer sequence, but with (some
@@ -12110,7 +12110,7 @@ previous
 @end source
 
 Also, if you need only one or a few words from @word{foo}, you can use
-the scope recognizer (@word{rec-scope}, @pxref{Default Recognizers})
+the scope recognizer (@word{rec-scope}, @pxref{Default recognizers})
 and write @code{foo:@i{word}}.  Currently the scope recognizer only
 uses vocabularies for the scope, not wordlists.
 
@@ -12187,12 +12187,14 @@ doc->number
 
 For higher-level integer-to-number conversion (with number prefixes,
 group separators (@code{_}), and double indicators (@code{.}), use
-@word{rec-number} (@pxref{Default Recognizers}).
+@word{rec-number} (@pxref{Default recognizers}).
+
+doc-convert
 
 doc->float
 
 You can alternatively use @word{rec-float} (@pxref{Default
-Recognizers}), which accepts a smaller set of input strings:
+recognizers}), which accepts a smaller set of input strings:
 @word{>float} is used for known-FP-data possibly coming from another
 program with funny output syntax and is therefore more liberal in
 accepting input, while the strings that the text interpreter passes to
@@ -13012,7 +13014,7 @@ doc-block-included
 * Displaying characters and strings::  Other stuff
 * Terminal output::             Cursor positioning etc.
 * Single-key input::
-* Line input and conversion::
+* String input from the terminal::
 * Pipes::                       How to create your own pipes
 * Xchars and Unicode::          Non-ASCII characters
 * i18n and l10n::               Internationalization and Localization
@@ -13078,10 +13080,11 @@ the number of values in the integer type (e.g., modulo 2^128 for
 doubles with 64-bit cells).
 @end itemize
 
-You can read numbers into your programs with the words described in
-@ref{Line input and conversion}.
-
-
+Words affected by @word{base} are @word{rec-number} (@pxref{Default
+recognizers}), @word{>number} (@pxref{String to number conversion}),
+and the words described in the sections @ref{Simple numeric output},
+and @ref{Integer to string conversion}. @word{Rec-number} sets
+@word{dpl}.
 
 @node Simple numeric output, Floating-point output, Number Conversion, Other I/O
 @subsection Simple numeric output
@@ -13320,7 +13323,7 @@ doc-magenta-input
 doc-default-input
 
 
-@node Single-key input, Line input and conversion, Terminal output, Other I/O
+@node Single-key input, String input from the terminal, Terminal output, Other I/O
 @subsection Single-key input
 @cindex single-key input
 @cindex input, single-key
@@ -13445,13 +13448,13 @@ doc-fkey.
 doc-simple-fkey-string
 
 
-@node  Line input and conversion, Pipes, Single-key input, Other I/O
-@subsection Line input and conversion
-@cindex line input from terminal
-@cindex input, linewise from terminal
-@cindex converting strings to numbers
-@cindex I/O - see input
+@node  String input from the terminal, Pipes, Single-key input, Other I/O
+@subsection String input from the terminal
+@cindex string input from terminal
+@cindex input, string from terminal
 
+@c old name of the node
+@anchor{Line input and conversion}
 For ways of storing character strings in memory see @ref{String
 representations}.
 
@@ -13463,15 +13466,14 @@ Words for inputting one line from the keyboard:
 doc-accept
 doc-edit-line
 
-@comment obsolescent words..
-Obsolescent input and conversion words:
 
-doc-convert
+Obsolete words:
+
 doc-expect
 doc-span
 
 
-@node Pipes, Xchars and Unicode, Line input and conversion, Other I/O
+@node Pipes, Xchars and Unicode, String input from the terminal, Other I/O
 @subsection Pipes
 @cindex pipes, creating your own
 
