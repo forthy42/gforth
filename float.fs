@@ -234,7 +234,53 @@ translate: translate-float ( r -- translation ) \ gforth-experimental
     IF    rdrop translate-float
     ELSE  r> >num-warnings !  translate-none THEN ;
 
-' rec-float ' rec-forth defer@ >back
+Variable user-flagmask 1 user-flagmask !
+
+: or! ( x addr -- )  tuck @ or swap ! ;
+: and! ( x addr -- )  tuck @ and swap ! ;
+: userflag! ( flag addr -- )
+    @ swap IF  user-flags or!  ELSE  invert user-flags and!  THEN ;
+
+to-table: userflag!-table userflag!
+' >body userflag!-table to-class: userflag-to
+
+: user-flag: ( "name" -- ) \ gforth-experimental
+    \G Create a new user flag. User flags are bits in the user variable
+    \G \code{user-flags}, so you can save and restore all of them in one go.
+    Create user-flagmask @ dup , user-flagmask +!
+    [: @ user-flags @ and 0<> ;] set-does>
+    ['] userflag-to set-to ;
+
+user-flag: .-is-double
+\G If this user flag contains true (default), @word{rec-number}
+\G recognizes numbers without prefix that contain a decimal point as
+\G double-cell numbers.  Otherwise @word{rec-number} does not
+\G recognize the number, and, if present, @word{rec-float} will
+\G recognize it as a floating-point number.
+
+true to .-is-double
+
+: rec-number ( c-addr u -- translation ) \ gforth-experimental
+    \G Recognizes (@pxref{Defining recognizers})
+    \G a single or double number (without or with prefix), or
+    \G a character.  If successful, @i{translation} represents pushing
+    \G that number at run-time (see @word{translate-cell} and
+    \G @word{translate-dcell}).  If and only if @word{dot-is-float}
+    \G contains 0, strings without prefix that contain a dot are
+    \G recognized as double numbers.
+    dpl @ >num-warnings @ 2>r snumber?  dup
+    IF
+	dup 0> >num-warnings @ 1 and 0= and .-is-double 0= and IF
+	    2drop
+	ELSE
+	    0> translate-dcell translate-cell rot select
+	    2rdrop EXIT
+	THEN
+    THEN
+    2r> >num-warnings !  dpl ! drop translate-none ;
+
+' rec-forth defer@ >r
+r@ back> drop ' rec-number r@ >back ' rec-float r> >back
 
 : fvariable ( "name" -- ) \ floating f-variable
     \g Define @i{name} and reserve a float at @i{f-addr}.@* @i{name}
