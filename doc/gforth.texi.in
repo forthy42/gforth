@@ -277,6 +277,7 @@ Forth Words
 * The Text Interpreter::
 * The Input Stream::
 * Word Lists::
+* Number conversion::
 * Environmental Queries::
 * Files::
 * Blocks::
@@ -426,6 +427,12 @@ Word Lists
 * Why use word lists?::
 * Wordlist and vocabulary usage::
 
+Number conversion
+
+* String to number conversion::
+* Integer to string conversion::
+* Floating-point to string conversion::
+
 Files
 
 * Forth source files::
@@ -443,7 +450,6 @@ Other I/O
 
 * Number Conversion::
 * Simple numeric output::       Predefined formats
-* Formatted numeric output::    Formatted (pictured) output
 * Floating-point output::
 * Miscellaneous output::
 * Displaying characters and strings::  Other stuff
@@ -5098,6 +5104,7 @@ otherwise be recognized as a double-cell integer number (because
 * The Text Interpreter::
 * The Input Stream::
 * Word Lists::
+* Number conversion::
 * Environmental Queries::
 * Files::
 * Blocks::
@@ -11914,7 +11921,7 @@ help:
 doc-execute-parsing-file
 
 @c -------------------------------------------------------------
-@node Word Lists, Environmental Queries, The Input Stream, Words
+@node Word Lists, Number conversion, The Input Stream, Words
 @section Word Lists
 @cindex word lists
 @cindex header space
@@ -12154,7 +12161,198 @@ in foo : bar ... ;
 @end source
 
 @c -------------------------------------------------------------
-@node Environmental Queries, Files, Word Lists, Words
+@node Number conversion, Environmental Queries, Word Lists, Words
+@section Number conversion
+
+This section is about conversion between numbers and strings.  For
+conversion between integers and FP numbers, @pxref{Floating Point}.
+
+In addition to the number-to-string conversion words mentioned in this
+section, you can also convert numbers to strings by using a number
+output word (@pxref{Simple numeric output}, @pxref{Floating-point
+output}), and outputting the result in a string with
+@word{>string-execute} (@pxref{String words}).
+
+@menu
+* String to number conversion::
+* Integer to string conversion::
+* Floating-point to string conversion::
+@end menu
+
+@node String to number conversion, Integer to string conversion, Number conversion, Number conversion
+@subsection String to number conversion
+@cindex String to number conversion
+
+doc->number
+
+For higher-level integer-to-number conversion (with number prefixes,
+group separators (@code{_}), and double indicators (@code{.}), use
+@word{rec-number} (@pxref{Default Recognizers}).
+
+doc->float
+
+You can alternatively use @word{rec-float} (@pxref{Default
+Recognizers}), which accepts a smaller set of input strings:
+@word{>float} is used for known-FP-data possibly coming from another
+program with funny output syntax and is therefore more liberal in
+accepting input, while the strings that the text interpreter passes to
+@word{rec-float} are not all intended to be interpreted as FP numbers,
+and therefore @word{rec-float} is more restrictive.
+
+doc->float1
+
+@node Integer to string conversion, Floating-point to string conversion, String to number conversion, Number conversion
+@subsection Integer to string conversion
+@cindex formatted numeric output
+@cindex pictured numeric output
+@cindex numeric output - formatted
+@cindex integer to string conversion
+
+@c old section name:
+@anchor{Formatted numeric output}
+Forth uses a technique called @dfn{pictured numeric output} for
+formatted printing of integers.  In this technique, digits are
+extracted from the number (using the current output radix defined by
+@code{base}, @pxref{Number Conversion}), converted to ASCII codes and
+prepended to a string that is built in the pictured numeric output
+buffer, aka @word{hold} buffer (total size, including all nestings and
+the @word{word} buffer, is at most 104 bytes on a 32-bit machine,
+@pxref{core-idef, Implementation-defined options,
+Implementation-defined options}). Arbitrary characters can be
+prepended to the string during the extraction process. The completed
+string is specified by an address and length and can be manipulated
+(@code{TYPE}ed, copied, modified) under program control.
+
+All of the integer output words described in the previous section
+(@pxref{Simple numeric output}) are implemented in Gforth using pictured
+numeric output.
+
+Three important things to remember about pictured numeric output:
+
+@itemize @bullet
+@item
+It always operates on double-precision numbers; to display a
+single-precision number, convert it first (for ways of doing this
+@pxref{Double precision}).
+@item
+It always treats the double-precision number as though it were
+unsigned. The examples below show ways of printing signed numbers.
+@item
+The string is built up from right to left; least significant digit first.
+@end itemize
+
+Standard Forth supports a single output buffer (aka @word{hold} area) that
+you empty and initialize with @code{<#} and for which you get the
+result string with @code{#>}.
+
+Gforth additionally supports nested usage of this buffer, allowing,
+e.g., to nest output from the debugging tracer @code{~~} inside code
+dealing with the hold area: @code{<<#} starts a new nest, @code{#>}
+produces the result string, and @code{#>>} unnests: the hold area for
+the nest is reclaimed, and @code{#>} now produces the string for the
+next-outer nest.  All of Gforth's higher-level numeric output words
+use @code{<<#} ... @code{#>} ... @code{#>>} and can be nested inside
+other users of the hold area.
+
+doc-<#
+doc-<<#
+doc-#
+doc-#s
+doc-hold
+doc-holds
+doc-sign
+doc-#>
+doc-#>>
+
+@noindent
+Here are some examples of using pictured numeric output:
+
+@example
+: my-u. ( u -- )
+  \ Simplest use of pns.. behaves like Standard u. 
+  0              \ convert to unsigned double
+  <<#            \ start conversion
+  #s             \ convert all digits
+  #>             \ complete conversion
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
+
+: cents-only ( u -- )
+  0              \ convert to unsigned double
+  <<#            \ start conversion
+  # #            \ convert two least-significant digits
+  #>             \ complete conversion, discard other digits
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
+
+: dollars-and-cents ( u -- )
+  0              \ convert to unsigned double
+  <<#            \ start conversion
+  # #            \ convert two least-significant digits
+  '.' hold       \ insert decimal point
+  #s             \ convert remaining digits
+  '$' hold       \ append currency symbol
+  #>             \ complete conversion
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
+
+: my-. ( n -- )
+  \ handling negatives.. behaves like Standard .
+  s>d            \ convert to signed double
+  swap over dabs \ leave sign byte followed by unsigned double
+  <<#            \ start conversion
+  #s             \ convert all digits
+  rot sign       \ get at sign byte, append "-" if needed
+  #>             \ complete conversion
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
+
+: account. ( n -- )
+  \ accountants don't like minus signs, they use parentheses
+  \ for negative numbers
+  s>d            \ convert to signed double
+  swap over dabs \ leave sign byte followed by unsigned double
+  <<#            \ start conversion
+  2 pick         \ get copy of sign byte
+  0< IF ')' hold THEN \ right-most character of output
+  #s             \ convert all digits
+  rot            \ get at sign byte
+  0< IF '(' hold THEN
+  #>             \ complete conversion
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
+
+@end example
+
+Here are some examples of using these words:
+
+@example
+1 my-u. 1
+hex -1 my-u. decimal FFFFFFFF
+1 cents-only 01
+1234 cents-only 34
+2 dollars-and-cents $0.02
+1234 dollars-and-cents $12.34
+123 my-. 123
+-123 my. -123
+123 account. 123
+-456 account. (456)
+@end example
+
+@node Floating-point to string conversion,  , Integer to string conversion, Number conversion
+@subsection Floating-point to string conversion
+
+doc-f>str-rdp
+doc-f>buf-rdp
+
+There is also a primitive used for implementing the higher-level
+FP-to-string and FP output words:
+
+doc-represent
+
+
+@c -------------------------------------------------------------
+@node Environmental Queries, Files, Number conversion, Words
 @section Environmental Queries
 @cindex environmental queries
 
@@ -12809,7 +13007,6 @@ doc-block-included
 @menu
 * Number Conversion::
 * Simple numeric output::       Predefined formats
-* Formatted numeric output::    Formatted (pictured) output
 * Floating-point output::
 * Miscellaneous output::
 * Displaying characters and strings::  Other stuff
@@ -12833,7 +13030,7 @@ given by the contents of the variable @code{base}.  @word{Base}
 affects both input integer conversion (unless a number prefix is used,
 @pxref{Literals in source code}) and output integer conversion (unless
 a base-specific word such as @word{h.} or @word{dec.} is used,
-@pxref{Simple numeric output}, @pxref{Formatted numeric output}).  In
+@pxref{Simple numeric output}, @pxref{Integer to string conversion}).  In
 Gforth, non-decimal @word{base} disables floating-point conversion.
 
 Note that a lot of confusion can result from unexpected values of
@@ -12886,13 +13083,15 @@ You can read numbers into your programs with the words described in
 
 
 
-@node Simple numeric output, Formatted numeric output, Number Conversion, Other I/O
+@node Simple numeric output, Floating-point output, Number Conversion, Other I/O
 @subsection Simple numeric output
 @cindex numeric output - simple/free-format
 
-The simplest output functions are those that display numbers from the
+The simplest output functions are those that display integers from the
 data stack.  Numbers are displayed in the base (aka radix) stored in
-@code{base} (@pxref{Number Conversion}).
+@code{base} (@pxref{Number Conversion}).  For outputting integers with
+additional formatting requirements @pxref{Integer to string
+conversion}.
 
 doc-.
 doc-dec.
@@ -12907,143 +13106,7 @@ doc-ud.
 doc-d.r
 doc-ud.r
 
-
-@node Formatted numeric output, Floating-point output, Simple numeric output, Other I/O
-@subsection Formatted numeric output
-@cindex formatted numeric output
-@cindex pictured numeric output
-@cindex numeric output - formatted
-
-Forth uses a technique called @dfn{pictured numeric output} for
-formatted printing of integers.  In this technique, digits are
-extracted from the number (using the current output radix defined by
-@code{base}, @pxref{Number Conversion}), converted to ASCII codes and
-prepended to a string that is built in the pictured numeric output
-buffer, aka @word{hold} buffer (total size, including all nestings and
-the @word{word} buffer, is at most 104 bytes on a 32-bit machine,
-@pxref{core-idef, Implementation-defined options,
-Implementation-defined options}). Arbitrary characters can be
-prepended to the string during the extraction process. The completed
-string is specified by an address and length and can be manipulated
-(@code{TYPE}ed, copied, modified) under program control.
-
-All of the integer output words described in the previous section
-(@pxref{Simple numeric output}) are implemented in Gforth using pictured
-numeric output.
-
-Three important things to remember about pictured numeric output:
-
-@itemize @bullet
-@item
-It always operates on double-precision numbers; to display a
-single-precision number, convert it first (for ways of doing this
-@pxref{Double precision}).
-@item
-It always treats the double-precision number as though it were
-unsigned. The examples below show ways of printing signed numbers.
-@item
-The string is built up from right to left; least significant digit first.
-@end itemize
-
-Standard Forth supports a single output buffer (aka @word{hold} area) that
-you empty and initialize with @code{<#} and for which you get the
-result string with @code{#>}.
-
-Gforth additionally supports nested usage of this buffer, allowing,
-e.g., to nest output from the debugging tracer @code{~~} inside code
-dealing with the hold area: @code{<<#} starts a new nest, @code{#>}
-produces the result string, and @code{#>>} unnests: the hold area for
-the nest is reclaimed, and @code{#>} now produces the string for the
-next-outer nest.  All of Gforth's higher-level numeric output words
-use @code{<<#} ... @code{#>} ... @code{#>>} and can be nested inside
-other users of the hold area.
-
-doc-<#
-doc-<<#
-doc-#
-doc-#s
-doc-hold
-doc-holds
-doc-sign
-doc-#>
-doc-#>>
-
-@noindent
-Here are some examples of using pictured numeric output:
-
-@example
-: my-u. ( u -- )
-  \ Simplest use of pns.. behaves like Standard u. 
-  0              \ convert to unsigned double
-  <<#            \ start conversion
-  #s             \ convert all digits
-  #>             \ complete conversion
-  TYPE SPACE     \ display, with trailing space
-  #>> ;          \ release hold area
-
-: cents-only ( u -- )
-  0              \ convert to unsigned double
-  <<#            \ start conversion
-  # #            \ convert two least-significant digits
-  #>             \ complete conversion, discard other digits
-  TYPE SPACE     \ display, with trailing space
-  #>> ;          \ release hold area
-
-: dollars-and-cents ( u -- )
-  0              \ convert to unsigned double
-  <<#            \ start conversion
-  # #            \ convert two least-significant digits
-  '.' hold       \ insert decimal point
-  #s             \ convert remaining digits
-  '$' hold       \ append currency symbol
-  #>             \ complete conversion
-  TYPE SPACE     \ display, with trailing space
-  #>> ;          \ release hold area
-
-: my-. ( n -- )
-  \ handling negatives.. behaves like Standard .
-  s>d            \ convert to signed double
-  swap over dabs \ leave sign byte followed by unsigned double
-  <<#            \ start conversion
-  #s             \ convert all digits
-  rot sign       \ get at sign byte, append "-" if needed
-  #>             \ complete conversion
-  TYPE SPACE     \ display, with trailing space
-  #>> ;          \ release hold area
-
-: account. ( n -- )
-  \ accountants don't like minus signs, they use parentheses
-  \ for negative numbers
-  s>d            \ convert to signed double
-  swap over dabs \ leave sign byte followed by unsigned double
-  <<#            \ start conversion
-  2 pick         \ get copy of sign byte
-  0< IF ')' hold THEN \ right-most character of output
-  #s             \ convert all digits
-  rot            \ get at sign byte
-  0< IF '(' hold THEN
-  #>             \ complete conversion
-  TYPE SPACE     \ display, with trailing space
-  #>> ;          \ release hold area
-
-@end example
-
-Here are some examples of using these words:
-
-@example
-1 my-u. 1
-hex -1 my-u. decimal FFFFFFFF
-1 cents-only 01
-1234 cents-only 34
-2 dollars-and-cents $0.02
-1234 dollars-and-cents $12.34
-123 my-. 123
--123 my. -123
-123 account. 123
--456 account. (456)
-@end example
-
-@node Floating-point output, Miscellaneous output, Formatted numeric output, Other I/O
+@node Floating-point output, Miscellaneous output, Simple numeric output, Other I/O
 @subsection Floating-point output
 @cindex numeric output, FP
 @cindex FP output
@@ -13096,16 +13159,6 @@ used for printing:
 |-1.2345679E4|-1.23E4|-1.23E4|-1.23E4|-1.23E4|-1.23E4|-12346.|-1E4|
 |-1.2345679E5|-1.23E5|-1.23E5|-1.23E5|-1.23E5|-1.23E5|-1.23E5|-1E5|
 @end example
-
-You can generate a string instead of displaying the number with:
-
-doc-f>str-rdp
-doc-f>buf-rdp
-
-There is also a primitive used for implementing higher-level
-FP-to-string words:
-
-doc-represent
 
 @node Miscellaneous output, Displaying characters and strings, Floating-point output, Other I/O
 @subsection Miscellaneous output
@@ -13409,14 +13462,6 @@ Words for inputting one line from the keyboard:
 
 doc-accept
 doc-edit-line
-
-Conversion words:
-
-doc-s>number?
-doc-s>unumber?
-doc->number
-doc->float
-doc->float1
 
 @comment obsolescent words..
 Obsolescent input and conversion words:
