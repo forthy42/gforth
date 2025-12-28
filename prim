@@ -2225,7 +2225,9 @@ wior = IOR(wfileid==0); /* !! the man page says that errno is not set reliably *
 free_l(string);
 
 close-pipe	( wfileid -- wretval wior )		gforth	close_pipe
-""Closes a pipe @i{wfileid} opened with @code{open-pipe}""
+""Closes a pipe @i{wfileid} opened with @code{open-pipe}.  If @i{wior}
+is 0, @i{wretval} is the exit code of the command invoked by
+@word{open-pipe}.""
 wretval = pclose((FILE *)wfileid);
 wior = IOR(wretval==-1);
 

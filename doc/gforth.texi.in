@@ -333,11 +333,12 @@ Heap allocation
 
 Strings and Characters
 
-* Characters::
 * String representations::
+* Xchars and Unicode::
 * String and character literals::
 * String words::
 * $tring words::
+* Substitute::
 * Counted string words::
 
 Control Structures
@@ -457,9 +458,7 @@ Other I/O
 * Single-key input::
 * String input from the terminal::
 * Pipes::                       How to create your own pipes
-* Xchars and Unicode::          Non-ASCII characters
 * i18n and l10n::               Internationalization and Localization
-* Substitute::                  Text macro substitution
 * CSV reading and writing::
 
 Terminal output
@@ -6697,48 +6696,66 @@ doc-pad
 
 @node Strings and Characters, Control Structures, Memory, Words
 @section Strings and Characters
+@cindex Characters - chars=bytes, extended characters, user-perceived characters
+@cindex character encoding
+
+@c old section name
+@anchor{Characters}
+A Forth char is a byte.  Forth programs use chars to represent ASCII
+characters or other data that fits into a byte.
+
+But the world has moved on since ASCII, and now the dominating
+character set is Unicode, and it is supported by Forth in its UTF-8
+encoding.  Forth has extended characters (xchars, @pxref{Xchars and
+Unicode}) which map to Unicode code points.  An xchar for an Unicode
+code point is represented by 1-4 chars in memory, and one cell on the
+data stack.
+
+@c https://www.unicode.org/reports/tr29/
+@c https://www.unicode.org/glossary/
+@c https://hzget.github.io/programming/basic/grapheme_cluster.html
+@c https://dev.to/bbkr/utf-8-grapheme-clusters-42o7
+So is an xchar a character (a @dfn{user-perceived character} in
+Unicode terms)?  Unfortunately, the writing systems unified by Unicode
+are too complex for that idea to work in general; e.g., characters can
+be composed of base characters (one code point) modified by
+diacritical marks (0 or more additional code points).  So in general a
+user-perceived character cannot be represented as a single cell.
+So the way to go is to represent text (including a single
+user-perceived characer) as string.
+
+Once you embrace the idea of working with strings instead of with
+characters, you find out that you rarely need to deal with individual
+code points, and therefore do not need to use words from the xchar
+words (@pxref{Xchars and Unicode}).  Also, given that a string
+consists of bytes aka chars, you can use the words that deal with
+chars to work on strings containing Unicode characters.  In Unicode
+terms: the strings are processed on the level of code units (bytes for
+UTF-8), not code points.
+
+You can use the usual integer words on chars and Xchars on the stack.
+
+In UTF-8 each ASCII character is encoded as single byte with the same
+value as in ASCII.  The same holds true for all other character
+encodings supported in Gforth.  So you can use the character words
+(e.g., @word{c@}) to deal with ASCII characters.  Only ASCII
+characters are represented as single bytes in UTF-8, so this benefit
+stops there.  In particular, the Unicode code points 128--255 are
+represented by two-byte sequences in UTF-8.
 
 @menu
-* Characters::
 * String representations::
+* Xchars and Unicode::
 * String and character literals::
 * String words::
 * $tring words::
+* Substitute::
 * Counted string words::
 @end menu
 
-@node Characters, String representations, Strings and Characters, Strings and Characters
-@subsection Characters
-@cindex Characters - chars/bytes vs. extended characters
-@cindex character encoding
 
-Forth supports chars (aka bytes), used by words such as @code{c@@};
-these can be used to represent an ASCII character.
 
-Forth also supports extended characters, which may be represented by a
-sequence of several bytes (i.e., several chars).  A common character
-encoding is the UTF-8 representation of Unicode.
-
-In general, most code does not have to worry about extended
-characters: In the string representation it does not matter whether a
-byte is a part of an extended character, or it is a character by
-itself, and words that consume chars (like @code{emit}) also work when
-the extended character is transferred as a sequence of chars.  Forth
-still provides words for dealing with extended characters
-(@pxref{Xchars and Unicode}).
-
-In Unicode terms, chars are @i{code units}, whereas extended
-characters are @i{code points}.  Note that an Unicode @i{abstract
-character} can consist of a sequence of code points, but Forth (like
-other programming languages) has no data type for individual abstract
-characters; of course, they can be represented as strings.
-
-You can use the usual integer words on chars and Xchars on the stack,
-but Gforth also has some words for dealing with chars on the stack:
-
-doc-toupper
-
-@node String representations, String and character literals, Characters, Strings and Characters
+@node String representations, Xchars and Unicode, Strings and Characters, Strings and Characters
 @subsection String representations
 @cindex strings - see character strings
 @cindex character strings - representations
@@ -6765,7 +6782,85 @@ attractive due to needing only one stack item, due to their
 limitations we recommend avoiding them, especially as input parameters
 of words.  @xref{Counted string words}.
 
-@node String and character literals, String words, String representations, Strings and Characters
+
+@node Xchars and Unicode, String and character literals, String representations, Strings and Characters
+@subsection Xchars and Unicode
+
+ASCII is only appropriate for the English language. Most western
+languages however fit somewhat into the Forth frame, since a byte is
+sufficient to encode the few special characters in each (though not
+always the same encoding can be used; latin-1 is most widely used,
+though). For other languages, different char-sets have to be used,
+several of them variable-width.  To deal with this problem, characters
+are often represented as Unicode codepoints on the stack, and as UTF-8
+byte strings in memory.  An Unicode codepoint often represents one
+application-level character, but Unicode also supports decomposed
+characters that consist of several code points, e.g., a base letter
+and a combining diacritical mark.
+
+An Unicode codepoint can consume more than one byte in memory, so we
+adjust our terminology: A char is a raw byte in memory or a value in
+the range 0-255 on the stack.  An xchar (for extended char) stands for
+one codepoint; it is represented by one or more bytes in memory and
+may have larger values on the stack.  ASCII characters are the same as
+chars and as xchars: values in the range 0-127, and a single byte with
+that value in memory.
+
+When using UTF-8 encoding, all other codepoints take more than one
+byte/char.  In most cases, you can just treat such characters as
+strings in memory and don't need to use the following words, but if
+you want to deal with individual codepoints, the following words are
+useful.  We currently have no words for dealing with decomposed
+characters.
+
+The xchar words add a few data types:
+
+@itemize
+
+@item
+@var{xc} is an extended char (xchar) on the stack. It occupies one
+cell, and is a subset of unsigned cell.  On 16 bit systems, only the
+BMP subset of the Unicode character set (i.e., codepoints <65536) can
+be represented on the stack.  If you represent your application
+characters as strings at all times, you can avoid this limitation.
+
+@item
+@var{xc-addr} is the address of an xchar in memory. Alignment
+requirements are the same as @var{c-addr}. The memory representation of an
+xchar differs from the stack representation, and depends on the
+encoding used. An xchar may use a variable number of chars in memory.
+
+@item
+@var{xc-addr} @var{u} is a buffer of xchars in memory, starting at
+@var{xc-addr}, @var{u} chars (i.e., bytes, not xchars) long.
+
+@end itemize
+
+doc-xc-size
+doc-x-size
+doc-xc@
+doc-xc@+
+doc-xc@+?
+doc-xc!+?
+doc-xc!+
+doc-xchar+
+doc-xchar-
+doc-+x/string
+doc-x\string-
+doc--trailing-garbage
+doc-x-width
+doc-xc-width
+doc-xhold
+doc-xc,
+
+doc-toupper
+
+
+See also @word{xkey} (@pxref{Single-key input}).
+
+
+
+@node String and character literals, String words, Xchars and Unicode, Strings and Characters
 @subsection String and character literals
 @cindex character literals
 @cindex string literals
@@ -6942,7 +7037,7 @@ For concatenating just two strings @code{>string-execute} is
 inefficient, but for concatenating many strings @code{>string-execute}
 can be more efficient.
 
-@node $tring words, Counted string words, String words, Strings and Characters
+@node $tring words, Substitute, String words, Strings and Characters
 @subsection $tring words
 @cindex string words with $
 
@@ -7006,7 +7101,28 @@ doc-$variable
 doc-$[]variable
 
 
-@node Counted string words,  , $tring words, Strings and Characters
+@node Substitute, Counted string words, $tring words, Strings and Characters
+@subsection Substitute
+
+This is a simple text macro replacement facility.  Texts in the form
+@code{"text %macro% text"} are processed, and the macro variables enclosed
+in @code{'%'} are replaced with their associated strings.  Two
+consecutive @code{%} are replaced by one @code{%}.  Macros are defined
+in a specific wordlist, and return a string upon execution; the standard
+defines only one way to declare macros, @code{replaces}, which creates a
+macro that just returns a string.
+
+doc-macros-wordlist
+doc-replaces
+doc-replacer:
+doc-.substitute
+doc-$substitute
+doc-substitute
+doc-unescape
+doc-$unescape
+
+
+@node Counted string words,  , Substitute, Strings and Characters
 @subsection Counted string words
 
 Counted strings store the length as byte at the address pointed to,
@@ -13016,9 +13132,7 @@ doc-block-included
 * Single-key input::
 * String input from the terminal::
 * Pipes::                       How to create your own pipes
-* Xchars and Unicode::          Non-ASCII characters
 * i18n and l10n::               Internationalization and Localization
-* Substitute::                  Text macro substitution
 * CSV reading and writing::
 @end menu
 
@@ -13473,7 +13587,7 @@ doc-expect
 doc-span
 
 
-@node Pipes, Xchars and Unicode, String input from the terminal, Other I/O
+@node Pipes, i18n and l10n, String input from the terminal, Other I/O
 @subsection Pipes
 @cindex pipes, creating your own
 
@@ -13493,80 +13607,9 @@ problem yourself, and then return to regular processing.
 
 doc-broken-pipe-error
 
-@node Xchars and Unicode, i18n and l10n, Pipes, Other I/O
-@subsection Xchars and Unicode
-
-ASCII is only appropriate for the English language. Most western
-languages however fit somewhat into the Forth frame, since a byte is
-sufficient to encode the few special characters in each (though not
-always the same encoding can be used; latin-1 is most widely used,
-though). For other languages, different char-sets have to be used,
-several of them variable-width.  To deal with this problem, characters
-are often represented as Unicode codepoints on the stack, and as UTF-8
-byte strings in memory.  An Unicode codepoint often represents one
-application-level character, but Unicode also supports decomposed
-characters that consist of several code points, e.g., a base letter
-and a combining diacritical mark.
-
-An Unicode codepoint can consume more than one byte in memory, so we
-adjust our terminology: A char is a raw byte in memory or a value in
-the range 0-255 on the stack.  An xchar (for extended char) stands for
-one codepoint; it is represented by one or more bytes in memory and
-may have larger values on the stack.  ASCII characters are the same as
-chars and as xchars: values in the range 0-127, and a single byte with
-that value in memory.
-
-When using UTF-8 encoding, all other codepoints take more than one
-byte/char.  In most cases, you can just treat such characters as
-strings in memory and don't need to use the following words, but if
-you want to deal with individual codepoints, the following words are
-useful.  We currently have no words for dealing with decomposed
-characters.
-
-The xchar words add a few data types:
-
-@itemize
-
-@item
-@var{xc} is an extended char (xchar) on the stack. It occupies one
-cell, and is a subset of unsigned cell.  On 16 bit systems, only the
-BMP subset of the Unicode character set (i.e., codepoints <65536) can
-be represented on the stack.  If you represent your application
-characters as strings at all times, you can avoid this limitation.
-
-@item
-@var{xc-addr} is the address of an xchar in memory. Alignment
-requirements are the same as @var{c-addr}. The memory representation of an
-xchar differs from the stack representation, and depends on the
-encoding used. An xchar may use a variable number of chars in memory.
-
-@item
-@var{xc-addr} @var{u} is a buffer of xchars in memory, starting at
-@var{xc-addr}, @var{u} chars (i.e., bytes, not xchars) long.
-
-@end itemize
-
-doc-xc-size
-doc-x-size
-doc-xc@
-doc-xc@+
-doc-xc@+?
-doc-xc!+?
-doc-xc!+
-doc-xchar+
-doc-xchar-
-doc-+x/string
-doc-x\string-
-doc--trailing-garbage
-doc-x-width
-doc-xc-width
-doc-xhold
-doc-xc,
-
-See also @word{xkey} (@pxref{Single-key input}).
 
 
-@node i18n and l10n, Substitute, Xchars and Unicode, Other I/O
+@node i18n and l10n, CSV reading and writing, Pipes, Other I/O
 @subsection Internationalization and Localization
 
 Programs for end users require to address those in their native
@@ -13596,27 +13639,7 @@ doc-locale-csv
 doc-.locale-csv
 doc-locale-csv-out
 
-@node Substitute, CSV reading and writing, i18n and l10n, Other I/O
-@subsection Substitute
-
-This is a simple text macro replacement facility.  Texts in the form
-@code{"text %macro% text"} are processed, and the macro variables enclosed
-in @code{'%'} are replaced with their associated strings.  Two
-consecutive @code{%} are replaced by one @code{%}.  Macros are defined
-in a specific wordlist, and return a string upon execution; the standard
-defines only one way to declare macros, @code{replaces}, which creates a
-macro that just returns a string.
-
-doc-macros-wordlist
-doc-replaces
-doc-replacer:
-doc-.substitute
-doc-$substitute
-doc-substitute
-doc-unescape
-doc-$unescape
-
-@node CSV reading and writing,  , Substitute, Other I/O
+@node CSV reading and writing,  , i18n and l10n, Other I/O
 @subsection CSV Reader
 
 Comma-separated values (CSV) are a popular text format to interchange
