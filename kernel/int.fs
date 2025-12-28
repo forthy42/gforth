@@ -114,7 +114,7 @@ has? os 0= [IF]
     endif
     x@+/string 0 s" '" 2rot string-prefix? ;
 
-: s>unumber? ( c-addr u -- ud flag ) \ gforth
+: s>unumber? ( c-addr u -- ud flag ) \ gforth-internal
     \G converts string c-addr u into ud, flag indicates success
     dpl on >num-warnings off
     over c@ '' = if
@@ -145,7 +145,7 @@ has? os 0= [IF]
     r> base ! ;
 
 \ ouch, this is complicated; there must be a simpler way - anton
-: s>number? ( addr u -- d f ) \ gforth
+: s>number? ( addr u -- d f ) \ gforth-internal
     \G converts string addr u into d, flag indicates success
     sign? >r
     s>unumber?

@@ -277,6 +277,7 @@ Forth Words
 * The Text Interpreter::
 * The Input Stream::
 * Word Lists::
+* Number conversion::
 * Environmental Queries::
 * Files::
 * Blocks::
@@ -332,11 +333,12 @@ Heap allocation
 
 Strings and Characters
 
-* Characters::
 * String representations::
+* Xchars and Unicode::
 * String and character literals::
 * String words::
 * $tring words::
+* Substitute::
 * Counted string words::
 
 Control Structures
@@ -415,7 +417,7 @@ The Text Interpreter
 
 Recognizers
 
-* Default Recognizers::
+* Default recognizers::
 * Recognizer order::
 * Defining recognizers::
 * Defining translation tokens::
@@ -425,6 +427,12 @@ Word Lists
 
 * Why use word lists?::
 * Wordlist and vocabulary usage::
+
+Number conversion
+
+* String to number conversion::
+* Integer to string conversion::
+* Floating-point to string conversion::
 
 Files
 
@@ -443,17 +451,14 @@ Other I/O
 
 * Number Conversion::
 * Simple numeric output::       Predefined formats
-* Formatted numeric output::    Formatted (pictured) output
 * Floating-point output::
 * Miscellaneous output::
 * Displaying characters and strings::  Other stuff
 * Terminal output::             Cursor positioning etc.
 * Single-key input::
-* Line input and conversion::
+* String input from the terminal::
 * Pipes::                       How to create your own pipes
-* Xchars and Unicode::          Non-ASCII characters
 * i18n and l10n::               Internationalization and Localization
-* Substitute::                  Text macro substitution
 * CSV reading and writing::
 
 Terminal output
@@ -5056,7 +5061,7 @@ and pasting the output of @code{...} (@pxref{Examining data}).
 In addition, by default Gforth recognizes words with @code{rec-name} and
 @code{rec-scope}, and stores in or adds to value-flavoured words with
 @code{rec-to}, but these do not recognize literals, so they are
-discussed elsewhere (@pxref{Default Recognizers}).
+discussed elsewhere (@pxref{Default recognizers}).
 
 @node Disambiguating recognizers,  , Literals for tokens and addresses, Literals in source code
 @section Disambiguating recognizers
@@ -5098,6 +5103,7 @@ otherwise be recognized as a double-cell integer number (because
 * The Text Interpreter::
 * The Input Stream::
 * Word Lists::
+* Number conversion::
 * Environmental Queries::
 * Files::
 * Blocks::
@@ -6690,48 +6696,68 @@ doc-pad
 
 @node Strings and Characters, Control Structures, Memory, Words
 @section Strings and Characters
+@cindex Characters - chars=bytes, extended characters, user-perceived characters
+@cindex character encoding
+
+@c old section name
+@anchor{Characters}
+A Forth char is a byte.  Forth programs use chars to represent ASCII
+characters or other data that fits into a byte.
+
+But the world has moved on since ASCII, and now the dominating
+character set is Unicode, and it is supported by Forth in its UTF-8
+encoding.  Forth has extended characters (xchars, @pxref{Xchars and
+Unicode}) which map to Unicode code points.  An xchar for an Unicode
+code point is represented by 1-4 chars in memory, or one cell on the
+data stack.
+
+@c https://www.unicode.org/reports/tr29/
+@c https://www.unicode.org/glossary/
+@c https://hzget.github.io/programming/basic/grapheme_cluster.html
+@c https://dev.to/bbkr/utf-8-grapheme-clusters-42o7
+So is an xchar a character (a @dfn{user-perceived character} in
+Unicode terms)?  Unfortunately, the writing systems unified by Unicode
+are too complex for that idea to work in general; e.g., characters can
+be composed of base characters (one code point) modified by
+diacritical marks (0 or more additional code points).  So in general a
+user-perceived character cannot be represented by a single cell.
+So the way to go is to represent text (including a single
+user-perceived characer) as string.
+
+Once you embrace the idea of working with strings instead of with
+characters, you find out that you rarely need to deal with individual
+code points, and therefore rarely need to use words from the xchar
+words (@pxref{Xchars and Unicode}).  Also, given that a string
+consists of bytes aka chars, you can use the words that deal with
+chars to work on strings containing Unicode characters.  In Unicode
+terms: the strings are processed on the level of code units (bytes for
+UTF-8), not code points.
+
+You can use the usual integer words on chars and Xchars on the stack.
+
+@cindex ASCII and UTF-8
+@cindex UTF-8 and ASCII
+In UTF-8 each ASCII character is encoded as single byte with the same
+value as in ASCII.  The same holds true for all other character
+encodings supported in Gforth.  So you can use the character words
+(e.g., @word{c@}) to deal with ASCII characters.  Only ASCII
+characters are represented as single bytes in UTF-8, so this benefit
+stops there.  In particular, the Unicode code points 128--255 are
+represented by two-byte sequences in UTF-8.
 
 @menu
-* Characters::
 * String representations::
+* Xchars and Unicode::
 * String and character literals::
 * String words::
 * $tring words::
+* Substitute::
 * Counted string words::
 @end menu
 
-@node Characters, String representations, Strings and Characters, Strings and Characters
-@subsection Characters
-@cindex Characters - chars/bytes vs. extended characters
-@cindex character encoding
 
-Forth supports chars (aka bytes), used by words such as @code{c@@};
-these can be used to represent an ASCII character.
 
-Forth also supports extended characters, which may be represented by a
-sequence of several bytes (i.e., several chars).  A common character
-encoding is the UTF-8 representation of Unicode.
-
-In general, most code does not have to worry about extended
-characters: In the string representation it does not matter whether a
-byte is a part of an extended character, or it is a character by
-itself, and words that consume chars (like @code{emit}) also work when
-the extended character is transferred as a sequence of chars.  Forth
-still provides words for dealing with extended characters
-(@pxref{Xchars and Unicode}).
-
-In Unicode terms, chars are @i{code units}, whereas extended
-characters are @i{code points}.  Note that an Unicode @i{abstract
-character} can consist of a sequence of code points, but Forth (like
-other programming languages) has no data type for individual abstract
-characters; of course, they can be represented as strings.
-
-You can use the usual integer words on chars and Xchars on the stack,
-but Gforth also has some words for dealing with chars on the stack:
-
-doc-toupper
-
-@node String representations, String and character literals, Characters, Strings and Characters
+@node String representations, Xchars and Unicode, Strings and Characters, Strings and Characters
 @subsection String representations
 @cindex strings - see character strings
 @cindex character strings - representations
@@ -6741,13 +6767,18 @@ Forth commonly represents strings as cell pair @i{c-addr u} on the
 stack; @i{u} is the length of the string in bytes (aka chars), and
 @i{c-addr} is the address of the first byte of the string.  Note that
 a code point may be represented by a sequence of several chars in the
-string (and a Unicode ``abstract character'' may consist of several
-code points).  @xref{String words}.
+string (and a user-perceived character may consist of several code
+points).  @xref{String words}.
 
 Another string representation is used with the string library of words
-containing @code{$}.  It represents the string on the stack through
-the address of a cell-sized string handle, which can be located in,
-e.g., a variable.  @xref{$tring words}.
+containing @code{$} (@pxref{$tring words}).  It uses the address of a
+cell-sized string handle to represent the string when its allocation
+plays a role, e.g., when appending to the string; this corresponds to
+owned strings in Rust.  When only the content of the string is of
+interest, the @i{c-addr u} representation for the string is used with
+these words, too; the validity of a @i{c-addr u} pair ends when the
+underlying string is modified or freed; this corresponds to string
+slices in Rust.
 
 A legacy string representation are @dfn{counted strings}, represented
 on the stack by @i{c-addr}. The char addressed by @i{c-addr} contains
@@ -6758,7 +6789,85 @@ attractive due to needing only one stack item, due to their
 limitations we recommend avoiding them, especially as input parameters
 of words.  @xref{Counted string words}.
 
-@node String and character literals, String words, String representations, Strings and Characters
+
+@node Xchars and Unicode, String and character literals, String representations, Strings and Characters
+@subsection Xchars and Unicode
+
+ASCII is only appropriate for the English language. Most western
+languages however fit somewhat into the Forth frame, since a byte is
+sufficient to encode the few special characters in each (though not
+always the same encoding can be used; latin-1 is most widely used,
+though). For other languages, different char-sets have to be used,
+several of them variable-width.  To deal with this problem, characters
+are often represented as Unicode codepoints on the stack, and as UTF-8
+byte strings in memory.  An Unicode codepoint often represents one
+application-level character, but Unicode also supports decomposed
+characters that consist of several code points, e.g., a base letter
+and a combining diacritical mark.
+
+An Unicode codepoint can consume more than one byte in memory, so we
+adjust our terminology: A char is a raw byte in memory or a value in
+the range 0-255 on the stack.  An xchar (for extended char) stands for
+one codepoint; it is represented by one or more bytes in memory and
+may have larger values on the stack.  ASCII characters are the same as
+chars and as xchars: values in the range 0-127, and a single byte with
+that value in memory.
+
+When using UTF-8 encoding, all other codepoints take more than one
+byte/char.  In most cases, you can just treat such characters as
+strings in memory and don't need to use the following words, but if
+you want to deal with individual codepoints, the following words are
+useful.  We currently have no words for dealing with decomposed
+characters.
+
+The xchar words add a few data types:
+
+@itemize
+
+@item
+@var{xc} is an extended char (xchar) on the stack. It occupies one
+cell, and is a subset of unsigned cell.  On 16 bit systems, only the
+BMP subset of the Unicode character set (i.e., codepoints <65536) can
+be represented on the stack.  If you represent your application
+characters as strings at all times, you can avoid this limitation.
+
+@item
+@var{xc-addr} is the address of an xchar in memory. Alignment
+requirements are the same as @var{c-addr}. The memory representation of an
+xchar differs from the stack representation, and depends on the
+encoding used. An xchar may use a variable number of chars in memory.
+
+@item
+@var{xc-addr} @var{u} is a buffer of xchars in memory, starting at
+@var{xc-addr}, @var{u} chars (i.e., bytes, not xchars) long.
+
+@end itemize
+
+doc-xc-size
+doc-x-size
+doc-xc@
+doc-xc@+
+doc-xc@+?
+doc-xc!+?
+doc-xc!+
+doc-xchar+
+doc-xchar-
+doc-+x/string
+doc-x\string-
+doc--trailing-garbage
+doc-x-width
+doc-xc-width
+doc-xhold
+doc-xc,
+
+doc-toupper
+
+
+See also @word{xkey} (@pxref{Single-key input}).
+
+
+
+@node String and character literals, String words, Xchars and Unicode, Strings and Characters
 @subsection String and character literals
 @cindex character literals
 @cindex string literals
@@ -6935,7 +7044,7 @@ For concatenating just two strings @code{>string-execute} is
 inefficient, but for concatenating many strings @code{>string-execute}
 can be more efficient.
 
-@node $tring words, Counted string words, String words, Strings and Characters
+@node $tring words, Substitute, String words, Strings and Characters
 @subsection $tring words
 @cindex string words with $
 
@@ -6999,7 +7108,28 @@ doc-$variable
 doc-$[]variable
 
 
-@node Counted string words,  , $tring words, Strings and Characters
+@node Substitute, Counted string words, $tring words, Strings and Characters
+@subsection Substitute
+
+This is a simple text macro replacement facility.  Texts in the form
+@code{"text %macro% text"} are processed, and the macro variables enclosed
+in @code{'%'} are replaced with their associated strings.  Two
+consecutive @code{%} are replaced by one @code{%}.  Macros are defined
+in a specific wordlist, and return a string upon execution; the standard
+defines only one way to declare macros, @code{replaces}, which creates a
+macro that just returns a string.
+
+doc-macros-wordlist
+doc-replaces
+doc-replacer:
+doc-.substitute
+doc-$substitute
+doc-substitute
+doc-unescape
+doc-$unescape
+
+
+@node Counted string words,  , Substitute, Strings and Characters
 @subsection Counted string words
 
 Counted strings store the length as byte at the address pointed to,
@@ -9585,7 +9715,7 @@ don't run into conflicts when several structures have @code{next} and
 wordlist (i.e., the same name space) as the other words (including
 other field names), and trying to use the search order (@pxref{Word
 Lists}) for avoiding conflicts is rather cumbersome (unless you use
-the scope recognizer @pxref{Default Recognizers}).
+the scope recognizer @pxref{Default recognizers}).
 
 You can then use that to allocate an instance of that structure and
 then use the field words to access the fields of that instance:
@@ -10331,7 +10461,7 @@ confusing in other contexts, e.g., when ticking or @word{postpone}ing
 such a word.  A way to achieve copy-pasteability without needing to
 define combined words is recognizers (@pxref{Recognizers}).
 @code{"foo" type} uses the string recognizer (@pxref{Default
-Recognizers}) and can be copied and pasted between interpreted code,
+recognizers}) and can be copied and pasted between interpreted code,
 compiled code and code inside @code{]]}...@code{[[} without problem.
 
 On the other hand, combined words are still far better than
@@ -11331,7 +11461,7 @@ committee proposal 2025-09-11}}.
 
 Most programs just use the text interpreter as-is, and you can skip
 this chapter completely in this case, but if you are curious,
-@pxref{Default Recognizers}.  The next level of recognizer usage is to
+@pxref{Default recognizers}.  The next level of recognizer usage is to
 change which of the existing recognizers are used and in what order
 (@pxref{Recognizer order}).
 
@@ -11345,15 +11475,15 @@ tokens}).  Finally, you may want to process the translation
 (@pxref{Performing translation actions}).
 
 @menu
-* Default Recognizers::
+* Default recognizers::
 * Recognizer order::
 * Defining recognizers::
 * Defining translation tokens::
 * Performing translation actions::
 @end menu
 
-@node Default Recognizers, Recognizer order, Recognizers, Recognizers
-@subsubsection Default Recognizers
+@node Default recognizers, Recognizer order, Recognizers, Recognizers
+@subsubsection Default recognizers
 @cindex Recognizers normal usage
 
 Type @word{recs} to find out with which recognizers are
@@ -11557,7 +11687,7 @@ doc-rec-body
 doc-rec-env
 doc-rec-meta
 
-@node Recognizer order, Defining recognizers, Default Recognizers, Recognizers
+@node Recognizer order, Defining recognizers, Default recognizers, Recognizers
 @subsubsection Recognizer order
 
 You may prefer to use a different recognizer sequence, but with (some
@@ -11914,7 +12044,7 @@ help:
 doc-execute-parsing-file
 
 @c -------------------------------------------------------------
-@node Word Lists, Environmental Queries, The Input Stream, Words
+@node Word Lists, Number conversion, The Input Stream, Words
 @section Word Lists
 @cindex word lists
 @cindex header space
@@ -12103,7 +12233,7 @@ previous
 @end source
 
 Also, if you need only one or a few words from @word{foo}, you can use
-the scope recognizer (@word{rec-scope}, @pxref{Default Recognizers})
+the scope recognizer (@word{rec-scope}, @pxref{Default recognizers})
 and write @code{foo:@i{word}}.  Currently the scope recognizer only
 uses vocabularies for the scope, not wordlists.
 
@@ -12154,7 +12284,200 @@ in foo : bar ... ;
 @end source
 
 @c -------------------------------------------------------------
-@node Environmental Queries, Files, Word Lists, Words
+@node Number conversion, Environmental Queries, Word Lists, Words
+@section Number conversion
+
+This section is about conversion between numbers and strings.  For
+conversion between integers and FP numbers, @pxref{Floating Point}.
+
+In addition to the number-to-string conversion words mentioned in this
+section, you can also convert numbers to strings by using a number
+output word (@pxref{Simple numeric output}, @pxref{Floating-point
+output}), and outputting the result in a string with
+@word{>string-execute} (@pxref{String words}).
+
+@menu
+* String to number conversion::
+* Integer to string conversion::
+* Floating-point to string conversion::
+@end menu
+
+@node String to number conversion, Integer to string conversion, Number conversion, Number conversion
+@subsection String to number conversion
+@cindex String to number conversion
+
+doc->number
+
+For higher-level integer-to-number conversion (with number prefixes,
+group separators (@code{_}), and double indicators (@code{.}), use
+@word{rec-number} (@pxref{Default recognizers}).
+
+doc-convert
+
+doc->float
+
+You can alternatively use @word{rec-float} (@pxref{Default
+recognizers}), which accepts a smaller set of input strings:
+@word{>float} is used for known-FP-data possibly coming from another
+program with funny output syntax and is therefore more liberal in
+accepting input, while the strings that the text interpreter passes to
+@word{rec-float} are not all intended to be interpreted as FP numbers,
+and therefore @word{rec-float} is more restrictive.
+
+doc->float1
+
+@node Integer to string conversion, Floating-point to string conversion, String to number conversion, Number conversion
+@subsection Integer to string conversion
+@cindex formatted numeric output
+@cindex pictured numeric output
+@cindex numeric output - formatted
+@cindex integer to string conversion
+
+@c old section name:
+@anchor{Formatted numeric output}
+Forth uses a technique called @dfn{pictured numeric output} for
+formatted printing of integers.  In this technique, digits are
+extracted from the number (using the current output radix defined by
+@code{base}, @pxref{Number Conversion}), converted to ASCII codes and
+prepended to a string that is built in the pictured numeric output
+buffer, aka @word{hold} buffer (total size, including all nestings and
+the @word{word} buffer, is at most 104 bytes on a 32-bit machine,
+@pxref{core-idef, Implementation-defined options,
+Implementation-defined options}). Arbitrary characters can be
+prepended to the string during the extraction process. The completed
+string is specified by an address and length and can be manipulated
+(@code{TYPE}ed, copied, modified) under program control.
+
+All of the integer output words described in the previous section
+(@pxref{Simple numeric output}) are implemented in Gforth using pictured
+numeric output.
+
+Three important things to remember about pictured numeric output:
+
+@itemize @bullet
+@item
+It always operates on double-precision numbers; to display a
+single-precision number, convert it first (for ways of doing this
+@pxref{Double precision}).
+@item
+It always treats the double-precision number as though it were
+unsigned. The examples below show ways of printing signed numbers.
+@item
+The string is built up from right to left; least significant digit first.
+@end itemize
+
+Standard Forth supports a single output buffer (aka @word{hold} area) that
+you empty and initialize with @code{<#} and for which you get the
+result string with @code{#>}.
+
+Gforth additionally supports nested usage of this buffer, allowing,
+e.g., to nest output from the debugging tracer @code{~~} inside code
+dealing with the hold area: @code{<<#} starts a new nest, @code{#>}
+produces the result string, and @code{#>>} unnests: the hold area for
+the nest is reclaimed, and @code{#>} now produces the string for the
+next-outer nest.  All of Gforth's higher-level numeric output words
+use @code{<<#} ... @code{#>} ... @code{#>>} and can be nested inside
+other users of the hold area.
+
+doc-<#
+doc-<<#
+doc-#
+doc-#s
+doc-hold
+doc-holds
+doc-sign
+doc-#>
+doc-#>>
+
+@noindent
+Here are some examples of using pictured numeric output:
+
+@example
+: my-u. ( u -- )
+  \ Simplest use of pns.. behaves like Standard u. 
+  0              \ convert to unsigned double
+  <<#            \ start conversion
+  #s             \ convert all digits
+  #>             \ complete conversion
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
+
+: cents-only ( u -- )
+  0              \ convert to unsigned double
+  <<#            \ start conversion
+  # #            \ convert two least-significant digits
+  #>             \ complete conversion, discard other digits
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
+
+: dollars-and-cents ( u -- )
+  0              \ convert to unsigned double
+  <<#            \ start conversion
+  # #            \ convert two least-significant digits
+  '.' hold       \ insert decimal point
+  #s             \ convert remaining digits
+  '$' hold       \ append currency symbol
+  #>             \ complete conversion
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
+
+: my-. ( n -- )
+  \ handling negatives.. behaves like Standard .
+  s>d            \ convert to signed double
+  swap over dabs \ leave sign byte followed by unsigned double
+  <<#            \ start conversion
+  #s             \ convert all digits
+  rot sign       \ get at sign byte, append "-" if needed
+  #>             \ complete conversion
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
+
+: account. ( n -- )
+  \ accountants don't like minus signs, they use parentheses
+  \ for negative numbers
+  s>d            \ convert to signed double
+  swap over dabs \ leave sign byte followed by unsigned double
+  <<#            \ start conversion
+  2 pick         \ get copy of sign byte
+  0< IF ')' hold THEN \ right-most character of output
+  #s             \ convert all digits
+  rot            \ get at sign byte
+  0< IF '(' hold THEN
+  #>             \ complete conversion
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
+
+@end example
+
+Here are some examples of using these words:
+
+@example
+1 my-u. 1
+hex -1 my-u. decimal FFFFFFFF
+1 cents-only 01
+1234 cents-only 34
+2 dollars-and-cents $0.02
+1234 dollars-and-cents $12.34
+123 my-. 123
+-123 my. -123
+123 account. 123
+-456 account. (456)
+@end example
+
+@node Floating-point to string conversion,  , Integer to string conversion, Number conversion
+@subsection Floating-point to string conversion
+
+doc-f>str-rdp
+doc-f>buf-rdp
+
+There is also a primitive used for implementing the higher-level
+FP-to-string and FP output words:
+
+doc-represent
+
+
+@c -------------------------------------------------------------
+@node Environmental Queries, Files, Number conversion, Words
 @section Environmental Queries
 @cindex environmental queries
 
@@ -12809,17 +13132,14 @@ doc-block-included
 @menu
 * Number Conversion::
 * Simple numeric output::       Predefined formats
-* Formatted numeric output::    Formatted (pictured) output
 * Floating-point output::
 * Miscellaneous output::
 * Displaying characters and strings::  Other stuff
 * Terminal output::             Cursor positioning etc.
 * Single-key input::
-* Line input and conversion::
+* String input from the terminal::
 * Pipes::                       How to create your own pipes
-* Xchars and Unicode::          Non-ASCII characters
 * i18n and l10n::               Internationalization and Localization
-* Substitute::                  Text macro substitution
 * CSV reading and writing::
 @end menu
 
@@ -12833,7 +13153,7 @@ given by the contents of the variable @code{base}.  @word{Base}
 affects both input integer conversion (unless a number prefix is used,
 @pxref{Literals in source code}) and output integer conversion (unless
 a base-specific word such as @word{h.} or @word{dec.} is used,
-@pxref{Simple numeric output}, @pxref{Formatted numeric output}).  In
+@pxref{Simple numeric output}, @pxref{Integer to string conversion}).  In
 Gforth, non-decimal @word{base} disables floating-point conversion.
 
 Note that a lot of confusion can result from unexpected values of
@@ -12881,18 +13201,21 @@ the number of values in the integer type (e.g., modulo 2^128 for
 doubles with 64-bit cells).
 @end itemize
 
-You can read numbers into your programs with the words described in
-@ref{Line input and conversion}.
+Words affected by @word{base} are @word{rec-number} (@pxref{Default
+recognizers}), @word{>number} (@pxref{String to number conversion}),
+and the words described in the sections @ref{Simple numeric output},
+and @ref{Integer to string conversion}. @word{Rec-number} sets
+@word{dpl}.
 
-
-
-@node Simple numeric output, Formatted numeric output, Number Conversion, Other I/O
+@node Simple numeric output, Floating-point output, Number Conversion, Other I/O
 @subsection Simple numeric output
 @cindex numeric output - simple/free-format
 
-The simplest output functions are those that display numbers from the
+The simplest output functions are those that display integers from the
 data stack.  Numbers are displayed in the base (aka radix) stored in
-@code{base} (@pxref{Number Conversion}).
+@code{base} (@pxref{Number Conversion}).  For outputting integers with
+additional formatting requirements @pxref{Integer to string
+conversion}.
 
 doc-.
 doc-dec.
@@ -12907,143 +13230,7 @@ doc-ud.
 doc-d.r
 doc-ud.r
 
-
-@node Formatted numeric output, Floating-point output, Simple numeric output, Other I/O
-@subsection Formatted numeric output
-@cindex formatted numeric output
-@cindex pictured numeric output
-@cindex numeric output - formatted
-
-Forth uses a technique called @dfn{pictured numeric output} for
-formatted printing of integers.  In this technique, digits are
-extracted from the number (using the current output radix defined by
-@code{base}, @pxref{Number Conversion}), converted to ASCII codes and
-prepended to a string that is built in the pictured numeric output
-buffer, aka @word{hold} buffer (total size, including all nestings and
-the @word{word} buffer, is at most 104 bytes on a 32-bit machine,
-@pxref{core-idef, Implementation-defined options,
-Implementation-defined options}). Arbitrary characters can be
-prepended to the string during the extraction process. The completed
-string is specified by an address and length and can be manipulated
-(@code{TYPE}ed, copied, modified) under program control.
-
-All of the integer output words described in the previous section
-(@pxref{Simple numeric output}) are implemented in Gforth using pictured
-numeric output.
-
-Three important things to remember about pictured numeric output:
-
-@itemize @bullet
-@item
-It always operates on double-precision numbers; to display a
-single-precision number, convert it first (for ways of doing this
-@pxref{Double precision}).
-@item
-It always treats the double-precision number as though it were
-unsigned. The examples below show ways of printing signed numbers.
-@item
-The string is built up from right to left; least significant digit first.
-@end itemize
-
-Standard Forth supports a single output buffer (aka @word{hold} area) that
-you empty and initialize with @code{<#} and for which you get the
-result string with @code{#>}.
-
-Gforth additionally supports nested usage of this buffer, allowing,
-e.g., to nest output from the debugging tracer @code{~~} inside code
-dealing with the hold area: @code{<<#} starts a new nest, @code{#>}
-produces the result string, and @code{#>>} unnests: the hold area for
-the nest is reclaimed, and @code{#>} now produces the string for the
-next-outer nest.  All of Gforth's higher-level numeric output words
-use @code{<<#} ... @code{#>} ... @code{#>>} and can be nested inside
-other users of the hold area.
-
-doc-<#
-doc-<<#
-doc-#
-doc-#s
-doc-hold
-doc-holds
-doc-sign
-doc-#>
-doc-#>>
-
-@noindent
-Here are some examples of using pictured numeric output:
-
-@example
-: my-u. ( u -- )
-  \ Simplest use of pns.. behaves like Standard u. 
-  0              \ convert to unsigned double
-  <<#            \ start conversion
-  #s             \ convert all digits
-  #>             \ complete conversion
-  TYPE SPACE     \ display, with trailing space
-  #>> ;          \ release hold area
-
-: cents-only ( u -- )
-  0              \ convert to unsigned double
-  <<#            \ start conversion
-  # #            \ convert two least-significant digits
-  #>             \ complete conversion, discard other digits
-  TYPE SPACE     \ display, with trailing space
-  #>> ;          \ release hold area
-
-: dollars-and-cents ( u -- )
-  0              \ convert to unsigned double
-  <<#            \ start conversion
-  # #            \ convert two least-significant digits
-  '.' hold       \ insert decimal point
-  #s             \ convert remaining digits
-  '$' hold       \ append currency symbol
-  #>             \ complete conversion
-  TYPE SPACE     \ display, with trailing space
-  #>> ;          \ release hold area
-
-: my-. ( n -- )
-  \ handling negatives.. behaves like Standard .
-  s>d            \ convert to signed double
-  swap over dabs \ leave sign byte followed by unsigned double
-  <<#            \ start conversion
-  #s             \ convert all digits
-  rot sign       \ get at sign byte, append "-" if needed
-  #>             \ complete conversion
-  TYPE SPACE     \ display, with trailing space
-  #>> ;          \ release hold area
-
-: account. ( n -- )
-  \ accountants don't like minus signs, they use parentheses
-  \ for negative numbers
-  s>d            \ convert to signed double
-  swap over dabs \ leave sign byte followed by unsigned double
-  <<#            \ start conversion
-  2 pick         \ get copy of sign byte
-  0< IF ')' hold THEN \ right-most character of output
-  #s             \ convert all digits
-  rot            \ get at sign byte
-  0< IF '(' hold THEN
-  #>             \ complete conversion
-  TYPE SPACE     \ display, with trailing space
-  #>> ;          \ release hold area
-
-@end example
-
-Here are some examples of using these words:
-
-@example
-1 my-u. 1
-hex -1 my-u. decimal FFFFFFFF
-1 cents-only 01
-1234 cents-only 34
-2 dollars-and-cents $0.02
-1234 dollars-and-cents $12.34
-123 my-. 123
--123 my. -123
-123 account. 123
--456 account. (456)
-@end example
-
-@node Floating-point output, Miscellaneous output, Formatted numeric output, Other I/O
+@node Floating-point output, Miscellaneous output, Simple numeric output, Other I/O
 @subsection Floating-point output
 @cindex numeric output, FP
 @cindex FP output
@@ -13096,16 +13283,6 @@ used for printing:
 |-1.2345679E4|-1.23E4|-1.23E4|-1.23E4|-1.23E4|-1.23E4|-12346.|-1E4|
 |-1.2345679E5|-1.23E5|-1.23E5|-1.23E5|-1.23E5|-1.23E5|-1.23E5|-1E5|
 @end example
-
-You can generate a string instead of displaying the number with:
-
-doc-f>str-rdp
-doc-f>buf-rdp
-
-There is also a primitive used for implementing higher-level
-FP-to-string words:
-
-doc-represent
 
 @node Miscellaneous output, Displaying characters and strings, Floating-point output, Other I/O
 @subsection Miscellaneous output
@@ -13267,7 +13444,7 @@ doc-magenta-input
 doc-default-input
 
 
-@node Single-key input, Line input and conversion, Terminal output, Other I/O
+@node Single-key input, String input from the terminal, Terminal output, Other I/O
 @subsection Single-key input
 @cindex single-key input
 @cindex input, single-key
@@ -13392,13 +13569,13 @@ doc-fkey.
 doc-simple-fkey-string
 
 
-@node  Line input and conversion, Pipes, Single-key input, Other I/O
-@subsection Line input and conversion
-@cindex line input from terminal
-@cindex input, linewise from terminal
-@cindex converting strings to numbers
-@cindex I/O - see input
+@node  String input from the terminal, Pipes, Single-key input, Other I/O
+@subsection String input from the terminal
+@cindex string input from terminal
+@cindex input, string from terminal
 
+@c old name of the node
+@anchor{Line input and conversion}
 For ways of storing character strings in memory see @ref{String
 representations}.
 
@@ -13410,23 +13587,14 @@ Words for inputting one line from the keyboard:
 doc-accept
 doc-edit-line
 
-Conversion words:
 
-doc-s>number?
-doc-s>unumber?
-doc->number
-doc->float
-doc->float1
+Obsolete words:
 
-@comment obsolescent words..
-Obsolescent input and conversion words:
-
-doc-convert
 doc-expect
 doc-span
 
 
-@node Pipes, Xchars and Unicode, Line input and conversion, Other I/O
+@node Pipes, i18n and l10n, String input from the terminal, Other I/O
 @subsection Pipes
 @cindex pipes, creating your own
 
@@ -13446,80 +13614,9 @@ problem yourself, and then return to regular processing.
 
 doc-broken-pipe-error
 
-@node Xchars and Unicode, i18n and l10n, Pipes, Other I/O
-@subsection Xchars and Unicode
-
-ASCII is only appropriate for the English language. Most western
-languages however fit somewhat into the Forth frame, since a byte is
-sufficient to encode the few special characters in each (though not
-always the same encoding can be used; latin-1 is most widely used,
-though). For other languages, different char-sets have to be used,
-several of them variable-width.  To deal with this problem, characters
-are often represented as Unicode codepoints on the stack, and as UTF-8
-byte strings in memory.  An Unicode codepoint often represents one
-application-level character, but Unicode also supports decomposed
-characters that consist of several code points, e.g., a base letter
-and a combining diacritical mark.
-
-An Unicode codepoint can consume more than one byte in memory, so we
-adjust our terminology: A char is a raw byte in memory or a value in
-the range 0-255 on the stack.  An xchar (for extended char) stands for
-one codepoint; it is represented by one or more bytes in memory and
-may have larger values on the stack.  ASCII characters are the same as
-chars and as xchars: values in the range 0-127, and a single byte with
-that value in memory.
-
-When using UTF-8 encoding, all other codepoints take more than one
-byte/char.  In most cases, you can just treat such characters as
-strings in memory and don't need to use the following words, but if
-you want to deal with individual codepoints, the following words are
-useful.  We currently have no words for dealing with decomposed
-characters.
-
-The xchar words add a few data types:
-
-@itemize
-
-@item
-@var{xc} is an extended char (xchar) on the stack. It occupies one
-cell, and is a subset of unsigned cell.  On 16 bit systems, only the
-BMP subset of the Unicode character set (i.e., codepoints <65536) can
-be represented on the stack.  If you represent your application
-characters as strings at all times, you can avoid this limitation.
-
-@item
-@var{xc-addr} is the address of an xchar in memory. Alignment
-requirements are the same as @var{c-addr}. The memory representation of an
-xchar differs from the stack representation, and depends on the
-encoding used. An xchar may use a variable number of chars in memory.
-
-@item
-@var{xc-addr} @var{u} is a buffer of xchars in memory, starting at
-@var{xc-addr}, @var{u} chars (i.e., bytes, not xchars) long.
-
-@end itemize
-
-doc-xc-size
-doc-x-size
-doc-xc@
-doc-xc@+
-doc-xc@+?
-doc-xc!+?
-doc-xc!+
-doc-xchar+
-doc-xchar-
-doc-+x/string
-doc-x\string-
-doc--trailing-garbage
-doc-x-width
-doc-xc-width
-doc-xhold
-doc-xc,
-
-See also @word{xkey} (@pxref{Single-key input}).
 
 
-@node i18n and l10n, Substitute, Xchars and Unicode, Other I/O
+@node i18n and l10n, CSV reading and writing, Pipes, Other I/O
 @subsection Internationalization and Localization
 
 Programs for end users require to address those in their native
@@ -13549,27 +13646,7 @@ doc-locale-csv
 doc-.locale-csv
 doc-locale-csv-out
 
-@node Substitute, CSV reading and writing, i18n and l10n, Other I/O
-@subsection Substitute
-
-This is a simple text macro replacement facility.  Texts in the form
-@code{"text %macro% text"} are processed, and the macro variables enclosed
-in @code{'%'} are replaced with their associated strings.  Two
-consecutive @code{%} are replaced by one @code{%}.  Macros are defined
-in a specific wordlist, and return a string upon execution; the standard
-defines only one way to declare macros, @code{replaces}, which creates a
-macro that just returns a string.
-
-doc-macros-wordlist
-doc-replaces
-doc-replacer:
-doc-.substitute
-doc-$substitute
-doc-substitute
-doc-unescape
-doc-$unescape
-
-@node CSV reading and writing,  , Substitute, Other I/O
+@node CSV reading and writing,  , i18n and l10n, Other I/O
 @subsection CSV Reader
 
 Comma-separated values (CSV) are a popular text format to interchange
