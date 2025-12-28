@@ -214,7 +214,8 @@ User base ( -- a-addr ) \ core
 \G stores the number base used by default for number conversion during
 \G input and output.  Don't store to @code{base}, use
 \G @code{base-execute} instead.
-                       A base !
+A base !
+
 User dpl ( -- a-addr ) \ gforth d-p-l
 \G User variable -- @i{a-addr} is the address of a cell that stores
 \G the position of the decimal point in the most recent input integer

@@ -251,7 +251,7 @@ to-table: userflag!-table userflag!
     [: @ user-flags @ and 0<> ;] set-does>
     ['] userflag-to set-to ;
 
-user-flag: .-is-double
+user-flag: .-is-double ( -- flag ) \ gforth-experimental
 \G If this user flag contains true (default), @word{rec-number}
 \G recognizes numbers without prefix that contain a decimal point as
 \G double-cell numbers.  Otherwise @word{rec-number} does not
