@@ -6708,7 +6708,7 @@ But the world has moved on since ASCII, and now the dominating
 character set is Unicode, and it is supported by Forth in its UTF-8
 encoding.  Forth has extended characters (xchars, @pxref{Xchars and
 Unicode}) which map to Unicode code points.  An xchar for an Unicode
-code point is represented by 1-4 chars in memory, and one cell on the
+code point is represented by 1-4 chars in memory, or one cell on the
 data stack.
 
 @c https://www.unicode.org/reports/tr29/
@@ -6720,13 +6720,13 @@ Unicode terms)?  Unfortunately, the writing systems unified by Unicode
 are too complex for that idea to work in general; e.g., characters can
 be composed of base characters (one code point) modified by
 diacritical marks (0 or more additional code points).  So in general a
-user-perceived character cannot be represented as a single cell.
+user-perceived character cannot be represented by a single cell.
 So the way to go is to represent text (including a single
 user-perceived characer) as string.
 
 Once you embrace the idea of working with strings instead of with
 characters, you find out that you rarely need to deal with individual
-code points, and therefore do not need to use words from the xchar
+code points, and therefore rarely need to use words from the xchar
 words (@pxref{Xchars and Unicode}).  Also, given that a string
 consists of bytes aka chars, you can use the words that deal with
 chars to work on strings containing Unicode characters.  In Unicode
@@ -6735,6 +6735,8 @@ UTF-8), not code points.
 
 You can use the usual integer words on chars and Xchars on the stack.
 
+@cindex ASCII and UTF-8
+@cindex UTF-8 and ASCII
 In UTF-8 each ASCII character is encoded as single byte with the same
 value as in ASCII.  The same holds true for all other character
 encodings supported in Gforth.  So you can use the character words
@@ -6765,13 +6767,18 @@ Forth commonly represents strings as cell pair @i{c-addr u} on the
 stack; @i{u} is the length of the string in bytes (aka chars), and
 @i{c-addr} is the address of the first byte of the string.  Note that
 a code point may be represented by a sequence of several chars in the
-string (and a Unicode ``abstract character'' may consist of several
-code points).  @xref{String words}.
+string (and a user-perceived character may consist of several code
+points).  @xref{String words}.
 
 Another string representation is used with the string library of words
-containing @code{$}.  It represents the string on the stack through
-the address of a cell-sized string handle, which can be located in,
-e.g., a variable.  @xref{$tring words}.
+containing @code{$} (@pxref{$tring words}).  It uses the address of a
+cell-sized string handle to represent the string when its allocation
+plays a role, e.g., when appending to the string; this corresponds to
+owned strings in Rust.  When only the content of the string is of
+interest, the @i{c-addr u} representation for the string is used with
+these words, too; the validity of a @i{c-addr u} pair ends when the
+underlying string is modified or freed; this corresponds to string
+slices in Rust.
 
 A legacy string representation are @dfn{counted strings}, represented
 on the stack by @i{c-addr}. The char addressed by @i{c-addr} contains
