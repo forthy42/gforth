@@ -251,14 +251,14 @@ to-table: userflag!-table userflag!
     [: @ user-flags @ and 0<> ;] set-does>
     ['] userflag-to set-to ;
 
-user-flag: .-is-double ( -- flag ) \ gforth-experimental
+user-flag: .-is-double? ( -- flag ) \ gforth-experimental
 \G If this user flag contains true (default), @word{rec-number}
 \G recognizes numbers without prefix that contain a decimal point as
 \G double-cell numbers.  Otherwise @word{rec-number} does not
 \G recognize the number, and, if present, @word{rec-float} will
 \G recognize it as a floating-point number.
 
-true to .-is-double
+true to .-is-double?
 
 : rec-number ( c-addr u -- translation ) \ gforth-experimental
     \G Recognizes (@pxref{Defining recognizers})
@@ -270,7 +270,7 @@ true to .-is-double
     \G recognized as double numbers.
     dpl @ >num-warnings @ 2>r snumber?  dup
     IF
-	dup 0> >num-warnings @ 1 and 0= and .-is-double 0= and IF
+	dup 0> >num-warnings @ 1 and 0= and .-is-double? 0= and IF
 	    2drop
 	ELSE
 	    0> translate-dcell translate-cell rot select
