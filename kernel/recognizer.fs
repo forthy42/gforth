@@ -131,14 +131,7 @@ Defer ?warn#  ' noop is ?warn#
 
 \ snumber? should be implemented as recognizer stack
 
-: rec-number ( c-addr u -- translation ) \ gforth-experimental
-    \G Recognizes (@pxref{Defining recognizers})
-    \G a single or double number (without or with prefix), or
-    \G a character.  If successful, @i{translation} represents pushing
-    \G that number at run-time (see @word{translate-cell} and
-    \G @word{translate-dcell}).  If and only if @word{dot-is-float}
-    \G contains 0, strings without prefix that contain a dot are
-    \G recognized as double numbers.
+: rec-number-kernel ( c-addr u -- translation ) \ gforth-internal
     snumber?  dup
     IF
 	0> translate-dcell translate-cell rot select  EXIT
@@ -180,8 +173,8 @@ Defer ?warn#  ' noop is ?warn#
     $@len cell/ ;
 
 : rec-kernel ( addr u -- ... translate-xt / 0 ) \ gforth-internal
-    \g Sequence of @code{rec-name} and @code{rec-number}
-    2>r 2r@ rec-name dup 0= IF  drop 2r@ rec-number  THEN  2rdrop ;
+    \g Sequence of @code{rec-name} and @code{rec-number-kernel}
+    2>r 2r@ rec-name dup 0= IF  drop 2r@ rec-number-kernel  THEN  2rdrop ;
 
 Defer rec-forth ( c-addr u -- translation ) \ gforth-experimental
 \G The system recognizer: @word{rec-forth} is a @word{defer}red

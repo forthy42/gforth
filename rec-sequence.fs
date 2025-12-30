@@ -59,7 +59,7 @@ Defer trace-recognizer  ' drop is trace-recognizer
 \ 	]] dup translate-none <> IF 2rdrop EXIT THEN drop [[
 \     LOOP ]] 2rdrop ; [[ ;
 
-' rec-number ' rec-name 2 rec-sequence: default-recognize
+' rec-number-kernel ' rec-name 2 rec-sequence: default-recognize
 ' default-recognize is rec-forth
 
 : rec-none ( c-addr u -- translate-none ) \ gforth-experimental

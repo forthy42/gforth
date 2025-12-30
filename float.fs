@@ -246,18 +246,22 @@ to-table: userflag!-table userflag!
 
 : user-flag: ( "name" -- ) \ gforth-experimental
     \G Create a new user flag. User flags are bits in the user variable
-    \G \code{user-flags}, so you can save and restore all of them in one go.
+    \G \code{user-flags}, so you can save and restore all of them in one go.@*
+    \G @i{name} execution: @i{( -- flag )}@*
+    \G @code{to @i{name}} run-time: @i{( x -- )} If @i{x}=0, change
+    \G the value of @i{name} to false, otherwise to true.
     Create user-flagmask @ dup , user-flagmask +!
     [: @ user-flags @ and 0<> ;] set-does>
     ['] userflag-to set-to ;
 
 user-flag: .-is-double? ( -- flag ) \ gforth-experimental
-\G If this user flag contains true (default), @word{rec-number}
-\G recognizes numbers without prefix that contain a decimal point as
-\G double-cell numbers.  Otherwise @word{rec-number} does not
-\G recognize the number, and, if present, @word{rec-float} will
-\G recognize it as a floating-point number.
-
+\G If this user flag is true (default), @word{rec-number} recognizes
+\G numbers without prefix that contain a decimal point as double-cell
+\G numbers.  Otherwise @word{rec-number} does not recognize the
+\G number, and, if present, @word{rec-float} will recognize it as a
+\G floating-point number.@* @code{to .-is-number?}  run-time: @i{( x
+\G -- )} If @i{x}=0 change the value of @word{.-is-double} to false,
+\G otherwise to true.
 true to .-is-double?
 
 : rec-number ( c-addr u -- translation ) \ gforth-experimental
@@ -265,8 +269,8 @@ true to .-is-double?
     \G a single or double number (without or with prefix), or
     \G a character.  If successful, @i{translation} represents pushing
     \G that number at run-time (see @word{translate-cell} and
-    \G @word{translate-dcell}).  If and only if @word{dot-is-float}
-    \G contains 0, strings without prefix that contain a dot are
+    \G @word{translate-dcell}).  If and only if @word{.-is-double?}
+    \G is true, strings without prefix that contain a dot are
     \G recognized as double numbers.
     dpl @ >num-warnings @ 2>r snumber?  dup
     IF
