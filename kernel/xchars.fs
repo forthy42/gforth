@@ -34,61 +34,77 @@ umethod xkey ( -- xc ) \ xchar x-key
 \G @i{xc} have been received.
 
 umethod xchar+ ( xc-addr1 -- xc-addr2 ) \ xchar x-char-plus
-\G Adds the size of the xchar stored at @var{xc-addr1} to this address,
-\G giving @var{xc-addr2}.
+\G @i{xc-addr2} is the address of the next xchar behind the one pointed
+\G to by @i{xc-addr}.
+
 umethod xchar- ( xc-addr1 -- xc-addr2 ) \ xchar-ext x-char-minus
-\G Goes backward from @var{xc_addr1} until it finds an xchar so that
-\G the size of this xchar added to @var{xc_addr2} gives
-\G @var{xc_addr1}.
+\G @i{xc-addr2} is the address of the previous xchar in front of the
+\G one pointed to by @i{xc-addr}.
+
 umethod +x/string ( xc-addr1 u1 -- xc-addr2 u2 ) \ xchar-ext plus-x-slash-string
-\G Step forward by one xchar in the buffer defined by address
-\G @var{xc-addr1}, size @var{u1} chars. @var{xc-addr2} is the address
-\G and u2 the size in chars of the remaining buffer after stepping
-\G over the first xchar in the buffer.
+\G @i{xc-addr1 u1} is a string of @i{u1} chars.  @var{xc-addr2} is the
+\G address of the next xchar behind the one pointed to by @i{xc-addr}.
+\G @i{u2} is the size (in chars) of the rest of the string.
+
 umethod x\string- ( xc-addr u1 -- xc-addr u2 ) \ xchar-ext x-backslash-string-minus
-\G Step backward by one xchar in the buffer defined by address
-\G @var{xc-addr} and size @var{u1} in chars, starting at the end of
-\G the buffer. @var{xc-addr} is the address and @var{u2} the size in
-\G chars of the remaining buffer after stepping backward over the
-\G last xchar in the buffer.
-umethod xc@ ( xc-addr -- xc ) \ xchar-ext	xc-fetch
-\G Fetchs the xchar @var{xc} at @var{xc-addr1}.
+\G @i{xc-addr1 u1} is a string of @i{u1} chars.  @i{u2} is the size of
+\G the string without its last xchar.
+
+umethod xc@ ( xc-addr -- xc ) \ xchar-ext	x-c-fetch
+\G @i{xc} is the xchar starting at @var{xc-addr1}.
+
 umethod xc!+ ( xc xc-addr1 -- xc-addr2 ) \ xchar	x-c-store
 \G Stores the xchar @var{xc} at @var{xc-addr1}. @var{xc-addr2} is the
 \G next unused address in the buffer.  Note that this writes up to 4
 \G bytes, so you need at least 3 bytes of padding after the end of the
 \G buffer to avoid overwriting useful data if you only check the
 \G address against the end of the buffer.
+
 umethod xc!+? ( xc xc-addr1 u1 -- xc-addr2 u2 f ) \ xchar x-c-store-plus-query
 \G Stores the xchar @var{xc} into the buffer starting at address
 \G @var{xc-addr1}, @var{u1} chars large. @var{xc-addr2} points to the
 \G first memory location after @var{xc}, @var{u2} is the remaining
 \G size of the buffer. If the xchar @var{xc} did fit into the buffer,
 \G @var{f} is true, otherwise @var{f} is false, and @var{xc-addr2}
-\G @var{u2} equal @var{xc-addr1} @var{u1}. XC!+?  is safe for buffer
+\G @var{u2} equal @var{xc-addr1} @var{u1}. XC!+?  is safe against buffer
 \G overflows, and therefore preferred over XC!+.
+
 umethod xc@+ ( xc-addr1 -- xc-addr2 xc ) \ xchar	x-c-fetch-plus
-\G Fetchs the xchar @var{xc} at @var{xc-addr1}. @var{xc-addr2} points
-\G to the first memory location after @var{xc}.
+\G @i{xc} is the xchar starting at @var{xc-addr1}.  @i{xc-addr2} points
+\G to the first memory location after @i{xc}.
+
 umethod xc-size ( xc -- u ) \ xchar x-c-size
-\G Computes the memory size of the xchar @var{xc} in chars.
+\G The xchar @i{xc} occupies @i{u} chars in memory.
+
 umethod x-size ( xc-addr u1 -- u2 ) \ xchar
-\G Computes the memory size of the first xchar stored at @var{xc-addr}
-\G in chars.
+\G The first xchar at @i{xc-addr} occupies @i{u2} chars; if @i{xc-addr
+\G u1} does not contain a complete xchar, @i{u2} is @i{u1}.
+
 umethod x-width ( xc-addr u -- n ) \ xchar-ext
-\G @var{n} is the number of monospace ASCII chars that take the same
-\G space to display as the the xchar string starting at @var{xc-addr},
-\G using @var{u} chars; assuming a monospaced display font,
-\G i.e. char width is always an integer multiple of the width of an
-\G ASCII char.
+\G @i{n} is the number of monospace ASCII chars that take the same
+\G space to display as @var{xc-addr u} needs on a monospaced display.
+
 umethod -trailing-garbage ( xc-addr u1 -- xc-addr u2 ) \ xchar-ext minus-trailing-garbage
-\G Examine the last XCHAR in the buffer @var{xc-addr} @var{u1}---if
-\G the encoding is correct and it repesents a full char, @var{u2}
-\G equals @var{u1}, otherwise, @var{u2} represents the string without
-\G the last (garbled) xchar.
+\G @i{xc-addr1 u1} is a string of @i{u1} chars.  @i{u2} is the size of
+\G the string after removing the chars from the end that do not
+\G constitute a complete, valid xchar.@*The idea here is that if you
+\G read a fixed number of chars, e.g., with @word{read-file}, there
+\G may be an incomplete xchar at the end; you eliminate that with
+\G @word{-trainling-garbage}, leaving a valid xchar string for
+\G processing (if the string starts with a complete xchar and only
+\G contains valid xchars).  You prepend the eliminated chars to the
+\G next read block of chars so you do not miss any parts.
+
 umethod xc@+? ( xc-addr1 u1 -- xc-addr2 u2 xc ) \ gforth-experimental x-c-fetch-plus-query
-\G Fetchs the first xchar @var{xc} of the string @var{xc-addr1
-\G u1}. @var{xc-addr2 u2} is the remaining string after @var{xc}.
+\G @i{xc} is the xchar starting at @var{xc-addr1}.  @var{xc-addr2 u2}
+\G is the remaining string behind @var{xc}.  If the start of
+\G @i{xc-addr1 u1} contains no valid xchar, @i{xc} is
+\G @word{invalid-char}, and @i{xc-addr2 u2} is the remaining string
+\G after skipping at least one byte.  If @i{u1}=0, the current
+\G behaviour does not make much sense and may change in the future:
+\G @i{xc-addr2}=@i{xc-addr1}+1, @i{u2}=MAX-U, and @i{xc} is either 0
+\G or @word{invalid-char}.
+
 2drop
 
 \ derived words, faster implementations are probably possible
@@ -100,10 +116,12 @@ umethod xc@+? ( xc-addr1 u1 -- xc-addr2 u2 xc ) \ gforth-experimental x-c-fetch-
 
 : xhold ( xc -- ) \ xchar-ext x-hold
     \G Used between @code{<<#} and @code{#>}. Prepend @var{xc} to the
-    \G pictured numeric output string.  Alternatively, use @code{holds}.
+    \G pictured numeric output string.  We recommend that you use
+    \G @word{holds} instead.
     dup xc-size dup +hold swap xc!+? 2drop drop ;
 
-: xc, ( xchar -- ) \ xchar x-c-comma
+: xc, ( xc -- ) \ xchar x-c-comma
+    \G Reserve data space for @i{xc}, and store @i{xc} in that space.
     here unused xc!+? 2drop ->here ;
 
 \ fixed-size versions of these words
@@ -127,7 +145,10 @@ umethod xc@+? ( xc-addr1 u1 -- xc-addr2 u2 xc ) \ gforth-experimental x-c-fetch-
 	r> r> 1 /string true
     then ;
 
-$FFFD Constant invalid-char
+$FFFD Constant invalid-char ( -- xc ) \ gforth-experimental
+\G Unicode code point returned for cases where the string does not
+\G contain a valid Unicode encoding.  Current value: the Unicode
+\G replacement character U+FFFD.
 
 : c@+? ( c-addr1 u1 -- c-addr2 u2 c )
     dup 0= IF  1 /string invalid-char  EXIT  THEN

@@ -6793,32 +6793,54 @@ of words.  @xref{Counted string words}.
 @node Xchars and Unicode, String and character literals, String representations, Strings and Characters
 @subsection Xchars and Unicode
 
-ASCII is only appropriate for the English language. Most western
-languages however fit somewhat into the Forth frame, since a byte is
-sufficient to encode the few special characters in each (though not
-always the same encoding can be used; latin-1 is most widely used,
-though). For other languages, different char-sets have to be used,
-several of them variable-width.  To deal with this problem, characters
-are often represented as Unicode codepoints on the stack, and as UTF-8
-byte strings in memory.  An Unicode codepoint often represents one
-application-level character, but Unicode also supports decomposed
-characters that consist of several code points, e.g., a base letter
-and a combining diacritical mark.
+An xchar is represented as a single cell on the stack and as a
+sequence of one or more chars (as string) in memory.@footnote{Of
+course, you can also store the xchar cell in memory, but Gforth has no
+words for dealing with sequences of such cells.}
 
-An Unicode codepoint can consume more than one byte in memory, so we
-adjust our terminology: A char is a raw byte in memory or a value in
-the range 0-255 on the stack.  An xchar (for extended char) stands for
-one codepoint; it is represented by one or more bytes in memory and
-may have larger values on the stack.  ASCII characters are the same as
-chars and as xchars: values in the range 0-127, and a single byte with
-that value in memory.
+The actual supported xchars depend on the encoding, which is
+determined automatically from the environment variable
+@code{LC_CTYPE}, @code{LC_ALL}, or @code{LANG} (@pxref{Environment
+variables}).  If any of them contains ``UTF-8'' on Gforth startup,
+Gforth uses UTF-8 encoding (for Unicode), otherwise it uses
+fixed-width 8-bit encoding.  The encoding cannot be changed after
+Gforth startup, and if any non-ASCII characters are stored in an
+image, the image must be invoked in a way that produces the same
+encoding and charset setting.
+
+Any text I/O is expected to happen in the encoding and character set
+specified in the environment variables, so if any encoding or
+character set conversions are needed, perform them outside Gforth,
+with tools such as @command{recode} or @command{iconv}.
+
+The fixed-width 8-bit encoding is used for 8-bit encodings of legacy
+character sets, such as ISO Latin-1, ISO Latin-2, or KOI8-R.
+
+Whatever the environment, an xchar corresponds to a code point of the
+character set.  In some character sets, each code point represents a
+character, but in Unicode a user-perceived character may consist of a
+sequence of code points.  Gforth currently provides no facilities for
+dealing with user-perceived characters, and dealing with code points
+rarely provides any benefit, so the usual way to deal with text is as
+strings of chars.
+
+The only thing that's in common between Unicode and all the charsets
+for which Gforth supports a fixed-width encoding is ASCII: These
+character sets all have the code points 0--127 which have the same
+meaning, have the same on-stack representation (a number in the range
+0--127), and have the same in-memory representation (a single byte
+(aka char) that has a value in the range 0--127).
 
 When using UTF-8 encoding, all other codepoints take more than one
 byte/char.  In most cases, you can just treat such characters as
 strings in memory and don't need to use the following words, but if
 you want to deal with individual codepoints, the following words are
-useful.  We currently have no words for dealing with decomposed
-characters.
+useful.
+
+When using the fixed-width encoding, all other code points take only
+one byte, but you can still use the xchar words to access the code
+points, and your code will also continue to work when you switch to
+UTF-8 encoding.
 
 The xchar words add a few data types:
 
@@ -6826,10 +6848,7 @@ The xchar words add a few data types:
 
 @item
 @var{xc} is an extended char (xchar) on the stack. It occupies one
-cell, and is a subset of unsigned cell.  On 16 bit systems, only the
-BMP subset of the Unicode character set (i.e., codepoints <65536) can
-be represented on the stack.  If you represent your application
-characters as strings at all times, you can avoid this limitation.
+cell, and is a subset of unsigned cell.
 
 @item
 @var{xc-addr} is the address of an xchar in memory. Alignment
@@ -6838,8 +6857,9 @@ xchar differs from the stack representation, and depends on the
 encoding used. An xchar may use a variable number of chars in memory.
 
 @item
-@var{xc-addr} @var{u} is a buffer of xchars in memory, starting at
-@var{xc-addr}, @var{u} chars (i.e., bytes, not xchars) long.
+@var{xc-addr} @var{u} is a string (or buffer) of xchars in memory,
+starting at @var{xc-addr}, @var{u} chars (i.e., bytes, not xchars)
+long.
 
 @end itemize
 
@@ -6859,12 +6879,13 @@ doc-x-width
 doc-xc-width
 doc-xhold
 doc-xc,
+doc-invalid-char
 
 doc-toupper
 
 
-See also @word{xkey} (@pxref{Single-key input}).
-
+See also @word{xemit} (@pxref{Displaying characters and strings}) and
+@word{xkey} (@pxref{Single-key input}).
 
 
 @node String and character literals, String words, Xchars and Unicode, Strings and Characters

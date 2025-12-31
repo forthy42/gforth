@@ -259,7 +259,7 @@ user-flag: .-is-double? ( -- flag ) \ gforth-experimental
 \G numbers without prefix that contain a decimal point as double-cell
 \G numbers.  Otherwise @word{rec-number} does not recognize the
 \G number, and, if present, @word{rec-float} will recognize it as a
-\G floating-point number.@* @code{to .-is-number?}  run-time: @i{( x
+\G floating-point number.@* @code{to .-is-double?}  run-time: @i{( x
 \G -- )} If @i{x}=0 change the value of @word{.-is-double} to false,
 \G otherwise to true.
 true to .-is-double?
