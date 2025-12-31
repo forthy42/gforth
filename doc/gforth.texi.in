@@ -3081,7 +3081,7 @@ improved version produce different results.
 @end quotation
 
 Reference: @ref{Floating Point}; @ref{Floating point stack};
-@ref{Number Conversion}; @ref{Memory Access}; @ref{Address
+@ref{Number conversion}; @ref{Memory Access}; @ref{Address
 arithmetic}.
 
 @node Files Tutorial, Interpretation and Compilation Semantics and Immediacy Tutorial, Floating Point Tutorial, Tutorial
@@ -4844,7 +4844,7 @@ To push an integer number on the data stack, you write the number in
 source code, e.g., @code{123}.  You can prefix the digits with
 @code{-} to indicate a negative number, e.g. @code{-123}.  This works
 both inside colon definitions and outside.  The number is interpreted
-according to the value in @code{base} (@pxref{Number Conversion}).
+according to the value in @code{base} (@pxref{Base and integer decimal point}).
 The digits are @code{0} to @code{9} and @code{a} (decimal 10) to
 @code{z} (decimal 35), but only digits smaller than @code{base @@} are
 recognized.  The conversion is case-insensitive, so @code{A} and
@@ -5824,8 +5824,9 @@ doc-du>=
 @subsection Floating Point
 @cindex floating point arithmetic words
 
-For the rules used by the text interpreter for
-recognising floating-point numbers see @ref{Number Conversion}.
+For the rules used by the text interpreter for recognising
+floating-point numbers see @word{rec-float} (@pxref{Default
+recognizers}).
 
 Gforth has a separate floating point stack, but the documentation uses
 the unified notation.@footnote{It's easy to generate the separate
@@ -12428,11 +12429,11 @@ doc->float1
 Forth uses a technique called @dfn{pictured numeric output} for
 formatted printing of integers.  In this technique, digits are
 extracted from the number (using the current output radix defined by
-@code{base}, @pxref{Number Conversion}), converted to ASCII codes and
-prepended to a string that is built in the pictured numeric output
-buffer, aka @word{hold} buffer (total size, including all nestings and
-the @word{word} buffer, is at most 104 bytes on a 32-bit machine,
-@pxref{core-idef, Implementation-defined options,
+@code{base}, @pxref{Base and integer decimal point}), converted to
+ASCII codes and prepended to a string that is built in the pictured
+numeric output buffer, aka @word{hold} buffer (total size, including
+all nestings and the @word{word} buffer, is at most 104 bytes on a
+32-bit machine, @pxref{core-idef, Implementation-defined options,
 Implementation-defined options}). Arbitrary characters can be
 prepended to the string during the extraction process. The completed
 string is specified by an address and length and can be manipulated
@@ -13238,9 +13239,9 @@ doc-block-included
 
 The simplest output functions are those that display integers from the
 data stack.  Numbers are displayed in the base (aka radix) stored in
-@code{base} (@pxref{Number Conversion}).  For outputting integers with
-additional formatting requirements @pxref{Integer to string
-conversion}.
+@code{base} (@pxref{Base and integer decimal point}).  For outputting
+integers with additional formatting requirements @pxref{Integer to
+string conversion}.
 
 doc-.
 doc-dec.
