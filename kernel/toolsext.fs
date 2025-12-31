@@ -1,5 +1,5 @@
 \ Authors: Anton Ertl, Bernd Paysan, Jens Wilke, Neal Crook
-\ Copyright (C) 1995,1998,2000,2003,2005,2007,2009,2010,2012,2013,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,2000,2003,2005,2007,2009,2010,2012,2013,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

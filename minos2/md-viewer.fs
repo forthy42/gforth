@@ -1,7 +1,7 @@
 \ MINOS2 markdown viewer
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2019,2020,2021,2022,2023,2024 Free Software Foundation, Inc.
+\ Copyright (C) 2019,2020,2021,2022,2023,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

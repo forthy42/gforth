@@ -1,7 +1,7 @@
 \ some obsolete code that is not needed anywhere else
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 2017,2019,2022,2023,2024 Free Software Foundation, Inc.
+\ Copyright (C) 2017,2019,2022,2023,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

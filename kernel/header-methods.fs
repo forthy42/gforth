@@ -1,7 +1,7 @@
 \ header-methods.fs does the intelligent compile, vtable handling
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2012,2013,2014,2015,2016,2018,2019,2021,2023,2024 Free Software Foundation, Inc.
+\ Copyright (C) 2012,2013,2014,2015,2016,2018,2019,2021,2023,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

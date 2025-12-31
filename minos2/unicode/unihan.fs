@@ -1,7 +1,7 @@
 \ unihan simplified <-> traditional chinese
 
 \ Authors: Bernd Paysan
-\ Copyright (C) 2021,2022,2024 Free Software Foundation, Inc.
+\ Copyright (C) 2021,2022,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

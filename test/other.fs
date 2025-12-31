@@ -2,7 +2,7 @@
 \ or where we don't use the testing framework
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 1997,1998,2000,2003,2007,2013,2015,2019,2023,2024 Free Software Foundation, Inc.
+\ Copyright (C) 1997,1998,2000,2003,2007,2013,2015,2019,2023,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -1,7 +1,7 @@
 \ disasm.fs	disassembler file (for ARM64 64-bit mode)
 \
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2014,2016,2019,2021,2022,2024 Free Software Foundation, Inc.
+\ Copyright (C) 2014,2016,2019,2021,2022,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

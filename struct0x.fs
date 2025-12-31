@@ -1,7 +1,7 @@
 \ implementation of Forth 200x structures
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2007,2012,2014,2015,2016,2018,2019,2021,2022,2023,2024 Free Software Foundation, Inc.
+\ Copyright (C) 2007,2012,2014,2015,2016,2018,2019,2021,2022,2023,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

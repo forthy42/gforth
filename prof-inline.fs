@@ -1,7 +1,7 @@
 \ get some data on potential (partial) inlining
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 2004,2007,2012,2013,2019,2022 Free Software Foundation, Inc.
+\ Copyright (C) 2004,2007,2012,2013,2019,2022,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

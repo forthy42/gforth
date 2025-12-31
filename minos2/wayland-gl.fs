@@ -1,7 +1,7 @@
 \ Wayland window for GLES
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2017,2019,2023,2024 Free Software Foundation, Inc.
+\ Copyright (C) 2017,2019,2023,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -1,7 +1,7 @@
 /* header file for libcc-generated C code
 
   Authors: Anton Ertl, Bernd Paysan
-  Copyright (C) 2006,2007,2008,2012,2013,2014,2015,2016,2017,2019,2020,2023,2024 Free Software Foundation, Inc.
+  Copyright (C) 2006,2007,2008,2012,2013,2014,2015,2016,2017,2019,2020,2023,2024,2025 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 

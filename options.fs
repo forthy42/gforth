@@ -1,7 +1,7 @@
 \ process options in an extensible way
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2016,2017,2019,2020,2021,2023,2024 Free Software Foundation, Inc.
+\ Copyright (C) 2016,2017,2019,2020,2021,2023,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

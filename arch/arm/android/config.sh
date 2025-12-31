@@ -1,5 +1,5 @@
 #Authors: Bernd Paysan, Anton Ertl
-#Copyright (C) 2015,2016,2017,2019,2020,2021,2022,2023 Free Software Foundation, Inc.
+#Copyright (C) 2015,2016,2017,2019,2020,2021,2022,2023,2025 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 

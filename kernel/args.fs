@@ -1,7 +1,7 @@
 \ argument expansion
 
 \ Authors: Anton Ertl, Bernd Paysan, Neal Crook, Jens Wilke
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2006,2007,2012,2014,2016,2019,2021,2023,2024 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2006,2007,2012,2014,2016,2019,2021,2023,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

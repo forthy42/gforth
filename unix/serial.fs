@@ -1,7 +1,7 @@
 \ serial interface for Gforth under Unix
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2015,2019,2021,2022,2023 Free Software Foundation, Inc.
+\ Copyright (C) 2015,2019,2021,2022,2023,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
