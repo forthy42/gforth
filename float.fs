@@ -234,6 +234,8 @@ translate: translate-float ( r -- translation ) \ gforth-experimental
     \G the double-cell syntax by default, see @word{rec-number}); in
     \G Gforth there can also be an SI prefix (e.g., @code{M}) instead
     \G of the decimal point, but then no @code{e} is allowed.
+    \G Examples: @code{1234e}, @code{1234.}, @code{1.234e3},
+    \G @code{12340e-1}, @code{1k234}.
     >num-warnings @ >r prefix-number
     IF rdrop translate-float
     ELSE r> >num-warnings !  translate-none THEN ;
