@@ -430,6 +430,7 @@ Word Lists
 
 Number conversion
 
+* Base and integer decimal point::
 * String to number conversion::
 * Integer to string conversion::
 * Floating-point to string conversion::
@@ -449,7 +450,6 @@ Search Paths
 
 Other I/O
 
-* Number Conversion::
 * Simple numeric output::       Predefined formats
 * Floating-point output::
 * Miscellaneous output::
@@ -6883,7 +6883,6 @@ doc-invalid-char
 
 doc-toupper
 
-
 See also @word{xemit} (@pxref{Displaying characters and strings}) and
 @word{xkey} (@pxref{Single-key input}).
 
@@ -7010,6 +7009,8 @@ doc-#del
 doc-#bell
 doc-#esc
 doc-#eof
+
+See also @word{invalid-char} (@pxref{Xchars and Unicode}).
 
 @node String words, $tring words, String and character literals, Strings and Characters
 @subsection String words
@@ -12318,12 +12319,80 @@ output}), and outputting the result in a string with
 @word{>string-execute} (@pxref{String words}).
 
 @menu
+* Base and integer decimal point::
 * String to number conversion::
 * Integer to string conversion::
 * Floating-point to string conversion::
 @end menu
 
-@node String to number conversion, Integer to string conversion, Number conversion, Number conversion
+@node Base and integer decimal point, String to number conversion, Number conversion, Number conversion
+@subsection Base and integer decimal point
+@cindex number conversion, @code{base}
+@cindex integer conversion, @code{base}
+
+By default, the number base used for integer number conversion is
+given by the contents of the variable @code{base}.  @word{Base}
+affects both input integer conversion (unless a number prefix is used,
+@pxref{Literals in source code}) and output integer conversion (unless
+a base-specific word such as @word{h.} or @word{dec.} is used,
+@pxref{Simple numeric output}, @pxref{Integer to string conversion}).  In
+Gforth, non-decimal @word{base} disables floating-point conversion.
+
+Note that a lot of confusion can result from unexpected values of
+@code{base}.  If you change @code{base} anywhere, make sure to save
+the old value and restore it afterwards; better yet, use
+@code{base-execute}, which does this for you.
+
+In general I recommend keeping @code{base} decimal; For dealing with
+the popular non-decimal bases, use number prefixes for inputting them
+(@pxref{Literals in source code}) and @word{h.} and
+@word{base-execute} for outputting them.
+
+doc-base-execute
+doc-base
+doc-hex
+doc-decimal
+doc-dpl
+
+@cindex number conversion - traps for the unwary
+@noindent
+Number conversion has a number of traps for the unwary:
+
+@itemize @bullet
+@item
+A . in or at the end of a number by default indicates a double number, not a
+floating-point number.
+@item
+Input FP conversion does not happen if @word{base} is non-decimal.
+@item
+You cannot determine the current number base using the code sequence
+@code{base @@ .} -- the number base is always 10 in the current number
+base. Instead, use something like @code{base @@ dec.}
+@item
+There is a word @code{bin} but it does @i{not} set the number base!
+(@pxref{General files}).
+@item
+Standard Forth requires the @code{.} of a double-precision number to be the
+final character in the string.  Gforth allows the @code{.} to be
+anywhere.
+@item
+The input integer conversion process does not check for overflow.
+Instead, you get a value in the range of the result integer type
+(single or double cell) that is congruent with the input number modulo
+the number of values in the integer type (e.g., modulo 2^128 for
+doubles with 64-bit cells).
+@end itemize
+
+Words affected by @word{base} are @word{rec-number} (@pxref{Default
+recognizers}), @word{>number} (@pxref{String to number conversion}),
+and the words described in the sections @ref{Simple numeric output},
+and @ref{Integer to string conversion}. @word{Rec-number} sets
+@word{dpl}.
+
+
+
+
+@node String to number conversion, Integer to string conversion, Base and integer decimal point, Number conversion
 @subsection String to number conversion
 @cindex String to number conversion
 
@@ -13151,7 +13220,6 @@ doc-block-included
 @cindex I/O - keyboard and display
 
 @menu
-* Number Conversion::
 * Simple numeric output::       Predefined formats
 * Floating-point output::
 * Miscellaneous output::
@@ -13164,71 +13232,7 @@ doc-block-included
 * CSV reading and writing::
 @end menu
 
-@node Number Conversion, Simple numeric output, Other I/O, Other I/O
-@subsection Number Conversion
-@cindex number conversion, @code{base}
-@cindex integer conversion, @code{base}
-
-By default, the number base used for integer number conversion is
-given by the contents of the variable @code{base}.  @word{Base}
-affects both input integer conversion (unless a number prefix is used,
-@pxref{Literals in source code}) and output integer conversion (unless
-a base-specific word such as @word{h.} or @word{dec.} is used,
-@pxref{Simple numeric output}, @pxref{Integer to string conversion}).  In
-Gforth, non-decimal @word{base} disables floating-point conversion.
-
-Note that a lot of confusion can result from unexpected values of
-@code{base}.  If you change @code{base} anywhere, make sure to save
-the old value and restore it afterwards; better yet, use
-@code{base-execute}, which does this for you.
-
-In general I recommend keeping @code{base} decimal; For dealing with
-the popular non-decimal bases, use number prefixes for inputting them
-(@pxref{Literals in source code}) and @word{h.} and
-@word{base-execute} for outputting them.
-
-doc-base-execute
-doc-base
-doc-hex
-doc-decimal
-doc-dpl
-
-@cindex number conversion - traps for the unwary
-@noindent
-Number conversion has a number of traps for the unwary:
-
-@itemize @bullet
-@item
-A . in or at the end of a number by default indicates a double number, not a
-floating-point number.
-@item
-Input FP conversion does not happen if @word{base} is non-decimal.
-@item
-You cannot determine the current number base using the code sequence
-@code{base @@ .} -- the number base is always 10 in the current number
-base. Instead, use something like @code{base @@ dec.}
-@item
-There is a word @code{bin} but it does @i{not} set the number base!
-(@pxref{General files}).
-@item
-Standard Forth requires the @code{.} of a double-precision number to be the
-final character in the string.  Gforth allows the @code{.} to be
-anywhere.
-@item
-The input integer conversion process does not check for overflow.
-Instead, you get a value in the range of the result integer type
-(single or double cell) that is congruent with the input number modulo
-the number of values in the integer type (e.g., modulo 2^128 for
-doubles with 64-bit cells).
-@end itemize
-
-Words affected by @word{base} are @word{rec-number} (@pxref{Default
-recognizers}), @word{>number} (@pxref{String to number conversion}),
-and the words described in the sections @ref{Simple numeric output},
-and @ref{Integer to string conversion}. @word{Rec-number} sets
-@word{dpl}.
-
-@node Simple numeric output, Floating-point output, Number Conversion, Other I/O
+@node Simple numeric output, Floating-point output, Other I/O, Other I/O
 @subsection Simple numeric output
 @cindex numeric output - simple/free-format
 
