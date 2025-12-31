@@ -231,12 +231,12 @@ translate: translate-float ( r -- translation ) \ gforth-experimental
     \G requires the string to contain an exponent (@code{e} followed
     \G by an optional sign and 0 or more exponent digits) or a decimal
     \G point (the syntax with the decimal point only is shadowed by
-    \G the double-cell syntax by default, see @word{rec-number}; in
-    \G Gforth there can also be an SI prefix instead of the decimal
-    \G point, but then no @code{e} is allowed.
-    >num-warnings @ >r  prefix-number
-    IF    rdrop translate-float
-    ELSE  r> >num-warnings !  translate-none THEN ;
+    \G the double-cell syntax by default, see @word{rec-number}); in
+    \G Gforth there can also be an SI prefix (e.g., @code{M}) instead
+    \G of the decimal point, but then no @code{e} is allowed.
+    >num-warnings @ >r prefix-number
+    IF rdrop translate-float
+    ELSE r> >num-warnings !  translate-none THEN ;
 
 Variable user-flagmask 1 user-flagmask !
 
