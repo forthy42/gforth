@@ -224,12 +224,16 @@ translate: translate-float ( r -- translation ) \ gforth-experimental
 ' translate-float Constant rectype-float
 
 : rec-float ( c-addr u -- translation ) \ gforth-experimental
-    \G Recognizes (@pxref{Defining recognizers})
-    \G a floating-point number, @i{translation} represents
-    \G pushing that number at run-time (see @word{translate-float}).
-    \G In Gforth, numbers containing decimal digits and a dot are also
-    \G recognized as FP numbers (but by default shadowed by
-    \G double-cell numbers).
+    \G Recognizes (@pxref{Defining recognizers}) a floating-point
+    \G number, @i{translation} represents pushing that number at
+    \G run-time (see @word{translate-float}).  For recognizing a
+    \G string as a float, Gforth requires decimal @word{base}; it also
+    \G requires the string to contain an exponent (@code{e} followed
+    \G by an optional sign and 0 or more exponent digits) or a decimal
+    \G point (the syntax with the decimal point only is shadowed by
+    \G the double-cell syntax by default, see @word{rec-number}; in
+    \G Gforth there can also be an SI prefix instead of the decimal
+    \G point, but then no @code{e} is allowed.
     >num-warnings @ >r  prefix-number
     IF    rdrop translate-float
     ELSE  r> >num-warnings !  translate-none THEN ;
