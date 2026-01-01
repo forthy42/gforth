@@ -100,6 +100,9 @@ default-locale Value locale
     \G in @var{lsid}.
     locale $[]! ;
 
+0 [IF]
+\ obsolete one file per language interface
+
 : locale-file ( fid -- ) \ gforth-experimental locale-file
     \G read lines from @var{fid} into the current locale.
     dup >r locale $[]slurp
@@ -114,6 +117,7 @@ default-locale Value locale
 : include-locale ( "name" -- ) \ gforth-experimental include-locale
     \G read lines from the file @var{"name"} into the current locale.
     ?parse-name included-locale ;
+[THEN]
 
 \ CSV reader part
 
@@ -131,12 +135,12 @@ Variable lang[] \ array
     \G Define a locale named @var{addr u} and return its @var{xt}.
     get-current >r
     [: [ ' lang >wordlist ]L set-current
-	dup 2 = IF
+	2dup '_' scan nip IF
 	    nextname Language
 	ELSE
-	    over 2 get-current find-name-in
+	    2dup '_' $split 2drop get-current find-name-in
 	    ?dup-IF  name>interpret execute  THEN
-			nextname Country
+	    nextname Country
 	THEN
     ;] catch
     r> set-current  default-locale to locale
