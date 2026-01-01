@@ -1,7 +1,7 @@
 \ quote: S" and ." words
 
 \ Authors: Anton Ertl, Bernd Paysan, Jens Wilke
-\ Copyright (C) 1996,1998,1999,2002,2003,2007,2013,2014,2016,2018,2019,2021,2023,2024 Free Software Foundation, Inc.
+\ Copyright (C) 1996,1998,1999,2002,2003,2007,2013,2014,2016,2018,2019,2021,2023,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

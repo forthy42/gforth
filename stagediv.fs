@@ -1,7 +1,7 @@
 \ 2-stage division and optimizing division by constants
 
 \ Authors: Anton Ertl
-\ Copyright (C) 2020,2022,2023,2024 Free Software Foundation, Inc.
+\ Copyright (C) 2020,2022,2023,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

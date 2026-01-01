@@ -1,7 +1,7 @@
 \ High level floating point                            14jan94py
 
 \ Authors: Bernd Paysan, Anton Ertl, Neal Crook, Jens Wilke, Lennart Benschop
-\ Copyright (C) 1995,1997,2003,2004,2005,2006,2007,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1997,2003,2004,2005,2006,2007,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -224,15 +224,21 @@ translate: translate-float ( r -- translation ) \ gforth-experimental
 ' translate-float Constant rectype-float
 
 : rec-float ( c-addr u -- translation ) \ gforth-experimental
-    \G Recognizes (@pxref{Defining recognizers})
-    \G a floating-point number, @i{translation} represents
-    \G pushing that number at run-time (see @word{translate-float}).
-    \G In Gforth, numbers containing decimal digits and a dot are also
-    \G recognized as FP numbers (but by default shadowed by
-    \G double-cell numbers).
-    >num-warnings @ >r  prefix-number
-    IF    rdrop translate-float
-    ELSE  r> >num-warnings !  translate-none THEN ;
+    \G Recognizes (@pxref{Defining recognizers}) a floating-point
+    \G number, @i{translation} represents pushing that number at
+    \G run-time (see @word{translate-float}).  For recognizing a
+    \G string as a float, Gforth requires decimal @word{base}; it also
+    \G requires the string to contain an exponent (@code{e} followed
+    \G by an optional sign and 0 or more exponent digits) or a decimal
+    \G point (the syntax with the decimal point only is shadowed by
+    \G the double-cell syntax by default, see @word{rec-number}); in
+    \G Gforth there can also be an SI prefix (e.g., @code{M}) instead
+    \G of the decimal point, but then no @code{e} is allowed.
+    \G Examples: @code{1234e}, @code{1234.}, @code{1.234e3},
+    \G @code{12340e-1}, @code{1k234}.
+    >num-warnings @ >r prefix-number
+    IF rdrop translate-float
+    ELSE r> >num-warnings !  translate-none THEN ;
 
 Variable user-flagmask 1 user-flagmask !
 
@@ -259,7 +265,7 @@ user-flag: .-is-double? ( -- flag ) \ gforth-experimental
 \G numbers without prefix that contain a decimal point as double-cell
 \G numbers.  Otherwise @word{rec-number} does not recognize the
 \G number, and, if present, @word{rec-float} will recognize it as a
-\G floating-point number.@* @code{to .-is-number?}  run-time: @i{( x
+\G floating-point number.@* @code{to .-is-double?}  run-time: @i{( x
 \G -- )} If @i{x}=0 change the value of @word{.-is-double} to false,
 \G otherwise to true.
 true to .-is-double?

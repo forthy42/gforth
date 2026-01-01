@@ -104,7 +104,7 @@ serves as reference manual, but it also contains an introduction to
 Forth and a Forth tutorial.
 
 Authors: Bernd Paysan, Anton Ertl, Gerald Wodni, Neal Crook, David Kuehling, Jens Wilke
-Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Free Software Foundation, Inc.
+Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024,2025 Free Software Foundation, Inc.
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -338,6 +338,7 @@ Strings and Characters
 * String and character literals::
 * String words::
 * $tring words::
+* Internationalization and localization::
 * Substitute::
 * Counted string words::
 
@@ -430,6 +431,7 @@ Word Lists
 
 Number conversion
 
+* Base and integer decimal point::
 * String to number conversion::
 * Integer to string conversion::
 * Floating-point to string conversion::
@@ -449,7 +451,6 @@ Search Paths
 
 Other I/O
 
-* Number Conversion::
 * Simple numeric output::       Predefined formats
 * Floating-point output::
 * Miscellaneous output::
@@ -458,7 +459,6 @@ Other I/O
 * Single-key input::
 * String input from the terminal::
 * Pipes::                       How to create your own pipes
-* i18n and l10n::               Internationalization and Localization
 * CSV reading and writing::
 
 Terminal output
@@ -3081,7 +3081,7 @@ improved version produce different results.
 @end quotation
 
 Reference: @ref{Floating Point}; @ref{Floating point stack};
-@ref{Number Conversion}; @ref{Memory Access}; @ref{Address
+@ref{Number conversion}; @ref{Memory Access}; @ref{Address
 arithmetic}.
 
 @node Files Tutorial, Interpretation and Compilation Semantics and Immediacy Tutorial, Floating Point Tutorial, Tutorial
@@ -4844,7 +4844,7 @@ To push an integer number on the data stack, you write the number in
 source code, e.g., @code{123}.  You can prefix the digits with
 @code{-} to indicate a negative number, e.g. @code{-123}.  This works
 both inside colon definitions and outside.  The number is interpreted
-according to the value in @code{base} (@pxref{Number Conversion}).
+according to the value in @code{base} (@pxref{Base and integer decimal point}).
 The digits are @code{0} to @code{9} and @code{a} (decimal 10) to
 @code{z} (decimal 35), but only digits smaller than @code{base @@} are
 recognized.  The conversion is case-insensitive, so @code{A} and
@@ -5824,8 +5824,9 @@ doc-du>=
 @subsection Floating Point
 @cindex floating point arithmetic words
 
-For the rules used by the text interpreter for
-recognising floating-point numbers see @ref{Number Conversion}.
+For the rules used by the text interpreter for recognising
+floating-point numbers see @word{rec-float} (@pxref{Default
+recognizers}).
 
 Gforth has a separate floating point stack, but the documentation uses
 the unified notation.@footnote{It's easy to generate the separate
@@ -6751,6 +6752,7 @@ represented by two-byte sequences in UTF-8.
 * String and character literals::
 * String words::
 * $tring words::
+* Internationalization and localization::
 * Substitute::
 * Counted string words::
 @end menu
@@ -6793,32 +6795,54 @@ of words.  @xref{Counted string words}.
 @node Xchars and Unicode, String and character literals, String representations, Strings and Characters
 @subsection Xchars and Unicode
 
-ASCII is only appropriate for the English language. Most western
-languages however fit somewhat into the Forth frame, since a byte is
-sufficient to encode the few special characters in each (though not
-always the same encoding can be used; latin-1 is most widely used,
-though). For other languages, different char-sets have to be used,
-several of them variable-width.  To deal with this problem, characters
-are often represented as Unicode codepoints on the stack, and as UTF-8
-byte strings in memory.  An Unicode codepoint often represents one
-application-level character, but Unicode also supports decomposed
-characters that consist of several code points, e.g., a base letter
-and a combining diacritical mark.
+An xchar is represented as a single cell on the stack and as a
+sequence of one or more chars (as string) in memory.@footnote{Of
+course, you can also store the xchar cell in memory, but Gforth has no
+words for dealing with sequences of such cells.}
 
-An Unicode codepoint can consume more than one byte in memory, so we
-adjust our terminology: A char is a raw byte in memory or a value in
-the range 0-255 on the stack.  An xchar (for extended char) stands for
-one codepoint; it is represented by one or more bytes in memory and
-may have larger values on the stack.  ASCII characters are the same as
-chars and as xchars: values in the range 0-127, and a single byte with
-that value in memory.
+The actual supported xchars depend on the encoding, which is
+determined automatically from the environment variable
+@code{LC_CTYPE}, @code{LC_ALL}, or @code{LANG} (@pxref{Environment
+variables}).  If any of them contains ``UTF-8'' on Gforth startup,
+Gforth uses UTF-8 encoding (for Unicode), otherwise it uses
+fixed-width 8-bit encoding.  The encoding cannot be changed after
+Gforth startup, and if any non-ASCII characters are stored in an
+image, the image must be invoked in a way that produces the same
+encoding and charset setting.
+
+Any text I/O is expected to happen in the encoding and character set
+specified in the environment variables, so if any encoding or
+character set conversions are needed, perform them outside Gforth,
+with tools such as @command{recode} or @command{iconv}.
+
+The fixed-width 8-bit encoding is used for 8-bit encodings of legacy
+character sets, such as ISO Latin-1, ISO Latin-2, or KOI8-R.
+
+Whatever the environment, an xchar corresponds to a code point of the
+character set.  In some character sets, each code point represents a
+character, but in Unicode a user-perceived character may consist of a
+sequence of code points.  Gforth currently provides no facilities for
+dealing with user-perceived characters, and dealing with code points
+rarely provides any benefit, so the usual way to deal with text is as
+strings of chars.
+
+The only thing that's in common between Unicode and all the charsets
+for which Gforth supports a fixed-width encoding is ASCII: These
+character sets all have the code points 0--127 which have the same
+meaning, have the same on-stack representation (a number in the range
+0--127), and have the same in-memory representation (a single byte
+(aka char) that has a value in the range 0--127).
 
 When using UTF-8 encoding, all other codepoints take more than one
 byte/char.  In most cases, you can just treat such characters as
 strings in memory and don't need to use the following words, but if
 you want to deal with individual codepoints, the following words are
-useful.  We currently have no words for dealing with decomposed
-characters.
+useful.
+
+When using the fixed-width encoding, all other code points take only
+one byte, but you can still use the xchar words to access the code
+points, and your code will also continue to work when you switch to
+UTF-8 encoding.
 
 The xchar words add a few data types:
 
@@ -6826,10 +6850,7 @@ The xchar words add a few data types:
 
 @item
 @var{xc} is an extended char (xchar) on the stack. It occupies one
-cell, and is a subset of unsigned cell.  On 16 bit systems, only the
-BMP subset of the Unicode character set (i.e., codepoints <65536) can
-be represented on the stack.  If you represent your application
-characters as strings at all times, you can avoid this limitation.
+cell, and is a subset of unsigned cell.
 
 @item
 @var{xc-addr} is the address of an xchar in memory. Alignment
@@ -6838,8 +6859,9 @@ xchar differs from the stack representation, and depends on the
 encoding used. An xchar may use a variable number of chars in memory.
 
 @item
-@var{xc-addr} @var{u} is a buffer of xchars in memory, starting at
-@var{xc-addr}, @var{u} chars (i.e., bytes, not xchars) long.
+@var{xc-addr} @var{u} is a string (or buffer) of xchars in memory,
+starting at @var{xc-addr}, @var{u} chars (i.e., bytes, not xchars)
+long.
 
 @end itemize
 
@@ -6859,12 +6881,12 @@ doc-x-width
 doc-xc-width
 doc-xhold
 doc-xc,
+doc-invalid-char
 
 doc-toupper
 
-
-See also @word{xkey} (@pxref{Single-key input}).
-
+See also @word{xemit} (@pxref{Displaying characters and strings}) and
+@word{xkey} (@pxref{Single-key input}).
 
 
 @node String and character literals, String words, Xchars and Unicode, Strings and Characters
@@ -6990,6 +7012,8 @@ doc-#bell
 doc-#esc
 doc-#eof
 
+See also @word{invalid-char} (@pxref{Xchars and Unicode}).
+
 @node String words, $tring words, String and character literals, Strings and Characters
 @subsection String words
 
@@ -7044,7 +7068,7 @@ For concatenating just two strings @code{>string-execute} is
 inefficient, but for concatenating many strings @code{>string-execute}
 can be more efficient.
 
-@node $tring words, Substitute, String words, Strings and Characters
+@node $tring words, Internationalization and localization, String words, Strings and Characters
 @subsection $tring words
 @cindex string words with $
 
@@ -7108,16 +7132,110 @@ doc-$variable
 doc-$[]variable
 
 
-@node Substitute, Counted string words, $tring words, Strings and Characters
+@node Internationalization and localization, Substitute, $tring words, Strings and Characters
+@subsection Internationalization and localization
+
+The words described in this section are more experimental than some
+other words that are marked ``experimental'', i.e., they are more
+likely to change.  In order to use these words, include
+@file{i18n.fs}.
+
+A program may need to communicate with its user in the user's
+language, and it may have users with different languages.  We do not
+want to produce one version of the program for each language, so we
+write one internationalized program that can use localization features
+to communicate in the user's language.
+
+Apart from the words mentioned here, you will probably want to use
+Unicode to write the localized strings; you probably do not need to
+use the xchar words (@pxref{Xchars and Unicode}) in that context, but
+they are there if you need them.
+
+Moreover, you may need to put placeholders (e.g., for amounts of
+currency) in localized strings that you substitute for the real values
+later.  The word @word{substitute} and friends (@pxref{Substitute})
+have been designed for that purpose.
+
+The basic idea in an internationalized program is that instead of, e.g.,
+
+@source
+." Please enter your name:"
+@end source
+
+you write
+
+@source
+l" Please enter your name:" locale@ type
+@end source
+
+You can define a locale for German and activate it with
+
+@source
+language German \ definition
+German          \ activation
+@end source
+
+One way to localize strings is at the Forth level:
+
+@source
+s" Bitte geben Sie Ihren Namen ein:" l" Please enter your name:" locale!
+@end source
+
+This sets the localized string for ``Please enter your name:''.  When
+you then write
+
+@source
+German \ use the German locale
+l" Please enter your name:" locale@ type
+@end source
+
+you get the output @samp{Bitte geben Sie Ihren Namen ein:}.
+
+@word{L"} produces a locale-string identifier (@dfn{lsid}).  An lsid
+is an opaque token that occupies a cell, and it identifies the string
+given by @word{L"}, independent of the locale (language or
+country-specific language variation).  @word{locale@} maps the lsid to
+the locale-specific string.  A locale stores data for the mappings
+performed by @word{locale@} for that locale.
+
+doc-l"
+doc-lu"
+doc-native@
+doc-locale@
+doc-locale!
+doc-language
+doc-country
+
+Defining localizations with @word{locale!} is cumbersome and
+error-prone (you have to make sure that you provide the same strings
+to @word{locale!} as you use in the code.  Therefore, there are also
+ways to edit localizations in files, and load these files.
+Unfortunately, these ways are not mature yet, and are subject to
+change, but here is the current set of these words anyway:
+
+doc-locale-file
+doc-included-locale
+doc-include-locale
+doc-locale-csv
+doc-.locale-csv
+doc-locale-csv-out
+
+
+@node Substitute, Counted string words, Internationalization and localization, Strings and Characters
 @subsection Substitute
 
-This is a simple text macro replacement facility.  Texts in the form
-@code{"text %macro% text"} are processed, and the macro variables enclosed
-in @code{'%'} are replaced with their associated strings.  Two
-consecutive @code{%} are replaced by one @code{%}.  Macros are defined
-in a specific wordlist, and return a string upon execution; the standard
-defines only one way to declare macros, @code{replaces}, which creates a
-macro that just returns a string.
+This is a simple text macro replacement facility; it is particularly
+useful for working with localized strings (@pxref{Internationalization
+and localization}).  In other contexts, using @word{>string-execute}
+(@pxref{String words}) is often easier.
+
+When using @word{substitute}, strings in the form @code{"text%macro%text"} (with an arbitrary number of macros) are processed, and the
+macro variables enclosed in @code{'%'} are replaced by their
+associated strings.  Two consecutive @code{%} are replaced by one
+@code{%}.  Macros are defined in a specific wordlist, and return a
+string upon execution; the standard defines only one way to declare
+macros, @code{replaces}, which creates a macro that just returns a
+string.
 
 doc-macros-wordlist
 doc-replaces
@@ -12297,12 +12415,80 @@ output}), and outputting the result in a string with
 @word{>string-execute} (@pxref{String words}).
 
 @menu
+* Base and integer decimal point::
 * String to number conversion::
 * Integer to string conversion::
 * Floating-point to string conversion::
 @end menu
 
-@node String to number conversion, Integer to string conversion, Number conversion, Number conversion
+@node Base and integer decimal point, String to number conversion, Number conversion, Number conversion
+@subsection Base and integer decimal point
+@cindex number conversion, @code{base}
+@cindex integer conversion, @code{base}
+
+By default, the number base used for integer number conversion is
+given by the contents of the variable @code{base}.  @word{Base}
+affects both input integer conversion (unless a number prefix is used,
+@pxref{Literals in source code}) and output integer conversion (unless
+a base-specific word such as @word{h.} or @word{dec.} is used,
+@pxref{Simple numeric output}, @pxref{Integer to string conversion}).  In
+Gforth, non-decimal @word{base} disables floating-point conversion.
+
+Note that a lot of confusion can result from unexpected values of
+@code{base}.  If you change @code{base} anywhere, make sure to save
+the old value and restore it afterwards; better yet, use
+@code{base-execute}, which does this for you.
+
+In general I recommend keeping @code{base} decimal; For dealing with
+the popular non-decimal bases, use number prefixes for inputting them
+(@pxref{Literals in source code}) and @word{h.} and
+@word{base-execute} for outputting them.
+
+doc-base-execute
+doc-base
+doc-hex
+doc-decimal
+doc-dpl
+
+@cindex number conversion - traps for the unwary
+@noindent
+Number conversion has a number of traps for the unwary:
+
+@itemize @bullet
+@item
+A . in or at the end of a number by default indicates a double number, not a
+floating-point number.
+@item
+Input FP conversion does not happen if @word{base} is non-decimal.
+@item
+You cannot determine the current number base using the code sequence
+@code{base @@ .} -- the number base is always 10 in the current number
+base. Instead, use something like @code{base @@ dec.}
+@item
+There is a word @code{bin} but it does @i{not} set the number base!
+(@pxref{General files}).
+@item
+Standard Forth requires the @code{.} of a double-precision number to be the
+final character in the string.  Gforth allows the @code{.} to be
+anywhere.
+@item
+The input integer conversion process does not check for overflow.
+Instead, you get a value in the range of the result integer type
+(single or double cell) that is congruent with the input number modulo
+the number of values in the integer type (e.g., modulo 2^128 for
+doubles with 64-bit cells).
+@end itemize
+
+Words affected by @word{base} are @word{rec-number} (@pxref{Default
+recognizers}), @word{>number} (@pxref{String to number conversion}),
+and the words described in the sections @ref{Simple numeric output},
+and @ref{Integer to string conversion}. @word{Rec-number} sets
+@word{dpl}.
+
+
+
+
+@node String to number conversion, Integer to string conversion, Base and integer decimal point, Number conversion
 @subsection String to number conversion
 @cindex String to number conversion
 
@@ -12338,11 +12524,11 @@ doc->float1
 Forth uses a technique called @dfn{pictured numeric output} for
 formatted printing of integers.  In this technique, digits are
 extracted from the number (using the current output radix defined by
-@code{base}, @pxref{Number Conversion}), converted to ASCII codes and
-prepended to a string that is built in the pictured numeric output
-buffer, aka @word{hold} buffer (total size, including all nestings and
-the @word{word} buffer, is at most 104 bytes on a 32-bit machine,
-@pxref{core-idef, Implementation-defined options,
+@code{base}, @pxref{Base and integer decimal point}), converted to
+ASCII codes and prepended to a string that is built in the pictured
+numeric output buffer, aka @word{hold} buffer (total size, including
+all nestings and the @word{word} buffer, is at most 104 bytes on a
+32-bit machine, @pxref{core-idef, Implementation-defined options,
 Implementation-defined options}). Arbitrary characters can be
 prepended to the string during the extraction process. The completed
 string is specified by an address and length and can be manipulated
@@ -13130,7 +13316,6 @@ doc-block-included
 @cindex I/O - keyboard and display
 
 @menu
-* Number Conversion::
 * Simple numeric output::       Predefined formats
 * Floating-point output::
 * Miscellaneous output::
@@ -13139,83 +13324,18 @@ doc-block-included
 * Single-key input::
 * String input from the terminal::
 * Pipes::                       How to create your own pipes
-* i18n and l10n::               Internationalization and Localization
 * CSV reading and writing::
 @end menu
 
-@node Number Conversion, Simple numeric output, Other I/O, Other I/O
-@subsection Number Conversion
-@cindex number conversion, @code{base}
-@cindex integer conversion, @code{base}
-
-By default, the number base used for integer number conversion is
-given by the contents of the variable @code{base}.  @word{Base}
-affects both input integer conversion (unless a number prefix is used,
-@pxref{Literals in source code}) and output integer conversion (unless
-a base-specific word such as @word{h.} or @word{dec.} is used,
-@pxref{Simple numeric output}, @pxref{Integer to string conversion}).  In
-Gforth, non-decimal @word{base} disables floating-point conversion.
-
-Note that a lot of confusion can result from unexpected values of
-@code{base}.  If you change @code{base} anywhere, make sure to save
-the old value and restore it afterwards; better yet, use
-@code{base-execute}, which does this for you.
-
-In general I recommend keeping @code{base} decimal; For dealing with
-the popular non-decimal bases, use number prefixes for inputting them
-(@pxref{Literals in source code}) and @word{h.} and
-@word{base-execute} for outputting them.
-
-doc-base-execute
-doc-base
-doc-hex
-doc-decimal
-doc-dpl
-
-@cindex number conversion - traps for the unwary
-@noindent
-Number conversion has a number of traps for the unwary:
-
-@itemize @bullet
-@item
-A . in or at the end of a number by default indicates a double number, not a
-floating-point number.
-@item
-Input FP conversion does not happen if @word{base} is non-decimal.
-@item
-You cannot determine the current number base using the code sequence
-@code{base @@ .} -- the number base is always 10 in the current number
-base. Instead, use something like @code{base @@ dec.}
-@item
-There is a word @code{bin} but it does @i{not} set the number base!
-(@pxref{General files}).
-@item
-Standard Forth requires the @code{.} of a double-precision number to be the
-final character in the string.  Gforth allows the @code{.} to be
-anywhere.
-@item
-The input integer conversion process does not check for overflow.
-Instead, you get a value in the range of the result integer type
-(single or double cell) that is congruent with the input number modulo
-the number of values in the integer type (e.g., modulo 2^128 for
-doubles with 64-bit cells).
-@end itemize
-
-Words affected by @word{base} are @word{rec-number} (@pxref{Default
-recognizers}), @word{>number} (@pxref{String to number conversion}),
-and the words described in the sections @ref{Simple numeric output},
-and @ref{Integer to string conversion}. @word{Rec-number} sets
-@word{dpl}.
-
-@node Simple numeric output, Floating-point output, Number Conversion, Other I/O
+@node Simple numeric output, Floating-point output, Other I/O, Other I/O
 @subsection Simple numeric output
 @cindex numeric output - simple/free-format
 
 The simplest output functions are those that display integers from the
 data stack.  Numbers are displayed in the base (aka radix) stored in
-@code{base} (@pxref{Number Conversion}).  For outputting integers with
-additional formatting requirements @pxref{Integer to string
-conversion}.
+@code{base} (@pxref{Base and integer decimal point}).  For outputting
+integers with additional formatting requirements @pxref{Integer to
+string conversion}.
 
 doc-.
 doc-dec.
@@ -13594,7 +13714,7 @@ doc-expect
 doc-span
 
 
-@node Pipes, i18n and l10n, String input from the terminal, Other I/O
+@node Pipes, CSV reading and writing, String input from the terminal, Other I/O
 @subsection Pipes
 @cindex pipes, creating your own
 
@@ -13616,37 +13736,7 @@ doc-broken-pipe-error
 
 
 
-@node i18n and l10n, CSV reading and writing, Pipes, Other I/O
-@subsection Internationalization and Localization
-
-Programs for end users require to address those in their native
-language.  There is a decades old proposal for such a facility that has
-been split from other proposals for international character sets like
-Xchars (@pxref{Xchars and Unicode}) and Substitute (@pxref{Substitute}).
-Messages displayed on the screen need to be translated from the native
-language of the developers to the local languages of the user.
-
-Strings subject to translation are declared with
-@code{L" }@var{string}@code{"}.  This returns a locale string identifier
-(LSID).  LSIDs are opaque types, taking a cell on the stack.  LSIDs can
-be translated into a locale; locales are languages and country-specific
-variants of that language.
-
-doc-l"
-doc-lu"
-doc-native@
-doc-locale@
-doc-locale!
-doc-language
-doc-country
-doc-locale-file
-doc-included-locale
-doc-include-locale
-doc-locale-csv
-doc-.locale-csv
-doc-locale-csv-out
-
-@node CSV reading and writing,  , i18n and l10n, Other I/O
+@node CSV reading and writing,  , Pipes, Other I/O
 @subsection CSV Reader
 
 Comma-separated values (CSV) are a popular text format to interchange

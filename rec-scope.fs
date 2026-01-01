@@ -1,7 +1,7 @@
 \ scope recognizer
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2015,2016,2017,2018,2019,2020,2022,2023,2024 Free Software Foundation, Inc.
+\ Copyright (C) 2015,2016,2017,2018,2019,2020,2022,2023,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

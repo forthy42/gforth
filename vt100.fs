@@ -1,7 +1,7 @@
 \ VT100.STR     VT100 excape sequences                  20may93jaw
 
 \ Authors: Anton Ertl, Bernd Paysan, Neal Crook
-\ Copyright (C) 1995,1999,2000,2003,2007,2012,2013,2014,2016,2018,2019,2023 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1999,2000,2003,2007,2012,2013,2014,2016,2018,2019,2023,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

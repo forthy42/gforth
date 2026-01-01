@@ -1,7 +1,7 @@
 \ converts primitives to, e.g., C code 
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2008,2009,2013,2019,2021,2022 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2008,2009,2013,2019,2021,2022,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

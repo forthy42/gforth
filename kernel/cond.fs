@@ -1,7 +1,7 @@
 \ Structural Conditionals                              12dec92py
 
 \ Authors: Anton Ertl, Bernd Paysan, Neal Crook, Jens Wilke
-\ Copyright (C) 1995,1996,1997,2000,2003,2004,2007,2010,2011,2012,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,2000,2003,2004,2007,2010,2011,2012,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
