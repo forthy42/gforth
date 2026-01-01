@@ -4881,13 +4881,13 @@ non-standardly, anywhere else except before a prefix) to get a
 double-cell integer (e.g., @code{#-123.} or @code{#-.123} (the same
 number)).
 
-By default (@word{.-is-double?} pushes true), prefixless numbers with
+By default (@word{.-is-dcell?} pushes true), prefixless numbers with
 a decimal point (e.g., @code{-123.}) are also recognized as
 double-cell integers.  This is confusing to users experienced in other
 programming language.  To clear up the confusion early, Gforth warns
 of such usage; to avoid the warnings, the best approach is to always
 write double numbers with a base prefix (e.g., @code{#-123.}).  This
-also works in the setting @code{0 to .-is-double?}.
+also works in the setting @code{0 to .-is-dcell?}.
 
 Here are some examples, with the equivalent decimal number shown after
 in braces:
@@ -4922,7 +4922,7 @@ are only recognized when the base is decimal.  Examples are: @code{1e
 1e0 1.e 1.e0 +1e+0} (which all represent the same number)
 @code{+12.E-4}.
 
-With the setting @code{0 to .-is-double?}, Gforth (since 1.0) does not
+With the setting @code{0 to .-is-dcell?}, Gforth (since 1.0) does not
 recognize prefixless numbers with a decimal point as double-cell
 integers, but recognizes them as FP numbers instead.  Note that
 standard Forth systems (such as the default setting of Gforth) behave
@@ -11794,7 +11794,7 @@ doc-rec-name
 doc-rec-local
 doc-rec-scope
 doc-rec-number
-doc-.-is-double?
+doc-.-is-dcell?
 doc-rec-float
 doc-rec-complex
 doc-rec-string

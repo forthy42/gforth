@@ -144,6 +144,9 @@ Variable lang[] \ array
 
 : define-locale ( addr u -- xt ) \ gforth-experimental
     \G Define a locale named @var{addr u} and return its @var{xt}.
+    \G A locale is defined by @code{language} if it doesn't contain a '_',
+    \G if it does, it is defined by @code{country} referring to the
+    \G language before the '_', if that exists.
     get-current >r
     [: [ ' lang >wordlist ]L set-current
 	2dup '_' scan nip IF
