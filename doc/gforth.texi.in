@@ -458,7 +458,7 @@ Other I/O
 * Single-key input::
 * String input from the terminal::
 * Pipes::                       How to create your own pipes
-* i18n and l10n::               Internationalization and Localization
+* Internationalization and localization::
 * CSV reading and writing::
 
 Terminal output
@@ -7134,13 +7134,18 @@ doc-$[]variable
 @node Substitute, Counted string words, $tring words, Strings and Characters
 @subsection Substitute
 
-This is a simple text macro replacement facility.  Texts in the form
-@code{"text %macro% text"} are processed, and the macro variables enclosed
-in @code{'%'} are replaced with their associated strings.  Two
-consecutive @code{%} are replaced by one @code{%}.  Macros are defined
-in a specific wordlist, and return a string upon execution; the standard
-defines only one way to declare macros, @code{replaces}, which creates a
-macro that just returns a string.
+This is a simple text macro replacement facility; it is particularly
+useful for working with localized strings (@pxref{Internationalization
+and localization}).  In other contexts, using @word{>string-execute}
+(@pxref{String words}) is often easier.
+
+When using @word{substitute}, strings in the form @code{"text%macro%text"} (with an arbitrary number of macros) are processed, and the
+macro variables enclosed in @code{'%'} are replaced by their
+associated strings.  Two consecutive @code{%} are replaced by one
+@code{%}.  Macros are defined in a specific wordlist, and return a
+string upon execution; the standard defines only one way to declare
+macros, @code{replaces}, which creates a macro that just returns a
+string.
 
 doc-macros-wordlist
 doc-replaces
@@ -13229,7 +13234,7 @@ doc-block-included
 * Single-key input::
 * String input from the terminal::
 * Pipes::                       How to create your own pipes
-* i18n and l10n::               Internationalization and Localization
+* Internationalization and localization::
 * CSV reading and writing::
 @end menu
 
@@ -13620,7 +13625,7 @@ doc-expect
 doc-span
 
 
-@node Pipes, i18n and l10n, String input from the terminal, Other I/O
+@node Pipes, Internationalization and localization, String input from the terminal, Other I/O
 @subsection Pipes
 @cindex pipes, creating your own
 
@@ -13642,21 +13647,71 @@ doc-broken-pipe-error
 
 
 
-@node i18n and l10n, CSV reading and writing, Pipes, Other I/O
-@subsection Internationalization and Localization
+@node Internationalization and localization, CSV reading and writing, Pipes, Other I/O
+@subsection Internationalization and localization
 
-Programs for end users require to address those in their native
-language.  There is a decades old proposal for such a facility that has
-been split from other proposals for international character sets like
-Xchars (@pxref{Xchars and Unicode}) and Substitute (@pxref{Substitute}).
-Messages displayed on the screen need to be translated from the native
-language of the developers to the local languages of the user.
+The words described in this section are more experimental than some
+other words that are marked ``experimental'', i.e., they are more
+likely to change.  In order to use these words, include
+@file{i18n.fs}.
 
-Strings subject to translation are declared with
-@code{L" }@var{string}@code{"}.  This returns a locale string identifier
-(LSID).  LSIDs are opaque types, taking a cell on the stack.  LSIDs can
-be translated into a locale; locales are languages and country-specific
-variants of that language.
+A program may need to communicate with its user in the user's
+language, and it may have users with different languages.  We do not
+want to produce one version of the program for each language, so we
+write one internationalized program that can use localization features
+to communicate in the user's language.
+
+Apart from the words mentioned here, you will probably want to use
+Unicode to write the localized strings; you probably do not need to
+use the xchar words (@pxref{Xchars and Unicode}) in that context, but
+they are there if you need them.
+
+Moreover, you may need to put placeholders (e.g., for amounts of
+currency) in localized strings that you substitute for the real values
+later.  The word @word{substitute} and friends (@pxref{Substitute})
+have been designed for that purpose.
+
+The basic idea in an internationalized program is that instead of, e.g.,
+
+@source
+." Please enter your name:"
+@end source
+
+you write
+
+@source
+l" Please enter your name:" locale@ type
+@end source
+
+You can define a locale for German and activate it with
+
+@source
+language German \ definition
+German          \ activation
+@end source
+
+One way to localize strings is at the Forth level:
+
+@source
+s" Bitte geben Sie Ihren Namen ein:" l" Please enter your name:" locale!
+@end source
+
+This sets the localized string for ``Please enter your name:''.  When
+you then write
+
+@source
+German \ use the German locale
+l" Please enter your name:" locale@ type
+@end source
+
+you get the output @samp{Bitte geben Sie Ihren Namen ein:}.
+
+@word{L"} produces a locale-string identifier (@dfn{lsid}).  An lsid
+is an opaque token that occupies a cell, and it identifies the string
+given by @word{L"}, independent of the locale (language or
+country-specific language variation).  @word{locale@} maps the lsid to
+the locale-specific string.  A locale stores data for the mappings
+performed by @word{locale@} for that locale.
 
 doc-l"
 doc-lu"
@@ -13665,6 +13720,14 @@ doc-locale@
 doc-locale!
 doc-language
 doc-country
+
+Defining localizations with @word{locale!} is cumbersome and
+error-prone (you have to make sure that you provide the same strings
+to @word{locale!} as you use in the code.  Therefore, there are also
+ways to edit localizations in files, and load these files.
+Unfortunately, these ways are not mature yet, and are subject to
+change, but here is the current set of these words anyway:
+
 doc-locale-file
 doc-included-locale
 doc-include-locale
@@ -13672,7 +13735,7 @@ doc-locale-csv
 doc-.locale-csv
 doc-locale-csv-out
 
-@node CSV reading and writing,  , i18n and l10n, Other I/O
+@node CSV reading and writing,  , Internationalization and localization, Other I/O
 @subsection CSV Reader
 
 Comma-separated values (CSV) are a popular text format to interchange

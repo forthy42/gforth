@@ -135,8 +135,8 @@ decimal
 
 \ EXPECT SPAN                                           17may93jaw
 
-variable span ( -- c-addr ) \ gforth-obsolete
-\G @code{Variable} -- @i{c-addr} is the address of a cell that stores
+variable span ( -- addr ) \ gforth-obsolete
+\G The variable at @i{addr} contains
 \G the length of the last string received by @code{expect}. OBSOLETE:
 \G This word has been de-standardized in Forth-2012.  Use
 \G @word{accept} instead.

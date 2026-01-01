@@ -31,8 +31,9 @@ $[]Variable lsids 0 ,
 : lsid# ( -- n )
     lsids $[]# 1- ;
 
-: native@ ( lsid -- addr u ) \ gforth-experimental native-fetch
-    \G fetch native string from an @var{lsid}
+: native@ ( lsid -- c-addr u ) \ gforth-experimental native-fetch
+    \G @i{c-addr u} is the @word{l"} string for @i{lsid} (i.e., the
+    \G text-interpretation argument of @word{l"}.
     lsids $[]@ ;
 
 : search-lsid ( addr u -- lsid )
@@ -53,17 +54,24 @@ $[]Variable lsids 0 ,
 : LLiteral ( addr u -- )
     ?new-lsid postpone Literal ; immediate
 
-: L" ( "lsid<">" -- lsid ) \ gforth-experimental l-quote
-    \G Parse a string and define a new lsid, if the string is uniquely new.
-    \G Identical strings result in identical lsids, which allows to refer
-    \G to the same lsid from multiple locations using the same string.
+: L" ( Interpretation "string<">" -- lsid; Compilation "string<">" -- ) \ gforth-experimental l-quote
+    \G At text interpretation time, parse @i{string}.  At run-time,
+    \G push the @i{lsid} associated with @i{string}.  Each string has
+    \G a unique lsid.  If no lsid for the string exists yet, a new one
+    \G is created.  If an lsid for the string exists already, that
+    \G lsid is returned.  This means that one can refer to and use the
+    \G same lsid with @word{l"} in different locations in the source
+    \G code.
     '"' parse ?new-lsid ;
-compsem: '"' parse  postpone LLiteral ;
+compsem: '"' parse postpone LLiteral ;
 
 \ deliberately unique string
-: LU" ( "lsid<">" -- lsid ) \ gforth-experimental l-unique-quote
-    \G Parse a string and always define a new lsid, even if the string is not
-    \G unique.
+: LU" ( Interpretation "string<">" -- lsid; Compilation "string<">" -- ) \ gforth-experimental l-unique-quote
+    \G Like @word{l"}, but @word{lu"} always generates a new lsid at
+    \G text-interpretation time, even if there is an lsid for the
+    \G string already.  To refer to that lsid, you need to store it in
+    \G some other way (e.g., as a constant).  You cannot use @word{l"}
+    \G or @word{lu"} to get @i{lsid} again.
     '"' parse new-lsid ;
 compsem: '"' parse new-lsid postpone Literal ; immediate
 
@@ -77,27 +85,30 @@ $[]Variable default-locale lsids ,
 default-locale Value locale
 
 : Language ( "name" -- ) \ gforth-experimental
-    \G define a locale.  Executing that locale makes it the current locale.
+    \G Defines a new locale @i{l}.@* @i{name} execution: ( -- ) @i{l}
+    \G becomes the current locale.
     $[]Variable default-locale ,
   DOES> to locale ;
 : Country ( <lang> "name" -- ) \ gforth-experimental
-    \G define a variant (typical: country) for the current locale.  Executing
-    \G that locale makes it the current locale.  You can create variants of
-    \G variants (a country may have variants within, e.g. think of how many
-    \G words for rolls/buns there are in many languages).
+    \G The intended use of this word is to define a variation of a
+    \G locale.  The current implementation just defines a new locale,
+    \G like @word{Language}.
     $[]Variable locale ,
   DOES> to locale ;
 
-: locale@ ( lsid -- addr u ) \ gforth-experimental locale-fetch
-    \G fetch the localized string in the current language and country
+: locale@ ( lsid -- c-addr u ) \ gforth-experimental locale-fetch
+    \G @i{c-addr u} is the localized string for @i{lsid} in the
+    \G current locale.  If no localized string has been given in the
+    \G current locale for @i{lsid}, @i{c-addr u} is the
+    \G text-interpretation argument of @word{l"}.
     locale
-    BEGIN  2dup $[]@ 2dup d0= WHILE
-	2drop cell+ @ dup 0= UNTIL  0 0  THEN
+    BEGIN 2dup $[]@ 2dup d0= WHILE
+	2drop cell+ @ dup 0= UNTIL 0 0 THEN
     2nip ;
 
 : locale! ( addr u lsid -- ) \ gforth-experimental locale-store
-    \G Store localized string @var{addr u} for the current locale and country
-    \G in @var{lsid}.
+    \G After executing @word{locale!}, the localized string for
+    \G @i{lsid} in the current locale is @i{c-addr u}.
     locale $[]! ;
 
 : locale-file ( fid -- ) \ gforth-experimental locale-file
