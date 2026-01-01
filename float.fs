@@ -246,7 +246,7 @@ Variable user-flagmask 1 user-flagmask !
 : and! ( x addr -- )  tuck @ and swap ! ;
 : userflag! ( flag addr -- )
     @ swap IF  user-flags or!  ELSE  invert user-flags and!  THEN ;
-: -userflag! ( flag addr -- ) swap invert swap userflag! ;
+: -userflag! ( flag addr -- ) swap 0= swap userflag! ;
 
 to-table: userflag!-table userflag!
 ' >body userflag!-table to-class: userflag-to
