@@ -278,13 +278,20 @@ user-flag: .-is-dcell? ( -- flag ) \ gforth-experimental
 \G numbers.  Otherwise @word{rec-number} does not recognize the
 \G number, and, if present, @word{rec-float} will recognize it as a
 \G floating-point number.@* @code{to .-is-dcell?}  run-time: @i{( x
-\G -- )} If @i{x}=0 change the value of @word{.-is-double} to false,
+\G -- )} If @i{x}=0 change the value of @word{.-is-dcell?} to false,
 \G otherwise to true.
 true to .-is-dcell?
 
 user-flagmask @ 2/ user-flagmask !
 -user-flag: .-is-float? ( -- flag ) \ gforth-experimental
-\G inverted interface to @code{.-is-dcell?}.
+\G If this user flag is true, @word{rec-number} recognizes
+\G numbers without prefix that contain a decimal point as floating point
+\G numbers.  Then @word{rec-number} does not recognize the
+\G number, and, if present, @word{rec-float} will recognize it as a
+\G floating-point number.@* @code{to .-is-float?}  run-time: @i{( x
+\G -- )} If @i{x}=0 change the value of @word{.-is-float?} to false,
+\G otherwise to true.  This manipulates the same bit as @code{.-is-dcell?},
+\G just inverted.
 
 : rec-number ( c-addr u -- translation ) \ gforth-experimental
     \G Recognizes (@pxref{Defining recognizers})
