@@ -173,10 +173,7 @@ Variable lang[] \ array
 	    2dup s" default" str= IF
 		2drop default-locale
 	    ELSE
-		dup 2 > IF  over 2 + c@ '_' =
-		ELSE  dup 2 =  THEN
-		IF    define-locale
-		ELSE  drop 2drop rdrop EXIT  THEN
+		define-locale
 	    THEN
 	THEN
 	r> lang[] $[] ! EXIT  THEN
