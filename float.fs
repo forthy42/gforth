@@ -246,12 +246,9 @@ Variable user-flagmask 1 user-flagmask !
 : and! ( x addr -- )  tuck @ and swap ! ;
 : userflag! ( flag addr -- )
     @ swap IF  user-flags or!  ELSE  invert user-flags and!  THEN ;
-: -userflag! ( flag addr -- ) swap 0= swap userflag! ;
 
 to-table: userflag!-table userflag!
 ' >body userflag!-table to-class: userflag-to
-to-table: -userflag!-table -userflag!
-' >body -userflag!-table to-class: -userflag-to
 
 : user-flag: ( "name" -- ) \ gforth-experimental
     \G Create a new user flag. User flags are bits in the user variable
@@ -262,15 +259,6 @@ to-table: -userflag!-table -userflag!
     Create user-flagmask @ dup , user-flagmask +!
     [: @ user-flags @ and 0<> ;] set-does>
     ['] userflag-to set-to ;
-: -user-flag: ( "name" -- ) \ gforth-experimental
-    \G Create a new inverted user flag. User flags are bits in the user variable
-    \G \code{user-flags}, so you can save and restore all of them in one go.@*
-    \G @i{name} execution: @i{( -- flag )}@*
-    \G @code{to @i{name}} run-time: @i{( x -- )} If @i{x}=0, change
-    \G the value of @i{name} to false, otherwise to true.
-    Create user-flagmask @ dup , user-flagmask +!
-    [: @ user-flags @ and 0= ;] set-does>
-    ['] -userflag-to set-to ;
 
 user-flag: .-is-dcell? ( -- flag ) \ gforth-experimental
 \G If this user flag is true (default), @word{rec-number} recognizes
@@ -282,17 +270,6 @@ user-flag: .-is-dcell? ( -- flag ) \ gforth-experimental
 \G otherwise to true.
 true to .-is-dcell?
 
-user-flagmask @ 2/ user-flagmask !
--user-flag: .-is-float? ( -- flag ) \ gforth-experimental
-\G If this user flag is true, @word{rec-number} recognizes
-\G numbers without prefix that contain a decimal point as floating point
-\G numbers.  Then @word{rec-number} does not recognize the
-\G number, and, if present, @word{rec-float} will recognize it as a
-\G floating-point number.@* @code{to .-is-float?}  run-time: @i{( x
-\G -- )} If @i{x}=0 change the value of @word{.-is-float?} to false,
-\G otherwise to true.  This manipulates the same bit as @code{.-is-dcell?},
-\G just inverted.
-
 : rec-number ( c-addr u -- translation ) \ gforth-experimental
     \G Recognizes (@pxref{Defining recognizers})
     \G a single or double number (without or with prefix), or
@@ -303,7 +280,7 @@ user-flagmask @ 2/ user-flagmask !
     \G recognized as double numbers.
     dpl @ >num-warnings @ 2>r snumber?  dup
     IF
-	dup 0> >num-warnings @ 1 and 0= and .-is-float? and IF
+	dup 0> >num-warnings @ 1 and 0= and .-is-dcell? 0= and IF
 	    2drop
 	ELSE
 	    0> translate-dcell translate-cell rot select

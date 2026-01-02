@@ -11795,7 +11795,6 @@ doc-rec-local
 doc-rec-scope
 doc-rec-number
 doc-.-is-dcell?
-doc-.-is-float?
 doc-rec-float
 doc-rec-complex
 doc-rec-string
