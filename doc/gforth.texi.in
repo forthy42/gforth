@@ -7199,12 +7199,12 @@ the locale-specific string.  A locale stores data for the mappings
 performed by @word{locale@} for that locale.
 
 doc-l"
-doc-lu"
 doc-native@
 doc-locale@
 doc-locale!
-doc-language
-doc-country
+doc-locale:
+doc-program
+doc-default
 
 Defining localizations with @word{locale!} is cumbersome and
 error-prone (you have to make sure that you provide the same strings
@@ -7213,9 +7213,6 @@ ways to edit localizations in files, and load these files.
 Unfortunately, these ways are not mature yet, and are subject to
 change, but here is the current set of these words anyway:
 
-doc-locale-file
-doc-included-locale
-doc-include-locale
 doc-locale-csv
 doc-.locale-csv
 doc-locale-csv-out

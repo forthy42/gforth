@@ -35,7 +35,7 @@ $[]Variable lsids 0 ,
 
 : native@ ( lsid -- c-addr u ) \ gforth-experimental native-fetch
     \G @i{c-addr u} is the @word{l"} string for @i{lsid} (i.e., the
-    \G text-interpretation argument of @word{l"}.
+    \G text-interpretation argument of @word{l"}).
     lsids $[]@ ;
 
 : search-lsid ( addr u -- lsid )
@@ -64,7 +64,7 @@ $[]Variable lsids 0 ,
     \G lsid is returned.  This means that one can refer to and use the
     \G same lsid with @word{l"} in different locations in the source
     \G code.  If you need to make your string unique, append " [specifier]"
-    \G to it, e.g. @code{L" bank [finance]"} or @code{L" draw [line]"}.
+    \G to it, e.g. @code{L" bank [finance]"} or @code{L" bank [geography]"}.
     '"' parse ?new-lsid ;
 compsem: '"' parse postpone LLiteral ;
 
@@ -79,10 +79,7 @@ default-locale Value locale
 
 : Locale: ( "name" -- ) \ gforth-experimental
     \G Defines a new locale @i{l}.@* @i{name} execution: ( -- ) @i{l}
-    \G becomes the current locale.  Fallbacks of locales depend on their
-    \G form: a variant separated by @code{'_'} falls back to the language
-    \G before the underscore, a language falls back to default, and
-    \G default falls back to the program language.
+    \G becomes the current locale.
     [: ['] lang >wordlist set-current $[]Variable ;] current-execute
     latest name>string '_' -scan dup IF
 	['] lang >wordlist find-name-in
@@ -92,9 +89,14 @@ default-locale Value locale
 
 : locale@ ( lsid -- c-addr u ) \ gforth-experimental locale-fetch
     \G @i{c-addr u} is the localized string for @i{lsid} in the
-    \G current locale.  If no localized string has been given in the
-    \G current locale for @i{lsid}, @i{c-addr u} is the
-    \G text-interpretation argument of @word{l"}.
+    \G current locale.  If no localized string is found in the current
+    \G locale with a name of the form @code{@i{X}_@i{Y}}, @i{lsid} is
+    \G looked up in locale @code{@i{X}}.  If no localized string is
+    \G found in the locale @code{@i{X}}, @i{lsid} is looked up in the
+    \G locale @word{default}.  If no localized string is found in the
+    \G locale @word{default}, @i{lsid} is looked up in the locale
+    \G @word{default} (i.e., @i{c-addr u} is the text-interpretation
+    \G argument of @word{l"}).
     locale
     BEGIN 2dup $[]@ 2dup d0= WHILE
 	2drop cell+ @ dup 0= UNTIL 0 0 THEN
@@ -117,8 +119,20 @@ default-locale Value locale
 
 get-current
 also lang definitions
-' lsids alias program
-' default-locale alias default
+' lsids alias program ( -- ) \ gforth-experimental
+\G @word{lang:program} activates the locale for which @word{locale@}
+\G produces the string used for identifying the lsid (i.e., the string
+\G parsed by @word{l"}).  This locale is useful for seeing which lsid
+\G is used in which context.
+
+' default-locale alias default ( -- ) \ gforth-experimental
+\G @word{lang:default} is the default locale if the user has not set
+\G one.  Most lsids don't have a specific default string, so fallback
+\G to the @word{program} locale happens.  But if you have a program
+\G string that is inappropriate for end-user usage (in particular, if
+\G the program string contains an extra specifier), you will prefer to
+\G define an appropriate string in the default locale.
+
 previous set-current
 
 Variable lang[] \ array 
