@@ -27,6 +27,8 @@ require csv.fs
 
 \ LSIDs
 
+cs-vocabulary lang \ locales go in here
+
 $[]Variable lsids 0 ,
 : lsid# ( -- n )
     lsids $[]# 1- ;
@@ -61,19 +63,10 @@ $[]Variable lsids 0 ,
     \G is created.  If an lsid for the string exists already, that
     \G lsid is returned.  This means that one can refer to and use the
     \G same lsid with @word{l"} in different locations in the source
-    \G code.
+    \G code.  If you need to make your string unique, append " [specifier]"
+    \G to it, e.g. @code{L" bank [finance]"} or @code{L" draw [line]"}.
     '"' parse ?new-lsid ;
 compsem: '"' parse postpone LLiteral ;
-
-\ deliberately unique string
-: LU" ( Interpretation "string<">" -- lsid; Compilation "string<">" -- ) \ gforth-experimental l-unique-quote
-    \G Like @word{l"}, but @word{lu"} always generates a new lsid at
-    \G text-interpretation time, even if there is an lsid for the
-    \G string already.  To refer to that lsid, you need to store it in
-    \G some other way (e.g., as a constant).  You cannot use @word{l"}
-    \G or @word{lu"} to get @i{lsid} again.
-    '"' parse new-lsid ;
-compsem: '"' parse new-lsid postpone Literal ; immediate
 
 : .lsids ( locale -- ) \ gforth-experimental dot-lsids
     \G print the string for all lsids
@@ -84,16 +77,17 @@ compsem: '"' parse new-lsid postpone Literal ; immediate
 $[]Variable default-locale lsids ,
 default-locale Value locale
 
-: Language ( "name" -- ) \ gforth-experimental
+: Locale: ( "name" -- ) \ gforth-experimental
     \G Defines a new locale @i{l}.@* @i{name} execution: ( -- ) @i{l}
-    \G becomes the current locale.
-    $[]Variable default-locale ,
-  DOES> to locale ;
-: Country ( <lang> "name" -- ) \ gforth-experimental
-    \G The intended use of this word is to define a variation of a
-    \G locale.  The current implementation just defines a new locale,
-    \G like @word{Language}.
-    $[]Variable locale ,
+    \G becomes the current locale.  Fallbacks of locales depend on their
+    \G form: a variant separated by @code{'_'} falls back to the language
+    \G before the underscore, a language falls back to default, and
+    \G default falls back to the program language.
+    [: ['] lang >wordlist set-current $[]Variable ;] current-execute
+    latest name>string '_' -scan dup IF
+	['] lang >wordlist find-name-in
+	?dup-IF  name>interpret >body  ELSE  default-locale  THEN
+    ELSE  2drop default-locale THEN ,
   DOES> to locale ;
 
 : locale@ ( lsid -- c-addr u ) \ gforth-experimental locale-fetch
@@ -111,28 +105,15 @@ default-locale Value locale
     \G @i{lsid} in the current locale is @i{c-addr u}.
     locale $[]! ;
 
-0 [IF]
-\ obsolete one file per language interface
-
-: locale-file ( fid -- ) \ gforth-experimental locale-file
-    \G read lines from @var{fid} into the current locale.
-    dup >r locale $[]slurp
-    r> close-file throw
-    locale $[]# 0 DO
-	I locale $[]@ nip 0= IF  I locale $[] $free  THEN
-    LOOP ;
-
-: included-locale ( addr u -- ) \ gforth-experimental included-locale
-    \G read lines from the file @var{addr u} into the current locale.
-    open-fpath-file throw 2drop locale-file ;
-: include-locale ( "name" -- ) \ gforth-experimental include-locale
-    \G read lines from the file @var{"name"} into the current locale.
-    ?parse-name included-locale ;
-[THEN]
+: set-locale ( addr u -- ) \ gforth-experimental
+    \G sets the locale, by searching it in the @code{LANG} vocabulary.
+    \G If the variant is not available, falls back to the language.
+    default-locale to locale
+    BEGIN  2dup ['] lang >wordlist find-name-in
+	?dup-IF  execute 2drop EXIT  THEN
+    '_' -scan dup 0= UNTIL  2drop ;
 
 \ CSV reader part
-
-cs-vocabulary lang \ languages go in here
 
 get-current
 also lang definitions
@@ -147,18 +128,7 @@ Variable lang[] \ array
     \G A locale is defined by @code{language} if it doesn't contain a '_',
     \G if it does, it is defined by @code{country} referring to the
     \G language before the '_', if that exists.
-    get-current >r
-    [: [ ' lang >wordlist ]L set-current
-	2dup '_' scan nip IF
-	    nextname Language
-	ELSE
-	    2dup '_' $split 2drop get-current find-name-in
-	    ?dup-IF  name>interpret execute  THEN
-	    nextname Country
-	THEN
-    ;] catch
-    r> set-current  default-locale to locale
-    throw  latestxt ;
+    nextname Locale: latestxt ;
 
 0 Value csv-lsid
 
