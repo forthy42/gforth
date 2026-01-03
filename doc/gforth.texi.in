@@ -7178,11 +7178,11 @@ You can activate a locale, i.e., make it the current locale, with,
 e.g.,
 
 @source
-lang:de_AT
+locales:de_AT
 @end source
 
 Note that, unlike most Forth words, locales are case-sensitive, so
-@word{lang:de_at} would not work.
+@word{locales:de_at} would not work.
 
 In the following examples, we use the following code to output
 localized strings, after first setting the strings (shown later):
@@ -7245,7 +7245,7 @@ So how do we provide the localized string for a given @word{program}
 string?  A simple way is to use @word{locale!}, e.g.:
 
 @source
-lang:de_AT
+locales:de_AT
 "Karfiol" L" cauliflower" locale!
 @end source
 
