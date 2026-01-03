@@ -154,16 +154,7 @@ Variable lang[] \ array
     1- over 0= IF  dup to csv-lsid  THEN  drop
     csv-lsid dup >r -1 = IF  rdrop 2drop  EXIT  THEN
     r@ 0= IF
-	rdrop >r
-	2dup s" program" str= IF
-	    2drop lsids
-	ELSE
-	    2dup s" default" str= IF
-		2drop `locales:default
-	    ELSE
-		define-locale
-	    THEN
-	THEN
+        rdrop >r define-locale
 	r> lang[] $[] ! EXIT  THEN
     lang[] $[] @ 2dup swap 0<> and IF
 	dup lsids = IF
