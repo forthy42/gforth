@@ -7135,11 +7135,6 @@ doc-$[]variable
 @node Internationalization and localization, Substitute, $tring words, Strings and Characters
 @subsection Internationalization and localization
 
-The words described in this section are more experimental than some
-other words that are marked ``experimental'', i.e., they are more
-likely to change.  In order to use these words, include
-@file{i18n.fs}.
-
 A program may need to communicate with its user in the user's
 language, and it may have users with different languages.  We do not
 want to produce one version of the program for each language, so we
@@ -7165,57 +7160,153 @@ The basic idea in an internationalized program is that instead of, e.g.,
 you write
 
 @source
-l" Please enter your name:" locale@ type
+L" Please enter your name:" locale@ type
 @end source
 
-You can define a locale for German and activate it with
+In the following examples, we use the locales defined with
 
 @source
-language German \ definition
-German          \ activation
+locale: de    \ German (generic)
+locale: de_AT \ German (as used in Austria)
+locale: de_CH \ German (as used in Switzerland)
+locale: de_DE \ German (as used in Germany)
 @end source
 
-One way to localize strings is at the Forth level:
+In addition, there are the locales @word{program} and @word{default}.
+
+You can activate a locale, i.e., make it the current locale, with,
+e.g.,
 
 @source
-s" Bitte geben Sie Ihren Namen ein:" l" Please enter your name:" locale!
+lang:de_AT
 @end source
 
-This sets the localized string for ``Please enter your name:''.  When
-you then write
+Note that, unlike most Forth words, locales are case-sensitive, so
+@word{lang:de_at} would not work.
+
+In the following examples, we use the following code to output
+localized strings, after first setting the strings (shown later):
 
 @source
-German \ use the German locale
-l" Please enter your name:" locale@ type
+L" Please enter your name:" locale@ cr type
+L" cauliflower" locale@ cr type
+L" street" locale@ cr type
+L" something else" locale@ cr type
+L" bank [geography]" locale@ cr type
+L" bank [finance]" locale@ cr type
 @end source
 
-you get the output @samp{Bitte geben Sie Ihren Namen ein:}.
+When the current locale is @word{de_AT}, the output is:
 
-@word{L"} produces a locale-string identifier (@dfn{lsid}).  An lsid
-is an opaque token that occupies a cell, and it identifies the string
-given by @word{L"}, independent of the locale (language or
-country-specific language variation).  @word{locale@} maps the lsid to
-the locale-specific string.  A locale stores data for the mappings
-performed by @word{locale@} for that locale.
+@example
+Bitte geben Sie Ihren Namen ein:
+Karfiol
+Straße
+something else
+Ufer
+Bank
+@end example
+
+When the current locale is @word{de_CH}, the output is:
+
+@example
+Bitte geben Sie Ihren Namen ein:
+Blumenkohl
+Strasse
+something else
+Ufer
+Bank
+@end example
+
+In the localization data used for this example (see below), most of
+these localizations are inherited from the locale @word{de}, with the
+only @code{de_AT}-specific localization being ``Karfiol'' and the only
+@code{de_CH}-specific localization being ``Strasse''.  There is no
+@word{de} and no @word{default} localization for ``something else'',
+so the text in the string @code{L" something else"} is used (we always
+get that if we use the @word{program} locale).
+
+So there is a sequence of fallbacks for looking up localizations: For
+the general locale @code{@i{X}_@i{Y}}, the first fallback is to
+@code{@i{X}}, next to @word{default}, and finally to @word{program}.
+If the current locale's name contains no underscore, the fallback
+sequence starts at @word{default}.
+
+The role of the locale @word{default} is twofold: It is a fallback if
+there is no more specific localization (typically, if the localization
+is missing), as for ``something else''.  In many cases (as for
+``something else'') there is no @word{default} localization, and the
+fallback continues to the @word{L"} string.  But in some cases (e.g.,
+in @code{L" bank [geography]"} and @code{L" bank [finance]"}) these
+strings are too developer-oriented, and we put a user-oriented string
+(``bank'' for both) in the @word{default} locale.
+
+So how do we provide the localized string for a given @word{program}
+string?  A simple way is to use @word{locale!}, e.g.:
+
+@source
+lang:de_AT
+"Karfiol" L" cauliflower" locale!
+@end source
+
+However, defining localizations for all @word{L"} strings with
+@word{locale!} is cumbersome and error-prone (you have to use the
+exact same spelling for @word{L"} strings with @word{locale!} as
+before @word{locale@} in the code).
+
+A better alternative is to use @word{locale-csv-out} after loading the
+program to save all its @word{L"} strings and all the existing
+localizations to a CSV (comma-separated values) file.  The first
+column of this file contains the @word{L"} strings, the others the
+various localizations for that string.  E.g., the CSV file for the
+example in this section contains:
+
+@example
+"program","default","de","de_AT","de_CH","de_DE"
+"bank [finance]","bank","Bank","","",""
+"bank [geography]","bank","Ufer","","",""
+"Please enter your name:","","Bitte geben Sie Ihren Namen ein:","","",""
+"cauliflower","","Blumenkohl","Karfiol","",""
+"street","","Straße","","Strasse",""
+"something else","","","","",""
+@end example
+
+The first line contains the names of the locales.  Many entries contain
+empty strings; in that case, there is no localization for the
+@word{L"} string for the locale of that column (and @word{locale@}
+will use the next fallback that is not empty.
+
+The way to add localizations is to edit the CSV file.  This is not
+easy with a simple text editor if there are many columns.  One way to
+work around this is to use a spreadsheet program or an editor that has
+good CSV support.  Another way is to distribute the localizations
+across several files (which is also better for letting several people
+work on the localizations at the same time).  E.g., one file cpuld
+contain the localizations for @word{de} and its variants, while
+another could contain the localizations for @word{fr} (French) and its
+variants.
+
+Once a localization has been edited into a CSV file, one can load the
+CSV file with @word{locale-csv}.  All the locales mentioned in the CSV
+file except @word{program} and @word{default} will be defined
+automatically; if you use @word{locale-csv}, do not use
+@word{locale:}, at least not for the locales in the CSV file.
+
+@word{L"} produces a @dfn{locale-string identifier} (@dfn{lsid}).  An
+lsid is an opaque token that occupies a cell, and it identifies the
+@word{L"} string independent of the locale (language or
+country-specific language variation).
 
 doc-l"
 doc-native@
 doc-locale@
-doc-locale!
-doc-locale:
 doc-program
 doc-default
-
-Defining localizations with @word{locale!} is cumbersome and
-error-prone (you have to make sure that you provide the same strings
-to @word{locale!} as you use in the code.  Therefore, there are also
-ways to edit localizations in files, and load these files.
-Unfortunately, these ways are not mature yet, and are subject to
-change, but here is the current set of these words anyway:
-
+doc-locale-csv-out
 doc-locale-csv
 doc-.locale-csv
-doc-locale-csv-out
+doc-locale!
+doc-locale:
 
 
 @node Substitute, Counted string words, Internationalization and localization, Strings and Characters
