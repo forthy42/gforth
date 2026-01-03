@@ -27,9 +27,16 @@ require csv.fs
 
 \ LSIDs
 
-cs-vocabulary lang \ locales go in here
+cs-vocabulary locales \ locales go in here
 
-$[]Variable lsids 0 ,
+0 Value locale
+in locales $[]Variable program 0 , ( -- ) \ gforth-experimental
+\G @word{locales:program} activates the locale for which @word{locale@}
+\G produces the string used for identifying the lsid (i.e., the string
+\G parsed by @word{l"}).  This locale is useful for seeing which lsid
+\G is used in which context.
+DOES> to locale ;
+`locales:program constant lsids
 : lsid# ( -- n )
     lsids $[]# 1- ;
 
@@ -74,17 +81,25 @@ compsem: '"' parse postpone LLiteral ;
 
 \ locale@ stuff
 
-$[]Variable default-locale lsids ,
-default-locale Value locale
+`locales:program in locales create-from default ( -- ) \ gforth-experimental
+reveal here $[]saved 0 , lsids ,
+\G @word{locales:default} is the default locale if the user has not set
+\G one.  Most lsids don't have a specific default string, so fallback
+\G to the @word{program} locale happens.  But if you have a program
+\G string that is inappropriate for end-user usage (in particular, if
+\G the program string contains an extra specifier), you will prefer to
+\G define an appropriate string in the default locale.
+locales:default
 
 : Locale: ( "name" -- ) \ gforth-experimental
     \G Defines a new locale @i{l}.@* @i{name} execution: ( -- ) @i{l}
     \G becomes the current locale.
-    [: ['] lang >wordlist set-current $[]Variable ;] current-execute
+    [: ['] locales >wordlist set-current `locales:program create-from reveal ;]
+    current-execute here $[]saved 0 ,
     latest name>string '_' -scan dup IF
-	['] lang >wordlist find-name-in
-	?dup-IF  name>interpret >body  ELSE  default-locale  THEN
-    ELSE  2drop default-locale THEN ,
+	['] locales >wordlist find-name-in
+	?dup-IF  name>interpret >body  ELSE  `locales:default  THEN
+    ELSE  2drop `locales:default THEN ,
   DOES> to locale ;
 
 : locale@ ( lsid -- c-addr u ) \ gforth-experimental locale-fetch
@@ -108,32 +123,14 @@ default-locale Value locale
     locale $[]! ;
 
 : set-locale ( addr u -- ) \ gforth-experimental
-    \G sets the locale, by searching it in the @code{LANG} vocabulary.
+    \G sets the locale, by searching it in the @code{LOCALES} vocabulary.
     \G If the variant is not available, falls back to the language.
-    default-locale to locale
-    BEGIN  2dup ['] lang >wordlist find-name-in
+    locales:default
+    BEGIN  2dup ['] locales >wordlist find-name-in
 	?dup-IF  execute 2drop EXIT  THEN
     '_' -scan dup 0= UNTIL  2drop ;
 
 \ CSV reader part
-
-get-current
-also lang definitions
-' lsids alias program ( -- ) \ gforth-experimental
-\G @word{lang:program} activates the locale for which @word{locale@}
-\G produces the string used for identifying the lsid (i.e., the string
-\G parsed by @word{l"}).  This locale is useful for seeing which lsid
-\G is used in which context.
-
-' default-locale alias default ( -- ) \ gforth-experimental
-\G @word{lang:default} is the default locale if the user has not set
-\G one.  Most lsids don't have a specific default string, so fallback
-\G to the @word{program} locale happens.  But if you have a program
-\G string that is inappropriate for end-user usage (in particular, if
-\G the program string contains an extra specifier), you will prefer to
-\G define an appropriate string in the default locale.
-
-previous set-current
 
 Variable lang[] \ array 
 
@@ -158,7 +155,7 @@ Variable lang[] \ array
 	    2drop lsids
 	ELSE
 	    2dup s" default" str= IF
-		2drop default-locale
+		2drop `locales:default
 	    ELSE
 		define-locale
 	    THEN
@@ -184,7 +181,7 @@ Variable lang[] \ array
 
 : .locale-csv ( -- ) \ gforth-experimental dot-locale-csv
     \G write the locale database in CSV format to the terminal output.
-    [ ' lang >wordlist ]L wid>words[]    
+    words[] $free [ ' locales >wordlist ]L wid>words[]    
     false words[] $@ bounds cell- swap cell- U-DO
 	IF  csv-separator  emit  THEN
 	I @ name>string .quoted-csv
