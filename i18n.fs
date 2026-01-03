@@ -92,14 +92,14 @@ reveal here $[]saved 0 , lsids ,
 locales:default
 
 : Locale: ( "name" -- ) \ gforth-experimental
-    \G Defines a new locale @i{l}.@* @i{name} execution: ( -- ) @i{l}
-    \G becomes the current locale.
+    \G Defines a new locale @i{l} with name @i{name}.@* @i{name}
+    \G execution: ( -- ) @i{l} becomes the current locale.
     [: ['] locales >wordlist set-current `locales:program create-from reveal ;]
     current-execute here $[]saved 0 ,
     latest name>string '_' -scan dup IF
 	['] locales >wordlist find-name-in
-	?dup-IF  name>interpret >body  ELSE  `locales:default  THEN
-    ELSE  2drop `locales:default THEN ,
+	?dup-IF name>interpret >body ELSE `locales:default THEN
+    ELSE 2drop `locales:default THEN ,
   DOES> to locale ;
 
 : locale@ ( lsid -- c-addr u ) \ gforth-experimental locale-fetch
@@ -134,12 +134,16 @@ locales:default
 
 Variable lang[] \ array 
 
-: define-locale ( addr u -- xt ) \ gforth-experimental
+: define-locale ( c-addr u -- xt ) \ gforth-experimental
     \G Define a locale named @var{addr u} and return its @var{xt}.
     \G A locale is defined by @code{language} if it doesn't contain a '_',
     \G if it does, it is defined by @code{country} referring to the
     \G language before the '_', if that exists.
-    nextname Locale: latestxt ;
+    2dup `locales >wordlist find-name-in dup if
+        nip nip name>interpret
+    else
+        drop nextname locale: latestxt
+    then ;
 
 0 Value csv-lsid
 
