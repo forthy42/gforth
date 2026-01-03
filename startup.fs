@@ -95,6 +95,7 @@ require rec-scope.fs
 require rec-meta.fs
 require substitute.fs
 require csv.fs
+require i18n.fs
 require obsolete.fs
 require unused.fs
 \ require unix/pthread.fs

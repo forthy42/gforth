@@ -309,6 +309,7 @@ GFORTH_FI_SRC2=\
 	hash.fs \
 	help.txt \
 	history.fs \
+	i18n.fs \
 	iloops.fs \
 	latest-name.fs \
 	libcc.fs \
@@ -424,7 +425,7 @@ FREETYPE_GL_SRC = $(FREETYPE_GL_C_SRC) $(FREETYPE_GL_INCLUDE)	\
 	$(FREETYPE_GL_LICENSES)
 
 EXTRA_DOC = mini-oof2.fs objects.fs oof.fs moofglos.fs regexp.fs \
-	fft.fs i18n.fs cilk.fs coverage.fs $(LIBCC_LIB_SRC)
+	fft.fs cilk.fs coverage.fs $(LIBCC_LIB_SRC)
 
 MINOS_DOC = minos2/widgets.fs
 
@@ -482,7 +483,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(F_SRC)	      \
 	colorize.fs comp-i.fs depth-changes.fs dosekey.fs doskey.fs	      \
 	ds2texi.fs envos.dos envos.os2 etags.fs fft.fs filedump.fs fi2c.fs    \
 	forward.fs fsl-util.4th fsl-util.fs glosgen.fs gray.fs httpd.fs	      \
-	i18n.fs install-tags.fs make-app.fs doc/makedoc.fs locate.fs	      \
+	install-tags.fs make-app.fs doc/makedoc.fs locate.fs	      \
 	locate1.fs more.fs onebench.fs fft-bench.fs other.fs prims2x.fs	      \
 	prims2x0.6.2.fs proxy.fs random.fs regexp.fs sokoban.fs string.fs     \
 	table.fs tags.fs tt.fs unbuffer.fs wordsets.fs 2012words.fs	      \
