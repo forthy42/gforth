@@ -7232,14 +7232,14 @@ the general locale @code{@i{X}_@i{Y}}, the first fallback is to
 If the current locale's name contains no underscore, the fallback
 sequence starts at @word{default}.
 
-The role of the locale @word{default} is twofold: It is a fallback if
-there is no more specific localization (typically, if the localization
-is missing), as for ``something else''.  In many cases (as for
-``something else'') there is no @word{default} localization, and the
-fallback continues to the @word{L"} string.  But in some cases (e.g.,
-in @code{L" bank [geography]"} and @code{L" bank [finance]"}) these
-strings are too developer-oriented, and we put a user-oriented string
-(``bank'' for both) in the @word{default} locale.
+The locale @word{default} is a fallback if there is no more specific
+localization (typically, if the localization is missing), as for
+``something else''.  In many cases (as for ``something else'') there
+is no @word{default} localization, and the fallback continues to the
+@word{L"} string.  But in some cases (e.g., in @code{L" bank
+[geography]"} and @code{L" bank [finance]"}) these strings are too
+developer-oriented, and we put a user-oriented string (``bank'' for
+both) in the @word{default} locale.
 
 So how do we provide the localized string for a given @word{program}
 string?  A simple way is to use @word{locale!}, e.g.:
