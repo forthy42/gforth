@@ -7281,7 +7281,7 @@ easy with a simple text editor if there are many columns.  One way to
 work around this is to use a spreadsheet program or an editor that has
 good CSV support.  Another way is to distribute the localizations
 across several files (which is also better for letting several people
-work on the localizations at the same time).  E.g., one file cpuld
+work on the localizations at the same time).  E.g., one file could
 contain the localizations for @word{de} and its variants, while
 another could contain the localizations for @word{fr} (French) and its
 variants.
