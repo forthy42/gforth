@@ -27,22 +27,25 @@ require csv.fs
 
 \ LSIDs
 
-cs-vocabulary locales \ locales go in here
+cs-vocabulary locales ( -- ) \ gforth-experimental
+\G This case-sensitive vocabulary contains the locales.  Typical use:
+\G @code{locales:@i{locale}}.
 
 0 Value locale
 in locales $[]Variable program 0 , ( -- ) \ gforth-experimental
-\G @word{locales:program} activates the locale for which @word{locale@}
-\G produces the string used for identifying the lsid (i.e., the string
-\G parsed by @word{l"}).  This locale is useful for seeing which lsid
-\G is used in which context.
+\G @word{locales:program} becomes the current locale.  When this
+\G locale is current, @word{locale@} produces the string used for
+\G identifying the lsid (i.e., the string parsed by @word{L"}).  This
+\G locale is useful for development: One can see which lsid is used in
+\G which context.
 DOES> to locale ;
 `locales:program constant lsids
 : lsid# ( -- n )
     lsids $[]# 1- ;
 
 : native@ ( lsid -- c-addr u ) \ gforth-experimental native-fetch
-    \G @i{c-addr u} is the @word{l"} string for @i{lsid} (i.e., the
-    \G text-interpretation argument of @word{l"}).
+    \G @i{c-addr u} is the @word{L"} string for @i{lsid} (i.e., the
+    \G text-interpretation argument of @word{L"}).
     lsids $[]@ ;
 
 : search-lsid ( addr u -- lsid )
@@ -69,9 +72,14 @@ DOES> to locale ;
     \G a unique lsid.  If no lsid for the string exists yet, a new one
     \G is created.  If an lsid for the string exists already, that
     \G lsid is returned.  This means that one can refer to and use the
-    \G same lsid with @word{l"} in different locations in the source
-    \G code.  If you need to make your string unique, append " [specifier]"
-    \G to it, e.g. @code{L" bank [finance]"} or @code{L" bank [geography]"}.
+    \G same lsid with @word{L"} in different locations in the source
+    \G code, by uing the same @i{string}.  If you want two different
+    \G lsids (e.g., because you refer to two different concepts), but
+    \G would use the same user-centric text in @word{L"}, append "
+    \G [specifier]" to the text, e.g. @code{L" bank [finance]"} or
+    \G @code{L" bank [geography]"}.  You may then want to add a
+    \G user-centric non-unique @word{default} localization (e.g.,
+    \G ``bank'').
     '"' parse ?new-lsid ;
 compsem: '"' parse postpone LLiteral ;
 
@@ -83,18 +91,23 @@ compsem: '"' parse postpone LLiteral ;
 
 `locales:program in locales create-from default ( -- ) \ gforth-experimental
 reveal here $[]saved 0 , lsids ,
-\G @word{locales:default} is the default locale if the user has not set
-\G one.  Most lsids don't have a specific default string, so fallback
-\G to the @word{program} locale happens.  But if you have a program
-\G string that is inappropriate for end-user usage (in particular, if
-\G the program string contains an extra specifier), you will prefer to
-\G define an appropriate string in the default locale.
+\G @word{locales:default} is the default locale if the user has not
+\G set one.  Most lsids don't have a specific default string, so
+\G fallback to the @word{program} locale happens.  But if you have a
+\G developer-centric program string that is inappropriate for end
+\G users (in particular, if the program string contains an extra
+\G specifier), you will prefer to define a user-centric string in the
+\G default locale.
 locales:default
 
 : Locale: ( "name" -- ) \ gforth-experimental
-    \G Defines a new locale @i{l} with name @i{name}.@* @i{name}
-    \G execution: ( -- ) @i{l} becomes the current locale.
-    [: ['] locales >wordlist set-current `locales:program create-from reveal ;]
+    \G Defines a new locale @i{l} with name @i{name} in
+    \G @word{locales}.@* @i{name} execution: ( -- ) @i{l} becomes the
+    \G current locale.@* For locales with names of the form
+    \G @code{@i{X}_@i{Y}}, define @code{@i{X}} first in order to
+    \G establish @code{@i{X}} as a fallback for @code{@i{X}_@i{Y}}.
+    [: ['] locales >wordlist set-current
+        `locales:program create-from reveal ;]
     current-execute here $[]saved 0 ,
     latest name>string '_' -scan dup IF
 	['] locales >wordlist find-name-in
@@ -110,8 +123,8 @@ locales:default
     \G found in the locale @code{@i{X}}, @i{lsid} is looked up in the
     \G locale @word{default}.  If no localized string is found in the
     \G locale @word{default}, @i{lsid} is looked up in the locale
-    \G @word{default} (i.e., @i{c-addr u} is the text-interpretation
-    \G argument of @word{l"}).
+    \G @word{program} (i.e., @i{c-addr u} is the text-interpretation
+    \G argument of @word{L"}).
     locale
     BEGIN 2dup $[]@ 2dup d0= WHILE
 	2drop cell+ @ dup 0= UNTIL 0 0 THEN
@@ -167,15 +180,20 @@ Variable lang[] \ array
     ELSE  rdrop drop 2drop  THEN ;
 
 : locale-csv ( "name" -- ) \ gforth-experimental locale-csv
-    \G import comma-separated value table into locales.  first line contains
-    \G locale names, “program” and “default” are special entries; generic
-    \G languages must preceed translations for specific countries.  Entries
-    \G under “program” (must be leftmost) are used to search for the lsid; if
-    \G empty, the line number-1 is the lsid index.
+    \G Import comma-separated value (CSV) table into locales.  The
+    \G first line contains the locale names (column headers).  The
+    \G @word{program} locale must be leftmost.  Fallback locales like
+    \G @word{de} must precede more specific locales like @word{de_AT}.
+    \G The other lines contain the @word{L"} string (first column) and
+    \G the corresponding localizations.  Each column contains the
+    \G localizations for a specific locale.  Empty entries mean that
+    \G this locale does not define a localization for this @word{L"}
+    \G string, resulting in using the localization from a fallback
+    \G locale instead.
     lang[] $free ?parse-name ['] insert-locale read-csv ;
 
 : .locale-csv ( -- ) \ gforth-experimental dot-locale-csv
-    \G write the locale database in CSV format to the terminal output.
+    \G Write the locale database in CSV format to the user output device.
     words[] $free [ ' locales >wordlist ]L wid>words[]    
     false words[] $@ bounds cell- swap cell- U-DO
 	IF  csv-separator  emit  THEN
@@ -191,8 +209,8 @@ Variable lang[] \ array
     LOOP ;
 
 : locale-csv-out ( "name" -- ) \ gforth-experimental locale-csv-out
-    \G Create file @var{"name"} and write the locale database out to the file
-    \G @var{"name"} in CSV format.
+    \G Create file @var{name} and write the locale database to this in
+    \G CSV format.
     ?parse-name r/w create-file throw >r
     ['] .locale-csv r@ ['] outfile-execute catch
     r> close-file swap throw throw ;

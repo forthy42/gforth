@@ -7288,16 +7288,14 @@ variants.
 
 Once a localization has been edited into a CSV file, one can load the
 CSV file with @word{locale-csv}.  All the locales mentioned in the CSV
-file except @word{program} and @word{default} will be defined
-automatically; if you use @word{locale-csv}, do not use
-@word{locale:}, at least not for the locales in the CSV file.
+file will be defined automatically; if you use @word{locale-csv}, do
+not use @word{locale:} afterwards for the locales in the CSV file.
 
-@word{L"} produces a @dfn{locale-string identifier} (@dfn{lsid}).  An
-lsid is an opaque token that occupies a cell, and it identifies the
-@word{L"} string independent of the locale (language or
-country-specific language variation).
+A @dfn{locale-string identifier} (@dfn{lsid}) is an opaque token that
+occupies a cell, and it identifies the @word{L"} string.
 
 doc-l"
+doc-locales
 doc-native@
 doc-locale@
 doc-program
