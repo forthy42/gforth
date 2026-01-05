@@ -7291,6 +7291,15 @@ CSV file with @word{locale-csv}.  All the locales mentioned in the CSV
 file will be defined automatically; if you use @word{locale-csv}, do
 not use @word{locale:} afterwards for the locales in the CSV file.
 
+The lines in the CSV file are ordered by the order in which the
+@word{L"} strings are found by Gforth.  If the CSV file is generated
+just from the @word{L"} strings in the program, this order may be
+helpful for producing the localizations, because related @word{L"}
+strings are grouped together.  If, during maintenance, new @word{L"}
+strings are added, and you first load the CSV file, then the program,
+and then write out a CSV file, you will find the new @word{L"} strings
+(for localizing) at the end of the new CSV file.
+
 A @dfn{locale-string identifier} (@dfn{lsid}) is an opaque token that
 occupies a cell, and it identifies the @word{L"} string.
 

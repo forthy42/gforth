@@ -24,7 +24,7 @@
 \G changed with @code{to csv-separator}.
 
 '"' Value csv-quote ( -- c ) \ gforth-experimental
-\G CSV quote character (default is `"'); this is a value and can be
+\G CSV quote character (default is @code{"}); this is a value and can be
 \G changed with @code{to csv-quote}.
 
 true Value quote-state \ if true, a separator is visible
@@ -108,12 +108,13 @@ $Variable $csv-item
     REPEAT
     rdrop ;
 
-: read-csv ( addr u xt -- ) \ gforth-experimental
-    \G Read CVS file @var{addr u} and execute @var{xt} for every field
-    \G found.  @var{Xt} has the stack effect @code{( addr u field line
-    \G -- )}, i.e. the field string (in de-quoted form), the current
-    \G field number (starting with 0), and the current line (starting
-    \G with 1).
+: read-csv ( c-addr u xt -- ) \ gforth-experimental
+    \G Read the CSV file with the name given by @i{c-addr u} and
+    \G execute @i{xt} for every field found.@* @i{Xt} @code{(
+    \G @i{c-addr2 u2 field line} -- )} is called once for each field;
+    \G @i{c-addr2 u2} is the decoded field content, @i{field} is the
+    \G field number (starting with 0), and @i{line} is the line number
+    \G (starting with 1).
     1 csv-line-number !
     [n:l csv-read-loop ;] >r
     open-fpath-file throw r> execute-parsing-named-file ;
