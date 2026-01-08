@@ -623,11 +623,8 @@ fpath= ~+
   2drop drop false ;
 ' included? alias cross-included?
 
-3 Constant file-list-offset#
-
 : file-list# ( -- n )
-    0 file-list BEGIN  @ dup  WHILE  >r 1+ r>  REPEAT  drop
-    file-list-offset# - ;
+    0 file-list BEGIN  @ dup  WHILE  >r 1+ r>  REPEAT  drop ;
 
 : cross-str>included# ( c-addr u -- n / -1 )
   0 >r file-list
@@ -2265,6 +2262,7 @@ X has? f83headerstring [IF]
     [IFDEF] current-sourcepos1    included-files $free
     [ELSE] 0 allocate throw 0 included-files 2! [THEN]
     [IFDEF] loadfilename#  loadfilename# off  [THEN]
+    0 file-list !
     s" kernel/main.fs" h-add-included-file ;
 : reset-locs ( -- )  $100 to glocs-start ;
 : glocs-start glocs-start ;
