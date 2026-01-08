@@ -611,6 +611,7 @@ fpath= ~+
   dup >fl-name char+ allocate throw >r
   file-list @ r@ ! r@ file-list !
   r@ >fl-name place r> ;
+' add-included-file alias cross-add-included-file
 
 : included? ( c-addr u -- f )
   file-list
@@ -619,7 +620,23 @@ fpath= ~+
 	IF rdrop 2drop true EXIT THEN
 	r>
   REPEAT
-  2drop drop false ;	
+  2drop drop false ;
+' included? alias cross-included?
+
+3 Constant file-list-offset#
+
+: file-list# ( -- n )
+    0 file-list BEGIN  @ dup  WHILE  >r 1+ r>  REPEAT  drop
+    file-list-offset# - ;
+
+: cross-str>included# ( c-addr u -- n / -1 )
+  0 >r file-list
+  BEGIN	@ dup
+  WHILE	>r 2dup r@ >fl-name count str=
+	IF rdrop 2drop file-list# r> - EXIT THEN
+	r> r> 1+ >r
+  REPEAT
+  drop 2drop rdrop -1 ;	
 
 false DebugFlag showincludedfiles
 
@@ -4309,12 +4326,20 @@ Variable outfile-fd
 
 : KB  400 * ;
 
-[IFDEF] #loc
+[IFDEF] #loc-xxx
     ' #loc alias #loc
 [ELSE]
-    false Value warned?
-    : #loc 2drop parse-name 2drop
-	warned? IF  ." #loc not supported" cr true to warned?  THEN ;
+    [IFUNDEF] replace-sourceview
+	0 Value replace-sourceview
+    [THEN]
+    : #loc ( line col "name" -- )
+	parse-name 2dup cross-included? 0= IF
+	    2dup cross-add-included-file drop
+	    2dup h-add-included-file
+	THEN
+	cross-str>included# -rot
+	$ff min swap 8 lshift + $7fffff min swap #23 lshift or
+	to replace-sourceview ;
 [THEN]
 
 \ \ [IF] [ELSE] [THEN] ...				14sep97jaw
