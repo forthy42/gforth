@@ -1089,10 +1089,9 @@ Variable cross-locs[]
     >r cells dup cell+ r@ $room  r> $@ drop + ;
 [THEN]
 
+0 Value cross-replace-sourceview
 : tsourcepos1 ( -- xpos )
-    [IFDEF] replace-sourceview
-	replace-sourceview  0 to replace-sourceview ?dup ?EXIT
-    [THEN]
+    cross-replace-sourceview  0 to cross-replace-sourceview ?dup ?EXIT
     tsourceview ;
 : gxt-location ( addr -- addr )
 \ note that an xt was compiled at addr, for backtrace-locate functionality
@@ -4327,9 +4326,6 @@ Variable outfile-fd
 [IFDEF] #loc-xxx
     ' #loc alias #loc
 [ELSE]
-    [IFUNDEF] replace-sourceview
-	0 Value replace-sourceview
-    [THEN]
     : #loc ( line col "name" -- )
 	parse-name 2dup cross-included? 0= IF
 	    save-mem 2dup cross-add-included-file drop
@@ -4337,7 +4333,7 @@ Variable outfile-fd
 	THEN
 	cross-str>included# -rot
 	$ff min swap 8 lshift + $7fffff min swap #23 lshift or
-	to replace-sourceview ;
+	to cross-replace-sourceview ;
 [THEN]
 
 \ \ [IF] [ELSE] [THEN] ...				14sep97jaw
