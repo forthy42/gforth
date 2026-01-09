@@ -4332,7 +4332,7 @@ Variable outfile-fd
     [THEN]
     : #loc ( line col "name" -- )
 	parse-name 2dup cross-included? 0= IF
-	    2dup cross-add-included-file drop
+	    save-mem 2dup cross-add-included-file drop
 	    2dup h-add-included-file
 	THEN
 	cross-str>included# -rot

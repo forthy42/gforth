@@ -1000,7 +1000,6 @@ count
 /COUNTED-STRING
 countif
 count-lfs
-Country
 count-stacks
 count-stacks-a
 count-stacks-d
@@ -1221,9 +1220,9 @@ defaultcolor
 default-i/c
 default-in
 default-input
-default-locale
 default-method
 default-name>comp
+default-name>int
 default-out
 default-recognize
 default-w:
@@ -1390,7 +1389,6 @@ dop_t-xdop
 dop_t-ydop
 do-stack:
 DoTable
-dot-is-float
 do-translate
 double
 double%
@@ -2981,10 +2979,8 @@ included-file-buffers
 included-filename[]
 included-files
 included-files-mark
-included-locale
 include-ffi.h-string
 include-file
-include-locale
 in-colon-def?
 ind-call
 ind-call
@@ -3047,6 +3043,7 @@ inst-var
 (int)
 (int)
 (int-;])
+.>int
 int-[:
 int-does>
 int-does>;
@@ -3092,6 +3089,7 @@ ip-vector
 IS
 isatty
 is-color-terminal?
+.-is-dcell?
 isfg
 is-forward?
 is-funptr?
@@ -3203,9 +3201,7 @@ l2c
 laddr#,
 lalign
 laligned
-lang
 lang[]
-Language
 >last
 last$
 last-block
@@ -3380,10 +3376,11 @@ load-rc0?
 locale
 locale!
 locale@
+Locale:
 .locale-csv
 locale-csv
 locale-csv-out
-locale-file
+locales
 !localn
 +!localn
 @localn
@@ -3479,7 +3476,6 @@ lsids
 l!-table
 +ltrace
 -ltrace
-LU"
 lvalue:
 lvalue-dummy
 :m
@@ -3905,6 +3901,7 @@ opt-umod
 opus
 op-vector
 or
+or!
 or!
 orbit
 orbit-af0
@@ -4462,6 +4459,7 @@ rec-name/local
 rec-new-locals
 rec-none
 rec-number
+rec-number-kernel
 recognize
 .recognizer-sequence
 record-name
@@ -5182,6 +5180,7 @@ set-foldmax
 set-help-view
 SET_HIGH_BIT
 set->int
+set-locale
 setlocale
 set-locals-size-list
 set-located-view
@@ -5884,6 +5883,12 @@ user'
 user,
 user?
 User
+user-flag:
+userflag!
+user-flagmask
+user-flags
+userflag!-table
+userflag-to
 user-o
 USHRT_MAX
 u/-stage1m
