@@ -399,7 +399,7 @@ void install_signal_handlers(void)
 #endif
   };
   int i;
-  void (*throw_handler)() = die_on_signal ? graceful_exit : signal_throw;
+  void (*throw_handler)(int sig) = die_on_signal ? graceful_exit : signal_throw;
 #ifdef SIGSTKSZ 
   stack_t sigstack;
   int sas_retval=-1;
