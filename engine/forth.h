@@ -490,10 +490,18 @@ extern double asinh(double r1);
 extern double acosh(double r1);
 #endif
 #ifndef HAVE_ECVT
-/* extern char* ecvt(double x, int len, int* exp, int* sign);*/
+#ifdef _AIX
+extern char *_NOTHROW(ecvt, (double, int, int *, int *));
+#else
+extern char* ecvt(double x, int len, int* exp, int* sign);
+#endif
 #endif
 #ifndef HAVE_MEMMOVE
-/* extern char *memmove(char *dest, const char *src, long n); */
+#ifdef _AIX
+extern void *_NOTHROW(memmove, (void *, const void *, size_t));
+#else
+extern char *memmove(void *dest, const void *src, size_t n);
+#endif
 #endif
 #ifndef HAVE_POW10
 extern double pow10(double x);

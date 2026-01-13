@@ -37,7 +37,7 @@ s" callback" add-lib
 \c typedef void *Label;
 \c typedef Label *Xt;
 \c 
-\c void gforth_callback_ffcall(Xt* fcall, void * alist)
+\c void gforth_callback_ffcall(void* fcall, struct vacall_alist * alist)
 \c {
 \c #ifndef HAS_BACKLINK
 \c   void **gforth_pointers = saved_gforth_pointers;
@@ -52,7 +52,7 @@ s" callback" add-lib
 \c 
 \c     gforth_clist = (va_alist)alist;
 \c 
-\c     gforth_engine(fcall, sp, rp, fp, lp, gforth_UP);
+\c     gforth_engine((Xt*)fcall, sp, rp, fp, lp, gforth_UP);
 \c 
 \c     /* restore global variables */
 \c     gforth_RP = rp;

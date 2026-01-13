@@ -79,7 +79,7 @@ char *tilde_cstr(Char *from, UCell size, int clear)
 {
   char *s1,*s2;
   int s1_len, s2_len;
-  struct passwd *getpwnam (), *user_entry;
+  struct passwd *getpwnam (const char *Name), *user_entry;
 
   if (size<1 || from[0]!='~')
     return cstr(from, size, clear);
