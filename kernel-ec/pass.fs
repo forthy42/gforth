@@ -30,4 +30,4 @@ UNLOCK user-region extent nip LOCK udp !
 \ Set up last and forth-wordlist with the address of the last word's
 \ link field
 UNLOCK tlast @ LOCK
-1 cells - dup forth-wordlist has? ec 0= [IF] wordlist-id [THEN] ! Last !
+has? f83headerstring 0= [IF] 1 cells - [THEN] dup forth-wordlist has? ec 0= [IF] wordlist-id [THEN] ! Last !

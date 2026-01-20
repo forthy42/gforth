@@ -80,14 +80,14 @@ end-macros
   Code: :docol
      ': dout,                    \ only for debugging
      frp dec,   frp dec,   fip frp ) mov,        \ save ip
-     4 w d) fip lea,                             \ calc pfa
+     2 w d) fip lea,                             \ calc pfa
      next,
    End-Code
 
   Code: :dovar
     '2 dout,                    \ only for debugging
     tos push,
-    4 w d) tos lea,
+    2 w d) tos lea,
     next,
   End-Code
 
@@ -244,14 +244,14 @@ end-macros
   Code: :docon
     '1 dout,                    \ only for debugging
     tos push,
-    4 w d) tos lea,
+    2 w d) tos lea,
     tos ) tos mov,
     next,
   End-Code
 
   Code: :dodefer
     '4 dout,                    \ only for debugging
-    4 w d) w mov,
+    2 w d) w mov,
     w ) jmp,
   End-Code
 
@@ -440,3 +440,9 @@ end-macros
     
 Code: :doesjump
 end-code
+
+Code save-mem \ TBD
+    next,
+end-code
+
+$0080 constant tib0

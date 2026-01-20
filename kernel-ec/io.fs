@@ -47,6 +47,9 @@ require ../compat/strcomp.fs
     \G that due to the way the Forth command line interpreter inserts
     \G newlines, the preferred way to use @code{cr} is at the start
     \G of a piece of text; e.g., @code{cr ." hello, world"}.
+[ has? crlf [IF] ]
+    #cr emit
+[ [THEN] ]
     #lf emit ;
 : bell #bell emit ;
 
