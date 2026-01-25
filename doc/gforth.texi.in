@@ -13918,7 +13918,8 @@ Gforth implements an extended version of the standard Forth locals.
 @cindex Gforth locals
 @cindex locals, Gforth style
 
-Locals can be defined with
+Gforth locals are a superset of standard locals.  Locals can be
+defined with
 
 @example
 @{: local1 local2 ... -- comment :@}
@@ -13933,14 +13934,20 @@ or
 @end example
 
 E.g.,
-@example
-: max @{: n1 n2 -- n3 :@}
+@source
+: max {: n1 n2 -- n3 :}
  n1 n2 > if
    n1
  else
    n2
  endif ;
-@end example
+@end source
+
+The locals definition @code{@{: n1 n2 -- n3 :@}} consumes two cells at
+run-time, and, as one would expect, puts the top-of-stack in @word{n2}
+and the second stack item in @word{n1}.  The part behind the @word{--}
+is just a comment.  The occurences of the locals @word{n1} and
+@word{n2} push the respective value on the stack.
 
 The similarity of locals definitions with stack comments is intended. A
 locals definition often replaces the stack comment of a word. The order
@@ -13971,77 +13978,82 @@ in several flavours:
 @table @dfn
 
 @item value-flavoured
-(@pxref{Values}) A value-flavoured local (defined with @code{W:},
-@code{D:} etc.) produces its value and can be changed with @code{TO}
-and @code{+TO}.  Also, if you put @word{addressable:} in front of the
-locals definition, you can get its address with @code{ADDR}
-(@pxref{How long do locals live?}).
+(@pxref{Values}) You define a value-flavoured local with no type
+specifier (equivalent to @word{W:}), with @code{W:}, @code{D:},
+@code{F:} or @code{C:}.  When later using the name of a
+value-flavoured local on its own, it pushes the value of the local.
+You can also change a value-flavoured local @word{x} with @code{TO x},
+@code{->x}, @code{+TO x} or @code{+>x}.  Also, if you put
+@word{addressable:} in front of the locals definition, you can get the
+address of @word{x} with @code{ADDR x} or @code{'>x} (@pxref{How long
+do locals live?}).
 
 @item variable-flavoured
-(@pxref{Variables}) A variable-flavoured local (defined with @code{W^}
-etc.)  produces its address (@pxref{How long do locals live?}).  E.g.,
-the standard word @code{emit} can be defined in terms of @code{type}
-like this:
+(@pxref{Variables}) A variable-flavoured local (defined with
+@code{W^}, @code{D^}, @code{F^}, @code{C^}) produces its address
+(@pxref{How long do locals live?}).  E.g., the standard word
+@code{emit} can be defined in terms of @code{type} like this:
 
 @source
 : emit {: C^ char* -- :}
     char* 1 type ;
 @end source
 
-@item defer-flavoured
-(@pxref{Deferred Words}) A defer-flavoured local (defined with
-@code{XT:}) @code{execute}s the xt; you can use @code{action-of}
-(@pxref{Deferred Words}) to get the xt out of a defer-flavoured local.
-If the local is defined with @code{addressable: xt:}, you can use
-@code{addr} to get the address where the xt is stored (@pxref{How long
-do locals live?}).  E.g., the standard word @code{execute} can be
-defined with a defer-flavoured local like this:
+@cindex data structure locals
+In addition, if you define a local whose name ends in a @code{[}, used
+only without type specifier, the result is a variable-flavoured local,
+with the size given between the local name and @code{]}.  The size is
+given by a piece of Forth code that is interpreted and must have the
+stack effect @code{( -- u )}, where @i{u} is the size of the local in
+bytes.  If such a local occurs in front of @code{|}, it is initialized
+by copying @i{u} bytes from an address given on the stack.  If such a
+local occurs behind @code{|}, it is uninitialized.  The square bracket
+@code{[} is part of the defined name.  E.g., the @word{emit} example
+above can also be coded as:
 
-@example
-: execute @{: xt: x -- :@}
+@source
+: emit ( c -- )
+    {: | char[ 1 chars ] :} 
+    char[ c! char[ 1 type ;
+@end source
+
+
+@item defer-flavoured
+(@pxref{Deferred Words}) You define a defer-flavoured local @word{x}
+with @code{XT: x}, and the stack item that you store there (e.g., when
+the local is initialized from the stack at its definition) must be an
+execution token.  When you later use @code{x} on its own, the
+execution token stored in the local is @word{execute}d.  You can get
+the xt out of @word{x} with @code{ACTION-OF x} or @word{@>x} and
+change the execution token stored in @word{x} with @code{IS x} or
+@code{=>x}.  If you defined @word{x} with @code{addressable: xt: x},
+you can use @code{addr x} or @code{'>x} to get the address where the
+xt is stored (@pxref{How long do locals live?}).
+
+E.g., the standard word @code{execute} can be defined with a
+defer-flavoured local like this:
+
+@source
+: execute {: xt: x -- :}
   x ;
-@end example
+@end source
 
 @end table
 
 @cindex default type of locals
 @cindex locals, default type
-A local without type specifier is a @code{W:} local.  You can also
-leave away the @word{w:} if you use @word{addressable:}.
+A local without type specifier is a @code{W:} local, unless its name
+ends in @code{[}; in that case it's a variable-flavoured local.  You
+can also leave away the @word{w:} if you use @word{addressable:}.
 
 @cindex locals initialization
 @cindex initialization of locals
 All flavours of locals are initialized with values from the data or
 (for FP locals) FP stack, with the exception being locals defined
-behind @code{|}: Gforth initializes them to 0; some Forth systems leave
-them uninitialized.
-
-@cindex data structure locals
-Gforth supports the square bracket notation for local buffers and data
-structures.  These locals are similar to variable-flavored locals, the
-size is specified as a constant expression.  A declaration looks
-@code{@i{name}[ @i{size} ]}.  The Forth expression @code{@i{size}} is
-evaluated during declaration, it must have the stack effect @code{( --
-+n )}, giving the size in bytes.  The square bracket @code{[} is part
-of the defined name.
-
-Local data structures are initialized by copying @i{size} bytes from
-an address passed on the stack; uninitialized local data structures
-(after @code{|} in the declaration) are not erased, they just contain
-whatever data there was on the locals stack before.
-
-Example:
-
-@example
-begin-structure test-struct
-  field: a1
-  field: a2
-end-structure
-
-: test-local @{: foo[ test-struct ] :@}
-    foo[ a1 !  foo[ a2 !
-    foo[ test-struct dump ;
-@end example
+behind @code{|}: Gforth initializes the locals behind @code{|} to 0 or
+@code{0e}, with the uninitialized @word{[}-ending exception noted
+above; some Forth systems leave all locals behind @word{|}
+uninitialized.
 
 Gforth allows defining locals everywhere in a colon definition. This
 poses the following questions:
