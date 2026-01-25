@@ -14055,8 +14055,9 @@ behind @code{|}: Gforth initializes the locals behind @code{|} to 0 or
 above; some Forth systems leave all locals behind @word{|}
 uninitialized.
 
-Gforth allows defining locals everywhere in a colon definition. This
-poses the following questions:
+Gforth allows defining locals everywhere in a colon definition, but as
+a consequence, some locals are not visible (and live) everywhere in
+the colon definition (@pxref{Where are locals visible by name?}).
 
 @menu
 * Locals definition words::
