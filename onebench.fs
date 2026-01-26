@@ -20,7 +20,7 @@
 
 \ many platforms don't have GNU time, so we do it ourselves
 
-.(  sieve bubble matrix   fib   fft) cr
+.(  sieve  bubble matrix fib    fft) cr
 
 warnings off
 
@@ -28,11 +28,11 @@ warnings off
     cputime d+ 2>r
     included s" main" evaluate
     cputime d+ 2r> d-
-    <# # # # # # # '. hold #s #> 9 over - spaces 3 - type ;
+    <# # # # # # # '. hold #s #> 9 over - spaces 2 - type ;
 : run-bench
     s" marker onebench" evaluate
-    s" siev.fs"      include-main-time space
-    s" bubble.fs"    include-main-time space
+    s" siev.fs"      include-main-time
+    s" bubble.fs"    include-main-time
     s" matrix.fs"    include-main-time
     s" fib.fs"       include-main-time
     s" fft-bench.fs" include-main-time
