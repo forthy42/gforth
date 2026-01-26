@@ -3088,6 +3088,7 @@ r = cv.r;
 \g locals
 
 @localn ( noffset -- w )	gforth-internal	fetch_local_n
+""@i{w} is the content of the local at @i{noffset} from the locals pointer.""
 w = *(Cell *)(lp+noffset);
 
 \ m4 macro definition: forlocal(upperbound,text) 
@@ -3100,65 +3101,75 @@ forlocal(`7',`@local%i ( -- w )	gforth-internal	fetch_local_%i
 w = ((Cell *)lp)[i];')
 
 !localn ( w noffset -- )	gforth-internal	store_local_n
+""Store @i{w} to the local at @i{noffset} from the locals pointer.""
 *(Cell *)(lp+noffset) = w;
 
 forlocal(`7',`!local%i ( w -- )	gforth-internal	store_local_%i
 ((Cell *)lp)[i] = w;')
 
 +!localn ( w noffset -- )	gforth-internal	plus_store_local_n
+""Add @i{w} to the local at @i{noffset} from the locals pointer.""
 *(Cell *)(lp+noffset) += w;
 
 lp+n ( noffset -- c_addr )	gforth-internal	lp_plus_n
+""@i{c-addr} is the address of the local at @i{noffset} from the locals pointer.""
 c_addr = (Char *)(lp+noffset);
 
 \+floating
 
-f@localn	( noffset -- r ) gforth	f_fetch_local_n
+f@localn	( noffset -- r ) gforth-internal	f_fetch_local_n
+""@i{r} is the content of the @i{F:} local at @i{noffset} from the
+locals pointer.""
 r = *(Float *)(lp+noffset);
 
 \ if we define the following, we also should do prim-states for them;
 \ the benefit of these is just one native instruction per VM inst
 \ it does not justify the cost
-\ #forlocal(`7',`f@local%i ( -- r ) gforth f_fetch_local_%i
+\ #forlocal(`7',`f@local%i ( -- r ) gforth-internal f_fetch_local_%i
 \ #r = ((Float *)lp)[i];')
 \ #
-\ #forlocal(`7',`f!local%i ( r -- ) gforth f_store_local_%i
+\ #forlocal(`7',`f!local%i ( r -- ) gforth-internal f_store_local_%i
 \ #((Float *)lp)[i] = r;')
 
 \+
 
-lp@ ( -- c_addr ) gforth lp_fetch
+lp@ ( -- c_addr ) gforth-internal lp_fetch
 ""@i{C_addr} is the current value of the locals stack pointer.""
 c_addr = lp;
 
-lp+!	( noffset -- )	gforth	lp_plus_store
-""When used with negative @i{noffset} allocates memory on the
-local stack; when used with a positive @i{noffset} drops memory from the local
-stack""
+lp+!	( noffset -- )	gforth-internal	lp_plus_store
+""Add @i{noffset} to the locals pointer; a negative @i{noffset}
+allocates, a positive @i{noffset} frees.""
 lp += noffset;
 ALIVE_DEBUGGING(lp[-1]);
 
-lp-	( -- )	new	lp_minus
+lp-	( -- )	gforth-internal	lp_minus
+""Allocate a cell on the locals stack.""
 lp += -sizeof(Cell);
 
-lp+	( -- )	new	lp_plus
+lp+	( -- )	gforth-internal	lp_plus
+""Free a float from the locals stack.""
 lp += sizeof(Float);
 ALIVE_DEBUGGING(lp[-1]);
 
-lp+2	( -- )	new	lp_plus_two
+lp+2	( -- )	gforth-internal	lp_plus_two
+""Free two floats from the locals stack.""
 lp += 2*sizeof(Float);
 ALIVE_DEBUGGING(lp[-1]);
 
 lp!	( c_addr -- )	gforth-internal	lp_store
+""Set the locals pointer to @i{c-addr}.""
 lp = (Address)c_addr;
 
->l	( w -- )	gforth	to_l
+>l	( w -- )	gforth-internal	to_l
+""Push @i{w} on the locals stack.""
 lp -= sizeof(Cell);
 *(Cell *)lp = w;
 
 \+floating
 
-f>l	( r -- )	gforth	f_to_l
+f>l	( r -- )	gforth-internal	f_to_l
+""Push @i{r} on the locals stack.""
 lp -= sizeof(Float);
 *(Float *)lp = r;
 

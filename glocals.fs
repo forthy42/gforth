@@ -365,7 +365,12 @@ vocabulary locals-types \ this contains all the type specifyers, -- and }
 locals-types definitions
 
 : W: ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth w-colon
-    \G Define value-flavoured cell local @i{name} @code{( -- x1 )}
+    \g Define local @i{name} with the initial value @i{x}.@*
+    \g @i{name} execution: @i{( -- x1 )} push the current value of @i{name}.@*
+    \g @code{to @i{name}} run-time: @i{( x2 -- )} change the value of
+    \g @i{name} to @i{x2}.@*
+    \g @code{+to @i{name}} run-time: @i{( n|u -- )} increment the value of
+    \g @i{name} by @i{n|u}.
     [: ( Compilation: -- ) ( Run-time: -- w )
 	\ compiles a local variable access
 	@ lp-offset compile-@local ;]
@@ -374,47 +379,72 @@ locals-types definitions
     ['] compile-pushlocal-w ;
 
 : W^ ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth w-caret
-    \G Define variable-flavoured cell local @i{name} @code{( -- a-addr )}
+    \g Define local @i{name}, reserve a cell at @i{a-addr}, and store @i{x} there.@*
+    \g @i{name} execution: @i{( -- a-addr )}.@*
     [: ( Compilation: -- ) ( Run-time: -- w )
 	@ laddr#, ;]
     ['] n/a create-local
     ['] compile-pushlocal-w ;
 
 : F: ( compilation "name" -- a-addr xt; run-time r -- ) \ gforth f-colon
-    \G Define value-flavoured float local @i{name} @code{( -- r1 )}
+    \g Define local @i{name} with the initial value @i{r}.@*
+    \g @i{name} execution: @i{( -- r1 )} push the current value of @i{name}.@*
+    \g @code{to @i{name}} run-time: @i{( r2 -- )} change the value of
+    \g @i{name} to @i{r2}.@*
+    \g @code{+to @i{name}} run-time: @i{( r3 -- )} increment the value of
+    \g @i{name} by @i{r3}.
     [: ( Compilation: -- ) ( Run-time: -- r1 )
 	@ lp-offset compile-f@local ;]
     ['] to-f: create-local
     ['] compile-pushlocal-f ;
 
 : F^ ( compilation "name" -- a-addr xt; run-time r -- ) \ gforth f-caret
-    \G Define variable-flavoured float local @i{name} @code{( -- f-addr )}
+    \g Define local @i{name}, reserve a float at @i{f-addr}, and store @i{r} there.@*
+    \g @i{name} execution: @i{( -- f-addr )}.@*
     W^ drop ['] compile-pushlocal-f ;
 
 : D: ( compilation "name" -- a-addr xt; run-time x1 x2 -- ) \ gforth d-colon
-    \G Define value-flavoured double local @i{name} @code{( -- x3 x4 )}
+    \g Define local @i{name} with the initial value @i{x1 x2}.@*
+    \g @i{name} execution: @i{( -- x3 x4 )} push the current value of @i{name}.@*
+    \g @code{to @i{name}} run-time: @i{( x5 x6 -- )} change the value of
+    \g @i{name} to @i{x5 x6}.@*
+    \g @code{+to @i{name}} run-time: @i{( d|ud -- )} increment the value of
+    \g @i{name} by @i{d|ud}.
     [: ( Compilation: -- ) ( Run-time: -- x3 x4 )
 	@ laddr#, postpone 2@ ;]
     ['] to-d: create-local
     ['] compile-pushlocal-d ;
 
 : D^ ( compilation "name" -- a-addr xt; run-time x1 x2 -- ) \ gforth d-caret
-    \G Define variable-flavoured double local @i{name} @code{( -- a-addr )}
+    \g Define local @i{name}, reserve two cells at @i{a-addr}, and store @i{x1 x2} there.@*
+    \g @i{name} execution: @i{( -- a-addr )}.@*
     W^ drop ['] compile-pushlocal-d ;
 
 : C: ( compilation "name" -- a-addr xt; run-time c -- ) \ gforth c-colon
-    \G Define value-flavoured char local @i{name} @code{( -- c1 )}
+    \g Define local @i{name} with the initial value @i{c}.@*
+    \g @i{name} execution: @i{( -- c1 )} push the current value of @i{name}.@*
+    \g @code{to @i{name}} run-time: @i{( c2 -- )} change the value of
+    \g @i{name} to @i{c2}.@*
+    \g @code{+to @i{name}} run-time: @i{( n|u -- )} increment the value of
+    \g @i{name} by @i{n|u}.
     [: ( Compilation: -- ) ( Run-time: -- c1 )
 	@ laddr#, postpone c@ ;]
     ['] to-c: create-local
     ['] compile-pushlocal-c ;
 
 : C^ ( compilation "name" -- a-addr xt; run-time c -- ) \ gforth c-caret
-    \G Define variable-flavoured char local @i{name} @code{( -- c-addr )}
+    \g Define local @i{name}, reserve a cell at @i{c-addr}, and store @i{c} there.@*
+    \g @i{name} execution: @i{( -- c-addr )}.@*
     W^ drop ['] compile-pushlocal-c ;
 
 : XT: ( compilation "name" -- a-addr xt; run-time xt1 -- ) \ gforth x-t-colon
-    \G Define defer-flavoured cell local @i{name} @code{( ... -- ... )}
+    \g Define local @i{name}; set @i{name} to execute @i{xt1}.@*
+    \g @i{name} execution: execute the xt that
+    \g @i{name} has  most recently been set to execute.@*
+    \g @code{Is @i{name}} run-time: @i{( xt2 -- )}
+    \g set @i{name} to execute @i{xt2}.@*
+    \g @code{Action-of @i{name}} run-time: @i{( -- xt3 )}
+    \g @i{xt3} is the xt that @i{name} has most recently been set to execute.
     [: ( Compilation: -- ) ( Run-time: .. -- .. )
 	@ lp-offset compile-@local postpone execute ;]
     ['] to-xt: create-local

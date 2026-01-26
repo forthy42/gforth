@@ -561,11 +561,14 @@ defer defer-default ( -- )
 \ default action for deferred words (overridden by a warning later)
 
 : Defer ( "name" -- ) \ core-ext
-\G Define a deferred word @i{name}; you have to set it to an xt before
-\G executing it.@* @i{name} execution: execute the most recent xt that
-\G @i{name} has been set to.@* @code{Is @i{name}} run-time: @i{( xt --
-\G )} Set @i{name} to execute @i{xt}.@* @code{Action-of @i{name}}
-\G run-time: @i{( -- xt )} @i{Xt} is currently assigned to @i{name}.
+    \G Define a deferred word @i{name}; you have to set it to an xt
+    \G before executing it.@*
+    \G @i{name} execution: execute the xt that @i{name} has
+    \G most recently been set to execute.@*
+    \G @code{Is @i{name}} run-time: @i{( xt1 -- )} Set @i{name} to
+    \G execute @i{xt1}.@*
+    \G @code{Action-of @i{name}} run-time: @i{( -- xt2 )}
+    \G @i{xt2} is the xt that @i{name} has most recently been set to execute.
     ['] parse-name create-from reveal
     ['] defer-default A, ;
 
