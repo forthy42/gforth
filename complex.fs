@@ -56,15 +56,25 @@ z!-table locals-to-class: to-z:
     dup ]] literal f@localn [[ float+ ]] literal f@localn [[ ;
 
 also locals-types definitions
-: z: ( compilation "name" -- a-addr xt; run-time z -- ) \ gforth z-colon
-    \G Define value-flavoured complex local @i{name} @code{( -- z1 )}
+: Z: ( compilation "name" -- a-addr xt; run-time r1 r2 -- ) \ gforth z-colon
+    \g Define local @i{name} with the initial value @i{r1 r2}.@*
+    \g @i{name} execution: @i{( -- r3 r4 )} push the current value of @i{name}.@*
+    \g @code{to @i{name}} run-time: @i{( r5 r6 -- )} change the value of
+    \g @i{name} to @i{r5 r6}.@*
+    \g @code{+to @i{name}} run-time: @i{( r7 r8 -- )} increment the value of
+    \g @i{name} by @i{r7+r8}i.
     [: @ lp-offset compile-z@local ;]
     ['] to-z: create-local
     ['] compile-pushlocal-z ;
-: za: ( compilation "name" -- a-addr xt; run-time z -- ) \ gforth z-a-colon
+
+: za: ( compilation "name" -- a-addr xt; run-time z -- ) \ gforth-obsolete z-a-colon
     \G Define varue-flavoured complex local @i{name} @code{( -- z1 )}
     addressable: z: ;
-: z^ ( "name" -- a-addr xt )
+
+: Z^ ( compilation "name" -- a-addr xt; run-time r1 r2 -- ) \ gforth f-caret
+    \g Define local @i{name}, reserve two floats at @i{f-addr},
+    \g and store @i{r1 r2} there.@*
+    \g @i{name} execution: @i{( -- f-addr )}.@*
     w^ drop  ['] compile-pushlocal-z ;
 previous definitions
 

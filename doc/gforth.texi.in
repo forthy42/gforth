@@ -476,6 +476,7 @@ Gforth locals
 * Locals definition words::
 * Where are locals visible by name?::
 * How long do locals live?::
+* POSTPONEing locals::
 * Locals programming style::
 * Locals implementation::
 
@@ -14063,6 +14064,7 @@ the colon definition (@pxref{Where are locals visible by name?}).
 * Locals definition words::
 * Where are locals visible by name?::
 * How long do locals live?::
+* POSTPONEing locals::
 * Locals programming style::
 * Locals implementation::
 @end menu
@@ -14091,13 +14093,14 @@ doc-c^
 doc-f:
 doc-f^
 doc-z:
+doc-z^
 doc-xt:
 
-Note that @code{|}, @code{--} and @word{:}} are not normally in the
-search order (they are in the vocabulary @code{locals-types}), and on
-some Forth systems they may not even be words (and the standard
-documents them under @word{{:}, not as separate word).  @word{}} is
-also in @code{locals-types}.
+Apart from @word{{:} and @word{{}, none of these words are normally in
+the search order (they are in the vocabulary @code{locals-types}); on
+other Forth systems, they may not even be words (the standard
+documents @word{|}, @word{--} and @word{:}} under @word{{:}, not as
+separate word, and the other words are non-standard).
 
 @node Where are locals visible by name?, How long do locals live?, Locals definition words, Gforth locals
 @subsubsection Where are locals visible by name?
@@ -14173,11 +14176,12 @@ UNTIL
 @end example
 
 This should be legal according to the visibility rule. The use of
-@code{x} can only be reached through the definition; but that appears
-textually below the use.
+@code{x} can only be reached through the definition; but the use
+appears textually before the definition.
 
-From this example it is clear that the visibility rules cannot be fully
-implemented without major headaches. Our implementation treats common
+From this example it is clear that the visibility rules cannot be
+fully implemented without major headaches in a one-pass compiler like
+Gforth's.  Our implementation treats common
 cases as advertised and the exceptions are treated in a safe way: The
 compiler makes a reasonable guess about the locals visible after a
 @code{BEGIN}; if it is too pessimistic, the
@@ -14262,9 +14266,9 @@ doc-assume-live
 
 @noindent
 E.g.,
-@example
+@source
 IF
-  @{: x :@}
+  {: x :}
   AHEAD
     ASSUME-LIVE
     BEGIN
@@ -14273,7 +14277,7 @@ IF
     ...
   UNTIL
 THEN
-@end example
+@end source
 
 Here @code{x} would not be visible at the use of @code{x}, because its
 definition is inside a control structure, but by using ASSUME-LIVE the
@@ -14303,27 +14307,71 @@ The ideas in this section have also been published in M. Anton Ertl,
 Automatic Scoping of Local Variables}}, EuroForth '94.
 
 
-@node How long do locals live?, Locals programming style, Where are locals visible by name?, Gforth locals
+@node How long do locals live?, POSTPONEing locals, Where are locals visible by name?, Gforth locals
 @subsubsection How long do locals live?
 @cindex locals lifetime
 @cindex lifetime of locals
 
-The right answer for the lifetime question would be: A local lives at
-least as long as it can be accessed. For a regular value-flavoured
-local this means: until the end of its visibility. However, an
-addressable value-flavoured or variable-flavoured local could be
-accessed through its address far beyond its visibility
-scope. Ultimately, this would mean that such locals would have to be
-garbage collected. Since this entails un-Forth-like implementation
-complexities, we adopted the same cowardly solution as some other
-languages (e.g., C): The local lives only as long as it is visible;
-afterwards its address is invalid (and programs that access it
-afterwards are erroneous).
+Each local lives only as long as it is visible; afterwards its address
+is invalid, and programs that access it afterwards are erroneous; it's
+a good idea to use non-addressable value-flavoured or defer-flavoured
+locals to avoid such errors.
 
-@node Locals programming style, Locals implementation, How long do locals live?, Gforth locals
+@node POSTPONEing locals, Locals programming style, How long do locals live?, Gforth locals
+@subsubsection POSTPONEing locals
+@cindex locals and POSTPONE or ]]
+
+In Gforth you can @word{postpone} a local (or use a local inside
+@code{]]}...@code{[[}, @pxref{Macros}).  Given the normal lifetime of
+locals (@pxref{How long do locals live?}), what does this mean?
+Consider:
+
+@source
+: foo {: W: n D: d F: r C: c XT: xt -- :}
+  POSTPONE n
+  POSTPONE d
+  POSTPONE r
+  POSTPONE c
+  POSTPONE xt
+  0 ->n #0. ->d 0e ->r 0 ->c `abort =>xt
+; immediate
+@end source
+
+This is equivalent to
+
+@source
+: foo {: W: n D: d F: r C: c XT: xt -- :}
+  n POSTPONE literal
+  d POSTPONE 2literal
+  r POSTPONE fliteral
+  c POSTPONE literal
+  ACTION-OF xt compile,
+  0 ->n #0. ->d 0e -> r 0 ->c `abort =>xt
+; immediate
+@end source
+
+I.e., when applied to locals, @word{postpone} compiles the value that
+the local has at the point of the @word{postpone}, not any later value
+of the local.  This solves the problem that the local does not live
+indefinitely, and it also results in efficient code.  But in general
+it does not produce the value that an infinite-lifetime local would
+have at the place where the local is compiled into by the
+@word{postpone} (what a Scheme programmer would expect).  However, as
+long as you do not use @word{TO}, @word{+TO}, @word{IS} or @word{ADDR}
+and @word{POSTPONE} on the same local, postponing a local produces the
+result that a Scheme programmer would expect.
+
+Concerning using locals without @word{TO} and friends, @pxref{Locals
+programming style}.
+
+Using @word{postpone} with variable-flavoured locals produces an error
+during compilation.
+
+@node Locals programming style, Locals implementation, POSTPONEing locals, Gforth locals
 @subsubsection Locals programming style
 @cindex locals programming style
 @cindex programming style, locals
+@cindex locals use without TO etc.
 
 The freedom to define locals anywhere has the potential to change
 programming styles dramatically. In particular, the need to use the
@@ -14353,19 +14401,17 @@ definition what the local stands for, it does not turn into something
 different later.
 
 E.g., a definition using @code{TO} might look like this:
-@example
-: strcmp @{: addr1 u1 addr2 u2 -- n :@}
- u1 u2 min 0
- ?do
-   addr1 c@@ addr2 c@@ -
-   ?dup-if
+@source
+: strcmp {: addr1 u1 addr2 u2 -- n :}
+ u1 u2 min 0 ?do
+   addr1 c@ addr2 c@ - ?dup-if
      unloop exit
    then
    addr1 char+ TO addr1
    addr2 char+ TO addr2
  loop
  u1 u2 - ;
-@end example
+@end source
 Here, @code{TO} is used to update @code{addr1} and @code{addr2} at
 every loop iteration. @code{strcmp} is a typical example of the
 readability problems of using @code{TO}. When you start reading
@@ -14375,12 +14421,11 @@ else.
 
 This can be avoided by defining two locals at the start of the loop that
 are initialized with the right value for the current iteration.
-@example
-: strcmp @{: addr1 u1 addr2 u2 -- n :@}
+@source
+: strcmp {: addr1 u1 addr2 u2 -- n :}
  addr1 addr2
- u1 u2 min 0 
- ?do @{: s1 s2 :@}
-   s1 c@@ s2 c@@ -
+ u1 u2 min 0 ?do {: s1 s2 :}
+   s1 c@ s2 c@ -
    ?dup-if
      unloop exit
    then
@@ -14388,7 +14433,7 @@ are initialized with the right value for the current iteration.
  loop
  2drop
  u1 u2 - ;
-@end example
+@end source
 Here it is clear from the start that @code{s1} has a different value
 in every loop iteration.
 
@@ -14425,11 +14470,10 @@ Combinations of conditional branches and @code{lp+!#} like
 @code{?branch-lp+!#} (the locals pointer is only changed if the branch
 is taken) are provided for efficiency and correctness in loops.
 
-A special area in the dictionary space is reserved for keeping the
-local variable names. @code{@{:} switches the dictionary pointer to this
-area and @code{:@}} switches it back and generates the locals
-initializing code. @code{W:} etc.@ are normal defining words. This
-special area is cleared at the start of every colon definition.
+Local variable names are stored in their own section
+@word{locals-headers} by @word{create-local}, the central factor in
+all the words that define a local.  Locals names of a definition are
+deleted when the definition is complete.
 
 @cindex word list for defining locals
 A special feature of Gforth's dictionary is used to implement the
@@ -14536,8 +14580,8 @@ usually less than reclaiming this space would cost in code size.
 @subsection Standard Forth locals
 @cindex locals, Standard Forth style
 
-The Forth-2012 standard defines a syntax for locals is restricted
-version of Gforth's locals:
+The Forth-2012 standard defines a syntax for locals that is a
+restricted version of Gforth's locals:
 
 @itemize @bullet
 @item
@@ -14563,12 +14607,12 @@ doc-(local)
 
 The Forth-2012 locals extension wordset also defines a syntax using
 @code{locals|}, but it is so awful that we strongly recommend not to
-use it and another, better syntax (the one using @word{{:} was
-standardized). We have implemented this syntax to make porting to
-Gforth easy, but do not document it here. The problem with this syntax
-is that the locals are defined in an order reversed with respect to
-the standard stack comment notation, making programs harder to read,
-and easier to misread and miswrite.
+use it, and the standardization committee standardized another, better
+syntax (the one using @word{{:}). We have implemented this syntax only
+to make porting to Gforth easy. The problem with this syntax is that
+the locals are defined in an order reversed with respect to the
+standard stack comment notation, making programs harder to read, and
+easier to misread and miswrite.
 
 @c -------------------------------------------------------------
 @node Object-oriented Forth, Closures, Locals, Words

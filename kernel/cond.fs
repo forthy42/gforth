@@ -50,14 +50,16 @@ variable backedge-locals-default 0 backedge-locals-default !
 ' ;-hook21 is ;-hook2
 
 : UNREACHABLE ( -- ) \ gforth
-    \ declares the current point of execution as unreachable
+    \G This word promises to the compiler that it can never be
+    \G executed.  One could put it, e.g., behind a @code{-13 throw}.
     dead-code on
     backedge-locals-default @ backedge-locals ! ; immediate
 
-: ASSUME-LIVE ( orig -- orig ) \ gforth
-    \ used immediatly before a BEGIN that is not reachable from
-    \ above.  causes the BEGIN to assume that the same locals are live
-    \ as at the orig point
+: ASSUME-LIVE ( compilation orig -- orig ) \ gforth
+    \G Used immediatly before a @word{BEGIN} that is not reachable
+    \G from above.  Causes the @word{BEGIN} to assume that the same
+    \G locals are live as right before the control flow word
+    \G (typically @word{ahead}) that pushed the @i{orig}.
     dup orig?
     third backedge-locals ! ; immediate
 
