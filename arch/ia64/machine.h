@@ -20,6 +20,11 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#define BFD_ARCH bfd_arch_ia64
+#define BFD_MACH bfd_mach_ia64_elf64
+/* or bfd_mach_ia64_elf32 ? seems to be just a different ELF format;
+   should not play a role for disassembling in-memory code */
+
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
 #endif

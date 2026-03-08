@@ -19,6 +19,11 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#define BFD_ARCH bfd_arch_mips
+#define BFD_MACH bfd_mach_mips16000
+/* lots of other options, and there is no superset, as at least one of the
+   MIPS64 variants removed instructions */
+
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 /* on the mips this is a mixed blessing, since defining this spills
    the rp with some gcc versions. This machine has 31 regs, yet that's

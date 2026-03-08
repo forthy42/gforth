@@ -20,6 +20,8 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+/* it seems that libopcodes does not support SHARC */
+
 /* define SYSCALL */
 
 #ifndef SYSCALL

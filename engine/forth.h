@@ -639,6 +639,9 @@ extern DynamicInfo *decompile_prim3(Label *tcp);
 extern Cell fetch_decompile_prim(Cell *a_addr);
 int state_map(int);
 
+extern int disassemble(unsigned char *addr, size_t u);
+
+
 extern int offset_image;
 extern Cell die_on_signal;
 extern int ignore_async_signals;

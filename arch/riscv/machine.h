@@ -20,4 +20,7 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#define BFD_ARCH bfd_arch_riscv
+#define BFD_MACH bfd_mach_riscv64
+
 #include "../generic/machine.h"

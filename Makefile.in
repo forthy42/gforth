@@ -156,7 +156,7 @@ FORTHK	= ./gforthker -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 #FORTHP	= $(ENGINE) $(FORTHDEBUGFLAGS) -i ./$(kernel_fi)
 #the "-2 image-included-files +!" undoes the change to image-included-files
 # in exboot.fs
-STARTUP	= exboot.fs startup.fs @asm_fs@ @disasm_fs@
+STARTUP	= exboot.fs startup.fs @asm_fs@ @disasm_fs@ disasm2.fs
 STARTUP_FULL = $(STARTUP) unix/pthread.fs
 STRIP	= strip
 DOSTRIP = true
@@ -674,6 +674,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in			\
 	engine/engine.c engine/main.c engine/libmain.c engine/io.c	\
 	engine/support.c engine/signals.c engine/libcc.h		\
 	engine/gforth.h.in engine/profile.c engine/128bit.h		\
+	engine/disasm.c                                                 \
 	engine/getopt.c engine/getopt1.c engine/getopt.h		\
 	engine/select.c engine/memcmp.c engine/rint.c	                \
 	engine/strtol.c engine/strtoul.c engine/ansidecl.h		\
@@ -1461,7 +1462,7 @@ MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 MAKELINE-itc      = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 MAKELINE-ditc     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
-FIRSTOBJECTS = @signals_o@ @LIBOBJS@ support-ll.o support-noll.o support-ll-reg.o support-noll-reg.o dblsub.o libmain.o
+FIRSTOBJECTS = @signals_o@ @LIBOBJS@ support-ll.o support-noll.o support-ll-reg.o support-noll-reg.o dblsub.o disasm.o libmain.o
 
 GFORTHOBJECTS = $(patsubst %,engine/%,$(FIRSTOBJECTS))
 GFORTHLIBOBJECTS = $(patsubst %.o,engine/lib%.lo,$(FIRSTOBJECTS))

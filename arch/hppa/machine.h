@@ -19,6 +19,10 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#define BFD_ARCH bfd_arch_hppa
+#define BFD_MACH bfd_mach_hppa20
+/* or bfd_mach_hppa20w ? */
+
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
 #endif

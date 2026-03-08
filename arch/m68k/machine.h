@@ -19,6 +19,9 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#define BFD_ARCH bfd_arch_m68k
+#define BFD_MACH bfd_mach_m68060
+
 #if !defined USE_NO_TOS && !defined USE_TOS
 #define USE_TOS
 #endif

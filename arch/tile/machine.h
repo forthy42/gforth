@@ -19,6 +19,10 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#define BFD_ARCH bfd_arch_tilegx
+#define BFD_MACH bfd_mach_tilegx
+/* there is also bfd_arch_tilepro and some mach variants */
+
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
 #endif

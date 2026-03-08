@@ -20,6 +20,9 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#define BFD_ARCH bfd_arch_i386
+#define BFD_MACH bfd_mach_i386_i386
+
 #ifdef HAVE_LIBKERNEL32
 #ifdef i386
 #define SYSCALL     __attribute__ ((stdcall))

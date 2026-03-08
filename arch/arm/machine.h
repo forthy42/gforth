@@ -20,6 +20,13 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#define BFD_ARCH bfd_arch_arm
+#define BFD_MACH bfd_mach_arm_7
+/* one might also define bfd_mach_arm_8_1M_MAIN, but that needs a
+   pretty new version of binutils, and most hardware gforth is used on
+   only supports arm v7, and the gforth code is arm v7 (or v6 or so),
+   too */
+
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
 #endif
