@@ -21,6 +21,10 @@
 */
 
 #define BFD_ARCH bfd_arch_riscv
+#if __SIZEOF_POINTER__ == 4
+#define BFD_MACH bfd_mach_riscv32
+#else
 #define BFD_MACH bfd_mach_riscv64
+#endif
 
 #include "../generic/machine.h"
