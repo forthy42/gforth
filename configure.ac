@@ -992,7 +992,7 @@ case "$host_os" in
 	;;
 esac
 
-if test `$CC -dumpversion | cut -f1 -d.` .lt. 14
+if test `$CC -dumpversion | cut -f1 -d.` -lt 14
 then
     CHECKFLAGS="$CHECKFLAGS no-tree-vectorize"
 fi
