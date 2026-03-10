@@ -1495,7 +1495,7 @@ fi
 AC_SUBST(LIB_SUFFIX)
 AC_CHECK_LIB(rt,clock_gettime)
 LD_VERSION=`$LD -v | tr ' ' '\n' | tail -n 1`
-AC_CHECK_LIB(opcodes-$LD_VERSION,init_disassemble_info,,[AC_CHECK_LIB(opcodes,init_disassemble_info)])
+AC_CHECK_LIB(opcodes-$LD_VERSION-system,init_disassemble_info,,[AC_CHECK_LIB(opcodes-$LD_VERSION,init_disassemble_info,,[AC_CHECK_LIB(opcodes,init_disassemble_info)]))
 
 AC_CHECK_FUNCS(dlopen)
 if test -n "$GNU_LIBTOOL" -a "x$ac_cv_lib_ltdl_lt_dlinit" = xyes; then
