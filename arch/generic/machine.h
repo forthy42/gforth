@@ -90,7 +90,9 @@ typedef void *Label;
 #define HAS_FILE
 #define HAS_FLOATING
 #define HAS_OS
+#ifndef HAS_DEBUG
 #define HAS_DEBUG
+#endif
 #define HAS_GLOCALS
 #define HAS_HASH
 #ifndef HAS_PEEPHOLE

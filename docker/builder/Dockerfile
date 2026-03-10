@@ -14,7 +14,7 @@ RUN apt-get -y update \
      libfreetype-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
      libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
      libxkbcommon-dev libwebp-dev emacs-nox gforth gforth-lib gforth-common \
-     yodl bison libpcre3-dev libboost-dev git \
+     yodl bison libpcre3-dev libboost-dev binutils-dev git \
   && if ! which gforth >/dev/null 2>&1; then \
          wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
        	 tar zxf gforth-0.7.3.tar.gz; \

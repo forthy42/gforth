@@ -2,7 +2,7 @@
 which sudo || alias sudo=eval
 install_debian() {
   sudo apt-get -y update
-  sudo apt-get -y -m install libffi-dev libltdl7 libsoil-dev libtool make gcc automake m4 texinfo texi2html texlive-base install-info dpkg-dev debhelper yodl bison libboost-dev g++ libpcre3-dev git # yodl, bison, ... git: are for swig
+  sudo apt-get -y -m install libffi-dev libltdl7 libsoil-dev binutils-dev libtool make gcc automake m4 texinfo texi2html texlive-base install-info dpkg-dev debhelper yodl bison libboost-dev g++ libpcre3-dev git # yodl, bison, ... git: are for swig
   if ! which pcre-config >/dev/null 2>&1
   then
       git clone https://github.com/nektro/pcre-8.45.git
@@ -22,7 +22,7 @@ install_alpine() {
     sudo apk add freetype-dev build-base autoconf automake m4 libtool git \
         coreutils gcc libffi-dev mesa-dev glew-dev libx11-dev \
         libxrandr-dev glfw-dev harfbuzz-dev gstreamer-dev gst-plugins-base-dev \
-	opus-dev pulseaudio-dev pipewire-dev wayland-dev unzip texinfo wayland-protocols libxkbcommon-dev libwebp-dev
+	opus-dev pulseaudio-dev pipewire-dev wayland-dev unzip texinfo wayland-protocols libxkbcommon-dev libwebp-dev binutils-dev
     (cd /tmp && git clone https://github.com/nothings/stb.git && \
     sudo mkdir /usr/include/stb && sudo cp stb/*.h /usr/include/stb && rm -rf stb)
 }
@@ -34,7 +34,7 @@ install_fedora() {
 	libtool libtool-ltdl libtool-ltdl-devel git \
         coreutils gcc libffi-devel mesa-devel glew-devel libx11-devel \
         libXrandr-devel glfw-devel harfbuzz-devel gstreamer-devel gst-plugins-base-devel wayland-protocols-devel libxkbcommon-devel \
-	opus-devel libwebp-devel pulseaudio-devel unzip texinfo
+	opus-devel libwebp-devel pulseaudio-devel binutils-devel unzip texinfo
     (cd /tmp && git clone https://github.com/nothings/stb.git && \
     sudo mkdir /usr/include/stb && sudo cp stb/*.h /usr/include/stb && rm -rf stb)
 }
@@ -46,7 +46,7 @@ install_opensuse() {
     freetype2-devel harfbuzz-devel libpulse-devel libopus-devel \
     libva-devel libva-gl-devel linux-glibc-devel libxkbcommon-devel \
     makeinfo texinfo info wayland-devel wayland-protocols-devel m4 \
-    emacs-nox libffi-devel libX11-devel libwebp-devel
+    emacs-nox libffi-devel libX11-devel libwebp-devel binutils-devel
 }
 
 install_linux() {

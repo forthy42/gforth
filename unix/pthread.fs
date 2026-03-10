@@ -217,10 +217,10 @@ s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
 [THEN]
 
 :noname ( -- )
-    pthread-joinwait @ 0= IF  pthread-id pthread_detach drop  THEN
-    epiper @ ?dup-if epiper off close-file drop  THEN
-    epipew @ ?dup-if epipew off close-file drop  THEN
-    tmp$[] $[]free
+    [:  pthread-joinwait @ 0= IF  pthread-id pthread_detach drop  THEN
+	0 epiper !@ ?dup-if  close-file drop  THEN
+	0 epipew !@ ?dup-if  close-file drop  THEN
+	tmp$[] $[]free ;] catch drop
     0 (bye) ;
 IS kill-task
 
