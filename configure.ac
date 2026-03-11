@@ -723,6 +723,12 @@ esac
 AC_SUBST(host)
 AC_SUBST(FAST)
 
+BFD_ARCH=`grep '#define BFD_ARCH' "$srcdir/arch/$machine/machine.h" | cut -f3 -d' '`
+BFD_MACH=`grep '#define BFD_MACH' "$srcdir/arch/$machine/machine.h" | cut -f3 -d' '`
+
+AC_DEFINE_UNQUOTED(BFD_ARCH, $BFD_ARCH, [BFD architecture for libopcodes])
+AC_DEFINE_UNQUOTED(BFD_MACH, $BFD_MACH, [BFD machine for libopcodes])
+
 MAKEINC=""
 GFORTH_EXE="true"
 
@@ -730,17 +736,17 @@ echo "Check for arch/$machine/$platform/gforth.ld ($EC_MODE)"
 if test x$EC_MODE = xtrue
 then
 	echo "Check for arch/$machine/$platform/gforth.ld"
-	if test -f arch/$machine/$platform/gforth.ld
+	if test -f "$srcdir/arch/$machine/$platform/gforth.ld"
 	then
-		LDFLAGS="-T ../arch/$machine/$platform/gforth.ld -Map \$@.map -cref --gc-sections $LDFLAGS"
+		LDFLAGS="-T $(top_srcdir)/arch/$machine/$platform/gforth.ld -Map \$@.map -cref --gc-sections $LDFLAGS"
 		if test x$platform = xnxt; then
 			LIBS="$LIB_PATH/lib/gcc/arm-elf/$($CC --version | grep GCC | cut -d' ' -f3)/interwork/libgcc.a $LIB_PATH/arm-elf/lib/interwork/libc.a $LIBS"
 		fi
 	fi
-	if test -f arch/$machine/$platform/make.inc
+	if test -f "$srcdir/arch/$machine/$platform/make.inc"
 	then
-		MAKEINC="include ../arch/$machine/$platform/make.inc"
-		GFORTH_EXE="\$(MAKE) -f arch/$machine/$platform/make.inc \$@.exe"
+		MAKEINC="include $(top_srcdir)/arch/$machine/$platform/make.inc"
+		GFORTH_EXE="\$(MAKE) -f $(top_srcdir)/arch/$machine/$platform/make.inc \$@.exe"
 	fi
 fi
 AC_SUBST(MAKEINC)

@@ -20,7 +20,7 @@
 
 : disasm2 ( c-addr u -- )
     disasm-libopcodes 0= if
-        what's discode
+        defers discode
     then ;
 
 ' disasm2 is discode
