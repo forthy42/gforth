@@ -52,6 +52,9 @@ set-current
     [ s" @host_os@" s" cygwin" str= ] [IF]  s"  -no-undefined "
     [ELSE]  s" "  [THEN] ;
 
+: libopcodes-name ( -- c-addr u ) \ gforth-internal
+    s" @LIBOPCODES@" ;
+
 \ test for the presence of libffi or ffcall
 @FFCALLFLAG@ constant ffcall-present \ libffi present (on building)
 @LIBFFIFLAG@ constant libffi-present \ ffcall libs present (on building)

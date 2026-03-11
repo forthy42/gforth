@@ -3552,12 +3552,6 @@ w is the static code address of the primitive at a_addr, i.e, what you would
 get with neither dynamic native code generation nor static superinstructions.""
 w = (Cell)fetch_decompile_prim(a_addr);
 
-disasm-libopcodes ( c_addr u -- n ) gforth-internal disasm_libopcodes
-""Disassemble the memory block c-addr u; if this works, return 1,
-otherwise (e.g., because Gforth was built without libopcodes support),
-return 0.""
-n = disassemble(c_addr,u);
-
 tag-offsets ( -- a_addr ) gforth-internal tag_offsets
 extern Cell groups[32];
 a_addr = groups;

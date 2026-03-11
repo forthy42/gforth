@@ -112,7 +112,7 @@ XLDFLAGS = @LDFLAGS@
 LDFLAGS =  $(DEBUGFLAG) $(XLDFLAGS)
 LDLIBS  = @LIBS@ @LTDL_LDLIBS@
 
-AOBJECTS = @signals_o@ support$(OPT).o disasm.o @LIBOBJS@ $(OPTOBJECTS)
+AOBJECTS = @signals_o@ support$(OPT).o @LIBOBJS@ $(OPTOBJECTS)
 
 @MAKEINC@
 

@@ -156,8 +156,8 @@ FORTHK	= ./gforthker -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 #FORTHP	= $(ENGINE) $(FORTHDEBUGFLAGS) -i ./$(kernel_fi)
 #the "-2 image-included-files +!" undoes the change to image-included-files
 # in exboot.fs
-STARTUP	= exboot.fs startup.fs @asm_fs@ @disasm_fs@ disasm2.fs
-STARTUP_FULL = $(STARTUP) unix/pthread.fs
+STARTUP	= exboot.fs startup.fs @asm_fs@ @disasm_fs@
+STARTUP_FULL = $(STARTUP) unix/pthread.fs @disasm2_fs@
 STRIP	= strip
 DOSTRIP = true
 
@@ -356,7 +356,6 @@ GFORTH_FI_SRC2=\
 	smartdots.fs \
 	status-line.fs	\
 	mwords.fs \
-	disasm2.fs \
 	arch/386/asm.fs arch/386/disasm.fs \
 	arch/amd64/asm.fs arch/amd64/disasm.fs \
 	arch/alpha/asm.fs arch/alpha/disasm.fs arch/alpha/testasm.fs\
@@ -390,7 +389,7 @@ SWIGDISTFSI = @SWIGDISTFSI@
 SWIG_WRAP = $(patsubst %.fs,unix/%-fsi.c,$(SWIGMODULES))
 
 LIBCC_SRC1 = unix/cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs	\
-	unix/serial.fs unix/filestat.fs unix/libc.fs unix/time.fs
+	unix/serial.fs unix/filestat.fs unix/libc.fs unix/time.fs @disasm2_fs@
 
 LIBCC_SRC = $(patsubst %,unix/%,$(SWIGLIBS))
 
@@ -398,7 +397,7 @@ UNIXLIBS_SRC = unix/opengl.fs unix/opengles.fs unix/opengles3.fs	 \
 	unix/soillib.fs unix/soil2lib.fs unix/android.fs unix/openmax.fs \
 	unix/cpu.fs unix/png.fs unix/gpslib.fs unix/gstlib.fs		 \
 	unix/stb-image.fs unix/stb-image-write.fs unix/os-name.fs	 \
-	unix/open-url.fs
+	unix/open-url.fs unix/disasm2.fs
 
 SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i unix/gl.i    \
 	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/png16.i	      \
@@ -675,7 +674,6 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in			\
 	engine/engine.c engine/main.c engine/libmain.c engine/io.c	\
 	engine/support.c engine/signals.c engine/libcc.h		\
 	engine/gforth.h.in engine/profile.c engine/128bit.h		\
-	engine/disasm.c                                                 \
 	engine/getopt.c engine/getopt1.c engine/getopt.h		\
 	engine/select.c engine/memcmp.c engine/rint.c	                \
 	engine/strtol.c engine/strtoul.c engine/ansidecl.h		\
@@ -1106,7 +1104,8 @@ $(buildccdir)/libgfserial.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgfsocket.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgffreetype_gl.la: $(FREETYPE_GL_SRC)
 $(buildccdir)/libgfpthread.la: unix/pthread-types.fs
-gforth.fi: $(buildccdir)/libgfpthread.la
+$(buildccdir)/libgfdisasm2.la: unix/disasm2.fs
+gforth.fi: $(buildccdir)/libgfpthread.la @disasm2_la@
 
 $(buildccdir)/libgf%.la: unix/%.fs $(FORTH_GEN_LIGHT) $(GEN) $(LIBCC_LIB_SRC) libforth
 		@echo LIBFORTH $<
@@ -1463,7 +1462,7 @@ MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 MAKELINE-itc      = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 MAKELINE-ditc     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
-FIRSTOBJECTS = @signals_o@ @LIBOBJS@ support-ll.o support-noll.o support-ll-reg.o support-noll-reg.o dblsub.o disasm.o libmain.o
+FIRSTOBJECTS = @signals_o@ @LIBOBJS@ support-ll.o support-noll.o support-ll-reg.o support-noll-reg.o dblsub.o libmain.o
 
 GFORTHOBJECTS = $(patsubst %,engine/%,$(FIRSTOBJECTS))
 GFORTHLIBOBJECTS = $(patsubst %.o,engine/lib%.lo,$(FIRSTOBJECTS))

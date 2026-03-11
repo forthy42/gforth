@@ -28,44 +28,52 @@
 \ support Alpha, HPPA, and IA-64, which are supported by Gforth.
 
 c-library opcodes
+    libopcodes-name 2 /string add-lib
     \c #include <stddef.h>
     \c #include "config.h"
     \c #include <dis-asm.h>
-    \c 
-    \c int vaasprintf(char **str, const char *format, ...) {
-    \c   int n, len;
-    \c   unsigned int offset;
+    \c
+    \c typedef void (*stype_ftype) (char * addr, unsigned int u, int style);
+    \c int vasprintf_type(stype_ftype stype, const char *format, ...) {
+    \c   int len;
+    \c   char * strp=0;
     \c   va_list ap;
     \c   va_start(ap,format);
     \c   len = vsnprintf(NULL, 0, format, ap);
     \c   va_end(ap);
-    \c   offset = *str ? strlen(*str) : 0;
-    \c   *str = realloc(*str, offset+len+1);
-    \c   va_start(ap,format);
-    \c   n = vsnprintf(*str+offset, len+1, format, ap);
-    \c   va_end(ap);
-    \c   return n;
+    \c   if(len > 0) {
+    \c       strp = malloc(len+1);
+    \c       va_start(ap,format);
+    \c       len = vsnprintf(strp, len+1, format, ap);
+    \c       va_end(ap);
+    \c       if(len > 0) stype(strp, len, 0);
+    \c       free(strp);
+    \c   }
+    \c   return len;
     \c }
-    \c int vaasprintf_styled(char **str, enum disassembler_style style,
-    \c                       const char *format, ...) {
-    \c   int n, len;
-    \c   unsigned int offset;
+    \c int vasprintf_type_styled(stype_ftype stype, enum disassembler_style style,
+    \c                           const char *format, ...) {
+    \c   int len;
+    \c   char * strp=0;
     \c   va_list ap;
     \c   va_start(ap,format);
     \c   len = vsnprintf(NULL, 0, format, ap);
     \c   va_end(ap);
-    \c   offset = *str ? strlen(*str) : 0;
-    \c   *str = realloc(*str, offset+len+1);
-    \c   va_start(ap,format);
-    \c   n = vsnprintf(*str+offset, len+1, format, ap);
-    \c   va_end(ap);
-    \c   return n;
+    \c   if(len > 0) {
+    \c       strp = malloc(len+1);
+    \c       va_start(ap,format);
+    \c       len = vsnprintf(strp, len+1, format, ap);
+    \c       va_end(ap);
+    \c       if(len > 0) stype(strp, len, style);
+    \c       free(strp);
+    \c   }
+    \c   return len;
     \c }
     \c disassemble_info disasm_info;
     \c 
-    \c void init_info(char ** str) {
-    \c   init_disassemble_info(&disasm_info, str, (fprintf_ftype) vaasprintf,
-    \c                         (fprintf_styled_ftype) vaasprintf_styled);
+    \c void init_info(stype_ftype stype) {
+    \c   init_disassemble_info(&disasm_info, stype, (fprintf_ftype) vasprintf_type,
+    \c                         (fprintf_styled_ftype) vasprintf_type_styled);
     \c   disasm_info.arch = BFD_ARCH;
     \c   disasm_info.mach = BFD_MACH;
     \c   /* buffer_read_memory() is a convenience function declared in dis-asm.h */
@@ -104,20 +112,41 @@ c-library opcodes
     c-function init_opcodes_info init_info a -- void ( -- )
     c-function init_opcodes_region init_region a u -- a
     c-function disline_opcodes disline_opcodes a a -- u ( addr disassembler-ftype -- addr1 )
+    c-callback opcodes_stylish_type: a u n -- void
 end-c-library
 
+Create color-table
+' default-color  ,
+' info-color     ,
+' info-color     ,
+' warning-color  ,
+' success-color  ,
+' input-color    ,
+' input-color    ,
+' input-color    ,
+' default-color  ,
+
+here color-table - cell/ 1- >r
+
+: stylish-type ( addr u style -- )
+    [ r> ]L min 0 max cells color-table + perform
+    type  default-color ;
+' stylish-type opcodes_stylish_type: Value op-stype
+
 0 Value disasm()
-Variable opcodes-str
 
 : disline2 ( addr -- instsize )
     dup 2 cells hex.r ." : "
-    disasm() disline_opcodes
-    0 opcodes-str !@ dup cstring>sstring type  free throw ;
+    disasm() disline_opcodes ;
 : disasm2 ( addr u -- ) \ gforth
-    disasm() 0= IF  opcodes-str init_opcodes_info  THEN
+    disasm() 0= IF  op-stype init_opcodes_info  THEN
     2dup init_opcodes_region to disasm()
     [: bounds u+do  cr i disline2 +loop  cr ;] $10 base-execute ;
 
 :is 'image  0 to disasm() defers 'image ;
+:is 'cold   defers 'cold
+    [ ' opcodes_stylish_type: c-lib:ccb-num @ 1+ ]L
+    ['] opcodes_stylish_type: c-lib:ccb-num !
+    ['] stylish-type opcodes_stylish_type: to op-stype ;
 
 ' disasm2 is discode

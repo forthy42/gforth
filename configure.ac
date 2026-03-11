@@ -1502,8 +1502,17 @@ AC_SUBST(LIB_SUFFIX)
 AC_CHECK_LIB(rt,clock_gettime)
 LD_VERSION=`$LD -v | tr ' ' '\n' | tail -n 1`
 LIBOPCODES=""
-AC_SEARCH_LIBS(init_disassemble_info,[opcodes-$LD_VERSION-system opcodes-$LD_VERSION-multiarch opcodes-$LD_VERSION opcodes],LIBOPCODES=$ac_cv_search_init_disassemble_info)
+disasm2_fs=""
+disasm2_la=""
+OLDLIB="$LIB"
+AC_SEARCH_LIBS(init_disassemble_info,[opcodes-$LD_VERSION-system opcodes-$LD_VERSION-multiarch opcodes-$LD_VERSION opcodes],[LIBOPCODES=$ac_cv_search_init_disassemble_info
+disasm2_fs=unix/disasm2.fs
+disasm2_la='$(buildccdir)/libgfdisasm2.la'
+])
 AC_SUBST(LIBOPCODES) # for separating disasm.c out of the binary
+AC_SUBST(disasm2_fs)
+AC_SUBST(disasm2_la)
+LIB="$OLDLIB"
 
 AC_CHECK_FUNCS(dlopen)
 if test -n "$GNU_LIBTOOL" -a "x$ac_cv_lib_ltdl_lt_dlinit" = xyes; then
