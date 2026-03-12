@@ -13,8 +13,9 @@ RUN apt-get -y update \
      libgl1-mesa-dev libwayland-dev wayland-protocols libvulkan-dev libpng-dev \
      libfreetype-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
      libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
-     libxkbcommon-dev libwebp-dev emacs-nox gforth gforth-lib gforth-common \
-     yodl bison libpcre3-dev libboost-dev binutils-dev git \
+     libxkbcommon-dev libwebp-dev emacs-nox \
+     yodl bison libboost-dev binutils-dev git \
+  && apt-get -y -m install gforth gforth-lib gforth-common \
   && if ! which gforth >/dev/null 2>&1; then \
          wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
        	 tar zxf gforth-0.7.3.tar.gz; \
