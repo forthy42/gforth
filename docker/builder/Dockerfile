@@ -1,12 +1,14 @@
 ARG VERSION=unstable
 ARG ARCH=amd64
+ARG GCC=gcc-14
 FROM $ARCH/debian:$VERSION
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
 ENV LANG=C.UTF-8
+ENV GCC=$GCC
 
 RUN apt-get -y update \
   && apt-get upgrade -y \
-  && apt-get -y --ignore-missing install libffi-dev libltdl7 libsoil-dev libtool make gcc gcc-14 g++ \
+  && apt-get -y --ignore-missing install libffi-dev libltdl7 libsoil-dev libtool make gcc $GCC g++ \
      automake texinfo texi2html install-info dpkg-dev debhelper libtool-bin \
      libltdl-dev autoconf-archive \
      libx11-dev libx11-xcb-dev libxrandr-dev libgles2-mesa-dev libglew-dev \
@@ -19,7 +21,7 @@ RUN apt-get -y update \
          wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
        	 tar zxf gforth-0.7.3.tar.gz; \
 	 BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g'); \
-         (cd gforth-0.7.3; ./configure CC=gcc-14 --prefix=/usr --host=$BARCH --build=$BARCH; make; make install); fi \
+         (cd gforth-0.7.3; ./configure CC=$GCC --prefix=/usr --host=$BARCH --build=$BARCH; make; make install); fi \
   && if [ "`lsb_release -sc`" = "forky" -a "`gcc -v 2>&1 | tr ' ' '\n' | grep -- --host | cut -f2 -d= | cut -f1 -d-`" = "x86_64" ]; then apt-get -y install texlive-base texlive-latex-base; fi \
   && apt-get clean
 RUN cd /tmp/ \

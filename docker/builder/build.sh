@@ -18,7 +18,8 @@ do
     arch1=$(echo $arch | tr '/' '-')
     for i in $VERSIONS
     do
-	docker build $* --network host --build-arg VERSION=$i --build-arg ARCH=${arch#*/} --platform $arch -t forthy42/gforth-builder-$arch1:$i --progress=plain . 2>gforth-builder-$arch1-$i.log
+	if [ "$VERSION" == oldstable ]; then GCC=gcc; else GCC=gcc-14; fi
+	docker build $* --network host --build-arg VERSION=$i --build-arg ARCH=${arch#*/} --build-arg GCC=$GCC --platform $arch -t forthy42/gforth-builder-$arch1:$i --progress=plain . 2>gforth-builder-$arch1-$i.log
 	docker push forthy42/gforth-builder-$arch1:$i
     done
 done

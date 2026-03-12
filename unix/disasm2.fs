@@ -187,7 +187,6 @@ here color-table - cell/ 1- >r
     [ ' opcodes_stylish_type: c-lib:ccb-num @ ]L
     ['] opcodes_stylish_type: c-lib:ccb-num !
     ['] stylish-type opcodes_stylish_type: to op-stype ;
-:is 'cold   defers 'cold  set-stylish-type ;
 
 0 Value disasm()
 
@@ -198,6 +197,8 @@ here color-table - cell/ 1- >r
     disasm() 0= IF  op-stype init_opcodes_info  THEN
     2dup init_opcodes_region to disasm()
     [: bounds u+do  cr i disline2 +loop  cr ;] $10 base-execute ;
+:is 'cold   defers 'cold
+    ['] set-stylish-type catch 0= IF  ['] disasm2 is discode  THEN ;
 
 :is 'image  0 to disasm() defers 'image ;
 
