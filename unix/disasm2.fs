@@ -178,12 +178,12 @@ Create color-table
 
 here color-table - cell/ 1- >r
 
+0 Value op-stype
 : stylish-type ( addr u style -- )
     [ r> ]L min 0 max cells color-table + perform
     type  default-color ;
 
-0 Value op-stype
-: set-op-stype ( -- )
+: set-stylish-type ( -- )
     [ ' opcodes_stylish_type: c-lib:ccb-num @ ]L
     ['] opcodes_stylish_type: c-lib:ccb-num !
     ['] stylish-type opcodes_stylish_type: to op-stype ;
@@ -197,11 +197,11 @@ here color-table - cell/ 1- >r
     disasm() 0= IF  op-stype init_opcodes_info  THEN
     2dup init_opcodes_region to disasm()
     [: bounds u+do  cr i disline2 +loop  cr ;] $10 base-execute ;
+:is 'cold   defers 'cold
+    ['] set-stylish-type catch 0= IF  ['] disasm2 is discode  THEN ;
 
 :is 'image  0 to disasm() defers 'image ;
-:is 'cold   defers 'cold
-    ['] set-op-stype catch IF  ['] disasm  ELSE  ['] disasm2  THEN is discode ;
 
-' set-op-stype catch 0= [IF] \ ignore result, may fail during build
+' set-stylish-type catch 0= [IF]
     ' disasm2 is discode
 [THEN]
