@@ -15,7 +15,6 @@ RUN apt-get -y update \
      libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
      libxkbcommon-dev libwebp-dev emacs-nox \
      yodl bison libboost-dev binutils-dev git \
-  && apt-get -y --ignore-missing install gforth- gforth-lib- gforth-common- libpcre3-dev- \
   && if ! which gforth >/dev/null 2>&1; then \
          wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
        	 tar zxf gforth-0.7.3.tar.gz; \
