@@ -6,7 +6,7 @@ ENV LANG=C.UTF-8
 
 RUN apt-get -y update \
   && apt-get upgrade -y \
-  && apt-get -y -m install libffi-dev libltdl7 libsoil-dev libtool make gcc gcc-14 g++ \
+  && apt-get -y --ignore-missing install libffi-dev libltdl7 libsoil-dev libtool make gcc gcc-14 g++ \
      automake texinfo texi2html install-info dpkg-dev debhelper libtool-bin \
      libltdl-dev autoconf-archive \
      libx11-dev libx11-xcb-dev libxrandr-dev libgles2-mesa-dev libglew-dev \
@@ -15,7 +15,7 @@ RUN apt-get -y update \
      libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
      libxkbcommon-dev libwebp-dev emacs-nox \
      yodl bison libboost-dev binutils-dev git \
-  && apt-get -y -m install gforth gforth-lib gforth-common \
+  && apt-get -y --ignore-missing install gforth- gforth-lib- gforth-common- libpcre3-dev- \
   && if ! which gforth >/dev/null 2>&1; then \
          wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
        	 tar zxf gforth-0.7.3.tar.gz; \
