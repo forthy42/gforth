@@ -25,7 +25,7 @@ RUN apt-get -y update \
 RUN cd /tmp/ \
     && if ! which pcre-config; then \
          git clone https://github.com/nektro/pcre-8.45.git; \
-    	 (cd pcre-8.45; ./configure && sed -e 's/1[.]16/1.17/g' <Makefile >Makefile.new; mv Makefile.new Makefile; make && make install); fi \
+    	 (cd pcre-8.45; ./configure && sed -e 's/1[.]16/'`cd /usr/bin; echo aclocal-* | cut -f2 -d-`'/g' <Makefile >Makefile.new; mv Makefile.new Makefile; make && make install); fi \
     && git clone https://github.com/GeraldWodni/swig.git \
     && cd swig \
     && ./autogen.sh \
@@ -34,7 +34,7 @@ RUN cd /tmp/ \
     && make install \
     && cd .. \
     && rm -rf swig \
-    && apt-get remove -y yodl bison libpcre3-dev libboost-dev git \
+    && apt-get remove -y yodl bison libboost-dev git \
     && apt-get clean
 RUN apt-get install -y libpulse-dev libharfbuzz-dev \
   && apt-get clean
