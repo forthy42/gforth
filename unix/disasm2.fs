@@ -178,10 +178,16 @@ Create color-table
 
 here color-table - cell/ 1- >r
 
+0 Value op-stype
 : stylish-type ( addr u style -- )
     [ r> ]L min 0 max cells color-table + perform
     type  default-color ;
-' stylish-type opcodes_stylish_type: Value op-stype
+
+: set-stylish-type ( -- )
+    [ ' opcodes_stylish_type: c-lib:ccb-num @ ]L
+    ['] opcodes_stylish_type: c-lib:ccb-num !
+    ['] stylish-type opcodes_stylish_type: to op-stype ;
+:is 'cold   defers 'cold  set-stylish-type ;
 
 0 Value disasm()
 
@@ -194,9 +200,7 @@ here color-table - cell/ 1- >r
     [: bounds u+do  cr i disline2 +loop  cr ;] $10 base-execute ;
 
 :is 'image  0 to disasm() defers 'image ;
-:is 'cold   defers 'cold
-    [ ' opcodes_stylish_type: c-lib:ccb-num @ 1+ ]L
-    ['] opcodes_stylish_type: c-lib:ccb-num !
-    ['] stylish-type opcodes_stylish_type: to op-stype ;
 
-' disasm2 is discode
+' set-stylish-type catch 0= [IF]
+    ' disasm2 is discode
+[THEN]
