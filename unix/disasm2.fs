@@ -27,8 +27,25 @@
 \ Capstone <https://www.capstone-engine.org/>, but Capstone does not
 \ support Alpha, HPPA, and IA-64, which are supported by Gforth.
 
+get-current also c-lib definitions
+
+: solibname ( addr u -- addr' u' | 0 )
+    [: ." lib" type so-suffix type ;] $tmp  ;
+: trylib ( addr u -- addr u | 0 )
+    2dup solibname open-lib2 dup IF  close-lib2  ELSE  nip nip  THEN ;
+: bintool-version ( -- addr u )
+    s` ld -v` 1- 2dup bl -scan nip 1+ /string ;
+: trylibs ( addr u -- addr u | 0 )
+    bintool-version { d: basename d: version }
+    basename trylib dup ?EXIT drop
+    version basename [: type '-' emit type ;] $tmp trylib dup ?EXIT drop
+    version basename [: type '-' emit type ." -system" ;] $tmp trylib dup ?EXIT drop
+    version basename [: type '-' emit type ." -multiarch" ;] $tmp trylib dup ?EXIT drop basename ;
+
+previous set-current
+
 c-library opcodes
-    libopcodes-name 2 /string add-lib
+    "opcodes" trylibs add-lib
     \c #include <stddef.h>
     \c #include "config.h"
     \c #include <dis-asm.h>
@@ -103,7 +120,7 @@ c-library opcodes
     \c     /* in theory this shows code that is not a valid instruction; in
     \c        practice on AMD64, libopcodes disassembles such bytes as
     \c        "(bad)" and returns intsize=1 */
-    \c     printf("%02x\n",*addr);
+    \c     disasm_info.fprintf_func(disasm_info.stream, "<$%02x>", *addr);
     \c     return 1;
     \c   } else {
     \c     return instsize;
@@ -115,16 +132,49 @@ c-library opcodes
     c-callback opcodes_stylish_type: a u n -- void
 end-c-library
 
+theme-color: mnemonic-color
+theme-color: sub-mnemonic-color
+theme-color: assembler-directive-color
+theme-color: register-color
+theme-color: immediate-color
+theme-color: address-color
+theme-color: address-offset-color
+theme-color: symbol-color
+theme-color: comment-start-color
+
+light-mode
+<a yellow >fg defaultcolor >bg a>       to mnemonic-color
+<a yellow >fg defaultcolor >bg a>       to sub-mnemonic-color
+<a blue >fg defaultcolor >bg a>         to register-color
+<a magenta >fg defaultcolor >bg a>      to immediate-color
+<a magenta >fg defaultcolor >bg a>      to address-color
+<a magenta >fg defaultcolor >bg a>      to address-offset-color
+<a green >fg defaultcolor >bg a>        to symbol-color
+<a defaultcolor >fg defaultcolor >bg a> to comment-start-color
+
+dark-mode
+<a yellow >fg defaultcolor >bg a>       to mnemonic-color
+<a yellow >fg defaultcolor >bg a>       to sub-mnemonic-color
+<a blue >fg defaultcolor >bg a>         to register-color
+<a magenta >fg defaultcolor >bg a>      to immediate-color
+<a magenta >fg defaultcolor >bg a>      to address-color
+<a magenta >fg defaultcolor >bg a>      to address-offset-color
+<a green >fg defaultcolor >bg a>        to symbol-color
+<a defaultcolor >fg defaultcolor >bg a> to comment-start-color
+
+uncolored-mode
+
 Create color-table
-' default-color  ,
-' info-color     ,
-' info-color     ,
-' warning-color  ,
-' success-color  ,
-' input-color    ,
-' input-color    ,
-' input-color    ,
-' default-color  ,
+' default-color ,
+' mnemonic-color ,
+' sub-mnemonic-color ,
+' assembler-directive-color ,
+' register-color ,
+' immediate-color ,
+' address-color ,
+' address-offset-color ,
+' symbol-color ,
+' comment-start-color ,
 
 here color-table - cell/ 1- >r
 

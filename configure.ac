@@ -1490,15 +1490,27 @@ if test "x$ac_cv_lib_ltdl_lt_dlinit" = xyes; then
    case "$host_os" in
    *android*)
      LIB_SUFFIX=.so
+     SO_SUFFIX=.so
+     ;;
+   *darwin*)
+     LIB_SUFFIX=.la
+     SO_SUFFIX=.dylib
+     ;;
+   *win*|w*-mingw*) # must be after darwin!
+     LIB_SUFFIX=.la
+     SO_SUFFIX=.dll
      ;;
    *)
      LIB_SUFFIX=.la
+     SO_SUFFIX=.so
      ;;
    esac
 else
   LIB_SUFFIX=.so
+  SO_SUFFIX=.so
 fi
 AC_SUBST(LIB_SUFFIX)
+AC_SUBST(SO_SUFFIX)
 AC_CHECK_LIB(rt,clock_gettime)
 LD_VERSION=`$LD -v | tr ' ' '\n' | tail -n 1`
 LIBOPCODES=""
