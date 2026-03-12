@@ -181,7 +181,12 @@ here color-table - cell/ 1- >r
 : stylish-type ( addr u style -- )
     [ r> ]L min 0 max cells color-table + perform
     type  default-color ;
-' stylish-type opcodes_stylish_type: Value op-stype
+
+0 Value op-stype
+: set-op-stype ( -- )
+    [ ' opcodes_stylish_type: c-lib:ccb-num @ ]L
+    ['] opcodes_stylish_type: c-lib:ccb-num !
+    ['] stylish-type opcodes_stylish_type: to op-stype ;
 
 0 Value disasm()
 
@@ -195,8 +200,8 @@ here color-table - cell/ 1- >r
 
 :is 'image  0 to disasm() defers 'image ;
 :is 'cold   defers 'cold
-    [ ' opcodes_stylish_type: c-lib:ccb-num @ 1+ ]L
-    ['] opcodes_stylish_type: c-lib:ccb-num !
-    ['] stylish-type opcodes_stylish_type: to op-stype ;
+    ['] set-op-stype catch IF  ['] disasm  ELSE  ['] disasm2  THEN is discode ;
 
-' disasm2 is discode
+' set-op-stype catch 0= [IF] \ ignore result, may fail during build
+    ' disasm2 is discode
+[THEN]
