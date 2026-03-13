@@ -18,7 +18,8 @@ RUN apt-get -y update \
      libxkbcommon-dev libwebp-dev emacs-nox \
      yodl bison libboost-dev binutils-dev git \
   && if ! which gforth >/dev/null 2>&1; then \
-         wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
+         if which wcurl; then wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
+	 else apt -y install wget; wget https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; fi \
        	 tar zxf gforth-0.7.3.tar.gz; \
 	 BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g'); \
          (cd gforth-0.7.3; ./configure CC=$GCC --prefix=/usr --host=$BARCH --build=$BARCH; make; make install); fi \
