@@ -28,10 +28,6 @@ AC_PREREQ(2.54)
 UPDATED="June 14, 2014"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
-AC_USE_SYSTEM_EXTENSIONS
-LT_INIT([disable-static])
-LT_CONFIG_LTDL_DIR([libltdl])
-LTDL_INIT
 
 #remnants from having ltdl as convenience library
 LTDLDEPS=""
@@ -58,7 +54,7 @@ AC_SUBST(PROFEXES)
 AC_SUBST(PROFOBJS)
 AC_ARG_ENABLE(prof,
 	AC_HELP_STRING([--enable-prof],
-			[ Build gforth-prof, which outputs frequently occuring
+			[ Build gforth-prof, which outputs frequently occurring
                           sequences of primitives.]),
 	,enable_prof=no)
 if test "$enable_prof" != "no"; then
@@ -68,8 +64,8 @@ fi
 AC_ARG_WITH(debug,
 [  --with-debug		  specifies option -g to compile with debug info
   --without-debug	  omits the -g switch and creates smaller images on
-			  machines where "strip" has problems with gcc style
-			  debugging informations.],
+			  machines where "strip" has problems with gcc-style
+			  debugging information.],
 if test "$withval" = "yes"; then DEBUGFLAG=-g; fi)
 
 NO_CHECK=""
@@ -135,7 +131,7 @@ AC_ARG_VAR(ac_cv_sizeof_uint128_t, [sizeof(uint128_t)])
 AC_ARG_VAR(ac_cv_c_bigendian, [Is the target big-endian ("yes" or "no")?])
 AC_ARG_VAR(no_dynamic_default, [run gforth with --dynamic (0) or --no-dynamic (1) by default])
 AC_ARG_VAR(condbranch_opt, [enable (1) or disable (0) using two dispatches for conditional branches])
-AC_ARG_VAR(skipcode, [assembly code for skipping 16 bytes of code])
+AC_ARG_VAR(skipcode, [assembly code for skipping 4 bytes of code])
 AC_ARG_VAR(asmcomment, [assembler comment start string])
 AC_ARG_VAR(arm_cacheflush, [file containing ARM cacheflush function (without .c)])
 AC_ARG_VAR(LTDL_LIBRARY_PATH, [additional directories for libltdl (for some 64-bit platforms)])
@@ -200,7 +196,7 @@ OLDLDFLAGS=$LDFLAGS
 LDFLAGS="$LDFLAGS -export-dynamic"
 dnl AC_TRY_LINK gives false positive on rs6000-ibm-aix4.2.1.0
 dnl AC_TRY_LINK(,,ac_export_dynamic=yes,ac_export_dynamic=no)
-AC_TRY_RUN(int main(){return 0;},ac_export_dynamic=yes,ac_export_dynamic=no,ac_export_dynamic=no)
+AC_TRY_RUN(main(){exit(0);},ac_export_dynamic=yes,ac_export_dynamic=no,ac_export_dynamic=no)
 test $ac_export_dynamic = yes|| LDFLAGS=$OLDLDFLAGS
 AC_MSG_RESULT($ac_export_dynamic)
 
@@ -236,41 +232,33 @@ case "$host_cpu" in
 	hppa*)
 		machine=hppa
 		AC_LIBOBJ(../arch/hppa/cache)
-		#-N needed for --dynamic <M4U3b.3790$9d.317@news.cpqcorp.net>
-		LDFLAGS="$LDFLAGS -Xlinker -N"
 		LIBS="$LIBS -L/lib/pa1.1/"
+		test "$skipcode" || skipcode="nop"
+		#".skip 16" passes the test below,
+		# but gives an assembler error in engine
 		;;
 	sparc*)
 		machine=sparc
 		;;
-	i386)
-		machine=386
-		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
-		;;
-	i486)
-		machine=386
-		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
-		;;
 	i*86)
 		machine=386
+		test "$skipcode_arch" || skipcode_arch="nopl	(%eax,%eax,1)"
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
-		CFLAGS_1="$CFLAGS"
-		CFLAGS="$CFLAGS -march=pentium -mtune=generic"
-		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -march=pentium")
-		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
-		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1")
 		;;
 	x86_64)
 		case $CC
 		in
 		    *-m32*)
 		    	machine=386
+			test "$skipcode_arch" || skipcode_arch="nopl	(%eax,%eax,1)"
 			CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 			CFLAGS_1="$CFLAGS"
 			CFLAGS="$CFLAGS -march=athlon64"
 			;;
 		    *)
 		    	machine=amd64
+			test "$skipcode_arch" || skipcode_arch="nopl	(%rax,%rax,1)"
+			CFLAGS="$CFLAGS -fomit-frame-pointer"
 			;;
 		esac
 		;;
@@ -293,7 +281,7 @@ case "$host_cpu" in
 		machine=mips
 		#dynamic native code has the following problems on MIPS:
 		#
-		#1) J/JAL seems relocatable, but is are only
+		#1) J/JAL seems relocatable, but is only
 		#relocatable within a 256MB-segment.  While we try to
 		#get the linker to arrange this, there is no guarantee
 		#that this will succeed (and if the user uses a lot of
@@ -566,28 +554,70 @@ AC_DEFINE_UNQUOTED(SMALL_OFF_T,$ac_small_off_t,[1 if off_t fits in a Cell])
 ENGINE_FLAGS=
 AC_SUBST(ENGINE_FLAGS)
 
+# Check whether GCC understands -fno-gcse
 
-CHECKFLAGS="no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-strict-aliasing no-cse-follow-jumps no-reorder-blocks no-reorder-blocks-and-partition no-toplevel-reorder no-trigraphs align-labels=1 align-loops=1 align-jumps=1 no-delete-null-pointer-checks"
+AC_MSG_CHECKING([if $CC understands -fno-gcse])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -fno-gcse"
+AC_TRY_COMPILE(,,ac_nogcse=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-gcse",ac_nogcse=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_nogcse)
 
-for i in $CHECKFLAGS
-do
-    AC_MSG_CHECKING([if $CC understands -f$i])
-    ac_i=$(echo ac_$i | tr '=\-' '__')
-    CFLAGS_1="$CFLAGS"
-    CFLAGS="$CFLAGS -f$i"
-    AC_TRY_COMPILE(,,eval $ac_i=yes;ENGINE_FLAGS="$ENGINE_FLAGS -f$i",eval ac_$ibar=no)
-    CFLAGS="$CFLAGS_1"
-    ac_result=$(eval echo "\$$ac_i")
-    AC_MSG_RESULT($ac_result)
-done
+# Check whether GCC understands -fno-strict-aliasing
+AC_MSG_CHECKING([if $CC understands -fno-strict-aliasing])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -fno-strict-aliasing"
+AC_TRY_COMPILE(,,ac_nostrictaliasing=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-strict-aliasing",ac_nostrictaliasing=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_nostrictaliasing)
 
-# Try if GCC understands __attribute__((unused))
+# Check whether GCC understands -fno-crossjumping
+AC_MSG_CHECKING([if $CC understands -fno-crossjumping])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -fno-crossjumping"
+AC_TRY_COMPILE(,,ac_nocrossjumping=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-crossjumping",ac_nocrossjumping=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_nocrossjumping)
+
+# Check whether GCC understands -fno-reorder-blocks
+AC_MSG_CHECKING([if $CC understands -fno-reorder-blocks])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -fno-reorder-blocks"
+AC_TRY_COMPILE(,,ac_noreorder_blocks=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-reorder-blocks",ac_noreorder_blocks=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_noreorder_blocks)
+
+# Check whether GCC understands -falign-labels=1
+AC_MSG_CHECKING([if $CC understands -falign-labels=1])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -falign-labels=1"
+AC_TRY_COMPILE(,,ac_align_labels=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-labels=1",ac_align_labels=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_align_labels)
+
+# Check whether GCC understands -falign-loops=1
+AC_MSG_CHECKING([if $CC understands -falign-loops=1])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -falign-loops=1"
+AC_TRY_COMPILE(,,ac_align_loops=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-loops=1",ac_align_loops=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_align_loops)
+
+# Check whether GCC understands -falign-jumps=1
+AC_MSG_CHECKING([if $CC understands -falign-jumps=1])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -falign-jumps=1"
+AC_TRY_COMPILE(,,ac_align_jumps=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-jumps=1",ac_align_jumps=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_align_jumps)
+
+# Check whether GCC understands __attribute__((unused))
 AC_MSG_CHECKING([how to suppress 'unused variable' warnings])
 AC_TRY_COMPILE(,[int __attribute__((unused)) foo;], MAYBE_UNUSED='__attribute__((unused))',)
 AC_DEFINE_UNQUOTED(MAYBE_UNUSED,$MAYBE_UNUSED,[attribute for possibly unused variables])
 AC_MSG_RESULT($MAYBE_UNUSED)
 
-#try if m4 understands -s
+# Check whether m4 understands -s
 AC_MSG_CHECKING([how to invoke m4])
 if m4 -s /dev/null >/dev/null 2>&1; then
  M4="m4 -s"
@@ -600,7 +630,7 @@ AC_MSG_RESULT($M4)
 # Find installed Gforth
 AC_MSG_CHECKING([for gforth])
 GFORTH="`cd / && which gforth 2>/dev/null`"
-#the "$srcdir" = "." test defends agains the "../" bug in gforth-0.6.2
+#the "$srcdir" = "." test defends against the "../" bug in gforth-0.6.2
 (cd / && $GFORTH -e bye >/dev/null 2>/dev/null  && test "$srcdir" = ".") || GFORTH=""
 if test -z "$GFORTH"; then
   PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
@@ -639,12 +669,8 @@ case "$host_os" in
 		;;
 	*darwin*)
 		#Darwin uses some funny preprocessor by default; eliminate it:
-		AC_MSG_CHECKING([if $CC understands -no-cpp-precomp on Darwin])
-		CFLAGS_1="$CFLAGS"
+		AC_MSG_NOTICE([using -no-cpp-precomp on Darwin])
 		CFLAGS="$CFLAGS -no-cpp-precomp"
-		AC_TRY_COMPILE(,,ac_no_cpp_precomp=yes;ENGINE_FLAGS="$ENGINE_FLAGS -no-cpp-precomp",ac_no_cpp_precomp=no)
-		test "$ac_no_cpp_precomp" == yes || CFLAGS="$CFLAGS_1"
-		AC_MSG_RESULT($ac_no_cpp_precomp)
 		DIRSEP="/"
 		PATHSEP=":"
 		DEFAULTSYSTEMPREFIX=""
@@ -733,27 +759,34 @@ if test -z "$skipcode"; then
     skipcode=no
     CFLAGS_1="$CFLAGS"
     CFLAGS="$CFLAGS $ENGINE_FLAGS"
-    for i in ".skip 16" ".block 16" ".org .+16" ".=.+16" ".space 16"
+    for i in ".skip 4" ".block 4" ".org .+4" ".=.+4" ".space 4" "$skipcode_arch"
     do
 	AC_TRY_RUN(
-[int foo(int,int,int);
-int main()
-{
-  return foo(0,0,0)!=16;
-}
+[#include <stdio.h>
+#include <stdlib.h>
 int foo(int x, int y, int z)
 {
-  static void *labels[]={&&label1, &&label2};
+  static void *labels[]={&&label1, &&label2, &&label3};
   if (x) {
     y++; /* workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=12108 */
-  label1:
-    asm("$i"); /* or ".space 16" or somesuch */
-  label2: ;
+  label1: asm("$i"); /* or ".space 4" or somesuch */
+  label2: asm("$i"); /* or ".space 4" or somesuch */
+  label3: ; /* workaround clang */
   }
   {
   if (y) goto *labels[z]; /* workaround for gcc PR12108 */
   return labels[1]-labels[0];
   }
+}
+int main(int argc, char ** argv, char ** env)
+{
+  int skip=foo(0,0,0);
+  if(skip<4) {
+    char cmd[80];
+    snprintf(cmd, sizeof(cmd), "objdump -zl --disassemble=foo %s", argv[0]);
+    system(cmd);
+  }
+  return skip<4;
 }]
 	,skipcode=$i; break
 	,,)
