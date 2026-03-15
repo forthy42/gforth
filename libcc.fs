@@ -160,6 +160,9 @@ variable lib-handle-addr \ points to the library handle of the current batch.
 2variable libcc-named-dir-v \ directory for named libcc wrapper libraries
 0 value libcc-path       \ pointer to path of library directories
 
+:noname defers prepare-for-dump
+    0 to libcc-path ; is prepare-for-dump
+
 defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 ' noop is replace-rpath
 
@@ -448,7 +451,7 @@ create gen-wrapped-types
     .\" }\n" ;
 
 : scan-back { c-addr u1 c -- c-addr u2 }
-    \ the last occurence of c in c-addr u1 is at u2-1; if it does not
+    \ the last occurrence of c in c-addr u1 is at u2-1; if it does not
     \ occur, u2=0.
     c-addr 1- c-addr u1 + 1- u-do
 	i c@ c = if

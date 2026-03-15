@@ -39,6 +39,23 @@ AC_SUBST(LTDLINCL)
 AC_SUBST(LIBLTDL)
 AC_SUBST(LTDL_LDLIBS)
 
+#suppress "-flto=auto"
+case "$CFLAGS" in
+     *-flto=auto*)
+        CFLAGS=`echo $CFLAGS | sed -e 's/-flto=auto//g' -e 's/-ffat-lto-objects//g' -e 's/   / /g' -e 's/  / /g'`
+	;;
+esac
+
+#suppress "-flto=auto"
+case "$LDFLAGS" in
+     *-flto=auto*)
+        LDFLAGS=`echo $LDFLAGS | sed -e 's/-flto=auto//g' -e 's/-ffat-lto-objects//g' -e 's/   / /g' -e 's/  / /g'`
+	;;
+esac
+
+#suppress -fstack-protector-strong -fstack-clash-protection -fcf-protection"
+CFLAGS=`echo $CFLAGS | sed -e 's/-fstack-protector-strong//g' -e 's/-fstack-clash-protection//g -e 's/-fcf-protection//g' -e 's/    / /g' -e 's/   / /g' -e 's/  / /g'`
+
 #suppress the "-g -O2" default
 test "$CFLAGS" || CFLAGS=-O2
 

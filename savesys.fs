@@ -46,18 +46,46 @@
     LOOP
     maxalign ;
 
+Defer prepare-for-dump
+:noname
+    here forthstart - forthstart 2 cells + !
+    forthstart 12 cells + 4 cells erase \ stack base addresses are not relevant
+    sp0 pad 6 cells move  sp0 6 cells erase
+    current-input @ pad 6 cells + !  current-input off
+    outfile-id pad 7 cells + !  0 to outfile-id
+    infile-id pad 8 cells + !  0 to infile-id
+    0 0 pathstring 2!  0 argv ! \ no need for this
+    0 to fpath  0 0 included-files 2!
+    HashPointer @ pad 9 cells + !  HashPointer off
+    HashTable pad 10 cells + ! 0 to HashTable
+    0 to history
+    block-buffers @ pad 11 cells + !  block-buffers off
+; is prepare-for-dump
+
+Defer restore-for-dump
+:noname
+    pad sp0 6 cells move
+    pad 6 cells + @ current-input !
+    pad 7 cells + @ to outfile-id
+    pad 8 cells + @ to infile-id
+    pad 9 cells + @ HashPointer !
+    pad 10 cells + @ to HashTable
+    pad 11 cells + @ block-buffers !
+; is restore-for-dump
+
 : dump-fi ( addr u -- )
     w/o bin create-file throw >r
     update-image-included-files
     update-image-order
-    here forthstart - forthstart 2 cells + !
+    prepare-for-dump
     forthstart
     begin \ search for start of file ("#! " at a multiple of 8)
 	8 -
 	dup 3 s" #! " str=
     until ( imagestart )
     here over - r@ write-file throw
-    r> close-file throw ;
+    r> close-file throw
+    restore-for-dump ;
 
 : savesystem ( "name" -- ) \ gforth
     name dump-fi ;
