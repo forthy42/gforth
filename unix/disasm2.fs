@@ -143,23 +143,23 @@ theme-color: symbol-color
 theme-color: comment-start-color
 
 light-mode
-<a yellow >fg defaultcolor >bg a>       to mnemonic-color
-<a yellow >fg defaultcolor >bg a>       to sub-mnemonic-color
-<a blue >fg defaultcolor >bg a>         to register-color
-<a magenta >fg defaultcolor >bg a>      to immediate-color
-<a magenta >fg defaultcolor >bg a>      to address-color
-<a magenta >fg defaultcolor >bg a>      to address-offset-color
-<a green >fg defaultcolor >bg a>        to symbol-color
+<a red          >fg defaultcolor >bg a> to mnemonic-color
+<a red          >fg defaultcolor >bg a> to sub-mnemonic-color
+<a blue         >fg defaultcolor >bg a> to register-color
+<a magenta      >fg defaultcolor >bg a> to immediate-color
+<a magenta      >fg defaultcolor >bg a> to address-color
+<a magenta      >fg defaultcolor >bg a> to address-offset-color
+<a green        >fg defaultcolor >bg a> to symbol-color
 <a defaultcolor >fg defaultcolor >bg a> to comment-start-color
 
 dark-mode
-<a yellow >fg defaultcolor >bg a>       to mnemonic-color
-<a yellow >fg defaultcolor >bg a>       to sub-mnemonic-color
-<a blue >fg defaultcolor >bg a>         to register-color
-<a magenta >fg defaultcolor >bg a>      to immediate-color
-<a magenta >fg defaultcolor >bg a>      to address-color
-<a magenta >fg defaultcolor >bg a>      to address-offset-color
-<a green >fg defaultcolor >bg a>        to symbol-color
+<a red          >fg defaultcolor >bg a> to mnemonic-color
+<a red          >fg defaultcolor >bg a> to sub-mnemonic-color
+<a blue         >fg defaultcolor >bg a> to register-color
+<a magenta      >fg defaultcolor >bg a> to immediate-color
+<a magenta      >fg defaultcolor >bg a> to address-color
+<a magenta      >fg defaultcolor >bg a> to address-offset-color
+<a green        >fg defaultcolor >bg a> to symbol-color
 <a defaultcolor >fg defaultcolor >bg a> to comment-start-color
 
 uncolored-mode
