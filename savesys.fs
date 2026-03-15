@@ -43,7 +43,8 @@ Defer 'clean-maintask
     [ main-task ' infile-id @ + ]L off
     [ main-task ' outfile-id @ + ]L off
     [ main-task ' debug-fid @ + ]L off
-    [ main-task ' current-input @ + ]L off ;
+    [ main-task ' current-input @ + ]L off
+    [ main-task ' stored-backtrace @ + ]L off ;
 is 'clean-maintask
 
 : prepare-for-dump ( -- )

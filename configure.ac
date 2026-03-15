@@ -66,6 +66,8 @@ case "$LDFLAGS" in
 	;;
 esac
 
+CFLAGS=`echo $CFLAGS | sed -e 's/-fstack-protector-strong//g' -e 's/-fstack-clash-protection//g -e 's/-fcf-protection//g' -e 's/    / /g' -e 's/   / /g' -e 's/  / /g'`
+
 #suppress the "-g -O2" default
 case "$CFLAGS" in
      *-O*)
@@ -548,6 +550,7 @@ Dynamic NC generation disabled."
 		#-N needed for --dynamic <M4U3b.3790$9d.317@news.cpqcorp.net>
 		#LDFLAGS="$LDFLAGS -Xlinker -N" # no longer needed
 		LIBS="$LIBS -L/lib/pa1.1/"
+		test "$skipcode" || skipcode="nop"
 		;;
 	sparc*)
 		machine=sparc
@@ -577,7 +580,7 @@ Dynamic NC generation disabled."
 		;;
 	i*86)
 		machine=386
-		test "$skipcode" || skipcode="nopl	(%eax,%eax,1)"
+		test "$skipcode_arch" || skipcode_arch="nopl	(%eax,%eax,1)"
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 		CFLAGS_1="$CFLAGS"
 		CFLAGS="$CFLAGS_1 -march=athlon64 -mtune=generic"

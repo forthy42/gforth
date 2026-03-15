@@ -654,6 +654,9 @@ User sh$  cell uallot drop
     r/o open-pipe throw dup >r slurp-fid
     r> close-pipe throw to $? 2dup sh$ 2! ;
 
+:is 'clean-maintask defers 'clean-maintask
+     [ main-task ' sh$ @ + cell+ ]L off ;
+
 :noname '`' parse sh-get ;
 :noname '`' parse postpone SLiteral postpone sh-get ;
 interpret/compile: s` ( "eval-string" -- addr u )

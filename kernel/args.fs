@@ -44,7 +44,6 @@ require ./io.fs
 immediate
 
 Create pathstring 2 cells allot \ string
-Create pathdirs   2 cells allot \ dir string array, pointer and count
 
 Variable argv ( -- addr ) \ gforth
 \g @code{Variable} -- a pointer to a vector of pointers to the
