@@ -25,7 +25,7 @@ RUN apt-get -y update \
 	 fi; \
        	 tar zxf gforth-0.7.3.tar.gz; \
 	 BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g'); \
-         (cd gforth-0.7.3; ./configure CC=$GCC --prefix=/usr --host=$BARCH --build=$BARCH; make; make install); fi \
+         (cd gforth-0.7.3; ./configure CC=$GCC --prefix=/usr --host=$BARCH --build=$BARCH; for i in *.fi; do cp $i $i-; done; make; make install); fi \
   && if [ "`lsb_release -sc`" = "forky" -a "`gcc -v 2>&1 | tr ' ' '\n' | grep -- --host | cut -f2 -d= | cut -f1 -d-`" = "x86_64" ]; then apt-get -y install texlive-base texlive-latex-base; fi \
   && apt-get clean
 RUN cd /tmp/ \

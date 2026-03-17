@@ -66,8 +66,6 @@ case "$LDFLAGS" in
 	;;
 esac
 
-CFLAGS=`echo $CFLAGS | sed -e 's/-fstack-protector-strong//g' -e 's/-fstack-clash-protection//g -e 's/-fcf-protection//g' -e 's/    / /g' -e 's/   / /g' -e 's/  / /g'`
-
 #suppress the "-g -O2" default
 case "$CFLAGS" in
      *-O*)
