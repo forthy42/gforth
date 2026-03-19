@@ -55,8 +55,8 @@ void main()
     vec2 screenPos = v_TexCoordinate * u_texsize;
     vec2 subPixel = fract(screenPos);
     vec4 chartex = texture2D(u_Texture1, v_TexCoordinate);
-    float bg_index = chartex.w * 16.0;
-    float fg_index = chartex.z * 16.0;
+    float bg_index = chartex.w + 0.5/16.0;
+    float fg_index = chartex.z + 0.5/16.0;
     vec4 fgcolor = texture2D(u_Texture2, vec2(fg_index, 0.));
     vec4 bgcolor = texture2D(u_Texture2, vec2(bg_index, 0.));
     vec2 charxy = chartex.xy + vec2(0.0625, 0.125)*subPixel;
@@ -132,12 +132,12 @@ $ffbfbfbf le-l, \ dimm White
 : term-load-textures ( addr u -- )
     chars-tex load-texture 2drop linear
     GL_TEXTURE2 glActiveTexture
-    color-tex color-matrix $10 1 rgba-map nearest
+    color-tex color-matrix $10 1 rgba-map wrap-texture nearest
     GL_TEXTURE0 glActiveTexture ;
 
 Variable color-index
 Variable error-color-index
-$074000 dup color-index ! error-color-index !
+$704000 dup color-index ! error-color-index !
 Variable std-bg standard:field
 1 pad ! pad c@ [IF] \ little endian
     2 cfield: fg-field
@@ -153,19 +153,20 @@ $8F00 Value gl-default-color \ real default color
 	drop gl-default-color fg>  THEN  $F xor ;
 : ?default-bg ( n -- color ) dup 6 <= IF
 	drop gl-default-color bg>  THEN  $F xor ;
+: >cidx ( color -- index ) 4 lshift ;
 : fg! ( index -- )
     dup 0= IF  drop  EXIT  THEN  ?default-fg
-    $F and color-index fg-field c! ;
+    >cidx color-index fg-field c! ;
 : bg! ( index -- )
     dup 0= IF  drop  EXIT  THEN  ?default-bg
-    $F and color-index bg-field c! ;
+    >cidx color-index bg-field c! ;
 : err-fg! ( index -- ) ?default-fg
-    $F and error-color-index fg-field c! ;
+    >cidx error-color-index fg-field c! ;
 : err-bg! ( index -- ) ?default-bg
-    $F and error-color-index bg-field c! ;
+    >cidx error-color-index bg-field c! ;
 1e $130 fm/ FValue damp-light
 : bg>clear ( index -- ) $F xor
-    $F and sfloats color-matrix +
+    >cidx sfloats color-matrix +
     count damp-light fm*
     count damp-light fm*
     count damp-light fm*
@@ -176,10 +177,10 @@ Black White white? [IF] swap [THEN] fg! bg!
 
 : >light light-mode White std-bg! White err-bg! Black fg! Red err-fg!
     White >bg Black >fg or to gl-default-color
-    $07004000 dup color-index ! error-color-index ! ;
+    $70004000 dup color-index ! error-color-index ! ;
 : >dark dark-mode Black std-bg! Black err-bg! White fg! Red err-fg!
     Black >bg White >fg or to gl-default-color
-    $074000 dup color-index ! error-color-index ! ;
+    $704000 dup color-index ! error-color-index ! ;
 [IFDEF] android ' >dark window-init, [THEN]
 
 256 Value videocols
