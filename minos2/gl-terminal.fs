@@ -33,7 +33,7 @@ uniform vec3 u_LightPos;        // The position of the light in eye space.
 uniform sampler2D u_Texture0;   // The input texture (font)
 uniform sampler2D u_Texture1;   // The character input
 uniform sampler2D u_Texture2;   // the available colors
-uniform sampler2D u_Texture3;   // the available colors
+uniform sampler2D u_Texture3;   // unused
 uniform float u_Ambient;        // ambient lighting level
 uniform float u_Saturate;       // ambient lighting level
 uniform vec4 u_Coloradd0;       // color bias for texture
@@ -52,14 +52,18 @@ varying vec2 v_Extras;          // extra attributes passed through
 // The entry point for our fragment shader.
 void main()
 {
+    vec2 screenPos = v_TexCoordinate * u_texsize;
+    vec2 subPixel = fract(screenPos);
     vec4 chartex = texture2D(u_Texture1, v_TexCoordinate);
-    vec4 fgcolor = texture2D(u_Texture2, vec2(chartex.z, 0.));
-    vec4 bgcolor = texture2D(u_Texture2, vec2(chartex.w, 0.));
-    vec2 charxy = chartex.xy + vec2(0.0625, 0.125)*u_texsize*mod(v_TexCoordinate, 1.0/u_texsize);
+    float bg_index = chartex.w * 16.0;
+    float fg_index = chartex.z * 16.0;
+    vec4 fgcolor = texture2D(u_Texture2, vec2(fg_index, 0.));
+    vec4 bgcolor = texture2D(u_Texture2, vec2(bg_index, 0.));
+    vec2 charxy = chartex.xy + vec2(0.0625, 0.125)*subPixel;
     // mix background and foreground colors by character ROM alpha value
     // and multiply by diffuse
     vec4 pixel = texture2D(u_Texture0, charxy);
-    vec4 col = bgcolor*(1.0-pixel.a) + fgcolor*pixel.a;
+    vec4 col = mix(bgcolor, fgcolor, pixel.a);
     if(u_Saturate != 1.0) {
         float mid = (col.r + col.g + col.b) * 0.333333333333;
         vec3 mid3 = vec3(mid, mid, mid);
@@ -83,10 +87,9 @@ void main()
         // Add ambient lighting
         diffuse = (diffuse * (1.0 - u_Ambient)) + u_Ambient;
  
-        gl_FragColor = vec4(diffuse, diffuse, diffuse, 1.0)*col;
-    } else {
-        gl_FragColor = col;
+        col = vec4(diffuse, diffuse, diffuse, 1.0)*col;
     }
+    gl_FragColor = col;
 }
 
 0 Value texsize
@@ -104,7 +107,8 @@ tex: color-tex
 
 \ Variables and constants
 
-: le-l, ( n -- )  lle here 4 allot l! ;
+?: le-l, ( n -- )  lle here 4 allot l! ;
+?: be-l, ( n -- )  lbe here 4 allot l! ;
 
 Create color-matrix \ vt100 colors
 \ RGBA, but this is little endian, so write ABGR ,
@@ -133,7 +137,7 @@ $ffbfbfbf le-l, \ dimm White
 
 Variable color-index
 Variable error-color-index
-$704000 dup color-index ! error-color-index !
+$074000 dup color-index ! error-color-index !
 Variable std-bg standard:field
 1 pad ! pad c@ [IF] \ little endian
     2 cfield: fg-field
@@ -151,14 +155,14 @@ $8F00 Value gl-default-color \ real default color
 	drop gl-default-color bg>  THEN  $F xor ;
 : fg! ( index -- )
     dup 0= IF  drop  EXIT  THEN  ?default-fg
-    4 lshift color-index fg-field c! ;
+    $F and color-index fg-field c! ;
 : bg! ( index -- )
     dup 0= IF  drop  EXIT  THEN  ?default-bg
-    4 lshift color-index bg-field c! ;
+    $F and color-index bg-field c! ;
 : err-fg! ( index -- ) ?default-fg
-    4 lshift error-color-index fg-field c! ;
+    $F and error-color-index fg-field c! ;
 : err-bg! ( index -- ) ?default-bg
-    4 lshift error-color-index bg-field c! ;
+    $F and error-color-index bg-field c! ;
 1e $130 fm/ FValue damp-light
 : bg>clear ( index -- ) $F xor
     $F and sfloats color-matrix +
@@ -172,10 +176,10 @@ Black White white? [IF] swap [THEN] fg! bg!
 
 : >light light-mode White std-bg! White err-bg! Black fg! Red err-fg!
     White >bg Black >fg or to gl-default-color
-    $70004000 dup color-index ! error-color-index ! ;
+    $07004000 dup color-index ! error-color-index ! ;
 : >dark dark-mode Black std-bg! Black err-bg! White fg! Red err-fg!
     Black >bg White >fg or to gl-default-color
-    $704000 dup color-index ! error-color-index ! ;
+    $074000 dup color-index ! error-color-index ! ;
 [IFDEF] android ' >dark window-init, [THEN]
 
 256 Value videocols

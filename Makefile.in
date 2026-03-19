@@ -30,6 +30,8 @@
 
 ifndef VERBOSE
 .SILENT:
+
+SILENT = --silent
 endif
 
 # ------------- gforth version
@@ -127,7 +129,7 @@ WAYLAND_PROTOCOLS = @WAYLAND_PROTOCOLS@
 WAYLAND_INCLUDE = $(patsubst %, wayland/%-client.h, $(WAYLAND_PROTOCOLS)) \
 	$(patsubst %, wayland/%.c, $(WAYLAND_PROTOCOLS))
 
-LIBTOOL = @GNU_LIBTOOL@ --silent
+LIBTOOL = @GNU_LIBTOOL@ $(SILENT)
 PREFORTH	= ./preforth -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 CC	= $(GCC)
 EXTRAPATH = $(PATHSEP)/usr/share/gforth/site-forth$(PATHSEP)/usr/local/share/gforth/site-forth
@@ -1061,7 +1063,7 @@ install-strip:	install
 libinstall:	$(ENGINES:%$(EXT)=lib%$(EXT)) $(ENGINES_FAST:%$(EXT)=lib%$(EXT))
 		@echo LIBINSTALL
 		for i in $(ENGINES:%$(EXT)=lib%$(EC)) $(ENGINES_FAST:%$(EXT)=lib%$(EC)); do \
-		   $(LIBTOOL) --silent --mode=install $(INSTALL) engine/$$i.la `(cd $(libdir); pwd)`/$$i.la; \
+		   $(LIBTOOL) --mode=install $(INSTALL) engine/$$i.la `(cd $(libdir); pwd)`/$$i.la; \
 		done
 
 installdirs:	installdirs-arch installdirs-indep

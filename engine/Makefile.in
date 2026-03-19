@@ -20,6 +20,8 @@
 
 ifndef VERBOSE
 .SILENT:
+
+SILENT = --silent
 endif
 
 # ------------- gforth version
@@ -58,7 +60,7 @@ AS	= $(GCC:gcc=as)
 STRIP	= strip
 DOSTRIP = true
 GCCLD	= @GCC_LD@
-LIBTOOL = @GNU_LIBTOOL@ --silent --tag=CC
+LIBTOOL = @GNU_LIBTOOL@ $(SILENT) --tag=CC
 LTLD = $(LIBTOOL) --mode=link $(GCCLD) -version-info $(LIBVERSION) -rpath $(libdir)
 EXTRAPATH = $(PATHSEP)/usr/share/gforth/site-forth$(PATHSEP)/usr/local/share/gforth/site-forth
 
