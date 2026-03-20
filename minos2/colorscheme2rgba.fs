@@ -18,6 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+$Variable imagebuf
 $20 sfloats buffer: Colorbuf
 
 : color! ( abgr index -- )
@@ -34,19 +35,20 @@ $20 sfloats buffer: Colorbuf
 : comb ( u1 u2 -- u3 )  8 lshift or ;
 
 : set-color ( index -- )
-    >r '=' parse 2drop ##, ##, ##, $FF comb comb comb r> color!
+    >r '=' parse 2drop ##, ##, ##, $FF comb comb comb r> color! ;
 
 : Color: ( index -- )
     Create ,
     DOES> refill drop @ set-color ;
 
 : colors ( n -- )
-    n 0 ?DO  refill 0= ?LEAVE  I Color:  LOOP ;
+    0 ?DO  refill 0= ?LEAVE  I Color:  LOOP ;
 
 Vocabulary colorscheme
-get-current also colorscheme definitions
+get-current >r
+also colorscheme definitions
 
-32 enums
+32 colors
 [Foreground]
 [ForegroundFaint]
 [ForegroundIntense]
@@ -84,4 +86,24 @@ get-current also colorscheme definitions
     \G scan description
     BEGIN  refill  WHILE  source nip 0= UNTIL  THEN ;
 
-previous set-current
+previous r> set-current
+
+: read-color-file ( addr u -- )
+    Colorbuf $20 sfloats erase
+    [ ' colorscheme >wordlist ]L ['] rec-forth ['] included wrap-xt
+    Colorbuf $20 sfloats imagebuf $+! ;
+
+: read-color-files ( -- )
+    BEGIN  argc @ 2 >  WHILE
+	    next-arg read-color-file
+    REPEAT ;
+
+require unix/stb-image-write.fs
+
+: write-png-map ( addr u -- )
+    1 stbi_flip_vertically_on_write
+    $20 imagebuf $@len $20 sfloats / 1 sfloats
+    imagebuf $@ drop $20 sfloats stbi_write_png 
+    0 stbi_flip_vertically_on_write ;
+
+script? [IF] read-color-files next-arg write-png-map bye [THEN]

@@ -41,6 +41,7 @@ uniform vec4 u_Coloradd1;       // color bias for texture
 uniform vec4 u_Coloradd2;       // color bias for texture
 uniform vec4 u_Coloradd3;       // color bias for texture
 uniform vec2 u_texsize;         // the screen texture size
+uniform float u_ColorScheme;    // the color scheme index
  
 varying vec3 v_Position;        // Interpolated position for this fragment.
 varying vec4 v_Color;           // This is the color from the vertex shader interpolated across the
@@ -57,8 +58,8 @@ void main()
     vec4 chartex = texture2D(u_Texture1, v_TexCoordinate);
     float bg_index = chartex.w + 0.5/16.0;
     float fg_index = chartex.z + 0.5/16.0;
-    vec4 fgcolor = texture2D(u_Texture2, vec2(fg_index, 0.25));
-    vec4 bgcolor = texture2D(u_Texture2, vec2(bg_index, 0.75));
+    vec4 fgcolor = texture2D(u_Texture2, vec2(fg_index, u_ColorScheme));
+    vec4 bgcolor = texture2D(u_Texture2, vec2(bg_index, u_ColorScheme));
     vec2 charxy = chartex.xy + vec2(0.0625, 0.125)*subPixel;
     // mix background and foreground colors by character ROM alpha value
     // and multiply by diffuse

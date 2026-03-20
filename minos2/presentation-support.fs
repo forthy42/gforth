@@ -276,12 +276,12 @@ synonym rgbas sfloats
 : screenshot>png ( addr u -- )
     1 stbi_flip_vertically_on_write
     dpy-w @ dpy-h @ 0 0 2over screenshot over >r
-    4 screenshot$ $@ drop r> rgbas stbi_write_png
+    4 screenshot$ $@ drop r> rgbas stbi_write_png drop
     screenshot$ $free ;
 : screenshot>jpg ( addr u -- )
     1 stbi_flip_vertically_on_write
     dpy-w @ dpy-h @ 0 0 2over screenshot
-    4 screenshot$ $@ drop jpeg-quality stbi_write_jpg
+    4 screenshot$ $@ drop jpeg-quality stbi_write_jpg drop
     screenshot$ $free ;
 
 \ top level presentation
