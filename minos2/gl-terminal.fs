@@ -57,13 +57,15 @@ void main()
     vec4 chartex = texture2D(u_Texture1, v_TexCoordinate);
     float bg_index = chartex.w + 0.5/16.0;
     float fg_index = chartex.z + 0.5/16.0;
-    vec4 fgcolor = texture2D(u_Texture2, vec2(fg_index, 0.));
-    vec4 bgcolor = texture2D(u_Texture2, vec2(bg_index, 0.));
+    vec4 fgcolor = texture2D(u_Texture2, vec2(fg_index, 0.25));
+    vec4 bgcolor = texture2D(u_Texture2, vec2(bg_index, 0.75));
     vec2 charxy = chartex.xy + vec2(0.0625, 0.125)*subPixel;
     // mix background and foreground colors by character ROM alpha value
     // and multiply by diffuse
     vec4 pixel = texture2D(u_Texture0, charxy);
-    vec4 col = mix(bgcolor, fgcolor, pixel.a);
+    // this is a GL_UNSIGNED_BYTE texture: make it robust
+    float alpha = (pixel.a < 0.0) ? pixel.a+1.0 : pixel.a;
+    vec4 col = mix(bgcolor, fgcolor, alpha);
     if(u_Saturate != 1.0) {
         float mid = (col.r + col.g + col.b) * 0.333333333333;
         vec3 mid3 = vec3(mid, mid, mid);
