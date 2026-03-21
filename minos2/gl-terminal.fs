@@ -56,11 +56,11 @@ void main()
     vec2 screenPos = v_TexCoordinate * u_texsize;
     vec2 subPixel = fract(screenPos);
     vec4 chartex = texture2D(u_Texture1, v_TexCoordinate);
-    float bg_index = chartex.w + 0.5/16.0;
-    float fg_index = chartex.z + 0.5/16.0;
+    float bg_index = chartex.w + 0.5/32.0;
+    float fg_index = chartex.z + 0.5/32.0;
     vec4 fgcolor = texture2D(u_Texture2, vec2(fg_index, u_ColorScheme));
     vec4 bgcolor = texture2D(u_Texture2, vec2(bg_index, u_ColorScheme));
-    vec2 charxy = chartex.xy + vec2(0.0625, 0.125)*subPixel;
+    vec2 charxy = chartex.xy + vec2(16.0/272.0, 32.0/264.0)*subPixel + vec2(0.5/272.0, 0.5/264.0);
     // mix background and foreground colors by character ROM alpha value
     // and multiply by diffuse
     vec4 pixel = texture2D(u_Texture0, charxy);
@@ -96,13 +96,15 @@ void main()
 }
 
 0 Value texsize
+0 Value colorscheme
 0 Value terminal-program
 
 : create-terminal-program ( -- program )
     ['] VertexShader ['] TerminalShader create-program ;
 
 : terminal-init { program -- } program init
-    program "u_texsize"  glGetUniformLocation to texsize ;
+    program "u_texsize"      glGetUniformLocation to texsize
+    program "u_ColorScheme"  glGetUniformLocation to colorscheme ;
 
 tex: chars-tex
 tex: video-tex
@@ -132,15 +134,19 @@ $ffbf40bf le-l, \ dimm Magenta
 $ffbfbf40 le-l, \ dimm Cyan
 $ffbfbfbf le-l, \ dimm White
 
-: term-load-textures ( addr u -- )
-    chars-tex load-texture 2drop linear
+1 Value colorschemes
+293 Value colorscheme#
+
+: term-load-textures ( addr-font u-font addr-color u-color -- )
     GL_TEXTURE2 glActiveTexture
-    color-tex color-matrix $10 1 rgba-map wrap-texture nearest
-    GL_TEXTURE0 glActiveTexture ;
+    color-tex load-texture to colorschemes drop wrap-texture nearest
+    GL_TEXTURE0 glActiveTexture
+    chars-tex load-texture 2drop linear ;
 
 Variable color-index
 Variable error-color-index
-$704000 dup color-index ! error-color-index !
+$20004000 color-index !
+$20484000 error-color-index !
 Variable std-bg standard:field
 1 pad ! pad c@ [IF] \ little endian
     2 cfield: fg-field
@@ -151,39 +157,37 @@ Variable std-bg standard:field
 [THEN]
 
 $8F00 Value gl-default-color \ real default color
+$40 Value cstyle \ $40: normal, $80: bold, $C0: dim
+$00 Value istyle
 
-: ?default-fg ( n -- color ) dup 6 <= IF
-	drop gl-default-color fg>  THEN  $F xor ;
-: ?default-bg ( n -- color ) dup 6 <= IF
-	drop gl-default-color bg>  THEN  $F xor ;
-: >cidx ( color -- index ) 4 lshift ;
+: >cidx ( color -- index ) 3 lshift cstyle + ;
+: ?default-fg ( n -- color ) dup 6 = IF  drop
+	istyle       3 lshift  EXIT  THEN  $F xor >cidx ;
+: ?default-bg ( n -- color ) dup 6 = IF  drop
+	istyle 4 xor 3 lshift  EXIT  THEN  $F xor >cidx ;
 : fg! ( index -- )
     dup 0= IF  drop  EXIT  THEN  ?default-fg
-    >cidx color-index fg-field c! ;
+    color-index fg-field c! ;
 : bg! ( index -- )
     dup 0= IF  drop  EXIT  THEN  ?default-bg
-    >cidx color-index bg-field c! ;
+    color-index bg-field c! ;
 : err-fg! ( index -- ) ?default-fg
-    >cidx error-color-index fg-field c! ;
+    error-color-index fg-field c! ;
 : err-bg! ( index -- ) ?default-bg
-    >cidx error-color-index bg-field c! ;
+    error-color-index bg-field c! ;
 1e $130 fm/ FValue damp-light
-: bg>clear ( index -- ) $F xor
-    >cidx sfloats color-matrix +
-    count damp-light fm*
-    count damp-light fm*
-    count damp-light fm*
-    c@    damp-light fm* glClearColor ;
+: bg>clear ( index -- ) drop
+    0e fdup fdup fdup glClearColor ;
 
 : std-bg! ( index -- )  dup bg! dup std-bg ! bg>clear ;
 Black White white? [IF] swap [THEN] fg! bg!
 
-: >light light-mode White std-bg! White err-bg! Black fg! Red err-fg!
-    White >bg Black >fg or to gl-default-color
-    $70004000 dup color-index ! error-color-index ! ;
-: >dark dark-mode Black std-bg! Black err-bg! White fg! Red err-fg!
-    Black >bg White >fg or to gl-default-color
-    $704000 dup color-index ! error-color-index ! ;
+: >light light-mode
+    defaultcolor std-bg! defaultcolor err-bg! defaultcolor fg! Red err-fg!
+    293 to colorscheme# ;
+: >dark dark-mode
+    defaultcolor std-bg! defaultcolor err-bg! defaultcolor fg! Red err-fg!
+    294 to colorscheme# ;
 [IFDEF] android ' >dark window-init, [THEN]
 
 256 Value videocols
@@ -278,12 +282,15 @@ $40 Value minpow2#
     THEN ;
 
 2 sfloats buffer: texsize.xy
+1 sfloats buffer: colorscheme.x
 
 : draw-now ( -- )
     GL_TEXTURE1 glActiveTexture
     video-tex
     show-rows nextpow2 s>f  videocols s>f texsize.xy sf!+ sf!
     texsize 1 texsize.xy glUniform2fv
+    colorscheme# s>f 0.5e f+ colorschemes s>f f/ colorscheme.x sf!
+    colorscheme 1 colorscheme.x glUniform1fv
     show-rows nextpow2 >r
     videomem scroll-y @ r@ + videorows umin r@ -
     videocols * sfloats +
@@ -406,17 +413,18 @@ ${GFORTH_IGNLIB} s" true" str= 0= [IF]
     0e screen-scroll  0e fdup scroll-source f! scroll-dest f!
     resize-screen +sync ;] gl-sema c-section ;
 
-: ?invers ( attr -- attr' ) dup invers and IF
-    dup $F000 and 4 rshift over $F00 and 4 lshift or swap $FF and or  THEN ;
-: >default ( attr -- attr' )
-    dup  bg> 6 <= $F and >bg
-    over fg> 6 <= $F and >fg or
-    gl-default-color -rot mux ;
+: ?invers ( attr -- attr' ) dup invers and IF  4 to istyle
+	dup $F000 and 4 rshift over $F00 and 4 lshift or swap $FF and or
+    ELSE  0 to istyle  THEN ;
 : gl-attr! ( attribute -- )
-    [: dup attr ! >default ?invers  dup bg> bg! fg> fg! ;]
+    [:  dup attr ! ?invers
+	$40 to cstyle
+	dup Dim and  IF  $C0 to cstyle  2 +to istyle  THEN
+	dup Bold and IF  $80 to cstyle  1 +to istyle  THEN
+	dup bg> bg! fg> fg! ;]
     gl-sema c-section ;
 : gl-err-attr! ( attribute -- )
-    [: dup attr ! >default ?invers  dup bg> err-bg! fg> err-fg! ;]
+    [: dup attr ! ?invers  dup bg> err-bg! fg> err-fg! ;]
     gl-sema c-section ;
 : gl-control-sequence ( u char -- )
     [: case
@@ -632,7 +640,7 @@ default-out op-vector !
 \ initialize
 
 : term-textures ( -- )
-    s" minos2/ascii.png" term-load-textures ;
+    s" minos2/ascii.png" s" minos2/termcolors.png" term-load-textures ;
 
 :noname defers reload-textures  term-textures ; is reload-textures
 

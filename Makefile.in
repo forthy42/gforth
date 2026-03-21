@@ -464,8 +464,9 @@ MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	   \
 	v4l2.fs $(patsubst %, unicode/%, $(UNICODE_SRC)) $(patsubst %,	   \
 	tutorial/%, $(MINOS2_TUTORIAL)) colorscheme2rgba.fs
 
-MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png     \
-	net2o-minos2.png lbubble.png rbubble.png white.png thumb.png logo.png
+MINOS2_BIN = ascii.png termcolors.png button.png button2.png button3.png	\
+	bad-gateway.png net2o-minos2.png lbubble.png rbubble.png white.png	\
+	thumb.png logo.png
 
 TEST_SRC = tester.fs ttester.fs checkans.fs complex.fs coretest.fs dbltest.fs \
 	float.fs gforth.fs forward.fs other.fs postpone.fs read-line.fs	      \

@@ -9,9 +9,9 @@ P: dsa1024/760F3526 F2CE 53F2 6D3B 43BC 4668 741D 3EB5 FFF1 760F 3526
 N: Bernd Paysan
 E: bernd@net2o.de
 D: Project leader, kernel, cross compiler, non-Unix ports based on GCC, 
-D: MINOS2, Release manager, GNU maintainer
-S: Wilbrechtstr. 85
-S: D-81477 München
+D: MINOS2, Release manager, GNU maintainer, Debian maintainer
+S: Bergstr. 16
+S: D-72393 Burladingen
 S: Germany
 P: rsa4096/3B7FA946 60E7 1A15 9357 5330 99A0 AAF9 CAF0 21DB 3B7F A946
 
