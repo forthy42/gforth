@@ -1,4 +1,7 @@
-\ colorschemes by Base24 (actual colors in termcolors.png)
+\ colorschemes by Base24
+
+\ from https://github.com/tinted-theming/base24-konsole
+\ Actual colors are in minos2/termcolors.png
 
 \ This file contains the indices into the termcolors.png, based on the
 \ filenames fo the actual themes.  Gforth uses a colormap texture, so the
