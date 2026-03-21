@@ -101,9 +101,7 @@ previous r> set-current
 require unix/stb-image-write.fs
 
 : write-png-map ( addr u -- )
-    1 stbi_flip_vertically_on_write
     $20 imagebuf $@len $20 sfloats / 1 sfloats
-    imagebuf $@ drop $20 sfloats stbi_write_png 
-    0 stbi_flip_vertically_on_write ;
+    imagebuf $@ drop $20 sfloats stbi_write_png ;
 
 script? [IF] read-color-files next-arg write-png-map bye [THEN]

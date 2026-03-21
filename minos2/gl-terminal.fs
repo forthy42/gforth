@@ -135,7 +135,7 @@ $ffbfbf40 le-l, \ dimm Cyan
 $ffbfbfbf le-l, \ dimm White
 
 1 Value colorschemes
-293 Value colorscheme#
+43 Value colorscheme#
 
 : term-load-textures ( addr-font u-font addr-color u-color -- )
     GL_TEXTURE2 glActiveTexture
@@ -184,11 +184,12 @@ Black White white? [IF] swap [THEN] fg! bg!
 
 : >light light-mode
     defaultcolor std-bg! defaultcolor err-bg! defaultcolor fg! Red err-fg!
-    293 to colorscheme# ;
+    44 to colorscheme# ;
 : >dark dark-mode
     defaultcolor std-bg! defaultcolor err-bg! defaultcolor fg! Red err-fg!
-    294 to colorscheme# ;
+    43 to colorscheme# ;
 [IFDEF] android ' >dark window-init, [THEN]
+magenta-input
 
 256 Value videocols
 0   Value videorows
@@ -419,8 +420,8 @@ ${GFORTH_IGNLIB} s" true" str= 0= [IF]
 : gl-attr! ( attribute -- )
     [:  dup attr ! ?invers
 	$40 to cstyle
-	dup Dim and  IF  $C0 to cstyle  2 +to istyle  THEN
-	dup Bold and IF  $80 to cstyle  1 +to istyle  THEN
+	dup Dim and  IF  $C0 to cstyle  istyle 2 or to istyle  THEN
+	dup Bold and IF  $80 to cstyle  istyle 1 or to istyle  THEN
 	dup bg> bg! fg> fg! ;]
     gl-sema c-section ;
 : gl-err-attr! ( attribute -- )
