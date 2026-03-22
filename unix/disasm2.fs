@@ -44,7 +44,7 @@ get-current also c-lib definitions
 
 previous set-current
 
-c-library opcodes
+c-library disasm2 \ same name as .fs file!
     "opcodes" trylibs add-lib
     \c #include <stddef.h>
     \c #include "config.h"

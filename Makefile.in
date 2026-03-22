@@ -436,7 +436,7 @@ LIBCC_DIST_SRC = $(SWIG_SRC) unix/stat-fsi.c unix/pthread-types-fsi.c	      \
 	unix/doexec unix/doprep unix/trygcc $(patsubst %, unix/%, $(SWIGDIST) \
 	@HAS_SWIG_FORTH@) Makefile.wayland
 
-LIBCC_FORTH_SRC = unix/libffi.fs unix/fflib.fs $(UNIXLIBS_SRC) $(LIBCC_SRC1)
+LIBCC_FORTH_SRC = unix/libffi.fs unix/fflib.fs @disasm2_fs@ $(UNIXLIBS_SRC) $(LIBCC_SRC1)
 LIBCC_GEN_SRC = unix/stat.fs unix/pthread-types.fs $(patsubst %, unix/%, \
 	$(SWIGMODULES))
 LIBCC_LIB_SRC = $(patsubst %, unix/%, $(SWIGLIBS)) @LIBCC_BUILD_SRC@

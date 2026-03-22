@@ -1611,6 +1611,7 @@ AC_CHECK_DECLS([sys_siglist],[],[],[#include <signal.h>
 #endif
 ])
 
+AC_CHECK_DECLS([getopt])
 AC_CHECK_FUNC(getopt_long,[true],[AC_LIBOBJ(getopt) AC_LIBOBJ(getopt1)])
 AC_CHECK_FUNCS(expm1 log1p)
 AC_CHECK_FUNCS(mcheck mprobe)
