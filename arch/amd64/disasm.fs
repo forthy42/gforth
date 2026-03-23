@@ -400,7 +400,7 @@ $0C flt, bld     $0D flt, ild     $0E flt, bstp    $0F flt, istp
 		10 rex +!  endof
 	endcase
 	dup 4 and 5 lshift rex +!  100 rex +!
-	dup 3 rshift 0F and 0F xor vvvv ! ;
+	3 rshift 0F and 0F xor vvvv ! ;
 
 : .vexC4 ( ip -- ip' )
     .amd64mode @ IF
