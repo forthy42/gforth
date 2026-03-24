@@ -180,7 +180,7 @@ $00 Value istyle
     0e fdup fdup fdup glClearColor ;
 
 : std-bg! ( index -- )  dup bg! dup std-bg ! bg>clear ;
-Black White white? [IF] swap [THEN] fg! bg!
+defaultcolor dup fg! std-bg!
 
 : >light light-mode
     defaultcolor std-bg! defaultcolor err-bg! defaultcolor fg! Red err-fg!

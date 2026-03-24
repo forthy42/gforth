@@ -999,9 +999,11 @@ case "$host_os" in
 	;;
 esac
 
-if test `$CC -dumpversion | cut -f1 -d.` -lt 14
+if test x$TRY_TREEVEC = xyes && test `$CC -dumpversion | cut -f1 -d.` -lt 14
 then
     CHECKFLAGS="$CHECKFLAGS no-tree-vectorize"
+else
+    CHECKFLAGS="$CHECKFLAGS no-tree-slp-vectorize"
 fi
 
 for i in $CHECKFLAGS
@@ -1469,6 +1471,7 @@ AC_CHECK_PROGS(PKG_CONFIG, pkg-config)
 
 #MacOS X has a libtool that does something else
 AC_CHECK_PROGS(GNU_LIBTOOL,glibtool libtool)
+AC_CHECK_PROGS(GNU_TAIL,gtail tail)
 if test -z "$GNU_LIBTOOL"; then
   AC_MSG_WARN([No GNU_LIBTOOL found, using "libtool" as name.])
   AC_MSG_WARN([libcc.fs won't work until you have installed (GNU) libtool.])
@@ -1513,19 +1516,24 @@ fi
 AC_SUBST(LIB_SUFFIX)
 AC_SUBST(SO_SUFFIX)
 AC_CHECK_LIB(rt,clock_gettime)
-LD_VERSION=`$LD -v | tr ' ' '\n' | tail -n 1`
+LD_VERSION=`$LD -v | tr ' ' '\n' | $GNU_TAIL -n 1`
 LIBOPCODES=""
 disasm2_fs=""
 disasm2_la=""
-OLDLIB="$LIB"
-AC_SEARCH_LIBS(init_disassemble_info,[opcodes-$LD_VERSION-system opcodes-$LD_VERSION-multiarch opcodes-$LD_VERSION opcodes],[LIBOPCODES=$ac_cv_search_init_disassemble_info
+old_LIBS="$LIBS"
+old_LDFLAGS="$LDFLAGS"
+old_CC="$CC"
+CC="$CC -fPIC -shared -Wl,--no-undefined"
+AC_SEARCH_LIBS([init_disassemble_info],[opcodes-$LD_VERSION-system opcodes-$LD_VERSION-multiarch opcodes-$LD_VERSION opcodes],[LIBOPCODES=$ac_cv_search_init_disassemble_info
 disasm2_fs=unix/disasm2.fs
 disasm2_la='$(buildccdir)/libgfdisasm2.la'
 ])
+CC="$old_CC"
+LDFLAGS="$old_LDFLAGS"
+LIBS="$old_LIBS"
 AC_SUBST(LIBOPCODES) # for separating disasm.c out of the binary
 AC_SUBST(disasm2_fs)
 AC_SUBST(disasm2_la)
-LIB="$OLDLIB"
 
 AC_CHECK_FUNCS(dlopen)
 if test -n "$GNU_LIBTOOL" -a "x$ac_cv_lib_ltdl_lt_dlinit" = xyes; then
@@ -1816,6 +1824,8 @@ if test x$has_swig = xyes; then
    echo "Default SWIG includes: $SWIGINCLUDES"
 fi
 
+old_CC="$CC"
+CC="$CC -fPIC -shared -Wl,--no-undefined"
 if test x$MINOS2_LIBS = xyes; then
    if test x$has_swig = xyes || test -f $srcdir/unix/x-fsi.c; then
       AC_CHECK_HEADER(X11/X.h, AC_CHECK_HEADER(X11/extensions/sync.h,
@@ -2169,6 +2179,8 @@ wayland protocols not found."
 	fi
 	;;
 esac
+CC="$old_CC"
+
 AC_SUBST(WAYLAND_SCANNER)
 AC_SUBST(WAYLAND_PROTOCOLS_DATADIR)
 AC_SUBST(WAYLAND_PROTOCOLS)

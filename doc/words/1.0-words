@@ -285,6 +285,8 @@ addressable
 addressable:
 addressable:
 addressable-mask
+address-color
+address-offset-color
 ADDRESS-UNIT-BITS
 addr>view
 .addr-warning
@@ -431,6 +433,7 @@ argv
 array>mem
 arshift
 assembler
+assembler-directive-color
 assert(
 assert)
 assert0(
@@ -573,6 +576,7 @@ bind
 bind
 bind'
 bindkey
+bintool-version
 +bit
 -bit
 bl
@@ -919,9 +923,11 @@ colon-sys
 colon-sys-xt-offset
 color-cover
 color-prompt
+color-table
 cols
 Com-color
 #comma
+comment-start-color
 common-list
 >comp
 comp-[:
@@ -1318,10 +1324,14 @@ Dim
 dirname
 Disable
 disasm
+disasm()
+disasm2
 disasm-gdb
 disassembler
 discode
 disline
+disline2
+disline_opcodes
 Display?
 display-locate-lines
 DisplayMode
@@ -2968,6 +2978,7 @@ imm>comp
 (.immediate)
 immediate
 immediate?
+immediate-color
 implementation
 IMU_SET
 >in
@@ -3015,6 +3026,8 @@ initiate
 init-lib
 init-libcc
 init-object
+init_opcodes_info
+init_opcodes_region
 init-shared-libs
 init-shared-libs
 init-timer
@@ -3587,6 +3600,7 @@ mkgmtime
 mknod
 mkstemp
 mlstringpos
+mnemonic-color
 */mod
 /mod
 mod
@@ -3869,6 +3883,7 @@ Only
 only-code-address!
 only-path
 >oo>
+opcodes_stylish_type:
 open
 open-blocks
 open-dir
@@ -3887,6 +3902,7 @@ open-path-lib
 open-pipe
 open-warp
 open-wrappers
+op-stype
 opt:
 opt-array>mem
 opt!-compile,
@@ -4030,7 +4046,6 @@ paste$
 .path
 path+
 path=
-pathdirs
 pathsep?
 path>string
 pathstring
@@ -4500,6 +4515,7 @@ recursive
 Red
 redraw-status
 refill
+register-color
 (rehash)
 rehashall
 remove~+
@@ -5209,6 +5225,7 @@ set-stack
 set-state
 setstring$
 setstring-color
+set-stylish-type
 set-to
 setup-callback
 set-wordlist
@@ -5365,6 +5382,7 @@ SNR_BAD
 s>number
 s>number?
 snumber?
+solibname
 some-clocal
 some-dlocal
 some-flocal
@@ -5372,6 +5390,7 @@ some-waddr
 some-wlocal
 some-xtlocal
 some-zlocal
+so-suffix
 source
 sourcefilename
 source-id
@@ -5522,6 +5541,7 @@ struct
 struct-pre
 [struct]-search
 [struct]-voc
+stylish-type
 SUBFRAME_ALMANAC
 SUBFRAME_ORBIT
 SUBFRAME_SET
@@ -5550,6 +5570,7 @@ subframe_t-TOW17
 subframe_t-tSVID
 subframe_t-WN
 sub-list?
+sub-mnemonic-color
 substc
 subst>filename
 .substitute
@@ -5566,6 +5587,7 @@ sx@
 sxd@
 symbol,
 symbol,
+symbol-color
 symlink
 sync#
 synonym,
@@ -5764,6 +5786,8 @@ TR_UNKNOWN
 TR_WORSE_5001
 (try)
 try
+trylib
+trylibs
 try-read-dir
 tt
 tuck
