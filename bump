@@ -30,7 +30,7 @@ then
     make distclean
 fi
 SHA256=$(sha256sum gforth-$V.tar.xz | cut -f1 -d' ')
-URL="https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/$V/gforth-$V.tar.xz"
+URL="https://net2o.de/gforth-dist/Snapshots/$V/gforth-$V.tar.xz"
 sed -e "s|url: \(.*\)|url: $URL|g" -e "s/sha256: \(.*\)/sha256: $SHA256/g" <flatpak/org.gforth.gforth.yml >flatpak/org.gforth.gforth.yml+
 mv flatpak/org.gforth.gforth.yml+ flatpak/org.gforth.gforth.yml
 gforth-up $(ls -tr1 *.tar.xz | tail -n 1)
