@@ -2,8 +2,8 @@ app-id: org.gforth.gforth
 runtime: org.freedesktop.Platform
 platform-extensions:
   - org.freedesktop.Platform.GL.default
-runtime-version: "24.08"
-branch: "24.08"
+runtime-version: "25.08"
+branch: "25.08"
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.stb
@@ -14,11 +14,12 @@ modules:
     buildsystem: autotools
     config-opts:
       - "CPPFLAGS=-I/usr/lib/sdk/stb/include"
+      - "ac_cv_search_init_disassemble_info=no"
       - "--disable-lib"
       - "--with-lispdir=/app/share/emacs/site-lisp"
       - "--with-elispstartdir=/app/share/emacs/site-start.d"
     no-autogen: true
     sources:
       - type: archive
-        url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20260324/gforth-0.7.9_20260324.tar.xz
+        url: https://net2o.de/gforth-dist/Snapshots/0.7.9_20260324/gforth-0.7.9_20260324.tar.xz
         sha256: ba8d768b3eda92925e121ed6a4dbacd91c24319a8b5ccaec56c75aff03192899

@@ -7,6 +7,7 @@
 #undef stderr
 extern struct _IO_FILE *stderr;
 #endif
+#define OPUS_MIN_VER(x, y) (OPUS_MAJOR > x || (OPUS_MAJOR == x && OPUS_MINOR >= y))
 %}
 
 #define PA_GCC_CONST
@@ -19,7 +20,7 @@ extern struct _IO_FILE *stderr;
 #define PA_GCC_ALLOC_SIZE2(x, y)
 #define PA_GCC_PRINTF_ATTR(x, y)
 
-// prep: sed -e 's/^\(.*\(_dred_\|opus_packet_has_lbrr\).*\)$/#ifdef OPUS_GET_DRED_DURATION_REQUEST\n\1\n#endif/g'
+// prep: sed -e 's/^\(.*\(_dred_\|opus_packet_has_lbrr\).*\)$/#ifdef OPUS_GET_DRED_DURATION_REQUEST\n\1\n#endif/g' -e 's/^\(.*\(opus_encode24\|opus_decode24\|opus_decoder_dred_decode24\).*\)$/#if OPUS_MIN_VER(1,6)\n\1\n#endif/g'
 // exec: sed -e 's/^c-library\( .*\)/cs-vocabulary opus\nget-current >r also opus definitions\n\nc-library\1\ns" n" vararg$ $!/g' -e 's/^end-c-library/end-c-library\nprevious r> set-current/g'
 
 %include <opus/opus_types.h>

@@ -100,7 +100,7 @@ tmp$ $execstr-ptr !
     1 tmp$# +!@ drop 0 { w^ tmp$$ } tmp$$ $exec
     tmp$$ @ tmp$ tuck dup $free ! $@ ;
 
-:noname ( -- )  defers 'image tmp$[] off $execstr-ptr off ; is 'image
+:noname ( -- )  defers 'image tmp$[] off tmp$# off $execstr-ptr off ; is 'image
 
 \ slurp in lines and files into strings and string-arrays
 

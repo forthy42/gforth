@@ -2020,13 +2020,28 @@ fi
 					     SWIGLIBS="$SWIGLIBS xkbcommon.fs"
 					     SWIGINCLUDES="$SWIGINCLUDES `$PKG_CONFIG --cflags xkbcommon | tr ' ' '\n' | grep ^-I | tr '\n' ' '`"
 					     SWIGDISTFSI="$SWIGDISTFSI xkbcommon.fs"
-		      , CPPFLAGS="$CPPFLAGS_1"), ,)
+					     VERSION=`$PKG_CONFIG --modversion xkbcommon`
+					     AC_DEFINE_UNQUOTED([XKBCOMMON_MAJOR], [${VERSION%%.*}], [xkbcommon major version])
+					     VERSION=${VERSION#*.}
+					     AC_DEFINE_UNQUOTED([XKBCOMMON_MINOR], [${VERSION%%.*}], [xkbcommon minor version])
+					     VERSION=${VERSION#*.}
+					     AC_DEFINE_UNQUOTED([XKBCOMMON_PATCH], [$VERSION], [xkbcommon patch version])
+					     AC_SUBST([XKBCOMMON_MAJOR])
+					     AC_SUBST([XKBCOMMON_MINOR])
+					     AC_SUBST([XKBCOMMON_PATCH])
+					     , CPPFLAGS="$CPPFLAGS_1"), ,)
    fi
    if test x$has_swig = xyes || test -f $srcdir/unix/opus-fsi.c; then
       AC_CHECK_LIB(opus,opus_encode,
       AC_CHECK_HEADER(opus/opus.h, SWIGMODULES="$SWIGMODULES opus.fs"
       				   SWIGLIBS="$SWIGLIBS opus.fs"
 				   SWIGDISTFSI="$SWIGDISTFSI opus.fs"
+				   VERSION=`$PKG_CONFIG --modversion opus`
+				   AC_DEFINE_UNQUOTED([OPUS_MAJOR], [${VERSION%%.*}], [opus major version])
+				   VERSION=${VERSION#*.}
+				   AC_DEFINE_UNQUOTED([OPUS_MINOR], [${VERSION#*.}], [opus minor version])
+				   AC_SUBST([OPUS_MAJOR])
+				   AC_SUBST([OPUS_MINOR])
 		      ,), ,)
    fi
    if test x$has_swig = xyes || test -f $srcdir/unix/webp-fsi.c; then
