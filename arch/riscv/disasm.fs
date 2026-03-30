@@ -195,7 +195,7 @@ disassembler also definitions
 : atom-type ( x -- ) .rd ., .rs2 ., .( .rs1 .) drop ;
 
 : .fence ( n -- )
-    $F and s" iorw" bounds DO
+    '|' emit  $F and s" iorw" bounds DO
 	dup 8 and IF  I c@ emit  THEN  2*
     LOOP  drop ;
 : fence-type ( x -- )
