@@ -89,7 +89,9 @@ c-library disasm2 \ same name as .fs file!
     \c disassemble_info disasm_info;
     \c 
     \c void init_info(stype_ftype stype) {
-    \c   init_disassemble_info(&disasm_info, stype, (fprintf_ftype) vasprintf_type,
+    \c   void (*init_disassemble_info_ptr)(void*, void*, void*, void*) =
+    \c        (void (*)(void*, void*, void*, void*))init_disassemble_info;
+    \c   init_disassemble_info_ptr(&disasm_info, stype, (fprintf_ftype) vasprintf_type,
     \c                         (fprintf_styled_ftype) vasprintf_type_styled);
     \c   disasm_info.arch = BFD_ARCH;
     \c   disasm_info.mach = BFD_MACH;
