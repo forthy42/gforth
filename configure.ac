@@ -1516,6 +1516,9 @@ fi
 AC_SUBST(LIB_SUFFIX)
 AC_SUBST(SO_SUFFIX)
 AC_CHECK_LIB(rt,clock_gettime)
+
+# Checks for libopcodes
+
 LD_VERSION=`$LD -v | tr ' ' '\n' | $GNU_TAIL -n 1`
 LIBOPCODES=""
 disasm2_fs=""
@@ -1524,10 +1527,13 @@ old_LIBS="$LIBS"
 old_LDFLAGS="$LDFLAGS"
 old_CC="$CC"
 CC="$CC -fPIC -shared -Wl,--no-undefined"
-AC_SEARCH_LIBS([init_disassemble_info],[opcodes-$LD_VERSION-system opcodes-$LD_VERSION-multiarch opcodes-$LD_VERSION opcodes],[LIBOPCODES=$ac_cv_search_init_disassemble_info
+AC_SEARCH_LIBS([init_disassemble_info],[opcodes-$LD_VERSION-system opcodes-$LD_VERSION-multiarch opcodes-$LD_VERSION opcodes],
+	        [AC_CHECK_HEADER(dis-asm.h,[LIBOPCODES=$ac_cv_search_init_disassemble_info
 disasm2_fs=unix/disasm2.fs
 disasm2_la='$(buildccdir)/libgfdisasm2.la'
-])
+])],
+                [config_warns="$config_warns
+libopcodes missing or not useable, disassembler is fallback solution"])
 CC="$old_CC"
 LDFLAGS="$old_LDFLAGS"
 LIBS="$old_LIBS"
