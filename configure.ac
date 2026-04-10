@@ -1525,6 +1525,8 @@ disasm2_fs=""
 disasm2_la=""
 old_LIBS="$LIBS"
 old_LDFLAGS="$LDFLAGS"
+# the following 2 lines (and reset below) make sure that a shared library is
+#  searched, because we use libcc to link to libopcodes
 old_CC="$CC"
 CC="$CC -fPIC -shared -Wl,--no-undefined"
 AC_SEARCH_LIBS([init_disassemble_info],[opcodes-$LD_VERSION-system opcodes-$LD_VERSION-multiarch opcodes-$LD_VERSION opcodes],
@@ -1533,9 +1535,9 @@ disasm2_fs=unix/disasm2.fs
 disasm2_la='$(buildccdir)/libgfdisasm2.la'
 ],
 				 [config_warns="$config_warns
-dis-asm.h not available, disassembler is fallback solution"])],
+dis-asm.h not available, using fallback disassembler"])],
                 [config_warns="$config_warns
-libopcodes missing or not useable, disassembler is fallback solution"])
+libopcodes missing or not useable, using fallback disassembler"])
 CC="$old_CC"
 LDFLAGS="$old_LDFLAGS"
 LIBS="$old_LIBS"
