@@ -68,7 +68,7 @@ c-library disasm2 \ same name as .fs file!
     \c   }
     \c   return len;
     \c }
-    \c int vasprintf_type_styled(stype_ftype stype, enum disassembler_style style,
+    \c int vasprintf_type_styled(stype_ftype stype, int style,
     \c                           const char *format, ...) {
     \c   int len;
     \c   char * strp=0;
