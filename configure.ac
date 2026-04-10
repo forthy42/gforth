@@ -1531,7 +1531,9 @@ AC_SEARCH_LIBS([init_disassemble_info],[opcodes-$LD_VERSION-system opcodes-$LD_V
 	        [AC_CHECK_HEADER(dis-asm.h,[LIBOPCODES=$ac_cv_search_init_disassemble_info
 disasm2_fs=unix/disasm2.fs
 disasm2_la='$(buildccdir)/libgfdisasm2.la'
-])],
+],
+				 [config_warns="$config_warns
+dis-asm.h not available, disassembler is fallback solution"])],
                 [config_warns="$config_warns
 libopcodes missing or not useable, disassembler is fallback solution"])
 CC="$old_CC"
