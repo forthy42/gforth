@@ -51,6 +51,7 @@ c-library disasm2 \ same name as .fs file!
     \c #include <dis-asm.h>
     \c
     \c typedef void (*stype_ftype) (char * addr, unsigned int u, int style);
+    \c typedef int (*fprintf_styled_ftype) (void *, enum disassembler_style, const char*, ...) ATTRIBUTE_FPTR_PRINTF_3;
     \c int vasprintf_type(stype_ftype stype, const char *format, ...) {
     \c   int len;
     \c   char * strp=0;
