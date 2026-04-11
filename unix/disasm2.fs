@@ -89,13 +89,13 @@ c-library disasm2 \ same name as .fs file!
     \c }
     \c disassemble_info disasm_info;
     \c 
-    \c void init_info(stype_ftype stype) {
+    \c void init_info(stype_ftype stype, int extra_mach) {
     \c   void (*init_disassemble_info_ptr)(void*, void*, void*, void*) =
     \c        (void (*)(void*, void*, void*, void*))init_disassemble_info;
     \c   init_disassemble_info_ptr(&disasm_info, stype, (fprintf_ftype) vasprintf_type,
     \c                         (fprintf_styled_ftype) vasprintf_type_styled);
     \c   disasm_info.arch = BFD_ARCH;
-    \c   disasm_info.mach = BFD_MACH;
+    \c   disasm_info.mach = BFD_MACH | extra_mach;
     \c   /* buffer_read_memory() is a convenience function declared in dis-asm.h */
     \c   disasm_info.read_memory_func = buffer_read_memory;
     \c }
@@ -129,7 +129,7 @@ c-library disasm2 \ same name as .fs file!
     \c     return instsize;
     \c   }
     \c }
-    c-function init_opcodes_info init_info a -- void ( -- )
+    c-function init_opcodes_info init_info a u -- void ( -- )
     c-function init_opcodes_region init_region a u -- a
     c-function disline_opcodes disline_opcodes a a -- u ( addr disassembler-ftype -- addr1 )
     c-callback opcodes_stylish_type: a u n -- void
@@ -192,12 +192,22 @@ here color-table - cell/ 1- >r
     ['] stylish-type opcodes_stylish_type: to op-stype ;
 
 0 Value disasm()
+0 Value extra-mach
+
+machine "amd64" str= machine "386" str= or [IF]
+    : intel-syntax ( -- ) \ gforth
+	\G set output to intel syntax
+	extra-mach 1 <> IF  1 to extra-mach  0 to disasm()  THEN ;
+    : at&t-syntax ( -- ) \ gforth
+	\G set output to AT&T syntax
+	extra-mach 0<>  IF  0 to extra-mach  0 to disasm()  THEN ;
+[THEN]
 
 : disline2 ( addr -- instsize )
     dup 2 cells hex.r ." : "
     disasm() disline_opcodes ;
 : disasm2 ( addr u -- ) \ gforth
-    disasm() 0= IF  op-stype init_opcodes_info  THEN
+    disasm() 0= IF  op-stype extra-mach init_opcodes_info  THEN
     2dup init_opcodes_region to disasm()
     [: bounds u+do  cr i disline2 +loop  cr ;] $10 base-execute ;
 :is 'cold   defers 'cold

@@ -22,4 +22,4 @@ modules:
     sources:
       - type: archive
         url: https://net2o.de/gforth-dist/Snapshots/0.7.9_20260410/gforth-0.7.9_20260410.tar.xz
-        sha256: 1049b37d9615d95803b5eab54741619be46e37b444066a28b7d865f395e19aec
+        sha256: 7a3340dde405731b6ae2f169cf6909e5bd4987ff52f13cd26095d0451151ff98
