@@ -219,6 +219,8 @@ VARIABLE C-Stop
 
 \ try see quotations, but so far fails, because can't reenter see-threaded
 
+Defer c-init
+
 : smart.quotation. ( n depth -- t / n f )
     drop dup xt? IF
 	dup name>string d0= IF
@@ -226,7 +228,8 @@ VARIABLE C-Stop
 		s" [: " ['] Com-color .string
 		BranchPointer @ BranchTable
 		{ bp SaveTable[ 128 cells ] }
-		2 Level +! >body see-threaded  -2 Level +!
+		Level @ c-init 2 + Level !
+		>body see-threaded  -2 Level +!
 		SaveTable[ BranchTable 128 cells move
 		bp BranchPointer !  C-Stop off
 		s" ] " ['] Com-color .string
@@ -849,7 +852,7 @@ c-extender !
 	drop
     THEN ;
 
-: c-init ( -- )
+:is c-init ( -- )
         0 YPos ! 0 XPos !
         0 Level ! nlflag off
         BranchTable BranchPointer !

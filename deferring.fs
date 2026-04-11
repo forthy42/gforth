@@ -48,7 +48,7 @@ non-deferring-words value: cvalue: wvalue: lvalue: scvalue: swvalue: slvalue: 2v
 non-deferring-words fvalue: sfvalue: dfvalue: zvalue: $value: defer: value[]: $value[]:
 non-deferring-words timer: see locate where synonym alias marker cold bye
 non-deferring-words [IF] [ELSE] [defined] [undefined] [IFDEF] [IFUNDEF] ] parse parse-name
-non-deferring-words binary decimal hex set-precision interpret evaluate
+non-deferring-words binary decimal hex interpret evaluate
 
 $1000 buffer: one-shot-dict
 Variable one-shot-dp
