@@ -18050,27 +18050,42 @@ You can disassemble a @code{code} word with @code{see}
 
 doc-discode
 
-There are two kinds of disassembler for Gforth: The Forth disassembler
-(available on some CPUs) and the gdb disassembler (available on
-platforms with @command{gdb} and @command{mktemp}).  If both are
-available, the Forth disassembler is used by default.  If you prefer
-the gdb disassembler, say
+There are several kinds of disassembler for Gforth:
 
-@example
-' disasm-gdb is discode
-@end example
+@itemize @bullet
 
-If neither is available, @code{discode} performs @code{dump}.
+@item
+@code{disasm2}, which calls @file{libopcodes} from the binutils.  This
+is usually the default disassembler, if Gforth is built as we
+recommend.
+
+@item
+@code{disasm}, a manually written disassembler (only available on some
+architectures).  This is often the default disassembler if
+@code{disasm2} is not available.
 
 The Forth disassembler generally produces output that can be fed into the
 assembler (i.e., same syntax, etc.).  It also includes additional
 information in comments.  In particular, the address of the instruction
 is given in a comment before the instruction.
 
-The gdb disassembler produces output in the same format as the gdb
-@code{disassemble} command (@pxref{Machine Code,,Source and machine
-code,gdb,Debugging with GDB}), in the default flavour (AT&T syntax for
-the 386 and AMD64 architectures).
+@item
+@code{disasm-gdb}, which calls @command{gdb} to disassemble code.
+Unfortunately, this is not a very reliable disassembler, and can hang.
+Use @kbd{Ctrl-c} if that happens.  This disassembler is used by
+default if neither @code{disasm2} nor @code{disasm} is available.
+
+@item
+@word{dump} shows the machine code as hex dump.  This disassembler is
+used if none of the others are available.
+
+@end itemize
+
+You can override the default by changing @word{discode}, e.g., with
+
+@source
+' disasm is discode
+@end source
 
 @code{See} may display more or less than the actual code of the word,
 because the recognition of the end of the code is unreliable.  You can
@@ -18078,6 +18093,12 @@ use @code{discode} if it did not display enough.  It may display more, if
 the code word is not immediately followed by a named word.  If you have
 something else there, you can follow the word with @code{align latest ,}
 to ensure that the end is recognized.
+
+doc-disasm2
+doc-intel-syntax
+doc-at&t-syntax
+doc-disasm
+doc-disasm-gdb
 
 @node 386 Assembler, AMD64 Assembler, Common Disassembler, Assembler and Code Words
 @subsection 386 Assembler

@@ -196,22 +196,28 @@ here color-table - cell/ 1- >r
 
 machine "amd64" str= machine "386" str= or [IF]
     : intel-syntax ( -- ) \ gforth
-	\G set output to intel syntax
-	extra-mach 1 <> IF  1 to extra-mach  0 to disasm()  THEN ;
+	\G Change @word{disasm2} to output Intel syntax.  Only valid
+	\G when running on AMD64 or IA-32 machines.
+	extra-mach 1 <> IF 1 to extra-mach 0 to disasm() THEN ;
+
     : at&t-syntax ( -- ) \ gforth
-	\G set output to AT&T syntax
+	\G Change @word{disasm2} to output AT&T syntax.  Only valid
+	\G when running on AMD64 or IA-32 machines.
 	extra-mach 0<>  IF  0 to extra-mach  0 to disasm()  THEN ;
 [THEN]
 
 : disline2 ( addr -- instsize )
     dup 2 cells hex.r ." : "
     disasm() disline_opcodes ;
-: disasm2 ( addr u -- ) \ gforth
-    disasm() 0= IF  op-stype extra-mach init_opcodes_info  THEN
+
+: disasm2 ( c-addr u -- ) \ gforth
+    \G Disassemble code block starting at @i{c-addr} with @i{u} bytes
+    \G length using @file{libopcodes} from GNU binutils.
+    disasm() 0= IF op-stype extra-mach init_opcodes_info THEN
     2dup init_opcodes_region to disasm()
-    [: bounds u+do  cr i disline2 +loop  cr ;] $10 base-execute ;
-:is 'cold   defers 'cold
-    ['] set-stylish-type catch 0= IF  ['] disasm2 is discode  THEN ;
+    [: bounds u+do cr i disline2 +loop cr ;] $10 base-execute ;
+:is 'cold defers 'cold
+    ['] set-stylish-type catch 0= IF ['] disasm2 is discode THEN ;
 
 :is 'image  0 to disasm() defers 'image ;
 
