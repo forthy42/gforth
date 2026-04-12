@@ -79,9 +79,11 @@ set-current
 : 0x. ( u -- )
     ." 0x" [: 0 u.r ;] $10 base-execute ;
 
-: disasm-gdb { addr u -- }
+: disasm-gdb { addr u -- } \ gforth
     \G Disassemble code block starting at @i{c-addr} with @i{u} bytes
-    \G length by calling @command{gdb}.
+    \G length by calling @command{gdb}.  This word works only if
+    \G @command{gdb} is installed, can attach to its parent, and uses
+    \G the right syntax.  If it hangs, use @kbd{Ctrl-c}.
     u 0= if
         cr exit then
     cr addr u [: { addr u }

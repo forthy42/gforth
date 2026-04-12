@@ -18050,7 +18050,8 @@ You can disassemble a @code{code} word with @code{see}
 
 doc-discode
 
-There are several kinds of disassembler for Gforth:
+By default, @word{discode} calls one of the following words (not all
+of them are available on all installations):
 
 @itemize @bullet
 
@@ -18087,12 +18088,12 @@ You can override the default by changing @word{discode}, e.g., with
 ' disasm is discode
 @end source
 
-@code{See} may display more or less than the actual code of the word,
-because the recognition of the end of the code is unreliable.  You can
-use @code{discode} if it did not display enough.  It may display more, if
-the code word is not immediately followed by a named word.  If you have
-something else there, you can follow the word with @code{align latest ,}
-to ensure that the end is recognized.
+@code{See} may display more or less than the actual code of a
+@word{code} word, because the recognition of the end of the code is
+unreliable.  You can use @code{discode} if it did not display enough.
+It may display more, if the code word is not immediately followed by a
+named word.  If you have something else there, you can follow the word
+with @code{align latest ,} to ensure that the end is recognized.
 
 doc-disasm2
 doc-intel-syntax

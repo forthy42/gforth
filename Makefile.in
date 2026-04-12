@@ -427,8 +427,7 @@ FREETYPE_GL_SRC = $(FREETYPE_GL_C_SRC) $(FREETYPE_GL_INCLUDE)	\
 	$(FREETYPE_GL_LICENSES)
 
 EXTRA_DOC = mini-oof2.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs	\
-	cilk.fs coverage.fs $(LIBCC_LIB_SRC) @asm_fs@ @disasm_fs@	\
-	@disasm2_fs@
+	cilk.fs coverage.fs $(LIBCC_LIB_SRC) doc/dummy.fs
 
 MINOS_DOC = minos2/widgets.fs
 
