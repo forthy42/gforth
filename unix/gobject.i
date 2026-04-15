@@ -113,6 +113,7 @@
 #define GLIB_SYSDEF_POLLNVAL =32
 #define GLIB_VAR extern
 #define G_GNUC_PURE
+#define G_GNUC_FLAG_ENUM
 #define G_DEFINE_AUTOPTR_CLEANUP_FUNC(x,y)
 #define G_DEFINE_AUTO_CLEANUP_FREE_FUNC(x,y,z)
 
