@@ -29,6 +29,8 @@ false SetValue new-input     \ disables object oriented input
 false SetValue peephole
 true  SetValue f83headerstring
 true  SetValue abranch       \ enables absolute branches
+true  SetValue no-userspace
+true  SetValue OS
 \ true Constant has-rom
 
 cell 2 = [IF] 32 [ELSE] 256 [THEN] KB Constant kernel-size
