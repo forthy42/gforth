@@ -3252,7 +3252,7 @@ ghost imm>comp
     [G'] imm>comp gset->comp
     ^imm @ @ dup <imm> = IF  drop  EXIT  THEN
     <res> <> ABORT" CROSS: Cannot immediate a unresolved word"
-    immediate-mask flag!
+    [IFDEF] immediate-mask  immediate-mask flag!  [THEN]
     <imm> ^imm @ ! ;
 
 ghost a>int drop

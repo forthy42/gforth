@@ -486,6 +486,8 @@ attr!
 attr?
 (Attr!)
 Attr
+at&t-syntax
+at&t-syntax
 at-xy
 AUser
 authors
@@ -1324,7 +1326,9 @@ Dim
 dirname
 Disable
 disasm
+disasm
 disasm()
+disasm2
 disasm2
 disasm-gdb
 disassembler
@@ -1635,6 +1639,7 @@ extra-backtrace#
 extractpath
 extract-word
 extra-locals
+extra-mach
 extra-section
 extra-section-error
 #extra-sections
@@ -2089,6 +2094,7 @@ GFunc:
 gg
 g_get_current_time
 g_get_monotonic_time
+g_get_monotonic_time_ns
 g_get_num_processors
 g_get_real_time
 GHashFunc:
@@ -3068,6 +3074,8 @@ inst-var
 int-[:
 int-does>
 int-does>;
+intel-syntax
+intel-syntax
 interface
 interface
 interface%

@@ -106,6 +106,7 @@ decimal
 -77 s" Malformed xchar" rot errstring
 -78 s" SUBSTITUTE" rot errstring
 -79 s" REPLACES" rot errstring
+-80 s" Vocabulary empty" rot errstring
 
 \ Gforth's errors:
 

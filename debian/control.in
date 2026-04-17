@@ -24,7 +24,8 @@ Package: gforth-common
 Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
-Recommends: gforth-minos2 (= @DEBVERSION@), gforth-doc (= @DEBVERSION@)
+Recommends: gforth-minos2 (= @DEBVERSION@)
+Suggests: gforth-doc (= @DEBVERSION@)
 License: GPLv3
 Description: GNU Forth
  Gforth is the Forth implementation of the GNU project, providing all
