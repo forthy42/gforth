@@ -20,9 +20,9 @@
 
 : latest-name-in ( wid -- nt|0 ) \ gforth-experimental
     \G return the latest name defined in a vocabulary or 0 if none
-    { | w^ result }
-    result [{: r :}l r ! false ;] swap traverse-wordlist
-    result @ ;
-: latest-name ( -- nt|0 ) \ gforth-experimental
-    \G return the @code{LATEST-NAME-IN} in the current wordlist
-    get-current latest-name-in ;
+    0 [: nip false ;] rot traverse-wordlist ;
+
+: latest-name ( -- nt ) \ gforth-experimental
+    \G return the @code{LATEST-NAME-IN} for the compilation wordlist
+    \G if it is not empty, or throw an exception otherwise.
+    get-current latest-name-in dup 0= -80 and throw ;
