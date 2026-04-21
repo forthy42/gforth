@@ -391,7 +391,7 @@ $0C flt, bld     $0D flt, ild     $0E flt, bstp    $0F flt, istp
 
 \ vex SSE codes (les/lds in 16/32 bit mode)
 
-: vex-rest ( byte -- byte )
+: vex-rest ( byte -- )
 	dup 3 and case
 	    1 of  length @ 1 xor length !  endof
 	    2 of  \ equals F3 prefix, repe
@@ -400,7 +400,7 @@ $0C flt, bld     $0D flt, ild     $0E flt, bstp    $0F flt, istp
 		10 rex +!  endof
 	endcase
 	dup 4 and 5 lshift rex +!  100 rex +!
-	dup 3 rshift 0F and 0F xor vvvv ! ;
+	3 rshift 0F and 0F xor vvvv ! ;
 
 : .vexC4 ( ip -- ip' )
     .amd64mode @ IF
