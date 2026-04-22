@@ -24,7 +24,21 @@ s" Scanned string not in input buffer" exception >r
     bounds source bounds swap 1+ 2tuck within >r within r> and
     0= IF  [ r> ]L throw  THEN ;
 
+: (unescape) ( addr1 u1 -- addr.transient u2 flag )
+    here >r bounds begin  2dup u> while
+        count dup '\' <> if c, else drop \-escape, then
+    repeat = ( flag )
+    r> here over -  dup negate allot  rot ;
+
+: decode-string-literal ( addr1 u1 -- addr1 u1 false | addr2 u2 true )
+    dup 2 < if false exit then
+    2dup s\" \"" string-suffix? invert if false exit then
+    2dup s\" \"" string-prefix? invert if false exit then
+    2dup 1 /string char- (unescape) invert if 2drop false exit then ( sd1 sd )
+    2nip save-mem true ;
+
 : scan-string ( addr u -- addr' u' )
+    decode-string-literal if exit then
     2dup ?in-inbuf
     drop source drop - 1+ >in !
     ['] multiline-string \"-parse  save-mem ;
