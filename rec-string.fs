@@ -24,21 +24,34 @@ s" Scanned string not in input buffer" exception >r
     bounds source bounds swap 1+ 2tuck within >r within r> and
     0= IF  [ r> ]L throw  THEN ;
 
-: (unescape) ( addr1 u1 -- addr.transient u2 flag )
-    here >r bounds begin  2dup u> while
-        count dup '\' <> if c, else drop \-escape, then
-    repeat = ( flag )
+: (unescape) ( addr1 u1 -- addr.transient u2 flag ) \ gforth-internal
+    \G Similar to \"-parse, but takes the string (without the quotes) from the
+    \G stack, and only replaces the escape sequences.
+    here >r true -rot bounds U+DO
+	I c@ dup '\' <> IF
+	    \ Quotes must be escaped
+	    dup '"' = IF  2drop false LEAVE  THEN
+	    c, 1
+	ELSE
+	    drop  I char+ \-escape,
+	    \ Escapes must not cause a buffer overflow
+	    dup I' u>  IF  2drop false  LEAVE  THEN
+	    I -
+	THEN
+    +LOOP
     r> here over -  dup negate allot  rot ;
 
-: decode-string-literal ( addr1 u1 -- addr1 u1 false | addr2 u2 true )
-    dup 2 < if false exit then
-    2dup s\" \"" string-suffix? invert if false exit then
-    2dup s\" \"" string-prefix? invert if false exit then
+: decode-string-literal ( addr1 u1 -- addr1 u1 false | addr2 u2 true ) \ gforth-internal
+    \G checks if a string literal on the stack is complete and unescapeable,
+    \G and doesn't require to scan the input buffer.
+    dup               2 u< if false exit then
+    over c@         '"' <> if false exit then
+    2dup + char- c@ '"' <> if false exit then
     2dup 1 /string char- (unescape) invert if 2drop false exit then ( sd1 sd )
     2nip save-mem true ;
 
 : scan-string ( addr u -- addr' u' )
-    decode-string-literal if exit then
+    decode-string-literal ?EXIT
     2dup ?in-inbuf
     drop source drop - 1+ >in !
     ['] multiline-string \"-parse  save-mem ;
