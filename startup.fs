@@ -47,6 +47,7 @@ require glocals.fs
 threading-method 1 <> [IF] require fold.fs [THEN]
 require iloops.fs
 require recognizer-ext.fs
+require rec-prefix.fs
 require stuff.fs
 require sections2.fs
 require struct0x.fs

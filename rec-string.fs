@@ -102,7 +102,9 @@ translate: translate-string ( c-addr1 u1 -- translation ) \ gforth-experimental
     IF    scan-translate-string
     ELSE  rec-none  THEN ;
 
-' rec-string action-of rec-forth >back
+require rec-prefix.fs
+
+' rec-string '"' add-prefix \ action-of rec-forth >back
 
 0 [IF] \ dot-quoted strings, we don't need them
 : .slit slit, postpone type ;

@@ -63,5 +63,5 @@
     then
     rec-none ;
 
-' rec-dtick action-of rec-forth >back
-' rec-tick action-of rec-forth >back
+' rec-dtick '`' add-prefix
+' rec-tick  '`' add-prefix

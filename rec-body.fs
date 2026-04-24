@@ -39,4 +39,4 @@ require rec-tick.fs
         swap
     endcase ;
 
-' rec-body action-of rec-forth >back
+' rec-body '<' add-prefix

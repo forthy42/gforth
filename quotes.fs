@@ -128,7 +128,7 @@ Defer skip-autoindent ( addr u -- addr' u' )
 	THEN
 	dup c@ '" <> while \ hardcoded string end, might need hook here
 	    dup c@ dup '\ = if ( parse-area c R: here parse-end )
-		drop char+ dup r@ = abort" unfinished \-escape"
+		drop char+ dup r@ =  IF -81 throw THEN
 		\ could also be a C-style multiline string
 		\-escape,
 	    else

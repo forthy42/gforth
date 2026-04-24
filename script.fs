@@ -28,7 +28,7 @@
 	drop source drop - >in ! source >in @ /string dup >in +!
 	['] translate-eval
     ELSE  2drop 0  THEN ;
-' rec-shell get-recognizers 1+ set-recognizers
+' rec-shell action-of forth-rec >back
 
 User sh$  cell uallot drop
 : sh-get ( addr u -- addr' u' )

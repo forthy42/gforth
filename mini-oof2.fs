@@ -142,7 +142,7 @@ translate-moof2 Constant rectype-moof2
 	ELSE  r> sp!  THEN
     THEN  rec-none ;
 
-' rec-moof2 action-of rec-forth >back
+' rec-moof2 '.' add-prefix
 
 standard:field
 

@@ -324,6 +324,7 @@ GFORTH_FI_SRC2=\
 	prelude.fs \
 	quotes.fs \
 	rec-sequence.fs \
+	rec-prefix.fs \
 	rec-string.fs \
 	recognizer-ext.fs \
 	rec-to.fs rec-tick.fs rec-body.fs rec-scope.fs rec-env.fs rec-meta.fs \

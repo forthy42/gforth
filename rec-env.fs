@@ -37,5 +37,4 @@ translate: translate-env ( c-addr1 u1 -- translation ) \ gforth-experimental
     IF  rec-none  EXIT  THEN
     2 /string 1- translate-env ;
 
-' rec-env action-of rec-forth >back
-
+' rec-env '$' add-prefix

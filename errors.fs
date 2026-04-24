@@ -107,6 +107,7 @@ decimal
 -78 s" SUBSTITUTE" rot errstring
 -79 s" REPLACES" rot errstring
 -80 s" Vocabulary empty" rot errstring
+-81 s" unfinished \-escape" rot errstring
 
 \ Gforth's errors:
 

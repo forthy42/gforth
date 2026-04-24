@@ -143,10 +143,26 @@ has? rom
 	dup >voc >does-code [ ' forth >does-code ] Literal = IF
 	    >voc
 	THEN
-\	    name>string 2dup s" rec-" string-prefix? IF
-\		4 /string  9 attr! ." ~"  0 attr!
-\	    THEN  type space
-	id.  r> ?dup-IF
+	[IFDEF] rec-prefix
+	    dup id.
+	    ['] rec-prefix = IF
+		." [ "
+		$7F bl DO
+		    prefix-table I bl - cells + @ dup ['] rec-none <> IF
+			I emit ." :"
+			dup >does-code ['] recognize = IF
+			    ." ( " recurse ." ) "
+			ELSE  id.  THEN
+		    ELSE
+			drop
+		    THEN
+		LOOP
+	    ." ] "
+	    THEN
+	[ELSE]
+	    id.
+	[THEN]
+	r> ?dup-IF
 	    ." ( " recurse ." ) "
 	THEN
     LOOP ;

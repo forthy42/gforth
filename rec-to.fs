@@ -48,4 +48,8 @@ Create to-slots here $100 dup allot $FF fill
     over 4 = IF ?addr THEN
     name>interpret translate-to ;
 
-' rec-to action-of rec-forth >back
+require rec-prefix.fs
+
+"-+@='" bounds [DO]  ' rec-to [I] c@ add-prefix  [LOOP]
+
+\ ' rec-to action-of rec-forth >back
