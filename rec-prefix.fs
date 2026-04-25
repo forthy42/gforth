@@ -38,3 +38,19 @@ $7F bl [DO] ' rec-none , [LOOP]
     dup @ >does-code ['] recognize = IF  @ >back  EXIT  THEN
     dup >r @ 2 noname rec-sequence:  latestxt r> ! ;
 
+:is rec-id. ( recognizer -- )
+    dup id.
+    ['] rec-prefix = IF
+	." [ "
+	$7F bl DO
+	    prefix-table I bl - cells + @ dup ['] rec-none <> IF
+		I emit ." :"
+		dup >does-code ['] recognize = IF
+		    ." ( " .recognizer-sequence ." ) "
+		ELSE  id.  THEN
+	    ELSE
+		drop
+	    THEN
+	LOOP
+	." ] "
+    THEN ;

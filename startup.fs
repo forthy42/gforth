@@ -47,7 +47,6 @@ require glocals.fs
 threading-method 1 <> [IF] require fold.fs [THEN]
 require iloops.fs
 require recognizer-ext.fs
-require rec-prefix.fs
 require stuff.fs
 require sections2.fs
 require struct0x.fs
@@ -69,6 +68,7 @@ require ekey.fs
 require history.fs
 require varues.fs
 require latest-name.fs
+require rec-prefix.fs
 require rec-string.fs
 require rec-to.fs
 require rec-tick.fs
