@@ -282,18 +282,26 @@ Variable ekey-buffer
     k-f7 k-shift-mask or s" [33~" esc-sequence
     k-f8 k-shift-mask or s" [34~" esc-sequence
 
+    \ esc sequences from xterm and gnome-terminal
+    k-f1  s" [P" esc-sequence
+    k-f2  s" [Q" esc-sequence
+    k-f3  s" [R" esc-sequence
+    k-f4  s" [S" esc-sequence
+    \ conflicts with
+    \    k-pause   s" [P" esc-sequence
+    \    k-sel     s" [S"  esc-sequence
+    \ do these actually exist?
+
     \ esc sequences for MacOS X iterm <e7a7c785-3bea-408b-94e9-4b59b008546f@x16g2000prn.googlegroups.com>
     k-left   s" OD" esc-sequence
     k-right  s" OC" esc-sequence
     k-up     s" OA" esc-sequence
     k-down   s" OB" esc-sequence
 
-    k-pause   s" [P" esc-sequence
     k-mute    s" VM" esc-sequence
     k-volup   s" VU" esc-sequence
     k-voldown s" VD" esc-sequence
 
-    k-sel     s" [S"  esc-sequence
     k-fgcolor s" ]10rgb:" esc-sequence
     k-bgcolor s" ]11rgb:" esc-sequence
 set-current
