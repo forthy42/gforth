@@ -100,7 +100,7 @@ Defer marker>here \ set here
     \G defined after it.
     marker, Create A,
 DOES> ( -- )
-    @ aligned marker! drop marker>here ;
+    @ aligned dup perform drop marker>here ;
 
 \ sections-marker:
 \ #extra-sections
