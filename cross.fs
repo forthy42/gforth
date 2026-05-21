@@ -742,9 +742,13 @@ Variable comp-state
   ['] pi-undefined , \ action
   ['] pi-undefined , \ target plugin action
   8765 ,     \ plugin magic
-[IFDEF] set-to
-  ['] defer-is set-to
-[THEN]
+    [IFDEF] set-to
+	[IFDEF] defer-is
+	    ['] defer-is set-to
+	[ELSE]
+	    ['] value-to set-to
+	[THEN]
+    [THEN]
   DOES> perform ;
 
 Plugin DummyPlugin
