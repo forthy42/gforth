@@ -19,11 +19,12 @@
 #along with this program; if not, see http://www.gnu.org/licenses/.
 
 LEX=flex -l
+BISON=bison
 YACC=bison -y
 #YACC=yacc
 VMGEN=vmgen
 #GCC=gcc -g -Wall
-GCC=gcc -O3 -fomit-frame-pointer -Wall
+GCC=gcc -O3 -fomit-frame-pointer #-Wall #there would be "unused" warnings
 CC=$(GCC)
 #M4=m4 -s #recommended if supported
 M4=m4
@@ -36,7 +37,7 @@ lex.yy.c: mini.l
 	$(LEX) mini.l
 
 mini.tab.c: mini.y
-	$(YACC) mini.y && mv y.tab.c $@
+	$(BISON) mini.y
 
 mini-vm.i mini-disasm.i mini-gen.i mini-labels.i mini-profile.i mini-peephole.i: mini.vmg
 	$(VMGEN) mini.vmg
