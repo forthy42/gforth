@@ -28,8 +28,8 @@ as a package to the Forth Net: [https://theforth.net](https://theforth.net)
 
 ## Supported Systems
 
-Gforth runs under GNU, BSD, and similar systems, MS Windows and MacOS X
-and should not be hard to port to other systems supported by GCC. This
+Gforth runs under GNU, BSD, and similar systems, MS Windows through WSL and
+MacOS X and should not be hard to port to other systems supported by GCC. This
 version has been tested successfully on the following platforms:
 
 * GNU/Linux
@@ -48,10 +48,9 @@ version has been tested successfully on the following platforms:
   * i386
   * mips
 * Gforth EC(embedded): r8c, 4stack, misc, 8086
-* Windows
-  * amd64
-  * i386
+* Windows via WSL (so see GNU/Linux)
 * MacOS
+  * arm64
   * amd64
   * i386
 
