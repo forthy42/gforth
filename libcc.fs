@@ -1216,27 +1216,28 @@ Defer prefetch-lib ( addr u -- )
 : .libs ( -- ) [: lha-name $. space ;] map-libs ;
 
 : reopen-libs ( -- )
-    [:  lib-handle-addr !@ >r
+    lib-handle-addr @ >r
+    [:  lib-handle-addr !
 	lib-modulename $@
 	libcc-named-dir prepend-dirname lib-filename $!
 	open-wrappers dup IF
 	    \ ." link " r@ lha-name $. ."  to " dup h. cr
 	    dup lib-handle!  init-lib
-	    r> lib-handle-addr !
 	    EXIT
 	THEN
-	r> lib-handle-addr !
-	.lib-error !!openlib!! throw
-    ;] map-libs ;
+	true warning" reopen lib failed"
+	.lib-error
+	\ !!openlib!! throw
+    ;] ['] map-libs catch
+    r> lib-handle-addr ! throw ;
 
 :is 'cold ( -- )
     defers 'cold  get-host? to host?
     init-libcc reopen-libs rebind-libcc lib-filename $free ;
 
-:noname ( -- )
+:is 'image ( -- )
     defers 'image  unbind-libcc  ['] on map-libs
     libcc$ off  libcc-named-dir$ off  libcc-path off  lib-filename off ;
-is 'image
 
 : c-library ( "name" -- ) \ gforth
 \G Parsing version of @code{c-library-name}
