@@ -3505,7 +3505,7 @@ barrier ( -- ) gforth-experimental
 ""All memory operations before the barrier are performed
 before any memory operation after the barrier.""
 #ifdef HAS_ATOMIC
-__atomic_thread_fence(__ATOMIC_RELEASE);
+__atomic_thread_fence(__ATOMIC_SEQ_CST);
 #elif defined(HAS_SYNC)
 __sync_synchronize();
 #endif
