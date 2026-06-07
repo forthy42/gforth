@@ -219,9 +219,11 @@ machine "amd64" str= machine "386" str= or [IF]
     2dup init_opcodes_region to disasm()
     [: bounds u+do cr i disline2 +loop cr ;] $10 base-execute ;
 :is 'cold defers 'cold
-    ['] set-stylish-type catch 0=
-    [ r> ]L @ 1+ 1 u> and \ if neither 0 nor -1, it is a valid library
-    IF  ['] disasm2  ELSE  [ action-of discode ]L  THEN  is discode ;
+    [ r> ]L @ 1+ 1 u> IF
+	['] set-stylish-type catch 0=
+	IF  ['] disasm2  ELSE  [ action-of discode ]L  THEN
+    ELSE  [ action-of discode ]L  THEN
+    is discode ;
 
 :is 'image  0 to disasm() defers 'image ;
 

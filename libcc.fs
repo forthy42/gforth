@@ -1186,11 +1186,14 @@ init-libcc
     [: [: ( lib -- )
 	    case dup >does-code
 		['] call-c@ of
-		    >body dup link-wrapper-function
-		    \ ." relink: " over body> .name dup h. cr
-		    swap !  endof
+		    >body dup cff-lha @ @ 1+ 1 u> IF
+			dup link-wrapper-function
+			\ ." relink: " over body> .name dup h. cr
+			swap !  ELSE  drop  THEN
+		endof
 		['] callback-does> of
-		    >body setup-callback
+		    >body dup ccb-lha @ @ 1+ 1 u> IF
+			setup-callback  ELSE  drop  THEN
 		endof
 	    drop endcase
 	    true ;] swap traverse-wordlist ;] map-vocs ;
@@ -1209,9 +1212,9 @@ Defer prefetch-lib ( addr u -- )
 ' 2drop is prefetch-lib
 
 : map-libs { xt -- }
-    lib-handle-addr @
-    BEGIN  dup @ IF  dup xt execute  THEN
-    lha-next @ dup 0= UNTIL  drop ;
+    lib-handle-addr @ >r
+    BEGIN  r@ @ IF  r@ xt execute  THEN
+    r> lha-next @ dup >r 0= UNTIL  rdrop ;
 
 : .libs ( -- ) [: lha-name $. space ;] map-libs ;
 
@@ -1224,7 +1227,7 @@ Defer prefetch-lib ( addr u -- )
 	    \ ." link " r@ lha-name $. ."  to " dup h. cr
 	    dup lib-handle!  init-lib
 	    EXIT
-	THEN
+	THEN  drop
 	true warning" reopen lib failed"
 	.lib-error
 	\ !!openlib!! throw
