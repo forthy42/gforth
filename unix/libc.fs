@@ -97,6 +97,8 @@ c-library libc
     c-function setenv setenv s s n -- n ( name un value uv overwrie -- n )
     c-function unsetenv unsetenv s -- n ( name u -- n )
     c-value environ environ -- a ( -- env )
+
+    lib-handle-addr @ lha-id >r
 end-c-library
 
 begin-structure pollfd
@@ -175,7 +177,9 @@ e? os-type s" linux-musl" string-prefix? or [IF]
     defers 'cold
     host? IF
 	['] int-errno-exec is int-execute
-	(getpid) to getpid
+	[ r> ]L @ 1+ 1 u> IF
+	    (getpid) to getpid
+	THEN
     THEN ;
 
 to-table: errno-table ->errno
