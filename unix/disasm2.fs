@@ -40,7 +40,9 @@ get-current also c-lib definitions
     basename trylib dup ?EXIT drop
     version basename [: type '-' emit type ;] $tmp trylib dup ?EXIT drop
     version basename [: type '-' emit type ." -system" ;] $tmp trylib dup ?EXIT drop
-    version basename [: type '-' emit type ." -multiarch" ;] $tmp trylib dup ?EXIT drop basename ;
+    version basename [: type '-' emit 2dup '.' -scan tuck type ." -system." /string '.' skip type ;] $tmp trylib dup ?EXIT drop
+    version basename [: type '-' emit type ." -multiarch" ;] $tmp trylib dup ?EXIT drop
+    version basename [: type '-' emit 2dup '.' -scan tuck type ." -multiarch." /string '.' skip type ;] $tmp trylib dup ?EXIT drop basename ;
 
 previous set-current
 
