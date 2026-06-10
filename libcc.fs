@@ -877,10 +877,10 @@ Create callback-&style c-var c,
     c-source-file-id @ assert( dup ) ;
 
 : .lib-error ( -- )
-    [: cr lib-name type ." :"
+    [: cr error-color lib-name type ." :"
     [ifdef] lib-error
          cr lib-error type
-    [then] ;] do-debug ;
+    [then] ;] ['] execute-theme-color do-debug ;
 
 \ hashing
 
