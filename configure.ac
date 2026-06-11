@@ -1531,7 +1531,7 @@ old_LDFLAGS="$LDFLAGS"
 #  searched, because we use libcc to link to libopcodes
 old_CC="$CC"
 CC="$CC -fPIC -shared -Wl,--no-undefined"
-AC_SEARCH_LIBS([init_disassemble_info],[opcodes-$LD_VERSION-system opcodes-$LD_VER1-system-$LD_VER2 opcodes-$LD_VERSION-multiarch opcodes-$LD_VER1-multiarch-$LD_VER2 opcodes-$LD_VERSION opcodes],
+AC_SEARCH_LIBS([init_disassemble_info],[opcodes-$LD_VERSION-system opcodes-$LD_VER1-system.$LD_VER2 opcodes-$LD_VERSION-multiarch opcodes-$LD_VER1-multiarch.$LD_VER2 opcodes-$LD_VERSION opcodes],
 	        [AC_CHECK_HEADER(dis-asm.h,[LIBOPCODES=$ac_cv_search_init_disassemble_info
 disasm2_fs=unix/disasm2.fs
 disasm2_la='$(buildccdir)/libgfdisasm2.la'
