@@ -39,6 +39,7 @@ get-current also c-lib definitions
     bintool-version { d: basename d: version }
     basename trylib dup ?EXIT drop
     version basename [: type '-' emit type ;] $tmp trylib dup ?EXIT drop
+    version basename [: type '-' emit type ." _pic" ;] $tmp trylib dup ?EXIT drop
     version basename [: type '-' emit type ." -system" ;] $tmp trylib dup ?EXIT drop
     version basename [: type '-' emit 2dup '.' -scan tuck type ." -system" /string type ;] $tmp trylib dup ?EXIT drop
     version basename [: type '-' emit type ." -multiarch" ;] $tmp trylib dup ?EXIT drop
