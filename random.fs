@@ -34,19 +34,22 @@
     user rng-state $10 cell- uallot drop
     user seed $8 cell- uallot drop
 
-    : rnd ( -- x )
-	\G generate a single-cell random number
+    : rnd ( -- x ) \ gforth
+	\G @i{x} is a random number, with all bits randomly set.
 	seed 8 0 rng-state hashkey2 rng-state 2@ xor ;
     cell 8 = [IF]
 	: seed-init ( -- ) ntime drop seed ! rnd drop ;
     [ELSE]
 	: seed-init ( -- ) ntime seed 2! rnd drop ;
     [THEN]
-    : seed! ( x -- )
-	\G set seed to a specific value for deterministic random numbers
+    : seed! ( x -- ) \ gforth
+	\G Set seed for @word{rnd} and @word{random} to a specific
+	\G value, resulting in a deterministic sequence.
 	seed $8 erase rng-state $10 erase seed ! rnd drop ;
 [THEN]
 seed-init
 :noname defers 'cold seed-init ; is 'cold
 
-: random ( n -- 0..n-1 )  rnd um* nip ;
+: random ( u1 -- u2 ) \ gforth
+    \g @i{U2} is a random number 0<=@i{u2}<@i{u1}.
+    rnd um* nip ;

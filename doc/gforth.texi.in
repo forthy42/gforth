@@ -305,6 +305,7 @@ Arithmetic
 * Two-stage integer division::
 * Bitwise operations::
 * Numeric comparison::
+* Pseudo-random number generator::
 * Floating Point::
 
 Stack Manipulation
@@ -5423,6 +5424,7 @@ the operands are still in the original order. I.e., the infix
 * Two-stage integer division::
 * Bitwise operations::
 * Numeric comparison::
+* Pseudo-random number generator::
 * Floating Point::
 @end menu
 
@@ -5765,7 +5767,7 @@ doc-ror
 doc-drol
 doc-dror
 
-@node Numeric comparison, Floating Point, Bitwise operations, Arithmetic
+@node Numeric comparison, Pseudo-random number generator, Bitwise operations, Arithmetic
 @subsection Numeric comparison
 @cindex numeric comparison words
 
@@ -5821,7 +5823,19 @@ doc-du>
 doc-du>=
 
 
-@node Floating Point,  , Numeric comparison, Arithmetic
+@node  Pseudo-random number generator, Floating Point, Numeric comparison, Arithmetic
+@subsection Pseudo-random number generator
+@cindex Random numbers
+
+The pseudo-random number generator is initialised based on the time,
+so in the usual case it will start at a different value in different
+sessions.
+
+doc-rnd
+doc-random
+doc-seed!
+
+@node Floating Point,  , Pseudo-random number generator, Arithmetic
 @subsection Floating Point
 @cindex floating point arithmetic words
 
