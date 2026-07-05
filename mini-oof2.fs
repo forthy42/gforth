@@ -133,14 +133,15 @@ dynamic-a to allocater
 ' >oo> ' lit, >postponer translate: translate-moof2
 translate-moof2 Constant rectype-moof2
 
-: rec-moof2 ( addr u -- xt translate-moof2 | 0 ) \ mini-oof2
-    \G Very simplistic dot-parser, transforms @code{.}@var{selector/ivar} to
-    \G @code{>o} @var{selector/ivar} @code{o>}.
+: rec-moof2 ( c-addr u -- nt translate-moof2 | translate-none ) \ mini-oof2
+    \G This recognizer recognizes @code{.@i{word}} (if @i{word} is
+    \G visible) and the translation is equivalent to @code{>o @i{word}
+    \G o>}.
     over c@ '.' = over 1 > and
     IF 1 /string sp@ >r rec-forth
-	translate-name? IF rdrop translate-moof2  EXIT
-	ELSE  r> sp!  THEN
-    THEN  rec-none ;
+	translate-name? IF rdrop translate-moof2 EXIT
+	ELSE r> sp!  THEN
+    THEN rec-none ;
 
 ' rec-moof2 '.' add-prefix
 
