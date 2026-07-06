@@ -16517,20 +16517,32 @@ Regular expressions are pattern matching algorithms for strings found in
 many contemporary languages.  You can add regular expression
 functionality to Gforth with @code{require regexp.fs}.
 
-The classical implementation for this pattern matching is a backtracking
-algorithm, which is also necessary if you want to have features like
-backreferencing.  Gforth implements regular expressions by providing a
-language to define backtracking programs for pattern matching.  Basic
-element is the control structure @code{FORK} @dots{} @code{JOIN}, which
-is a forward call within a word, and therefore allows to code a
-lightweight try and fail control structure.
+However, the regexp support does not use any of the established regexp
+syntaxes; instead, the syntax is described below.  Here's an example
+of how it is used:
 
-doc-FORK
-doc-JOIN
+@source
+charclass [bl-]   blanks +class '-' +char
 
-You can program any sort of arbitrary checks yourself by computing a
-flag and @code{?LEAVE} when the check fails.  Your regular expression
-code is enclosed in @code{((} and @code{))}.
+: telnum ( addr u -- flag )
+    (( {{ ` (  \( \d \d \d \) ` ) || \( \d \d \d \) }}  \s
+    \( \d \d \d \) [bl-] c?
+    \( \d \d \d \d \) )) ;
+
+: ?tel ( addr u -- )
+  telnum IF
+    '(' emit \1 type ." ) " \2 type '-' emit \3 type ."  succeeded"
+  ELSE
+    \0 type ."  failed"
+  THEN ;
+
+s" (555) 555-5555abc" ?tel \ prints "(555) 555-5555 succeeded"
+s" (555) 555-555abc"  ?tel \ prints "(555) 555-555abc failed"
+@end source
+
+More examples can be found in @code{test/regexp-test.fs}.
+
+Your regular expression code is enclosed in @code{((} and @code{))}.
 
 doc-((
 doc-))
@@ -16612,7 +16624,19 @@ doc-//s
 doc-//o
 doc-//g
 
-Examples can be found in @code{test/regexp-test.fs}.
+The classical implementation for this pattern matching is a backtracking
+algorithm, which is also necessary if you want to have features like
+backreferencing.  Gforth implements regular expressions by providing a
+language to define backtracking programs for pattern matching.  Basic
+element is the control structure @code{FORK} @dots{} @code{JOIN}, which
+is a forward call within a word, and therefore allows to code a
+lightweight try and fail control structure.
+
+doc-FORK
+doc-JOIN
+
+You can program any sort of arbitrary checks yourself by computing a
+flag and @code{?LEAVE} when the check fails.
 
 @c -------------------------------------------------------------
 @node Programming Tools, Multitasker, Regular Expressions, Words
