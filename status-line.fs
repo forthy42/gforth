@@ -82,7 +82,7 @@ DOES> state @ abs translator-max-offset# umin th@ execute ;
     \G Turn on the status bar at the bottom of the screen
     ['] .status-line is .status ['] .unstatus-line is .unstatus ;
 
-: -status ( -- ) \ gforth
+: -status ( -- ) \ gforth "minus-status"
     \G Turn off the status bar at the bottom of the screen
     ['] noop is .status ['] noop is .unstatus ;
 

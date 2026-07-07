@@ -25,7 +25,7 @@ mkdir-parents hamming rfft fft normalize fftscale (fft fft-step
 butterflies butterfly z2dup+ .rvalues .expix .values points realloc 
 #points reverse r+ expix values Carray z.s z. fc. zacot zatan 
 zacos zasin pi/2 zacoth zatanh zacosh zasinh Im Re Imag Real ztan 
-zcos zsin ztanh zcosh zsinh zfib -h g z** zsqrt z0= zln pln zexp 
+zcos zsin ztanh zcosh zsinh zfib -h z** zsqrt z0= zln pln zexp 
 polar> >polar z2* z2/ zabs |z| z/ 1/z zsqabs z/i z*i zconj 
 znegate zscale z* x- x+ zr- z- z+ z! z@ z-rot zrot zdepth zpick 
 zswap zr> z>r zover zdrop zdup fl> complex+ complex' //g s// 

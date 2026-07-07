@@ -529,7 +529,7 @@ Programming Tools
 * Text interpreter status::
 * Locating source code definitions::  and editing
 * Locating uses of a word::     @code{where}.
-* Locating exception source::   Examining backtraces.
+* Locating backtrace source::
 * Examining compiled code::     @code{see} and friends.
 * Examining data::              Stacks and Memory.
 * Forgetting words::            Usually before reloading.
@@ -16649,7 +16649,7 @@ flag and @code{?LEAVE} when the check fails.
 * Text interpreter status::
 * Locating source code definitions::  and editing
 * Locating uses of a word::     @code{where}.
-* Locating exception source::   Examining backtraces.
+* Locating backtrace source::
 * Examining compiled code::     @code{see} and friends.
 * Examining data::              Stacks and Memory.
 * Forgetting words::            Usually before reloading.
@@ -16718,9 +16718,9 @@ to finish editing to continue with your Forth session), terminal
 editors in the foreground (default for editors not known to Gforth is
 foreground).  If you have not set @code{EDITOR}, the default editor is
 @file{vi}.
-@c !! cursor keys
 
 doc-locate
+doc-fancy-after-l
 doc-xt-locate
 
 The @emph{current location} is set by a number of other words in
@@ -16750,7 +16750,7 @@ You can see the definitions of similarly-named words with
 doc-browse
 
 
-@node Locating uses of a word, Locating exception source, Locating source code definitions, Programming Tools
+@node Locating uses of a word, Locating backtrace source, Locating source code definitions, Programming Tools
 @subsection Locating uses of a word
 @cindex Uses of a word
 
@@ -16770,17 +16770,24 @@ no uses:
 
 doc-unused-words
 
-@node Locating exception source, Examining compiled code, Locating uses of a word, Programming Tools
+@node Locating backtrace source, Examining compiled code, Locating uses of a word, Programming Tools
 @subsection Locating exception source
 @cindex exception source code
 @cindex source code for exception
 @cindex backtrace examination
 
+An uncaught exception shows a backtrace (actually a return stack dump,
+@pxref{Error messages}).  If the return stack entry is a return
+address, the immediately preceding location produced the call that the
+return address would have returned from, and is shown as word in the
+backtrace.  You can inspect the source code of such a call with the
+following words:
+
 doc-tt
 doc-nt
 doc-bt
 
-@node Examining compiled code, Examining data, Locating exception source, Programming Tools
+@node Examining compiled code, Examining data, Locating backtrace source, Programming Tools
 @subsection Examining compiled code
 @cindex compiled code examination
 

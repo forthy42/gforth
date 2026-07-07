@@ -164,15 +164,17 @@ no-</>
     l2 dup located-bottom ! after-l 2drop drop no-</> ;
 
 : l ( -- ) \ gforth
-    \g Display source code lines at the current location.
+    \g Display source code lines at the current location, then call
+    \g @word{fancy-after-l} for navigating the displayed source.
     current-location? cr print-locate-header l1 ;
 
 : name-set-located-view ( nt -- )
     dup name>view swap name>string nip set-located-view ;
 
 : xt-locate ( nt/xt -- ) \ gforth
-    \g Show the source code of the word @i{xt} and set the current
-    \g location there.
+    \g Show the source code of the word @i{xt}, set the current
+    \g location there, and then call @word{fancy-after-l} for
+    \g navigating the displayed source.
     name-set-located-view l ;
 
 : .rec'-stack ( xt -- xt )
@@ -193,8 +195,9 @@ no-</>
     LOOP ;
 
 : locate ( "name" -- ) \ gforth
-    \g Show the source code of the word @i{name} and set the current
-    \g location there.
+    \g Show the source code of the word @i{name}, set the current
+    \g location there, and then call @word{fancy-after-l} for
+    \g navigating the displayed source.
     view' .rec'-stack ?found xt-locate ;
 
 ' locate alias view ( "name" -- )
@@ -241,8 +244,8 @@ variable next-l|g ( -- addr )
     l next-l|g @ is l|g ;
 
 : ll ( -- ) \ gforth
-    \g The next @code{ww}, @code{nw}, @code{bw}, @code{bb}, @code{nb},
-    \g @code{lb} (but not @code{locate}, @code{edit}, @code{l} or
+    \g The next @code{ww}, @code{nw}, @code{bw}, @code{tt}, @code{bt},
+    \g or @code{nt} (but not @code{locate}, @code{edit}, @code{l} or
     \g @code{g}) displays in the Forth system (like @code{l}).  Use
     \g @code{ll ll} to make this permanent rather than one-shot.
     `l|g defer@ next-l|g !
@@ -252,10 +255,11 @@ variable next-l|g ( -- addr )
     g next-l|g @ is l|g ;
 
 : gg ( -- ) \ gforth
-    \g The next @code{ww}, @code{nw}, @code{bw}, @code{bb}, @code{nb},
-    \g @code{lb} (but not @code{locate}, @code{edit}, @code{l} or
-    \g @code{g}) puts it result in the editor (like @code{g}).  Use
-    \g @code{gg gg} to make this permanent rather than one-shot.
+    \g The next @code{ww}, @code{nw}, @code{bw}, @code{tt}, @code{bt},
+    \g or @code{nt} (but not @code{locate}, @code{edit}, @code{l} or
+    \g @code{g}) puts it result in the editor (like @code{g}) and does
+    \g not call @word{fancy-after-l}.  Use @code{gg gg} to make this
+    \g permanent rather than one-shot.
     `l|g defer@ next-l|g !
     `g-once is l|g ;
 
@@ -351,6 +355,13 @@ variable code-locations 0 code-locations !
 	LOOP ;] is index-- ;
 
 : tt ( u -- ) \ gforth
+    \G Show the source code corresponding to the backtrace line with
+    \G index @i{u} (indices are shown in the backtrace after the file
+    \G name and position information and before the return stack
+    \G content and its interpretation as return address), set the
+    \G current location there, and then call @word{fancy-after-l} for
+    \G navigating the displayed source (including switching to the
+    \G next or previous result).
     bt-</>
     dup backtrace-index !
     bt-location if
@@ -359,10 +370,20 @@ variable code-locations 0 code-locations !
         -1 backtrace-index ! then ;
 
 : nt (  -- ) \ gforth
+    \G Show the source code corresponding to the next backtrace line
+    \G and set the current location there.  The ``next backtrace line
+    \G wraps around to the first one if you reach the end.  Then call
+    \G @word{fancy-after-l} for navigating the displayed source
+    \G (including switching to the next or previous result).
     backtrace++ tt ;
 
 : bt ( -- ) \ gforth
-    backtrace-- tt ; 
+    \G Show the source code corresponding to the previous backtrace line
+    \G and set the current location there.  The ``previous backtrace line''
+    \G wraps around to the last one if you reach the beginning.
+    \G Then call @word{fancy-after-l} for navigating the displayed
+    \G source (including switching to the next or previous result).
+    backtrace-- tt ;
 
 \ where
 
@@ -467,22 +488,29 @@ short-where
     [: where-index-- (ww) ;] is index-- ;
 
 : ww ( u -- ) \ gforth
-    \G The next @code{l} or @code{g} shows the @code{where} result
-    \G with index @i{u}
+    \G Show the source code of the @word{where} or @word{browse}
+    \G result with index @i{u} (indices are shown at the right edge of
+    \G each line in @word{where} or @word{browse} output), set the
+    \G current location there, and then call @word{fancy-after-l} for
+    \G navigating the displayed source (including switching to the
+    \G next or previous result).
     where-</> (ww) l|g ;
 
 : nw ( -- ) \ gforth
-    \G The next @code{l} or @code{g} shows the next @code{where}
-    \G result; if the current one is the last one, after @code{nw}
-    \G there is no current one.  If there is no current one, after
-    \G @code{nw} the first one is the current one.
+    \G Show the source code of the next @word{where} or @word{browse}
+    \G result and set the current location there.  The ``next result''
+    \G wraps around to the first result if you reach the end.  Then
+    \G call @word{fancy-after-l} for navigating the displayed source
+    \G (including switching to the next or previous result).
     where-</> where-index++ ww ;
 
 : bw ( -- ) \ gforth
-    \G The next @code{l} or @code{g} shows the previous @code{where}
-    \G result; if the current one is the first one, after @code{bw}
-    \G there is no current one.    If there is no current one, after
-    \G @code{bw} the last one is the current one.
+    \G Show the source code of the previous @word{where} or
+    \G @word{browse} result and set the current location there.  The
+    \G ``previous result'' wraps around to the last result if you
+    \G reach the beginning.  Then call @word{fancy-after-l} for
+    \G navigating the displayed source (including switching to the
+    \G next or previous result).
     where-</> where-index-- ww ;
 
 \ locate words by pattern
@@ -699,8 +727,29 @@ interpret/compile: s` ( "eval-string" -- addr u )
 
 \ fancy after-l
 
-: fancy-after-l ( c-addr1 u1 lineno1 -- c-addr2 u2 lineno2 )
-    \ allow to scroll around right after LOCATE and friends:
+: fancy-after-l ( c-addr1 u1 lineno1 -- c-addr2 u2 lineno2 ) \ gforth-internal
+    \g Wait for keyboard input.  If any other key than one of those
+    \g mentioned below is pressed (in particular, if @key{ESC} or
+    \g @key{newline} is pressed), @word{fancy-after-l} terminates; you
+    \g can then reenter the @word{fancy-after-l} mode with
+    \g @word{l}.
+    \g @*@key{cursor-up}, @key{Ctrl-p}, or @key{k}: Show one more line
+    \g at the top.
+    \g @*@key{Cursor-down}, @key{ctrl-n}, or @key{j}: Show one more line
+    \g at the bottom.
+    \g @*@key{Page-up} or @key{ctrl-u}: Show half of the terminal height
+    \g more lines at the top.
+    \g @*@key{Page-down} or @key{ctrl-d}: Show half of the terminal height
+    \g more lines at the bottom.
+    \g @*@key{Ctrl-b}: Scroll up by a full terminal height of source
+    \g code, with only one line of overlap.
+    \g @*@key{Space}: Scroll down by a full terminal height of source
+    \g code, with only one line of overlap.
+    \g @*@key{Cursor-right} or @key{l}: Switch to the next @word{where},
+    \g @word{browse} or backtrace result.
+    \g @*@key{Cursor-left} or @key{h}: Switch to the previous
+    \g @word{where}, @word{browse} or backtrace result.
+    \g @*@key{Ctrl-l}: Redisplay the currently shown source code.
     case
 	ekey \ k-winch will only be visible with ekey
 	ctrl p  of 1 prepend-locate-lines contof
