@@ -25,6 +25,15 @@ $variable where-results
 variable where-index -1 where-index !
 variable backtrace-index -1 backtrace-index !
 
+Defer index++
+Defer index--
+Defer index.
+: no-</> ( -- )
+    ['] noop is index++
+    ['] noop is index--
+    ['] noop is index. ;
+no-</>
+
 -1 0 set-located-view
 
 variable included-file-buffers
@@ -116,7 +125,7 @@ Variable locate-lines#
 	[: type ': emit located-top @ 0 dec.r ;] $tmp
 	2dup cols x-lines  THEN
     locate-lines# ! type
-    default-color ;
+    default-color index. ;
 
 : l2 ( -- c-addr u lineno )
     located-buffer 1 case ( c-addr u lineno1 )
@@ -152,13 +161,6 @@ Variable locate-lines#
     display-locate-lines ;
 
 Defer after-l ' noop is after-l
-
-Defer index++
-Defer index--
-: no-</> ( -- )
-    ['] noop is index++
-    ['] noop is index-- ;
-no-</>
 
 : l1 ( -- )
     l2 dup located-bottom ! after-l 2drop drop no-</> ;
@@ -333,10 +335,11 @@ variable code-locations 0 code-locations !
         r> + @ dup addr>view dup if ( x view )
             swap >bt-entry dup if
                 name>string nip then
-	    1 max set-located-view true exit then
+            1 max set-located-view true exit then
+        drop
     else
-        drop rdrop then
-    drop ." no location for this backtrace index" false ;
+        rdrop then
+    drop false ;
 
 : backtrace# ( -- n ) stored-backtrace $@len cell/ ;
 
@@ -348,11 +351,15 @@ variable code-locations 0 code-locations !
     backtrace-index @ dup 0<= if  drop backtrace#  then
     1- ;
 
+: uindex. ( u -- )
+    ."  index=" u. ;
+
 : bt-</> ( -- )
     [: backtrace# 0 ?DO  backtrace++ dup backtrace-index ! bt-location ?LEAVE
 	LOOP ;] is index++
     [: backtrace# 0 ?DO  backtrace-- dup backtrace-index ! bt-location ?LEAVE
-	LOOP ;] is index-- ;
+        LOOP ;] is index--
+    [: backtrace-index @ uindex. ;] is index. ;
 
 : tt ( u -- ) \ gforth
     \G Show the source code corresponding to the backtrace line with
@@ -367,7 +374,8 @@ variable code-locations 0 code-locations !
     bt-location if
         l|g
     else
-        -1 backtrace-index ! then ;
+        ." no location for backtrace index " backtrace-index @ u.
+    then ;
 
 : nt (  -- ) \ gforth
     \G Show the source code corresponding to the next backtrace line
@@ -485,7 +493,8 @@ short-where
 
 : where-</> ( -- )
     [: where-index++ (ww) ;] is index++
-    [: where-index-- (ww) ;] is index-- ;
+    [: where-index-- (ww) ;] is index--
+    [: where-index @ uindex. ;] is index. ;
 
 : ww ( u -- ) \ gforth
     \G Show the source code of the @word{where} or @word{browse}
