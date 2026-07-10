@@ -3013,6 +3013,7 @@ ind-call
 ind-call
 index++
 index--
+index.
 in-dictionary?
 in-dictionary1?
 -inf
@@ -5863,6 +5864,7 @@ U-DO
 udp
 ud.r
 u#exec
+uindex.
 UINT_MAX
 ul@
 um*

@@ -902,6 +902,9 @@ c-extender !
 : seevalue ( xt -- )
     dup >body ?
     s" Value" .defname cr ;
+: seefconstant ( xt -- )
+    dup >body f@ f.
+    s" FConstant" .defname cr ;
 : seedefer ( xt -- )
     dup >body @ xt-see-xt cr
     dup s" Defer" .defname cr
@@ -921,7 +924,7 @@ c-extender !
     \ !! make it work for general xt set-does> words
     dup s" create" .defname cr
     s" DOES> " ['] Com-color .string XPos @ Level !
-    >does-code see-threaded ;
+    >does-code dup xtprim? IF  seecode  ELSE   see-threaded  THEN ;
 : seecol ( xt -- )
     dup s" :" .defname nl
     2 Level !
@@ -950,7 +953,11 @@ set-current
     cr c-init
     dup >does-code
     if
-	seedoes EXIT
+	dup >does-code ['] f@ = IF
+	    seefconstant
+	ELSE
+	    seedoes
+	THEN EXIT
     then
     dup xtprim?
     if
