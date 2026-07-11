@@ -903,8 +903,11 @@ c-extender !
     dup >body ?
     s" Value" .defname cr ;
 : seefconstant ( xt -- )
-    dup >body f@ f.
-    s" FConstant" .defname cr ;
+    precision >r 16 set-precision
+    dup >body f@ fs.  r> set-precision
+    dup >namehm @ >hmto @ ['] fvalue-to =
+    IF  s" FValue"  ELSE  s" FConstant"  THEN
+    .defname cr ;
 : seedefer ( xt -- )
     dup >body @ xt-see-xt cr
     dup s" Defer" .defname cr
@@ -923,8 +926,13 @@ c-extender !
 : seedoes ( xt -- )
     \ !! make it work for general xt set-does> words
     dup s" create" .defname cr
-    s" DOES> " ['] Com-color .string XPos @ Level !
-    >does-code dup xtprim? IF  seecode  ELSE   see-threaded  THEN ;
+    >does-code dup xtprim? IF
+	s" ' "  ['] Com-color .string id.
+	s" set-does>"  ['] Com-color .string cr
+    ELSE
+	s" DOES> " ['] Com-color .string XPos @ Level !
+	see-threaded
+    THEN ;
 : seecol ( xt -- )
     dup s" :" .defname nl
     2 Level !
