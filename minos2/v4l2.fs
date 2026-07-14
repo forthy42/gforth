@@ -19,6 +19,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 require unix/libc.fs
+require unix/mmap.fs
 
 cs-vocabulary v4l2
 
@@ -145,5 +146,75 @@ v4l2_frmivalenum    buffer: frmival-buf
     ." dev-caps: " cap-buf v4l2_capability-device_caps l@ hex. cr ;
 : .queries ( -- )  .querycap
     first-query  BEGIN  .query ['] next-query catch  UNTIL ;
+
+\ Capture instructions from here:
+\ https://www.marcusfolkesson.se/blog/capture-a-picture-with-v4l2/
+
+: request-buffer ( n1 -- n2 )
+    { | req[ v4l2_requestbuffers ] }
+    req[ v4l2_requestbuffers erase
+    req[ v4l2_requestbuffers-count l!
+    V4L2_BUF_TYPE_VIDEO_CAPTURE req[ v4l2_requestbuffers-type l!
+    V4L2_MEMORY_MMAP req[ v4l2_requestbuffers-memory l!
+    video-fd fileno VIDIOC_REQBUFS req[ ioctl ?ior
+    req[ v4l2_requestbuffers-count l@ ;
+: query-buffer ( index -- addr u )
+    { | buf[ v4l2_buffer ] }
+    buf[ v4l2_buffer erase
+    V4L2_BUF_TYPE_VIDEO_CAPTURE buf[ v4l2_buffer-type l!
+    V4L2_MEMORY_MMAP buf[ v4l2_buffer-memory l!
+    buf[ v4l2_buffer-index l!
+    video-fd fileno VIDIOC_QUERYBUF buf[ ioctl ?ior
+    0 buf[ v4l2_buffer-length l@ PROT_READ PROT_WRITE or MAP_SHARED
+    video-fd fileno buf[ v4l2_buffer-m v4l2_buffer_m-offset l@ mmap
+    buf[ v4l2_buffer-length l@ ;
+: queue-buffer ( index -- used )
+    { | buf[ v4l2_buffer ] }
+    V4L2_BUF_TYPE_VIDEO_CAPTURE buf[ v4l2_buffer-type l!
+    V4L2_MEMORY_MMAP buf[ v4l2_buffer-memory l!
+    buf[ v4l2_buffer-index l!
+    video-fd fileno VIDIOC_QBUF buf[ ioctl ?ior
+    buf[ v4l2_buffer-bytesused l@ ;
+: dequeue-buffer ( -- len index )
+    { | buf[ v4l2_buffer ] }
+    V4L2_BUF_TYPE_VIDEO_CAPTURE buf[ v4l2_buffer-type l!
+    V4L2_MEMORY_MMAP buf[ v4l2_buffer-memory l!
+    0 buf[ v4l2_buffer-index l!
+    video-fd fileno VIDIOC_DQBUF buf[ ioctl ?ior
+    buf[ v4l2_buffer-bytesused l@
+    buf[ v4l2_buffer-index l@ ;
+: start-streaming ( -- )
+    { | type[ 4 ] }
+    V4L2_BUF_TYPE_VIDEO_CAPTURE type[ l!
+    video-fd fileno VIDIOC_STREAMON type[ ioctl ?ior ;
+: stop-streaming ( -- )
+    { | type[ 4 ] }
+    V4L2_BUF_TYPE_VIDEO_CAPTURE type[ l!
+    video-fd fileno VIDIOC_STREAMOFF type[ ioctl ?ior ;
+
+8 Value buffers#
+$Variable buffers[]
+
+\ for testing, write to the file in videout-fd
+0 Value videoout-fd
+: write-video ( addr u -- flag )
+    videoout-fd write-file throw 0 ;
+
+\ generic run-capture
+: start-capture ( -- )
+    buffers# request-buffer dup to buffers# 2* cells buffers[] $!len
+    buffers# 0 ?DO
+	I query-buffer buffers[] $@ I 2* cells safe/string drop 2!
+	I queue-buffer drop
+    LOOP
+    start-streaming ;
+: run-capture { xt: runner -- }
+    \G runner is ( addr u -- flag ), stops if flag is true
+    BEGIN
+	dequeue-buffer { length index }
+	buffers[] $@ index 2* cells safe/string drop 2@ drop length runner
+	index queue-buffer drop
+    UNTIL
+    stop-streaming ;
 
 previous r> set-current
