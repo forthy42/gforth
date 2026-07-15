@@ -198,7 +198,7 @@ $Variable buffers[]
 \ for testing, write to the file in videout-fd
 0 Value videoout-fd
 : write-video ( addr u -- flag )
-    videoout-fd write-file throw 0 ;
+    '.' emit videoout-fd write-file throw true ;
 
 \ generic run-capture
 : start-capture ( -- )
@@ -206,15 +206,29 @@ $Variable buffers[]
     buffers# 0 ?DO
 	I query-buffer buffers[] $@ I 2* cells safe/string drop 2!
 	I queue-buffer drop
-    LOOP
-    start-streaming ;
+    LOOP ;
 : run-capture { xt: runner -- }
     \G runner is ( addr u -- flag ), stops if flag is true
     BEGIN
 	dequeue-buffer { length index }
-	buffers[] $@ index 2* cells safe/string drop 2@ drop length runner
+	buffers[] $@ index 2* cells safe/string drop 2@ length umin runner
 	index queue-buffer drop
-    UNTIL
-    stop-streaming ;
+    UNTIL ;
+
+0 Value v4l2-task
+: bg-queue ( index -- )
+   [{: index :}h1 index queue-buffer drop ;] v4l2-task send-event ;
+: bg-capture ( runner -- )
+    \G runner is ( addr length index ), and needs to send index back with bg-queue
+    1 stacksize4 newtask4 dup to v4l2-task pass { runner }
+    BEGIN
+	dequeue-buffer { length index }
+	buffers[] $@ index 2* cells safe/string drop 2@ length umin index
+	runner [{: a l index xt: runner :}h1 a l index runner ;]
+	[ up@ ]L send-event stop
+    AGAIN ;
+
+: capture ( runner -- )
+    start-capture start-streaming run-capture stop-streaming ;
 
 previous r> set-current
