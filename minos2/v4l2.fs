@@ -150,6 +150,19 @@ v4l2_frmivalenum    buffer: frmival-buf
 \ Capture instructions from here:
 \ https://www.marcusfolkesson.se/blog/capture-a-picture-with-v4l2/
 
+"MJPG" drop l@ Constant MJPG
+"YUYV" drop l@ Constant YUYV
+
+: set-format ( w h pxmode -- )
+    { | buf[ v4l2_format ] }
+    buf[ v4l2_format erase
+    V4L2_BUF_TYPE_VIDEO_CAPTURE buf[ v4l2_format-type l!
+    V4L2_FIELD_NONE buf[ v4l2_format-fmt v4l2_format_fmt-pix v4l2_pix_format-field l!
+    buf[ v4l2_format-fmt v4l2_format_fmt-pix v4l2_pix_format-pixelformat l!
+    buf[ v4l2_format-fmt v4l2_format_fmt-pix v4l2_pix_format-height l!
+    buf[ v4l2_format-fmt v4l2_format_fmt-pix v4l2_pix_format-width l!
+    video-fd fileno VIDIOC_S_FMT buf[ ioctl ?ior ;
+
 : request-buffer ( n1 -- n2 )
     { | req[ v4l2_requestbuffers ] }
     req[ v4l2_requestbuffers erase

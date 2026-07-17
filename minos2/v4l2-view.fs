@@ -62,6 +62,7 @@ also v4l2
 
 script? [IF]
     0 open-video
+    #1920 #1080 MJPG set-format
     start-capture start-streaming
     ' redisplay-image bg-capture
     presentation bye
