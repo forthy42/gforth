@@ -143,6 +143,14 @@ Provides: gforth-display
 Description: GNU Forth
  Gforth X11 bindings package
 
+Package: gforth-libcc-v4l
+Version: @DEBVERSION@
+Architecture: any
+Depends: libv4lconvert0t64
+Provides: gforth-display
+Description: GNU Forth
+ Gforth X11 bindings package
+
 Package: gforth-libcc-wayland
 Version: @DEBVERSION@
 Architecture: any
@@ -194,7 +202,7 @@ Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
 Depends: gforth (= @DEBVERSION@), gforth-opengl, gforth-display, gforth-fonts, gforth-minos2tools (= @DEBVERSION@), gforth-libcc-minos2 (= @DEBVERSION@)
-Recommends: fonts-emoji, fonts-awesome, gforth-libcc-gles (= @DEBVERSION@), gforth-libcc-x11 (= @DEBVERSION@), gforth-libcc-wayland (= @DEBVERSION@)
+Recommends: fonts-emoji, fonts-awesome, gforth-libcc-gles (= @DEBVERSION@), gforth-libcc-x11 (= @DEBVERSION@), gforth-libcc-wayland (= @DEBVERSION@), gforth-libcc-v4l (= @DEBVERSION@)
 Suggests: gforth-dejavu-fonts (= @DEBVERSION@)
 Description: GNU Forth Minos2 GUI
  Gforth is the Forth implementation of the GNU project, providing all

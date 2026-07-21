@@ -1072,10 +1072,14 @@ cleanup_stroker:
             for( j = 0; j < ft_bitmap.width; j++ ) {
                 uint32_t bgra, rgba;
                 bgra = ((uint32_t*)src_ptr)[j];
-#if __BYTE_ORDER == __BIG_ENDIAN
+#ifdef BGRA2RGBA
+# if __BYTE_ORDER == __BIG_ENDIAN
                 rgba = rol(__builtin_bswap32(bgra), 8);
-#else
+# else
                 rgba = rol(__builtin_bswap32(bgra), 24);
+# endif
+#else
+		rgba = bgra;
 #endif
                 ((uint32_t*)dst_ptr)[j] = rgba;
             }

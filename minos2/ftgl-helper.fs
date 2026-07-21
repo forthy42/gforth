@@ -253,7 +253,7 @@ Defer font-select# ( xcaddr -- xcaddr num )
     -2e to t.i0  color f@ to xy-color
     dup texture_font_t-scale sf@ to f-scale
     texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
-	2e +to xy-color -1e to t.i0  THEN ;
+	2e +to xy-color -0.5e to t.i0  THEN ;
 
 : atlas@wh*2 ( atlas -- w h )
     dup texture_atlas_t-width @ 2*

@@ -369,6 +369,7 @@ varying vec2 v_Extras;          // extra attributes passed through
 void main()
 {
     // pass through the extras
+    float tidx = floor(a_Extras.x);
     v_Extras = a_Extras;
     v_Color = texture2D(u_ColorTex, vec2(v_Extras.y, u_ColorMode))*u_Gain;
  
@@ -376,8 +377,8 @@ void main()
     v_Position = vec3(u_MVMatrix * a_Position);
  
     // scale texture coordinate by appropriate texture scale
-    if(a_Extras.x >= 0.0)
-	if(v_Extras.x < 1.0)
+    if(tidx >= 0.0)
+	if(tidx < 1.0)
             v_TexCoordinate = a_TexCoordinate * u_TexScale0;
 	else
 	    v_TexCoordinate = a_TexCoordinate * u_TexScale1;
@@ -420,18 +421,20 @@ varying vec2 v_Extras;          // extra attributes passed through
 // The entry point for our fragment shader.
 void main() {
     vec4 col;
-    if(v_Extras.x >= 0.0)
-	if(v_Extras.x < 1.0)
+    float tidx = floor(v_Extras.x);
+    float flags = fract(v_Extras.x);
+    if(tidx >= 0.0)
+	if(tidx < 1.0)
 	    col = texture2D(u_Texture0, v_TexCoordinate) + u_Coloradd0;
 	else
 	    col = texture2D(u_Texture1, v_TexCoordinate) + u_Coloradd1;
     else
-	if(v_Extras.x >= -1.0)
+	if(tidx >= -1.0)
 	    col = texture2D(u_Texture2, v_TexCoordinate) + u_Coloradd2;
-	else {
+	else
 	    col = texture2D(u_Texture3, v_TexCoordinate) + u_Coloradd3;
-	    // col.a = pow(col.a, 2.2);
-	}
+    if(flags == 0.5) // BGRA flag for color fonts
+	col = vec4(col.b, col.g, col.r, col.a);
     col = col*v_Color;
     if(u_Saturate != 1.0) {
         float mid = (col.r + col.g + col.b) * 0.333333333333;
@@ -521,13 +524,14 @@ varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
 varying vec2 v_Extras;          // extra attributes passed through
 void main() {
     vec4 col;
-    if(v_Extras.x >= 0.0)
-	if(v_Extras.x < 1.0)
+    float tidx = floor(v_Extras.x);
+    if(tidx >= 0.0)
+	if(tidx < 1.0)
 	    col = texture2D(u_Texture0, v_TexCoordinate) + u_Coloradd0;
 	else
 	    col = texture2D(u_Texture1, v_TexCoordinate) + u_Coloradd1;
     else
-	if(v_Extras.x >= -1.0)
+	if(tidx >= -1.0)
 	    col = texture2D(u_Texture2, v_TexCoordinate) + u_Coloradd2;
 	else
 	    col = texture2D(u_Texture3, v_TexCoordinate) + u_Coloradd3;

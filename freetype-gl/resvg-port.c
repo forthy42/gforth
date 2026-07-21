@@ -179,6 +179,7 @@ void free_trees(Resvg_Port_StateRec * state)
     int i;
     uint32_t* ptr=(uint32_t*)(slot->bitmap.buffer);
     
+#ifdef BGRA2RGBA
     for(i=0; i < (int)slot->bitmap.width * (int)slot->bitmap.rows; i++, ptr++) {
       uint32_t bgra, rgba;
       bgra = *ptr;
@@ -189,6 +190,7 @@ void free_trees(Resvg_Port_StateRec * state)
 #endif
       *ptr = rgba;
     }
+#endif
     return error;
   }
 
