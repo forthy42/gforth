@@ -2087,6 +2087,11 @@ if test x$EXTRA_LIBS = xyes; then
       AC_CHECK_HEADER(libv4lconvert.h, SWIGMODULES="$SWIGMODULES v4lconvert.fs"
    				       SWIGLIBS="$SWIGLIBS v4lconvert.fs", ,))
    fi
+   if test x$has_swig = xyes || test -f $srcdir/unix/yuv-fsi.c; then
+      AC_CHECK_LIB(yuv,YUY2ToARGB,
+      AC_CHECK_HEADER(libyuv/convert_argb.h, SWIGMODULES="$SWIGMODULES yuv.fs"
+   					     SWIGLIBS="$SWIGLIBS yuv.fs", ,))
+   fi
    if test x$has_swig = xyes || test -f $srcdir/unix/openvg-fsi.c; then
       AC_CHECK_HEADER(openvg.h, SWIGMODULES="$SWIGMODULES openvg.fs", ,)
    fi
