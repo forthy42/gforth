@@ -2063,6 +2063,20 @@ fi
 				     SWIGDISTFSI="$SWIGDISTFSI webp.fs"
 		      ,), ,)
    fi
+   if test x$has_swig = xyes || test -f $srcdir/unix/v4l2-fsi.c; then
+      AC_CHECK_HEADER(linux/v4l2-common.h, SWIGMODULES="$SWIGMODULES v4l2.fs"
+   					   SWIGDIST="$SWIGDIST v4l2.fs", ,)
+   fi
+   if test x$has_swig = xyes || test -f $srcdir/unix/v4lconvert-fsi.c; then
+      AC_CHECK_LIB(v4lconvert,v4lconvert_convert,
+      AC_CHECK_HEADER(libv4lconvert.h, SWIGMODULES="$SWIGMODULES v4lconvert.fs"
+   				       SWIGLIBS="$SWIGLIBS v4lconvert.fs", ,))
+   fi
+   if test x$has_swig = xyes || test -f $srcdir/unix/yuv-fsi.c; then
+      AC_CHECK_LIB(yuv,YUY2ToARGB,
+      AC_CHECK_HEADER(libyuv/convert_argb.h, SWIGMODULES="$SWIGMODULES yuv.fs"
+   					     SWIGLIBS="$SWIGLIBS yuv.fs", ,))
+   fi
 else
    MINOSFLAG=false
 fi
@@ -2077,20 +2091,6 @@ if test x$EXTRA_LIBS = xyes; then
    if test x$has_swig = xyes || test -f $srcdir/unix/sdl-fsi.c; then
       AC_CHECK_HEADER(SDL2/SDL.h, SWIGMODULES="$SWIGMODULES SDL.fs"
 		      SWIGLIBS="$SWIGLIBS SDL.fs", ,)
-   fi
-   if test x$has_swig = xyes || test -f $srcdir/unix/v4l2-fsi.c; then
-      AC_CHECK_HEADER(linux/v4l2-common.h, SWIGMODULES="$SWIGMODULES v4l2.fs"
-   					   SWIGDIST="$SWIGDIST v4l2.fs", ,)
-   fi
-   if test x$has_swig = xyes || test -f $srcdir/unix/v4lconvert-fsi.c; then
-      AC_CHECK_LIB(v4lconvert,v4lconvert_convert,
-      AC_CHECK_HEADER(libv4lconvert.h, SWIGMODULES="$SWIGMODULES v4lconvert.fs"
-   				       SWIGLIBS="$SWIGLIBS v4lconvert.fs", ,))
-   fi
-   if test x$has_swig = xyes || test -f $srcdir/unix/yuv-fsi.c; then
-      AC_CHECK_LIB(yuv,YUY2ToARGB,
-      AC_CHECK_HEADER(libyuv/convert_argb.h, SWIGMODULES="$SWIGMODULES yuv.fs"
-   					     SWIGLIBS="$SWIGLIBS yuv.fs", ,))
    fi
    if test x$has_swig = xyes || test -f $srcdir/unix/openvg-fsi.c; then
       AC_CHECK_HEADER(openvg.h, SWIGMODULES="$SWIGMODULES openvg.fs", ,)
