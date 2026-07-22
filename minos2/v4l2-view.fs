@@ -51,9 +51,10 @@ tex: v4l2-img
 	' v4l2-img #1920 #1080 0.66e }}image-texture
 	over >o
 	[IFDEF] use-yuyv
-	    0.5e to texture.i
+	    9 to rotate#
+	[ELSE]
+	    1 to rotate#
 	[THEN]
-	1 to rotate#
 	o>
 	glue*l }}glue
     }}v box[]
