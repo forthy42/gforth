@@ -2065,17 +2065,20 @@ fi
    fi
    if test x$has_swig = xyes || test -f $srcdir/unix/v4l2-fsi.c; then
       AC_CHECK_HEADER(linux/v4l2-common.h, SWIGMODULES="$SWIGMODULES v4l2.fs"
-   					   SWIGDIST="$SWIGDIST v4l2.fs", ,)
+   					   SWIGDIST="$SWIGDIST v4l2.fs"
+   					   SWIGDISTFSI="$SWIGDISTFSI v4l2.fs", ,)
    fi
    if test x$has_swig = xyes || test -f $srcdir/unix/v4lconvert-fsi.c; then
       AC_CHECK_LIB(v4lconvert,v4lconvert_convert,
       AC_CHECK_HEADER(libv4lconvert.h, SWIGMODULES="$SWIGMODULES v4lconvert.fs"
-   				       SWIGLIBS="$SWIGLIBS v4lconvert.fs", ,))
+   				       SWIGLIBS="$SWIGLIBS v4lconvert.fs"
+   				       SWIGDISTFSI="$SWIGDISTFSI v4lconvert.fs", ,))
    fi
    if test x$has_swig = xyes || test -f $srcdir/unix/yuv-fsi.c; then
       AC_CHECK_LIB(yuv,YUY2ToARGB,
       AC_CHECK_HEADER(libyuv/convert_argb.h, SWIGMODULES="$SWIGMODULES yuv.fs"
-   					     SWIGLIBS="$SWIGLIBS yuv.fs", ,))
+   					     SWIGLIBS="$SWIGLIBS yuv.fs"
+   				       	     SWIGDISTFSI="$SWIGDISTFSI yuv.fs", ,))
    fi
 else
    MINOSFLAG=false
