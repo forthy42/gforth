@@ -629,10 +629,11 @@ tile class
     defer: image-tex
     value: image-w
     value: image-h
+    sfvalue: texture.i \ default is 0e, RGBA, set to 0.5e for BGRA
 end-class image
 
 image :method draw ( -- )  render>
-    0e to t.i0
+    texture.i to t.i0
     z-bias set-color+ image-tex  frame-color xywh-rect ;
 
 \ frame widget

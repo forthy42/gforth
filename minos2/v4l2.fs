@@ -245,3 +245,15 @@ $Variable buffers[]
     start-capture start-streaming run-capture stop-streaming ;
 
 previous r> set-current
+
+require unix/yuv.fs
+
+get-current >r also v4l2 definitions
+
+: yuyv>mem { frame u w h -- dest w h }
+    w h * 2* 2* allocate throw { dest }
+    frame w 2* dest over 2* w h YUY2ToARGB drop
+    dest w h ;
+    
+previous r> set-current
+
