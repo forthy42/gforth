@@ -146,8 +146,7 @@ Description: GNU Forth
 Package: gforth-libcc-v4l
 Version: @DEBVERSION@
 Architecture: any
-Depends: libv4lconvert0t64
-Provides: gforth-display
+Depends: libv4lconvert0t64 libyuv0
 Description: GNU Forth
  Gforth X11 bindings package
 
