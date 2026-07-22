@@ -81,6 +81,8 @@ override_dh_auto_install:
 	mkdir -p $(DLV4L)$(LIB)/unix $(DLV4L)$(LIBCC)
 	-mv $(DLC)$(LIBCC)/libgfv4l*.* $(DLV4L)$(LIBCC)
 	mv $(DLC)$(LIB)/unix/v4l*.fs $(DLV4L)$(LIB)/unix
+	-mv $(DLC)$(LIBCC)/libgfyuv.* $(DLV4L)$(LIBCC)
+	mv $(DLC)$(LIB)/unix/yuv.fs $(DLV4L)$(LIB)/unix
 	mkdir -p $(DLM2)$(SHARE)/unix $(DLM2)$(LIB)/unix -p $(DLM2)$(LIBCC)
 	bash -c "mv $(DLC)$(LIB)/unix/{freetype_gl,harfbuzz}.fs $(DLM2)$(LIB)/unix"
 	bash -c "mv $(DC)$(SHARE)/unix/{stb-image,stb-image-write}.fs $(DLM2)$(SHARE)/unix"
