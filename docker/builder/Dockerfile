@@ -16,18 +16,17 @@ RUN apt-get -y update \
      libfreetype-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
      libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
      libxkbcommon-dev libwebp-dev libv4l-dev libyuv-dev emacs-nox \
-     yodl bison libboost-dev binutils-dev git \
-  && (apt -y install gforth || true) \
-  && if ! which gforth >/dev/null 2>&1; then \
+     yodl bison libboost-dev binutils-dev git
+RUN if ! apt -y install gforth; then \
          if which wcurl >/dev/null 2>&1; then \
-	 wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
+	     wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
 	 else \
-	 apt -y install wget; wget https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
+	     apt -y install wget; wget https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
 	 fi; \
        	 tar zxf gforth-0.7.3.tar.gz; \
 	 BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g'); \
-         (cd gforth-0.7.3; ./configure CC=$GCC --prefix=/usr --host=$BARCH --build=$BARCH; for i in *.fi; do cp $i $i-; done; make; make install); fi \
-  && if [ "`lsb_release -sc`" = "forky" -a "`gcc -v 2>&1 | tr ' ' '\n' | grep -- --host | cut -f2 -d= | cut -f1 -d-`" = "x86_64" ]; then apt-get -y install texlive-base texlive-latex-base; fi \
+         (cd gforth-0.7.3; ./configure CC=$GCC --prefix=/usr --host=$BARCH --build=$BARCH; for i in *.fi; do cp $i $i-; done; make; make install); fi
+RUN if [ "`lsb_release -sc`" = "forky" -a "`gcc -v 2>&1 | tr ' ' '\n' | grep -- --host | cut -f2 -d= | cut -f1 -d-`" = "x86_64" ]; then apt-get -y install texlive-base texlive-latex-base; fi \
   && apt-get clean
 RUN cd /tmp/ \
     && if ! which pcre-config; then \
