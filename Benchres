@@ -14,11 +14,14 @@ http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz.
 
 All times are given in seconds of user time.
 
-After 0.7.0:
+After 2026-01-27 (new output format, all architectures in one list):
+ sieve  bubble matrix fib    fft    release; CPU; gcc
+ 0.0183 0.0281 0.0082 0.0229 0.0089 20260722; Core Ultra 225 P-core 4900MHz; gcc-14
+ 0.0218 0.0183 0.0125 0.0282 0.0104 20260722; Core Ultra 225 E-core 4400MHz; gcc-14
+ 
+After 0.7.0 before 2026-01-27:
 AMD64:
  sieve bubble matrix fib   fft  release; CPU; gcc
- 0.017 0.028  0.008 0.023 0.009 20260722; Core Ultra 225 P-core 4900MHz; gcc-14
- 0.022 0.018  0.010 0.028 0.011 20260722; Core Ultra 225 E-core 4400MHz; gcc-14
  0.020 0.021  0.012 0.027 0.015 20250115; AMD Ryzen 8700G 5000MHz; gcc-12.2.0
  0.025 0.023  0.012 0.032 0.016 20250115; AMD Ryzen 5800X 4800MHz; gcc-10.2.1
  0.027 0.033  0.011 0.043 0.017 20250115; Golden Cove 3.8GHz (Core i3-1315U); gcc-10.2.1
