@@ -62,7 +62,7 @@ override_dh_auto_install:
 	mkdir -p $(DB)/$(LIB)
 	mv $(DLC)/$(LIB)/*.f* $(DB)/$(LIB)
 	mkdir -p $(DLGLES)$(LIBCC) $(DLGLES)$(LIB)/unix
-	-mv $(DLC)$(LIBCC)/libgfegl.* $(DLC)$(LIBCC)/libgfgles.* $(DLGLES)$(LIBC
+	-mv $(DLC)$(LIBCC)/libgfegl.* $(DLC)$(LIBCC)/libgfgles.* $(DLGLES)$(LIBCC)
 	-mv $(DLC)$(LIB)/unix/egl.fs $(DLC)$(LIB)/unix/gles.fs $(DLGLES)$(LIB)/unix
 	mkdir -p $(DLGL)$(LIBCC) $(DLGL)$(LIB)/unix
 	-mv $(DLC)$(LIBCC)/libgfgl*.* $(DLGL)$(LIBCC)
