@@ -61,28 +61,21 @@ override_dh_auto_install:
 	mv $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)
 	mkdir -p $(DB)/$(LIB)
 	mv $(DLC)/$(LIB)/*.f* $(DB)/$(LIB)
-	mkdir -p $(DLGLES)$(LIBCC)
-	-mv $(DLC)$(LIBCC)/libgfegl.* $(DLC)$(LIBCC)/libgfgles.* $(DLGLES)$(LIBCC)
-	mkdir -p $(DLGLES)$(LIB)/unix
-	-mv $(DLC)$(LIB)/unix/gles.fs $(DLC)$(LIB)/unix/egl.fs $(DLGLES)$(LIB)/unix
+	mkdir -p $(DLGLES)$(LIBCC) $(DLGLES)$(LIB)/unix
+	-mv $(DLC)$(LIBCC)/libgfegl.* $(DLC)$(LIBCC)/libgfgles.* $(DLGLES)$(LIBC
+	-mv $(DLC)$(LIB)/unix/egl.fs $(DLC)$(LIB)/unix/gles.fs $(DLGLES)$(LIB)/unix
 	mkdir -p $(DLGL)$(LIBCC) $(DLGL)$(LIB)/unix
 	-mv $(DLC)$(LIBCC)/libgfgl*.* $(DLGL)$(LIBCC)
 	-mv $(DLC)$(LIB)/unix/gl*.fs $(DLGL)$(LIB)/unix
 	mkdir -p $(DLX11)$(LIBCC) $(DLX11)$(LIB)/unix
-	mv $(DLC)$(LIBCC)/libgfx.* $(DLX11)$(LIBCC)
-	mv $(DLC)$(LIBCC)/libgfxrandr.* $(DLX11)$(LIBCC)
-	mv $(DLC)$(LIB)/unix/x.fs $(DLX11)$(LIB)/unix
-	mv $(DLC)$(LIB)/unix/xrandr.fs $(DLX11)$(LIB)/unix
+	mv $(DLC)$(LIBCC)/libgfx.* $(DLC)$(LIBCC)/libgfxrandr.* $(DLX11)$(LIBCC)
+	mv $(DLC)$(LIB)/unix/x.fs $(DLC)$(LIB)/unix/xrandr.fs $(DLX11)$(LIB)/unix
 	mkdir -p $(DLWL)$(LIBCC) $(DLWL)$(LIB)/unix
-	mv $(DLC)$(LIBCC)/libgfwayland.* $(DLWL)$(LIBCC)
-	mv $(DLC)$(LIBCC)/libgfxkbcommon.* $(DLWL)$(LIBCC)
-	mv $(DLC)$(LIB)/unix/wayland.fs $(DLWL)$(LIB)/unix
-	mv $(DLC)$(LIB)/unix/xkbcommon.fs $(DLWL)$(LIB)/unix
+	mv $(DLC)$(LIBCC)/libgfwayland.* $(DLC)$(LIBCC)/libgfxkbcommon.* $(DLWL)$(LIBCC)
+	mv $(DLC)$(LIB)/unix/wayland.fs $(DLC)$(LIB)/unix/xkbcommon.fs $(DLWL)$(LIB)/unix
 	mkdir -p $(DLV4L)$(LIB)/unix $(DLV4L)$(LIBCC)
-	-mv $(DLC)$(LIBCC)/libgfv4l*.* $(DLV4L)$(LIBCC)
-	mv $(DLC)$(LIB)/unix/v4l*.fs $(DLV4L)$(LIB)/unix
-	-mv $(DLC)$(LIBCC)/libgfyuv.* $(DLV4L)$(LIBCC)
-	mv $(DLC)$(LIB)/unix/yuv.fs $(DLV4L)$(LIB)/unix
+	mv $(DLC)$(LIBCC)/libgfv4l.* $(DLC)$(LIBCC)/libgfyuv.* $(DLV4L)$(LIBCC)
+	mv $(DLC)$(LIB)/unix/v4l.fs $(DLC)$(LIB)/unix/yuv.fs $(DLV4L)$(LIB)/unix
 	mkdir -p $(DLM2)$(SHARE)/unix $(DLM2)$(LIB)/unix -p $(DLM2)$(LIBCC)
 	bash -c "mv $(DLC)$(LIB)/unix/{freetype_gl,harfbuzz}.fs $(DLM2)$(LIB)/unix"
 	bash -c "mv $(DC)$(SHARE)/unix/{stb-image,stb-image-write}.fs $(DLM2)$(SHARE)/unix"
