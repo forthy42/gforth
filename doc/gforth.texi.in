@@ -13467,21 +13467,30 @@ doc-ud.r
 @cindex floating-point output
 
 Floating-point output is always displayed using decimal base (even if
-@word{BASE} is different).
+@word{BASE} is different).  The words starting with @code{e.} output
+the FP number in a format that the text interpreter accepts as input.
 
 doc-f.
 doc-fe.
 doc-fs.
 doc-fp.
+doc-e.
+doc-e.p
+doc-e.exact
 
 Examples of printing the number 1234.5678E23 in the different
 floating-point output formats are shown below.
 
 @example
-f. 123456780000000000000000000.
-fe. 123.456780000000E24
-fs. 1.23456780000000E26
-fp. 123.456780000000Y
+1234.5678E23
+fdup f.      \ 123456780000000000000000000.
+fdup fe.     \ 123.456780000000E24
+fdup fs.     \ 1.23456780000000E26
+fdup fp.     \ 123.456780000000Y
+fdup e.      \ 1.2345678e26 ok
+fdup 5 e.p   \ 1.2346e26 ok
+fdup e.exact \ 123456780000000004618977280e ok
+fdrop
 @end example
 
 The length of the output is influenced by:

@@ -86,6 +86,7 @@ require gforthrc.fs
 \ require colorize.fs
 require mwords.fs
 require locate1.fs
+require edot.fs
 require status-line.fs
 require forward.fs
 require marker.fs
