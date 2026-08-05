@@ -45,11 +45,13 @@ DOES> state @ abs translator-max-offset# umin th@ execute ;
 : .base ( -- )
     base @ #10 <> IF  wide? IF  ." base="  ELSE  ." b="  THEN
 	base @ 0 ['] .r #10 base-execute cr  THEN ;
+
 : .stacks ( -- )
     f.s-precision >r
-    wide? IF  #14  ELSE  #10  THEN  to f.s-precision
+    wide? IF  #16  ELSE  #7  THEN  to f.s-precision
     ... cr
     r> to f.s-precision ;
+
 : .order ( -- )
     wide? IF  ."  order: " ELSE  ." o:" THEN  order ;
 

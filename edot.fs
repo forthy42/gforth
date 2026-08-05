@@ -89,7 +89,7 @@
     \G buffer length; that is the case on not-too-old versions of
     \G glibc.
     20 1 do
-        r i `e.p >string-execute {: c-addr u :} \ c-addr u dump
+        r i ['] e.p >string-execute {: c-addr u :} \ c-addr u dump
         c-addr u >float 0= if \ inf or nan
             leave then
         r f= if
@@ -99,8 +99,7 @@
     c-addr u type
     c-addr free throw ;
 
-\\\ testing
-
+0 [if] \ testing
 0e 6 e.p cr
 1e 6 e.p cr
 0.1e 6 e.p cr
@@ -146,5 +145,5 @@ NaN e. cr
 7 s-as-f e. cr
 8 s-as-f e. cr
 9 s-as-f e. cr
-
+[then]
 
