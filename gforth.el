@@ -446,7 +446,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	 (0 . 2) (0 . 2) non-immediate)
 	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
 	((";" ";m") (-2 . 0) (0 . -2))
-	(("again" "then" "endif" "endtry" "endcase" "next-case" "endof" "contof"
+	(("again" "then" "endif" "endtry" "next-case" "endof" "contof"
 	  "[then]" "[endif]" "[loop]" "[+loop]" "[next]" 
 	  "[until]" "[again]" "loop" ";]" "nope")
 	 (-2 . 0) (0 . -2))
@@ -454,7 +454,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	  "end-interface-noname" "end-struct" "class;" "end-c-library" "end-structure")
 	 (-2 . 0) (0 . -2) non-immediate)
 	(("protected" "public" "how:") (-1 . 1) (0 . 0) non-immediate)
-	(("+loop" "-loop" "mem+loop" "mem-loop" "until") (-2 . 0) (-2 . 0))
+	(("+loop" "-loop" "mem+loop" "mem-loop" "until" "endcase") (-2 . 0) (-2 . 0))
 	(("else" "recover" "restore" "endtry-iferror" "[else]")
 	 (-2 . 2) (0 . 0))
 	(("does>" "compile>" "int>" ";code" ";abi-code") (-1 . 1) (0 . 0))

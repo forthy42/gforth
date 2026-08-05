@@ -45,16 +45,18 @@
         ." -" then
     b mlen1 -zeros {: mlen :}
     case ( b[ )
-        exp mlen 3 + u<= ?of mlen exp rep.>=1 endof
+        exp mlen1 u<= ?of mlen exp rep.>=1 endof
         exp -5 u>        ?of mlen exp rep.<1  endof
         mlen exp rep.exp
-        0 endcase
-;
+    0 endcase ;
 
 : e.p ( r u -- ) \ gforth-experimental e-dot-p
     \G Print @i{r} with up to @i{u} mantissa digits, leaving away
-    \G trailing mantissa digits.
+    \G trailing mantissa digits.  One additional mantissa digit is
+    \G displayed if this can avoid showing an exponent.
     {: | b[ b-exact-len ] :}
+    fdup fabs 10e dup s>f f** fover fover f>= 10e f* f< and if
+        1+ then \ additional mantissa digit
     fdup b[ swap 2dup represent if ( r b[ u exp fnegative )
         fdrop rep.
     else
