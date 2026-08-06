@@ -28,15 +28,8 @@ get-current also see-voc definitions
 
 : c-flit
     Display? IF
-	dup f@ scratch represent 0=
-	IF    2drop  scratch 3 min ['] default-color .string
-	ELSE
-	    IF  '- cemit  THEN  1-
-	    scratch over c@ cemit '. cemit 1 /string ['] default-color .string
-	    'E cemit
-	    dup abs 0 <# #S rot sign #> ['] default-color .string bl cemit
-	THEN THEN
-    float+ ;
+	dup f@ ['] e. $tmp ['] default-color .string bl cemit
+    THEN  float+ ;
 
 : c-flit0
     c-flit ;

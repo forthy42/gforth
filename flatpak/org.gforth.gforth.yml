@@ -21,5 +21,5 @@ modules:
     no-autogen: true
     sources:
       - type: archive
-        url: https://net2o.de/gforth-dist/Snapshots/0.7.9_20260722/gforth-0.7.9_20260722.tar.xz
-        sha256: 468213918e03a76232ec1f15ee88e2c62114f46130cd1282b2e00bcbe995e3a7
+        url: https://net2o.de/gforth-dist/Snapshots/0.7.9_20260729/gforth-0.7.9_20260729.tar.xz
+        sha256: 9b19124f05ac1001cceb16e52682d4367f183f6f239b2a58156a6d38ed50f67f
