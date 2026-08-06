@@ -13493,7 +13493,15 @@ fdup e.exact \ 123456780000000004618977280e ok
 fdrop
 @end example
 
-The length of the output is influenced by:
+Note that @code{1234.5678E23} cannot be represented exactly as IEEE
+double-precision (binary64) FP number (Gforth's float format), so
+there is a rounding error when converting that string to a float, and
+the output of @word{e.exact} shows the exact value of the resulting
+number.  All the other output words produce a result that rounds the
+mantissa to fit in a certain number of digits (and possibly extends
+that with trailing zeros).
+
+The length of the output of @word{f.} is influenced by:
 
 doc-precision
 doc-set-precision
