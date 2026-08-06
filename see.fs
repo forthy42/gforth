@@ -903,8 +903,7 @@ c-extender !
     dup >body ?
     s" Value" .defname cr ;
 : seefconstant ( xt -- )
-    precision >r 16 set-precision
-    dup >body f@ fs.  r> set-precision
+    dup >body f@ e. space
     dup >namehm @ >hmto @ ['] fvalue-to =
     IF  s" FValue"  ELSE  s" FConstant"  THEN
     .defname cr ;
