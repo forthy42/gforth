@@ -78,10 +78,18 @@
     \g glibc.
     b-exact-len e.p ;
 
-\ for normal (as opposed to subnormal) numbers, it's probably good
-\ enough to start at 15; it's probably also good enough to stop at 16
-\ without checking that the result is exact.  But I have not checked
-\ these ideas, so I'll leave it as is, for now.  
+\ For normal (as opposed to subnormal) numbers, it's probably good
+\ enough to start at 15; it's probably also good enough to stop at 17
+\ without checking that the result is exact.  In a test of 10,000,000
+\ pseudo-random FP numbers, for the normal ones there were no
+\ differences between the following and a version that starts at p=15
+\ and, if necessary, calls p=17 without checking, except for
+\ differences in exponential representation.  In a check of 30,799,692
+\ numbers with short decimal mantissae (where differences are more
+\ likely, because e. stops before e.15-17 starts), there were no
+\ differences.  Also, the 15-17 variant is about 6 times faster; see
+\ edot-check.fs.
+
 : e. {: f: r -- :} \ gforth e-dot
     \G Print @i{r} with the least number of mantissa digits such that
     \G the result, when converted with @word{>float}, produces @i{r}
