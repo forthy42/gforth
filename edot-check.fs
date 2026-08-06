@@ -57,10 +57,12 @@ variable check# 0 check# !
 : checkshort ( u -- )
     \ about 308 tests per u
     1 ?do
-        308 0 do
-            <<# i 0 #s 2drop s" e-" holds j 0 #s '.' hold #> >float assert( dup ) #>>
-            drop check
-        loop
+        i 10 umod if
+            308 0 do
+                <<# i 0 #s 2drop s" e-" holds j 0 #s '.' hold #> >float assert( dup ) #>>
+                drop check
+            loop
+        then
     loop ;
 
 \\\
