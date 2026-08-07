@@ -28,7 +28,9 @@ variable check# 0 check# !
     r `e.15-17 >string-execute {: d: e.16-string :}
     e.-string e.16-string str= 0= if
         check# @ 12 .r space e.-string type space e.16-string type space r #15 e.p cr
-    then ;
+    then
+    e.-string drop free throw
+    e.16-string drop free throw ;
 
 : s-as-f {: w^ n :} n f@ ;
 
