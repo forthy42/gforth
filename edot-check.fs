@@ -1,4 +1,10 @@
+\ the e.15-17 below is now the e. implementation, so many of these
+\ tests are now pointless.
+
 variable check# 0 check# !
+
+: s-as-f {: w^ n :} n f@ ;
+1 52 lshift constant smallest-normal
 
 : e.15-17 {: f: r -- :} \ gforth e-dot
     \G Print @i{r} with the least number of mantissa digits such that
@@ -8,7 +14,7 @@ variable check# 0 check# !
     \G @code{ecvt_r()}) produces the closest mantissa for the given
     \G buffer length; that is the case on not-too-old versions of
     \G glibc.
-    20 15 do
+    20 1 15 r fabs 2.2250738585072014e-308 f< select do
         i 17 = if
             r i e.p unloop exit then
         r i ['] e.p >string-execute {: c-addr u :} \ c-addr u dump
@@ -40,11 +46,12 @@ variable check# 0 check# !
 
 : checkrnd ( u -- )
     0 ?do
-        rnd abs dup smallest-normal >= if
+        rnd abs
+        \ dup smallest-normal >= if
             s-as-f check
-        else
-            drop
-        then
+        \ else
+        \     drop
+        \ then
     loop ;
 
 : speedrnd {: u xt -- :}

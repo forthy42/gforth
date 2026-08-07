@@ -78,18 +78,6 @@
     \g glibc.
     b-exact-len e.p ;
 
-\ For normal (as opposed to subnormal) numbers, it's probably good
-\ enough to start at 15; it's probably also good enough to stop at 17
-\ without checking that the result is exact.  In a test of 10,000,000
-\ pseudo-random FP numbers, for the normal ones there were no
-\ differences between the following and a version that starts at p=15
-\ and, if necessary, calls p=17 without checking, except for
-\ differences in exponential representation.  In a check of 30,799,692
-\ numbers with short decimal mantissae (where differences are more
-\ likely, because e. stops before e.15-17 starts), there were no
-\ differences.  Also, the 15-17 variant is about 6 times faster; see
-\ edot-check.fs.
-
 : e. {: f: r -- :} \ gforth e-dot
     \G Print @i{r} with the least number of mantissa digits such that
     \G the result, when converted with @word{>float}, produces @i{r}
@@ -98,7 +86,12 @@
     \G @code{ecvt_r()}) produces the closest mantissa for the given
     \G buffer length; that is the case on not-too-old versions of
     \G glibc.
-    20 1 do
+    \ start with p=15 for normal numbers, p=1 for subnormal numbers
+    20 1 15 r fabs 2.2250738585072014e-308 f< select do
+        i 17 = if
+            \ 17 digits are enough in any case, no need to check
+            r i e.p unloop exit then
+        \ for fewer digits, try if the result converts back
         r i ['] e.p >string-execute {: c-addr u :} \ c-addr u dump
         c-addr u >float 0= if \ inf or nan
             leave then
