@@ -38,9 +38,9 @@ variable maxdepth-.s ( -- addr ) \ gforth maxdepth-dot-s
 9 maxdepth-.s !
 
 : .s ( -- ) \ tools dot-s
-\G Display the number of items on the data stack, followed by a list
-\G of the items (but not more than specified by @code{maxdepth-.s};
-\G TOS is the right-most item.
+\G Display the number of items on the data stack, followed by the top
+\G items (but not more than specified by @code{maxdepth-.s}; TOS is
+\G the right-most item.  Each item is displayed as a number.
     ." <" depth 0 .r ." > "
     depth 0 max maxdepth-.s @ min
     dup 0

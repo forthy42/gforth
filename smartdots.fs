@@ -143,10 +143,14 @@ debug: .string.( ( -- ) \ gforth-internal dot-string-dot-paren
     throw ;
 
 : ... ( x1 .. xn -- x1 .. xn ) \ gforth
-    \G smart version of @code{.s}
+    \G Display the number of items on the data stack, followed by the
+    \G items (but not more than specified by @code{maxdepth-.s}; TOS
+    \G is the right-most item.  For each item, and in some cases, for
+    \G a group of items, @word{...} tries to guess the type and
+    \G displays it accordingly (smart @word{.s}).
     smart.s-skip off
     ['] smart.s. ['] .s. ['] .s
     ['] wrap-xt catch-nobt drop
-    fdepth IF  cr ." F:" f.s  THEN ;
+    fdepth IF cr ." F:" f.s THEN ;
 
 ' ... IS printdebugdata
