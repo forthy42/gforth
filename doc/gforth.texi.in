@@ -16823,86 +16823,100 @@ doc-see-code
 doc-xt-see-code
 doc-see-code-range
 
-As an example, consider:
+As an example, consider the following contrived definition:
 
 @example
-: foo x f@@ fsin drop over ;
+: foo dup >r drop 5 fsin ;
 @end example
 
-This is not particularly useful, but it demonstrates the various code
-generation differences.  Compiling this on @code{gforth-fast} on AMD64
-and then using @code{see-code foo} outputs:
+This is not particularly useful, but it demonstrates the various
+variants in Gforth's code generation.  Compiling this on
+@code{gforth-fast} on AMD64 and then using @code{see-code foo}
+outputs:
 
 @example
-$7FD0CEE8C510 lit f@@     1->1 
-$7FD0CEE8C518 x
-$7FD0CEE8C520 f@@
-7FD0CEB51697:   movsd   [r12],xmm15
-7FD0CEB5169D:   mov     rax,$00[r13]
-7FD0CEB516A1:   sub     r12,$08
-7FD0CEB516A5:   add     r13,$18
-7FD0CEB516A9:   movsd   xmm15,[rax]
-7FD0CEB516AE:   mov     rcx,-$08[r13]
-7FD0CEB516B2:   jmp     ecx
-$7FD0CEE8C528 fsin
-$7FD0CEE8C530 drop    1->0 
-7FD0CEB516B4:   add     r13,$08
-$7FD0CEE8C538 over    0->1 
-7FD0CEB516B8:   mov     r8,$10[r15]
-7FD0CEB516BC:   add     r13,$08
-$7FD0CEE8C540 ;s    1->1 
-7FD0CEB516C0:   mov     r10,[rbx]
-7FD0CEB516C3:   add     rbx,$08
-7FD0CEB516C7:   lea     r13,$08[r10]
-7FD0CEB516CB:   mov     rcx,-$08[r13]
-7FD0CEB516CF:   jmp     ecx
+<foo>         dup >r     1->1 
+<foo+$8>      >r    1->1 
+<foo+$10>     drop    1->0 
+   $7FBC47873933: mov    %r13,-0x8(%r14)
+   $7FBC47873937: sub    $0x8,%r14
+<foo+$18>     lit    0->1 
+<foo+$20>     #5 
+<foo+$28>     fsin    1->1 
+   $7FBC4787393B: mov    0x20(%rbx),%r13
+   $7FBC4787393F: add    $0x28,%rbx
+   $7FBC47873943: mov    (%rbx),%rax
+   $7FBC47873946: jmp    *%rax
+<foo+$30>     ;s    1->1 
+   $7FBC47873948: mov    (%r14),%rbx
+   $7FBC4787394B: add    $0x8,%r14
+   $7FBC4787394F: mov    (%rbx),%rax
+   $7FBC47873952: jmp    *%rax
 @end example
 
 First, you see a threaded-code cell for a static superinstruction with
-the components @code{lit} and @code{f@@}, starting and ending with one
+the components @code{dup} and @code{>r}, starting and ending with one
 data stack item in a register (@code{1->1}); this is followed by the
-cell for the argument @code{x} of @code{lit}, and the cell for the
-@code{f@@} component of the superinstruction; the latter cell is not
-used, but is there for Gforth-internal reasons.
+the cell for the @code{>r} component of the superinstruction; the
+latter cell is not used, but is there for Gforth-internal reasons.
+Next, you see the cell for @code{drop}, which starts with one data
+stack item in registers and ends with no data stack items in registers
+(@code{1->0}), i.e., all data stack items are in memory.
 
 Next, the dynamically generated native code for the superinstruction
-@code{lit f@@} is shown; note that this native code is not mixed with
-the threaded code in memory, as you can see by comparing the
-addresses.
+@code{dup >r} is shown; note that this native code is not mixed with
+the threaded code in memory; so basically here you see two sequences,
+shown in an interleaved way, intended to show the threaded and native
+code for each primitive adjacent to each other (but not always
+succeeding): One sequence @code{<foo>...<foo+$30>} for the threaded
+code, and the other (@code{$7FBC47873933}...@code{$7FBC47873952}) for
+the dynamically generated native code.
 
-If you want to understand the native code shown here: the
-threaded-code instruction pointer is in @code{r13}, the data stack
-pointer in @code{r15}; the first data stack register is @code{r8}
-(i.e., the top of stack resides there if there is one data stack item
-in a register); the return stack pointer is in @code{rbx}, the FP
-stack pointer in @code{r12}, and the top of the floating-pont stack in
-@code{xmm15}.  Note that the register assignments vary between
-engines, so you may see a different register assignment for this code.
+There is no code executed for @code{drop} in the @code{1->0} case, so
+no native code is shown for @code{drop}, and that's also the reason why
+the threaded code for @code{drop} is shown before the native code for
+@code{dup >r}; @word{see-code} is not clever enough to show the
+@code{drop} behind that native-code fragment.
 
-The dynamic native code for @code{lit f@@} ends with a dispatch jump
-(aka NEXT), because the code for the next word @code{fsin} in the
-definition is not dynamically generated.
+If you want to understand the native code shown here: the return-stack
+pointer is in @code{%r14}, and the first data stack register is
+@code{%r13} (i.e., the top of stack resides there if there is one data
+stack item in a register).  The threaded-code instruction pointer (IP)
+is in @code{%rbx} (used by @code{lit} and @code{;s} in this example).
+Note that the register assignments vary between builds, so you may see
+a different register assignment for this code.
 
-Next, you see the threaded-code cell for @code{fsin}.  There is no
-dynamically-generated native code for this word, and @code{see-code}
-does not show the static native code for it (you can look at it with
-@code{see fsin}).  Like all words with static native code in
-@code{gforth-fast}, the effect on the data stack representation is
-@code{1->1} (for @code{gforth}, @code{0->0}), but this is not shown.
+Next, the threaded code for @word{lit} is shown as well as its stack
+states (@code{0->1}), followed by the cell of the immediate argument
+@code{5} of @word{lit}.
 
-Next, you see the threaded-code cell for @code{drop}; the native-code
-variant used here starts with one data stack item in registers, and
-ends with zero data stack items in registers (@code{1->0}).  This is
-followed by the native code for this variant of @code{drop}.  There is
-no NEXT here, because the native code falls through to the code for
-the next word.
+Then the threaded code for @word{fsin} is shown.  There is no
+dynamically-generated native code for @code{fsin}, and @code{see-code}
+does not show the static native code for this word (you can look at it
+with @code{see fsin}), that's why no native code is shown for
+@word{fsin}, and its threaded code is shown adjacent to the previous
+threaded code.
 
-Next, you see the threaded-code cell for @code{over} followed by the
-dynamically-generated native code in the @code{0->1} variant.
+The next line is the native code for the @code{lit}, which is adjacent
+to the last shown native code.  The code for @code{lit} loads the 5
+residing at @code{<foo+$20>} with an access that uses IP (which still
+points to @code{<foo>} at this point) with an offset of @code{$20}
+(shown as @code{0x20}).
 
-Finally, you see the threaded and native code for @code{;s} (the
-primitive compiled for @code{;} in @code{foo}).  @code{;s} performs
-control flow (it returns), so it has to end with a NEXT.
+Because the (static) native code for @code{fsin} is elsewhere, code
+for jumping to that native code has to be generated: First, IP is
+brought up-to-date with the instruction at @code{$7FBC4787393F} and
+after that IP points to @code{<foo+$28>}.  The instruction at
+@code{$7FBC47873943} loads the code address of @word{fsin} from IP,
+and the next instruction jumps to that code address, executing
+@word{fsin}.  These two instructions constitute a direct-threaded code
+dispatch (NEXT1).
+
+Next, we see the threaded code of @word{;s} (the primitive compiled
+for @code{;} in @code{foo}), and then the dynamically generated native
+code for @code{;s}: It loads IP from the return stack and updates the
+return stack pointer.  Because it performs control flow, @word{;s} has
+to end in a direct-threaded code dispatch.
 
 @node Examining data, Forgetting words, Examining compiled code, Programming Tools
 @subsection Examining data
