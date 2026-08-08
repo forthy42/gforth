@@ -16854,29 +16854,39 @@ outputs:
    $7FBC47873952: jmp    *%rax
 @end example
 
-First, you see a threaded-code cell for a static superinstruction with
-the components @code{dup} and @code{>r}, starting and ending with one
-data stack item in a register (@code{1->1}); this is followed by the
-the cell for the @code{>r} component of the superinstruction; the
-latter cell is not used, but is there for Gforth-internal reasons.
-Next, you see the cell for @code{drop}, which starts with one data
-stack item in registers and ends with no data stack items in registers
+This shows two sequences: The threaded code at
+@code{<foo>...<foo+$30>}, and the dynamically-generated native code at
+@code{$7FBC47873933}...@code{$7FBC47873952}.  These two sequences are
+shown in an interleaved way, ideally such that we see the threaded
+code of a primitive or static superinstruction (including immediate
+arguments and slots for the remaining primitives of a static
+superinstruction) is followed by the native code for the primitive or
+static superinstruction.  In some cases, Gforth deviates from this
+ideal, as we will see.  But the important thing to remember is that
+the two sequences are at different places in memory and are not
+interleaved there.  You can easily see that by noticing that there is
+no room for the native code between the threaded-code addresses, nor
+is there room for the threaded code between the native-code addresses.
+
+In the example, you first see a threaded-code cell for a static
+superinstruction with the components @code{dup} and @code{>r},
+starting and ending with one data stack item in a register
+(@code{1->1}); this is followed by the the cell for the @code{>r}
+component of the superinstruction; the latter cell is not used, but is
+there, because static superinstructions are formed only after the
+threaded-code layout has been determined.  Next, you see the threaded
+code for @code{drop}, which starts with one data stack item in
+registers and ends with no data stack items in registers
 (@code{1->0}), i.e., all data stack items are in memory.
 
 Next, the dynamically generated native code for the superinstruction
-@code{dup >r} is shown; note that this native code is not mixed with
-the threaded code in memory; so basically here you see two sequences,
-shown in an interleaved way, intended to show the threaded and native
-code for each primitive adjacent to each other (but not always
-succeeding): One sequence @code{<foo>...<foo+$30>} for the threaded
-code, and the other (@code{$7FBC47873933}...@code{$7FBC47873952}) for
-the dynamically generated native code.
+@code{dup >r} is shown.
 
-There is no code executed for @code{drop} in the @code{1->0} case, so
-no native code is shown for @code{drop}, and that's also the reason why
-the threaded code for @code{drop} is shown before the native code for
-@code{dup >r}; @word{see-code} is not clever enough to show the
-@code{drop} behind that native-code fragment.
+There is no native code executed for @code{drop} in the @code{1->0}
+case, so no native code is shown for @code{drop}, and that's also the
+reason why the threaded code for @code{drop} is shown before the
+native code for @code{dup >r}; @word{see-code} is not clever enough to
+show the @code{drop} behind that native-code fragment.
 
 If you want to understand the native code shown here: the return-stack
 pointer is in @code{%r14}, and the first data stack register is

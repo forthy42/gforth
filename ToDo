@@ -67,7 +67,8 @@ AB       [ ] Try building on non-Linux machines (cfarm)
  B   [d] (Dropped) Multithreading: Use sections to allow compilation in every threading
 ABG  [ ] fork-marker use fork instead of classic marker
 AB   [x] marker für sections
-ABG  [ ] bin-utils disassembler
+ABG  [x] bin-utils disassembler
+A    [ ] better threaded/native interleaving for SEE-CODE (see example in manual)
 AB   [ ]*documented view>* (internal words) in IDE
 AB   [x] locate of nested recognizers
  B       [x] print information about recognizer
