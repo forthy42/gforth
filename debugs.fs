@@ -222,7 +222,10 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 : watch-does> ( -- ) DOES> dup @ ~~ drop ;
 : watch-opt: ( xt -- ) opt: >body ]] Literal dup @ ~~ drop [[ ; 
 : ~~Variable ( "name" -- ) \ gforth
-    \G Variable that will be watched on every access
+    \g Define @i{name} and reserve a cell at @i{addr}.@*
+    \g @i{name} execution: @code{( -- addr )} Show a @word{~~} tracer
+    \g with @code{@i{addr} @@} on the top of the data stack.  In all
+    \g other respects @i{name} behaves like a normal variable.
   Create 0 , watch-does> watch-opt: ;
 
 : ~~>body ( addr -- body ) ~~ ;
@@ -230,7 +233,16 @@ fold1: lit, ]] ~~ [[ ;
 ' ~~>body !-table to-class: ~~value-to
 
 : ~~Value ( n "name" -- ) \ gforth
-    \G Value that will be watched on every access
+    \g Define @i{name} with the initial value @i{w}; like @word{value}
+    \g but with tracers on the @word{to} and @word{+to} actions.@*
+    \g @i{name} execution: @i{( -- w2 )} push the current value of
+    \g @i{name}.@*
+    \g @code{to @i{name}} run-time: @i{( w3 -- )}
+    \g Show a @word{~~} tracer with the xt of @i{name} on top of
+    \g @i{w3}, then change the value of @i{name} to @i{w3}.@*
+    \g @code{+to @i{name}} run-time: @i{( n|u -- )}
+    \g Show a @word{~~} tracer with the xt of @i{name} on top of
+    \g @i{n|u}, then increment the value of @i{name} by @i{n|u}.
     Value ['] ~~value-to set-to ;
 
 \ trace lines

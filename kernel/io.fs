@@ -33,7 +33,7 @@ UValue outfile-id ( -- file-id ) \ gforth
 \G @code{outfile-id} produces the process's @code{stdout}, unless
 \G changed with @code{outfile-execute}.
 UValue debug-fid ( -- file-id ) \ gforth @i{File-id} is used by
-\G debugging words for output.  By default it is the process's
+\G Output file for debugging words.  By default it is the process's
 \G @code{stderr}.
 
 User out ( -- addr ) \ gforth
