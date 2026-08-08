@@ -17211,15 +17211,31 @@ time that code is run, it increments the counter for that basic block.
 Later you can show the source file with the counts inserted in these
 basic blocks.
 
-doc-nocov[
-doc-]nocov
-doc-coverage?
-doc-cov+
-doc-?cov+
+A simple use of the coverage tools is as follows:
+
+@example
+gforth coverage.fs fib.fs -e "main .coverage bye"
+@end example
+
+This shows the source program annotated with execution counts (and
+code that is never executed in red).  A more sophisticated usgae is:
+
+@example
+gforth coverage.fs source.fs tests1.fs -e "save-cov bye"
+gforth coverage.fs source.fs -e "load-cov" tests2.fs -e "save-cov bye"
+gforth coverage.fs source.fs -e "load-cov" tests3.fs -e "bw-cover annotate-cov bye"
+@end example
+
+This runs the tests in three steps, saving and restoring the coverage
+information from one step to the next.  Eventually the execution
+counts are put in copies of the source file(s), with an appended
+extension @code{.cov} (e.g., @file{source.fs.cov}).  The counts are
+shown in parentheses (due to @word{bw-cover}) rather than in color
+(default).
+
+
 doc-.coverage
 doc-annotate-cov
-doc-cov%
-doc-.cover-raw
 
 By default, the counts are shown in colour (using ANSI escape
 sequences), but you can use @code{bw-cover} to show them in
@@ -17234,7 +17250,17 @@ program.
 
 doc-save-cov
 doc-load-cov
-doc-cover-filename
+
+In addition, there are the following words that one may want to use in
+special circumstances.
+
+doc-nocov[
+doc-]nocov
+doc-cov+
+doc-?cov+
+doc-cov%
+doc-.cover-raw
+
 
 @c -------------------------------------------------------------
 @node Multitasker, C Interface, Programming Tools, Words
