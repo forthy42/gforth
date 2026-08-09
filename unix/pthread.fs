@@ -299,9 +299,10 @@ Defer thread-init
     ]] (pass) up! sp0 ! thread-init [[ ; immediate compile-only
 
 : initiate ( xt task -- ) \ gforth-experimental
-    \G Let @i{task} execute @i{xt}.  Upon return from the @i{xt}, the task
-    \G terminates itself (VFX compatible).  Use one-time executable closures
-    \G to pass arbitrary paramenters to a task.
+    \G Let @i{task} execute @i{xt}.  Upon return from the @i{xt}, the
+    \G task terminates itself (VFX compatible).  Use one-time
+    \G executable closures (see @word{:}h1}, @pxref{Closures}) to pass
+    \G arbitrary paramenters to a task.
     1 swap pass execute ;
 
 : semaphore ( "name" -- ) \ gforth-experimental
@@ -375,9 +376,8 @@ synonym c-section critical-section
 \G Stop with timeout (in nanoseconds), better replacement for ms
     epiper @ swap 0 1000000000 um/mod wait_read 0> IF  stop  THEN ;
 : stop-dns ( dtimeout -- ) \ gforth-experimental
-\G Stop with timeout (in nanoseconds), better replacement for ms
-    epiper @ -rot 1000000000 um/mod wait_read 0> IF  stop  THEN ;
 \G Stop with dtimeout (in nanoseconds), better replacement for ms
+    epiper @ -rot 1000000000 um/mod wait_read 0> IF  stop  THEN ;
 
 : event-loop ( -- ) \ gforth-experimental
     \G Wait for event xts and execute these xts when they arrive, one
@@ -409,10 +409,10 @@ synonym wake restart ( task -- ) \ gforth-experimental
     \G Wake @i{task}
 
 : halt ( task -- ) \ gforth-experimental
-    \G Stop @i{task} (no difference from @code{sleep})
+    \G @word{Stop} @i{task} (no difference from @code{sleep})
     ['] stop swap send-event ;
 synonym sleep halt ( task -- ) \ gforth-experimental
-    \G Stop @i{task} (no difference from @code{halt})
+    \G @word{Stop} @i{task} (no difference from @code{halt})
 
 : event-block ( task -- ) \ gforth-internal
     \G send an event and wait for the answer

@@ -548,7 +548,7 @@ Pthreads
 * Basic multi-tasking::
 * Task-local data::
 * Semaphores::
-* Hardware operations for multi-tasking::
+* Atomic memory accesses and memory ordering::
 * Message queues::
 
 C Interface
@@ -17273,11 +17273,11 @@ doc-.cover-raw
 @end menu
 
 Gforth offers two multitaskers: a traditional, cooperative round-robin
-multitasker, and a pthread-based multitasker which allows to run several
-threads concurrently on multi-core machines.  The pthread-based is now
-marked as experimental feature, as standardization of Forth
-multitaskers will likely change the names of words without changing
-their semantics.
+multitasker (undocumented), and a multitasker based on POSIX threads
+(pthreads) which allows to run several threads concurrently on
+multi-core machines (documented here).  The pthread-based multi-tasker
+is now marked as experimental feature, as standardization of Forth
+multitaskers will likely result in changes here and there.
 
 @node Pthreads, Cilk, Multitasker, Multitasker
 @subsection Pthreads
@@ -17285,22 +17285,24 @@ their semantics.
 
 @c You need to include @file{unix/pthread.fs} to use the following words.
 
-Posix threads can run in parallel on several cores, or with
-pre-emptive multitasking on onecore.  However, many of the following
-words are the same as in the traditional cooperative multi-tasker.
+Many of the following words are the same as in the traditional
+cooperative multi-tasker.  However, while in the cooperative
+multi-tasker you can be sure that any sequence of words between two
+task-switching words (e.g., @word{pause}, @word{ms}, maybe I/O words)
+is atomic, POSIX threads can switch tasks everywhere (pre-emptive
+multitasking) or (worse) run two tasks at the same time on different
+cores, often with unintuitive memory ordering by the hardware.
 
-In addition, there are words that allow you to make sure that only one
-task at a time changes something, and for communicating between tasks.
-These words are necessary for pre-emptive and multi-core
-multi-tasking, because the cooperative-multitasking way of performing
-transactions between calls to @code{pause} does not work in this
-environment.
+So, with pthreads, you need to use various ways to perform atomic
+accesses or use some mutual exclusion mechanism when dealing with
+written-to memory shared between tasks.  Alternatively, you can use
+message queues, which avoid the need to deal with shared memory.
 
 @menu
 * Basic multi-tasking::
 * Task-local data::
 * Semaphores::
-* Hardware operations for multi-tasking::
+* Atomic memory accesses and memory ordering::
 * Message queues::
 @end menu
 
@@ -17309,7 +17311,8 @@ environment.
 
 Tasks can be created with @code{newtask} or @code{newtask4} with a
 given amount of stack space (either all the same or each stack's size
-specified).
+specified).  The @i{task} returned by the following words is a single
+cell that serves as reference to the task.
 
 doc-newtask
 doc-task
@@ -17349,8 +17352,6 @@ doc-kill
 
 Tasks can also temporarily stop themselves or be stopped:
 
-doc-halt
-doc-sleep
 doc-stop
 doc-stop-ns
 doc-stop-dns
@@ -17359,6 +17360,10 @@ doc-thread-deadline
 Using @code{stop-dns} is easier to code, but if you want your task to
 wake up at regular intervals rather than some time after it finished
 its last piece of work, the way to go is to work with deadlines.
+
+doc-halt
+doc-sleep
+
 
 A task restarts when the timeout is over or when another task wakes it
 with:
@@ -17400,14 +17405,13 @@ doc-'s
 The pictured numeric output buffer is also task-local, but other areas
 like dictionary or @code{PAD} are shared.
 
-@node Semaphores, Hardware operations for multi-tasking, Task-local data, Pthreads
+@node Semaphores, Atomic memory accesses and memory ordering, Task-local data, Pthreads
 @subsubsection Semaphores
 
 A cooperative multitasker can ensure that there is no other task
 interacting between two invocations of @code{pause}.  Pthreads however
-are really concurrent tasks (at least on a multi-core CPU), and
-therefore, several techniques to avoid conflicts when accessing the same
-resources.
+are really concurrent tasks, and therefore, Gforth provides several
+techniques to avoid conflicts when accessing the same resources.
 
 Semaphores can only be acquired by one thread, all other threads have to
 wait until the semapohre is released.
@@ -17424,9 +17428,11 @@ exclusive.
 
 doc-critical-section
 
-@node Hardware operations for multi-tasking, Message queues, Semaphores, Pthreads
-@subsubsection Hardware operations for multi-tasking
+@node Atomic memory accesses and memory ordering, Message queues, Semaphores, Pthreads
+@subsubsection Atomic memory accesses and memory ordering
 @cindex atomic operations
+@anchor{Hardware operations for multi-tasking}
+
 
 Atomic hardware operations perform the whole operation, without any
 other task seeing an intermediate state.  These operations can be used
@@ -17453,7 +17459,7 @@ the task.
 
 doc-barrier
 
-@node Message queues,  , Hardware operations for multi-tasking, Pthreads
+@node Message queues,  , Atomic memory accesses and memory ordering, Pthreads
 @subsubsection Message queues
 
 Gforth's message queues are a variant of the actor model.
