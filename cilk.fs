@@ -69,15 +69,17 @@ semaphore workers-sema
 
 : spawn ( xt -- ) \ cilk
     \G Execute @i{xt} ( -- ) in a worker task.
-    \G Use one-time executable closures to pass heap-allocated closures,
-    \G allowing to pass arbitrary data from the spawner to the code
-    \G running in the worker.@*
+    \G Use one-time executable closures (defined using @word{:}h1},
+    \G @pxref{Closures}) to pass arbitrary data from the spawner to
+    \G the code running in the worker.@*
     \G E.g.: @code{( n r ) [@{: n f: r :@}h1 code ;] spawn}
     up@ [{: xt: xt task :}h1 task invoker ! xt ;]
     worker@ send-event 1 sync# +! ;
+
 : spawn1 ( x xt -- ) \ cilk
     \G Execute @i{xt} ( x -- ) in a worker task.
     [{: x xt: xt :}h1 x xt ;] spawn ;
+
 : spawn2 ( x1 x2 xt -- ) \ cilk
     \G Execute @i{xt} ( x1 x2 -- ) in a worker task.
     [{: d: x xt: xt :}h1 x xt ;] spawn ;
