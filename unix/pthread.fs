@@ -277,7 +277,8 @@ Defer thread-init
     r> swap >r  save-task r@ 's !
     pthread-id r@ 's 0 thread_start r> pthread_create drop ; compile-only
 
-: activate ( run-time nest-sys1 task -- ) \ gforth-experimental
+: activate ( run-time nest-sys1 task -- ) \ gforth-obsolete
+    \G @word{Activate} is obsolete; use @word{initiate} instead.@*
     \G Let @i{task} perform the code behind @code{activate}, and
     \G return to the caller of the word containing @code{activate}.
     \G When the task returns from the code behind @code{activate}, it
@@ -290,7 +291,8 @@ Defer thread-init
     sp0 r@ 's @ swap 0 ?DO  tuck ! cell+  LOOP  drop
     pthread-id r@ 's 0 thread_start r> pthread_create drop ; compile-only
 
-: pass ( x1 .. xn n task -- ) \ gforth-experimental
+: pass ( x1 .. xn n task -- ) \ gforth-internal
+    \G @word{Pass} is obsolete; use @word{initiate} instead.@*
     \G Pull @i{x1 .. xn n} from the current task's data stack and push
     \G @i{x1 .. xn} on @i{task}'s data stack.  Let @i{task} perform
     \G the code behind @code{pass}, and return to the caller of the

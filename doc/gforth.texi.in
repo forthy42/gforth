@@ -17329,17 +17329,7 @@ activate it with one of the following words:
 
 doc-initiate
 
-The following legacy words provide the same functionality as
-@code{initiate}, but with a different interface: Like @code{does>}, they
-split their containing colon definition in two parts: The part before
-@code{activate}/@code{pass} runs in the activating task, and returns to
-its caller after activating the task.  The part behind
-@code{activate}/@code{pass} is executed in the activated target task.
-
-doc-activate
-doc-pass
-
-You can also do creation and activation in one step:
+You can also do creation and initiation in one step:
 
 doc-execute-task
 
