@@ -25,7 +25,7 @@ e? os-type 2dup s" darwin" string-prefix? -rot s" openbsd" string-prefix? or [IF
     s>number drop
     r> free throw
 [ELSE] e? os-type s" linux" search nip nip [IF]
-	s" /sys/devices/system/cpu/present" slurp-file over >r
+	s" /sys/devices/system/cpu/online" slurp-file over >r
 	#lf -scan '-' $split 2nip
 	s>number drop 1+
 	r> free throw
