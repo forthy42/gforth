@@ -307,14 +307,15 @@ Defer thread-init
     \G arbitrary paramenters to a task.
     1 swap pass execute ;
 
-: semaphore ( "name" -- ) \ gforth-experimental
-    \G create a named semaphore @i{name}@*
-    \G @i{name} execution: ( -- @i{semaphore} )
+: mutex ( "name" -- ) \ gforth-experimental
+    \G create a named mutex @i{name}, initially unlocked.@*
+    \G @i{name} execution: ( -- @i{mutex} )
     Create  here 1 pthread-mutexes allot
     host? IF
 	0 pthread_mutex_init drop
     ELSE  drop  THEN ;
-synonym sema semaphore
+synonym semaphore mutex
+synonym sema mutex
 
 : cond ( "name" -- ) \ gforth-experimental
     \G create a named condition
@@ -323,17 +324,18 @@ synonym sema semaphore
 	0 pthread_cond_init drop
     ELSE  drop  THEN ;
 
-: lock ( semaphore -- ) \ gforth-experimental
-\G lock the semaphore
+: lock ( mutex -- ) \ gforth-experimental
+    \G If @i{mutex} is currently locked, wait until it is unlocked.
+    \G Lock @i{mutex}.
     pthread_mutex_lock drop ;
-: unlock ( semaphore -- ) \ gforth-experimental
-\G unlock the semaphore
+: unlock ( mutex -- ) \ gforth-experimental
+    \G Unlock @i{mutex}.
     pthread_mutex_unlock drop ;
 
-: critical-section ( xt semaphore -- )  \ gforth-experimental
-    \G Execute @i{xt} while locking @i{semaphore}.  After leaving
-    \G @i{xt}, @i{semaphore} is unlocked even if an exception is
-    \G thrown.
+: critical-section ( xt mutex -- )  \ gforth-experimental
+    \G If @i{mutex} is currently locked, wait until it is unlocked.
+    \G Lock @i{mutex}, then execute @i{xt}.  After @i{xt} finishes
+    \G (regularly, or through an exception), unlock @i{mutex}.
     { sema } try sema lock execute 0 restore sema unlock endtry throw ;
 synonym c-section critical-section
 

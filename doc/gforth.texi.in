@@ -547,7 +547,7 @@ Pthreads
 
 * Basic multi-tasking::
 * Task-local data::
-* Semaphores::
+* Mutexes::
 * Atomic memory accesses and memory ordering::
 * Message queues::
 
@@ -17301,7 +17301,7 @@ message queues, which avoid the need to deal with shared memory.
 @menu
 * Basic multi-tasking::
 * Task-local data::
-* Semaphores::
+* Mutexes::
 * Atomic memory accesses and memory ordering::
 * Message queues::
 @end menu
@@ -17365,7 +17365,7 @@ There is also:
 
 doc-pause
 
-@node Task-local data, Semaphores, Basic multi-tasking, Pthreads
+@node Task-local data, Mutexes, Basic multi-tasking, Pthreads
 @subsubsection Task-local data
 @cindex user variables
 @cindex user space
@@ -17395,26 +17395,22 @@ doc-'s
 The pictured numeric output buffer is also task-local, but other areas
 like dictionary or @code{PAD} are shared.
 
-@node Semaphores, Atomic memory accesses and memory ordering, Task-local data, Pthreads
-@subsubsection Semaphores
+@node Mutexes, Atomic memory accesses and memory ordering, Task-local data, Pthreads
+@subsubsection Mutexes
+@anchor{Semaphores}
 
-A cooperative multitasker can ensure that there is no other task
-interacting between two invocations of @code{pause}.  Pthreads however
-are really concurrent tasks, and therefore, Gforth provides several
-techniques to avoid conflicts when accessing the same resources.
+Pthreads tasks run concurrently, so they need a mechanism to
+coordinate access to resources (while that is not necessary for
+cooperative multitasking).
 
-Semaphores can only be acquired by one thread, all other threads have to
-wait until the semapohre is released.
+Mutexes can only be locked by one thread at one time, all other
+threads have to wait until the mutex is unlocked.
 
-doc-semaphore
+doc-mutex
 doc-lock
 doc-unlock
 
-The other approach to prevent concurrent access is the critical section.
-Here, we implement a critical section with a semaphore, so you have to
-specify the semaphore which is used for the critical section.  Only
-those critical sections which use the same semaphore are mutually
-exclusive.
+You can ensure that you always unlock a mutex after locking it by using:
 
 doc-critical-section
 
