@@ -18240,6 +18240,8 @@ And an AMD64 example of using @word{;abi-code}:
   \ data stack pointer in rax
   ret
 end-code
+5 myconst x
+x .
 @end source
 
 
