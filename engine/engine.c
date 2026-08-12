@@ -519,16 +519,7 @@ Label *gforth_engine(Xt *ip0 sr_proto)
 */
 {
   register stackpointers * SPs SPSREG = in_SPs;
-#undef gforth_SP
-#undef gforth_RP
-#undef gforth_LP
-#undef gforth_UP
-#undef gforth_FP
-#define gforth_SP (SPs->spx)
-#define gforth_RP (SPs->rpx)
-#define gforth_LP (SPs->lpx)
-#define gforth_UP (SPs->upx)
-#define gforth_FP (SPs->fpx)
+#define gforth_SPs (*SPs)
 #if defined(GFORTH_DEBUGGING)
 # undef saved_ip
 # define rp (SPs->s_rp)
