@@ -18118,9 +18118,9 @@ instances of @code{add-lib}, however.
 
 Gforth provides ways to implement words in assembly language (using
 @code{abi-code}...@code{end-code}), and also ways to define defining
-words with arbitrary run-time behaviour (like @code{does>}), where
-(unlike @code{does>}) the behaviour is not defined in Forth, but in
-assembly language (with @code{;code}).
+words that specify the run-time behaviour of the defined words in
+assembly language (using @word{;abi-code}, similar to @word{does>},
+but with assembly language after @word{;abi-code}).
 
 However, the machine-independent nature of Gforth poses a few
 problems: First of all, Gforth runs on several architectures, so it
@@ -18129,18 +18129,20 @@ several of the architectures it runs on, though.  Moreover, you can
 use a system-independent assembler in Gforth, or compile machine code
 directly with @code{,} and @code{c,}.
 
-Another problem is that the virtual machine registers of Gforth (the
-stack pointers and the virtual machine instruction pointer) depend on
-the installation and engine.  Also, which registers are free to use
-also depend on the installation and engine.  So any code written to
-run in the context of the Gforth virtual machine is essentially
-limited to the installation and engine it was developed for (it may
-run elsewhere, but you cannot rely on that).
+A problem with the traditional words @word{code} and @word{;code} is
+that the virtual machine registers of Gforth (the stack pointers and
+the virtual machine instruction pointer) depend on the installation
+and engine.  Also, which registers are free to use also depends on the
+installation and engine.  So any code written to run in the context of
+the Gforth virtual machine is essentially limited to the installation
+and engine it was developed for (it may run elsewhere, but you cannot
+rely on that).
 
-Fortunately, you can define @code{abi-code} words in Gforth that are
-portable to any Gforth running on a platform with the same calling
-convention (ABI); typically this means portability to the same
-architecture/OS combination, sometimes crossing OS boundaries).
+Fortunately, you can define @code{abi-code} and @word{;abi-code} words
+in Gforth that are portable to any Gforth running on a platform with
+the same calling convention (ABI); typically this means portability to
+the same architecture/OS combination, sometimes crossing OS
+boundaries).
 
 doc-assembler
 doc-init-asm
@@ -18167,7 +18169,7 @@ to the equivalent high-level defining words:
    <high-level Forth words>           <high-level Forth words>
    CREATE                             CREATE
       <high-level Forth words>           <high-level Forth words>
-   DOES>                              ;code
+   DOES>                              ;abi-code
       <high-level Forth words>           <assembler>
 ;                                  end-code
 @end example
@@ -18225,6 +18227,21 @@ dx    cx ) mov  \ store new fp
 ret             \ return from my-f+
 end-code
 @end example
+
+And an AMD64 example of using @word{;abi-code}:
+
+@source
+: myconst ( n "name" -- )
+  create ,
+;abi-code ( -- n )
+  \ data stack pointer in rdi, body address of "name" in rdx
+  -8 di d) ax lea \ rax = rdi-8 \ compute new data stack pointer
+  dx ) cx mov     \ rcx = *rdx  \ get the value of the constant
+  cx ax ) mov     \ *rax = rcx  \ and store it on the data stack
+  \ data stack pointer in rax
+  ret
+end-code
+@end source
 
 
 @node Common Assembler, Common Disassembler, Assembler Definitions, Assembler and Code Words
