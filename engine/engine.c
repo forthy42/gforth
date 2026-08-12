@@ -521,9 +521,7 @@ Label *gforth_engine(Xt *ip0 sr_proto)
   register stackpointers * SPs SPSREG = in_SPs;
 #define gforth_SPs (*SPs)
 #if defined(GFORTH_DEBUGGING)
-# undef saved_ip
-# define rp (SPs->s_rp)
-# define saved_ip (SPs->s_ip)
+# define rp saved_rp
 #else /* !defined(GFORTH_DEBUGGING) */
   register Cell *rp RPREG;
 # undef saved_ip
