@@ -836,12 +836,12 @@ void gforth_ms(UCell u)
 #endif /* !defined(HAVE_NANOSLEEP) */
 }
 
-UCell gforth_dlopen(Char *c_addr, UCell u)
+Address gforth_dlopen(Char *c_addr, UCell u)
 {
   char * file=tilde_cstr(c_addr, u);
-  UCell lib;
+  Address lib;
 #if defined(HAVE_LIBLTDL)
-  lib = (UCell)lt_dlopen(file);
+  lib = (Address)lt_dlopen(file);
   free_l(file);
   if(lib) return lib;
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
@@ -851,12 +851,12 @@ UCell gforth_dlopen(Char *c_addr, UCell u)
 #ifndef RTLD_LAZY
 #define RTLD_LAZY 0
 #endif
-  lib = (UCell)dlopen(file, RTLD_GLOBAL | RTLD_LAZY);
+  lib = (Address)dlopen(file, RTLD_GLOBAL | RTLD_LAZY);
   free_l(file);
   if(lib) return lib;
   fprintf(stderr, "%s\n", dlerror());
 #elif defined(_WIN32)
-  lib = (UCell) GetModuleHandle(file);
+  lib = (Address) GetModuleHandle(file);
   free_l(file);
   if(lib) return lib;
 #endif

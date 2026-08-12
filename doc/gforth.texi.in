@@ -18002,17 +18002,19 @@ end-c-library
 @node C interface internals, Low-Level C Interface Words, Callbacks, C Interface
 @subsection How the C interface works
 
-The documented C interface works by generating a C code out of the
-declarations.
+For every Forth word declared with @code{c-function}, the C interface
+generates a wrapper function in C that takes the Forth data from the
+Forth stacks, and calls the target C function with these data as
+arguments.  After the C function returns, the return value is pushed
+on the appropriate stack.
 
-In particular, for every Forth word declared with @code{c-function},
-it generates a wrapper function in C that takes the Forth data from
-the Forth stacks, and calls the target C function with these data as
-arguments.  The C compiler then performs an implicit conversion
-between the Forth type from the stack, and the C type for the
-parameter, which is given by the C function prototype.  After the C
-function returns, the return value is likewise implicitly converted to
-a Forth type and written back on the stack.
+During this process, type conversion may happen between the Forth type
+and the C type of an argument or return value.  E.g. on a 64-bit
+platform, if the Forth argument is (64-bit) @code{n}, and the C
+argument is (32-bit) int, the @code{n} will be cast into the int
+(chopping off the 32 most-significant bits), while for a return value
+the same relation will lead into a sign-extension of the 32-bit int
+into a 64-bit @code{n}.
 
 The @code{\c} lines are literally included in the C code (but without
 the @code{\c}), and provide the necessary declarations so that the C
@@ -18081,11 +18083,11 @@ Contribution to the @uref{https://github.com/GeraldWodni/forth-c-interfaces, For
 @subsection Migrating from Gforth 0.7
 @cindex Must now be used inside C-LIBRARY, see C interface doc
 
-In this version, you can use @code{\c}, @code{c-function} and
-@code{add-lib} only inside @code{c-library}...@code{end-c-library}.
-@code{add-lib} now always starts from a clean slate inside a
-@code{c-library}, so you don't need to use @code{clear-libs} in most
-cases.
+In Gforth 1.0 and following, you can use @code{\c}, @code{c-function}
+and @code{add-lib} only inside
+@code{c-library}...@code{end-c-library}.  @code{add-lib} now always
+starts from a clean slate inside a @code{c-library}, so you don't need
+to use @code{clear-libs} in most cases.
 
 If you have a program that uses these words outside
 @code{c-library}...@code{end-c-library}, just wrap them in

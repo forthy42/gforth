@@ -3190,24 +3190,33 @@ ffourth	  ( r1 r2 r3 r4 -- r1 r2 r3 r4 r1 )	gforth
 
 \g syslib
 
-open-lib	( c_addr1 u1 -- u2 )	gforth	open_lib
-u2 = gforth_dlopen(c_addr1, u1);
+open-lib	( c_addr1 u1 -- c_addr2 )	gforth	open_lib
+""Open the (typically shared) library with the name given by
+@i{c-addr1 u1} and return the handle @i{c-addr2} (to be used by
+@word{lib-sym}).""
+c_addr2 = gforth_dlopen(c_addr1, u1);
 
 open-lib2	( c_addr1 u1 -- u2 )	gforth-internal	open_lib2
+""Open the (typically shared) library with the name given by
+@i{c-addr1 u1} and return the handle @i{u2} (to be used by
+@word{lib-sym}).""
 u2 = gforth_dlopen2(c_addr1, u1);
 
-lib-sym	( c_addr1 u1 u2 -- u3 )	gforth	lib_sym
+lib-sym	( c_addr1 u1 c_addr2 -- c_addr3 )	gforth	lib_sym
+""@i{C-addr3} is the address of the symbol @i{c-addr1 u1} in the
+library @i{c_addr2} (opened with @word{open-lib}).  If the library
+does not contain the symbol, @i{c-addr3} is 0.""
 char * string = cstr(c_addr1, u1);
 #ifdef HAVE_LIBLTDL
-u3 = (UCell) lt_dlsym((lt_dlhandle)u2, string);
+c_addr3 = (Address) lt_dlsym((lt_dlhandle)c_addr2, string);
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
-u3 = (UCell) dlsym((void*)u2,string);
+c_addr3 = (Address) dlsym(c_addr2,string);
 #else
 #  ifdef _WIN32
-u3 = (Cell) GetProcAddress((HMODULE)u2, string);
+c_addr3 = (Address) GetProcAddress((HMODULE)c_addr2, string);
 #  else
 #warning Define lib-sym!
-u3 = 0;
+c_addr3 = 0;
 #  endif
 #endif
 free_l(string);
