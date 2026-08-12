@@ -102,7 +102,8 @@ interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	s
     \G memory location containing the FP stack pointer and is passed
     \G out by storing the changed FP stack pointer there (if necessary).
     \G The parameter @i{body} is the body of @i{X}.
-    ['] !;abi-code does>-like postpone [ init-asm ; immediate
+    ]] 0 [[ lits, here cell- >r ]] !;abi-code ; [[
+    here r> ! defstart init-asm ; immediate
 [then]
     
 : end-code ( colon-sys -- )	\ gforth	end_code

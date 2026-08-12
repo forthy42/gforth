@@ -580,18 +580,6 @@ defer defer-default ( -- )
     \G binding as if @i{name} was not deferred.
     ' defer@ compile, ; immediate
 
-\ No longer used for DOES>; integrate does>-like with ;abi-code, and
-\ eliminate the extra stuff?
-
-: does>-like ( xt -- colon-sys )
-    \ xt ( addr -- ) is !does or !;abi-code etc, addr is the address
-    \ that should be stored right after the code address.
-    >r ;-hook
-    exit-like
-    here [ has? peephole [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] cells +
-    postpone literal r> compile, [compile] exit
-    ?colon-sys basic-block-end colon-sys ;
-
 \ call with locals - unused
 
 \ docolloc-dummy (docolloc-dummy)
