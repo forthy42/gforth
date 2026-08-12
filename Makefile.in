@@ -299,6 +299,7 @@ GFORTH_FI_SRC2=\
 	closures.fs \
 	complex.fs \
 	csv.fs \
+	edot.fs \
 	environ.fs \
 	errors.fs \
 	exboot.fs \
