@@ -598,7 +598,7 @@ Label *gforth_engine(Xt *ip0 sr_proto)
   CPU_DEP2
 #endif
 
-  rp = SPs->rpx;
+  rp = gforth_RP;
 #ifdef DEBUG
   debugp(stderr,"ip=%lx, sp=%lx, rp=%lx, fp=%lx, lp=%lx, up=%lx\n",
 	 (Cell)ip0,(Cell)sp,(Cell)rp,
