@@ -17965,19 +17965,18 @@ doc-c-callback-thread
 
 This precompiles a number of callback functions (up to the value
 @code{callback#}).  The prototype of the C function is deduced from
-its Forth signature.  If this is not sufficient, you can add types in
-curly braces after the Forth type.
+its Forth signature.
 
 @source
 c-library callback-test
-\c typedef void (*v4d)(double,double,double,double);
-\c void testv4d(v4d f) {f(0.5,1.5,2.5,3.5);}
-c-function testv4d test4vd a -- void
-c-callback vector4double: r r r r -- void
-c-callback vector4single: r{float} r{float} r{float} r{float} -- void
+\c typedef void (*rr2v)(double,double);
+\c void testrr2v(rr2v f) {f(0.5,1.5);}
+c-function testrr2v testrr2v a -- void
+c-callback rr2v-callback r r -- void
 end-c-library
-: printv4d f. f. f. f. ;
-' printv4d vector4double: testv4d
+: printrr fswap f. f. ;
+' printrr rr2v-callback constant printrr-c
+printrr-c testrr2v
 @end source
 
 @c I don't understand the existing callback interface from the example - anton
@@ -18241,6 +18240,8 @@ And an AMD64 example of using @word{;abi-code}:
   \ data stack pointer in rax
   ret
 end-code
+5 myconst x
+x .
 @end source
 
 
