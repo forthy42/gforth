@@ -558,7 +558,7 @@ C Interface
 * Declaring C Functions::
 * Calling C function pointers::
 * Defining library interfaces::
-* Declaring OS-level libraries::
+* C compiler and linker options::
 * Callbacks::
 * C interface internals::
 * Low-Level C Interface Words::
@@ -571,11 +571,13 @@ Assembler and Code Words
 * Common Assembler::            Assembler Syntax
 * Common Disassembler::
 * 386 Assembler::               Deviations and special cases
-* AMD64 Assembler::
 * Alpha Assembler::             Deviations and special cases
+* AMD64 Assembler::
+* ARM A32 assembler::
+* LoongArch assembler::
 * MIPS assembler::              Deviations and special cases
 * PowerPC assembler::           Deviations and special cases
-* ARM Assembler::               Deviations and special cases
+* RISC-V assembler::
 * Other assemblers::            How to write them
 
 Carnal words
@@ -17551,7 +17553,7 @@ with a SWIG plugin.
 * Declaring C Functions::
 * Calling C function pointers::
 * Defining library interfaces::
-* Declaring OS-level libraries::
+* C compiler and linker options::
 * Callbacks::
 * C interface internals::
 * Low-Level C Interface Words::
@@ -17858,7 +17860,7 @@ token, and it is specific to @code{func1} pointers.  For each type of
 function pointer you want to call from Forth, you have to define
 a separate calling word.
 
-@node Defining library interfaces, Declaring OS-level libraries, Calling C function pointers, C Interface
+@node Defining library interfaces, C compiler and linker options, Calling C function pointers, C Interface
 @subsection Defining library interfaces
 @cindex giving a name to a library interface
 @cindex library interface names
@@ -17945,7 +17947,7 @@ doc-add-incdir
 doc-add-cflags
 doc-add-ldflags
 
-@node Callbacks, C interface internals, Declaring OS-level libraries, C Interface
+@node Callbacks, C interface internals, C compiler and linker options, C Interface
 @subsection Callbacks
 @cindex Callback functions written in Forth
 @cindex C function pointers to Forth words
@@ -18104,11 +18106,13 @@ instances of @code{add-lib}, however.
 * Common Assembler::            Assembler Syntax
 * Common Disassembler::
 * 386 Assembler::               Deviations and special cases
-* AMD64 Assembler::
 * Alpha Assembler::             Deviations and special cases
+* AMD64 Assembler::
+* ARM A32 assembler::
+* LoongArch assembler::
 * MIPS assembler::              Deviations and special cases
 * PowerPC assembler::           Deviations and special cases
-* ARM Assembler::               Deviations and special cases
+* RISC-V assembler::
 * Other assemblers::            How to write them
 @end menu
 
@@ -18349,7 +18353,7 @@ You can override the default by changing @word{discode}, e.g., with
 @code{See} may display more or less than the actual code of a
 @word{code} word, because the recognition of the end of the code is
 unreliable.  You can use @code{discode} if it did not display enough.
-It may display more, if the code word is not immediately followed by a
+@code{See} may display more, if the code word is not immediately followed by a
 named word.  If you have something else there, you can follow the word
 with @code{align latest ,} to ensure that the end is recognized.
 
@@ -18359,7 +18363,7 @@ doc-at&t-syntax
 doc-disasm
 doc-disasm-gdb
 
-@node 386 Assembler, AMD64 Assembler, Common Disassembler, Assembler and Code Words
+@node 386 Assembler, Alpha Assembler, Common Disassembler, Assembler and Code Words
 @subsection 386 Assembler
 
 The 386 assembler included in Gforth was written by Bernd Paysan, it's
@@ -18467,7 +18471,38 @@ the caller.
 For examples of 386 @code{abi-code} words, see @ref{Assembler Definitions}.
 
 
-@node AMD64 Assembler, Alpha Assembler, 386 Assembler, Assembler and Code Words
+
+@node Alpha Assembler, AMD64 Assembler, 386 Assembler, Assembler and Code Words
+@subsection Alpha Assembler
+
+The Alpha assembler and disassembler were originally written by Bernd
+Thallner.
+
+The register names @code{a0}--@code{a5} are not available to avoid
+shadowing hex numbers.
+
+Immediate forms of arithmetic instructions are distinguished by a
+@code{#} just before the @code{,}, e.g., @code{and#,} (note: @code{lda,}
+does not count as arithmetic instruction).
+
+You have to specify all operands to an instruction, even those that
+other assemblers consider optional, e.g., the destination register for
+@code{br,}, or the destination register and hint for @code{jmp,}.
+
+You can specify conditions for @code{if,} by removing the first @code{b}
+and the trailing @code{,} from a branch with a corresponding name; e.g.,
+
+@example
+11 fgt if, \ if F11>0e
+  ...
+endif,
+@end example
+
+@code{fbgt,} gives @code{fgt}.  
+
+
+
+@node AMD64 Assembler, ARM A32 assembler, Alpha Assembler, Assembler and Code Words
 @subsection AMD64 (x86_64) Assembler
 
 The AMD64 assembler is a slightly modified version of the 386
@@ -18680,150 +18715,17 @@ ret
 end-code
 @end example
 
-@node Alpha Assembler, MIPS assembler, AMD64 Assembler, Assembler and Code Words
-@subsection Alpha Assembler
 
-The Alpha assembler and disassembler were originally written by Bernd
-Thallner.
+@node ARM A32 assembler, LoongArch assembler, AMD64 Assembler, Assembler and Code Words
+@subsection ARM A32 assembler
+@anchor{ARM Assembler}
 
-The register names @code{a0}--@code{a5} are not available to avoid
-shadowing hex numbers.
+Source code: @file{arch/arm/asm.fs}
 
-Immediate forms of arithmetic instructions are distinguished by a
-@code{#} just before the @code{,}, e.g., @code{and#,} (note: @code{lda,}
-does not count as arithmetic instruction).
-
-You have to specify all operands to an instruction, even those that
-other assemblers consider optional, e.g., the destination register for
-@code{br,}, or the destination register and hint for @code{jmp,}.
-
-You can specify conditions for @code{if,} by removing the first @code{b}
-and the trailing @code{,} from a branch with a corresponding name; e.g.,
-
-@example
-11 fgt if, \ if F11>0e
-  ...
-endif,
-@end example
-
-@code{fbgt,} gives @code{fgt}.  
-
-@node MIPS assembler, PowerPC assembler, Alpha Assembler, Assembler and Code Words
-@subsection MIPS assembler
-
-The MIPS assembler was originally written by Christian Pirker.
-
-Currently the assembler and disassembler covers most of the MIPS32
-architecture and doesn't support FP instructions.
-
-The register names @code{$a0}--@code{$a3} are not available to avoid
-shadowing hex numbers.  Use register numbers @code{$4}--@code{$7}
-instead.
-
-Nothing distinguishes registers from immediate values.  Use explicit
-opcode names with the @code{i} suffix for instructions with immediate
-argument.  E.g. @code{addiu,} in place of @code{addu,}.
-
-Where the architecture manual specifies several formats for the
-instruction (e.g., for @code{jalr,}),use the one with more arguments
-(i.e. two for @code{jalr,}).  When in doubt, see
-@code{arch/mips/testasm.fs} for an example of correct use.
-
-Branches and jumps in the MIPS architecture have a delay slot.  You
-have to fill it manually (the simplest way is to use @code{nop,}), the
-assembler does not do it for you (unlike @command{as}).  Even
-@code{if,}, @code{ahead,}, @code{until,}, @code{again,},
-@code{while,}, @code{else,} and @code{repeat,} need a delay slot.
-Since @code{begin,} and @code{then,} just specify branch targets, they
-are not affected.  For branches the argument specifying the target is
-a relative address.  Add the address of the delay slot to get the
-absolute address.
-
-Note that you must not put branches nor jumps (nor control-flow
-instructions) into the delay slot.  Also it is a bad idea to put
-pseudo-ops such as @code{li,} into a delay slot, as these may expand
-to several instructions.  The MIPS I architecture also had load delay
-slots, and newer MIPSes still have restrictions on using @code{mfhi,}
-and @code{mflo,}.  Be careful to satisfy these restrictions, the
-assembler does not do it for you.
-
-Some example of instructions are:
-
-@example
-$ra  12 $sp  sw,         \ sw    ra,12(sp)
-$4    8 $s0  lw,         \ lw    a0,8(s0)
-$v0  $0  lui,            \ lui   v0,0x0
-$s0  $s4  $12  addiu,    \ addiu s0,s4,0x12
-$s0  $s4  $4  addu,      \ addu  s0,s4,$a0
-$ra  $t9  jalr,          \ jalr  t9
-@end example
-
-You can specify the conditions for @code{if,} etc. by taking a
-conditional branch and leaving away the @code{b} at the start and the
-@code{,} at the end.  E.g.,
-
-@example
-4 5 eq if,
-  ... \ do something if $4 equals $5
-then,
-@end example
-
-The calling conventions for 32-bit MIPS machines is to pass the first
-4 arguments in registers @code{$4}..@code{$7}, and to use
-@code{$v0}-@code{$v1} for return values.  In addition to these
-registers, it is ok to clobber registers @code{$t0}-@code{$t8} without
-saving and restoring them.
-
-If you use @code{jalr,} to call into dynamic library routines, you
-must first load the called function's address into @code{$t9}, which
-is used by position-indirect code to do relative memory accesses.
-
-Here is an example of a MIPS32 @code{abi-code} word:
-
-@example
-abi-code my+  ( n1 n2 -- n3 )
-  \ SP passed in $4, returned in $v0
-  $t0  4 $4  lw,         \ load n1, n2 from stack
-  $t1  0 $4  lw,    
-  $t0  $t0  $t1  addu,   \ add n1+n2, result in $t0
-  $t0  4 $4  sw,         \ store result (overwriting n1)
-  $ra  jr,               \ return to caller
-  $v0  $4  4  addiu,     \ (delay slot) return uptated SP in $v0
-end-code
-@end example
-
-@node PowerPC assembler, ARM Assembler, MIPS assembler, Assembler and Code Words
-@subsection PowerPC assembler
-
-The PowerPC assembler and disassembler were contributed by Michal
-Revucky.
-
-This assembler does not follow the convention of ending mnemonic names
-with a ``,'', so some mnemonic names shadow regular Forth words (in
-particular: @code{and or xor fabs}); so if you want to use the Forth
-words, you have to make them visible first, e.g., with @code{also
-forth}.
-
-Registers are referred to by their number, e.g., @code{9} means the
-integer register 9 or the FP register 9 (depending on the
-instruction).
-
-Because there is no way to distinguish registers from immediate values,
-you have to explicitly use the immediate forms of instructions, i.e.,
-@code{addi,}, not just @code{add,}.
-
-The assembler and disassembler usually support the most general form
-of an instruction, but usually not the shorter forms (especially for
-branches).
-
-
-@node ARM Assembler, Other assemblers, PowerPC assembler, Assembler and Code Words
-@subsection ARM Assembler
-
-The ARM assembler includes all instruction of ARM architecture version
-4, and the BLX instruction from architecture 5.  It does not (yet)
-have support for Thumb instructions.  It also lacks support for any
-co-processors.
+The ARM A32 assembler includes all instruction of ARM architecture
+version 4, and the BLX instruction from architecture 5.  It does not
+(yet) have support for T32 (Thumb) instructions.  It also lacks support for
+any co-processors.
 
 The assembler uses a postfix syntax with the same operand order as
 used in the ARM Architecture Reference Manual.  Mnemonics are suffixed
@@ -18927,19 +18829,208 @@ abi-code my+ ( n1 n2 --  n3 )
 end-code
 @end example
 
-@c !! ARM64
-@c !! RISC-V
 
-@node Other assemblers,  , ARM Assembler, Assembler and Code Words
+@node LoongArch assembler, MIPS assembler, ARM A32 assembler, Assembler and Code Words
+@subsection LoongArch assembler
+
+Source code: @file{arch/loongarch64/asm.fs}.  You can find the list of
+instructions (and their formats) in @file{arch/loongarch64/insts.fs}.
+
+Registers are @code{r0}..@code{r31}, @code{f0}..@code{f31},
+@code{fcsr0}...@code{fcsr31}, @code{fcc0}..@code{fcc7} and @code{?caf
+?saf ?clt ?slt ?ceq ?seq ?cle ?sle ?cun ?sun ?cult ?sult ?cueq ?sueq
+?cule ?sule ?cne ?sne ?cor ?sor ?cune ?sune}.
+
+Mnemonics don't end with ``,'', so you need to worry about collisions
+with Forth word names (e.g, @word{and}).  To use immediates, you need
+to use the immediate name (e.g., @code{addi.d} instead of
+@code{add.d}).
+
+This assembler does not support structured control structure words.
+
+
+
+
+@node MIPS assembler, PowerPC assembler, LoongArch assembler, Assembler and Code Words
+@subsection MIPS assembler
+
+The MIPS assembler was originally written by Christian Pirker.
+
+Currently the assembler and disassembler covers most of the MIPS32
+architecture and doesn't support FP instructions.
+
+The register names @code{$a0}--@code{$a3} are not available to avoid
+shadowing hex numbers.  Use register numbers @code{$4}--@code{$7}
+instead.
+
+Nothing distinguishes registers from immediate values.  Use explicit
+opcode names with the @code{i} suffix for instructions with immediate
+argument.  E.g. @code{addiu,} in place of @code{addu,}.
+
+Where the architecture manual specifies several formats for the
+instruction (e.g., for @code{jalr,}),use the one with more arguments
+(i.e. two for @code{jalr,}).  When in doubt, see
+@code{arch/mips/testasm.fs} for an example of correct use.
+
+Branches and jumps in the MIPS architecture have a delay slot.  You
+have to fill it manually (the simplest way is to use @code{nop,}), the
+assembler does not do it for you (unlike @command{as}).  Even
+@code{if,}, @code{ahead,}, @code{until,}, @code{again,},
+@code{while,}, @code{else,} and @code{repeat,} need a delay slot.
+Since @code{begin,} and @code{then,} just specify branch targets, they
+are not affected.  For branches the argument specifying the target is
+a relative address.  Add the address of the delay slot to get the
+absolute address.
+
+Note that you must not put branches nor jumps (nor control-flow
+instructions) into the delay slot.  Also it is a bad idea to put
+pseudo-ops such as @code{li,} into a delay slot, as these may expand
+to several instructions.  The MIPS I architecture also had load delay
+slots, and newer MIPSes still have restrictions on using @code{mfhi,}
+and @code{mflo,}.  Be careful to satisfy these restrictions, the
+assembler does not do it for you.
+
+Some example of instructions are:
+
+@example
+$ra  12 $sp  sw,         \ sw    ra,12(sp)
+$4    8 $s0  lw,         \ lw    a0,8(s0)
+$v0  $0  lui,            \ lui   v0,0x0
+$s0  $s4  $12  addiu,    \ addiu s0,s4,0x12
+$s0  $s4  $4  addu,      \ addu  s0,s4,$a0
+$ra  $t9  jalr,          \ jalr  t9
+@end example
+
+You can specify the conditions for @code{if,} etc. by taking a
+conditional branch and leaving away the @code{b} at the start and the
+@code{,} at the end.  E.g.,
+
+@example
+4 5 eq if,
+  ... \ do something if $4 equals $5
+then,
+@end example
+
+The calling conventions for 32-bit MIPS machines is to pass the first
+4 arguments in registers @code{$4}..@code{$7}, and to use
+@code{$v0}-@code{$v1} for return values.  In addition to these
+registers, it is ok to clobber registers @code{$t0}-@code{$t8} without
+saving and restoring them.
+
+If you use @code{jalr,} to call into dynamic library routines, you
+must first load the called function's address into @code{$t9}, which
+is used by position-indirect code to do relative memory accesses.
+
+Here is an example of a MIPS32 @code{abi-code} word:
+
+@example
+abi-code my+  ( n1 n2 -- n3 )
+  \ SP passed in $4, returned in $v0
+  $t0  4 $4  lw,         \ load n1, n2 from stack
+  $t1  0 $4  lw,    
+  $t0  $t0  $t1  addu,   \ add n1+n2, result in $t0
+  $t0  4 $4  sw,         \ store result (overwriting n1)
+  $ra  jr,               \ return to caller
+  $v0  $4  4  addiu,     \ (delay slot) return uptated SP in $v0
+end-code
+@end example
+
+@node PowerPC assembler, RISC-V assembler, MIPS assembler, Assembler and Code Words
+@subsection PowerPC assembler
+
+The PowerPC assembler and disassembler were contributed by Michal
+Revucky.
+
+This assembler does not follow the convention of ending mnemonic names
+with a ``,'', so some mnemonic names shadow regular Forth words (in
+particular: @code{and or xor fabs}); so if you want to use the Forth
+words, you have to make them visible first, e.g., with @code{also
+forth}.
+
+Registers are referred to by their number, e.g., @code{9} means the
+integer register 9 or the FP register 9 (depending on the
+instruction).
+
+Because there is no way to distinguish registers from immediate values,
+you have to explicitly use the immediate forms of instructions, i.e.,
+@code{addi,}, not just @code{add,}.
+
+The assembler and disassembler usually support the most general form
+of an instruction, but usually not the shorter forms (especially for
+branches).
+
+
+
+@node RISC-V assembler, Other assemblers, PowerPC assembler, Assembler and Code Words
+@subsection RISC-V assembler
+
+Source code: @file{arch/riscv/asm.fs}.  The instructions are listed in
+@file{arch/riscv/inst32.fs} and (compressed instructions)
+@file{arch/riscv/inst16.fs}; note that the compressed instructions are
+listed there without their @code{c.} prefix, but that prefix is
+required by the assembler.
+
+Both raw register names (@code{x0}...@code{x31},
+@code{f0}...@code{f31}) and symbolic names (e.g., @code{a7},
+@code{fa7}) are available.  Note that some register names form valid
+hex numbers, so we recommend using the prefix syntax @code{$fa7}
+instead of using @word{hex} base.
+
+Fences are called @code{|w |r |rw |o |ow |or |orw |i |iw |ir |irw |io
+|iow |ior |iorw}.
+
+Instruction names do not end with ``,'', so there are conflicts with
+Forth words like @word{and}.  You need to use the immediate form of an
+instruction (e.g., @code{addi} instead of just @code{add}) explicitly.
+Only the general form of the instruction is supported, not specialized
+names (e.g, there is @code{jalr}, but not @code{jr}; there is, however
+@code{c.jr}).
+
+There is no automatic selection of compressed instructions.  Instead,
+you have to call them by their name, with a preceding @code{c.}, e.g.,
+@code{c.addi} for the compressed form of @code{addi}.
+
+Note that the assembler does not check whether the used registers and
+immediate values fit in the instruction, and just produces some
+truncated form if they don't.  This is especially relevant for
+compressed instructions, where immediate value sizes are even smaller,
+and some of which only work with some registers.
+
+
+
+@node Other assemblers,  , RISC-V assembler, Assembler and Code Words
 @subsection Other assemblers
 
-If you want to contribute another assembler/disassembler, please contact
-us (@email{anton@@mips.complang.tuwien.ac.at}) to check if we have such
-an assembler already.  If you are writing them from scratch, please use
-a similar syntax style as the one we use (i.e., postfix, commas at the
-end of the instruction names, @pxref{Common Assembler}); make the output
-of the disassembler be valid input for the assembler, and keep the style
-similar to the style we used.
+In addition to the assemblers mentioned above, there are the following
+asm.fs files:
+
+@example
+arch/4stack/asm.fs
+arch/6502/asm.fs
+arch/8086/asm.fs
+arch/avr/asm.fs
+arch/c165/asm.fs
+arch/h8/asm.fs
+arch/lm32/asm.fs
+arch/m68k/asm.fs
+arch/misc/asm.fs
+arch/nibz40/asm.fs
+arch/r8c/asm.fs
+arch/shboom/asm.fs
+@end example
+
+These architectures may be supported by Gforth EC (embedded control),
+but that's not documented here (and only sporadically elsewhere, with
+quite a bit documentation for the r8c port).  If you want to use one
+of these assemblers, use the source!
+
+If you want to contribute another assembler/disassembler, please check
+at @url{https://cgit.git.savannah.gnu.org/cgit/gforth.git/tree/arch}
+if there is such an assembler already.  If you are writing them from
+scratch, please use a similar syntax style as the one we use (i.e.,
+postfix, commas at the end of the instruction names, @pxref{Common
+Assembler}); make the output of the disassembler be valid input for
+the assembler, and keep the style similar to the style we used.
 
 Hints on implementation: The most important part is to have a good test
 suite that contains all instructions.  Once you have that, the rest is
