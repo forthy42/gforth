@@ -1,6 +1,6 @@
 ARG VERSION=unstable
 ARG ARCH=amd64
-ARG GCC=gcc-14
+ARG GCC=gcc
 FROM $ARCH/debian:$VERSION
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
 ENV LANG=C.UTF-8
@@ -8,7 +8,7 @@ ENV GCC=$GCC
 
 RUN apt-get -y update \
   && apt-get upgrade -y \
-  && apt-get -y --ignore-missing install libffi-dev libltdl7 libsoil-dev libtool make gcc $GCC g++ \
+  && apt-get -y --ignore-missing install libffi-dev libltdl7 libsoil-dev libtool make $GCC g++ \
      automake texinfo texi2html install-info dpkg-dev debhelper libtool-bin \
      libltdl-dev autoconf-archive \
      libx11-dev libx11-xcb-dev libxrandr-dev libgles2-mesa-dev libglew-dev \
