@@ -287,7 +287,9 @@ Defer deadline ( d -- )
     #1000000000 um/mod (ns) EINTR <> UNTIL
     2drop ;
 ' kernel-deadline IS deadline
-: ns ( d -- ) \ gforth
+: ns ( ud -- ) \ gforth
+    \g Wait @i{ud} nanoseconds.
     ntime d+ deadline ;
-: ms ( n -- ) \ facility-ext
+: ms ( u -- ) \ facility-ext
+    \g Wait @i{u} milliseconds.
     #1000000 um* ns ;
