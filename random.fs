@@ -46,6 +46,7 @@
 	\G Set seed for @word{rnd} and @word{random} to a specific
 	\G value, resulting in a deterministic sequence.
 	seed $8 erase rng-state $10 erase seed ! rnd drop ;
+    :noname defers 'image rng-state $10 erase seed $8 erase ; is 'image
 [THEN]
 seed-init
 :noname defers 'cold seed-init ; is 'cold
