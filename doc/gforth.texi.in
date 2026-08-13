@@ -19131,8 +19131,8 @@ for @code{execute}ing the word; you can read it with
 (@pxref{Threading Words}).
 
 The @code{>namehm} field contains the address of the header methods
-table, described below.  You access it by performing or accessing
-header methods (@pxref{Header methods}).
+table (@pxref{Header methods}).  You access it by performing or
+accessing header methods (@pxref{Header methods}).
 
 The @code{>body} (aka parameter) field contains data or threaded code
 specific to the word type; its length depends on the word type.  E.g.,
