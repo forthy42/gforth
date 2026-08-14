@@ -19672,7 +19672,7 @@ While processing the OS command line, if an exception is not caught,
 Gforth exits with a non-zero exit code instead of performing QUIT.
 
 @item
-When an @code{throw} is performed after a @code{query}, Gforth does not
+When a @code{throw} is performed after a @code{query}, Gforth does not
 always restore the input source specification in effect at the
 corresponding catch.
 
@@ -19737,7 +19737,7 @@ are likely to change during the maintenance of Gforth.
 @cindex aligned addresses
 processor-dependent. Gforth's alignment words perform natural alignment
 (e.g., an address aligned for a datum of size 8 is divisible by
-8). Unaligned accesses usually result in a @code{-23 THROW}.
+8). Unaligned accesses may result in a @code{-23 THROW}.
 
 @item @code{EMIT} and non-graphic characters:
 @cindex @code{EMIT} and non-graphic characters
@@ -19763,28 +19763,17 @@ The character set of your computer and display device. Gforth is
 
 @item Character-aligned address requirements:
 @cindex character-aligned address requirements
-installation-dependent. Currently a character is represented by a C
-@code{unsigned char}; in the future we might switch to @code{wchar_t}
-(Comments on that requested).
+All addresses are character-aligned, because @code{1 chars} produces 1.
 
 @item character-set extensions and matching of names:
 @cindex character-set extensions and matching of names
 @cindex case-sensitivity for name lookup
 @cindex name lookup, case-sensitivity
 @cindex locale and case-sensitivity
-Any character except the ASCII NUL character can be used in a
-name. Matching is case-insensitive (except in @code{TABLE}s). The
-matching is performed using the C library function @code{strncasecmp}, whose
-function is probably influenced by the locale. E.g., the @code{C} locale
-does not know about accents and umlauts, so they are matched
-case-sensitively in that locale. For portability reasons it is best to
-write programs such that they work in the @code{C} locale. Then one can
-use libraries written by a Polish programmer (who might use words
-containing ISO Latin-2 encoded characters) and by a French programmer
-(ISO Latin-1) in the same program (of course, @code{WORDS} will produce
-funny results for some of the words (which ones, depends on the font you
-are using)). Also, the locale you prefer may not be available in other
-operating systems. Hopefully, Unicode will solve these problems one day.
+Any character can be used in a name. Matching is case-insensitive
+(except in @code{table}s and @code{cs-wordlist}s) for ASCII characters
+and case-sensitive for other characters.
+
 
 @item conditions under which control characters match a space delimiter:
 @cindex space delimiters
@@ -19798,13 +19787,14 @@ characters as delimiters.
 
 @item format of the control-flow stack:
 @cindex control-flow stack, format
-The data stack is used as control-flow stack. The size of a control-flow
-stack item in cells is given by the constant @code{cs-item-size}. At the
-time of this writing, an item consists of a (pointer to a) locals list
-(third), an address in the code (second), and a tag for identifying the
-item (TOS). The following tags are used: @code{defstart},
-@code{live-orig}, @code{dead-orig}, @code{dest}, @code{do-dest},
-@code{scopestart}.
+The data stack is used as control-flow stack. The size of a
+control-flow stack item in cells is given by the constant
+@code{cs-item-size}. At the time of this writing, an item consists of
+a cell-sized stack-state descriptor (fourth), a (pointer to a) locals
+list (third), an address in the code (second), and a tag for
+identifying the item (TOS). The following tags are used:
+@code{defstart}, @code{live-orig}, @code{dead-orig}, @code{dest},
+@code{do-dest}, @code{scopestart}.
 
 @item conversion of digits > 35
 @cindex digits > 35
@@ -19834,8 +19824,7 @@ lines. One of these characters is typically produced when you type the
 @item maximum size of a counted string:
 @cindex maximum size of a counted string
 @cindex counted string, maximum size
-@code{s" /counted-string" environment? drop .}. Currently 255 characters
-on all platforms, but this may change.
+255 characters.
 
 @item maximum size of a parsed string:
 @cindex maximum size of a parsed string
@@ -19845,25 +19834,24 @@ Given by the constant @code{/line}. Currently 255 characters.
 @item maximum size of a definition name, in characters:
 @cindex maximum size of a definition name, in characters
 @cindex name, maximum length
-MAXU/8
+@code{-1 8 rshift}; 72057594037927935 characters on 64-bit systems,
+16777215 characters on 32-bit systems.
 
 @item maximum string length for @code{ENVIRONMENT?}, in characters:
 @cindex maximum string length for @code{ENVIRONMENT?}, in characters
 @cindex @code{ENVIRONMENT?} string length, maximum
-MAXU/8
+Any string length, but only strings that can be names can be recognized.
 
 @item method of selecting the user input device:
 @cindex user input device, method of selecting
-The user input device is the standard input. There is currently no way to
-change it from within Gforth. However, the input can typically be
-redirected in the command line that starts Gforth.
+Change @word{infile-id}, ideally with @word{infile-execute}.  Or by
+changing @word{ip-vector} (undocumented).
 
 @item method of selecting the user output device:
 @cindex user output device, method of selecting
-@code{EMIT} and @code{TYPE} output to the file-id stored in the value
-@code{outfile-id} (@code{stdout} by default). Gforth uses unbuffered
-output when the user output device is a terminal, otherwise the output
-is buffered.
+Change @word{outfile-id}, e.g., with @word{outfile-execute}.  Or
+change @word{type} and @word{emit}, e.g., with @word{>string-execute}.
+Or by changing @word{op-vector} (undocumented).
 
 @item methods of dictionary compilation:
 What are we expected to document here?
@@ -19871,21 +19859,23 @@ What are we expected to document here?
 @item number of bits in one address unit:
 @cindex number of bits in one address unit
 @cindex address unit, size in bits
-@code{s" address-units-bits" environment? drop .}. 8 in all current
-platforms.
+8
 
 @item number representation and arithmetic:
 @cindex number representation and arithmetic
-Processor-dependent. Binary two's complement on all current platforms.
+Binary.  Negative integers are represented in two's-complement form.
+FP numbers are represented as IEEE DP FP numbers (binary64) on nearly
+all platforms (exception: ARM with soft floats).
 
 @item ranges for integer types:
 @cindex ranges for integer types
 @cindex integer types, ranges
-Installation-dependent. Make environmental queries for @code{MAX-N},
-@code{MAX-U}, @code{MAX-D} and @code{MAX-UD}. The lower bounds for
-unsigned (and positive) types is 0. The lower bound for signed types on
-two's complement and one's complement machines machines can be computed
-by adding 1 to the upper bound.
+For 32-bit platforms: u: 0...4294967295, n: -2147483648...2147483647, ud: 0...18446744073709551615, d: -9223372036854775808...9223372036854775807.
+
+For 64-bit platforms: u: 0...18446744073709551615, n: -9223372036854775808...9223372036854775807, ud: 0...340282366920938463463374607431768211455, d: -170141183460469231731687303715884105728...170141183460469231731687303715884105727
+
+You can also make environmental queries for @code{MAX-N},
+@code{MAX-U}, @code{MAX-D} and @code{MAX-UD}.
 
 @item read-only data space regions:
 @cindex read-only data space regions
@@ -19895,34 +19885,30 @@ The whole Forth data space is writable.
 @item size of buffer at @code{WORD}:
 @cindex size of buffer at @code{WORD}
 @cindex @code{WORD} buffer size
-@code{PAD HERE - .}. 104 characters on 32-bit machines. The buffer is
-shared with the pictured numeric output string. If overwriting
-@code{PAD} is acceptable, it is as large as the remaining dictionary
-space, although only as much can be sensibly used as fits in a counted
-string.
+@code{PAD HERE - .}. 104 characters on 32-bit machines, 176 on 64-bit
+machines.  The buffer is shared with the pictured numeric output
+string. If overwriting @code{PAD} is acceptable, it is as large as the
+remaining dictionary space, although only as much can be sensibly used
+as fits in a counted string.
 
 @item size of one cell in address units:
 @cindex cell size
-@code{1 cells .}.
+@code{1 cells .}.  4 on 32-bit systems, 8 on 64-bit systems.
 
 @item size of one character in address units:
 @cindex char size
-@code{1 chars .}. 1 on all current platforms.
+1
 
 @item size of the keyboard terminal buffer:
 @cindex size of the keyboard terminal buffer
 @cindex terminal buffer, size
-Varies. You can determine the size at a specific time using @code{lp@@
-tib - .}. It is shared with the locals stack and TIBs of files that
-include the current file. You can change the amount of space for TIBs
-and locals stack at Gforth startup with the command line option
-@code{-l}.
+@code{max#tib @@}.  This can vary.
 
 @item size of the pictured numeric output buffer:
 @cindex size of the pictured numeric output buffer
 @cindex pictured numeric output buffer, size
-@code{PAD HERE - .}. 104 characters on 32-bit machines. The buffer is
-shared with @code{WORD}.
+@code{word-pno-size}
+
 
 @item size of the scratch area returned by @code{PAD}:
 @cindex size of the scratch area returned by @code{PAD}
@@ -19931,38 +19917,36 @@ The remainder of dictionary space. @code{unused pad here - - .}.
 
 @item system case-sensitivity characteristics:
 @cindex case-sensitivity characteristics
-Dictionary searches are case-insensitive (except in
-@code{TABLE}s). However, as explained above under @i{character-set
-extensions}, the matching for non-ASCII characters is determined by the
-locale you are using. In the default @code{C} locale all non-ASCII
-characters are matched case-sensitively.
+Dictionary searches are case-insensitive for ASCII characters and
+case-sensitive for other characters (except that everything is
+case-sensitive in @code{table}s and @code{cs-wordlist}s).
 
 @item system prompt:
 @cindex system prompt
 @cindex prompt
-@code{ ok} in interpret state, @code{ compiled} in compile state.
+@code{ ok} in interpret state, @code{ compiled} in compile state,
+@code{ postponed} in postpone state.
 
 @item division rounding:
 @cindex division rounding
 The ordinary division words @code{/ mod /mod */ */mod} perform floored
-division (with the default installation of Gforth).  You can check
-this with @code{s" floored" environment? drop .}.  If you write
-programs that need a specific division rounding, best use
-@code{fm/mod} or @code{sm/rem} for portability.
+division.  If you write programs that need a specific division
+rounding, best use @code{fm/mod} or @code{sm/rem} for portability, but
+you can also use @code{/s}, @code{/f} etc.
 
 @item values of @code{STATE} when true:
 @cindex @code{STATE} values
 -1.
 
 @item values returned after arithmetic overflow:
-On two's complement machines, arithmetic is performed modulo
-2**bits-per-cell for single arithmetic and 4**bits-per-cell for double
-arithmetic (with appropriate mapping for signed types). Division by
-zero typically results in a @code{-55 throw} (Floating-point
-unidentified fault) or @code{-10 throw} (divide by zero).  Integer
-division overflow can result in these throws, or in @code{-11 throw};
-in @code{gforth-fast} division overflow and divide by zero may also
-result in returning bogus results without producing an exception.
+Arithmetic is performed modulo 2**bits-per-cell for single arithmetic
+and 4**bits-per-cell for double arithmetic (with appropriate mapping
+for signed types). Division by zero typically results in a @code{-55
+throw} (Floating-point unidentified fault) or @code{-10 throw} (divide
+by zero).  Integer division overflow can result in these throws, or in
+@code{-11 throw}; in @code{gforth-fast} division overflow and divide
+by zero may also result in returning bogus results without producing
+an exception.
 
 @item whether the current definition can be found after @t{DOES>}:
 @cindex @t{DOES>}, visibility of current definition
