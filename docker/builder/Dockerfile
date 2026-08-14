@@ -4,8 +4,9 @@ ARG GCC=gcc
 FROM $ARCH/debian:$VERSION
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
 ENV LANG=C.UTF-8
+ENV GCC=$GCC
 
-RUN GCC=$GCC && echo "Requires gcc=$GCC"
+RUN echo "Requires gcc=$GCC"
 RUN apt-get -y update \
   && apt-get upgrade -y \
   && apt-get -y --ignore-missing install libffi-dev libltdl7 libsoil-dev libtool make $GCC g++ \
