@@ -4,7 +4,6 @@ ARG GCC=gcc
 FROM $ARCH/debian:$VERSION
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
 ENV LANG=C.UTF-8
-ENV GCC=$GCC
 
 RUN apt-get -y update \
   && apt-get upgrade -y \
@@ -17,7 +16,7 @@ RUN apt-get -y update \
      libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
      libxkbcommon-dev libwebp-dev libv4l-dev libyuv-dev emacs-nox \
      yodl bison libboost-dev binutils-dev git && \
-     case $GCC in gcc-*) ln -fs /usr/bin/$GCC /usr/bin/gcc ;; esac \
+     if [ ${GCC%%[0-9]*} == gcc- ]; then ln -fs /usr/bin/$GCC /usr/bin/gcc ; fi \
 RUN if ! apt -y install gforth; then \
          if which wcurl >/dev/null 2>&1; then \
 	     wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
