@@ -4,8 +4,8 @@ ARG GCC=gcc
 FROM $ARCH/debian:$VERSION
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
 ENV LANG=C.UTF-8
-ENV GCC=$GCC
 
+RUN GCC=$GCC && echo "Requires gcc=$GCC"
 RUN apt-get -y update \
   && apt-get upgrade -y \
   && apt-get -y --ignore-missing install libffi-dev libltdl7 libsoil-dev libtool make $GCC g++ \
@@ -16,7 +16,8 @@ RUN apt-get -y update \
      libfreetype-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
      libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
      libxkbcommon-dev libwebp-dev libv4l-dev libyuv-dev emacs-nox \
-     yodl bison libboost-dev binutils-dev git
+     yodl bison libboost-dev binutils-dev git && \
+     env GCC=$GCC bash -c '[ "${GCC%%[0-9]*}" == "gcc-" ] && ln -fs /usr/bin/$GCC /usr/bin/gcc'
 RUN if ! apt -y install gforth; then \
          if which wcurl >/dev/null 2>&1; then \
 	     wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
