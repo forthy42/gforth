@@ -162,7 +162,6 @@ Software Foundation raise funds for GNU development.''
 * Literals in source code::
 * Words::                       Forth words available in Gforth
 * Error messages::              How to interpret them
-* Tools::                       Programming tools
 * Standard conformance::        Implementation-defined options etc.
 * Standard vs Extensions::      Should I use extensions?
 * Model::                       The abstract machine of Gforth
@@ -529,7 +528,7 @@ Programming Tools
 * Text interpreter status::
 * Locating source code definitions::  and editing
 * Locating uses of a word::     @code{where}.
-* Locating backtrace source::
+* Locating backtrace entry source::
 * Examining compiled code::     @code{see} and friends.
 * Examining data::              Stacks and Memory.
 * Forgetting words::            Usually before reloading.
@@ -537,6 +536,8 @@ Programming Tools
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
 * Code Coverage::               Measure execution frequency.
+* Standard Report::
+* Stack depth changes::
 
 Multitasker
 
@@ -585,11 +586,6 @@ Carnal words
 * Header fields::
 * Header methods::
 * Threading Words::
-
-Tools
-
-* Standard Report::             Report the words used, sorted by wordset.
-* Stack depth changes::         Where does this stack item come from?
 
 Standard conformance
 
@@ -16669,7 +16665,7 @@ flag and @code{?LEAVE} when the check fails.
 * Text interpreter status::
 * Locating source code definitions::  and editing
 * Locating uses of a word::     @code{where}.
-* Locating backtrace source::
+* Locating backtrace entry source::
 * Examining compiled code::     @code{see} and friends.
 * Examining data::              Stacks and Memory.
 * Forgetting words::            Usually before reloading.
@@ -16677,7 +16673,11 @@ flag and @code{?LEAVE} when the check fails.
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
 * Code Coverage::               Measure execution frequency.
+* Standard Report::
+* Stack depth changes::
 @end menu
+
+See also @ref{Emacs and Gforth}.
 
 @node Text interpreter status, Locating source code definitions, Programming Tools, Programming Tools
 @subsection Text interpreter status
@@ -16770,7 +16770,7 @@ You can see the definitions of similarly-named words with
 doc-browse
 
 
-@node Locating uses of a word, Locating backtrace source, Locating source code definitions, Programming Tools
+@node Locating uses of a word, Locating backtrace entry source, Locating source code definitions, Programming Tools
 @subsection Locating uses of a word
 @cindex Uses of a word
 
@@ -16790,8 +16790,8 @@ no uses:
 
 doc-unused-words
 
-@node Locating backtrace source, Examining compiled code, Locating uses of a word, Programming Tools
-@subsection Locating exception source
+@node Locating backtrace entry source, Examining compiled code, Locating uses of a word, Programming Tools
+@subsection Locating backtrace entry source
 @cindex exception source code
 @cindex source code for exception
 @cindex backtrace examination
@@ -16807,7 +16807,7 @@ doc-tt
 doc-nt
 doc-bt
 
-@node Examining compiled code, Examining data, Locating backtrace source, Programming Tools
+@node Examining compiled code, Examining data, Locating backtrace entry source, Programming Tools
 @subsection Examining compiled code
 @cindex compiled code examination
 
@@ -17198,7 +17198,7 @@ doc-break:
 doc-break"
 
 @c -------------------------------------------------------------
-@node Code Coverage,  , Singlestep Debugger, Programming Tools
+@node Code Coverage, Standard Report, Singlestep Debugger, Programming Tools
 @subsection Code Coverage and Execution Frequency
 @cindex code coverage
 @cindex execution frequency
@@ -17263,6 +17263,118 @@ doc-cov+
 doc-?cov+
 doc-cov%
 doc-.cover-raw
+
+
+
+@node Standard Report, Stack depth changes, Code Coverage, Programming Tools
+@subsection @file{ans-report.fs}: Report the words used, sorted by wordset
+@cindex @file{ans-report.fs}
+@cindex report the words used in your program
+@cindex words used in your program
+
+If you want to label a Forth program as Standard Program, you must
+document which wordsets the program uses.
+
+The @file{ans-report.fs} tool makes it easy for you to determine which
+words from which wordset and which non-standard words your application
+uses. You simply have to include @file{ans-report.fs} before loading the
+program you want to check. After loading your program, you can get the
+report with @code{print-ans-report}. A typical use is to run this as
+batch job like this:
+@example
+gforth ans-report.fs myprog.fs -e "print-ans-report bye"
+@end example
+
+The output looks like this (for @file{compat/control.fs}):
+@example
+The program uses the following words
+from CORE :
+: POSTPONE THEN ; immediate ?dup IF 0= 
+from BLOCK-EXT :
+\ 
+from FILE :
+( 
+@end example
+
+@file{ans-report.fs} reports both Forth-94 and Forth-2012 wordsets.
+For words that are in both standards, it reports the wordset without
+suffix (e.g., @code{CORE-EXT}).  For Forth-2012-only words, it reports
+the wordset with a @code{-2012} suffix (e.g., @code{CORE-EXT-2012});
+and likewise for the words that are Forth-94-only (i.e., that have
+been removed in Forth-2012).
+
+@subsubsection Caveats
+
+Loading @file{ans-report.fs} disables the reporting of shadowed words
+(a quick fix to avoid recording the shadowed words as being used).
+
+Note that @file{ans-report.fs} just checks which words are used, not
+whether they are used in a standard-conforming way!
+
+Some words are defined in several wordsets in the
+standard. @file{ans-report.fs} reports them for only one of the
+wordsets, and not necessarily the one you expect. It depends on usage
+which wordset is the right one to specify. E.g., if you only use the
+compilation semantics of @code{S"}, it is a Core word; if you also use
+its interpretation semantics, it is a File word.
+
+If you load @file{ans-report.fs} on the OS command line, then enter
+interactive mode and call @word{print-ans-report} only afterwards, the
+word @word{bootmessage} is reported, most likely spuriously.  To avoid
+that, call @word{print-ans-report} from the OS command line, or
+@code{require ans-report.fs} interactively.
+
+@node Stack depth changes,  , Standard Report, Programming Tools
+@subsection Stack depth changes during interpretation
+@cindex @file{depth-changes.fs}
+@cindex depth changes during interpretation
+@cindex stack depth changes during interpretation
+@cindex items on the stack after interpretation
+
+Sometimes you notice that, after loading a file, there are items left
+on the stack.  The tool @file{depth-changes.fs} helps you find out
+quickly where in the file these stack items are coming from.
+
+The simplest way of using @file{depth-changes.fs} is to include it
+before the file(s) you want to check, e.g.:
+
+@example
+gforth depth-changes.fs my-file.fs
+@end example
+
+This will compare the stack depths of the data and FP stack at every
+empty line (in interpretation state) against these depths at the last
+empty line (in interpretation state).  If the depths are not equal,
+the position in the file and the stack contents are printed with
+@code{~~} (@pxref{Debugging}).  This indicates that a stack depth
+change has occurred in the paragraph of non-empty lines before the
+indicated line.  It is a good idea to leave an empty line at the end
+of the file, so the last paragraph is checked, too.
+
+Checking only at empty lines usually works well, but sometimes you
+have big blocks of non-empty lines (e.g., when building a big table),
+and you want to know where in this block the stack depth changed.  You
+can check all interpreted lines with
+
+@example
+gforth depth-changes.fs -e "' all-lines is depth-changes-filter" my-file.fs
+@end example
+
+This checks the stack depth at every end-of-line.  So the depth change
+occurred in the line reported by the @code{~~} (not in the line
+before).
+
+Note that, while this offers better accuracy in indicating where the
+stack depth changes, it will often report many intentional stack depth
+changes (e.g., when an interpreted computation stretches across
+several lines).  You can suppress the checking of some lines by
+putting backslashes at the end of these lines (not followed by white
+space), and using
+
+@example
+gforth depth-changes.fs -e "' most-lines is depth-changes-filter" my-file.fs
+@end example
+
 
 
 @c -------------------------------------------------------------
@@ -17960,44 +18072,41 @@ address of an existing C function (that you get with @code{lib-sym},
 function, you probably want to define the function as a Forth word.
 Then you need to generate a callback as described below:
 
-You can generate C callbacks from Forth code with @code{c-callback}.
+Callbacks use a staged approach: First you define a callback
+instantiator for a certain stack effect; then you use the instantiator
+to produce a C function pointer from an xt (the prototype of the C
+function is derived from the Forth stack effect); and finally you can
+use the resulting C function pointer in a context that needs it.
+
+You can generate a callback instantiator with:
 
 doc-c-callback
 doc-c-callback-thread
 
-This precompiles a number of callback functions (up to the value
-@code{callback#}).  The prototype of the C function is deduced from
-its Forth signature.
+Each instantiator can be called @word{callback#} times, and thus can
+generate that number of callbacks, with the relevant value of
+@word{callback#} being the one at the time when the instantiator is
+defined.  I.e., you can determine that number for an instantiator by
+changing the value @word{callback#} before defining the instantiator.
+In other words, you need to follow a static allocation discipline for
+the callbacks.
+
+doc-callback#
+
+Here is an example of a callback use with all stages:
 
 @source
 c-library callback-test
 \c typedef void (*rr2v)(double,double);
-\c void testrr2v(rr2v f) {f(0.5,1.5);}
+\c void testrr2v(rr2v f) {f(0.5,1.5);} /* function that calls a callback function f */
 c-function testrr2v testrr2v a -- void
-c-callback rr2v-callback r r -- void
+c-callback rr2v-callback r r -- void   \ define callback instantiator
 end-c-library
 : printrr fswap f. f. ;
-' printrr rr2v-callback constant printrr-c
-printrr-c testrr2v
+' printrr rr2v-callback constant printrr-c \ generate a callback instance
+printrr-c testrr2v \ use the callback function pointer by passing it to testrr2v
 @end source
 
-@c I don't understand the existing callback interface from the example - anton
-
-
-@c > > Und dann gibt's noch die fptr-Deklaration, die einem
-@c > > C-Funktionspointer entspricht (Deklaration gleich wie bei
-@c > > Library-Funktionen, nur ohne den C-Namen, Aufruf mit der
-@c > > C-Funktionsadresse auf dem TOS).
-@c >
-@c > Ja, da bin ich dann ausgestiegen, weil ich aus dem Beispiel nicht
-@c > gesehen habe, wozu das gut ist.
-@c 
-@c Irgendwie muss ich den Callback ja testen. Und es soll ja auch 
-@c vorkommen, dass man von irgendwelchen kranken Interfaces einen 
-@c Funktionspointer übergeben bekommt, den man dann bei Gelegenheit 
-@c aufrufen muss. Also kann man den deklarieren, und das damit deklarierte 
-@c Wort verhält sich dann wie ein EXECUTE für alle C-Funktionen mit 
-@c demselben Prototyp.
 
 
 @node C interface internals, Low-Level C Interface Words, Callbacks, C Interface
@@ -19072,7 +19181,8 @@ description, read: Bernd Paysan and M. Anton Ertl.
 @cite{@uref{http://www.euroforth.org/ef19/papers/paysan.pdf,The new
 Gforth header}}. In 35th EuroForth Conference, pages 5-20, 2019.
 Since this paper was published, xt and nt have been changed to point
-to the parameter field, like the body, but otherwise it is still
+to the parameter field, like the body, and ``vt'' (virtual table) has
+been renamed to ``hm'' (header methods), but otherwise it is still
 up-to-date.
 
 This section explains just the data structure and the words used to
@@ -19131,8 +19241,8 @@ for @code{execute}ing the word; you can read it with
 (@pxref{Threading Words}).
 
 The @code{>namehm} field contains the address of the header methods
-table, described below.  You access it by performing or accessing
-header methods (@pxref{Header methods}).
+table (@pxref{Header methods}).  You access it by performing or
+accessing header methods (@pxref{Header methods}).
 
 The @code{>body} (aka parameter) field contains data or threaded code
 specific to the word type; its length depends on the word type.  E.g.,
@@ -19415,50 +19525,76 @@ The following Standard Forth words are not currently supported by Gforth
 @code{FORGET} 
 
 @c ******************************************************************
-@node Error messages, Tools, Words, Top
+@node Error messages, Standard conformance, Words, Top
 @chapter Error messages
 @cindex error messages
 @cindex backtrace
 
 A typical Gforth error message looks like this:
 
-@example
-in file included from \evaluated string/:-1
-in file included from ./yyy.fs:1
-./xxx.fs:4: Invalid memory address
+@source
+in file included from *args*:1:1: 
+in file included from xxx-err1.fs:1:9: 
+xxx-err2.fs:3:1: error: Invalid memory address
 >>>bar<<<
 Backtrace:
-$400E664C @@
-$400E6664 foo
+xxx-err2.fs:1:15:              0 $7FA610EA7F68 @ 
+                               1 $14 
+xxx-err2.fs:2:7:               2 $7FA610EA7FB0 foo 
+@end source
+
+The line identifying the error is
+
+@example
+xxx-err2.fs:3:1: error: Invalid memory address
 @end example
 
-The message identifying the error is @code{Invalid memory address}.  The
-error happened when text-interpreting line 4 of the file
-@file{./xxx.fs}. This line is given (it contains @code{bar}), and the
-word on the line where the error happened, is pointed out (with
-@code{>>>} and @code{<<<}).
+It says that in file @file{xxx-err2.fs}, line 3, character 1, the
+error ``Invalid memory address'' happened; more precisely, the
+exception -9 was thrown there, and eventually was caught by Gforth's
+system exception handler (either because the program did not
+@word{catch} it or caught it and rethrew it).
 
-The file containing the error was included in line 1 of @file{./yyy.fs},
-and @file{yyy.fs} was included from a non-file (in this case, by giving
-@file{yyy.fs} as command-line parameter to Gforth).
+The next line shows the text-interpreted line where the error
+happened, abd the word where the error happened is surrounded by
+@code{>>>} and @code{<<<}.
 
-At the end of the error message you find a return stack dump that can be
-interpreted as a backtrace (possibly empty). On top you find the top of
-the return stack when the @code{throw} happened, and at the bottom you
-find the return stack entry just above the return stack of the topmost
-text interpreter.
+Before that you find the nesting of source file includes that led to
+the inclusion of @file{xxx-err2.fs}, with the outermost at the top and
+the innermost at the bottom.  So in this case @file{xxx-err2.fs} was
+included from @code{xxx-err1.fs}, line 1, character 9, and that was
+included from an OS-level command-line argument to Gforth, indicated
+by @file{*args*}.
 
-To the right of most return stack entries you see a guess for the word
-that pushed that return stack entry as its return address. This gives a
-backtrace. In our case we see that @code{bar} called @code{foo}, and
-@code{foo} called @code{@@} (and @code{@@} had an @emph{Invalid memory
-address} exception).
+At the end of the error message you find the backtrace, actually a
+return stack dump.  In our example, the middle line of the return
+stack dump just contains the number 20 (@code{$14}), and is not a
+return address.  The number @code{1} before the @code{$14} is the
+index of the return stack entry.
+
+The bottom line of the backtrace shows a return address, pushed by the
+call to @code{foo}; the backtrace also shows @code{foo} for this
+entry, at the end, and the source location of the call
+@code{xxx-err2.fs:2:7} at the beginning of the line.
+
+The top line of the backtrace shows a pseudo-return address, as if the
+primitive @word{@} pushed a return address.  This return address was
+pushed by the signal handler in order to produce this line in the
+backtrace, so you know where the exception came from.
+
+So in our example we see that @code{bar} called @code{foo}, and
+@code{foo} pushed 20 on the return stack and then called @word{@} (and
+@word{@} threw an @emph{Invalid memory address} exception).
+
+You can see the source code of the backtrace location with @code{nt}
+(next backtrace entry, initially the one with index 0, i.e., the top
+of the return stack), @code{bt} (previous backtrace entry, initially
+the one with the biggest index, i.e., the bottom of the return stack),
+or @code{@i{index} tt} (the @i{index}ed backtrace entry;
+@pxref{Locating backtrace entry source}).
 
 Note that the backtrace is not perfect: We don't know which return stack
-entries are return addresses (so we may get false positives); and in
-some cases (e.g., for @code{abort"}) we cannot determine from the return
-address the word that pushed the return address, so for some return
-addresses you see no names in the return stack dump.
+entries are return addresses (so we may get false positives).
 
 @cindex @code{catch} and backtraces
 The return stack dump represents the return stack at the time when a
@@ -19477,13 +19613,13 @@ after a @code{catch} if the error is not rethrown.
 @cindex @code{gforth-fast}, difference from @code{gforth}
 @cindex backtraces with @code{gforth-fast}
 @cindex return stack dump with @code{gforth-fast}
-@code{Gforth} is able to do a return stack dump for throws generated
-from primitives (e.g., invalid memory address, stack empty etc.);
-@code{gforth-fast} is only able to do a return stack dump from a
-directly called @code{throw} (including @code{abort} etc.).  Given an
-exception caused by a primitive in @code{gforth-fast}, you will
-typically see no return stack dump at all; however, if the exception is
-caught by @code{catch} (e.g., for restoring some state), and then
+The @code{gforth} engine is able to do a return stack dump for throws
+generated from primitives (e.g., invalid memory address, stack empty
+etc.); @code{gforth-fast} is only able to do a return stack dump from
+a directly called @code{throw} (including @code{abort"}).  Given
+an exception caused by a primitive in @code{gforth-fast}, you will
+typically see no return stack dump at all; however, if the exception
+is caught by @code{catch} (e.g., for restoring some state), and then
 @code{throw}n again, the return stack dump will be for the first such
 @code{throw}.
 
@@ -19491,129 +19627,15 @@ caught by @code{catch} (e.g., for restoring some state), and then
 division by zero and division overflow, because that costs time in every
 division.
 
-@c ******************************************************************
-@node Tools, Standard conformance, Error messages, Top
-@chapter Tools
-
-@menu
-* Standard Report::             Report the words used, sorted by wordset.
-* Stack depth changes::         Where does this stack item come from?
-@end menu
-
-See also @ref{Emacs and Gforth}.
-
-@node Standard Report, Stack depth changes, Tools, Tools
-@section @file{ans-report.fs}: Report the words used, sorted by wordset
-@cindex @file{ans-report.fs}
-@cindex report the words used in your program
-@cindex words used in your program
-
-If you want to label a Forth program as Standard Program, you must
-document which wordsets the program uses.
-
-The @file{ans-report.fs} tool makes it easy for you to determine which
-words from which wordset and which non-standard words your application
-uses. You simply have to include @file{ans-report.fs} before loading the
-program you want to check. After loading your program, you can get the
-report with @code{print-ans-report}. A typical use is to run this as
-batch job like this:
-@example
-gforth ans-report.fs myprog.fs -e "print-ans-report bye"
-@end example
-
-The output looks like this (for @file{compat/control.fs}):
-@example
-The program uses the following words
-from CORE :
-: POSTPONE THEN ; immediate ?dup IF 0= 
-from BLOCK-EXT :
-\ 
-from FILE :
-( 
-@end example
-
-@file{ans-report.fs} reports both Forth-94 and Forth-2012 wordsets.
-For words that are in both standards, it reports the wordset without
-suffix (e.g., @code{CORE-EXT}).  For Forth-2012-only words, it reports
-the wordset with a @code{-2012} suffix (e.g., @code{CORE-EXT-2012});
-and likewise for the words that are Forth-94-only (i.e., that have
-been removed in Forth-2012).
-
-@subsection Caveats
-
-Loading @file{ans-report.fs} disables the reporting of shadowed words
-(a quick fix to avoid recording the shadowed words as being used).
-
-Note that @file{ans-report.fs} just checks which words are used, not
-whether they are used in a standard-conforming way!
-
-Some words are defined in several wordsets in the
-standard. @file{ans-report.fs} reports them for only one of the
-wordsets, and not necessarily the one you expect. It depends on usage
-which wordset is the right one to specify. E.g., if you only use the
-compilation semantics of @code{S"}, it is a Core word; if you also use
-its interpretation semantics, it is a File word.
-
-
-@node Stack depth changes,  , Standard Report, Tools
-@section Stack depth changes during interpretation
-@cindex @file{depth-changes.fs}
-@cindex depth changes during interpretation
-@cindex stack depth changes during interpretation
-@cindex items on the stack after interpretation
-
-Sometimes you notice that, after loading a file, there are items left
-on the stack.  The tool @file{depth-changes.fs} helps you find out
-quickly where in the file these stack items are coming from.
-
-The simplest way of using @file{depth-changes.fs} is to include it
-before the file(s) you want to check, e.g.:
-
-@example
-gforth depth-changes.fs my-file.fs
-@end example
-
-This will compare the stack depths of the data and FP stack at every
-empty line (in interpretation state) against these depths at the last
-empty line (in interpretation state).  If the depths are not equal,
-the position in the file and the stack contents are printed with
-@code{~~} (@pxref{Debugging}).  This indicates that a stack depth
-change has occurred in the paragraph of non-empty lines before the
-indicated line.  It is a good idea to leave an empty line at the end
-of the file, so the last paragraph is checked, too.
-
-Checking only at empty lines usually works well, but sometimes you
-have big blocks of non-empty lines (e.g., when building a big table),
-and you want to know where in this block the stack depth changed.  You
-can check all interpreted lines with
-
-@example
-gforth depth-changes.fs -e "' all-lines is depth-changes-filter" my-file.fs
-@end example
-
-This checks the stack depth at every end-of-line.  So the depth change
-occurred in the line reported by the @code{~~} (not in the line
-before).
-
-Note that, while this offers better accuracy in indicating where the
-stack depth changes, it will often report many intentional stack depth
-changes (e.g., when an interpreted computation stretches across
-several lines).  You can suppress the checking of some lines by
-putting backslashes at the end of these lines (not followed by white
-space), and using
-
-@example
-gforth depth-changes.fs -e "' most-lines is depth-changes-filter" my-file.fs
-@end example
 
 @c ******************************************************************
-@node Standard conformance, Standard vs Extensions, Tools, Top
+@node Standard conformance, Standard vs Extensions, Error messages, Top
 @chapter Standard conformance
 @cindex Standard conformance of Gforth
 
 To the best of our knowledge, Gforth is a
 
-ANS Forth System and a Forth-2012 System
+ANS Forth (Forth-94) System and a Forth-2012 System
 @itemize @bullet
 @item providing the Core Extensions word set
 @item providing the Block word set
@@ -19650,7 +19672,7 @@ While processing the OS command line, if an exception is not caught,
 Gforth exits with a non-zero exit code instead of performing QUIT.
 
 @item
-When an @code{throw} is performed after a @code{query}, Gforth does not
+When a @code{throw} is performed after a @code{query}, Gforth does not
 always restore the input source specification in effect at the
 corresponding catch.
 
@@ -19715,7 +19737,7 @@ are likely to change during the maintenance of Gforth.
 @cindex aligned addresses
 processor-dependent. Gforth's alignment words perform natural alignment
 (e.g., an address aligned for a datum of size 8 is divisible by
-8). Unaligned accesses usually result in a @code{-23 THROW}.
+8). Unaligned accesses may result in a @code{-23 THROW}.
 
 @item @code{EMIT} and non-graphic characters:
 @cindex @code{EMIT} and non-graphic characters
@@ -19741,28 +19763,17 @@ The character set of your computer and display device. Gforth is
 
 @item Character-aligned address requirements:
 @cindex character-aligned address requirements
-installation-dependent. Currently a character is represented by a C
-@code{unsigned char}; in the future we might switch to @code{wchar_t}
-(Comments on that requested).
+All addresses are character-aligned, because @code{1 chars} produces 1.
 
 @item character-set extensions and matching of names:
 @cindex character-set extensions and matching of names
 @cindex case-sensitivity for name lookup
 @cindex name lookup, case-sensitivity
 @cindex locale and case-sensitivity
-Any character except the ASCII NUL character can be used in a
-name. Matching is case-insensitive (except in @code{TABLE}s). The
-matching is performed using the C library function @code{strncasecmp}, whose
-function is probably influenced by the locale. E.g., the @code{C} locale
-does not know about accents and umlauts, so they are matched
-case-sensitively in that locale. For portability reasons it is best to
-write programs such that they work in the @code{C} locale. Then one can
-use libraries written by a Polish programmer (who might use words
-containing ISO Latin-2 encoded characters) and by a French programmer
-(ISO Latin-1) in the same program (of course, @code{WORDS} will produce
-funny results for some of the words (which ones, depends on the font you
-are using)). Also, the locale you prefer may not be available in other
-operating systems. Hopefully, Unicode will solve these problems one day.
+Any character can be used in a name. Matching is case-insensitive
+(except in @code{table}s and @code{cs-wordlist}s) for ASCII characters
+and case-sensitive for other characters.
+
 
 @item conditions under which control characters match a space delimiter:
 @cindex space delimiters
@@ -19776,13 +19787,14 @@ characters as delimiters.
 
 @item format of the control-flow stack:
 @cindex control-flow stack, format
-The data stack is used as control-flow stack. The size of a control-flow
-stack item in cells is given by the constant @code{cs-item-size}. At the
-time of this writing, an item consists of a (pointer to a) locals list
-(third), an address in the code (second), and a tag for identifying the
-item (TOS). The following tags are used: @code{defstart},
-@code{live-orig}, @code{dead-orig}, @code{dest}, @code{do-dest},
-@code{scopestart}.
+The data stack is used as control-flow stack. The size of a
+control-flow stack item in cells is given by the constant
+@code{cs-item-size}. At the time of this writing, an item consists of
+a cell-sized stack-state descriptor (fourth), a (pointer to a) locals
+list (third), an address in the code (second), and a tag for
+identifying the item (TOS). The following tags are used:
+@code{defstart}, @code{live-orig}, @code{dead-orig}, @code{dest},
+@code{do-dest}, @code{scopestart}.
 
 @item conversion of digits > 35
 @cindex digits > 35
@@ -19812,8 +19824,7 @@ lines. One of these characters is typically produced when you type the
 @item maximum size of a counted string:
 @cindex maximum size of a counted string
 @cindex counted string, maximum size
-@code{s" /counted-string" environment? drop .}. Currently 255 characters
-on all platforms, but this may change.
+255 characters.
 
 @item maximum size of a parsed string:
 @cindex maximum size of a parsed string
@@ -19823,25 +19834,24 @@ Given by the constant @code{/line}. Currently 255 characters.
 @item maximum size of a definition name, in characters:
 @cindex maximum size of a definition name, in characters
 @cindex name, maximum length
-MAXU/8
+@code{-1 8 rshift}; 72057594037927935 characters on 64-bit systems,
+16777215 characters on 32-bit systems.
 
 @item maximum string length for @code{ENVIRONMENT?}, in characters:
 @cindex maximum string length for @code{ENVIRONMENT?}, in characters
 @cindex @code{ENVIRONMENT?} string length, maximum
-MAXU/8
+Any string length, but only strings that can be names can be recognized.
 
 @item method of selecting the user input device:
 @cindex user input device, method of selecting
-The user input device is the standard input. There is currently no way to
-change it from within Gforth. However, the input can typically be
-redirected in the command line that starts Gforth.
+Change @word{infile-id}, ideally with @word{infile-execute}.  Or by
+changing @word{ip-vector} (undocumented).
 
 @item method of selecting the user output device:
 @cindex user output device, method of selecting
-@code{EMIT} and @code{TYPE} output to the file-id stored in the value
-@code{outfile-id} (@code{stdout} by default). Gforth uses unbuffered
-output when the user output device is a terminal, otherwise the output
-is buffered.
+Change @word{outfile-id}, e.g., with @word{outfile-execute}.  Or
+change @word{type} and @word{emit}, e.g., with @word{>string-execute}.
+Or by changing @word{op-vector} (undocumented).
 
 @item methods of dictionary compilation:
 What are we expected to document here?
@@ -19849,21 +19859,23 @@ What are we expected to document here?
 @item number of bits in one address unit:
 @cindex number of bits in one address unit
 @cindex address unit, size in bits
-@code{s" address-units-bits" environment? drop .}. 8 in all current
-platforms.
+8
 
 @item number representation and arithmetic:
 @cindex number representation and arithmetic
-Processor-dependent. Binary two's complement on all current platforms.
+Binary.  Negative integers are represented in two's-complement form.
+FP numbers are represented as IEEE DP FP numbers (binary64) on nearly
+all platforms (exception: ARM with soft floats).
 
 @item ranges for integer types:
 @cindex ranges for integer types
 @cindex integer types, ranges
-Installation-dependent. Make environmental queries for @code{MAX-N},
-@code{MAX-U}, @code{MAX-D} and @code{MAX-UD}. The lower bounds for
-unsigned (and positive) types is 0. The lower bound for signed types on
-two's complement and one's complement machines machines can be computed
-by adding 1 to the upper bound.
+For 32-bit platforms: u: 0...4294967295, n: -2147483648...2147483647, ud: 0...18446744073709551615, d: -9223372036854775808...9223372036854775807.
+
+For 64-bit platforms: u: 0...18446744073709551615, n: -9223372036854775808...9223372036854775807, ud: 0...340282366920938463463374607431768211455, d: -170141183460469231731687303715884105728...170141183460469231731687303715884105727
+
+You can also make environmental queries for @code{MAX-N},
+@code{MAX-U}, @code{MAX-D} and @code{MAX-UD}.
 
 @item read-only data space regions:
 @cindex read-only data space regions
@@ -19873,34 +19885,30 @@ The whole Forth data space is writable.
 @item size of buffer at @code{WORD}:
 @cindex size of buffer at @code{WORD}
 @cindex @code{WORD} buffer size
-@code{PAD HERE - .}. 104 characters on 32-bit machines. The buffer is
-shared with the pictured numeric output string. If overwriting
-@code{PAD} is acceptable, it is as large as the remaining dictionary
-space, although only as much can be sensibly used as fits in a counted
-string.
+@code{PAD HERE - .}. 104 characters on 32-bit machines, 176 on 64-bit
+machines.  The buffer is shared with the pictured numeric output
+string. If overwriting @code{PAD} is acceptable, it is as large as the
+remaining dictionary space, although only as much can be sensibly used
+as fits in a counted string.
 
 @item size of one cell in address units:
 @cindex cell size
-@code{1 cells .}.
+@code{1 cells .}.  4 on 32-bit systems, 8 on 64-bit systems.
 
 @item size of one character in address units:
 @cindex char size
-@code{1 chars .}. 1 on all current platforms.
+1
 
 @item size of the keyboard terminal buffer:
 @cindex size of the keyboard terminal buffer
 @cindex terminal buffer, size
-Varies. You can determine the size at a specific time using @code{lp@@
-tib - .}. It is shared with the locals stack and TIBs of files that
-include the current file. You can change the amount of space for TIBs
-and locals stack at Gforth startup with the command line option
-@code{-l}.
+@code{max#tib @@}.  This can vary.
 
 @item size of the pictured numeric output buffer:
 @cindex size of the pictured numeric output buffer
 @cindex pictured numeric output buffer, size
-@code{PAD HERE - .}. 104 characters on 32-bit machines. The buffer is
-shared with @code{WORD}.
+@code{word-pno-size}
+
 
 @item size of the scratch area returned by @code{PAD}:
 @cindex size of the scratch area returned by @code{PAD}
@@ -19909,38 +19917,36 @@ The remainder of dictionary space. @code{unused pad here - - .}.
 
 @item system case-sensitivity characteristics:
 @cindex case-sensitivity characteristics
-Dictionary searches are case-insensitive (except in
-@code{TABLE}s). However, as explained above under @i{character-set
-extensions}, the matching for non-ASCII characters is determined by the
-locale you are using. In the default @code{C} locale all non-ASCII
-characters are matched case-sensitively.
+Dictionary searches are case-insensitive for ASCII characters and
+case-sensitive for other characters (except that everything is
+case-sensitive in @code{table}s and @code{cs-wordlist}s).
 
 @item system prompt:
 @cindex system prompt
 @cindex prompt
-@code{ ok} in interpret state, @code{ compiled} in compile state.
+@code{ ok} in interpret state, @code{ compiled} in compile state,
+@code{ postponed} in postpone state.
 
 @item division rounding:
 @cindex division rounding
 The ordinary division words @code{/ mod /mod */ */mod} perform floored
-division (with the default installation of Gforth).  You can check
-this with @code{s" floored" environment? drop .}.  If you write
-programs that need a specific division rounding, best use
-@code{fm/mod} or @code{sm/rem} for portability.
+division.  If you write programs that need a specific division
+rounding, best use @code{fm/mod} or @code{sm/rem} for portability, but
+you can also use @code{/s}, @code{/f} etc.
 
 @item values of @code{STATE} when true:
 @cindex @code{STATE} values
 -1.
 
 @item values returned after arithmetic overflow:
-On two's complement machines, arithmetic is performed modulo
-2**bits-per-cell for single arithmetic and 4**bits-per-cell for double
-arithmetic (with appropriate mapping for signed types). Division by
-zero typically results in a @code{-55 throw} (Floating-point
-unidentified fault) or @code{-10 throw} (divide by zero).  Integer
-division overflow can result in these throws, or in @code{-11 throw};
-in @code{gforth-fast} division overflow and divide by zero may also
-result in returning bogus results without producing an exception.
+Arithmetic is performed modulo 2**bits-per-cell for single arithmetic
+and 4**bits-per-cell for double arithmetic (with appropriate mapping
+for signed types). Division by zero typically results in a @code{-55
+throw} (Floating-point unidentified fault) or @code{-10 throw} (divide
+by zero).  Integer division overflow can result in these throws, or in
+@code{-11 throw}; in @code{gforth-fast} division overflow and divide
+by zero may also result in returning bogus results without producing
+an exception.
 
 @item whether the current definition can be found after @t{DOES>}:
 @cindex @t{DOES>}, visibility of current definition

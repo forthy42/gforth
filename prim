@@ -2231,13 +2231,14 @@ is 0, @i{wretval} is the exit code of the command invoked by
 wretval = pclose((FILE *)wfileid);
 wior = IOR(wretval==-1);
 
->time&date&tz	( udtime -- nsec nmin nhour nday nmonth nyear fdst ndstoff c_addrtz utz )	gforth	to_time_and_date
-""Convert time in seconds since 1.1.1970 0:00Z to the current time of day. Seconds, minutes and hours are numbered from 0.
+>time&date&tz	( dtime -- nsec nmin nhour nday nmonth nyear fdst ndstoff c_addrtz utz )	gforth	to_time_and_date
+""Convert @i{dtime} in seconds since 1.1.1970 0:00Z to the current time of day
+in the current timezone. Seconds, minutes and hours are numbered from 0.
 Months are numbered from 1.""
 #ifdef BUGGY_LONG_LONG
-time_t now=(time_t)DLO(udtime);
+time_t now=(time_t)DLO(dtime);
 #else
-time_t now=(time_t)udtime;
+time_t now=(time_t)dtime;
 #endif
 struct tm ltime;
 localtime_r(&now, &ltime); /* thread save version */
