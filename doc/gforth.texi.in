@@ -162,7 +162,6 @@ Software Foundation raise funds for GNU development.''
 * Literals in source code::
 * Words::                       Forth words available in Gforth
 * Error messages::              How to interpret them
-* Tools::                       Programming tools
 * Standard conformance::        Implementation-defined options etc.
 * Standard vs Extensions::      Should I use extensions?
 * Model::                       The abstract machine of Gforth
@@ -537,6 +536,8 @@ Programming Tools
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
 * Code Coverage::               Measure execution frequency.
+* Standard Report::
+* Stack depth changes::
 
 Multitasker
 
@@ -585,11 +586,6 @@ Carnal words
 * Header fields::
 * Header methods::
 * Threading Words::
-
-Tools
-
-* Standard Report::             Report the words used, sorted by wordset.
-* Stack depth changes::         Where does this stack item come from?
 
 Standard conformance
 
@@ -16677,7 +16673,11 @@ flag and @code{?LEAVE} when the check fails.
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
 * Code Coverage::               Measure execution frequency.
+* Standard Report::
+* Stack depth changes::
 @end menu
+
+See also @ref{Emacs and Gforth}.
 
 @node Text interpreter status, Locating source code definitions, Programming Tools, Programming Tools
 @subsection Text interpreter status
@@ -17198,7 +17198,7 @@ doc-break:
 doc-break"
 
 @c -------------------------------------------------------------
-@node Code Coverage,  , Singlestep Debugger, Programming Tools
+@node Code Coverage, Standard Report, Singlestep Debugger, Programming Tools
 @subsection Code Coverage and Execution Frequency
 @cindex code coverage
 @cindex execution frequency
@@ -17263,6 +17263,118 @@ doc-cov+
 doc-?cov+
 doc-cov%
 doc-.cover-raw
+
+
+
+@node Standard Report, Stack depth changes, Code Coverage, Programming Tools
+@subsection @file{ans-report.fs}: Report the words used, sorted by wordset
+@cindex @file{ans-report.fs}
+@cindex report the words used in your program
+@cindex words used in your program
+
+If you want to label a Forth program as Standard Program, you must
+document which wordsets the program uses.
+
+The @file{ans-report.fs} tool makes it easy for you to determine which
+words from which wordset and which non-standard words your application
+uses. You simply have to include @file{ans-report.fs} before loading the
+program you want to check. After loading your program, you can get the
+report with @code{print-ans-report}. A typical use is to run this as
+batch job like this:
+@example
+gforth ans-report.fs myprog.fs -e "print-ans-report bye"
+@end example
+
+The output looks like this (for @file{compat/control.fs}):
+@example
+The program uses the following words
+from CORE :
+: POSTPONE THEN ; immediate ?dup IF 0= 
+from BLOCK-EXT :
+\ 
+from FILE :
+( 
+@end example
+
+@file{ans-report.fs} reports both Forth-94 and Forth-2012 wordsets.
+For words that are in both standards, it reports the wordset without
+suffix (e.g., @code{CORE-EXT}).  For Forth-2012-only words, it reports
+the wordset with a @code{-2012} suffix (e.g., @code{CORE-EXT-2012});
+and likewise for the words that are Forth-94-only (i.e., that have
+been removed in Forth-2012).
+
+@subsubsection Caveats
+
+Loading @file{ans-report.fs} disables the reporting of shadowed words
+(a quick fix to avoid recording the shadowed words as being used).
+
+Note that @file{ans-report.fs} just checks which words are used, not
+whether they are used in a standard-conforming way!
+
+Some words are defined in several wordsets in the
+standard. @file{ans-report.fs} reports them for only one of the
+wordsets, and not necessarily the one you expect. It depends on usage
+which wordset is the right one to specify. E.g., if you only use the
+compilation semantics of @code{S"}, it is a Core word; if you also use
+its interpretation semantics, it is a File word.
+
+If you load @file{ans-report.fs} on the OS command line, then enter
+interactive mode and call @word{print-ans-report} only afterwards, the
+word @word{bootmessage} is reported, most likely spuriously.  To avoid
+that, call @word{print-ans-report} from the OS command line, or
+@code{require ans-report.fs} interactively.
+
+@node Stack depth changes,  , Standard Report, Programming Tools
+@subsection Stack depth changes during interpretation
+@cindex @file{depth-changes.fs}
+@cindex depth changes during interpretation
+@cindex stack depth changes during interpretation
+@cindex items on the stack after interpretation
+
+Sometimes you notice that, after loading a file, there are items left
+on the stack.  The tool @file{depth-changes.fs} helps you find out
+quickly where in the file these stack items are coming from.
+
+The simplest way of using @file{depth-changes.fs} is to include it
+before the file(s) you want to check, e.g.:
+
+@example
+gforth depth-changes.fs my-file.fs
+@end example
+
+This will compare the stack depths of the data and FP stack at every
+empty line (in interpretation state) against these depths at the last
+empty line (in interpretation state).  If the depths are not equal,
+the position in the file and the stack contents are printed with
+@code{~~} (@pxref{Debugging}).  This indicates that a stack depth
+change has occurred in the paragraph of non-empty lines before the
+indicated line.  It is a good idea to leave an empty line at the end
+of the file, so the last paragraph is checked, too.
+
+Checking only at empty lines usually works well, but sometimes you
+have big blocks of non-empty lines (e.g., when building a big table),
+and you want to know where in this block the stack depth changed.  You
+can check all interpreted lines with
+
+@example
+gforth depth-changes.fs -e "' all-lines is depth-changes-filter" my-file.fs
+@end example
+
+This checks the stack depth at every end-of-line.  So the depth change
+occurred in the line reported by the @code{~~} (not in the line
+before).
+
+Note that, while this offers better accuracy in indicating where the
+stack depth changes, it will often report many intentional stack depth
+changes (e.g., when an interpreted computation stretches across
+several lines).  You can suppress the checking of some lines by
+putting backslashes at the end of these lines (not followed by white
+space), and using
+
+@example
+gforth depth-changes.fs -e "' most-lines is depth-changes-filter" my-file.fs
+@end example
+
 
 
 @c -------------------------------------------------------------
@@ -19413,7 +19525,7 @@ The following Standard Forth words are not currently supported by Gforth
 @code{FORGET} 
 
 @c ******************************************************************
-@node Error messages, Tools, Words, Top
+@node Error messages, Standard conformance, Words, Top
 @chapter Error messages
 @cindex error messages
 @cindex backtrace
@@ -19515,129 +19627,15 @@ is caught by @code{catch} (e.g., for restoring some state), and then
 division by zero and division overflow, because that costs time in every
 division.
 
-@c ******************************************************************
-@node Tools, Standard conformance, Error messages, Top
-@chapter Tools
-
-@menu
-* Standard Report::             Report the words used, sorted by wordset.
-* Stack depth changes::         Where does this stack item come from?
-@end menu
-
-See also @ref{Emacs and Gforth}.
-
-@node Standard Report, Stack depth changes, Tools, Tools
-@section @file{ans-report.fs}: Report the words used, sorted by wordset
-@cindex @file{ans-report.fs}
-@cindex report the words used in your program
-@cindex words used in your program
-
-If you want to label a Forth program as Standard Program, you must
-document which wordsets the program uses.
-
-The @file{ans-report.fs} tool makes it easy for you to determine which
-words from which wordset and which non-standard words your application
-uses. You simply have to include @file{ans-report.fs} before loading the
-program you want to check. After loading your program, you can get the
-report with @code{print-ans-report}. A typical use is to run this as
-batch job like this:
-@example
-gforth ans-report.fs myprog.fs -e "print-ans-report bye"
-@end example
-
-The output looks like this (for @file{compat/control.fs}):
-@example
-The program uses the following words
-from CORE :
-: POSTPONE THEN ; immediate ?dup IF 0= 
-from BLOCK-EXT :
-\ 
-from FILE :
-( 
-@end example
-
-@file{ans-report.fs} reports both Forth-94 and Forth-2012 wordsets.
-For words that are in both standards, it reports the wordset without
-suffix (e.g., @code{CORE-EXT}).  For Forth-2012-only words, it reports
-the wordset with a @code{-2012} suffix (e.g., @code{CORE-EXT-2012});
-and likewise for the words that are Forth-94-only (i.e., that have
-been removed in Forth-2012).
-
-@subsection Caveats
-
-Loading @file{ans-report.fs} disables the reporting of shadowed words
-(a quick fix to avoid recording the shadowed words as being used).
-
-Note that @file{ans-report.fs} just checks which words are used, not
-whether they are used in a standard-conforming way!
-
-Some words are defined in several wordsets in the
-standard. @file{ans-report.fs} reports them for only one of the
-wordsets, and not necessarily the one you expect. It depends on usage
-which wordset is the right one to specify. E.g., if you only use the
-compilation semantics of @code{S"}, it is a Core word; if you also use
-its interpretation semantics, it is a File word.
-
-
-@node Stack depth changes,  , Standard Report, Tools
-@section Stack depth changes during interpretation
-@cindex @file{depth-changes.fs}
-@cindex depth changes during interpretation
-@cindex stack depth changes during interpretation
-@cindex items on the stack after interpretation
-
-Sometimes you notice that, after loading a file, there are items left
-on the stack.  The tool @file{depth-changes.fs} helps you find out
-quickly where in the file these stack items are coming from.
-
-The simplest way of using @file{depth-changes.fs} is to include it
-before the file(s) you want to check, e.g.:
-
-@example
-gforth depth-changes.fs my-file.fs
-@end example
-
-This will compare the stack depths of the data and FP stack at every
-empty line (in interpretation state) against these depths at the last
-empty line (in interpretation state).  If the depths are not equal,
-the position in the file and the stack contents are printed with
-@code{~~} (@pxref{Debugging}).  This indicates that a stack depth
-change has occurred in the paragraph of non-empty lines before the
-indicated line.  It is a good idea to leave an empty line at the end
-of the file, so the last paragraph is checked, too.
-
-Checking only at empty lines usually works well, but sometimes you
-have big blocks of non-empty lines (e.g., when building a big table),
-and you want to know where in this block the stack depth changed.  You
-can check all interpreted lines with
-
-@example
-gforth depth-changes.fs -e "' all-lines is depth-changes-filter" my-file.fs
-@end example
-
-This checks the stack depth at every end-of-line.  So the depth change
-occurred in the line reported by the @code{~~} (not in the line
-before).
-
-Note that, while this offers better accuracy in indicating where the
-stack depth changes, it will often report many intentional stack depth
-changes (e.g., when an interpreted computation stretches across
-several lines).  You can suppress the checking of some lines by
-putting backslashes at the end of these lines (not followed by white
-space), and using
-
-@example
-gforth depth-changes.fs -e "' most-lines is depth-changes-filter" my-file.fs
-@end example
 
 @c ******************************************************************
-@node Standard conformance, Standard vs Extensions, Tools, Top
+@node Standard conformance, Standard vs Extensions, Error messages, Top
 @chapter Standard conformance
 @cindex Standard conformance of Gforth
 
 To the best of our knowledge, Gforth is a
 
-ANS Forth System and a Forth-2012 System
+ANS Forth (Forth-94) System and a Forth-2012 System
 @itemize @bullet
 @item providing the Core Extensions word set
 @item providing the Block word set
