@@ -17960,44 +17960,41 @@ address of an existing C function (that you get with @code{lib-sym},
 function, you probably want to define the function as a Forth word.
 Then you need to generate a callback as described below:
 
-You can generate C callbacks from Forth code with @code{c-callback}.
+Callbacks use a staged approach: First you define a callback
+instantiator for a certain stack effect; then you use the instantiator
+to produce a C function pointer from an xt (the prototype of the C
+function is derived from the Forth stack effect); and finally you can
+use the resulting C function pointer in a context that needs it.
+
+You can generate a callback instantiator with:
 
 doc-c-callback
 doc-c-callback-thread
 
-This precompiles a number of callback functions (up to the value
-@code{callback#}).  The prototype of the C function is deduced from
-its Forth signature.
+Each instantiator can be called @word{callback#} times, and thus can
+generate that number of callbacks, with the relevant value of
+@word{callback#} being the one at the time when the instantiator is
+defined.  I.e., you can determine that number for an instantiator by
+changing the value @word{callback#} before defining the instantiator.
+In other words, you need to follow a static allocation discipline for
+the callbacks.
+
+doc-callback#
+
+Here is an example of a callback use with all stages:
 
 @source
 c-library callback-test
 \c typedef void (*rr2v)(double,double);
-\c void testrr2v(rr2v f) {f(0.5,1.5);}
+\c void testrr2v(rr2v f) {f(0.5,1.5);} /* function that calls a callback function f */
 c-function testrr2v testrr2v a -- void
-c-callback rr2v-callback r r -- void
+c-callback rr2v-callback r r -- void   \ define callback instantiator
 end-c-library
 : printrr fswap f. f. ;
-' printrr rr2v-callback constant printrr-c
-printrr-c testrr2v
+' printrr rr2v-callback constant printrr-c \ generate a callback instance
+printrr-c testrr2v \ use the callback function pointer by passing it to testrr2v
 @end source
 
-@c I don't understand the existing callback interface from the example - anton
-
-
-@c > > Und dann gibt's noch die fptr-Deklaration, die einem
-@c > > C-Funktionspointer entspricht (Deklaration gleich wie bei
-@c > > Library-Funktionen, nur ohne den C-Namen, Aufruf mit der
-@c > > C-Funktionsadresse auf dem TOS).
-@c >
-@c > Ja, da bin ich dann ausgestiegen, weil ich aus dem Beispiel nicht
-@c > gesehen habe, wozu das gut ist.
-@c 
-@c Irgendwie muss ich den Callback ja testen. Und es soll ja auch 
-@c vorkommen, dass man von irgendwelchen kranken Interfaces einen 
-@c Funktionspointer übergeben bekommt, den man dann bei Gelegenheit 
-@c aufrufen muss. Also kann man den deklarieren, und das damit deklarierte 
-@c Wort verhält sich dann wie ein EXECUTE für alle C-Funktionen mit 
-@c demselben Prototyp.
 
 
 @node C interface internals, Low-Level C Interface Words, Callbacks, C Interface

@@ -751,7 +751,11 @@ Create callback-&style c-var c,
 
 ' callback-thread-define alias callback-define
 
-2 Value callback# \ how many callbacks should be created?
+2 Value callback# ( -- n ) \ gforth-experimental callback-number
+\G @i{N} is the number of instantiations that the next callback
+\G instantiator can create.  This number can be changed with @code{to
+\G callback#}, and affects the callback instantiators defined after
+\G this change.
 
 : callback-instantiate ( addr u -- )
     callback# 0 ?DO
