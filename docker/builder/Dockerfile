@@ -6,8 +6,8 @@ ARG GCC
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
 ENV LANG=C.UTF-8
 
-RUN echo Specified gcc version is ${GCC}
-RUN apt-get -y update \
+RUN echo Specified gcc version is ${GCC} \
+  && apt-get -y update \
   && apt-get upgrade -y \
   && apt-get -y --ignore-missing install libffi-dev libltdl7 libsoil-dev libtool make $GCC g++ \
      automake texinfo texi2html install-info dpkg-dev debhelper libtool-bin \
@@ -18,7 +18,7 @@ RUN apt-get -y update \
      libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
      libxkbcommon-dev libwebp-dev libv4l-dev libyuv-dev emacs-nox \
      yodl bison libboost-dev binutils-dev git && \
-     if test "${GCC%%[0-9]*}" == "gcc-"; then ln -fs /usr/bin/$GCC /usr/bin/gcc; fi
+     if test "${GCC%%[0-9]*}" == "gcc-"; then echo ln -fs /usr/bin/$GCC /usr/bin/gcc; ln -fs /usr/bin/$GCC /usr/bin/gcc; fi
 RUN if ! apt -y install gforth; then \
          if which wcurl >/dev/null 2>&1; then \
 	     wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
