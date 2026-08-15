@@ -19966,7 +19966,10 @@ No.
 @item a name is neither a word nor a number:
 @cindex name not found
 @cindex undefined word
-@code{-13 throw} (Undefined word).
+If a recognizer matches (see @word{recs}, @pxref{Default recognizers}, @pxref{Literals in source code}), the
+text interpreter performs its interpreting, compiling, or postponing
+action (which one, depends on the state).  If none matches, the text
+interpreter performs @code{-13 throw} (Undefined word).
 
 @item a definition name exceeds the maximum length allowed:
 @cindex word name too long
@@ -19974,10 +19977,10 @@ No.
 
 @item addressing a region not inside the various data spaces of the forth system:
 @cindex Invalid memory address
-The stacks, code space and header space are accessible. Machine code space is
-typically readable. Accessing other addresses gives results dependent on
-the operating system. On decent systems: @code{-9 throw} (Invalid memory
-address).
+The stacks, data space, code space and header space are readable and
+writable. Machine code space is typically readable. Accessing other
+addresses gives results dependent on the operating system. On decent
+systems: @code{-9 throw} (Invalid memory address).
 
 @item argument type incompatible with parameter:
 @cindex argument type mismatch
@@ -19988,22 +19991,20 @@ mismatch).
 @item attempting to obtain the execution token of a word with undefined execution semantics:
 @cindex compile-only warning, for @code{'} etc.
 @cindex execution token of words with undefined execution semantics
-The execution token represents the interpretation semantics of the
-word.  Gforth defines interpretation semantics for all words; for
-words where the standard does not define interpretation semantics, but
-defines the execution semantics (except @code{LEAVE}), the
-interpretation semantics are to perform the execution semantics.  For
-words where the standard defines no interprtation semantics, but
-defined compilation semantics (plus @code{LEAVE}), the interpretation
-semantics are to perform the compilation semantics.  Some words are
-marked as compile-only, and @code{'} gives a warning for these words.
+You get an execution token that represents the interpretation
+semantics of the word.  In some cases, the standard does not define
+the interpretation semantics nor the execution semantics (e.g.,
+@code{if}).  In those cases, you get an execution token for the
+compilation semantics.  For words marked compile-only, the most common
+ways of obtaining the xt produce a warning.
 
 @item dividing by zero:
 @cindex dividing by zero
 @cindex floating point unidentified fault, integer division
 On some platforms, this produces a @code{-10 throw} (Division by
 zero); on other systems, this typically results in a @code{-55 throw}
-(Floating-point unidentified fault).
+(Floating-point unidentified fault).  On some platforms, the
+@file{gforth-fast} engine produces some hardware-dependent value.
 
 @item insufficient data stack or return stack space:
 @cindex insufficient data stack or return stack space
@@ -20039,16 +20040,18 @@ similar to stack overflows.
 @cindex interpreting a word with undefined interpretation semantics
 @cindex Interpreting a compile-only word
 Gforth defines interpretation semantics for all words; for words where
-the standard defines execution semantics (except @code{LEAVE}), the
-interpretation semantics are to perform the execution semantics.  For
-words where the standard defines no interprtation semantics, but
-defined compilation semantics (plus @code{LEAVE}), the interpretation
-semantics are to perform the compilation semantics.  Some words are
-marked as compile-only, and text-interpreting them gives a warning.
+the standard defines execution semantics (except @code{exit} and
+@code{leave}), the interpretation semantics are to perform the
+execution semantics.  For words where the standard defines no
+interprtation semantics, but defined compilation semantics (plus
+@code{exit} and @code{leave}), the interpretation semantics are to
+perform the compilation semantics.  Some words are marked as
+compile-only, and text-interpreting them gives a warning.
 
 @item modifying the contents of the input buffer or a string literal:
 @cindex modifying the contents of the input buffer or a string literal
-These are located in writable memory and can be modified.
+These are located in writable memory and can be modified, which may
+have bad consequences for later execution.
 
 @item overflow of the pictured numeric output string:
 @cindex overflow of the pictured numeric output string
@@ -20061,15 +20064,14 @@ These are located in writable memory and can be modified.
 
 @item producing a result out of range:
 @cindex result out of range
-On two's complement machines, arithmetic is performed modulo
-2**bits-per-cell for single arithmetic and 4**bits-per-cell for double
-arithmetic (with appropriate mapping for signed types). Division by
-zero typically results in a @code{-10 throw} (divide by zero) or
-@code{-55 throw} (floating point unidentified fault). Overflow on
-division may result in these errors or in @code{-11 throw} (result out
-of range).  @code{Gforth-fast} may silently produce bogus results on
-division overflow or division by zero.  @code{Convert} and
-@code{>number} currently overflow silently.
+Arithmetic is performed modulo 2**bits-per-cell for single arithmetic
+and 4**bits-per-cell for double arithmetic (with appropriate mapping
+for signed types). Division by zero typically results in a @code{-10
+throw} (divide by zero) or @code{-55 throw} (floating point
+unidentified fault). Overflow on division may result in these errors
+or in @code{-11 throw} (result out of range).  @code{Gforth-fast} may
+silently produce bogus results on division overflow or division by
+zero.  @code{Convert} and @code{>number} currently overflow silently.
 
 @item reading from an empty data or return stack:
 @cindex stack empty
@@ -20096,10 +20098,10 @@ throw}).
 @cindex unexpected end of the input buffer
 @cindex zero-length string as a name
 @cindex Attempt to use zero-length string as a name
-@code{Create} and its descendants perform a @code{-16 throw} (Attempt to
-use zero-length string as a name). Words like @code{'} probably will not
-find what they search. Note that it is possible to create zero-length
-names with @code{nextname} (should it not?).
+@code{Create} and its descendants, as well as @code{'} and friends
+perform a @code{-16 throw} (Attempt to use zero-length string as a
+name) if they are invoked at the end of a line.  However, it is
+possible to create zero-length names with @code{nextname}.
 
 @item @code{>IN} greater than input buffer:
 @cindex @code{>IN} greater than input buffer
@@ -20113,29 +20115,24 @@ Compiles a recursive call to the code after @code{DOES>}.
 @cindex argument input source different than current input source for @code{RESTORE-INPUT}
 @cindex argument type mismatch, @code{RESTORE-INPUT}
 @cindex @code{RESTORE-INPUT}, Argument type mismatch
-@code{-12 THROW}. Note that, once an input file is closed (e.g., because
-the end of the file was reached), its source-id may be
-reused. Therefore, restoring an input source specification referencing a
-closed file may lead to unpredictable results instead of a @code{-12
-THROW}.
-
-In the future, Gforth may be able to restore input source specifications
-from other than the current input source.
+Ideally, this should result in a @code{-12 THROW}.  Currently it
+produces unintended results (up to and including terminating the
+Gforth session).
 
 @item data space containing definitions gets de-allocated:
 @cindex data space containing definitions gets de-allocated
-Deallocation with @code{allot} is not checked. This typically results in
-memory access faults or execution of illegal instructions.
+Deallocation with @code{allot} is not checked, possibly resulting in
+system corruption.  If you deallocate to the @word{section-start}, you
+get a @code{-8 throw} (dictionary overflow).
 
 @item data space read/write with incorrect alignment:
 @cindex data space read/write with incorrect alignment
 @cindex alignment faults
 @cindex address alignment exception
 Processor-dependent. Typically results in a @code{-23 throw} (Address
-alignment exception). Under Linux-Intel on a 486 or later processor with
-alignment turned on, incorrect alignment results in a @code{-9 throw}
-(Invalid memory address). There are reportedly some processors with
-alignment restrictions that do not report violations.
+alignment exception).  There are reportedly some processors with
+alignment restrictions that do not report violations, but just produce
+unintended results.
 
 @item data space pointer not properly aligned, @code{,}, @code{C,}:
 @cindex data space pointer not properly aligned, @code{,}, @code{C,}
@@ -20152,14 +20149,14 @@ stack items are loop control parameters and behave accordingly.
 @item most recent definition does not have a name (@code{IMMEDIATE}):
 @cindex most recent definition does not have a name (@code{IMMEDIATE})
 @cindex last word was headerless
-@code{abort" last word was headerless"}.
+No effect.
 
 @item name not defined by @code{VALUE} used by @code{TO}:
 @cindex name not defined by @code{VALUE} used by @code{TO}
 @cindex @code{TO} on non-@code{VALUE}s
 @cindex Invalid name argument, @code{TO}
-@code{-32 throw} (Invalid name argument) (unless name is a local or was
-defined by @code{CONSTANT}; in the latter case it just changes the constant).
+If @code{to} is not supported by the word type: @code{-21 throw}
+(Unsupported operation).
 
 @item name not found (@code{'}, @code{POSTPONE}, @code{[']}, @code{[COMPILE]}):
 @cindex name not found (@code{'}, @code{POSTPONE}, @code{[']}, @code{[COMPILE]})
@@ -20185,7 +20182,7 @@ contain only the least significant bits of the length.
 @item u greater than or equal to the number of bits in a cell (@code{LSHIFT}, @code{RSHIFT}):
 @cindex @code{LSHIFT}, large shift counts
 @cindex @code{RSHIFT}, large shift counts
-Processor-dependent. Typical behaviours are returning 0 and using only
+Processor-dependent. Typical behaviours are returning 0; or using only
 the low bits of the shift count.
 
 @item word not defined via @code{CREATE}:
