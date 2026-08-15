@@ -18,15 +18,15 @@ do
     arch1=$(echo $arch | tr '/' '-')
     for i in $VERSIONS
     do
-	case "$VERSION" in
-	    oldstable)
-		GCC=gcc
-		;;
+	case "$i" in
 	    stable)
 		GCC=gcc-14
 		;;
 	    unstable)
 		GCC=gcc-15
+		;;
+	    *)
+		GCC=gcc
 		;;
 	esac
 	docker build $* --network host --build-arg VERSION=$i --build-arg ARCH=${arch#*/} --build-arg GCC=$GCC --platform $arch -t forthy42/gforth-builder-$arch1:$i --progress=plain . 2>gforth-builder-$arch1-$i.log
