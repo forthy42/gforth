@@ -13295,6 +13295,9 @@ file}.  The size of the blocks file will be an exact multiple of 1024
 bytes, corresponding to the number of blocks it contains. This is the
 mechanism that Gforth uses.
 
+Gforth's current implementation of blocks is not thread-safe, so
+blocks should only be used by one task (@pxref{Pthreads}).
+
 @cindex @file{blocks.fb}
 Only one blocks file can be open at a time. If you use block words without
 having specified a blocks file, Gforth defaults to the blocks file
@@ -20240,7 +20243,7 @@ startup time with the @code{-d} switch (@pxref{Invoking Gforth}).
 @item system dictionary space required, in address units:
 @cindex system dictionary space required, in address units
 Type @code{here forthstart - .} after startup. At the time of this
-writing, this gives 80080 (bytes) on a 32-bit system.
+writing, this gives 696016 (bytes) on a 64-bit system.
 @end table
 
 
@@ -20324,7 +20327,8 @@ non-block input, the system will get quite confused when the block ends.
 
 @table @i
 @item any restrictions a multiprogramming system places on the use of buffer addresses:
-No restrictions (yet).
+The current implementation of blocks is not thread-safe, so blocks
+should only be used by one task.
 
 @item the number of blocks available for source and data:
 depends on your disk space.
@@ -20382,12 +20386,19 @@ The least significant cell of @i{d} is produced.
 @item @code{THROW}-codes used in the system:
 @cindex @code{THROW}-codes used in the system
 The codes -256@minus{}-511 are used for reporting signals. The mapping
-from OS signal numbers to throw codes is -256@minus{}@i{signal}. The
-codes -512@minus{}-2047 are used for OS errors (for file and memory
-allocation operations). The mapping from OS error numbers to throw codes
-is -512@minus{}@code{errno}. One side effect of this mapping is that
-undefined OS errors produce a message with a strange number; e.g.,
-@code{-1000 THROW} results in @code{Unknown error 488} on my system.
+from OS signal numbers to throw codes is -256@minus{}@i{signal}.
+
+The codes -512@minus{}-2047 are used for OS errors (for file and
+memory allocation operations). The mapping from OS error numbers to
+throw codes is -512@minus{}@code{errno}. One side effect of this
+mapping is that undefined OS errors produce a message with a strange
+number; e.g., @code{-1000 THROW} results in @code{Unknown error 488}
+on my system.
+
+You can allocate an exception number in the range (-4095...-256) with
+@word{exception}.  Gforth has allocated a number of such exceptions
+itself.
+
 @end table
 
 @c =====================================================================
@@ -20426,7 +20437,7 @@ characters.  Other keys are encoded with the constants @code{k-left},
 @cindex duration of a system clock tick
 @cindex clock tick duration
 System dependent. With respect to @code{MS}, the time is specified in
-microseconds. How well the OS and the hardware implement this, is
+nanoseconds. How well the OS and the hardware implement this, is
 another question.
 
 @item repeatability to be expected from the execution of @code{MS}:
@@ -20493,9 +20504,9 @@ faults when you pass illegal addresses or file-ids).
 
 @item file line terminator:
 @cindex file line terminator
-System-dependent. Gforth uses C's newline character as line
-terminator. What the actual character code(s) of this are is
-system-dependent.
+System-dependent. Gforth outputs LF on Unix (including WSL(2)) and
+CRLF on Windows (if anybody ever builds a Windows version again).
+Gforth accepts LF, CR and CRLF on input.
 
 @item file name format:
 @cindex file name format
@@ -20529,23 +20540,29 @@ of open files available. This should not give you troubles.
 @item maximum size of input line:
 @cindex maximum size of input line
 @cindex input line size, maximum
-@code{/line}. Currently 255.
+For file input, the maximum input line size is only limited by memory;
+the buffer is expanded to read in as long lines as the file contains.
+For terminal input, this auto-expansion does not happen, and the
+current size of the input buffer is used; @code{max#tib ?} shows the
+current input buffer size.
 
 @item methods of mapping block ranges to files:
 @cindex mapping block ranges to files
 @cindex files containing blocks
 @cindex blocks in files
 By default, blocks are accessed in the file @file{blocks.fb} in the
-current working directory. The file can be switched with @code{USE}.
+current working directory. The file can be switched with
+@word{open-blocks} or @code{use}.
 
 @item number of string buffers provided by @code{S"}:
 @cindex @code{S"}, number of string buffers
-As many as memory available; the strings are stored in memory blocks
-allocated with ALLOCATE indefinitely.
+The interpretation semantics @word{S"} @word{allocate}s the memory for
+the strings, so the number of string buffers is only limited by
+memory.
 
 @item size of string buffer used by @code{S"}:
 @cindex @code{S"}, size of string buffer
-@code{/line}. currently 255.
+@word{S"} @word{allocate}s the strings, as long as they are.
 
 @end table
 
@@ -20574,8 +20591,8 @@ problem is more probable.
 @item I/O exception reading or closing @i{file-id} (@code{INCLUDE-FILE}, @code{INCLUDED}):
 @cindex @code{INCLUDE-FILE}, I/O exception reading or closing @i{file-id}
 @cindex @code{INCLUDED}, I/O exception reading or closing @i{file-id}
-The @i{ior} produced by the operation, that discovered the problem, is
-thrown.
+The operation that discovers the problem produces an @i{ior} and that
+@i{ior} is thrown.
 
 @item named file cannot be opened (@code{INCLUDED}):
 @cindex @code{INCLUDED}, named file cannot be opened
@@ -20619,21 +20636,24 @@ the source which loaded the block. (Better ideas?)
 @item format and range of floating point numbers:
 @cindex format and range of floating point numbers
 @cindex floating point numbers, format and range
-System-dependent; the @code{double} type of C.
+The @code{double} type of C, which is IEEE DP FP (binary64) on most
+platforms (exception: ARM with soft floats).
 
 @item results of @code{REPRESENT} when @i{float} is out of range:
 @cindex  @code{REPRESENT}, results when @i{float} is out of range
-System dependent; @code{REPRESENT} is implemented using the C library
-function @code{ecvt()} and inherits its behaviour in this respect.
+@word{Represent} produces results for all inputs.  For infinities, it
+produces as much of ``infinity'' or ``-infinity'' as fits in the
+buffer.  For NaNs, it produces as much of ``NaN'' as fits in the
+buffer.  The remaining buffer is filled with spaces.  For infinities
+and NaNs, @i{flag2} (valid) is false, otherwise true.
 
 @item rounding or truncation of floating-point numbers:
 @cindex rounding of floating-point numbers
 @cindex truncation of floating-point numbers
 @cindex floating-point numbers, rounding or truncation
-System dependent; the rounding behaviour is inherited from the hosting C
-compiler. IEEE-FP-based (i.e., most) systems by default round to
-nearest, and break ties by rounding to even (i.e., such that the last
-bit of the mantissa is 0).
+IEEE-FP-based (i.e., most) systems by default round to nearest, and
+break ties by rounding to even (i.e., such that the last bit of the
+mantissa is 0).
 
 @item size of floating-point stack:
 @cindex floating-point stack size
@@ -20658,31 +20678,32 @@ with the command-line option @code{-f} (@pxref{Invoking Gforth}).
 @table @i
 @item @code{df@@} or @code{df!} used with an address that is not double-float  aligned:
 @cindex @code{df@@} or @code{df!} used with an address that is not double-float  aligned
-System-dependent. Typically results in a @code{-23 THROW} like other
+Hardware-dependent.  If the hardware does not support unaligned
+accesses, this typically results in a @code{-23 THROW} like other
 alignment violations.
 
 @item @code{f@@} or @code{f!} used with an address that is not float  aligned:
 @cindex @code{f@@} used with an address that is not float aligned
 @cindex @code{f!} used with an address that is not float aligned
-System-dependent. Typically results in a @code{-23 THROW} like other
+Hardware-dependent.  If the hardware does not support unaligned
+accesses, this typically results in a @code{-23 THROW} like other
 alignment violations.
 
 @item floating-point result out of range:
 @cindex floating-point result out of range
-System-dependent. Can result in a @code{-43 throw} (floating point
-overflow), @code{-54 throw} (floating point underflow), @code{-41 throw}
-(floating point inexact result), @code{-55 THROW} (Floating-point
-unidentified fault), or can produce a special value representing, e.g.,
-Infinity.
+An FP value is returned (so nothing is out of range), but it may be an
+infinity or a NaN.
 
 @item @code{sf@@} or @code{sf!} used with an address that is not single-float  aligned:
 @cindex @code{sf@@} or @code{sf!} used with an address that is not single-float  aligned
-System-dependent. Typically results in an alignment fault like other
+Hardware-dependent.  If the hardware does not support unaligned
+accesses, this typically results in a @code{-23 THROW} like other
 alignment violations.
 
 @item @code{base} is not decimal (@code{REPRESENT}, @code{F.}, @code{FE.}, @code{FS.}):
 @cindex @code{base} is not decimal (@code{REPRESENT}, @code{F.}, @code{FE.}, @code{FS.})
-The floating-point number is converted into decimal nonetheless.
+Conversion between FP and string representations always use decimal,
+irrespective of @code{base}.
 
 @item Both arguments are equal to zero (@code{FATAN2}):
 @cindex @code{FATAN2}, both arguments are equal to zero
@@ -20703,47 +20724,43 @@ The result is rounded to the nearest float.
 @cindex dividing by zero, floating-point
 @cindex floating-point dividing by zero
 @cindex floating-point unidentified fault, FP divide-by-zero
-Platform-dependent; can produce an Infinity, NaN, @code{-42 throw}
-(floating point divide by zero) or @code{-55 throw} (Floating-point
-unidentified fault).
+On IEEE FP based systems, prouces an infinity or a NaN.
 
 @item exponent too big for conversion (@code{DF!}, @code{DF@@}, @code{SF!}, @code{SF@@}):
 @cindex exponent too big for conversion (@code{DF!}, @code{DF@@}, @code{SF!}, @code{SF@@})
-System dependent. On IEEE-FP based systems the number is converted into
-an infinity.
+On IEEE-FP based systems the number is converted into an infinity.
 
 @item @i{float}<1 (@code{FACOSH}):
 @cindex @code{FACOSH}, @i{float}<1
 @cindex floating-point unidentified fault, @code{FACOSH}
-Platform-dependent; on IEEE-FP systems typically produces a NaN.
+On IEEE-FP based systems this produces a NaN.
 
 @item @i{float}<=-1 (@code{FLNP1}):
 @cindex @code{FLNP1}, @i{float}<=-1
 @cindex floating-point unidentified fault, @code{FLNP1}
-Platform-dependent; on IEEE-FP systems typically produces a NaN (or a
-negative infinity for @i{float}=-1).
+On IEEE-FP based systems this produces a NaN (or a negative infinity
+for @i{float}=-1).
 
 @item @i{float}<=0 (@code{FLN}, @code{FLOG}):
 @cindex @code{FLN}, @i{float}<=0
 @cindex @code{FLOG}, @i{float}<=0
 @cindex floating-point unidentified fault, @code{FLN} or @code{FLOG}
-Platform-dependent; on IEEE-FP systems typically produces a NaN (or a
-negative infinity for @i{float}=0).
+On IEEE-FP based systems this produces a NaN (or a negative infinity
+for @i{float}=0).
 
 @item @i{float}<0 (@code{FASINH}, @code{FSQRT}):
 @cindex @code{FASINH}, @i{float}<0
 @cindex @code{FSQRT}, @i{float}<0
 @cindex floating-point unidentified fault, @code{FASINH} or @code{FSQRT}
-Platform-dependent; for @code{fsqrt} this typically gives a NaN, for
-@code{fasinh} some platforms produce a NaN, others a number (bug in the
-C library?).
+On IEEE-FP based systems, for @code{fsqrt} this gives a NaN, for
+@code{fasinh} some platforms produce a NaN, others a number.
 
 @item |@i{float}|>1 (@code{FACOS}, @code{FASIN}, @code{FATANH}):
 @cindex @code{FACOS}, |@i{float}|>1
 @cindex @code{FASIN}, |@i{float}|>1
 @cindex @code{FATANH}, |@i{float}|>1
 @cindex floating-point unidentified fault, @code{FACOS}, @code{FASIN} or @code{FATANH}
-Platform-dependent; IEEE-FP systems typically produce a NaN.
+IEEE-FP based systems produce a NaN.
 
 @item integer part of float cannot be represented by @i{d} in @code{F>D}:
 @cindex @code{F>D}, integer part of float cannot be represented by @i{d}
@@ -20753,9 +20770,8 @@ error is reported.
 
 @item string larger than pictured numeric output area (@code{f.}, @code{fe.}, @code{fs.}):
 @cindex string larger than pictured numeric output area (@code{f.}, @code{fe.}, @code{fs.})
-@code{Precision} characters of the numeric output area are used.  If
-@code{precision} is too high, these words will smash the data or code
-close to @code{here}.
+These words do not use the pictured numeric output buffer, but a
+buffer big enough for @word{precision} digits.
 @end table
 
 @c =====================================================================

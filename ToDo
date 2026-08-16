@@ -65,6 +65,7 @@ AB       [ ] Try building on non-Linux machines (cfarm)
 
 -*- RoadMap for gforth post 1.0 -*-
  B   [d] (Dropped) Multithreading: Use sections to allow compilation in every threading
+     [ ] Thread-safe blocks implementation (mmap?)
 ABG  [ ] fork-marker use fork instead of classic marker
 AB   [x] marker für sections
 ABG  [x] bin-utils disassembler
@@ -73,6 +74,7 @@ AB   [ ]*documented view>* (internal words) in IDE
 AB   [x] locate of nested recognizers
  B       [x] print information about recognizer
 A    [x] Gforth words are documented with release
+A    [ ] EXCEPTION is both in forth and environment -> wrong version, and missing link
   G  [ ] Klaut
 AB   [ ] sections
 A        [x] locals in sections
