@@ -2,11 +2,12 @@ ARG VERSION=unstable
 ARG ARCH=amd64
 ARG GCC=gcc
 FROM $ARCH/debian:$VERSION
+ARG GCC
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
 ENV LANG=C.UTF-8
 
-RUN echo "Requires gcc"=$GCC
-RUN apt-get -y update \
+RUN echo Specified gcc version is ${GCC} \
+  && apt-get -y update \
   && apt-get upgrade -y \
   && apt-get -y --ignore-missing install libffi-dev libltdl7 libsoil-dev libtool make $GCC g++ \
      automake texinfo texi2html install-info dpkg-dev debhelper libtool-bin \
@@ -17,7 +18,7 @@ RUN apt-get -y update \
      libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
      libxkbcommon-dev libwebp-dev libv4l-dev libyuv-dev emacs-nox \
      yodl bison libboost-dev binutils-dev git && \
-     env GCC=$GCC bash -c 'echo Links $GCC; [ "${GCC%%[0-9]*}" == "gcc-" ] && ln -fs /usr/bin/$GCC /usr/bin/gcc'
+     if test "${GCC%%[0-9]*}" = "gcc-"; then echo ln -fs /usr/bin/$GCC /usr/bin/gcc; ln -fs /usr/bin/$GCC /usr/bin/gcc; fi
 RUN if ! apt -y install gforth; then \
          if which wcurl >/dev/null 2>&1; then \
 	     wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
@@ -26,7 +27,7 @@ RUN if ! apt -y install gforth; then \
 	 fi; \
        	 tar zxf gforth-0.7.3.tar.gz; \
 	 BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g'); \
-         (cd gforth-0.7.3; ./configure CC=$GCC --prefix=/usr --host=$BARCH --build=$BARCH; for i in *.fi; do cp $i $i-; done; make; make install); fi
+         (cd gforth-0.7.3; ./configure CC=${GCC} --prefix=/usr --host=$BARCH --build=$BARCH; for i in *.fi; do cp $i $i-; done; make; make install); fi
 RUN if [ "`lsb_release -sc`" = "forky" -a "`gcc -v 2>&1 | tr ' ' '\n' | grep -- --host | cut -f2 -d= | cut -f1 -d-`" = "x86_64" ]; then apt-get -y install texlive-base texlive-latex-base; fi \
   && apt-get clean
 RUN cd /tmp/ \
