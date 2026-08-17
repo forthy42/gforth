@@ -59,7 +59,7 @@ DOES> state @ abs translator-max-offset# umin th@ execute ;
 \ status line prints a stack of status words
 ' .base ' .stacks ' .order 3 status-xts set-stack
 
-: .status-line ( -- ) { | w^ status$ }
+: (.status-line) ( addr -- ) { status$ }
     cols #100 > to wide?
     [: status-xts $@ cell MEM+DO  I perform  LOOP ;] status$ $exec
     #lf '|' status$ $@ replace-char
@@ -77,16 +77,20 @@ DOES> state @ abs translator-max-offset# umin th@ execute ;
     THEN
     cr edit-linew @ screenw @ dup 0= IF  $100 +  THEN  mod -1 at-deltaxy
     status$ $@ redraw-status
-    status$ $free
     1 to status-offset ;
-
-: +status ( -- ) \ gforth
-    \G Turn on the status bar at the bottom of the screen
-    ['] .status-line is .status ['] .unstatus-line is .unstatus ;
 
 : -status ( -- ) \ gforth "minus-status"
     \G Turn off the status bar at the bottom of the screen
     ['] noop is .status ['] noop is .unstatus ;
+
+: .status-line ( -- )
+    { | w^ status$ }
+    status$ ['] (.status-line) catch  status$ $free
+    dup IF  -status  THEN  throw ;
+
+: +status ( -- ) \ gforth
+    \G Turn on the status bar at the bottom of the screen
+    ['] .status-line is .status ['] .unstatus-line is .unstatus ;
 
 :noname
     defers bootmessage
