@@ -168,11 +168,8 @@ Defer ?warn#  ' noop is ?warn#
 
 : stack> ( stack -- x ) \ gforth-experimental stack-from
     \G Pop item @i{x} from top of @i{stack}.
-    dup >r $@ dup IF
-        + cell- @ r@ $@len cell- r> $!len
-    ELSE
-        2drop rdrop
-    THEN ;
+    dup >r $@ dup 0= IF  -4 throw  THEN
+    + cell- @ r@ $@len cell- r> $!len ;
 
 : stack# ( stack -- elements )
     $@len cell/ ;
