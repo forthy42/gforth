@@ -34,8 +34,7 @@ require rec-sequence.fs
     r> $@ drop ! ;
 : back> ( stack -- x ) \ gforth-experimental back-from
     \G Remove item @i{x} from bottom of @i{stack}.
-    dup >r $@ IF  @ r@ 0 cell $del  ELSE  drop 0  THEN
-    rdrop ;
+    dup >r $@ IF  @ r> 0 cell $del  ELSE  -4 throw  THEN ;
 
 : set-current  ( wid -- )  \ search
   \G Set the compilation word list to the word list identified by @i{wid}.
@@ -201,10 +200,10 @@ Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
   \ The standard requires that the word lists are printed in the order
   \ in which they are searched. Therefore, the output is reversed
   \ with respect to the conventional way of displaying stacks.
-    get-order 0
-    ?DO
-	.voc
-    LOOP
+    ['] search-order >body $@ bounds swap
+    U-DO
+	I cell- @ .voc
+    cell -LOOP
     4 spaces get-current .voc ;
 
 : map-vocs ( ... xt -- ... ) \ gforth
