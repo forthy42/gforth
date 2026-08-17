@@ -21011,12 +21011,18 @@ are applied to the latest defined word (as reported by @code{latest} or
 @item search order empty (@code{previous}):
 @cindex @code{previous}, search order empty
 @cindex vocstack empty, @code{previous}
-The search order stays empty.
+@code{-4 throw} (stack underflow).  You can distinguish this from data
+stack underflows by having @word{throw} on the top of the backtrace
+and @word{stack>} close by.
 
 @item too many word lists in search order (@code{also}):
 @cindex @code{also}, too many word lists in search order
 @cindex vocstack full, @code{also}
-Unpredictable things happen when the system runs out of memory.
+The search order size in Gforth is only limited by memory, and when
+the @word{resize} fails, an appropriate exception is thrown.  However,
+if you use @word{get-order}, you will probably get a data stack
+overflow at a much smaller size (by default, the data stack can hold
+4K elements).
 
 @end table
 
