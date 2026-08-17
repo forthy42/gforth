@@ -164,7 +164,6 @@ Software Foundation raise funds for GNU development.''
 * Error messages::              How to interpret them
 * Standard conformance::        Implementation-defined options etc.
 * Standard vs Extensions::      Should I use extensions?
-* Model::                       The abstract machine of Gforth
 * Integrating Gforth::          Forth as scripting language for applications
 * Emacs and Gforth::            The Gforth Mode
 * Image Files::                 @code{.fi} files contain compiled code
@@ -21027,7 +21026,7 @@ overflow at a much smaller size (by default, the data stack can hold
 @end table
 
 @c ***************************************************************
-@node Standard vs Extensions, Model, Standard conformance, Top
+@node Standard vs Extensions, Integrating Gforth, Standard conformance, Top
 @chapter Should I use Gforth extensions?
 @cindex Gforth extensions
 
@@ -21080,15 +21079,14 @@ upon.  However, it does not check whether you use standard words in a
 non-standard way.
 
 @item
-Some techniques are not standardized by Standard Forth, and are hard or
-impossible to implement in a standard way, but can be implemented in
-most Forth systems easily, and usually in similar ways (e.g., accessing
-word headers).  Forth has a rich historical precedent for programmers
-taking advantage of implementation-dependent features of their tools
-(for example, relying on a knowledge of the dictionary
-structure). Sometimes these techniques are necessary to extract every
-last bit of performance from the hardware, sometimes they are just a
-programming shorthand.
+Some techniques are not standardized by Standard Forth, and are hard
+or impossible to implement in a standard way, but can be implemented
+in most Forth systems easily, and usually in similar ways.  Forth has
+a rich historical precedent for programmers taking advantage of
+implementation-dependent features of their tools (for example, relying
+on a knowledge of the dictionary structure). Sometimes these
+techniques are necessary to extract every last bit of performance from
+the hardware, sometimes they are just a programming shorthand.
 
 @item
 Does using a Gforth extension save more work than the porting this part
@@ -21104,22 +21102,15 @@ In order to perform these considerations, you need to know what's
 standard and what's not.  This manual generally states if something is
 non-standard, but the authoritative source is the
 @uref{https://forth-standard.org/standard/words,standard document}.
-Appendix A of the Standard (@var{Rationale}) provides a valuable insight
-into the thought processes of the technical committee.
+Appendix A of the Standard (@var{Rationale}) provides valuable insight
+into the thought processes of the standardization committee.
 
 Note also that portability between Forth systems is not the only
 portability issue; there is also the issue of portability between
 different platforms (processor/OS combinations).
 
 @c ***************************************************************
-@node Model, Integrating Gforth, Standard vs Extensions, Top
-@chapter Model
-
-This chapter has yet to be written. It will contain information, on
-which internal structures you can rely.
-
-@c ***************************************************************
-@node Integrating Gforth, Emacs and Gforth, Model, Top
+@node Integrating Gforth, Emacs and Gforth, Standard vs Extensions, Top
 @chapter Integrating Gforth into C programs
 
 Several people like to use Forth as scripting language for applications
@@ -21149,46 +21140,61 @@ prefix @code{forth_}.
 You can include the declarations of Forth types, the functions and
 variables of the interface with @code{#include <gforth.h>}.
 
-You can now run a Gforth session by either calling @code{gforth_main}
-or using the components:
+As an example, you can build a small program to call the gforth
+library as follows:
 
-@example
-Cell gforth_main(int argc, char **argv, char **env)
-@{
+@source
+#include <gforth.h>
+
+Cell main(int argc, char **argv, char **env)
+{
   Cell retvalue=gforth_start(argc, argv);
 
-  if(retvalue == -56) @{ /* throw-code for quit */
-    retvalue = gforth_bootmessage();     // show boot message
-    if(retvalue == -56)
-      retvalue = gforth_quit(); // run quit loop
-  @}
+  if(retvalue == -56) { /* throw-code for quit */
+    gforth_bootmessage();     // show boot message
+    retvalue = gforth_quit(); // run quit loop
+  }
   gforth_cleanup();
   gforth_printmetrics();
   // gforth_free_dict(); // if you want to restart, do this
 
   return retvalue;
-@}
-@end example
+}
+@end source
+
+This was compiled as follows (from the gforth source and build
+directory, adjust the directories as appropriate):
+
+@source
+gcc -static -I engine -I include -L engine/.libs xxx.c -lgforth -lm -lltdl
+@end source
 
 To interact with the Forth interpreter, there's @code{Xt
 gforth_find(Char * name)} and @code{Cell gforth_execute(Xt xt)}.
 
 More documentation needs to be put here.
 
+
+
 @section Types
 
-@code{Cell}, @code{UCell}: data stack elements.
+@code{Cell}, @code{UCell}: cell (data and return stack element)
 
-@code{Float}: float stack element.
+@code{Float}: float (FP stack element)
 
-@code{Address}, @code{Xt}, @code{Label}: pointer typies to memory,
-Forth words, and Forth instructions inside the VM.
+@code{Address}: Memory address (a cell)
+
+@code{Xt}: execution token (a cell)
+
+
 
 @section Variables
 
-Data and FP Stack pointer. Area sizes. Accessing the Stacks
+@code{gforth_SP}: data stack pointer.
 
-@code{gforth_SP}, @code{gforth_FP}.
+@code{gforth_FP}: FP stack pointer.
+
+
 
 @section Functions
 
