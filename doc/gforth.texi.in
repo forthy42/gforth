@@ -18836,7 +18836,7 @@ Source code: @file{arch/arm/asm.fs}
 
 The ARM A32 assembler includes all instruction of ARM architecture
 version 4, and the BLX instruction from architecture 5.  It does not
-(yet) have support for T32 (Thumb) instructions.  It also lacks support for
+have support for T32 (Thumb) instructions.  It also lacks support for
 any co-processors.
 
 The assembler uses a postfix syntax with the same operand order as
@@ -20771,7 +20771,7 @@ error is reported.
 @item string larger than pictured numeric output area (@code{f.}, @code{fe.}, @code{fs.}):
 @cindex string larger than pictured numeric output area (@code{f.}, @code{fe.}, @code{fs.})
 These words do not use the pictured numeric output buffer, but a
-buffer big enough for @word{precision} digits.
+buffer big enough for the needs of these words.
 @end table
 
 @c =====================================================================
@@ -20798,11 +20798,11 @@ buffer big enough for @word{precision} digits.
 @item maximum number of locals in a definition:
 @cindex maximum number of locals in a definition
 @cindex locals, maximum number in a definition
-@code{s" #locals" environment? drop .}. Currently 15. This is a lower
-bound, e.g., on a 32-bit machine there can be 41 locals of up to 8
-characters. The number of locals in a definition is bounded by the size
-of locals-buffer, which contains the names of the locals.
-
+Gforth has a @word{locals-headers} section with 19KB free.  How many
+locals fit in that section depends on the length of the locals names.
+On a 64-bit machine a local takes about 40 bytes plus the length of
+the name, rounded up to 8.  So with typical use, several hundred
+locals fit.
 @end table
 
 
@@ -20825,7 +20825,7 @@ gives an ``is compile-only'' warning.
 @cindex name not defined by @code{VALUE} or @code{(LOCAL)} used by @code{TO}
 @cindex @code{TO} on non-@code{VALUE}s and non-locals
 @cindex Invalid name argument, @code{TO}
-@code{-32 throw} (Invalid name argument)
+@code{-21 throw} (Unsupported operation)
 
 @end table
 
@@ -20898,11 +20898,9 @@ The Search-Order word set.
 
 @item source and format of display by @code{SEE}:
 @cindex @code{SEE}, source and format of output
-The source for @code{see} is the executable code used by the inner
-interpreter.  The current @code{see} tries to output Forth source code
-(and on some platforms, assembly code for primitives) as well as
-possible.
-
+The source for @code{see} is the word header and possibly body data;
+for colon definitions @code{see} decompiles the threaded code; for
+primitives @code{see} disassembles the machine code.
 @end table
 
 @c ---------------------------------------------------------------------
@@ -20916,20 +20914,20 @@ possible.
 
 @item deleting the compilation word list (@code{FORGET}):
 @cindex @code{FORGET}, deleting the compilation word list
-Not implemented (yet).
+Not implemented.
 
 @item fewer than @i{u}+1 items on the control-flow stack (@code{CS-PICK}, @code{CS-ROLL}):
 @cindex @code{CS-PICK}, fewer than @i{u}+1 items on the control flow-stack
 @cindex @code{CS-ROLL}, fewer than @i{u}+1 items on the control flow-stack
 @cindex control-flow stack underflow
 This typically results in an @code{abort"} with a descriptive error
-message (may change into a @code{-22 throw} (Control structure mismatch)
-in the future). You may also get a memory access error. If you are
-unlucky, this ambiguous condition is not caught.
+message (may change into a @code{-22 throw} (Control structure
+mismatch) in the future). You may also get a stack underflow error. If
+you are unlucky, this ambiguous condition is not caught.
 
 @item @i{name} can't be found (@code{FORGET}):
 @cindex @code{FORGET}, @i{name} can't be found
-Not implemented (yet).
+Not implemented.
 
 @item @i{name} not defined via @code{CREATE}:
 @cindex @code{;CODE}, @i{name} not defined via @code{CREATE}
@@ -20945,12 +20943,17 @@ equivalent to @code{[IF]}.
 
 @item reaching the end of the input source before matching @code{[ELSE]} or @code{[THEN]}:
 @cindex @code{[IF]}, end of the input source before matching @code{[ELSE]} or @code{[THEN]}
-Continue in the same state of conditional compilation in the next outer
-input source. Currently there is no warning to the user about this.
+While in a taken branch of an @code{[if]} or
+@code{[if]}...@code{[else]}, @code{[then]} is ignored, and it's
+absence is not noticed.
+
+While in a non-taken-branch, the end of the input source is considered
+to be the end of the @code{[if]} construct, and the missing
+@code{[then]} is reported in a warning.
 
 @item removing a needed definition (@code{FORGET}):
 @cindex @code{FORGET}, removing a needed definition
-Not implemented (yet).
+Not implemented.
 
 @end table
 
@@ -20979,7 +20982,7 @@ Not implemented (yet).
 @item maximum number of word lists in search order:
 @cindex maximum number of word lists in search order
 @cindex search order, maximum depth
-@code{s" wordlists" environment? drop .}. Currently 16.
+Only limited by memory.
 
 @item minimum search order:
 @cindex minimum search order
@@ -21008,12 +21011,12 @@ are applied to the latest defined word (as reported by @code{latest} or
 @item search order empty (@code{previous}):
 @cindex @code{previous}, search order empty
 @cindex vocstack empty, @code{previous}
-@code{abort" Vocstack empty"}.
+The search order stays empty.
 
 @item too many word lists in search order (@code{also}):
 @cindex @code{also}, too many word lists in search order
 @cindex vocstack full, @code{also}
-@code{abort" Vocstack full"}.
+Unpredictable things happen when the system runs out of memory.
 
 @end table
 
