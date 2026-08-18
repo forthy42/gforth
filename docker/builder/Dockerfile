@@ -18,7 +18,7 @@ RUN echo Specified gcc version is ${GCC} \
      libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
      libxkbcommon-dev libwebp-dev libv4l-dev libyuv-dev emacs-nox \
      yodl bison libboost-dev binutils-dev git && \
-     if test "${GCC%%[0-9]*}" = "gcc-"; then echo ln -fs /usr/bin/$GCC /usr/bin/gcc; ln -fs /usr/bin/$GCC /usr/bin/gcc; fi
+     if test "${GCC%%[0-9]*}" = "gcc-"; then echo ln -fs /usr/bin/$GCC /usr/bin/gcc; ln -fs /usr/bin/$GCC /usr/bin/gcc; if test -f /usr/bin/x86_64-linux-gnu-$GCC; then ln -fs /usr/bin/x86_64-linux-gnu-$GCC /usr/bin/x86_64-linux-gnu-gcc; fi; fi
 RUN if ! apt -y install gforth; then \
          if which wcurl >/dev/null 2>&1; then \
 	     wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz; \
