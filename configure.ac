@@ -1832,7 +1832,7 @@ AC_SUBST(HAS_SWIG_FORTH)
 
 if test x$has_swig = xyes; then
    > conftest.$ac_ext
-   SWIGINCLUDES=`eval $ac_compiler $CFLAGS $CPPFLAGS -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ \(.*\) (framework directory)$/-F\1/g' -e 's/^ /-I/g' | grep '^-./' | tr '\n' ' '`
+   SWIGINCLUDES=`(echo $CPPFLAGS | tr ' ' '\n'; eval $ac_compiler $CFLAGS $CPPFLAGS -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ \(.*\) (framework directory)$/-F\1/g' -e 's/^ /-I/g') | grep '^-./' | tr '\n' ' '`
    echo "Default SWIG includes: $SWIGINCLUDES"
 fi
 

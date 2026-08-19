@@ -570,6 +570,7 @@ be-ux@
 be-uxd@
 be-w!
 be-x!
+b-exact-len
 be-xd!
 >BG
 BG>
@@ -1387,7 +1388,6 @@ does-check
 >does-code
 does-code!
 (does-dummy)
-does>-like
 does-xt
 do-execute
 dofield:
@@ -1457,6 +1457,7 @@ d>x
 dynamic
 dynamic-a
 dynamic-alloc
+e.
 e?
 earth_distance
 earth_distance_and_bearings
@@ -1481,6 +1482,7 @@ edit-terminal
 edit-terminal-c
 (edit-update)
 edit-update
+e.exact
 EEXIST
 EINTR
 ekey
@@ -1548,6 +1550,7 @@ environment-wordlist
 EOF_SET
 eof-warning
 EOK
+e.p
 epiper
 epipew
 epoll_create
@@ -3638,6 +3641,7 @@ MPS_TO_MPH
 ms
 m-to
 multiline-string
+mutex
 mux
 mword-filename-match
 mword-match
@@ -4539,10 +4543,14 @@ remove~+
 remove-class-order
 rename-file
 reopen-libs
+rep.
+rep.<1
+rep.>=1
 [REPEAT]
 REPEAT
 RepeatCheck
 RepeatCode
+rep.exp
 replace-char
 replace-hash
 replace-(+loop)
@@ -5484,6 +5492,7 @@ STATUS_DGPS
 STATUS_DR
 STATUS_GNSSDR
 STATUS_GPS
+(.status-line)
 .status-line
 status-offset
 STATUS_PPS_FIX
