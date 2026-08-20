@@ -666,9 +666,8 @@ Image Files
 
 * Image Licensing Issues::      Distribution terms for images.
 * Image File Background::       Why have image files?
-* Non-Relocatable Image Files::  don't always work.
-* Data-Relocatable Image Files::  are better.
 * Fully Relocatable Image Files::  better yet.
+* Non-Relocatable Image Files::  don't always work.
 * Stack and Dictionary Sizes::  Setting the default sizes for an image.
 * Running Image Files::         @code{gforth -i @i{file}} or @i{file}.
 * Modifying the Startup Sequence::  and turnkey applications.
@@ -1032,8 +1031,8 @@ Try to find and report erroneous usage of @code{allocate},
 @cindex --offset-image, command-line option
 @item --offset-image
 Start the dictionary at a slightly different position than would be used
-otherwise (useful for creating data-relocatable images,
-@pxref{Data-Relocatable Image Files}).
+otherwise (useful for creating relocatable images,
+@pxref{Fully Relocatable Image Files}).
 
 @cindex --no-offset-im, command-line option
 @item --no-offset-im
@@ -1042,7 +1041,7 @@ Start the dictionary at the normal position.
 @cindex --clear-dictionary, command-line option
 @item --clear-dictionary
 Initialize all bytes in the dictionary to 0 before loading the image
-(@pxref{Data-Relocatable Image Files}).
+(@pxref{Fully Relocatable Image Files}).
 
 @cindex --die-on-signal, command-line-option
 @item --die-on-signal [@i{number}]
@@ -21473,9 +21472,8 @@ convention, we use the extension @code{.fi} for image files.
 @menu
 * Image Licensing Issues::      Distribution terms for images.
 * Image File Background::       Why have image files?
-* Non-Relocatable Image Files::  don't always work.
-* Data-Relocatable Image Files::  are better.
 * Fully Relocatable Image Files::  better yet.
+* Non-Relocatable Image Files::  don't always work.
 * Stack and Dictionary Sizes::  Setting the default sizes for an image.
 * Running Image Files::         @code{gforth -i @i{file}} or @i{file}.
 * Modifying the Startup Sequence::  and turnkey applications.
@@ -21505,19 +21503,25 @@ that is under the GPL, you should make sure that you distribute both in
 a way that is at most a @emph{mere aggregation}, if you don't want the
 terms of the GPL to apply to the image.
 
-@node Image File Background, Non-Relocatable Image Files, Image Licensing Issues, Image Files
+@node Image File Background, Fully Relocatable Image Files, Image Licensing Issues, Image Files
 @section Image File Background
 @cindex image file background
 
 Gforth consists not only of primitives (in the engine), but also of
-definitions written in Forth. Since the Forth compiler itself belongs to
-those definitions, it is not possible to start the system with the
-engine and the Forth source alone. Therefore we provide the Forth
-code as an image file in nearly executable form. When Gforth starts up,
-a C routine loads the image file into memory, optionally relocates the
-addresses, then sets up the memory (stacks etc.) according to
-information in the image file, and (finally) starts executing Forth
-code.
+definitions written in Forth. Since the Forth compiler itself belongs
+to those definitions, it is not possible to start the system with the
+engine and the Forth source alone. Therefore we provide the Forth code
+as an image file in nearly executable form: Integers, strings etc. are
+represented as-is, data addresses in in relocatable form (section
+index and offset from the start of the section), and tokens (integers)
+for code addresses of primitives.
+
+When Gforth starts up, a C routine loads the image file into memory,
+relocates the addresses and generates native code for the primitive
+invocations and replaces the tokens with code addresses of this native
+code (or of the code for the primitives in the engine), then sets up
+the memory (stacks etc.) according to information in the image file,
+and (finally) starts executing Forth code.
 
 The default image file is @file{gforth.fi} (in the @code{GFORTHPATH}).
 You can use a different image by using the @code{-i},
@@ -21528,43 +21532,27 @@ Gforth}), e.g.:
 gforth-fast -i myimage.fi
 @end example
 
-There are different variants of image files, and they represent
-different compromises between the goals of making it easy to generate
-image files and making them portable.
-
-@cindex relocation at run-time
-Win32Forth 3.4 and Mitch Bradley's @code{cforth} use relocation at
-run-time. This avoids many of the complications discussed below (image
-files are data relocatable without further ado), but costs performance
-(one addition per memory access) and makes it difficult to pass
-addresses between Forth and library calls or other programs.
-
-@cindex relocation at load-time
-By contrast, the Gforth loader performs relocation at image load time. The
-loader also has to replace tokens that represent primitive calls with the
-appropriate code-field addresses (or code addresses in the case of
-direct threading).
-
-There are three kinds of image files, with different degrees of
-relocatability: non-relocatable, data-relocatable, and fully relocatable
-image files.
-
 @cindex image file loader
 @cindex relocating loader
 @cindex loader for image files
-These image file variants have several restrictions in common; they are
-caused by the design of the image file loader:
+Gforth image files have several limitations:
 
 @itemize @bullet
 @item
-There is only one segment; in particular, this means, that an image file
-cannot represent @code{ALLOCATE}d memory chunks (and pointers to
-them). The contents of the stacks are not represented, either.
+Only the sections are in the image; in particular, this means, that an
+image file cannot represent @code{ALLOCATE}d memory chunks (and
+pointers to them). The contents of the stacks are not represented,
+either.
+
+@item
+Dynamically generated native code is not stored in the image, but is
+regenerated from the tokens for the primitives on loading.
 
 @item
 The only kinds of relocation supported are: adding the same offset to
-all cells that represent data addresses; and replacing special tokens
-with code addresses or with pieces of machine code.
+all cells that represent data addresses; and replacing primitive
+tokens with code addresses of code in the engine, or dynamically
+generated code.
 
 If any complex computations involving addresses are performed, the
 results cannot be represented in the image file. Several applications that
@@ -21572,11 +21560,11 @@ use such computations come to mind:
 
 @itemize @minus
 @item
-Hashing addresses (or data structures which contain addresses) for table
-lookup. If you use Gforth's @code{table}s or @code{wordlist}s for this
-purpose, you will have no problem, because the hash tables are
-recomputed automatically when the system is started. If you use your own
-hash tables, you will have to do something similar.
+Hashing addresses (or data structures which contain addresses) for
+table lookup. If you use Gforth's @code{table}s or @code{wordlist}s
+for this purpose, you will have no problem, because the hash tables
+for them are rebuilt automatically when the system is started. If you
+use your own hash tables, you will have to do something similar.
 
 @item
 There's a cute implementation of doubly-linked lists that uses
@@ -21584,14 +21572,6 @@ There's a cute implementation of doubly-linked lists that uses
 in the image file, and restore the doubly-linked representation on
 startup.@footnote{In my opinion, though, you should think thrice before
 using a doubly-linked list (whatever implementation).}
-
-@item
-The code addresses of run-time routines like @code{docol:} cannot be
-represented in the image file (because their tokens would be replaced by
-machine code in direct threaded implementations). As a workaround,
-compute these addresses at run-time with @code{>code-address} from the
-executions tokens of appropriate words (see the definitions of
-@code{docol:} and friends in @file{kernel/getdoers.fs}).
 
 @item
 On many architectures addresses are represented in machine code in some
@@ -21603,53 +21583,8 @@ a place where it is stored in a non-mangled form.
 @end itemize
 @end itemize
 
-@node  Non-Relocatable Image Files, Data-Relocatable Image Files, Image File Background, Image Files
-@section Non-Relocatable Image Files
-@cindex non-relocatable image files
-@cindex image file, non-relocatable
 
-These files are simple memory dumps of the dictionary. They are
-specific to the executable (i.e., @file{gforth} file) they were
-created with. What's worse, they are specific to the place on which
-the dictionary resided when the image was created. Now, there is no
-guarantee that the dictionary will reside at the same place the next
-time you start Gforth, so there's no guarantee that a non-relocatable
-image will work the next time (Gforth will complain instead of
-crashing, though).  Indeed, on OSs with (enabled) address-space
-randomization non-relocatable images are unlikely to work.
-
-You can create a non-relocatable image file with @code{savesystem}, e.g.:
-
-@example
-gforth app.fs -e "savesystem app.fi bye"
-@end example
-
-doc-savesystem
-
-
-@node Data-Relocatable Image Files, Fully Relocatable Image Files, Non-Relocatable Image Files, Image Files
-@section Data-Relocatable Image Files
-@cindex data-relocatable image files
-@cindex image file, data-relocatable
-
-These files contain relocatable data addresses, but fixed code
-addresses (instead of tokens). They are specific to the executable
-(i.e., @file{gforth} file) they were created with.  Also, they disable
-dynamic native code generation (typically a factor of 2 in speed).
-You get a data-relocatable image, if you pass the engine you want to
-use through the @code{GFORTHD} environment variable to @file{gforthmi}
-(@pxref{gforthmi}), e.g.
-
-@example
-GFORTHD="/usr/bin/gforth-fast --no-dynamic" gforthmi myimage.fi source.fs
-@end example
-
-Note that the @code{--no-dynamic} is required here for the image to
-work (otherwise it will contain references to dynamically generated
-code that is not saved in the image).
-
-
-@node Fully Relocatable Image Files, Stack and Dictionary Sizes, Data-Relocatable Image Files, Image Files
+@node Fully Relocatable Image Files, Non-Relocatable Image Files, Image File Background, Image Files
 @section Fully Relocatable Image Files
 @cindex fully relocatable image files
 @cindex image file, fully relocatable
@@ -21661,8 +21596,10 @@ addresses. They can be used with different binaries (e.g., with and
 without debugging) on the same machine, and even across machines with
 the same data formats (byte order, cell size, floating point format),
 and they work with dynamic native code generation.  However, they are
-usually specific to the version of Gforth they were created with. The
-files @file{gforth.fi} and @file{kernl*.fi} are fully relocatable.
+usually specific to the version of Gforth they were created with.
+
+This is the preferred form of image files, and the files
+@file{gforth.fi} and @file{kernl*.fi} are fully relocatable.
 
 There are two ways to create a fully relocatable image file:
 
@@ -21678,9 +21615,9 @@ There are two ways to create a fully relocatable image file:
 
 You will usually use @file{gforthmi}. If you want to create an
 image @i{file} that contains everything you would load by invoking
-Gforth with @code{gforth @i{options}}, you simply say:
+Gforth with @code{gforth @i{args}}, you simply say:
 @example
-gforthmi @i{file} @i{options}
+gforthmi @i{file} @i{args}
 @end example
 
 E.g., if you want to create an image @file{asm.fi} that has the file
@@ -21694,21 +21631,76 @@ gforthmi asm.fi asm.fs
 @file{gforthmi} is implemented as a sh script and works like this: It
 produces two non-relocatable images for different addresses and then
 compares them. Its output reflects this: first you see the output (if
-any) of the two Gforth invocations that produce the non-relocatable image
-files, then you see the output of the comparing program: It displays the
-offset used for data addresses and the offset used for code addresses;
-moreover, for each cell that cannot be represented correctly in the
-image files, it displays a line like this:
+any) of the two Gforth invocations that produce the non-relocatable
+image files, then you see the output of the comparing program, which
+looks similar to this:
 
 @example
-     78DC         BFFFFA50         BFFFFA40
+ code offset=-32541536048 
+   xt offset=-32541536080 
+label offset=-32541536112 
+section      start      size        dp
+0    $7F3680DFE040   $800000   $22EB20
+1    $7F368F285000     $5000      $318
+...
+section      start      size        dp
+0    $7FEF133FF200   $800000   $22EB20
+1    $7FEF21765000     $5000      $318
+...
+compare warnings (add section start to offset):
+Compare section 0 
+    A9800     7F368F27849A     7FEF2175849A
+   154E58 FFFFFFFFFF99CB10 FFFFFFFFFFBA3B10
+...
+stats: addr=1378F code=838E xts=12FA labels=24D errs=22 
+Compare section 1 
+stats: addr=3C code=0 xts=7 labels=0 errs=0 
+...
+end warnings
 @end example
 
-This means that at offset $78dc from @code{forthstart}, one input image
-contains $bffffa50, and the other contains $bffffa40. Since these cells
-cannot be represented correctly in the output image, you should examine
-these places in the dictionary and verify that these cells are dead
-(i.e., not read before they are written).
+First the various offsets for code addresses and xts (for generating
+tokens) are given, then information about the sections (relevant for
+data addresses); the start address of corresponding sections should be
+different (that is used for finding out what data is an address and
+what is not), size and dp (where @word{here} points to when in this
+section) for the corresponding sections should be the same.
+
+Next, warnings resulting from comparing data addresses are shown: E.g.,
+
+@example
+Compare section 0 
+    A9800     7F368F27849A     7FEF2175849A
+@end example
+
+tells that at offset @code{$A9800} in section 0, in one image file the
+data is @code{$7F368F27849A}, while in the other it is
+@code{$7FEF2175849A}.
+
+The cells mentioned in the warnings cannot be represented correctly in
+the output image and result in unintended values after loading, so you
+should examine these places in the dictionary and verify that these
+cells are dead (i.e., not read before they are written).
+
+One way to suppress these warnings is to zero these cells at the end
+of whatever code is performed by @i{args} in the command line above.
+Of course, you should be certain that the overwritten data is dead.
+
+A frequent reason for such warnings is that an @code{allocate}d
+address is stored somewhere in the dictionary.  In some cases you may
+want to preserve the data in allocated memory in an image.  You can
+use @word{save-mem-dict} for that.
+
+There is a deferred word (@pxref{Deferred Words}) that is called
+before saving an image: @word{'image}.  You can plug your own actions
+into this word, but make sure you call the action that was there
+before, too (e.g., with @word{defers}).
+
+doc-'image
+
+You may want to reorganize the data from the in-image form back to the
+run-time form when starting up from the image.  Plug your startup
+actions into @word{'cold} (@pxref{Modifying the Startup Sequence}).
 
 @cindex --application, @code{gforthmi} option
 If you insert the option @code{--application} in front of the image file
@@ -21733,11 +21725,8 @@ words @code{savesystem} and @code{bye} must be visible. A special
 doubly indirect threaded version of the @file{gforth} executable is
 used for creating the non-relocatable images; you can pass the exact
 filename of this executable through the environment variable
-@code{GFORTHD} (default: @file{gforth-ditc}); if you pass a version
-that is not doubly indirect threaded, you will not get a fully
-relocatable image, but a data-relocatable image
-(@pxref{Data-Relocatable Image Files}), because there is no code
-address offset). The normal @file{gforth} executable is used for
+@code{GFORTHD} (default: @file{gforth-ditc}). The normal @file{gforth}
+executable is used for comparing the non-relocatable images and
 creating the relocatable image; you can pass the exact filename of
 this executable through the environment variable @code{GFORTH}.
 
@@ -21759,8 +21748,89 @@ restrictions and inconveniences in programming. E.g., addresses have to
 be stored in memory with special words (@code{A!}, @code{A,}, etc.) in
 order to make the code relocatable.
 
+@node  Non-Relocatable Image Files, Stack and Dictionary Sizes, Fully Relocatable Image Files, Image Files
+@section Non-Relocatable Image Files
+@cindex non-relocatable image files
+@cindex image file, non-relocatable
 
-@node Stack and Dictionary Sizes, Running Image Files, Fully Relocatable Image Files, Image Files
+Non-relocatable images have many disadvantages and there is no good
+reason to use them.  They are documented here mainly for completeness
+and historical interest (originally Gforth did not support relocatable
+images).
+
+Non-relocatable image files are simple memory dumps of the
+dictionary. They are specific to the executable (i.e., @file{gforth}
+file) they were created with. What's worse, they are specific to the
+place on which the dictionary resided when the image was created. Now,
+there is no guarantee that the dictionary will reside at the same
+place the next time you start Gforth, so there's no guarantee that a
+non-relocatable image will work the next time (Gforth will complain
+instead of crashing, though).
+
+Indeed, on OSs with (enabled) address-space layout randomization
+(ASLR) non-relocatable images are unlikely to work.  In Linux you can
+run a binary without ASLR by prefixing the invocation with
+@code{setarch -R}.  You need to do this both when creating the image
+and when using it.  This Linux-specific usage is shown below, and you
+may have to leave it away or replace it with something else on other
+OSs (if the OS supports disabling ASLR at all).
+
+In addition, the image contains code addresses of the native code for
+the primitives; with dynamic native-code generation these code
+addresses point to code that is not saved in the image and is not
+regenerated from the image, either, so you need to disable dynamic
+native code generation with @code{--no-dynamic} on image creation if
+you want to use non-relocatable images.  The image can then be loaded
+into an engine with enabled dynamic native code generation, and the
+result will be that the code in the image will not use dynamic native
+code, but code compiled after loading the image will (unless something
+else disables dynamic native-code generation).
+
+Moreover, the code addresses in a non-relocatable image are
+engine-specific, so you need to use the image with the same engine
+(@file{gforth}, @file{gforth-fast}, @file{gforth-itc}) that generated
+it.
+
+You can create a non-relocatable image file with @code{savesystem},
+e.g., on Linux:
+
+@example
+#create non-relocatable image app.fi:
+setarch -R gforth --no-dynamic app.fs -e "savesystem app.fi bye"
+#start Gforth with image app.fi:
+setarch -R gforth -i app.fi
+@end example
+
+doc-savesystem
+
+@c @node Data-Relocatable Image Files, Fully Relocatable Image Files, Non-Relocatable Image Files, Image Files
+@c @section Data-Relocatable Image Files
+@c @cindex data-relocatable image files
+@c @cindex image file, data-relocatable
+@c 
+@c  Currently there is no way to produce data-relocatable images,
+@c   because it does not work (on AMD64) without "setarch -R", but some
+@c   sections get the same address with "setarch -R".
+@c 
+@c These files contain relocatable data addresses, but fixed code
+@c addresses (instead of tokens). They are specific to the executable
+@c (i.e., @file{gforth} file) they were created with.  Also, they disable
+@c dynamic native code generation (typically a factor of 2 in speed).
+@c You get a data-relocatable image, if you pass the engine you want to
+@c use through the @code{GFORTHD} environment variable to @file{gforthmi}
+@c (@pxref{gforthmi}), e.g.
+@c 
+@c @example
+@c GFORTHD="/usr/bin/gforth-fast --no-dynamic" gforthmi myimage.fi source.fs
+@c @end example
+@c 
+@c Note that the @code{--no-dynamic} is required here for the image to
+@c work (otherwise it will contain references to dynamically generated
+@c code that is not saved in the image).
+
+
+
+@node Stack and Dictionary Sizes, Running Image Files, Non-Relocatable Image Files, Image Files
 @section Stack and Dictionary Sizes
 @cindex image file, stack and dictionary sizes
 @cindex dictionary size default
@@ -21771,10 +21841,10 @@ If you invoke Gforth with a command line flag for the size
 dictionary. If you save the dictionary with @code{savesystem} or create
 an image with @file{gforthmi}, this size will become the default
 for the resulting image file. E.g., the following will create a
-fully relocatable version of @file{gforth.fi} with a 1MB dictionary:
+fully relocatable version of @file{gforth.fi} with a 64MB dictionary:
 
 @example
-gforthmi gforth.fi -m 1M
+gforthmi gforth.fi -m 64M
 @end example
 
 In other words, if you want to set the default size for the dictionary
