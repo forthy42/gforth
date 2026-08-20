@@ -1,0 +1,19 @@
+id: org.freedesktop.Sdk.Extension.yuv
+branch: '25.08'
+runtime: org.freedesktop.Sdk
+sdk: org.freedesktop.Sdk
+build-extension: true
+runtime-version: '25.08'
+separate-locales: false
+appstream-compose: false
+modules:
+  - name: yuv
+    buildsystem: simple
+    sources:
+      - type: git
+        url: https://chromium.googlesource.com/libyuv/libyuv
+        branch: main
+    build-commands:
+      - cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${FLATPAK_DEST}
+      - ninja -C build yuv_shared
+      - ninja -C build install

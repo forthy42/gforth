@@ -7,13 +7,15 @@ branch: "25.08"
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.stb
+  - org.freedesktop.Sdk.Extension.yuv
 command: gforth
 
 modules:
   - name: gforth
     buildsystem: autotools
     config-opts:
-      - "CPPFLAGS=-I/usr/lib/sdk/stb/include"
+      - "CPPFLAGS=-I/usr/lib/sdk/stb/include -I/usr/lib/sdk/yuv/include"
+      - "LDFLAGS=-L/usr/lib/sdk/yuv/lib"
       - "ac_cv_search_init_disassemble_info=no"
       - "--disable-lib"
       - "--with-lispdir=/app/share/emacs/site-lisp"
@@ -21,5 +23,5 @@ modules:
     no-autogen: true
     sources:
       - type: archive
-        url: https://net2o.de/gforth-dist/Snapshots/0.7.9_20260729/gforth-0.7.9_20260729.tar.xz
-        sha256: 9b19124f05ac1001cceb16e52682d4367f183f6f239b2a58156a6d38ed50f67f
+        url: https://net2o.de/gforth-dist/Snapshots/0.7.9_20260819/gforth-0.7.9_20260819.tar.xz
+        sha256: 11d72134d294796e1ebcf60a58ac0025f43666dcd3e574c3b7426924877994b8
