@@ -680,16 +680,10 @@ Fully Relocatable Image Files
 Engine
 
 * Portability::
-* Threading::
+* Threaded code::
+* Dynamic Superinstructions::
 * Primitives::
 * Performance::
-
-Threading
-
-* Scheduling::
-* Direct or Indirect Threaded?::
-* Dynamic Superinstructions::
-* DOES>::
 
 Primitives
 
@@ -889,9 +883,9 @@ errors (in particular, stack underflows and integer division errors)
 later or not at all.  You should use it for debugged,
 performance-critical programs.
 
-Moreover, there is an engine called @command{gforth-itc}, which is
-useful in some backwards-compatibility situations (@pxref{Direct or
-Indirect Threaded?}).
+Moreover, there is an engine called @command{gforth-itc}, which uses
+indirect-threaded code and is useful in some backwards-compatibility
+situations.
 
 In general, the command line looks like this:
 
@@ -22023,23 +22017,21 @@ doc-process-option
 Reading this chapter is not necessary for programming with Gforth. It
 may be helpful for finding your way in the Gforth sources.
 
-The ideas in this section have also been published in the following
-papers: Bernd Paysan, @cite{ANS fig/GNU/??? Forth} (in German),
-Forth-Tagung '93; M. Anton Ertl,
-@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl93.ps.Z, A
-Portable Forth Engine}}, EuroForth '93; M. Anton Ertl,
-@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl02.ps.gz,
-Threaded code variations and optimizations (extended version)}},
-Forth-Tagung '02.
+This chapter describes the @command{gforth-fast} engine in detail, and
+then describes the differences of @command{gforth} and
+@command{gforth-itc}.  It presents a threaded-code system (the state
+of Gforth in 2001), and a number of refinements that have been applied
+for better performance, plus related topics.
 
 @menu
 * Portability::
-* Threading::
+* Threaded code::
+* Dynamic Superinstructions::
 * Primitives::
 * Performance::
 @end menu
 
-@node Portability, Threading, Engine, Engine
+@node Portability, Threaded code, Engine, Engine
 @section Portability
 @cindex engine portability
 
@@ -22082,166 +22074,176 @@ further improved the performance (using techniques outlined in the
 following), and now it is competetive in performance with native-code
 systems like SwiftForth.
 
+The ideas in this section have also been published in the following
+papers: Bernd Paysan, @cite{ANS fig/GNU/??? Forth} (in German),
+Forth-Tagung '93; M. Anton Ertl,
+@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl93.ps.Z, A
+Portable Forth Engine}}, EuroForth '93.
 
-@node Threading, Primitives, Portability, Engine
-@section Threading
+@node Threaded code, Dynamic Superinstructions, Portability, Engine
+@section Threaded code
 @cindex inner interpreter implementation
 @cindex threaded code implementation
 
-@cindex labels as values
-GNU C's labels as values extension (available since @code{gcc-2.0},
-@pxref{Labels as Values, , Labels as Values, gcc, GNU C Manual})
-makes it possible to take the address of @i{label} by writing
-@code{&&@i{label}}.  This address can then be used in a statement like
-@code{goto *@i{address}}. I.e., @code{goto *&&x} is the same as
-@code{goto x}.
+Direct-threaded code is a fast interpretation technique, where
+primitives are represented as code addresses in the interpreted code,
+and each code address points to the code that implements the primitive.
 
-@cindex @code{NEXT}, indirect threaded
-@cindex indirect threaded inner interpreter
-@cindex inner interpreter, indirect threaded
-With this feature an indirect threaded @code{NEXT} looks like:
-@example
-cfa = *ip++;
-ca = *cfa;
-goto *ca;
-@end example
-@cindex instruction pointer
-For those unfamiliar with the names: @code{ip} is the Forth instruction
-pointer; the @code{cfa} (code-field address) corresponds to Standard Forth's
-execution token and points to the code field of the next word to be
-executed; The @code{ca} (code address) fetched from there points to some
-executable code, e.g., a primitive or the colon definition handler
-@code{docol}.
+We will use
 
-@cindex @code{NEXT}, direct threaded
-@cindex direct threaded inner interpreter
-@cindex inner interpreter, direct threaded
-Direct threading is even simpler:
+@source
+: squared dup * ;
+@end source
+
+as example.  The threaded code for this source code looks as follows:
+
 @example
-ca = *ip++;
-goto *ca;
+address       content
+$7F6208AA7FE0 $5640443C831C \ at $5640443C831C the code of DUP starts
+$7F6208AA7FE8 $5640443C74DF \ at $5640443C74DF the code of *   starts
+$7F6208AA7FF0 $5640443C6BE6 \ at $5640443C6BE6 the code of ;s  starts
 @end example
 
-Of course we have packaged the whole thing neatly in macros called
-@code{NEXT} and @code{NEXT1} (the part of @code{NEXT} after fetching the cfa).
+The exact numbers vary between builds and between runs of the same
+build.  Looking at these primitives:
 
-@menu
-* Scheduling::
-* Direct or Indirect Threaded?::
-* Dynamic Superinstructions::
-* DOES>::
-@end menu
-
-@node Scheduling, Direct or Indirect Threaded?, Threading, Threading
-@subsection Scheduling
-@cindex inner interpreter optimization
-
-There is a little complication: Pipelined and superscalar processors,
-i.e., RISC and some modern CISC machines can process independent
-instructions while waiting for the results of an instruction. The
-compiler usually reorders (schedules) the instructions in a way that
-achieves good usage of these delay slots. However, on our first tries
-the compiler did not do well on scheduling primitives. E.g., for
-@code{+} implemented as
 @example
-n=sp[0]+sp[1];
-sp++;
-sp[0]=n;
-NEXT;
-@end example
-the @code{NEXT} comes strictly after the other code, i.e., there is
-nearly no scheduling. After a little thought the problem becomes clear:
-The compiler cannot know that @code{sp} and @code{ip} point to different
-addresses (and the version of @code{gcc} we used would not know it even
-if it was possible), so it could not move the load of the cfa above the
-store to the TOS. Indeed the pointers could be the same, if code on or
-very near the top of stack were executed. In the interest of speed we
-chose to forbid this probably unused ``feature'' and helped the compiler
-in scheduling: @code{NEXT} is divided into several parts:
-@code{NEXT_P0}, @code{NEXT_P1} and @code{NEXT_P2}). @code{+} now looks
-like:
-@example
-NEXT_P0;
-n=sp[0]+sp[1];
-sp++;
-NEXT_P1;
-sp[0]=n;
-NEXT_P2;
+see dup 
+Code dup  
+   $5640443C831C: add    $0x8,%rbx
+   $5640443C8320: mov    %r13,(%r10)
+   $5640443C8323: sub    $0x8,%r10
+   $5640443C8327: mov    (%rbx),%rax
+   $5640443C832A: jmp    *%rax
+end-code
+ ok
+see * 
+Code *  
+   $5640443C74DF: add    $0x8,%rbx
+   $5640443C74E3: imul   0x8(%r10),%r13
+   $5640443C74E8: add    $0x8,%r10
+   $5640443C74EC: mov    (%rbx),%rax
+   $5640443C74EF: jmp    *%rax
+end-code
+ ok
+see ;s 
+Code ;s  
+   $5640443C6BE6: mov    (%r14),%rbx
+   $5640443C6BE9: add    $0x8,%r14
+   $5640443C6BED: mov    (%rbx),%rax
+   $5640443C6BF0: jmp    *%rax
+end-code
 @end example
 
-There are various schemes that distribute the different operations of
-NEXT between these parts in several ways; in general, different schemes
-perform best on different processors.  We use a scheme for most
-architectures that performs well for most processors of this
-architecture; in the future we may switch to benchmarking and choosing
-the scheme on installation time.
+We see that they start at the addresses given in the threaded code.
+We also see the following instructions (not consecutive) in @word{dup}
+and @word{*}, and the last two of these instructions in @word{;s} (the
+primitive compiled by @word{;}).
 
+@example
+add    $0x8,%rbx   \ update threaded-code instruction pointer (IP)
+mov    (%rbx),%rax \ get code address from IP
+jmp    *%rax       \ jump to code address
+@end example
 
-@node Direct or Indirect Threaded?, Dynamic Superinstructions, Scheduling, Threading
-@subsection Direct or Indirect Threaded?
-@cindex threading, direct or indirect?
+This sequence ensures that the execution continues with the next
+primitive and is called NEXT.  @code{%rbx} is the threaded-code
+instruction pointer (IP), @code{%rax} is just used as a temporary
+register (the actual registers can be different in different builds,
+even on the same architecture).  The NEXT that entered the word
+@code{squared} left @code{%rbx} at $7F6208AA7FE0 and jumped to
+$5640443C831C (@word{dup}).  The NEXT in @word{dup} advances
+@code{%rbx} to the next threaded-code address, then loads the code
+address into @code{%rax} and finally jumps there.
 
-Threaded forth code consists of references to primitives (simple machine
-code routines like @code{+}) and to non-primitives (e.g., colon
-definitions, variables, constants); for a specific class of
-non-primitives (e.g., variables) there is one code routine (e.g.,
-@code{dovar}), but each variable needs a separate reference to its data.
+In this way one primitive after another is executed, and for
+threaded-code control flow, @code{%rbx} is set differently (as in
+@code{;s}, which returns to the caller of @code{squared}).
 
-Traditionally Forth has been implemented as indirect threaded code,
-because this allows to use only one cell to reference a non-primitive
-(basically you point to the data, and find the code address there).
+The remaining instructions in @word{dup} and @word{*} perform the work
+we are actually interested in; you find the top-of-data-stack (TOS) in
+@code{%r13}, and the data stack pointer (SP) in @code{%r10}.  The data
+stack grows towards smaller addresses.
 
-@cindex primitive-centric threaded code
-However, threaded code in Gforth (since 0.6.0) uses two cells for
-non-primitives, one for the code address, and one for the data address;
-the data pointer is an immediate argument for the virtual machine
-instruction represented by the code address.  We call this
-@emph{primitive-centric} threaded code, because all code addresses point
-to simple primitives.  E.g., for a variable, the code address is for
-@code{lit} (also used for integer literals like @code{99}).
+Gforth compiles most non-primitives into a primitive followed by an
+inline argument (primitive-centric code).  E.g., a variable ist
+compiled to the primitive @word{lit} with the body address of the
+variable as inline argument.  A word @i{X} defined with
+@code{create}... ( @i{xt} ) @word{set-does>} is compiled as @word{lit}
+with the body address of @i{X} as inline argument, followed by
+@code{compile,}ing @i{xt}.
 
-Primitive-centric threaded code allows us to use (faster) direct
-threading as dispatch method, completely portably (direct threaded code
-in Gforth before 0.6.0 required architecture-specific code).  It also
-eliminates the performance problems related to I-cache consistency that
-386 implementations have with direct threaded code, and allows
-additional optimizations.
+That's all nice and well for code coming out of @code{compile,}, but
+@word{execute} expects an xt that fits in one cell.  How do we
+transport the code address and the data address (for a variable) in
+one cell?  Here's (a slightly simplified) @word{execute}:
 
-@cindex hybrid direct/indirect threaded code
-There is a catch, however: the @var{xt} parameter of @code{execute} can
-occupy only one cell, so how do we pass non-primitives with their code
-@emph{and} data addresses to them?  Our answer is to use indirect
-threaded dispatch for @code{execute} and other words that use a
-single-cell xt.  So, normal threaded code in colon definitions uses
-direct threading, and @code{execute} and similar words, which dispatch
-to xts on the data stack, use indirect threaded code.  We call this
-@emph{hybrid direct/indirect} threaded code.
+@example
+add    $0x8,%r10        \ adjust SP
+mov    -0x10(%r13),%rax \ load code address from code field of xt
+mov    %r13,%rdx        \ store xt in W (for use by the executed code)
+mov    (%r10),%r13      \ load the new TOS from SP
+jmp    *%rax            \ jump to the code address
+@end example
 
-@cindex engines, gforth vs.@: gforth-fast vs.@: gforth-itc
-@cindex gforth engine
-@cindex gforth-fast engine
-The engines @command{gforth} and @command{gforth-fast} use hybrid
-direct/indirect threaded code.  This means that with these engines you
-cannot use @code{,} to compile an xt.  Instead, you have to use
-@code{compile,}.
+The code addresses that @word{execute} jumps to are not normal
+primitives, they are doers: routines like that at @word{dovar:} (all
+these routines have names starting with ``do'', that's why they are
+called ``doers'').  The routine at @word{dovar:} looks as follows:
 
-@cindex gforth-itc engine
-If you want to compile xts with @code{,}, use @command{gforth-itc}.
-This engine uses plain old indirect-threaded code.  However, an
-optimization that delays the compilation of literals is still active
-in @command{gforth-itc}, so using @word{,} for compilation does not
-work in general and you still need to use @word{compile,} instead.
+@example
+add    $0x8,%rbx   \ NEXT (adjust IP)
+mov    %r13,(%r10) \ store TOS (make room for new TOS)
+sub    $0x8,%r10   \ adjust SP
+mov    %rdx,%r13   \ move W to TOS
+mov    (%rbx),%rax \ NEXT
+jmp    *%rax       \ NEXT
+@end example
 
-Your program can check if it is running on a hybrid direct/indirect
-threaded engine or a pure indirect threaded engine with
-@code{threading-method} (@pxref{Threading Words}).
+Note that the indirection through a code field as @word{execute} is
+doing is what indirect-threaded code does, so we actually have a
+hybrid of direct-threaded and indirect-threaded code: direct-threaded
+code for @code{compile,}d code, indirect-threaded code for
+@code{execute} (deferred words also use this).
 
+Is there any chance of doing direct-threaded dispatch when
+indirect-threaded dispatch is called for, or vice versa?  No, because
+IP always points to direct-threaded code, while every dispatch through
+an xt is indirect-threaded.
 
-@node Dynamic Superinstructions, DOES>, Direct or Indirect Threaded?, Threading
-@subsection Dynamic Superinstructions
+For a word @i{X} defined with @i{xt1} @word{set-does>}, executing
+@i{X} through its xt (@i{xt2}) has another twist: The code address
+involved is @word{dodoes:}, and it gets @i{xt2} in W (@code{rdx}).  It
+loads the @i{xt1} from the @word{>hmextra} slot of the header methods
+of @i{X} (@pxref{Header methods}).  Here's the code of dodoes
+(slightly simplified):
+
+@example
+mov    %r13,(%r10)      \ store TOS (make room for new TOS)
+mov    -0x8(%rdx),%rax  \ load header methods of X, using W
+mov    %rdx,%r13        \ move W to TOS, i.e. push X's body address 
+sub    $0x8,%r10        \ update SP
+mov    0x18(%rax),%rdx  \ load xt1 from >hmextra into W
+mov    -0x10(%rdx),%rax \ load code address from code field of xt
+jmp    *%rax            \ jump to the code address
+@end example
+
+Note that dodoes is not just jumped to by a dispatch through an xt
+(@i{xt2}), it performs a dispatch through an xt (@i{xt1}) itself, so
+it also loads from a code field and sets up W.
+
+Primitive-centric hybrid direct/indirect threaded code is described in:
+M. Anton Ertl,
+@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl02.ps.gz,
+Threaded code variations and optimizations (extended version)}},
+Forth-Tagung '02.
+
+@node Dynamic Superinstructions, Primitives, Threaded code, Engine
+@section Dynamic Superinstructions
 @cindex Dynamic superinstructions with replication
 @cindex Superinstructions
 @cindex Replication
+@cindex Code copying compilation
 
 The engines @command{gforth} and @command{gforth-fast} use another
 optimization: Dynamic superinstructions with replication.  As an
@@ -22369,30 +22371,8 @@ On some machines dynamic superinstructions are disabled by default,
 because it is unsafe on these machines.  However, if you feel
 adventurous, you can enable it with @option{--dynamic}.
 
-@node DOES>,  , Dynamic Superinstructions, Threading
-@subsection DOES>
-@cindex @code{DOES>} implementation
 
-@cindex @code{dodoes:} routine
-@cindex @code{DOES>}-code
-@cindex @code{SET-DOES>}-code
-One of the most complex parts of a Forth engine is @code{dodoes:},
-i.e., the chunk of code executed by every word @i{X} defined by a
-@code{CREATE}... ( @i{xt} ) @code{SET-DOES>} pair.
-
-Actually with primitive-centric code, such words can be
-@code{compile,}d as follows: First compile a literal that pushes the
-body address of @i{X}, then @code{compile,} @i{xt}.
-
-But with @code{execute} and deferred words that approach cannot be
-used.  The main problem here is: How to find @i{xt}?  In Gforth (since
-1.0) @i{xt} is stored in the @word{>hmextra} slot of the header
-methods of @i{X} (@pxref{Header methods}).  So the @code{dodoes:}
-routine first pushes the body of @i{X} on the stack, then gets @i{xt}
-from the @word{>hmextra} slot and executes it.
-
-
-@node Primitives, Performance, Threading, Engine
+@node Primitives, Performance, Dynamic Superinstructions, Engine
 @section Primitives
 @cindex primitives, implementation
 @cindex virtual machine instructions, implementation
