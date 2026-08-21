@@ -16,9 +16,10 @@ All times are given in seconds of user time.
 
 After 2026-01-27 (new output format, all architectures in one list):
  sieve  bubble matrix fib    fft    release; CPU; gcc
+ 0.0168 0.0166 0.0091 0.0228 0.0118 20260819; Ryzen AI 350 (Zen 5) 4900MHz; gcc-15 
+ 0.0201 0.0209 0.0116 0.0307 0.0128 20260722; Ryzen 8700G (Zen 4) 5000MHz; gcc-12.2
  0.0183 0.0281 0.0082 0.0229 0.0089 20260722; Core Ultra 225 P-core 4900MHz; gcc-14
  0.0218 0.0183 0.0125 0.0282 0.0104 20260722; Core Ultra 225 E-core 4400MHz; gcc-14
- 0.0201 0.0209 0.0116 0.0307 0.0128 20260722; Ryzen 8700G 5000MHz; gcc-12.2
  
 After 0.7.0 before 2026-01-27:
 AMD64:
