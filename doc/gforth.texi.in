@@ -682,6 +682,8 @@ Engine
 * Portability::
 * Threaded code::
 * Dynamic Superinstructions::
+* Static Superinstructions::
+* Stack caching::
 * Primitives::
 * Performance::
 
@@ -22027,6 +22029,8 @@ for better performance, plus related topics.
 * Portability::
 * Threaded code::
 * Dynamic Superinstructions::
+* Static Superinstructions::
+* Stack caching::
 * Primitives::
 * Performance::
 @end menu
@@ -22246,7 +22250,9 @@ gforth-fast --no-dynamic --ss-number=0
 @end example
 
 
-@node Dynamic Superinstructions, Primitives, Threaded code, Engine
+
+
+@node Dynamic Superinstructions, Static Superinstructions, Threaded code, Engine
 @section Dynamic Superinstructions
 @cindex dynamic superinstructions with replication
 @cindex superinstructions
@@ -22409,7 +22415,172 @@ EuroForth 2025 proceedings.
 
 
 
-@node Primitives, Performance, Dynamic Superinstructions, Engine
+@node Static Superinstructions, Stack caching, Dynamic Superinstructions, Engine
+@section Static Superinstructions
+@cindex superinstructions, static
+
+Static superinstructions combine a sequence of primitives and are
+added to the @command{gforth-fast} engines at Gforth build time.  They
+are used even if dynamic native-code generation is disabled with
+@option{--no-dynamic}.
+
+As an example, Gforth has a static superinstruction for the sequence
+@code{< ?branch} that occurs in @code{mymin}.  Enabling static
+superinstructions by leaving away the @option{--ss-number=0} from the
+command line above results in the right column below:
+
+@example
+    gforth-fast --ss-states=1 --opt-ip-updates=0
+with --ss-number=0              without --ss-number=0
+<mymin+$8>    <    1->1         <mymin+$8>    < ?branch     1->1 
+ add    $0x8,%rbx               <mymin+$10>   ?branch    1->1    
+ add    $0x8,%r10               <mymin+$18>   <mymin+$38>        
+ cmp    %r13,(%r10)              add    $0x18,%rbx               
+ setl   %r13b                    mov    0x8(%r10),%rax           
+ movzbl %r13b,%r13d              add    $0x10,%r10               
+ neg    %r13                     mov    -0x8(%rbx),%rsi          
+<mymin+$10>   ?branch    1->1    cmp    %r13,%rax                
+<mymin+$18>   <mymin+$38>        mov    (%r10),%r13              
+ add    $0x10,%rbx               jl     0x7f51790998b4           
+ add    $0x8,%r10                mov    (%rsi),%rax              
+ test   %r13,%r13                mov    %rsi,%rbx                
+ mov    -0x8(%rbx),%rsi          jmp    *%rax                    
+ mov    (%r10),%r13
+ jne    0x7f8c2a49d396
+ mov    (%rsi),%rax
+ mov    %rsi,%rbx
+ jmp    *%rax
+ @end example
+
+The benefit of the static superinstruction is that the comparison
+result does not need to be converted into a cell and that cell then
+checked the make the branch decision.
+
+The threaded-code slot for @code{<} contains the address of the static
+superinstruction, the code slot for the @code{?branch} still exists,
+but is not used.
+
+There are only 63 (at the time of this writing) static
+superinstructions in @command{gforth-fast}, because the combination of
+stack caching and the IP update optimization provides the same
+benefits in many cases.  Moreover, currently static superinstructions
+can only start and end in the canonical stack state, eliminating some
+potentially beneficial uses.
+
+You can determine how many of the static superinstructions you want to
+use with @option{--ss-number=@i{n}}.  The first @i{n}
+superinstructions will then be used, no finer-granularity control is
+provided.  Static superinstructions will only be used if they result
+in code that is at least as short as can be achieved with the other
+optimizations.  You can see the static superinstructions in
+@command{gforth-fast} with (on Unix):
+
+@example
+gforth-fast --print-prims -e bye |& cut -b -18|awk 'NF>1'
+@end example
+
+You can read a little more about static superinstructions in M. Anton
+Ertl, David Gregg, Andreas Krall, and Bernd Paysan,
+@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl+02.ps.gz,
+vmgen --- A Generator of Efficient Virtual Machine Interpreters}},
+Software: Practice and Experience 32(3), p. 265--294, 2002.
+
+
+
+@node Stack caching, Primitives, Static Superinstructions, Engine
+@section Stack caching
+@cindex stack caching
+
+In the examples up to now the top-of-stack has been kept in a
+register, which already provides a good benefit compared to keeping
+all stack items in memory (which is used by the @command{gforth}
+engine).  Here's the payload (i.e., without NEXT) of @code{*} for
+@command{gforth-fast} and @command{gforth}:
+
+@example
+gforth-fast                 gforth
+SP=%r10, TOS=%r13           SP=%r14
+                            mov    0x8(%r14),%rax
+imul   0x8(%r10),%r13       imul   (%r14),%rax    
+add    $0x8,%r10            add    $0x8,%r14      
+                            mov    %rax,(%r14)    
+@end example
+                             
+@cindex stack representation
+However, by using multiple stack representations, this can be improved
+even more.  In particular, @command{gforth-fast} uses one stack
+representation (called @code{0}) with no stack item in memory, one
+(@code{1}) with one stack item in memory, and so on, up to a
+representation (@code{3}) with three stack items in registers on
+popular platforms.
+
+Gforth has variants of the most common primitives for the most useful
+stack representation transitions.  It uses a shortest-path algorithm
+to select a combination of primitive variants that fits together
+(i.e., where each primitive variant starts with the representation in
+which the previous primitive variant finished) and that results in the
+shortest native-code size (by default).
+
+@cindex stack state
+The stack representation transitions for the implementations of the
+primitives are shown as @code{@i{s}->@i{t}}), meaning that the
+primitive starts with representation @i{s} and finishes in
+representation @i{t}.  One can also consider these as transitions in a
+state machine, so we also talk about a stack representations as a
+@dfn{stack state}.
+
+For the @code{squared} example that results in:
+
+@example
+<squared>     dup    1->2 
+   $7F04266893D7: add    $0x8,%rbx
+   $7F04266893DB: mov    %r13,%r15
+<squared+$8>  *    2->1 
+   $7F04266893DE: add    $0x8,%rbx
+   $7F04266893E2: imul   %r15,%r13
+<squared+$10> ;s    1->1 
+   $7F04266893E6: mov    (%r14),%rbx
+   $7F04266893E9: add    $0x8,%r14
+   $7F04266893ED: mov    (%rbx),%rax
+   $7F04266893F0: jmp    *%rax
+@end example
+
+Here @code{%13} contains the first register above the memory part of
+the stack, @code{%15} the second one.  Note that which of the two is
+the top-of-stack depends on the representation: In @code{0} all stack
+items are in memory, in @code{1} the TOS is in @code{%r13}, and in
+@code{2} the TOS is in @code{%r15} and the second stack item is in
+@code{%r13}.
+
+Performing this multi-representation stack-caching reduces memory
+accesses as well as stack pointer updates.
+
+Gforth falls back to the canonical representation @code{1} on control
+flow (including calls and @code{exit}s), when dealing with
+non-relocatable primitives, or when a static superinstruction is
+selected.
+
+Multi-state stack caching is controlled with
+@option{--ss-states=@i{n}}, where @i{n} gives the number of states:
+For @i{n}=1, only the canonical state @code{1} is used, for @i{n}=2
+also state @code{0}, and the next states enabled are @code{2} (for
+@i{n}=3) and @code{3} (for @i{n}=4).
+
+The code above was generated by using @command{gforth-fast
+--opt-ip-updates=0}.
+
+You can read more about static superinstructions in M. Anton Ertl,
+David Gregg, 
+@cite{@uref{http://www.euroforth.org/ef05/ertl-gregg05.pdf,
+Stack Caching in Forth}},
+EuroForth 2005 proceedings.
+ 
+
+
+
+
+
+@node Primitives, Performance, Stack caching, Engine
 @section Primitives
 @cindex primitives, implementation
 @cindex virtual machine instructions, implementation
