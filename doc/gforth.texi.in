@@ -22238,138 +22238,175 @@ M. Anton Ertl,
 Threaded code variations and optimizations (extended version)}},
 Forth-Tagung '02.
 
+You can invoke @command{gforth-fast} to execute just threaded code
+without additional optimizations with
+
+@example
+gforth-fast --no-dynamic --ss-number=0
+@end example
+
+
 @node Dynamic Superinstructions, Primitives, Threaded code, Engine
 @section Dynamic Superinstructions
-@cindex Dynamic superinstructions with replication
-@cindex Superinstructions
-@cindex Replication
-@cindex Code copying compilation
+@cindex dynamic superinstructions with replication
+@cindex superinstructions
+@cindex replication
+@cindex code-copying native-code compilation
+@cindex native-code compilation
 
-The engines @command{gforth} and @command{gforth-fast} use another
-optimization: Dynamic superinstructions with replication.  As an
-example, consider the following colon definition:
-
-@example
-: squared ( n1 -- n2 )
-  dup * ;
-@end example
-
-Gforth compiles this into the threaded code sequence
+The native code of the primitives in our @code{squared} example can be
+copied, with the copies being concatenated.  Because the NEXTs of the
+primitives @word{dup} and @word{*} then just jump to the addresses
+right behind, the last two NEXT instructions of each of these
+primitives can be left away, resulting in:
 
 @example
-dup
-*
-;s
+$7F2BFA49D350: add    $0x8,%rbx      \ dup NEXT IP update
+$7F2BFA49D354: mov    %r13,(%r10)    \ dup
+$7F2BFA49D357: sub    $0x8,%r10      \ dup
+$7F2BFA49D35B: add    $0x8,%rbx      \ * NEXT IP update
+$7F2BFA49D35F: imul   0x8(%r10),%r13 \ *
+$7F2BFA49D364: add    $0x8,%r10      \ *
+$7F2BFA49D368: mov    (%r14),%rbx    \ ;s load IP from return stack
+$7F2BFA49D36B: add    $0x8,%r14      \ ;s update return stack pointer
+$7F2BFA49D36F: mov    (%rbx),%rax    \ ;s NEXT
+$7F2BFA49D372: jmp    *%rax          \ ;s NEXT
 @end example
 
-Use @code{simple-see} (@pxref{Examining compiled code}) to see the
-threaded code of a colon definition.
+The NEXT instructions of @word{;s} cannot be left away, because
+@word{;s} does not fall through to the next primitive, but performs
+control flow and needs to jump to the native code corresponding to the
+target threaded code; and it gets the code address of that native code
+through a regular direct-threaded code dispatch.
 
-In normal direct threaded code there is a code address occupying one
-cell for each of these primitives.  Each code address points to a
-machine code routine, and the interpreter jumps to this machine code in
-order to execute the primitive.  The routines for these three
-primitives are (in @command{gforth-fast} on the 386):
+The threaded code for @code{squared} now points to the start of the
+respective primitives in the copied code, not to the original
+instances of this code; e.g., the first cell in @word{squared} now
+points to $7F2BFA49D350, the second to $7F2BFA49D35B, and the third to
+$7F2BFA49D368.
+
+@word{See-code} displays the threaded code interleaved with the native
+code:
 
 @example
-Code dup  
-( $804B950 )  add     esi , # -4  \ $83 $C6 $FC 
-( $804B953 )  add     ebx , # 4  \ $83 $C3 $4 
-( $804B956 )  mov     dword ptr 4 [esi] , ecx  \ $89 $4E $4 
-( $804B959 )  jmp     dword ptr FC [ebx]  \ $FF $63 $FC 
-end-code
-Code *  
-( $804ACC4 )  mov     eax , dword ptr 4 [esi]  \ $8B $46 $4 
-( $804ACC7 )  add     esi , # 4  \ $83 $C6 $4 
-( $804ACCA )  add     ebx , # 4  \ $83 $C3 $4 
-( $804ACCD )  imul    ecx , eax  \ $F $AF $C8 
-( $804ACD0 )  jmp     dword ptr FC [ebx]  \ $FF $63 $FC 
-end-code
-Code ;s  
-( $804A693 )  mov     eax , dword ptr [edi]  \ $8B $7 
-( $804A695 )  add     edi , # 4  \ $83 $C7 $4 
-( $804A698 )  lea     ebx , dword ptr 4 [eax]  \ $8D $58 $4 
-( $804A69B )  jmp     dword ptr FC [ebx]  \ $FF $63 $FC 
-end-code
+see-code squared 
+<squared>     dup    1->1 
+   $7F2BFA49D350: add    $0x8,%rbx
+   $7F2BFA49D354: mov    %r13,(%r10)
+   $7F2BFA49D357: sub    $0x8,%r10
+<squared+$8>  *    1->1 
+   $7F2BFA49D35B: add    $0x8,%rbx
+   $7F2BFA49D35F: imul   0x8(%r10),%r13
+   $7F2BFA49D364: add    $0x8,%r10
+<squared+$10> ;s    1->1 
+   $7F2BFA49D368: mov    (%r14),%rbx
+   $7F2BFA49D36B: add    $0x8,%r14
+   $7F2BFA49D36F: mov    (%rbx),%rax
+   $7F2BFA49D372: jmp    *%rax
 @end example
 
-With dynamic superinstructions and replication the compiler does not
-just lay down the threaded code, but also copies the machine code
-fragments, usually without the jump at the end.
+But note that the threaded code and native code are not interleaved in
+memory; @code{<squared>} is $7F2BFAAA7FE0, more than 6MB away from the
+native code.
+
+An example with more control flow is
 
 @example
-( $4057D27D )  add     esi , # -4  \ $83 $C6 $FC 
-( $4057D280 )  add     ebx , # 4  \ $83 $C3 $4 
-( $4057D283 )  mov     dword ptr 4 [esi] , ecx  \ $89 $4E $4 
-( $4057D286 )  mov     eax , dword ptr 4 [esi]  \ $8B $46 $4 
-( $4057D289 )  add     esi , # 4  \ $83 $C6 $4 
-( $4057D28C )  add     ebx , # 4  \ $83 $C3 $4 
-( $4057D28F )  imul    ecx , eax  \ $F $AF $C8 
-( $4057D292 )  mov     eax , dword ptr [edi]  \ $8B $7 
-( $4057D294 )  add     edi , # 4  \ $83 $C7 $4 
-( $4057D297 )  lea     ebx , dword ptr 4 [eax]  \ $8D $58 $4 
-( $4057D29A )  jmp     dword ptr FC [ebx]  \ $FF $63 $FC 
+: mymin 2dup < if drop else nip then ;  ok
+see-code mymin 
+<mymin>       2dup    1->1 
+   $7F2BFA49D374: add    $0x8,%rbx
+   $7F2BFA49D378: mov    0x8(%r10),%rax
+   $7F2BFA49D37C: sub    $0x10,%r10
+   $7F2BFA49D380: mov    %r13,0x10(%r10)
+   $7F2BFA49D384: mov    %rax,0x8(%r10)
+<mymin+$8>    <    1->1 
+   $7F2BFA49D388: add    $0x8,%rbx
+   $7F2BFA49D38C: add    $0x8,%r10
+   $7F2BFA49D390: cmp    %r13,(%r10)
+   $7F2BFA49D393: setl   %r13b
+   $7F2BFA49D397: movzbl %r13b,%r13d
+   $7F2BFA49D39B: neg    %r13
+<mymin+$10>   ?branch    1->1 
+<mymin+$18>   <mymin+$38> 
+   $7F2BFA49D39E: add    $0x10,%rbx
+   $7F2BFA49D3A2: add    $0x8,%r10
+   $7F2BFA49D3A6: test   %r13,%r13
+   $7F2BFA49D3A9: mov    -0x8(%rbx),%rsi
+   $7F2BFA49D3AD: mov    (%r10),%r13
+   $7F2BFA49D3B0: jne    0x7f2bfa49d3ba
+   $7F2BFA49D3B2: mov    (%rsi),%rax
+   $7F2BFA49D3B5: mov    %rsi,%rbx
+   $7F2BFA49D3B8: jmp    *%rax
+<mymin+$20>   drop    1->1 
+   $7F2BFA49D3BA: add    $0x8,%rbx
+   $7F2BFA49D3BE: mov    0x8(%r10),%r13
+   $7F2BFA49D3C2: add    $0x8,%r10
+<mymin+$28>   branch    1->1 
+<mymin+$30>   <mymin+$40> 
+   $7F2BFA49D3C6: add    $0x10,%rbx
+   $7F2BFA49D3CA: mov    -0x8(%rbx),%rbx
+   $7F2BFA49D3CE: mov    (%rbx),%rax
+   $7F2BFA49D3D1: jmp    *%rax
+<mymin+$38>   nip    1->1 
+   $7F2BFA49D3D3: add    $0x8,%rbx
+   $7F2BFA49D3D7: add    $0x8,%r10
+<mymin+$40>   ;s    1->1 
+   $7F2BFA49D3DB: mov    (%r14),%rbx
+   $7F2BFA49D3DE: add    $0x8,%r14
+   $7F2BFA49D3E2: mov    (%rbx),%rax
+   $7F2BFA49D3E5: jmp    *%rax
 @end example
 
-Only when a threaded-code control-flow change happens (e.g., in
-@code{;s}), the jump is appended.  This optimization eliminates many of
-these jumps and makes the rest much more predictable.  The speedup
-depends on the processor and the application; on the Athlon and Pentium
-III this optimization typically produces a speedup by a factor of 2.
+@code{If} compiles a @word{?branch} with the target address as
+immediate argument, and @code{else} compiles a @word{branch} with the
+target address as immediate argument, while both @code{else} provides
+the target address for the @code{?branch} and @code{then} provides the
+target addres for the @code{branch}.  Both branch primitives are
+control flow words, load the code address from the target address and
+jump there if the branch is taken.  If the @code{?branch} is not
+taken, its native code branches around this control-flow code and
+falls through to the following primitive.
 
-The code addresses in the direct-threaded code are set to point to the
-appropriate points in the copied machine code, in this example like
-this:
+The name ``superinstruction'' means that a sequence of primitives (or
+VM instructions) is combined into one VM instruction, meaning it
+performs one threaded-code NEXT.  ``Dynamic superinstruction'' means
+that the superinstructions are not formed at Gforth build time, but at
+Gforth run time.  In the @code{mymin} example, we have
+superinstructions for the sequence @code{2dup < ?branch}, for
+@code{drop branch} and for @code{nip ;s}.  But note that the
+@code{?branch} does not always perform a NEXT, so one might also see
+@code{2dup < ?branch drop branch} as a superinstruction.  Moreover, in
+some cases only the @code{;s} part of the @code{nip ;s}
+superinstruction is performed.
 
-@example
-primitive  code address
-   dup       $4057D27D
-   *         $4057D286
-   ;s        $4057D292
-@end example
+The code copying involved in dynamic superinstructions cannot be
+performed with all primitives, only with those that are relocatable.
+If a primitive is not relocatable, the primitive before it has to end
+with the NEXT instructions, and the threaded-code for that primitive
+points to the original location of the primitive, like in ordinary
+threaded code.  I.e., this approach can always fall back to threaded
+code if something is amiss.  Fortunately, the most frequently used
+primitives are usually relocatable.
 
-Thus there can be threaded-code jumps to any place in this piece of
-code.  This also simplifies decompilation quite a bit.
-
-@code{See-code} (@pxref{Examining compiled code}) shows the threaded
-code intermingled with the native code of dynamic superinstructions.
-These days some additional optimizations are applied for the
-dynamically-generated native code, so the output of @code{see-code
-squared} on @code{gforth-fast} on one particular AMD64 installation
-looks like this:
-
-@example
-$7FB689C678C8 dup    1->2 
-7FB68990C1B2:   mov     r15,r8
-$7FB689C678D0 *    2->1 
-7FB68990C1B5:   imul    r8,r15
-$7FB689C678D8 ;s    1->1 
-7FB68990C1B9:   mov     rbx,[r14]
-7FB68990C1BC:   add     r14,$08
-7FB68990C1C0:   mov     rax,[rbx]
-7FB68990C1C3:   jmp     eax
-@end example
+The code above was generated by using @command{gforth-fast
+--ss-states=1 --ss-number=0 --opt-ip-updates=0}; this disables the
+optimizations discussed in the next sections.
 
 @cindex --no-dynamic command-line option
-@cindex --no-super command-line option
-You can disable this optimization with @option{--no-dynamic}.  You can
-use the copying without eliminating the jumps (i.e., dynamic
-replication, but without superinstructions) with @option{--no-super};
-this gives the branch prediction benefit alone; the effect on
-performance depends on the CPU; on the Athlon and Pentium III the
-speedup is a little less than for dynamic superinstructions with
-replication.
+You can disable dynamic superinstructions with @option{--no-dynamic},
+but that also disables several other optimizations.
 
-@cindex patching threaded code
-One use of these options is if you want to patch the threaded code.
-With superinstructions, many of the dispatch jumps are eliminated, so
-patching often has no effect.  These options preserve all the dispatch
-jumps.
+The general approach of copying fragments of native code that have
+been generated by a C compiler is called @dfn{code-copying compilaton}.
 
-@cindex --dynamic command-line option
-On some machines dynamic superinstructions are disabled by default,
-because it is unsafe on these machines.  However, if you feel
-adventurous, you can enable it with @option{--dynamic}.
+You can read more about the code-copying used in Gforth in: M. Anton
+Ertl, Bernd Paysan,
+@cite{@uref{http://www.euroforth.org/ef25/papers/ertl.pdf,
+Code-Copying Compilation in Production --- An Experience Report}},
+EuroForth 2025 proceedings.
+
+
 
 
 @node Primitives, Performance, Dynamic Superinstructions, Engine
