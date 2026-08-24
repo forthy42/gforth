@@ -167,6 +167,7 @@ Software Foundation raise funds for GNU development.''
 * Integrating Gforth::          Forth as scripting language for applications
 * Emacs and Gforth::            The Gforth Mode
 * Image Files::                 @code{.fi} files contain compiled code
+* Optimizations::
 * Engine::                      The inner interpreter and the primitives
 * Cross Compiler::              The Cross Compiler
 * MINOS2::                      The GUI library
@@ -677,15 +678,21 @@ Fully Relocatable Image Files
 * gforthmi::                    The normal way
 * cross.fs::                    The hard way
 
-Engine
+Optimizations
 
-* Portability::
 * Threaded code::
 * Dynamic Superinstructions::
 * Static Superinstructions::
 * Stack caching::
-* Primitives::
+* IP-update optimization::
+* Literal-based optimizations::
+* Differences between the engines::
 * Performance::
+
+Engine
+
+* Portability::
+* Primitives::
 
 Primitives
 
@@ -1117,6 +1124,7 @@ algorithm will select A BCD and the greedy algorithm will select AB C D.
 
 @cindex --opt-ip-updates, command-line option
 @item --opt-ip-updates=@i{n}
+@anchor{option-opt-ip-updates}
 Set the level of IP-update optimization (default: 31 (7+3*8)).  @i{n}
 is computed as @i{n1}+8*@i{n2}.
 
@@ -21453,7 +21461,7 @@ Please consult the docstring of @code{forth-blocks-mode} for more
 information by typing @kbd{C-h v forth-blocks-mode}).
 
 @c ******************************************************************
-@node Image Files, Engine, Emacs and Gforth, Top
+@node Image Files, Optimizations, Emacs and Gforth, Top
 @chapter Image Files
 @cindex image file
 @cindex @file{.fi} files
@@ -22011,80 +22019,30 @@ doc-bootmessage
 doc-process-option
 
 @c ******************************************************************
-@node Engine, Cross Compiler, Image Files, Top
-@chapter Engine
-@cindex engine
-@cindex virtual machine
+@node Optimizations, Engine, Image Files, Top
+@chapter Optimizations
+@cindex optimizations
 
-Reading this chapter is not necessary for programming with Gforth. It
-may be helpful for finding your way in the Gforth sources.
-
-This chapter describes the @command{gforth-fast} engine in detail, and
-then describes the differences of @command{gforth} and
-@command{gforth-itc}.  It presents a threaded-code system (the state
-of Gforth in 2001), and a number of refinements that have been applied
-for better performance, plus related topics.
+This chapter describes the threaded-code basis of
+@command{gforth-fast} (essentially as Gforth was in 2001) and the
+optimizations we have applied since then; the examples show
+disassembled AMD64 machine code.  It also describes what
+@command{gforth} and @command{gforth-itc} do differently from
+@command{gforth-fast}.
 
 @menu
-* Portability::
 * Threaded code::
 * Dynamic Superinstructions::
 * Static Superinstructions::
 * Stack caching::
-* Primitives::
+* IP-update optimization::
+* Literal-based optimizations::
+* Differences between the engines::
 * Performance::
 @end menu
 
-@node Portability, Threaded code, Engine, Engine
-@section Portability
-@cindex engine portability
 
-An important goal of the Gforth Project is availability across a wide
-range of personal machines. fig-Forth, and, to a lesser extent, F83,
-achieved this goal by manually coding the engine in assembly language
-for several then-popular processors. This approach is very
-labor-intensive and the results are short-lived due to progress in
-computer architecture.
-
-@cindex C, using C for the engine
-Others have avoided this problem by coding in C, e.g., Mitch Bradley
-(cforth), Mikael Patel (TILE) and Dirk Zoller (pfe). This approach is
-particularly popular for UNIX-based Forths due to the large variety of
-architectures of UNIX machines. Unfortunately an implementation in C
-does not mix well with the goals of efficiency and with using
-traditional techniques: Indirect or direct threading cannot be expressed
-in C, and switch threading, the fastest technique available in C, is
-significantly slower. Another problem with C is that it is very
-cumbersome to express double integer arithmetic.
-
-@cindex GNU C for the engine
-@cindex long long
-Fortunately, there is a portable language that does not have these
-limitations: GNU C, the version of C processed by the GNU C compiler
-(@pxref{C Extensions, , Extensions to the C Language Family, gcc, GNU
-C Manual}). Its labels as values feature (@pxref{Labels as Values, ,
-Labels as Values, gcc, GNU C Manual}) makes direct and indirect
-threading possible, its @code{long long} type (@pxref{Long Long, ,
-Double-Word Integers, gcc, GNU C Manual}) corresponds to Forth's
-double numbers on many systems.  GNU C is freely available on a wide
-range of platforms, so a Forth written in GNU C can run on all these
-machines.
-
-Writing in a portable language has the reputation of producing code
-that is slower than assembly language.  However, already at the
-beginning Gforth could compete with threaded-code Forth systems
-written in assembly language.  Over the course of its development we
-further improved the performance (using techniques outlined in the
-following), and now it is competetive in performance with native-code
-systems like SwiftForth.
-
-The ideas in this section have also been published in the following
-papers: Bernd Paysan, @cite{ANS fig/GNU/??? Forth} (in German),
-Forth-Tagung '93; M. Anton Ertl,
-@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl93.ps.Z, A
-Portable Forth Engine}}, EuroForth '93.
-
-@node Threaded code, Dynamic Superinstructions, Portability, Engine
+@node Threaded code, Dynamic Superinstructions, Optimizations, Optimizations
 @section Threaded code
 @cindex inner interpreter implementation
 @cindex threaded code implementation
@@ -22252,7 +22210,7 @@ gforth-fast --no-dynamic --ss-number=0
 
 
 
-@node Dynamic Superinstructions, Static Superinstructions, Threaded code, Engine
+@node Dynamic Superinstructions, Static Superinstructions, Threaded code, Optimizations
 @section Dynamic Superinstructions
 @cindex dynamic superinstructions with replication
 @cindex superinstructions
@@ -22415,7 +22373,7 @@ EuroForth 2025 proceedings.
 
 
 
-@node Static Superinstructions, Stack caching, Dynamic Superinstructions, Engine
+@node Static Superinstructions, Stack caching, Dynamic Superinstructions, Optimizations
 @section Static Superinstructions
 @cindex superinstructions, static
 
@@ -22450,7 +22408,7 @@ with --ss-number=0              without --ss-number=0
  mov    (%rsi),%rax
  mov    %rsi,%rbx
  jmp    *%rax
- @end example
+@end example
 
 The benefit of the static superinstruction is that the comparison
 result does not need to be converted into a cell and that cell then
@@ -22487,7 +22445,7 @@ Software: Practice and Experience 32(3), p. 265--294, 2002.
 
 
 
-@node Stack caching, Primitives, Static Superinstructions, Engine
+@node Stack caching, IP-update optimization, Static Superinstructions, Optimizations
 @section Stack caching
 @cindex stack caching
 
@@ -22510,21 +22468,18 @@ add    $0x8,%r10            add    $0x8,%r14
 However, by using multiple stack representations, this can be improved
 even more.  In particular, @command{gforth-fast} uses one stack
 representation (called @code{0}) with no stack item in memory, one
-(@code{1}) with one stack item in memory, and so on, up to a
-representation (@code{3}) with three stack items in registers on
-popular platforms.
+(@code{1}) with one stack item in memory, and so on.
 
 Gforth has variants of the most common primitives for the most useful
-stack representation transitions.  It uses a shortest-path algorithm
+transitions between stack representations.  It uses a shortest-path algorithm
 to select a combination of primitive variants that fits together
 (i.e., where each primitive variant starts with the representation in
 which the previous primitive variant finished) and that results in the
 shortest native-code size (by default).
 
 @cindex stack state
-The stack representation transitions for the implementations of the
-primitives are shown as @code{@i{s}->@i{t}}), meaning that the
-primitive starts with representation @i{s} and finishes in
+The transitions are shown as @code{@i{s}->@i{t}}), meaning that the
+primitive variant starts with representation @i{s} and finishes in
 representation @i{t}.  One can also consider these as transitions in a
 state machine, so we also talk about a stack representations as a
 @dfn{stack state}.
@@ -22546,25 +22501,28 @@ For the @code{squared} example that results in:
 @end example
 
 Here @code{%13} contains the first register above the memory part of
-the stack, @code{%15} the second one.  Note that which of the two is
-the top-of-stack depends on the representation: In @code{0} all stack
-items are in memory, in @code{1} the TOS is in @code{%r13}, and in
-@code{2} the TOS is in @code{%r15} and the second stack item is in
+the stack, @code{%15} the second one.  Note that it depends on the
+representation which of the two is the top-of-stack: In @code{0} all
+stack items are in memory, in @code{1} the TOS is in @code{%r13}, and
+in @code{2} the TOS is in @code{%r15} and the stack item below is in
 @code{%r13}.
 
-Performing this multi-representation stack-caching reduces memory
-accesses as well as stack pointer updates.
+Multi-representation stack-caching reduces memory accesses as well as
+stack pointer updates.
 
-Gforth falls back to the canonical representation @code{1} on control
-flow (including calls and @code{exit}s), when dealing with
-non-relocatable primitives, or when a static superinstruction is
-selected.
+@command{gforth-fast} falls back to the canonical representation
+@code{1} on control flow (including calls and @code{exit}s), when
+dealing with non-relocatable primitives, or when a static
+superinstruction is selected.
 
 Multi-state stack caching is controlled with
 @option{--ss-states=@i{n}}, where @i{n} gives the number of states:
 For @i{n}=1, only the canonical state @code{1} is used, for @i{n}=2
 also state @code{0}, and the next states enabled are @code{2} (for
-@i{n}=3) and @code{3} (for @i{n}=4).
+@i{n}>=3) and @code{3} (for @i{n}>=4).  On a number of platforms (in
+particular, AMD64, ARM A64, RISC-V), @command{gforth-fast} supports 4
+stack representations (@code{0}--@code{3}), on some others only 2
+(@code{0}, @code{1}); the canonical representation is always @code{1}.
 
 The code above was generated by using @command{gforth-fast
 --opt-ip-updates=0}.
@@ -22574,13 +22532,384 @@ David Gregg,
 @cite{@uref{http://www.euroforth.org/ef05/ertl-gregg05.pdf,
 Stack Caching in Forth}},
 EuroForth 2005 proceedings.
- 
+
+
+
+
+@node IP-update optimization, Literal-based optimizations, Stack caching, Optimizations
+@section IP-update optimization
+@cindex instruction pointer updates
+@cindex IP updates
+
+Many primitives do not need an up-to-date IP.  The IP-update
+optimization delays updating the IP until an up-to-date IP is needed.
+For the @code{squared} example, the result is:
+
+@example
+<squared>     dup    1->2 
+   $7F9F4AC739F7: mov    %r13,%r15
+<squared+$8>  *    2->1 
+   $7F9F4AC739FA: imul   %r15,%r13
+<squared+$10> ;s    1->1 
+   $7F9F4AC739FE: mov    (%r14),%rbx
+   $7F9F4AC73A01: add    $0x8,%r14
+   $7F9F4AC73A05: mov    (%rbx),%rax
+   $7F9F4AC73A08: jmp    *%rax
+@end example
+
+In this case none of the primitives needs an up-to-date IP; the first
+two don't access IP at all, while @code{;s} writes to IP itself and
+therefore does not need an up-to-date IP, either.
+
+If an up-to-date IP is needed, a code fragment is inserted that adds
+the appropriate number to the IP.  There is only a limited amount of
+such fragments, but that's good enough in most cases; and if it's not
+enough one can insert several such fragments.
+
+An up-to-date IP is typically needed for primitives that access
+immediate arguments, and before inserting a NEXT in front of a
+non-relocatable primitive, and at a control-flow join.  The IP-update
+optimization also reduces the need for an up-to-date IP for immediate
+arguments by providing variants of the most common primitives with
+immediate arguments that work with an outdated IP (up to some limit).
+
+One might think that the lower number of instructions is the main
+benefit of this optimization, and this benefit exists, but is
+relatively small (speedups factors around 1.1 on high-performance
+hardware on call-dominated benchmarks).  But the major benefit on
+modern high-performance hardware is that in loop-dominated programs
+the critical data-dependence chain is shortened, resulting in a
+speedup by a factor of 2 or more for these programs on recent
+high-performance cores, when the following suboptimization is also
+performed.
+
+Without IP update optimization @code{branch} and friends use a load
+(3-5 cycles latency) to get the target address.  The IP-update
+optimization changes the IP with an add (at the beginning of the
+branch code) to point to the target, so the load is now unnecessary.
+This can be seen in the @code{mymin} example:
+
+@example
+gforth-fast --opt-ip-updates=0   gforth-fast
+<mymin>       2dup    1->3       <mymin>       2dup    1->3    
+ add    $0x8,%rbx                                              
+ mov    0x8(%r10),%r15            mov    0x8(%r10),%r15        
+ mov    %r13,%r9                  mov    %r13,%r9              
+<mymin+$8>    <    3->2          <mymin+$8>    <    3->2       
+ add    $0x8,%rbx                                              
+ cmp    %r9,%r15                  cmp    %r9,%r15              
+ setl   %r15b                     setl   %r15b                 
+ movzbl %r15b,%r15d               movzbl %r15b,%r15d           
+ neg    %r15                      neg    %r15                  
+<mymin+$10>   ?branch    2->1    <mymin+$10>   ?branch    2->1 
+<mymin+$18>   <mymin+$38>        <mymin+$18>   <mymin+$38>     
+ add    $0x10,%rbx                add    $0x38,%rbx            
+ mov    -0x8(%rbx),%rsi           mov    (%rbx),%rax           
+ test   %r15,%r15                 test   %r15,%r15             
+ jne    <to the next add>         jne    <to the next mov>
+ mov    (%rsi),%rax                                            
+ mov    %rsi,%rbx                                              
+ jmp    *%rax                     jmp    *%rax                 
+<mymin+$20>   drop    1->1       <mymin+$20>   drop    1->1    
+ add    $0x8,%rbx                                              
+ mov    0x8(%r10),%r13            mov    0x8(%r10),%r13        
+ add    $0x8,%r10                 add    $0x8,%r10             
+<mymin+$28>   branch    1->1     <mymin+$28>   branch    1->1  
+<mymin+$30>   <mymin+$40>        <mymin+$30>   <mymin+$40>     
+ add    $0x10,%rbx                add    $0x8,%rbx             
+ mov    -0x8(%rbx),%rbx                                        
+ mov    (%rbx),%rax               mov    (%rbx),%rax           
+ jmp    *%rax                     jmp    *%rax                 
+<mymin+$38>   nip    1->1        <mymin+$38>   nip    1->1     
+ add    $0x8,%rbx                 add    $0x8,%r10             
+ add    $0x8,%r10                 add    $0x8,%rbx             
+<mymin+$40>   ;s    1->1         <mymin+$40>   ;s    1->1      
+ mov    (%r14),%rbx               mov    (%r14),%rbx           
+ add    $0x8,%r14                 add    $0x8,%r14             
+ mov    (%rbx),%rax               mov    (%rbx),%rax           
+ jmp    *%rax                     jmp    *%rax                 
+@end example
+
+The IP update in the @word{nip} code is due to having a control-flow
+join (@word{then}) after the @word{nip}.  The IP is dead at that
+point, but Gforth's code generator does not look ahead far enough to
+know that and leave it away.
+
+One other thing you may notice is that the static superinstruction for
+@code{< ?branch} is not used.  That's because stack caching results in
+a shorter code sequence than the static superinstruction (which with
+the current limitations would require the @code{1->1} variant of
+@word{2dup}.
+
+The IP-update optimization is controlled with
+@option{--opt-ip-updates=@i{n}}, where @i{n}=0 turns off the
+optimization completely, other values are described in more detail in
+the @xref{option-opt-ip-updates,option description}.
+
+You can read more about the IP-update optimization in: M. Anton Ertl,
+Bernd Paysan,
+@cite{@uref{https://drops.dagstuhl.de/storage/00lipics/lipics-vol313-ecoop2024/LIPIcs.ECOOP.2024.14/LIPIcs.ECOOP.2024.14.pdf,
+The Performance Effects of Virtual-Machine Instruction Pointer
+Updates}}, In 38th European Conference on Object-Oriented Programming
+(ECOOP 2024).
+   
+
+
+@node Literal-based optimizations, Differences between the engines, IP-update optimization, Optimizations
+@section Literal-based optimizations
+@cindex literal stack
+@cindex constant folding
+
+Gforth delays the code generation for literals; instead, it pushes the
+literal on a literal stack, and the implementation of @word{compile,}
+for a word (@pxref{User-defined compile-comma}) can inspect the literal
+stack and possibly generate better code.  This optimization happens at
+the threaded-code level, so one can see its effect already with
+@word{see}; in some cases @word{simple-see} is necessary to see the
+effect.
+
+Here's an example that shows some of the optimizations based on the
+literal stack:
+
+@source
+: foo 15 1 + * 2 pick 3 - ;
+
+see foo \ output below
+: foo  
+  #4 lshift third #-3 + ; ok
+  
+simple-see foo \ output below
+<foo>         lit    0->0 
+<foo+$8>      #4 
+<foo+$10>     lshift    0->0 
+<foo+$18>     third    0->0 
+<foo+$20>     lit+    0->0 
+<foo+$28>     #-3 
+<foo+$30>     ;s    0->0  ok
+@end source
+
+The optimizer for @word{+} sees and consumes two values on the literal
+stack and constant-folds them into the value 16 on the literal stack.
+The optimizer for @word{*} sees and consumes 16 on the literal stack,
+and generates @code{4 lshift} instead of the more expensive @code{#16
+*}.  The optimizer for @word{pick} sees and consumes 2 from the
+literal stack and generates @word{third}.  The optimizer for @word{-}
+sees only one value on the literal stack, and generates the
+@word{lit+} primitive with the negated value as immediate argument; in
+the @word{see} output, the @code{lit+} is decompied as a literal
+followed by @word{+}.
+
+This optimization if performed at the Forth level and is not
+controlled by engine options.
+
+@c !! Literatur
+
+
+@node Differences between the engines, Performance, Literal-based optimizations, Optimizations
+@section Differences between the engines
+@cindex optimizations in different engines
+
+@command{gforth-fast} performs all optimizations described above.
+
+@command{gforth} is the debugging engine and should report errors as
+soon as possible, and where they happen, including a full backtrace.
+Therefore:
+
+@itemize
+
+@item
+It does not use static superinstructions: the user wants to know in
+which of the primitives the error happens.
+
+@item
+It has @code{0} as canonical stack representation (otherwise some
+stack underflows would go unnoticed) and it disables
+multi-representation stack caching.
+
+@item
+It disables the IP-update optimization.  It also stores the IP to
+memory at the start of every primitive, and keeps the return-stack
+pointer in memory.  These measures make it possible to report the
+error location when the error causes a signal (e.g., SIGSEGV) that is
+then translated into a Forth exception (e.g., throw code -9 (invalid
+memory access)).
+
+@end itemize
+
+As a result, @command{gforth} generates substantially more native
+code; for our @code{squared} example:
+
+@example
+  gforth-fast                  gforth
+RP=%r14                      RP=0x58(%r13), saved_ip=0x50(%r13)  
+<squared>     dup    1->2    <squared>     dup    0->0 
+                              mov    %r15,0x50(%r13)
+                              add    $0x8,%r15
+                              mov    (%r14),%rax
+                              sub    $0x8,%r14
+ mov    %r13,%r15             mov    %rax,(%r14)
+<squared+$8>  *    2->1      <squared+$8>  *    0->0 
+                              mov    %r15,0x50(%r13)
+                              add    $0x8,%r15
+                              mov    0x8(%r14),%rax
+ imul   %r15,%r13             imul   (%r14),%rax
+                              add    $0x8,%r14
+                              mov    %rax,(%r14)
+<squared+$10> ;s    1->1     <squared+$10> ;s    0->0 
+                              mov    %r15,0x50(%r13)
+                              mov    0x58(%r13),%rax
+ mov    (%r14),%rbx           mov    (%rax),%r10
+ add    $0x8,%r14             add    $0x8,%rax
+                              mov    %rax,0x58(%r13)
+                              mov    %r10,%r15
+ mov    (%rbx),%rax           mov    (%r15),%rcx
+ jmp    *%rax                 jmp    *%rcx
+@end example
+
+@command{gforth-itc} provides pure indirect-threaded code, for running
+code that relies on its properties.  For good measure, it provides all
+the debugging benefits of the @command{gforth} engine, and inherits
+all of @command{gforth}'s debugging advantages as well as performance
+disadvantages.  Moreover, it disables all other optimizations.  It
+disables dynamic native-code generation, because each primitive is
+invoked through its code field, so there is no way to have several
+instances of the primitive with different code addresses.  And it uses
+the classic indirect-threaded code compiler @word{,} instead of the
+intelligent @word{compile,}, so literal-based optimizations do not
+work, either.  Note that the code coming from @file{gforth.fi} has not
+been compiled with @word{,}, but code that you compile after loading
+the image uses @word{,}.
+
+
+
+@node  Performance,  , Differences between the engines, Optimizations
+@section Performance
+@cindex performance of some Forth interpreters
+@cindex engine performance
+@cindex benchmarking Forth systems
+@cindex Gforth performance
+
+The performance of @command{gforth-fast} is comparable to that of
+SwiftForth 4.0, while VFX Forth is faster by very roughly a factor of
+2.  For the benchmarks where a C version is available, @command{gcc
+-O0} has a similar performance to @command{gforth-fast}.  See Figure 1
+of: M. Anton Ertl, Bernd Paysan,
+@cite{@uref{http://www.euroforth.org/ef25/papers/ertl.pdf,
+Code-Copying Compilation in Production --- An Experience Report}},
+EuroForth 2025 proceedings.
+
+Below you see the performance of various Gforth engines with various
+options on a Ryzen 8700G (Zen4); the numbers are times in seconds,
+lower is better.  First the progression of optimizations for
+@command{gforth-fast} shown in this chapter is measured, then
+@command{gforth} and @command{gforth-itc}.
+
+@command{gforth} is slower by roughly a factor of 4 on the small
+benchmarks (where the IP-update optimization is particularly
+beneficial, so @command{gforth}'s performance may be closer to
+@command{gforth-fast}'s on application benchmarks).
+@command{gforth-itc} is slower than @command{gforth} by roughly
+another factor of 2:
+
+@example
+sieve  bubble matrix fib    fft
+0.1472 0.1641 0.1197 0.1838 0.0787 gforth-fast --no-dynamic --ss-number=0
+0.0541 0.0616 0.0331 0.0504 0.0188 gforth-fast --opt-ip-updates=0 --ss-states=1 --ss-number=0
+0.0539 0.0550 0.0329 0.0423 0.0187 gforth-fast --opt-ip-updates=0 --ss-states=1
+0.0537 0.0595 0.0318 0.0426 0.0151 gforth-fast --opt-ip-updates=0
+0.0202 0.0217 0.0118 0.0273 0.0131 gforth-fast
+0.0834 0.1300 0.0507 0.1051 0.0312 gforth     
+0.1721 0.1969 0.1361 0.2845 0.0886 gforth-itc
+@end example
+
+If you wonder about the short run-time of these benchmarks, they were
+originally scaled to take around 30s on a 486DX2/66 when running
+something like @command{gforth-itc}.
+
+You can find numbers for @command{gforth-fast} on various machines in
+@uref{https://raw.githubusercontent.com/forthy42/gforth/refs/heads/master/Benchres,
+@file{Benchres}}.
 
 
 
 
 
-@node Primitives, Performance, Stack caching, Engine
+
+
+@c ******************************************************************
+@node Engine, Cross Compiler, Optimizations, Top
+@chapter Engine
+@cindex engine
+@cindex virtual machine
+
+Reading this chapter is not necessary for programming with Gforth. It
+may be helpful for finding your way in the Gforth sources.
+
+This chapter describes the @command{gforth-fast} engine in detail, and
+then describes the differences of @command{gforth} and
+@command{gforth-itc}.  It presents a threaded-code system (the state
+of Gforth in 2001), and a number of refinements that have been applied
+for better performance, plus related topics.
+
+@menu
+* Portability::
+* Primitives::
+@end menu
+
+@node Portability, Primitives, Engine, Engine
+@section Portability
+@cindex engine portability
+
+An important goal of the Gforth Project is availability across a wide
+range of personal machines. fig-Forth, and, to a lesser extent, F83,
+achieved this goal by manually coding the engine in assembly language
+for several then-popular processors. This approach is very
+labor-intensive and the results are short-lived due to progress in
+computer architecture.
+
+@cindex C, using C for the engine
+Others have avoided this problem by coding in C, e.g., Mitch Bradley
+(cforth), Mikael Patel (TILE) and Dirk Zoller (pfe). This approach is
+particularly popular for UNIX-based Forths due to the large variety of
+architectures of UNIX machines. Unfortunately an implementation in C
+does not mix well with the goals of efficiency and with using
+traditional techniques: Indirect or direct threading cannot be expressed
+in C, and switch threading, the fastest technique available in C, is
+significantly slower. Another problem with C is that it is very
+cumbersome to express double integer arithmetic.
+
+@cindex GNU C for the engine
+@cindex long long
+Fortunately, there is a portable language that does not have these
+limitations: GNU C, the version of C processed by the GNU C compiler
+(@pxref{C Extensions, , Extensions to the C Language Family, gcc, GNU
+C Manual}). Its labels as values feature (@pxref{Labels as Values, ,
+Labels as Values, gcc, GNU C Manual}) makes direct and indirect
+threading possible, its @code{long long} type (@pxref{Long Long, ,
+Double-Word Integers, gcc, GNU C Manual}) corresponds to Forth's
+double numbers on many systems.  GNU C is freely available on a wide
+range of platforms, so a Forth written in GNU C can run on all these
+machines.
+
+Writing in a portable language has the reputation of producing code
+that is slower than assembly language.  However, already at the
+beginning Gforth could compete with threaded-code Forth systems
+written in assembly language.  Over the course of its development we
+further improved the performance (using techniques outlined in the
+following), and now it is competetive in performance with native-code
+systems like SwiftForth.
+
+The ideas in this section have also been published in the following
+papers: Bernd Paysan, @cite{ANS fig/GNU/??? Forth} (in German),
+Forth-Tagung '93; M. Anton Ertl,
+@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl93.ps.Z, A
+Portable Forth Engine}}, EuroForth '93.
+
+
+
+
+
+@node Primitives,  , Portability, Engine
 @section Primitives
 @cindex primitives, implementation
 @cindex virtual machine instructions, implementation
@@ -22746,112 +23075,6 @@ with your compiler and your flag settings, type @code{make engine.s} and
 look at the resulting file @file{engine.s}.  Alternatively, you can also
 disassemble the code of primitives with @code{see} on some architectures.
 
-@node  Performance,  , Primitives, Engine
-@section Performance
-@cindex performance of some Forth interpreters
-@cindex engine performance
-@cindex benchmarking Forth systems
-@cindex Gforth performance
-
-On RISCs the Gforth engine is very close to optimal; i.e., it is usually
-impossible to write a significantly faster threaded-code engine.
-
-On register-starved machines like the 386 architecture processors
-improvements are possible, because @code{gcc} does not utilize the
-registers as well as a human, even with explicit register declarations;
-e.g., Bernd Beuster wrote a Forth system fragment in assembly language
-and hand-tuned it for the 486; this system is 1.19 times faster on the
-Sieve benchmark on a 486DX2/66 than Gforth compiled with
-@code{gcc-2.6.3} with @code{-DFORCE_REG}.  The situation has improved
-with gcc-2.95 and gforth-0.4.9; now the most important virtual machine
-registers fit in real registers (and we can even afford to use the TOS
-optimization), resulting in a speedup of 1.14 on the sieve over the
-earlier results.  And dynamic superinstructions provide another speedup
-(but only around a factor 1.2 on the 486).
-
-@cindex Win32Forth performance
-@cindex NT Forth performance
-@cindex eforth performance
-@cindex ThisForth performance
-@cindex PFE performance
-@cindex TILE performance
-The potential advantage of assembly language implementations is not
-necessarily realized in complete Forth systems: We compared Gforth-0.5.9
-(direct threaded, compiled with @code{gcc-2.95.1} and
-@code{-DFORCE_REG}) with Win32Forth 1.2093 (newer versions are
-reportedly much faster), LMI's NT Forth (Beta, May 1994) and Eforth
-(with and without peephole (aka pinhole) optimization of the threaded
-code); all these systems were written in assembly language. We also
-compared Gforth with three systems written in C: PFE-0.9.14 (compiled
-with @code{gcc-2.6.3} with the default configuration for Linux:
-@code{-O2 -fomit-frame-pointer -DUSE_REGS -DUNROLL_NEXT}), ThisForth
-Beta (compiled with @code{gcc-2.6.3 -O3 -fomit-frame-pointer}; ThisForth
-employs peephole optimization of the threaded code) and TILE (compiled
-with @code{make opt}). We benchmarked Gforth, PFE, ThisForth and TILE on
-a 486DX2/66 under Linux. Kenneth O'Heskin kindly provided the results
-for Win32Forth and NT Forth on a 486DX2/66 with similar memory
-performance under Windows NT. Marcel Hendrix ported Eforth to Linux,
-then extended it to run the benchmarks, added the peephole optimizer,
-ran the benchmarks and reported the results.
-
-We used four small benchmarks: the ubiquitous Sieve; bubble-sorting and
-matrix multiplication come from the Stanford integer benchmarks and have
-been translated into Forth by Martin Fraeman; we used the versions
-included in the TILE Forth package, but with bigger data set sizes; and
-a recursive Fibonacci number computation for benchmarking calling
-performance. The following table shows the time taken for the benchmarks
-scaled by the time taken by Gforth (in other words, it shows the speedup
-factor that Gforth achieved over the other systems).
-
-@example
-relative       Win32-    NT       eforth       This-      
-time     Gforth Forth Forth eforth  +opt   PFE Forth  TILE
-sieve      1.00  2.16  1.78   2.16  1.32  2.46  4.96 13.37
-bubble     1.00  1.93  2.07   2.18  1.29  2.21        5.70
-matmul     1.00  1.92  1.76   1.90  0.96  2.06        5.32
-fib        1.00  2.32  2.03   1.86  1.31  2.64  4.55  6.54
-@end example
-
-You may be quite surprised by the good performance of Gforth when
-compared with systems written in assembly language. One important reason
-for the disappointing performance of these other systems is probably
-that they are not written optimally for the 486 (e.g., they use the
-@code{lods} instruction). In addition, Win32Forth uses a comfortable,
-but costly method for relocating the Forth image: like @code{cforth}, it
-computes the actual addresses at run time, resulting in two address
-computations per @code{NEXT} (@pxref{Image File Background}).
-
-The speedup of Gforth over PFE, ThisForth and TILE can be easily
-explained with the self-imposed restriction of the latter systems to
-standard C, which makes efficient threading impossible (however, the
-measured implementation of PFE uses a GNU C extension: @pxref{Global Reg
-Vars, , Defining Global Register Variables, gcc, GNU C Manual}).
-Moreover, current C compilers have a hard time optimizing other aspects
-of the ThisForth and the TILE source.
-
-The performance of Gforth on 386 architecture processors varies widely
-with the version of @code{gcc} used. E.g., @code{gcc-2.5.8} failed to
-allocate any of the virtual machine registers into real machine
-registers by itself and would not work correctly with explicit register
-declarations, giving a significantly slower engine (on a 486DX2/66
-running the Sieve) than the one measured above.
-
-Note that there have been several releases of Win32Forth since the
-release presented here, so the results presented above may have little
-predictive value for the performance of Win32Forth today (results for
-the current release on an i486DX2/66 are welcome).
-
-@cindex @file{Benchres}
-In
-@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz,
-Translating Forth to Efficient C}} by M. Anton Ertl and Martin
-Maierhofer (presented at EuroForth '95), an indirect threaded version of
-Gforth is compared with Win32Forth, NT Forth, PFE, ThisForth, and
-several native code systems; that version of Gforth is slower on a 486
-than the version used here. You can find a newer version of these
-measurements at
-@uref{https://www.complang.tuwien.ac.at/forth/performance.html}. You can
-find numbers for Gforth on various machines in @file{Benchres}.
 
 @c ******************************************************************
 @c @node Binding to System Library, Cross Compiler, Engine, Top
