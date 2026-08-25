@@ -12,7 +12,13 @@ interpretive Forth systems in the manual (Section Performance), and a
 comparison with more systems in
 http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz.
 
-All times are given in seconds of user time.
+All times are given in milliseconds of CPU time for the new output
+format, in seconds of CPU time for the old output format.
+
+
+After 2026-08-24 (new output format, all architectures in one list):
+  sieve bubble matrix    fib    fft
+   20.1   21.2   11.8   27.2   12.9 20260819; Ryzen 8700G (Zen 4) 5000MHz; gcc-12.2
 
 After 2026-01-27 (new output format, all architectures in one list):
  sieve  bubble matrix fib    fft    release; CPU; gcc

@@ -22799,9 +22799,9 @@ Code-Copying Compilation in Production --- An Experience Report}},
 EuroForth 2025 proceedings.
 
 Below you see the performance of various Gforth engines with various
-options on a Ryzen 8700G (Zen4); the numbers are times in seconds,
-lower is better.  First the progression of optimizations for
-@command{gforth-fast} shown in this chapter is measured, then
+options on a Ryzen 8700G (Zen4); the numbers are times in
+milliseconds, lower is better.  First the progression of optimizations
+for @command{gforth-fast} shown in this chapter is measured, then
 @command{gforth} and @command{gforth-itc}.
 
 @command{gforth} is slower by roughly a factor of 4 on the small
@@ -22812,19 +22812,35 @@ beneficial, so @command{gforth}'s performance may be closer to
 another factor of 2:
 
 @example
-sieve  bubble matrix fib    fft
-0.1472 0.1641 0.1197 0.1838 0.0787 gforth-fast --no-dynamic --ss-number=0
-0.0541 0.0616 0.0331 0.0504 0.0188 gforth-fast --opt-ip-updates=0 --ss-states=1 --ss-number=0
-0.0539 0.0550 0.0329 0.0423 0.0187 gforth-fast --opt-ip-updates=0 --ss-states=1
-0.0537 0.0595 0.0318 0.0426 0.0151 gforth-fast --opt-ip-updates=0
-0.0202 0.0217 0.0118 0.0273 0.0131 gforth-fast
-0.0834 0.1300 0.0507 0.1051 0.0312 gforth     
-0.1721 0.1969 0.1361 0.2845 0.0886 gforth-itc
+sieve bubble matrix    fib    fft
+145.5  163.3  114.1  166.4   79.6 gforth-fast --no-dynamic --ss-number=0
+ 54.0   61.8   32.4   49.2   18.1 gforth-fast --opt-ip-updates=0 --ss-states=1 --ss-number=0
+ 53.7   55.1   32.5   41.7   18.3 gforth-fast --opt-ip-updates=0 --ss-states=1
+ 53.4   59.5   31.8   42.7   14.7 gforth-fast --opt-ip-updates=0
+ 20.1   21.4   11.7   27.1   12.8 gforth-fast
+ 82.4  128.7   49.7  106.6   32.9 gforth
+173.5  186.3  144.9  282.4   87.9 gforth-itc
 @end example
 
 If you wonder about the short run-time of these benchmarks, they were
 originally scaled to take around 30s on a 486DX2/66 when running
 something like @command{gforth-itc}.
+
+You can measure your own machine with 
+
+@example
+taskset -c 1 sh -c '
+ gforth-fast onebench.fs|grep sieve 
+ for i in \
+    "gforth-fast --no-dynamic --ss-number=0" \
+    "gforth-fast --opt-ip-updates=0 --ss-states=1 --ss-number=0" \
+    "gforth-fast --opt-ip-updates=0 --ss-states=1" \
+    "gforth-fast --opt-ip-updates=0" \
+    "gforth-fast" \
+    "gforth" \
+    "gforth-itc"
+   do echo "`$i onebench.fs|grep -v sieve`" $i; done'
+@end example
 
 You can find numbers for @command{gforth-fast} on various machines in
 @uref{https://raw.githubusercontent.com/forthy42/gforth/refs/heads/master/Benchres,
@@ -22841,6 +22857,7 @@ You can find numbers for @command{gforth-fast} on various machines in
 @chapter Engine
 @cindex engine
 @cindex virtual machine
+@anchor{Engine}
 
 Reading this chapter is not necessary for programming with Gforth. It
 may be helpful for finding your way in the Gforth sources.
