@@ -47,7 +47,7 @@
 \ super21 = lit lit !
 \ super22 = @ ?branch
 \ super23 = useraddr !
-\ super24 = dup ?branch
+\ super24 = dup ?branch \ see cb23
 \ super25 = @ ;s
 \ super26 = lit @ +
 \ super27 = dup @
@@ -94,6 +94,8 @@ cb19 = u<= ?branch
 cb20 = u> ?branch
 cb21 = u>= ?branch
 cb22 = within ?branch
+cb23 = dup ?branch
+cb24 = dup 0= ?branch
 
 \ branch-to-ip variants of compare-and-branch
 \E 1 to branch-to-ip
@@ -122,7 +124,8 @@ cb19a = u<= ?branch
 cb20a = u> ?branch
 cb21a = u>= ?branch
 cb22a = within ?branch
-
+cb23a = dup ?branch
+cb24a = dup 0= ?branch
 
 \E cr ." #undef SET_IP"
 \E cr ." #  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)" cr
