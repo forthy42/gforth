@@ -23624,8 +23624,6 @@ A complete list of changes (if any) you (or your installer) have made to the
 Gforth sources.
 @end itemize
 
-For a thorough guide on reporting bugs read @ref{Bug Reporting, , How
-to Report Bugs, gcc, GNU C Manual}.
 
 
 @node Origin, Forth-related information, Bugs, Top
@@ -23651,7 +23649,7 @@ comments from many others; thank you all, sorry for not listing you
 here (but digging through my mailbox to extract your names is on my
 to-do list).
 
-Gforth also owes a lot to the authors of the tools we used (GCC, CVS,
+Gforth also owes a lot to the authors of the tools we used (GCC, CVS, git
 and autoconf, among others), and to the creators of the Internet: Gforth
 was developed across the Internet, and its authors did not meet
 physically for the first 4 years of development.
@@ -23712,6 +23710,11 @@ There is an active news group (comp.lang.forth) discussing Forth
 (frequently asked questions and their answers) contains a lot of
 information on Forth.  You should read it before posting to
 comp.lang.forth.
+
+Usenet (including comp.lang.forth) has lost a lot of popularity since
+its heyday in the 1990s, but the result has been a scattering of
+people across a variety of places in the web, including stackoverflow
+and github, without any dominant place, and we have not kept track.
 
 The Forth standard is most usable in its
 @uref{https://forth-standard.org/, HTML form}.
