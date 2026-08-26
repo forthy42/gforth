@@ -168,7 +168,7 @@ Software Foundation raise funds for GNU development.''
 * Emacs and Gforth::            The Gforth Mode
 * Image Files::                 @code{.fi} files contain compiled code
 * Optimizations::
-* Engine::                      The inner interpreter and the primitives
+* Engine Construction::
 * Cross Compiler::              The Cross Compiler
 * MINOS2::                      The GUI library
 * Bugs::                        How to report them
@@ -689,16 +689,12 @@ Optimizations
 * Differences between the engines::
 * Performance::
 
-Engine
+Engine Construction
 
-* Portability::
+* Portability and Performance::
 * Primitives::
-
-Primitives
-
-* Automatic Generation::
-* TOS Optimization::
-* Produced code::
+* Native code of primitive variants::
+* Source code of primitive variants::
 
 Cross Compiler
 
@@ -22019,7 +22015,7 @@ doc-bootmessage
 doc-process-option
 
 @c ******************************************************************
-@node Optimizations, Engine, Image Files, Top
+@node Optimizations, Engine Construction, Image Files, Top
 @chapter Optimizations
 @cindex optimizations
 
@@ -22802,14 +22798,8 @@ Below you see the performance of various Gforth engines with various
 options on a Ryzen 8700G (Zen4); the numbers are times in
 milliseconds, lower is better.  First the progression of optimizations
 for @command{gforth-fast} shown in this chapter is measured, then
-@command{gforth} and @command{gforth-itc}.
+@command{gforth} and @command{gforth-itc}:
 
-@command{gforth} is slower by roughly a factor of 4 on the small
-benchmarks (where the IP-update optimization is particularly
-beneficial, so @command{gforth}'s performance may be closer to
-@command{gforth-fast}'s on application benchmarks).
-@command{gforth-itc} is slower than @command{gforth} by roughly
-another factor of 2:
 
 @example
 sieve bubble matrix    fib    fft
@@ -22822,9 +22812,12 @@ sieve bubble matrix    fib    fft
 173.5  186.3  144.9  282.4   87.9 gforth-itc
 @end example
 
-If you wonder about the short run-time of these benchmarks, they were
-originally scaled to take around 30s on a 486DX2/66 when running
-something like @command{gforth-itc}.
+@command{gforth} is slower by roughly a factor of 4 on the small
+benchmarks (where the IP-update optimization is particularly
+beneficial, so @command{gforth}'s performance may be closer to
+@command{gforth-fast}'s on application benchmarks).
+@command{gforth-itc} is slower than @command{gforth} by roughly
+another factor of 2.
 
 You can measure your own machine with 
 
@@ -22842,7 +22835,15 @@ taskset -c 1 sh -c '
    do echo "`$i onebench.fs|grep -v sieve`" $i; done'
 @end example
 
-You can find numbers for @command{gforth-fast} on various machines in
+The @command{taskset -c 1} limits the rest of the command to run on
+CPU (core) 1, so that you measure that core design (recent CPUs tend
+to have several different core designs) and to make sure that the core
+is revved up.  Use different numbers to measure different cores.
+Leave the @command{taskset -c 1} away if your OS does not support that
+command.
+
+You can find numbers for @command{gforth-fast onebench.fs} on various
+machines in
 @uref{https://raw.githubusercontent.com/forthy42/gforth/refs/heads/master/Benchres,
 @file{Benchres}}.
 
@@ -22853,244 +22854,441 @@ You can find numbers for @command{gforth-fast} on various machines in
 
 
 @c ******************************************************************
-@node Engine, Cross Compiler, Optimizations, Top
-@chapter Engine
+@node Engine Construction, Cross Compiler, Optimizations, Top
+@chapter Engine Construction
 @cindex engine
 @cindex virtual machine
 @anchor{Engine}
 
-Reading this chapter is not necessary for programming with Gforth. It
-may be helpful for finding your way in the Gforth sources.
+This chapter discusses several aspects of how Gforth's engines are
+constructed.  Reading this chapter is not necessary for programming
+with Gforth. It may be helpful for finding your way in the Gforth
+sources.
 
-This chapter describes the @command{gforth-fast} engine in detail, and
-then describes the differences of @command{gforth} and
-@command{gforth-itc}.  It presents a threaded-code system (the state
-of Gforth in 2001), and a number of refinements that have been applied
-for better performance, plus related topics.
 
 @menu
-* Portability::
+* Portability and Performance::
 * Primitives::
+* Native code of primitive variants::
+* Source code of primitive variants::
 @end menu
 
-@node Portability, Primitives, Engine, Engine
-@section Portability
+@node Portability and Performance, Primitives, Engine Construction, Engine Construction
+@section Portability @strong{and} Performance
 @cindex engine portability
+@anchor{Portability}
 
 An important goal of the Gforth Project is availability across a wide
-range of personal machines. fig-Forth, and, to a lesser extent, F83,
-achieved this goal by manually coding the engine in assembly language
-for several then-popular processors. This approach is very
-labor-intensive and the results are short-lived due to progress in
-computer architecture.
+range of personal machines, in particular different architectures and
+OSs.  This was particularly important in the 1990s with it's wide
+variety of RISC architectures (that are still supported by Gforth, but
+we currently cannot test all of them).
 
-@cindex C, using C for the engine
-Others have avoided this problem by coding in C, e.g., Mitch Bradley
-(cforth), Mikael Patel (TILE) and Dirk Zoller (pfe). This approach is
-particularly popular for UNIX-based Forths due to the large variety of
-architectures of UNIX machines. Unfortunately an implementation in C
-does not mix well with the goals of efficiency and with using
-traditional techniques: Indirect or direct threading cannot be expressed
-in C, and switch threading, the fastest technique available in C, is
-significantly slower. Another problem with C is that it is very
-cumbersome to express double integer arithmetic.
+However, even in this century new architectures have appeared, and
+Gforth's portability allows us to support them early on; it usually
+runs out of the box (but without engine optimizations) on hardware it
+does not know about; e.g., in 2017 we built it on a QEMU (virtual
+machine) implementation of RISC-V, before adding more specific support
+in 2022.
+
+The more specific support ideally consists of just checking that the
+engine optimizations work, and enabling them in the configuration
+script.  We also define @code{BFD_ARCH} and @code{BFD_MACH} for
+@word{disasm2}, the disassembler based on GNU binutils (the generic
+support uses @word{disasm-gdb} or @word{dump} instread).  On some
+architectures we have to define a @code{FLUSH_ICACHE} and tune, e.g.,
+the number of stack representations.
+
+In any case, the specific support is so easy that we take an hour or
+so to add it once we have access to hardware.  E.g., Gforth supported
+AMD64 (first hardware release 2003) in 2003, while SwiftForth and VFX
+took until the 2020s to do so.  Gforth has supported ARM A64 (first
+hardware release 2013) in 2014, while SwiftForth and VFX have not yet
+(in 2026) released an ARM A64 version.  Gforth has had specific
+support for RISC-V since 2022, while SwiftForth and VFX probably don't
+see enough interest in RISC-V yet to support it.
 
 @cindex GNU C for the engine
-@cindex long long
-Fortunately, there is a portable language that does not have these
-limitations: GNU C, the version of C processed by the GNU C compiler
-(@pxref{C Extensions, , Extensions to the C Language Family, gcc, GNU
-C Manual}). Its labels as values feature (@pxref{Labels as Values, ,
-Labels as Values, gcc, GNU C Manual}) makes direct and indirect
-threading possible, its @code{long long} type (@pxref{Long Long, ,
-Double-Word Integers, gcc, GNU C Manual}) corresponds to Forth's
-double numbers on many systems.  GNU C is freely available on a wide
-range of platforms, so a Forth written in GNU C can run on all these
-machines.
+Our tool for achieving this portability has been to use GNU C as a
+substrate, in particular the labels-as-values feature (@pxref{Labels
+as Values, , Labels as Values, gcc, GNU C Manual})) present since
+gcc-2.0 (released February 1992; we started to work on Gforth in July
+1992).  This extension is supported by gcc (recommended), clang (with
+slow compiles in clang) and others.
+
+The labels-as-values feature has allowed us to implement threaded
+code, as well as native-code copying optimizations such as dynamic
+superinstructions (@pxref{Dynamic Superinstructions}) and the
+optimizations based on them.  The use of gcc has been a bumpy ride at
+times (especially in the 2000s), but we managed to work around some of
+the bumps and the rest were eventually fixed in gcc.  Concerning
+portability, gcc is available for a wide range of architectures and
+platforms.
 
 Writing in a portable language has the reputation of producing code
 that is slower than assembly language.  However, already at the
-beginning Gforth could compete with threaded-code Forth systems
-written in assembly language.  Over the course of its development we
-further improved the performance (using techniques outlined in the
-following), and now it is competetive in performance with native-code
-systems like SwiftForth.
+beginning Gforth ran faster than threaded-code Forth systems written
+in assembly language like Win32Forth.  Over the course of its
+development we further improved the performance
+(@pxref{Optimizations}), and now it is competetive in performance with
+native-code systems like SwiftForth.
 
-The ideas in this section have also been published in the following
-papers: Bernd Paysan, @cite{ANS fig/GNU/??? Forth} (in German),
-Forth-Tagung '93; M. Anton Ertl,
-@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl93.ps.Z, A
-Portable Forth Engine}}, EuroForth '93.
-
-
+For portability across OSs we used POSIX interfaces, and this works
+nicely for many OSs, including Linux, MacOS and Android.  For Windows
+it also works, thanks to Cygwin, but building a Windows package is so
+much work that the we currently recommend using a Linux package of
+Gforth on WSL.  There is no iOS port, however.
 
 
-
-@node Primitives,  , Portability, Engine
+@node Primitives, Native code of primitive variants, Portability and Performance, Engine Construction
 @section Primitives
-@cindex primitives, implementation
-@cindex virtual machine instructions, implementation
+@cindex primitives
+@cindex virtual machine instructions
 
-@menu
-* Automatic Generation::
-* TOS Optimization::
-* Produced code::
-@end menu
+If you @code{locate +}, you see the following source code from the file @file{prim}:
 
-@node Automatic Generation, TOS Optimization, Primitives, Primitives
-@subsection Automatic Generation
-@cindex primitives, automatic generation
-
-@cindex @file{prims2x.fs}
-
-Since the primitives are implemented in a portable language, there is no
-longer any need to minimize the number of primitives. On the contrary,
-having many primitives has an advantage: speed. In order to reduce the
-number of errors in primitives and to make programming them easier, we
-provide a tool, the primitive generator (@file{prims2x.fs} aka Vmgen,
-@pxref{Top, Vmgen, Introduction, vmgen, Vmgen}), that automatically
-generates most (and sometimes all) of the C code for a primitive from
-the stack effect notation.  The source for a primitive has the following
-form:
-
-@cindex primitive source format
-@format
-@i{Forth-name}  ( @i{stack-effect} )        @i{category}    [@i{pronounc.}]
-[@code{""}@i{glossary entry}@code{""}]
-@i{C code}
-[@code{:}
-@i{Forth code}]
-@end format
-
-The items in brackets are optional. The category and glossary fields
-are there for generating the documentation, the Forth code is there
-for manual implementations on machines without GNU C. E.g., the source
-for the primitive @code{+} is:
 @example
-+    ( n1 n2 -- n )   core    plus
++       ( n1 n2 -- n )          core    plus
 n = n1+n2;
 @end example
 
-This looks like a specification, but in fact @code{n = n1+n2} is C
-code. Our primitive generation tool extracts a lot of information from
-the stack effect notations@footnote{We use a one-stack notation, even
-though we have separate data and floating-point stacks; The separate
-notation can be generated easily from the unified notation.}: The number
-of items popped from and pushed on the stack, their type, and by what
-name they are referred to in the C code. It then generates a C code
-prelude and postlude for each primitive. The final C code for @code{+}
-looks like this:
+This code is written in a variant of the @command{vmgen} language.
+The first line provides the primitive Forth name, stack effect
+(including stack item names), wordset name, and pronounciation (which
+also serves as the C name of the primitive), while the remaining lines
+are C code that refer to the stack items by name.
+
+Our @command{vmgen} variant extracts a lot of information from the
+stack effect notations: The number of items popped from and pushed on
+the stack, their type, and by what name they are referred to in the C
+code. It generates a C code from this, incorporating the C code given
+explicitly.  For more details @xref{Top, Vmgen, , vmgen, Vmgen}.
+
+When you @code{see +}, you see the variant of the primitive that's
+used in threaded code: starting in the canonical state and ending in
+the canonical state, with NEXT (including IP update):
 
 @example
-I_plus: /* + ( n1 n2 -- n ) */  /* label, stack effect */
-/*  */                          /* documentation */
-NAME("+")                       /* debugging output (with -DDEBUG) */
-@{
-DEF_CA                          /* definition of variable ca (indirect threading) */
-Cell n1;                        /* definitions of variables */
-Cell n2;
-Cell n;
-NEXT_P0;                        /* NEXT part 0 */
-n1 = (Cell) sp[1];              /* input */
-n2 = (Cell) TOS;
-sp += 1;                        /* stack adjustment */
-@{
-n = n1+n2;                      /* C code taken from the source */
-@}
-NEXT_P1;                        /* NEXT part 1 */
-TOS = (Cell)n;                  /* output */
-NEXT_P2;                        /* NEXT part 2 */
-@}
+see + 
+Code +  
+   $55DE56E88427: add    $0x8,%rbx
+   $55DE56E8842B: add    $0x8,%r10
+   $55DE56E8842F: add    (%r10),%r13
+   $55DE56E88432: mov    (%rbx),%rax
+   $55DE56E88435: jmp    *%rax
+end-code
 @end example
 
-This looks long and inefficient, but the GNU C compiler optimizes quite
-well and produces optimal code for @code{+} on, e.g., the R3000 and the
-HP RISC machines: Defining the @code{n}s does not produce any code, and
-using them as intermediate storage also adds no cost.
+You can see the source and disassembled code of other primitives in
+the same way.
 
-There are also other optimizations that are not illustrated by this
-example: assignments between simple variables are usually for free (copy
-propagation). If one of the stack items is not used by the primitive
-(e.g.  in @code{drop}), the compiler eliminates the load from the stack
-(dead code elimination). On the other hand, there are some things that
-the compiler does not do, therefore they are performed by
-@file{prims2x.fs}: The compiler does not optimize code away that stores
-a stack item to the place where it just came from (e.g., @code{over}).
 
-While programming a primitive is usually easy, there are a few cases
-where the programmer has to take the actions of the generator into
-account, most notably @code{?dup}, but also words that do not (always)
-fall through to @code{NEXT}.
+@node Native code of primitive variants, Source code of primitive variants, Primitives, Engine Construction
+@section Native code of primitive variants
 
-For more information
+If you @word{see-code} a colon definition in @command{gforth}, for the
+primitives in the colon definition you see native code that is copied
+from the code that you @code{see} for the primitive, without or with
+the part of the NEXT at the end.
 
-@node TOS Optimization, Produced code, Automatic Generation, Primitives
-@subsection TOS Optimization
-@cindex TOS optimization for primitives
-@cindex primitives, keeping the TOS in a register
+If you @word{see-code} colon definitions in @command{gforth-fast}, you
+often see code coming from other variants of the primitive, often
+without the IP update, or with a different IP update.  This code is
+copied from other variants of the primitive in the engine.  There is
+no simple way to see these variants, but starting the engine with
+@option{--print-prims} prints out information about all primitive
+variants when ending the session.  If you are interested in a
+particular primitive, you can grep for it in the output, e.g.:
 
-An important optimization for stack machine emulators, e.g., Forth
-engines, is keeping  one or more of the top stack items in
-registers.  If a word has the stack effect @i{in1}...@i{inx} @code{--}
-@i{out1}...@i{outy}, keeping the top @i{n} items in registers
-@itemize @bullet
-@item
-is better than keeping @i{n-1} items, if @i{x>=n} and @i{y>=n},
-due to fewer loads from and stores to the stack.
-@item is slower than keeping @i{n-1} items, if @i{x<>y} and @i{x<n} and
-@i{y<n}, due to additional moves between registers.
-@end itemize
+@example
+$ gforth-fast --print-prims -e bye |& grep '^[+] '
++                 1-1  0   67    0   77 0x5555555bc427 len= 4+  7+ 3 send=0
++                 2-1  0  802    0  189 0x5555555c24f9 len= 4+  3+ 3 send=0
++                 3-2  0  803    0   77 0x5555555c2505 len= 4+  3+ 3 send=0
+@end example
 
-@cindex -DUSE_TOS
-@cindex -DUSE_NO_TOS
-In particular, keeping one item in a register is never a disadvantage,
-if there are enough registers. Keeping two items in registers is a
-disadvantage for frequent words like @code{?branch}, constants,
-variables, literals and @code{i}. Therefore our generator only produces
-code that keeps zero or one items in registers. The generated C code
-covers both cases; the selection between these alternatives is made at
-C-compile time using the switch @code{-DUSE_TOS}. @code{TOS} in the C
-code for @code{+} is just a simple variable name in the one-item case,
-otherwise it is a macro that expands into @code{sp[0]}. Note that the
-GNU C compiler tries to keep simple variables like @code{TOS} in
-registers, and it usually succeeds, if there are enough registers.
+The first column contains the name of the primitive, the second the
+stack-state transition. Then comes the IP offset (discussed below),
+next the primitive index (just a number), then (if non-zero) the index
+of the branch-to-IP variant discussed below, then the number of
+instances of this primitive variant in the generated native code, then
+the code address of the native code followed by its length, and
+finally an indication of whether the primitive ends a dynamic
+superinstruction.
 
-@cindex -DUSE_FTOS
-@cindex -DUSE_NO_FTOS
-The primitive generator performs the TOS optimization for the
-floating-point stack, too (@code{-DUSE_FTOS}). For floating-point
-operations the benefit of this optimization is even larger:
-floating-point operations take quite long on most processors, but can be
-performed in parallel with other operations as long as their results are
-not used. If the FP-TOS is kept in a register, this works. If
-it is kept on the stack, i.e., in memory, the store into memory has to
-wait for the result of the floating-point operation, lengthening the
-execution time of the primitive considerably.
+The length is split into three parts: first the IP update, then the
+payload, and finally the load of the code address; the actual jump is
+not included (that's a workaround bad code generation in some gcc
+versions).
 
-The TOS optimization makes the automatic generation of primitives a
-bit more complicated. Just replacing all occurrences of @code{sp[0]} by
-@code{TOS} is not sufficient. There are some special cases to
-consider:
-@itemize @bullet
-@item In the case of @code{dup ( w -- w w )} the generator must not
-eliminate the store to the original location of the item on the stack,
-if the TOS optimization is turned on.
-@item Primitives with stack effects of the form @code{--}
-@i{out1}...@i{outy} must store the TOS to the stack at the start.
-Likewise, primitives with the stack effect @i{in1}...@i{inx} @code{--}
-must load the TOS from the stack at the end. But for the null stack
-effect @code{--} no stores or loads should be generated.
-@end itemize
+In the above you see that there are three variants of @code{+} with
+different stack-state transitions (@pxref{Stack caching}), that the
+@code{2-1} variant is generated more often than the other two
+combined, and that the @code{1-1} variant has longer native code than
+the others.
 
-@node Produced code,  , TOS Optimization, Primitives
-@subsection Produced code
-@cindex primitives, assembly code listing
+If you want to use the address and the length to disassemble the
+primitive variant, you usually need to invoke Gforth on Linux with
+@command{setarch -R gforth-fast} to disable ASLR (or equivalent
+commands on other OSs), on both the @option{--print-prims} run and the
+following disassembling session.
 
-@cindex @file{engine.s}
-To see what assembly code is produced for the primitives on your machine
-with your compiler and your flag settings, type @code{make engine.s} and
-look at the resulting file @file{engine.s}.  Alternatively, you can also
-disassemble the code of primitives with @code{see} on some architectures.
+E.g., you can disassemble the payload of @code{+ 3-2} (index 803)
+with:
+
+@example
+0x5555555c2505 4 + 3 discode 
+   $5555555C2509: add    %r9,%r15
+@end example
+
+Here the 4 is the length of the code before the payload, the 3 is the
+length of the payload.
+
+Concerning the IP offset, consider the following:
+
+@example
+$ gforth-fast --print-prims -e bye |& grep '^lit '
+lit               1-1  0   66    0    0 0x5555555bc413 len= 4+ 11+ 3 send=0
+lit               0-1  0  659    0  351 0x5555555c1a4b len= 4+  4+ 3 send=0
+lit               0-1  1  660    0    1 0x5555555c1a58 len= 4+  3+ 3 send=0
+lit               0-1  2  661    0 1841 0x5555555c1a64 len= 4+  4+ 3 send=0
+lit               0-1  3  662    0  340 0x5555555c1a71 len= 4+  4+ 3 send=0
+...
+lit               1-2  0  683    0  165 0x5555555c1b97 len= 4+  4+ 3 send=0
+lit               1-2  1  684    0    6 0x5555555c1ba4 len= 4+  3+ 3 send=0
+lit               1-2  2  685    0 1708 0x5555555c1bb0 len= 4+  4+ 3 send=0
+lit               1-2  3  686    0  211 0x5555555c1bbd len= 4+  4+ 3 send=0
+...
+lit               2-3  0  707    0   36 0x5555555c1ce3 len= 4+  4+ 3 send=0
+lit               2-3  1  708    0    0 0x5555555c1cf0 len= 4+  3+ 3 send=0
+lit               2-3  2  709    0   53 0x5555555c1cfc len= 4+  4+ 3 send=0
+lit               2-3  3  710    0  191 0x5555555c1d09 len= 4+  4+ 3 send=0
+...
+@end example
+
+Here you see variants of @word{lit} with different stack-state
+transitions and different IP offsets (with the offset given as number
+of cells).  The IP offset avoids the need to update the IP before the
+code for the primitive (@pxref{IP-update optimization}); instead, the
+immediate argument is accessed using the offset.  E.g, here we see the
+payload of the @code{0-1} variant with offsets of 0 and 3 cells
+(indexes 659 and 662):
+
+@example
+0x5555555c1a4b 4 + 4 discode 
+   $5555555C1A4F: mov    -0x8(%rbx),%r13
+ ok
+0x5555555c1a71 4 + 4 discode 
+   $5555555C1A75: mov    0x10(%rbx),%r13
+@end example
+   
+For the branch-to-IP variants, let's look at @word{?branch}:
+
+@example
+gforth-fast --print-prims -e bye |& grep '^?branch '
+?branch           1-1  0   21 1505   78 0x5555555bbc70 len= 4+ 24+ 3 send=0
+?branch           2-1  0  757 1506    0 0x5555555c20f4 len= 4+ 17+ 3 send=0
+?branch           2-1  1  758    0    0 0x5555555c210e len= 4+ 16+ 3 send=0
+...
+?branch           2-1 23  780    0    2 0x5555555c235b len= 4+ 20+ 3 send=0
+?branch           1-1  0 1505    0  325 0x5555555c50b0 len= 0+ 17+ 3 send=0
+?branch           2-1  0 1506    0  677 0x5555555c50c8 len= 0+ 10+ 3 send=0
+@end example
+
+Here we see that the @code{2-1} variant of @code{?branch} (index 757)
+has the branch-to-IP variant 1506.  The code for the payload of these
+two variants is:
+
+@example
+0x5555555c20f4 4 + 17 discode 
+   $5555555C20F8: mov    -0x8(%rbx),%rsi
+   $5555555C20FC: test   %r15,%r15
+   $5555555C20FF: jne    0x5555555c2109
+   $5555555C2101: mov    (%rsi),%rax
+   $5555555C2104: mov    %rsi,%rbx
+   $5555555C2107: jmp    *%rax
+ ok
+0x5555555c50c8 0 + 10 discode 
+   $5555555C50C8: mov    (%rbx),%rax
+   $5555555C50CB: test   %r15,%r15
+   $5555555C50CE: jne    0x5555555c50d2
+   $5555555C50D0: jmp    *%rax
+@end example
+
+The second variant is used for optimizing short branches in the
+IP-update optimization by setting the IP to the branch target before
+the branch (@pxref{IP-update optimization}).
+
+The primitive @word{noop} has variants for several purposes:
+
+@example
+gforth-fast --print-prims -e bye |& grep '^noop '
+noop              1-1  0   10    0    3 0x5555555bbb92 len= 4+  0+ 3 send=0
+noop              1-1 -24 1445    0    0 0x5555555c4dee len= 7+  0+ 3 send=0
+noop              1-1 -23 1446    0    0 0x5555555c4dfa len= 7+  0+ 3 send=0
+...
+noop              1-1 22 1491    0    0 0x5555555c4fb1 len= 7+  0+ 3 send=0
+noop              1-1 23 1492    0    0 0x5555555c4fbd len= 7+  0+ 3 send=0
+noop              1-0  0 1493    0 2957 0x5555555c4fcb len= 0+  7+ 3 send=0
+noop              2-0  0 1494    0  982 0x5555555c4fd9 len= 0+ 12+ 3 send=0
+noop              3-0  0 1495    0  137 0x5555555c4fec len= 0+ 16+ 3 send=0
+noop              0-1  0 1496    0  158 0x5555555c5003 len= 0+  8+ 3 send=0
+noop              2-1  0 1497    0   89 0x5555555c5012 len= 0+ 10+ 3 send=0
+noop              3-1  0 1498    0   35 0x5555555c5023 len= 0+ 14+ 3 send=0
+noop              0-2  0 1499    0   40 0x5555555c5038 len= 0+ 12+ 3 send=0
+noop              1-2  0 1500    0  150 0x5555555c504b len= 0+ 10+ 3 send=0
+noop              3-2  0 1501    0    0 0x5555555c505c len= 0+ 13+ 3 send=0
+noop              0-3  0 1502    0   15 0x5555555c5070 len= 0+ 15+ 3 send=0
+noop              1-3  0 1503    0   48 0x5555555c5086 len= 0+ 15+ 3 send=0
+noop              2-3  0 1504    0    5 0x5555555c509c len= 0+ 13+ 3 send=0
+@end example
+
+The variants 1445...1492 contain the IP updates that are inserted in
+various places when necessary, e.g., for 1445:
+
+@example
+0x5555555c4dee 7 discode 
+   $5555555C4DEE: sub    $0xc0,%rbx
+@end example
+
+These uses are not counted, so these variants are shown as having count 0.
+
+The variants 1492...1504 contain stack-state transitions from every
+state to every other state that do nothing else; they are inserted
+between primitive variants in order to get to a stack state when there
+is no primitive variant for that (@pxref{Stack caching}).
+
+The shortest-path algorithm has the option of inserting any
+stack-state transition between two primitive variants, and selects the
+stack states in a way that results in a shortest code.  You can see
+this in the counts for @code{lit} with IP offset 0: the @code{1-1}
+variant (payload length 11) is never selected, because the
+shortest-path algorithm apparently prefers to select a @code{1-0}
+transition (payload length 7) followed by a @code{lit 0-1} (payload
+length 4) with the same total length.
+
+We also see static superinstructions in the output of
+@option{--print-prims}:
+
+@example
+$ gforth-fast --print-prims -e bye |& grep "^< [?]branch"
+< ?branch         1-1  0  611  633    1 0x5555555c142a len= 4+ 28+ 3 send=0
+< ?branch         1-1  0  633    0    1 0x5555555c1762 len= 4+ 21+ 3 send=0
+@end example
+
+The first variant is the regular one that branches to the address
+given in the immediate argument, the second is the branch-to-IP
+variant.  We can see that both are only selected once for the code in
+the Gforth image.
+
+
+@node Source code of primitive variants,  , Native code of primitive variants, Engine Construction
+@section Source code of primitive variants
+
+You can find the code that is responsible for generating all the
+additional variants of the primitives in @file{peeprules.vmg}.  If you
+build Gforth yourself, you can experiment with changing that.  If you
+break something, it only breaks the @command{gforth-fast} engine.
+
+First, you find the static superinstructions there, such as
+
+@example
+cb7 = < ?branch
+@end example
+
+for having a static superinstruction for @code{< ?branch}.  You will
+find many commented-out lines in this block; most of them are
+commented out because they no longer provide a benefit with stack
+caching and the IP-update optimization implemented.  A few are
+commented out because the resulting code does not work.
+
+For these compare-and-branch superinstructions there are branch-to-IP
+variants such as @code{cb7a} which are surrounded with code that
+generates branch-to-ip variants of the same code.
+
+Next, you see variants related to stack caching and IP-uodate
+optimization.  The simplest variant is something like
+
+@example
+\E S2 S1 state-prim swap
+@end example
+
+which results in generating the @code{2-1} variant for @word{swap}.
+If the engine does not have stack state @code{2}, no code is
+generated.  Code like
+
+@example
+\E prim-states +
+@end example
+
+generates all variants that do not change the stack pointer and that
+consume and produce all stack items in registers.  For @word{+} that
+means the variants @code{2-1} and @code{3-2} (if the highest stack
+state is @code{3}).  Using @code{prim-states} produces good results
+for most primitives, but for stack manipulation words such as
+@code{swap} additional variants are useful and we specify them
+explicitly with @code{state-prim}.
+
+@example
+\E branch-states execute
+@end example
+
+generates variants that take their inputs from a register and that end in
+state @code{1}; for @word{execute} it generates @code{2-1} and
+@code{3-1}.
+
+Similarly, for the variants with IP offsets we have:
+
+@example
+\E S1 S1 state-offset-prim call
+@end example
+
+This generates variants for @code{call 1-1} for a range of IP
+offsets (0--23 is the current setting in the generator).
+
+@example
+\E prim-states-offsets lit
+@end example
+
+generates variants for stack-state transitions @code{0-1}, @code{1-2}
+and @code{2-3} (all with all stack items in registers and without
+stack-pointer update) for a range of IP offsets, resulting in 3*24=72
+variants in this case.
+
+You see comments with numbers in many of these lines; they just
+indicate the dynamic usage frequency of the primitive in some
+benchmark programs.
+
+Towards the end you see
+
+@example
+\E gen-ip-updates noop
+@end example
+
+which generates the IP-update variants of @word{noop}, and
+
+@example
+\E gen-transitions noop
+@end example
+
+which generates the stack-state transition variants of @word{noop}.
+
+Finally, there is some not very polished code for generating the
+branch-to-IP variants of conditional branch primitives.
+
+You can build Gforth with a non-default number of maximum stack items
+in registers by configuring it with, e.g.,:
+
+@example
+./configure STACK_CACHE_REGS=4
+@end example
+
+Note that more registers result in slower compilation in Gforth, but
+can produce speedups (with diminishing returns); the current limits
+are a good compromise.  Also, the architecture may not have enough
+registers, and asking for more will result in slowdowns due to putting
+``registers'' in memory.
+
 
 
 @c ******************************************************************
@@ -23098,7 +23296,7 @@ disassemble the code of primitives with @code{see} on some architectures.
 @c @chapter Binding to System Library
 
 @c ****************************************************************
-@node Cross Compiler, MINOS2, Engine, Top
+@node Cross Compiler, MINOS2, Engine Construction, Top
 @chapter Cross Compiler
 @cindex @file{cross.fs}
 @cindex cross-compiler

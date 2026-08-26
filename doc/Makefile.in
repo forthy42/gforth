@@ -43,6 +43,8 @@ GFORTH_TEXI =  gforth.texi version.texi fdl.texi gpl.texi
 
 VMGEN_TEXI = vmgen.texi version.texi fdl.texi
 
+GFORTH_HTML = gforth_html
+
 clean:
 	-rm -rf *.aux *.cp *.cps *.dvi *.fn *.fns *.info* *.ky *.kys *.log \
 	          *.pdf *.ps gforth.texi *.toc *.txt numuses version.texi \
@@ -82,12 +84,12 @@ vmgen.info:	$(VMGEN_TEXI)
 		$(MAKEINFO) $<
 
 gforth:		$(GFORTH_TEXI)
-		$(MAKEINFO) @MAKEINFOREF@ -o gforth --html $<
-		$(CP) $(srcdir)/$(GFORTH_CSS) gforth/
-		$(CP) $(srcdir)/$(GFORTH_JS) gforth/
+		$(MAKEINFO) @MAKEINFOREF@ --html $<
+		$(CP) $(srcdir)/$(GFORTH_CSS) $(GFORTH_HTML)/
+		$(CP) $(srcdir)/$(GFORTH_JS) $(GFORTH_HTML)/
 
 vmgen:		$(VMGEN_TEXI)
-		$(MAKEINFO) -o vmgen --html $<
+		$(MAKEINFO) --html $<
 
 gforth.txt:	$(GFORTH_TEXI)
 		echo "Table of Contents" >gforth.txt

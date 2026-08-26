@@ -1001,9 +1001,9 @@ install-info:	doc
 install-html:	html
 		@echo INSTALL-HTML
 		$(MKDIR_P) $(htmldir)/html
-		$(CP) doc/gforth/* $(htmldir)/html
+		$(CP) doc/gforth_html/* $(htmldir)/html
 		$(MKDIR_P) $(htmldir)/../vmgen/html
-		$(CP) doc/vmgen/* $(htmldir)/../vmgen/html
+		$(CP) doc/vmgen_html/* $(htmldir)/../vmgen/html
 
 install-pdf:	pdf
 		@echo INSTALL-PDF
