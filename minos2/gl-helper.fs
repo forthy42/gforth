@@ -383,7 +383,7 @@ void main()
 	else
 	    v_TexCoordinate = a_TexCoordinate * u_TexScale1;
     else
-	if(a_Extras.x >= -1.0)
+	if(tidx >= -1.0)
 	    v_TexCoordinate = a_TexCoordinate * u_TexScale2;
 	else
 	    v_TexCoordinate = a_TexCoordinate * u_TexScale3;
