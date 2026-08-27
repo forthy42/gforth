@@ -1,3 +1,13 @@
+Non-news: No changes between 0.7.0 and 1.0:
+
+While there has been advances in the techniques used in Gforth, we
+have not documented or in any other way made them approachable for
+Vmgen users.  This is also due to the question how many there are, and
+what features you would be interested in.
+
+The examples have seen small changes to adapt them to current
+toolchains.
+
 User-visible changes between 0.6.2 and 0.7.0:
 
 Bugfixes (in particular a Gforth bug when dealing with "../" is fixed).
