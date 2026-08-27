@@ -730,10 +730,11 @@ public class Gforth
     public void doStart() {
 	if(!started) {
 	    String filedirs[] = {
+		getFilesDir().toString(),
 		Environment.getExternalStorageDirectory().toString(),
 		getExternalFilesDir(null).toString(),
-		getExternalCacheDir().toString(),
-		getFilesDir().toString() };
+		getExternalCacheDir().toString()
+	    };
 	    for(int i=0; i<filedirs.length; i++) {
 		Log.v(TAG, "filedirs["+i+"]="+filedirs[i]);
 	    }
@@ -948,7 +949,7 @@ public class Gforth
 	Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
     public static String[] REQUEST_STRING_NEW = {
-	Manifest.permission.READ_MEDIA_AUDIO
+	// Manifest.permission.READ_MEDIA_AUDIO
     };
     public boolean verifyStoragePermissions(Activity activity) {
 	// Check if we have write permission
