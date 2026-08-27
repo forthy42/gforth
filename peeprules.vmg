@@ -96,6 +96,10 @@ cb21 = u>= ?branch
 cb22 = within ?branch
 cb23 = dup ?branch
 cb24 = dup 0= ?branch
+cb25 = over ?branch
+cb26 = over 0= ?branch
+\ using lit in these sequences does not work,
+\ despite the generated code looking ok
 
 \ branch-to-ip variants of compare-and-branch
 \E 1 to branch-to-ip
@@ -126,6 +130,8 @@ cb21a = u>= ?branch
 cb22a = within ?branch
 cb23a = dup ?branch
 cb24a = dup 0= ?branch
+cb25a = over ?branch
+cb26a = over 0= ?branch
 
 \E cr ." #undef SET_IP"
 \E cr ." #  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)" cr
