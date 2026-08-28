@@ -2,7 +2,8 @@
 which sudo || alias sudo=eval
 install_debian() {
   sudo apt-get -y update
-  sudo apt-get -y -m install libffi-dev libltdl7 libsoil-dev binutils-dev libtool make gcc automake m4 texinfo texi2html texlive-base install-info dpkg-dev debhelper yodl bison libboost-dev g++ libpcre3-dev git # yodl, bison, ... git: are for swig
+  sudo apt-get -y -m install libffi-dev libltdl7 libsoil-dev binutils-dev libtool make gcc automake m4 texinfo texi2html texlive-base install-info dpkg-dev debhelper yodl bison libboost-dev g++ git # yodl, bison, ... git: are for swig
+  sudo apt-get -y -m install libpcre3-dev
   if ! which pcre-config >/dev/null 2>&1
   then
       git clone https://github.com/nektro/pcre-8.45.git

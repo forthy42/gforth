@@ -350,6 +350,8 @@ fi
 
 test "x$SH" = "x" && SH="/bin/sh"
 
+test -z "$ENGINECC" && ENGINECC="$CC"
+
 AC_MSG_CHECKING([whether to use two dispatches per conditional branch])
 test x$condbranch_opt = x && 
 if ($CC -v 2>&1 |grep 'gcc version 3' >/dev/null); then
@@ -363,6 +365,7 @@ AC_SUBST(host_cpu)
 
 AC_SUBST(SH)
 AC_SUBST(CC)
+AC_SUBST(ENGINECC)
 AC_SUBST(GCC_LD)
 AC_SUBST(DEBUGFLAG)
 AC_SUBST(EC)
