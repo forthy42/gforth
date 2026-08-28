@@ -276,7 +276,7 @@ libgforth$(EXE):	libgforth.la liblibmain.lo
 
 engine.i:	$(ENGINE_FAST_DEPS)
 		@echo CPP-ENGINE -o $@ -E $<
-		$(COMPILER) -DFORCE_LL -DFORCE_REG -DGFORTH_DEBUGGING -DASMNAME $(ENGINE_FLAGS) -E $< -o $@
+		$(COMPILER) -DFORCE_LL -DFORCE_REG -DGFORTH_DEBUGGING -DASMNAME -E $< -o $@
 
 engine.s:	engine.i $(ENGINE_FAST_DEPS)
 		@echo CC-ENGINE -o $@ -S $<
@@ -305,28 +305,28 @@ engine2$(OPT).o:	$(GENENGINE)$(OPT).S
 		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE2) -o $@ -c $<
 
 libengine$(OPT).i:	$(ENGINE_DEPS)
-		@echo CPP-LIBENGINE2 -o $@ -S $<
-		$(COMPILE.c) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING $(PIC) -o $@ -E $<
+		@echo CPP-LIBENGINE2 -o $@ -E $<
+		$(COMPILE.c) -DGFORTH_DEBUGGING $(PIC) -o $@ -E $<
 
 libengine2$(OPT).i:	$(ENGINE_DEPS)
-		@echo CPP-LIBENGINE2 -o $@ -S $<
-		$(COMPILE.c) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -DENGINE=2 $(PIC) -o $@ -E $<
+		@echo CPP-LIBENGINE2 -o $@ -E $<
+		$(COMPILE.c) -DGFORTH_DEBUGGING -DENGINE=2 $(PIC) -o $@ -E $<
 
-libengine2$(OPT).S:	libengine2$(OPT).i $(ENGINE_DEPS)
+libengine2$(OPT).S:	libengine2$(OPT).i
 		@echo CPP-LIBENGINE2 -o $@ -S $<
 		$(COMPILE.e) -DGFORTH_DEBUGGING -DENGINE=2 $(PIC) -o $@ -S $<
 
 libengine$(OPT).lo:	$(GENLIBENGINE)$(OPT).S
 		@echo AS-LIBENGINE -o $@ -c $<
-		$(LIBTOOL.e) $(ENGINE_FLAGS) $(ENGINE1) -o $@ -c $<
+		$(COMPILER) $(ENGINE1) -o $@ -c $<
 
 libengine2$(OPT).lo:	$(GENLIBENGINE)$(OPT).S
 		@echo AS-LIBENGINE2 -o $@ -c $<
-		$(LIBTOOL.e) $(ENGINE_FLAGS) $(ENGINE2) -o $@ -c $<
+		$(COMPILER) $(ENGINE2) -o $@ -c $<
 
 engine-fast2$(OPT).i:	$(ENGINE_DEPS)
-		@echo CPP-ENGINE-FAST2 -o $@ -S $<
-		$(COMPILE.c) $(ENGINE_FLAGS) -DENGINE=2 -o $@ -E $<
+		@echo CPP-ENGINE-FAST2 -o $@ -E $<
+		$(COMPILE.c) -DENGINE=2 -o $@ -E $<
 
 engine-fast2$(OPT).S:	engine-fast2$(OPT).i $(ENGINE_DEPS)
 		@echo CC-ENGINE-FAST2 -o $@ -S $<
@@ -334,15 +334,15 @@ engine-fast2$(OPT).S:	engine-fast2$(OPT).i $(ENGINE_DEPS)
 
 engine-fast$(OPT).o:	$(GENENGINEFAST)$(OPT).S
 		@echo AS-ENGINE-FAST -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE1) -o $@ -c $<
+		$(COMPILER) $(ENGINE1) -o $@ -c $<
 
 engine-fast2$(OPT).o:	$(GENENGINEFAST)$(OPT).S
 		@echo AS-ENGINE-FAST2 -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE2) -o $@ -c $<
+		$(COMPILER) $(ENGINE2) -o $@ -c $<
 
 libengine-fast2$(OPT).i:	$(ENGINE_DEPS)
-		@echo CPP-LIBENGINE-FAST -o $@ -S $<
-		$(COMPILE.c) $(ENGINE_FLAGS) -DENGINE=2 $(PIC) -o $@ -E $<
+		@echo CPP-LIBENGINE-FAST -o $@ -E $<
+		$(COMPILE.c) -DENGINE=2 $(PIC) -o $@ -E $<
 
 libengine-fast2$(OPT).S:	libengine-fast2$(OPT).i $(ENGINE_DEPS)
 		@echo CC-LIBENGINE-FAST -o $@ -S $<
@@ -350,35 +350,51 @@ libengine-fast2$(OPT).S:	libengine-fast2$(OPT).i $(ENGINE_DEPS)
 
 libengine-fast$(OPT).lo:	$(GENLIBENGINEFAST)$(OPT).S
 		@echo AS-ENGINE-FAST -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE1) -o $@ $<
+		$(COMPILER) $(ENGINE1) -o $@ $<
 
 libengine-fast2$(OPT).lo:	$(GENLIBENGINEFAST)$(OPT).S
 		@echo AS-ENGINE-FAST2 -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE2) -o $@ $<
+		$(COMPILER) $(ENGINE2) -o $@ $<
 
 engine-itc$(OPT).i:	$(ENGINE_DEPS)
-		@echo CPP-ENGINE-ITC -o $@ $<
+		@echo CPP-ENGINE-ITC -o $@ -E $<
 		$(COMPILER) $(ENGINE_FLAGS) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ -E $(srcdir)/engine.c
 
-engine-itc$(OPT).o:	engine-itc$(OPT).i $(ENGINE_DEPS)
+engine-itc$(OPT).S:	engine-itc$(OPT).i $(ENGINE_DEPS)
 		@echo CC-ENGINE-ITC -o $@ $<
-		$(COMPILE.e) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ -c $<
+		$(COMPILE.e) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ -S $<
 
-libengine-itc$(OPT).lo:	engine-itc$(OPT).i $(ENGINE_DEPS)
-		@echo CC-ENGINE-ITC -o $@ $<
-		$(LIBTOOL.e) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ -c $<
+engine-itc$(OPT).o:	engine-itc$(OPT).S
+		@echo AS-ENGINE-ITC -o $@ -c $<
+		$(COMPILER) $(ENGINE1) -o $@ -c $<
+
+libengine-itc$(OPT).S:	engine-itc$(OPT).i $(ENGINE_DEPS)
+		@echo CC-LIBENGINE-ITC -o $@ $<
+		$(COMPILE.e) -DINDIRECT_THREADED -DGFORTH_DEBUGGING $(PIC) -o $@ -S $<
+
+libengine-itc$(OPT).lo:	libengine-itc$(OPT).S
+		@echo AS-LIBENGINE-ITC -o $@ -c $<
+		$(COMPILER) -o $@ -c $<
 
 engine-ditc$(OPT).i:	$(ENGINE_DEPS)
-		@echo CPP-ENGINE-ITC -o $@ $<
-		$(COMPILER) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING -o $@ -E $(srcdir)/engine.c
+		@echo CPP-ENGINE-ITC -o $@ -E $<
+		$(COMPILER) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING -o $@ -E $(srcdir)/engine.c
 
-engine-ditc$(OPT).o:	engine-ditc$(OPT).i $(ENGINE_DEPS)
-		@echo CC-ENGINE-DITC -o $@ $<
-		$(COMPILE.e) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING -o $@ -c $<
+engine-ditc$(OPT).S:	engine-ditc$(OPT).i $(ENGINE_DEPS)
+		@echo CC-ENGINE-DITC -o $@ -S $<
+		$(COMPILE.e) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING -o $@ -S $<
 
-libengine-ditc$(OPT).lo:	engine-ditc$(OPT).i $(ENGINE_DEPS)
-		@echo CC-ENGINE-DITC -o $@ $<
-		$(LIBTOOL.e) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING -o $@ -c $<
+engine-ditc$(OPT).o:	engine-ditc$(OPT).S
+		@echo AS-ENGINE-DITC -o $@ -c $<
+		$(COMPILER) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING -o $@ -c $<
+
+libengine-ditc$(OPT).S:	engine-ditc$(OPT).i $(ENGINE_DEPS)
+		@echo CC-LIBENGINE-DITC -o $@ $<
+		$(COMPILE.e) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING $(PIC) -o $@ -S $<
+
+libengine-ditc$(OPT).lo:	libengine-ditc$(OPT).S
+		@echo AS-LIBENGINE-DITC -o $@ $<
+		$(COMPILER) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING -o $@ $<
 
 engine-prof$(OPT).o libengine-prof$(OPT).lo:	$(ENGINE_DEPS)
 		@echo CC-ENGINE-PROF -o $@ $<

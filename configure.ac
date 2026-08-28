@@ -335,9 +335,11 @@ AC_PROG_CC
 
 test "$GCC" = "yes" || AC_MSG_ERROR(Gforth uses GNU C extensions and requires GCC 4.0 or higher)
 
+test -z "$ENGINECC" && ENGINECC="$CC"
+
 # stop configure with an error when using an unsuitable C compiler
 UNSUITABLE_CC=${UNSUITABLE_CC:-clang}
-if test "`echo | $CC -dM -E - | grep -w __${UNSUITABLE_CC}__`" = "#define __${UNSUITABLE_CC}__ 1"
+if test "`echo | $ENGINECC -dM -E - | grep -w __${UNSUITABLE_CC}__`" = "#define __${UNSUITABLE_CC}__ 1"
 then
   if test -z "$COWSAY" -o -z "$LOLCAT"
   then
@@ -349,8 +351,6 @@ then
 fi
 
 test "x$SH" = "x" && SH="/bin/sh"
-
-test -z "$ENGINECC" && ENGINECC="$CC"
 
 AC_MSG_CHECKING([whether to use two dispatches per conditional branch])
 test x$condbranch_opt = x && 
@@ -1002,7 +1002,7 @@ case "$host_os" in
 	;;
 esac
 
-if test x$TRY_TREEVEC = xyes && test `$CC -dumpversion | cut -f1 -d.` -lt 14
+if test x$TRY_TREEVEC = xyes && test `$ENGINECC -dumpversion | cut -f1 -d.` -lt 14
 then
     CHECKFLAGS="$CHECKFLAGS no-tree-vectorize"
 else
@@ -1022,17 +1022,20 @@ do
 	    i="-f$i"
 	    ;;
     esac
-    AC_MSG_CHECKING([if $CC understands $i])
+    AC_MSG_CHECKING([if $ENGINECC understands $i])
     CFLAGS_1="$CFLAGS"
     ENGINE_FLAGS_old="$ENGINE_FLAGS"
     ENGINE_FLAGS="$ENGINE_FLAGS $i"
     CFLAGS="$CFLAGS $ENGINE_FLAGS"
+    ORIGCC="$CC"
+    CC="$ENGINECC"
     if test "$CROSS" = '#'
     then
         AC_RUN_IFELSE([AC_LANG_SOURCE([[int main(){ return 0; }]])],[eval $ac_i=yes;],[eval $ac_i=no; ENGINE_FLAGS="$ENGINE_FLAGS_old"])
     else
         AC_COMPILE_IFELSE([AC_LANG_SOURCE([[int main(){ return 0; }]])],[eval $ac_i=yes;],[eval $ac_i=no; ENGINE_FLAGS="$ENGINE_FLAGS_old"])
     fi
+    CC="$ORIGCC"
     CFLAGS="$CFLAGS_1"
     ac_result=$(eval echo "\$$ac_i")
     AC_MSG_RESULT($ac_result)
@@ -1265,6 +1268,8 @@ elif test -z "$skipcode"; then
     skipcode=no
     CFLAGS_1="$CFLAGS"
     CFLAGS="$CFLAGS $ENGINE_FLAGS"
+    ORIGCC="$CC"
+    CC="$ENGINECC"
     for i in ".skip 4" ".block 4" ".org .+4" ".=.+4" ".space 4" "$skipcode_arch"
     do
     AC_MSG_CHECKING([if and how we can waste code space])
@@ -1297,7 +1302,8 @@ int main(int argc, char ** argv, char ** env)
 	]])],[skipcode=$i; break
 	],[AC_MSG_RESULT([no, $i doesn't work])],[])
     done
-    CFLAGS=$CFLAGS_1
+    CFLAGS="$CFLAGS_1"
+    CC="$ORIGCC"
 else
   AC_MSG_CHECKING([if and how we can waste code space])
 fi
@@ -1324,10 +1330,13 @@ if test -z "$asmcomment"; then
     asmcomment=no
     CFLAGS_1="$CFLAGS"
     CFLAGS="$CFLAGS $ENGINE_FLAGS"
+    ORIGCC="$CC"
+    CC="$ENGINECC"
     for i in '"# "' '"! "' '"; "'; do
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[asm($i"fluffystunk");]])],[asmcomment=$i; break],[])
     done
     CFLAGS=$CFLAGS_1
+    CC="$ORIGCC"
 fi
 AC_MSG_RESULT($asmcomment)
 if test "$asmcomment" != no
