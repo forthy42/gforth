@@ -135,7 +135,11 @@ ENGINE_FAST_DEPS = engine.c $(DEPS) prim_lab-fast.i prim-fast.i fnmatch.h thread
 MAIN_FAST_DEPS = main.c $(DEPS) prim_superend-fast.i prim_num-fast.i prim_grp-fast.i costs-fast.i super2-fast.i
 
 COMPILE.c = $(GCC) $(CFLAGS) $(CPPFLAGS) -c # simulate BSD sys.mk
-COMPILE.e = $(ENGINECC) $(CFLAGS) $(CPPFLAGS) $(ENGINE_FLAGS) # engine compiler
+ifeq ($(ENGINECC),$(CC))
+	COMPILE.e = $(ENGINECC) $(CFLAGS) $(CPPFLAGS) $(ENGINE_FLAGS) # engine compiler
+else
+	COMPILE.e = $(ENGINECC) $(filter-out -g -g3 -ggdb, $(CFLAGS)) $(CPPFLAGS) $(ENGINE_FLAGS) # engine compiler
+endif
 LIBTOOL.c = $(LIBTOOL) --mode=compile $(COMPILE.c)
 LIBTOOL.e = $(LIBTOOL) --mode=compile $(COMPILE.e)
 COMPILER = $(COMPILE.c)
