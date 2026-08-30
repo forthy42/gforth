@@ -46,11 +46,10 @@ Description: GNU Forth
  .
  This is the documentation in info format
 
-@DOHTML@Package: gforth-html
+@DOHTML@Package: gforth-html-version
 @DOHTML@Version: @DEBVERSION@
 @DOHTML@Architecture: all
 @DOHTML@Multi-Arch: foreign
-@DOHTML@Provides: gforth-doc
 @DOHTML@Priority: extra
 @DOHTML@License: GFDL 1.3
 @DOHTML@Description: GNU Forth
@@ -58,6 +57,20 @@ Description: GNU Forth
 @DOHTML@ features of the ANS Forth (Forth-94) and the Forth-2012 standards.
 @DOHTML@ .
 @DOHTML@ This is the documentation in html format
+
+@DOHTML@Package: gforth-html
+@DOHTML@Version: @DEBVERSION@
+@DOHTML@Architecture: all
+@DOHTML@Multi-Arch: foreign
+@DOHTML@Provides: gforth-doc
+@DOHTML@Depends: gforth-html-version (= @DEBVERSION@)
+@DOHTML@Priority: extra
+@DOHTML@License: GFDL 1.3
+@DOHTML@Description: GNU Forth
+@DOHTML@ Gforth is the Forth implementation of the GNU project, providing all
+@DOHTML@ features of the ANS Forth (Forth-94) and the Forth-2012 standards.
+@DOHTML@ .
+@DOHTML@ This provides symlinks to version specific HTML files
 
 @DOPDF@Package: gforth-pdf
 @DOPDF@Version: @DEBVERSION@
