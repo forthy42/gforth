@@ -17,6 +17,7 @@ DLV4L = $(CURDIR)/debian/gforth-libcc-v4l
 DLM2 = $(CURDIR)/debian/gforth-libcc-minos2
 DLA = $(CURDIR)/debian/gforth-libcc-audio
 DB = $(CURDIR)/debian/gforth-bin
+@DOHTML@DHV = $(CURDIR)/debian/gforth-html-version
 @DOHTML@DH = $(CURDIR)/debian/gforth-html
 @DOPDF@DP = $(CURDIR)/debian/gforth-pdf
 DV = $(CURDIR)/debian/gforth-dev
@@ -89,9 +90,13 @@ override_dh_auto_install:
 	mkdir -p $(DI)/usr/share
 	mv $(DC)/usr/share/info $(DI)/usr/share
 	rm -f $(DI)/usr/share/info/dir.gz
-	@DOHTML@mkdir -p $(DH)/usr/share/doc/gforth $(DH)/usr/share/doc/vmgen
-	@DOHTML@mv $(DC)/usr/share/doc/gforth_html $(DH)/usr/share/doc/gforth/html
-	@DOHTML@mv $(DC)/usr/share/doc/vmgen_html $(DH)/usr/share/doc/vmgen/html
+	@DOHTML@mkdir -p $(DHV)/usr/share/doc/gforth$(GFORTH_VER) $(DHV)/usr/share/doc/vmgen/$(GFORTH_VER)
+	@DOHTML@mv $(DC)/usr/share/doc/gforth_html $(DHV)/usr/share/doc/gforth/$(GFORTH_VER)/html
+	@DOHTML@mv $(DC)/usr/share/doc/vmgen_html $(DHV)/usr/share/doc/vmgen/$(GFORTH_VER)/html
+	@DOHTML@ln -s $(DHV)/usr/share/doc/gforth/$(GFORTH_VER)/html $(DHV)/usr/share/doc/gforth/html
+	@DOHTML@ln -s $(DHV)/usr/share/doc/vmgen/$(GFORTH_VER)/html $(DHV)/usr/share/doc/vmgen/html
+	@DOHTML@mv $(DHV)/usr/share/doc/gforth/html $(DH)/usr/share/doc/gforth/html
+	@DOHTML@mv $(DHV)/usr/share/doc/vmgen/html $(DH)/usr/share/doc/vmgen/html
 	@DOPDF@mkdir -p $(DP)/usr/share/doc/gforth $(DP)/usr/share/doc/vmgen
 	@DOPDF@mv $(DC)/usr/share/doc/gforth/*.pdf $(DP)/usr/share/doc/gforth
 	@DOPDF@mv $(DC)/usr/share/doc/vmgen/*.pdf $(DP)/usr/share/doc/vmgen
