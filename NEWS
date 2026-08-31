@@ -58,8 +58,8 @@ Goals](gforth_html/Stability-Goals.html).
 * Multi-Tasking on multiple cores or hardware threads: `newtask task
   newtask4 stacksize stacksize4 initiate execute-task kill-task kill
   stop stop-ns stop-dns thread-deadline halt sleep wake restart pause
-  auser uallot uvalue udefer up@ user' 's mutex lock unlock
-  critical-section atomic!@ atomic+!@ atomic?!@ barrier`
+  auser uallot up@ user' 's mutex lock unlock critical-section
+  atomic!@ atomic+!@ atomic?!@ barrier`
 
   Message queues (similar to the actor model) provide a way to combine
   communication with synchronization of the tasks: `send-event ?events
@@ -81,24 +81,50 @@ Goals](gforth_html/Stability-Goals.html).
 
 * Postpone multiple words with `]]`...`[[`.
 
+* Value-flavoured and defer-flavoured fields: `value: cvalue: wvalue:
+    lvalue: scvalue: swvalue: slvalue: 2value: fvalue: sfvalue:
+    dfvalue: zvalue: $value: value[]: $value[]: defer:`
+
+* Per-task values and defers: `uvalue udefer`
+
 * Closures: Execution tokens for code with data: `free-closure [n:l
   [d:l [f:l [n:d [d:d [f:d [n:h [d:h [f:h [n:h1 [d:h1 [f:h1 [{: :}l
   :}d :}h :}h1 :}xt >addr <{: ;>`
 
-* New word header layout: `.hm set-execute set->int set->comp
-  immediate?  set-name>string set-name>link dovalue: dodoes: doabicode:`
+* New word header layout, and based on that:
+
+  * Modify the behaviour of words: `set-does> set-compsem set->int
+    set->comp set-name>string set-name>link`; using a code addres
+    instead of an xt: `set-execute`; new code addresses for that:
+    `dovalue: dodoes: doabicode:`
+
+  * User-defined `to` etc.: `to-table: n/a to-class: >uvalue set-to`
+
+  * Modify the implementation of words: `set-optimizer`
+
+  * For fans of non-postfix syntax: `compsem: intsem: opt:`
+
+  * Creating a word from a template: `create-from reveal reveal!
+    noname-from`
+
+  * Apply `set-does>` etc. to a word defined earlier: `make-latest`
+
+  * Introspection: `.hm immediate?`
 
 
 
 ## No longer documented words (many of those are still in Gforth 1.0,
   some are not):
 
-  `.name` (use `id.`);
-  `does-handler!` (implementation changed, use `set-does>`);
-  `/does-handler` (implementation changed, see [Carnal words](gforth_html/Carnal-words.html);
-  `@local# f@local# laddr# lp+!#` (replaced by `@localn f@localn lp+n lp+!`);
+  * `.name` (use `id.`);
 
-  * clear-libs (interface changed, use `c-library` ... `end-c-library`)
+  * `does-handler!` (implementation changed, use `set-does>`);
+
+  * `/does-handler` (implementation changed, see [Carnal words](gforth_html/Carnal-words.html);
+
+  * `@local# f@local# laddr# lp+!#` (replaced by `@localn f@localn lp+n lp+!`);
+
+  * `clear-libs` (interface changed, use `c-library` ... `end-c-library`)
 
   * `<interpretation interpretation> <compilation compilation>
     create-interpret/compile` (replaced by `set->int set-compsem`)
@@ -127,7 +153,7 @@ Goals](gforth_html/Stability-Goals.html).
 
 * Arithmetic words:
 
-  * Single precision: `umin` `umax`
+  * Single precision: `umin umax`
 
   * Explicitly floored, symmetric, or unsigned division words: `/s /f
     u/ mods modf umod /mods /modf u/mod du/mod */s */f u*/ */mods
@@ -173,7 +199,7 @@ Goals](gforth_html/Stability-Goals.html).
 
   * for allocating: `w, l, x, xd,`
 
-  * for sizes:  `/w /l /x`
+  * for sizes:  `/x`
 
   * for alignment: `waligned walign laligned lalign xaligned xalign`
 
@@ -184,15 +210,15 @@ Goals](gforth_html/Stability-Goals.html).
 * String and character constants: `newline #tab #lf #cr #ff #bs #del
   #bell #esc #eof`
 
-* Strings: `string-suffix?  scan scan-back skip $split nosplit?
+* Strings: `string-suffix? scan scan-back skip $split nosplit?
   safe/string insert delete cstring>sstring capscompare
   capsstring-prefix?  capssearch s+ append`
 
 * Redirect printing words to a string: `>string-execute $tmp`
 
-* String representation with automatic memory management: `$!  $@
-  $@len $!len $+!len $del $ins $+!  c$+!  $free $init $iter $over
-  $exec $.  $slurp $slurp-file $+slurp $+slurp-file $variable`
+* $trings (String representation with automatic memory management):
+  `$!  $@ $@len $!len $+!len $del $ins $+!  c$+!  $free $init $iter
+  $over $exec $.  $slurp $slurp-file $+slurp $+slurp-file $variable`
 
 * $tring arrays: `$[] $[]!  $[]+!  $+[]!  $[]@ $[]# $[]map $[]slurp
   $[]slurp-file $[].  $[]free $[]variable`
@@ -223,33 +249,18 @@ Goals](gforth_html/Stability-Goals.html).
 
   * Forward declarations: `forward .unresolved`
 
-  * Values and value-flavoured words: `avalue 2value fvalue +to
-    addressable: addr`.  User-defined `to` etc.: `to-table: n/a
-    to-class: >uvalue set-to`
+  * Values: `avalue 2value fvalue +to
+    addressable: addr`.
 
   * Inline definitions: `inline: ;inline`
 
   * Quotations: `[: ;]`
 
-  * Change semantics of words: `set-does> set-compsem compsem:
-    intsem:`
-
-
-  * User-defined `compile,`: `set-optimizer opt:`
-
-  * Creating a word from a template: `create-from reveal reveal!
-    noname-from`
-
-  * Applying `set-does>` etc. to a word defined earlier: `make-latest`
-
   * Deferred words: `:is preserve wrap-xt`
 
-  * `synonym`
+  
 
-  * Structures: `wfield: lfield: xfield: value: cvalue: wvalue:
-    lvalue: scvalue: swvalue: slvalue: 2value: fvalue: sfvalue:
-    dfvalue: zvalue: $value: value[]: $value[]: defer:
-    extend-structure`
+  * Structures: `wfield: lfield: xfield: extend-structure`
   
   * User-defined stacks: `stack stack: stack> >stack >back back>
     +after -stack set-stack get-stack`
@@ -293,8 +304,6 @@ Goals](gforth_html/Stability-Goals.html).
 * Simple numeric output: `h. dec.r`
 
 * Floating-point output: `fp. e. e.p e.exact`
-
-* Miscellaneous output: `out`
 
 * Terminal output, in particular colors: `at-deltaxy default-color
   error-color error-hl-inv error-hl-ul warning-color info-color
@@ -345,7 +354,7 @@ Goals](gforth_html/Stability-Goals.html).
   re-fade-color re-text-emoji-fade-color vp-top vp-bottom vp-left
   vp-right vp-reslide vp-needed`
 
-* Other words: `f.s-precision fclearstack sh-get`
+* Other words: `f.s-precision fclearstack sh-get synonym out`
 
 
 
