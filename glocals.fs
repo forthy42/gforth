@@ -140,7 +140,7 @@ $Variable peephole-opts
 
 \ locals stuff needed for control structures
 
-: compile-lp+! ( n -- ) \ gforth	compile-l-p-plus-store
+: compile-lp+! ( n -- ) \ gforth-internal	compile-l-p-plus-store
     dup negate locals-size +!
     0 over = if
     else -1 cells  over = if postpone lp-

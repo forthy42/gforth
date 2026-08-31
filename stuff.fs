@@ -727,7 +727,7 @@ struct
     cell% field buffer-length
     cell% field buffer-address
     cell% field buffer-maxlength \ >=length
-end-struct buffer% ( u1 u2 -- ) \ gforth-experimental buffer-percent
+end-struct buffer% ( -- u1 u2 ) \ gforth-experimental buffer-percent
 \g @i{u1} is the alignment and @i{u2} is the size of a buffer descriptor.
 
 : init-buffer ( addr -- ) \ gforth-experimental
