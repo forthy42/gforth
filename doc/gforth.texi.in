@@ -5215,6 +5215,8 @@ systems on non-tiny machines support almost all standardized words
 it does not increase portability in practice to be parsimonious in
 using word sets.
 
+@anchor{stability}
+@cindex stability of words
 For the Gforth-specific words, we have the following categories:
 
 @table @code

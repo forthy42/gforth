@@ -122,3 +122,12 @@ Makefile: Makefile.in ../config.status ../configure.ac
 	cd .. && $(MAKE) doc/Makefile.in
 
 all:		Makefile doc
+
+#useful for creating NEWS
+# generate the old version with something like:
+# grep ^doc- ~/gforth-0.7.3/doc/gforth.ds >docs/0.7.3
+newly-documented: gforth.texi.in
+	awk '/^doc-/ {if (FILENAME!="gforth.texi.in") docs[$$1]=1; else if (!($$1 in docs)) print substr($$1,5) }' docs/0.7.3 $< >$@
+
+no-longer-documented: gforth.texi.in
+	grep ^doc- $@|sort|bash -c 'join -v 2 - <(sort docs/0.7.3)'|sed 's/^doc-//'
