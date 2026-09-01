@@ -209,7 +209,7 @@ VM_JUMP(EXEC1(*(Xt *)PFA(CFA)));
 n2 = n1 + *(Cell *)PFA(CFA);
 
 (dovalue) ( -- w )	gforth-internal	paren_doval
-""run-time routine for constants""
+""run-time routine for values (see @word{:dovalue} for caveats)""
 w = *(Cell *)PFA(CFA);
 
 (dodoes) ( -- a_body )  gforth-internal       paren_dodoes

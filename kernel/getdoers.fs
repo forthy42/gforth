@@ -24,8 +24,12 @@ doer? :docon [IF]
 [THEN]
 
 doer? :dovalue [IF]
-    ' def#tib >code-address AConstant dovalue: ( -- addr )	\ gforth
-    \G The code address of a @code{CONSTANT}.
+    ' def#tib >code-address AConstant dovalue: ( -- addr )	\ gforth-experimental
+    \G The code address of a @code{value}.  This will probably stop
+    \G being different from @word{:docon} in a future version.  If you
+    \G want to know whether a word is a constant or a value, better
+    \G test whether the @word{hmcompile,} field contains the xt of
+    \G @word{constant,} or of @word{value,}.
 [THEN]
 
 ' on >code-address AConstant docol: ( -- addr )	\ gforth
