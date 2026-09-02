@@ -91,11 +91,13 @@ override_dh_auto_install:
 	bash -c "mv $(DB)/usr/bin/gforth{,-fast,-itc,-ditc,mi} $(D)/usr/bin"
 	(cd $(DV)/usr/include; ln -s gforth-$(GFORTH_VER)-$(GFORTH_ARCH).h gforth.h)
 	mkdir -p $(DI)/usr/share
+	echo gforth-common; ls $(DC)/usr/share
+	echo gforth-bin; ls $(DB)/usr/share
 	mv $(DC)/usr/share/info $(DI)/usr/share
 	rm -f $(DI)/usr/share/info/dir.gz
-	@DOHTML@mkdir -p $(DHV)/usr/share/doc/gforth$(GFORTH_VER) $(DHV)/usr/share/doc/vmgen/$(GFORTH_VER)
-	@DOHTML@mv $(DC)/usr/share/doc/gforth_html $(DHV)/usr/share/doc/gforth/$(GFORTH_VER)/html
-	@DOHTML@mv $(DC)/usr/share/doc/vmgen_html $(DHV)/usr/share/doc/vmgen/$(GFORTH_VER)/html
+	@DOHTML@mkdir -p $(DHV)/usr/share/doc/gforth/$(GFORTH_VER) $(DHV)/usr/share/doc/vmgen/$(GFORTH_VER)
+	@DOHTML@mv $(DB)/usr/share/doc/gforth_html $(DHV)/usr/share/doc/gforth/$(GFORTH_VER)/html
+	@DOHTML@mv $(DB)/usr/share/doc/vmgen_html $(DHV)/usr/share/doc/vmgen/$(GFORTH_VER)/html
 	@DOHTML@ln -s $(DHV)/usr/share/doc/gforth/$(GFORTH_VER)/html $(DHV)/usr/share/doc/gforth/html
 	@DOHTML@ln -s $(DHV)/usr/share/doc/vmgen/$(GFORTH_VER)/html $(DHV)/usr/share/doc/vmgen/html
 	@DOHTML@mv $(DHV)/usr/share/doc/gforth/html $(DH)/usr/share/doc/gforth/html
