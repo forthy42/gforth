@@ -302,11 +302,11 @@ engine2$(OPT).S:	engine.i $(ENGINE_DEPS)
 
 engine$(OPT).o:	$(GENENGINE)$(OPT).S
 		@echo AS-ENGINE -o $@ -c $<
-		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE1) -o $@ -c $<
+		$(COMPILER) $(ENGINE1) -o $@ -c $<
 
 engine2$(OPT).o:	$(GENENGINE)$(OPT).S
 		@echo AS-ENGINE2 -o $@ -c $<
-		$(COMPILER) $(ENGINE_FLAGS) $(ENGINE2) -o $@ -c $<
+		$(COMPILER) $(ENGINE2) -o $@ -c $<
 
 libengine$(OPT).i:	$(ENGINE_DEPS)
 		@echo CPP-LIBENGINE2 -o $@ -E $<
