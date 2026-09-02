@@ -84,12 +84,12 @@ vmgen.info:	$(VMGEN_TEXI)
 		$(MAKEINFO) $<
 
 gforth:		$(GFORTH_TEXI)
-		$(MAKEINFO) @MAKEINFOREF@ --html $<
+		$(MAKEINFO) @MAKEINFOREF@ -o gforth_html --html $<
 		$(CP) $(srcdir)/$(GFORTH_CSS) $(GFORTH_HTML)/
 		$(CP) $(srcdir)/$(GFORTH_JS) $(GFORTH_HTML)/
 
 vmgen:		$(VMGEN_TEXI)
-		$(MAKEINFO) --html $<
+		$(MAKEINFO) -o vmgen_html --html $<
 
 gforth.txt:	$(GFORTH_TEXI)
 		echo "Table of Contents" >gforth.txt
