@@ -388,21 +388,25 @@ engine-ditc$(OPT).i:	$(ENGINE_DEPS)
 		@echo CPP-ENGINE-DITC -o $@ -E $<
 		$(COMPILER) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING -o $@ -E $(srcdir)/engine.c
 
+libengine-ditc$(OPT).i:	$(ENGINE_DEPS)
+		@echo CPP-LIBENGINE-DITC -o $@ -E $<
+		$(COMPILE.c) -DENGINE=2 -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING $(PIC) -o $@ -E $(srcdir)/engine.c
+
 engine-ditc$(OPT).S:	engine-ditc$(OPT).i $(ENGINE_DEPS)
 		@echo CC-ENGINE-DITC -o $@ -S $<
 		$(COMPILE.e) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING -o $@ -S $<
 
 engine-ditc$(OPT).o:	engine-ditc$(OPT).S
 		@echo AS-ENGINE-DITC -o $@ -c $<
-		$(COMPILER) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING -o $@ -c $<
+		$(COMPILER) $(ENGINE1) -o $@ -c $<
 
-libengine-ditc$(OPT).S:	engine-ditc$(OPT).i $(ENGINE_DEPS)
-		@echo CC-LIBENGINE-DITC -o $@ $<
+libengine-ditc$(OPT).S:	libengine-ditc$(OPT).i $(ENGINE_DEPS)
+		@echo CC-LIBENGINE-DITC -o $@ -S $<
 		$(COMPILE.e) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING $(PIC) -o $@ -S $<
 
 libengine-ditc$(OPT).lo:	libengine-ditc$(OPT).S
 		@echo AS-LIBENGINE-DITC -o $@ $<
-		$(COMPILER) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING -o $@ $<
+		$(COMPILER) $(ENGINE1) -o $@ $<
 
 engine-prof$(OPT).o libengine-prof$(OPT).lo:	$(ENGINE_DEPS)
 		@echo CC-ENGINE-PROF -o $@ $<
