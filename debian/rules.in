@@ -99,6 +99,7 @@ override_dh_auto_install:
 	@DOHTML@mv $(DC)/usr/share/doc/vmgen/html $(DHV)/usr/share/doc/vmgen/$(GFORTH_VER)/html
 	@DOHTML@ln -s $(DHV)/usr/share/doc/gforth/$(GFORTH_VER)/html $(DHV)/usr/share/doc/gforth/html
 	@DOHTML@ln -s $(DHV)/usr/share/doc/vmgen/$(GFORTH_VER)/html $(DHV)/usr/share/doc/vmgen/html
+	@DOHTML@mkdir -p $(DH)/usr/share/doc/gforth $(DH)/usr/share/doc/vmgen
 	@DOHTML@mv $(DHV)/usr/share/doc/gforth/html $(DH)/usr/share/doc/gforth/html
 	@DOHTML@mv $(DHV)/usr/share/doc/vmgen/html $(DH)/usr/share/doc/vmgen/html
 	@DOPDF@mkdir -p $(DP)/usr/share/doc/gforth $(DP)/usr/share/doc/vmgen
