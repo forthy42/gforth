@@ -353,11 +353,11 @@ libengine-fast2$(OPT).S:	libengine-fast2$(OPT).i $(ENGINE_DEPS)
 		$(COMPILE.e) -DENGINE=2 $(PIC) -o $@ -S $<
 
 libengine-fast$(OPT).lo:	$(GENLIBENGINEFAST)$(OPT).S
-		@echo AS-ENGINE-FAST -o $@ $<
+		@echo AS-LIBENGINE-FAST -o $@ $<
 		$(COMPILER) $(ENGINE1) -o $@ $<
 
 libengine-fast2$(OPT).lo:	$(GENLIBENGINEFAST)$(OPT).S
-		@echo AS-ENGINE-FAST2 -o $@ $<
+		@echo AS-LIBENGINE-FAST2 -o $@ $<
 		$(COMPILER) $(ENGINE2) -o $@ $<
 
 engine-itc$(OPT).i:	$(ENGINE_DEPS)
