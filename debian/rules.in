@@ -57,6 +57,7 @@ override_dh_auto_install:
 	bash -c "mv $(DM)$(SHARE)/minos2/{opus-codec,*-audio}.fs $(DMA)$(SHARE)/minos2/"
 	mv $(DB)/etc $(DC)
 	mv $(DB)/usr/bin/vmgen* $(DC)/usr/bin
+	mkdir -p $(DBV)/usr/bin
 	mv $(DB)/usr/bin/*$(GFORTH_VER)* $(DBV)/usr/bin
 	mv $(DB)/usr/lib/$(DEB_HOST_MULTIARCH) $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)
 	mv $(DB)/usr/include/gforth.h $(DV)/usr/include/gforth-$(GFORTH_VER)-$(GFORTH_ARCH).h
