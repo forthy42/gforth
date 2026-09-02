@@ -296,7 +296,11 @@ GENENGINEFAST=$(UNIFIED_ENGINE)engine-fast2
 GENLIBENGINE=libengine2
 GENLIBENGINEFAST=libengine-fast2
 
-engine2$(OPT).S:	engine.i $(ENGINE_DEPS)
+engine2$(OPT).i:	$(ENGINE_DEPS)
+		@echo CPP-ENGINE2 -o $@ -E $<
+		$(COMPILE.c) $(ENGINE2) -DGFORTH_DEBUGGING -DENGINE=2 -o $@ -E $<
+
+engine2$(OPT).S:	engine2$(OPT).i $(ENGINE_DEPS)
 		@echo CC-ENGINE2 -o $@ -S $<
 		$(COMPILE.e) -DGFORTH_DEBUGGING -DENGINE=2 -o $@ -S $<
 
@@ -308,13 +312,9 @@ engine2$(OPT).o:	$(GENENGINE)$(OPT).S
 		@echo AS-ENGINE2 -o $@ -c $<
 		$(COMPILER) $(ENGINE2) -o $@ -c $<
 
-libengine$(OPT).i:	$(ENGINE_DEPS)
-		@echo CPP-LIBENGINE2 -o $@ -E $<
-		$(COMPILE.c) -DGFORTH_DEBUGGING $(PIC) -o $@ -E $<
-
 libengine2$(OPT).i:	$(ENGINE_DEPS)
 		@echo CPP-LIBENGINE2 -o $@ -E $<
-		$(COMPILE.c) -DGFORTH_DEBUGGING -DENGINE=2 $(PIC) -o $@ -E $<
+		$(COMPILE.c) $(ENGINE2) -DGFORTH_DEBUGGING -DENGINE=2 $(PIC) -o $@ -E $<
 
 libengine2$(OPT).S:	libengine2$(OPT).i
 		@echo CPP-LIBENGINE2 -o $@ -S $<
