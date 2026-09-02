@@ -376,7 +376,7 @@ libengine-itc$(OPT).i:	$(ENGINE_DEPS)
 		@echo CPP-LIBENGINE-ITC -o $@ -E $<
 		$(COMPILER) $(ENGINE_FLAGS) -DINDIRECT_THREADED -DGFORTH_DEBUGGING $(PIC) -o $@ -E $(srcdir)/engine.c
 
-libengine-itc$(OPT).S:	engine-itc$(OPT).i
+libengine-itc$(OPT).S:	libengine-itc$(OPT).i
 		@echo CC-LIBENGINE-ITC -o $@ -S $<
 		$(COMPILE.e) -DINDIRECT_THREADED -DGFORTH_DEBUGGING $(PIC) -o $@ -S $<
 
