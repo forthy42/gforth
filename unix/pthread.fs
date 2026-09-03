@@ -336,7 +336,7 @@ synonym sema mutex
     \G If @i{mutex} is currently locked, wait until it is unlocked.
     \G Lock @i{mutex}, then execute @i{xt}.  After @i{xt} finishes
     \G (regularly, or through an exception), unlock @i{mutex}.
-    { sema } try sema lock execute 0 restore sema unlock endtry throw ;
+    { mtx } try mtx lock execute 0 restore mtx unlock endtry throw ;
 synonym c-section critical-section
 
 : >pagealign-stack ( n addr -- n' ) \ gforth-internal

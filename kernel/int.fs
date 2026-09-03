@@ -539,8 +539,6 @@ defer compile, ( xt -- ) \ core-ext compile-comma
     then ;
 [THEN]
 
-const Create ???
-
 : hm? ( hm -- flag )
     \G check if a hm is actually one
     dup hmtemplate = IF  drop true  EXIT  THEN
@@ -561,8 +559,8 @@ const Create ???
     THEN
     drop false ;
 
-: >head-noprim ( xt -- nt ) \ gforth-internal  to-head-noprim
-    dup xt? 0= IF  drop ['] ???  THEN ;
+: >head-noprim ( xt -- nt|0 ) \ gforth-internal  to-head-noprim
+    dup xt? and ;
 
 has? new-cfa [IF]
 0 0 0 0 field >body ( xt -- a-addr ) \ core to-body

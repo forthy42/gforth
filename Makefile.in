@@ -1667,7 +1667,7 @@ gforth.elc:	gforth.el
 
 start-gforth.el:	gforth.el
 		@echo EMACS $@
-		echo > $@
+		echo ";; -*- lexical-binding: t; -*-" > $@
 		-$(EMACS) --batch -l autoload --eval "(setq generated-autoload-file \"$$PWD/$@\")" -f batch-update-autoloads $(dir $<)
 
 #Documentation

@@ -91,13 +91,13 @@ has? rom
     dup [ unlock rom-dictionary area lock ] 
     literal literal within
     IF
-	>head-noprim dup ?? <>
+	>head-noprim dup 0<>
     ELSE
 	prim>name dup 0<>
     THEN ;
 [ELSE]
 : look ( cfa -- lfa flag )
-    >head-noprim dup ['] ??? <> ;
+    >head-noprim dup 0<> ;
 [THEN]
 
 [ELSE]
