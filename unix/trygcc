@@ -32,6 +32,22 @@ else
     cut -f2 -d: |\
     sed -e 's:\([0-9]*\):\1 s,\\(.*\\),// \\1,:g' >${output}.sed
     sed -f ${output}.sed <$input >${input%.c}-fixed.c
-    $CC -o $output ${input%.c}-fixed.c
+    if $CC -o $output ${input%.c}-fixed.c 2>${output}-err2
+    then
+	if [ -s ${output}-err2 ]
+	then
+	    echo "Compiled $input on second attempt"
+	    echo "--------------compilation output--------------"
+	    cat ${output}-err2
+	    echo "------------compilation output end------------"
+	else
+	    echo "Compiled $input on second attempt, no warnings"
+	fi
+    else
+	echo "Failed $input on second attempt"
+	echo "--------------compilation output--------------"
+	cat ${output}-err2
+	echo "------------compilation output end------------"
+    fi
     exit
 fi
