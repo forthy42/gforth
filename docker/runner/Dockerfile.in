@@ -12,13 +12,11 @@ RUN adduser -D gforth \
         libxrandr-dev glfw-dev harfbuzz-dev gstreamer-dev gst-plugins-base-dev \
 	opus-dev pulseaudio-dev unzip texinfo wayland-dev wayland-protocols \
 	libxkbcommon-dev pipewire-dev libwebp-dev libyuv-dev \
-        $(test $(uname -m) = x86_64 && echo libv4l-utils-dev) \
     && cd /tmp && git clone https://github.com/nothings/stb.git \
     && mkdir /usr/include/stb && cp stb/*.h /usr/include/stb && rm -rf stb \
     && wget https://net2o.de/gforth-dist/Snapshots/$VERSION/gforth-$VERSION.tar.xz -O /tmp/gforth.tar.xz \
     && xzcat /tmp/gforth.tar.xz | tar xf - -C /tmp  \
     && rm /tmp/gforth.tar.xz \
-    && cd /tmp/gforth-* \
     && cd /tmp/gforth-* \
     && ./configure --disable-lib --prefix=/usr --exec-prefix=/usr \
     && make  \
