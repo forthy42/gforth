@@ -843,6 +843,7 @@ clean:	mostlyclean docclean
 	for i in gforth gforth-fast; do for j in $(OPTS); do rm -f engine/$$i$${j}$(EXT) $$i$${j}$(EXT); done; done
 	-$(RMTREE) $(buildccdir)
 	(cd unix; $(MAKE) clean)
+	$(RMTREE) lib/gforth/$(VERSION)/$(ARCH)/libcc-named/*
 
 distclean:	clean
 		@echo DISTCLEAN
