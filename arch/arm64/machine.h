@@ -20,9 +20,8 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
-#define BFD_ARCH bfd_arch_arm
-#define BFD_MACH bfd_mach_arm_8
-/* bfd_mach_arm_9 requires recent binutils */
+#define BFD_ARCH bfd_arch_aarch64
+#define BFD_MACH bfd_mach_aarch64
 
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
