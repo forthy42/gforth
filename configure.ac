@@ -710,6 +710,8 @@ Dynamic Code generation disabled (relocation and delay slot issues).]"
 		;;
 	s390*)
 		machine=s390
+                # STACK_CACHE_REGS=3 puts one stack item in memory with gcc-14.2
+                test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=2
 		;;
 	*)
 		AC_MSG_WARN([Using a generic machine description])
