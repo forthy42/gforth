@@ -98,6 +98,10 @@ Goals](gforth_html/Stability-Goals.html).
   * Apply `set-does>` etc. to a word defined earlier: `make-latest`
   * Introspection: `.hm immediate?`
 
+* Performance comparable to SwiftForth
+  * IP-update optimization speeds up loop-dominated programs by a factor of 2
+  * Literal stack allows constant folding and other optimizations
+
 ## No longer documented words
 
   Many of these words are still in Gforth 1.0, but they may be removed in the future.
@@ -262,10 +266,10 @@ Goals](gforth_html/Stability-Goals.html).
 * Mini-OOF2 (a little larger than Mini-OOF, but much smaller than the
   others; Gforth-specific): `>o o> rec-moof2 :method`
 
-* Regular Expresions: `(( )) charclass +char -char ..char +chars
+* Regular Expressions: `` (( )) charclass +char -char ..char +chars
   +class -class c?  -c?  \d \s .?  -\d -\s \^ \$ str=?  =" {** **} {++
   ++} {* *} {+ +} // {{ || }} \( \) \0 s>> >> << <<" s// //s //o //g
-  FORK JOIN ` `?  -``
+  FORK JOIN ` `?  -` ``
 
 * Examining compiled code: `xt-simple-see xt-see-code`
 

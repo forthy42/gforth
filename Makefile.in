@@ -1715,7 +1715,7 @@ doc/gforth.texi doc/numuses: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
 		$(MV) $@- $@
 
 NEWS.html: NEWS.md
-	pandoc --from=gfm --standalone --metadata title="Gforth NEWS" -o $@ $<
+	pandoc --from=gfm --metadata title="Gforth NEWS" -o $@ $<
 
 checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs $(DOC_GEN) answords.fs doc/gforth.texi
 		@echo CHECKDOC
