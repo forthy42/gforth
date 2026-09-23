@@ -1,6 +1,6 @@
 # User-visible changes between 0.7.0 and 1.0:
 
-In the following words are mentioned that appear the first time in the
+This text mentions words that appear the first time in the
 documentation; some have been available earlier, but were not
 documented.
 
@@ -12,48 +12,42 @@ Goals](gforth_html/Stability-Goals.html).
 
 ## Headline features
 
-* The text interpreter can recognize things beyond words in the search
-  order, integer and FP numbers.
-
+* The text interpreter can recognize more things:
   * Additional ways to write literals in source code: scaled notation
     for FP numbers (`6k5`, `23%`); strings (`"string"`), xts (``
     `word``), nts (``` ``word```), body addresses (`<word> <word+8>`).
     See [Literals in source
     code](gforth_html/Literals-in-source-code.html);
-
-  * You can specify the vocabulary (or several of a word), e.g.,
+  * You can specify the vocabulary (or several) of a word, e.g.,
     `forth:and` vs. `assembler:and`.
-
   * Nonparsing syntax for dealing with value-flavoured and
     defer-flavoured words (`v` and `d` in the following examples): `->v`
     for `to v`; `+>v` for `+to v`; `'v` for `addr v`; `@>d` for
     `action-of d`; `=>d` for `is d`.  See
-    [`rec-to`](gforth_html/Default-recognizers.html#gforth_002dexperimental_002d_002drec_002dto)
-
+    [`rec-to`](gforth_html/Default-recognizers.html#gforth_002dexperimental_002d_002drec_002dto).
   * Contents of environment variables: `${LANG}`
-
   * You can extend the text interpreter with more **recognizers**:
-    `recs rec-name rec-local rec-scope rec-number .-is-dcell?
-    rec-float rec-complex rec-string rec-to rec-dtick rec-tick
-    rec-body rec-env rec-meta rec-forth rec-sequence: get-recs
-    set-recs rec-none translate-name translate-cell translate-dcell
-    translate-float translate-complex translate-string
-    scan-translate-string translate-env translate-to rec-filter
-    rec-forth-nt?  translate: interpreting compiling postponing
-    ?rec-found`
+    `recs rec-name rec-local rec-scope rec-number .-is-dcell? rec-float
+     rec-complex rec-string rec-to rec-dtick rec-tick rec-body rec-env
+     rec-meta rec-forth rec-sequence: get-recs set-recs rec-none
+     translate-name translate-cell translate-dcell translate-float
+     translate-complex translate-string scan-translate-string translate-env
+     translate-to rec-filter rec-forth-nt?  translate: interpreting
+     compiling postponing ?rec-found`
 
-* IDE features: Show source code of a word (`locate browse`), show
-  uses of a word (`where nw bw ww`); backtraces show source locations
-  and can be browsed (`nt bt tt`); and use an editor if desired (`edit
-  g gg whereg`); other words: `fancy-after-l xt-locate l n b
-  before-locate after-locate ll short-where expand-where prepend-where
-  unused-words`
+* IDE features:
+  * Show source code of a word (`locate browse`).
+  * show uses of a word (`where nw bw ww`).
+  * backtraces show source locations and can be browsed (`nt bt tt`);
+  * and use an editor if desired (`edit g gg whereg`);
+  * other words: `fancy-after-l xt-locate l n b before-locate
+    after-locate ll short-where expand-where prepend-where unused-words`
 
 * "Smart `.s`: `...` guesses what stack items mean and displays them
   appropriately. `.s` itself stays dumb.
 
-* A status line at the bottom of the terminal shows stacks, `BASE`,
-  stacks, and search order.  `-status +status`
+* A status line at the bottom of the terminal shows `BASE`, stacks,
+  and search order.  `-status +status`
 
 * Multi-Tasking on multiple cores or hardware threads: `newtask task
   newtask4 stacksize stacksize4 initiate execute-task kill-task kill
@@ -75,9 +69,9 @@ Goals](gforth_html/Stability-Goals.html).
 
 * The dictionary can now have more than one section, each with its own
   dictionary pointer, which allows allocation without affecting other
-  sections, used, e.g., for nested definitions.  Words: 'next-section
-  previous-section extra-section .sections' See
-  [Sections](gforth_html/Sections.html).
+  sections, used, e.g., for nested definitions.
+  See [Sections](gforth_html/Sections.html).
+  Words: `next-section previous-section extra-section .sections`
 
 * Postpone multiple words with `]]`...`[[`.
 
@@ -92,51 +86,33 @@ Goals](gforth_html/Stability-Goals.html).
   :}d :}h :}h1 :}xt >addr <{: ;>`
 
 * New word header layout, and based on that:
-
   * Modify the behaviour of words: `set-does> set-compsem set->int
     set->comp set-name>string set-name>link`; using a code addres
     instead of an xt: `set-execute`; new code addresses for that:
     `dovalue: dodoes: doabicode:`
-
   * User-defined `to` etc.: `to-table: n/a to-class: >uvalue set-to`
-
   * Modify the implementation of words: `set-optimizer`
-
   * For fans of non-postfix syntax: `compsem: intsem: opt:`
-
   * Creating a word from a template: `create-from reveal reveal!
     noname-from`
-
   * Apply `set-does>` etc. to a word defined earlier: `make-latest`
-
   * Introspection: `.hm immediate?`
 
+## No longer documented words
 
-
-## No longer documented words (many of those are still in Gforth 1.0,
-  some are not):
-
+  Many of these words are still in Gforth 1.0, but they may be removed in the future.
+  
   * `.name` (use `id.`);
-
   * `does-handler!` (implementation changed, use `set-does>`);
-
-  * `/does-handler` (implementation changed, see [Carnal words](gforth_html/Carnal-words.html);
-
+  * `/does-handler` (implementation changed, see [Carnal words](gforth_html/Carnal-words.html));
   * `@local# f@local# laddr# lp+!#` (replaced by `@localn f@localn lp+n lp+!`);
-
   * `clear-libs` (interface changed, use `c-library` ... `end-c-library`)
-
   * `<interpretation interpretation> <compilation compilation>
     create-interpret/compile` (replaced by `set->int set-compsem`)
-
   * `naligned` (use `*aligned`)
-   
   * `name>comp name>int` (use `name>compile name>interpret`)
-
-  * `path-allot` (us `dup , 0 , allot`)
-
+  * `path-allot` (use `dup , 0 , allot`)
   * `sl@ sw@ ul@ uw@` (use `l@ l>s`; `w@ w>s`; `l@`; `w@`).
-
   * Internal and therefore no longer documented: `;s block-position
     cfalign cfaligned compile-lp+! empty-buffer name?int s>number?
     s>unumber? save-buffer`
@@ -144,7 +120,7 @@ Goals](gforth_html/Stability-Goals.html).
 ## Other additional features
 
 * You can use the return stack interpretively (except for passing data
-  into or out of INCLUDED, EVALUATE etc.
+  into or out of INCLUDED, EVALUATE etc.)
 
 * `help` shows the documentation of words, or documentation nodes.
   Other words providing information: `authors` `license`.
@@ -152,32 +128,23 @@ Goals](gforth_html/Stability-Goals.html).
 * Boolean flags: `select`
 
 * Arithmetic words:
-
   * Single precision: `umin umax`
-
   * Explicitly floored, symmetric, or unsigned division words: `/s /f
     u/ mods modf umod /mods /modf u/mod du/mod */s */f u*/ */mods
     */modf u*/mod ud/mod`
-
   * Two-stage division: `staged/-size /f-stage1m /f-stage2m
     modf-stage2m /modf-stage2m u/-stage1m u/-stage2m umod-stage2m
     u/mod-stage2m staged/-divisor`
-
   * Bitwise operations: `mux arshift dlshift drshift darshift >pow2
     log2 pow2?  ctz wrol wror lrol lror rol ror drol dror`
-
   * Pseudo-random numbers: `rnd random seed!`
-
   * Floating-point: `s>f f>s fcopysign ftrunc v* faxpy infinity inf
     -infinity -inf nan`
 
 * Stack Manipulation:
-
   * Data stack: `third fourth`
-
   * FP stack: `fthird ffourth f-rot`
-
-  * Return stack: r'@ rpick n>r nr> f>r fr> fr@`
+  * Return stack: `r'@ rpick n>r nr> f>r fr> fr@`
 
 * Dictionary allocation: `->here w, l, x, xd, a, mem, save-mem-dict`
 
@@ -185,47 +152,37 @@ Goals](gforth_html/Stability-Goals.html).
   buffers: `buffer% init-buffer adjust-buffer`.
 
 * Memory access:
-
   * Generic: `*aligned *align`
-
   * Cells: `!@ +!@ cell- cell/ th th@ th!`
-
   * Words for accessing memory in 16-bit (w), 32-bit (l), and 64-bit
     (x, xd) units: `w@ w! l@ l! x@ x! xd@ xd!`
-  
   * for dealing with different byte orders: `wbe wle lbe lle xbe xle xdbe xdle`
-
   * for sign-extending: `c>s w>s l>s x>s xd>s`
-
   * for allocating: `w, l, x, xd,`
-
   * for sizes:  `/x`
-
   * for alignment: `waligned walign laligned lalign xaligned xalign`
-
   * for other sizes:  `char- float/ sfloat/ dfloat/`
 
 * Xchars: `xc@ xc@+?  xc!+ xc-width xhold xc, invalid-char`
 
-* String and character constants: `newline #tab #lf #cr #ff #bs #del
-  #bell #esc #eof`
+* String and character constants:
+  `newline #tab #lf #cr #ff #bs #del #bell #esc #eof`
 
 * Strings: `string-suffix? scan scan-back skip $split nosplit?
   safe/string insert delete cstring>sstring capscompare
-  capsstring-prefix?  capssearch s+ append`
+  capsstring-prefix? capssearch s+ append`
 
 * Redirect printing words to a string: `>string-execute $tmp`
 
 * $trings (String representation with automatic memory management):
-  `$!  $@ $@len $!len $+!len $del $ins $+!  c$+!  $free $init $iter
-  $over $exec $.  $slurp $slurp-file $+slurp $+slurp-file $variable`
+  `$! $@ $@len $!len $+!len $del $ins $+! c$+!  $free $init $iter
+  $over $exec $. $slurp $slurp-file $+slurp $+slurp-file $variable`
 
-* $tring arrays: `$[] $[]!  $[]+!  $+[]!  $[]@ $[]# $[]map $[]slurp
-  $[]slurp-file $[].  $[]free $[]variable`
+* $tring arrays: `$[] $[]! $[]+! $+[]! $[]@ $[]# $[]map $[]slurp
+  $[]slurp-file $[]. $[]free $[]variable`
 
 * Internationalization and localization: `l" locales native@ locale@
-  program default locale-csv-out locale-csv .locale-csv locale!
-  locale:`
+  program default locale-csv-out locale-csv .locale-csv locale! locale:`
 
 * Substitution in strings: `macros-wordlist replaces replacer:
   .substitute $substitute substitute unescape $unescape`
@@ -233,49 +190,33 @@ Goals](gforth_html/Stability-Goals.html).
 * Counted strings: `place string,`
 
 * Control flow
-
   * Counted loops: `-[do u-[do array>mem mem+do mem-do i' delta-i`
-  
   * Generalize Eaker's `case` to loops: `next-case ?of contof`
-  
   * Low-level control flow words: `cs-drop`
-  
   * Exits: `?exit execute-exit`
-
   * Exceptions and warnings: `fast-throw exceptions ?errno-throw ?ior
     catch-nobt warning" warnings`
 
 * Defining words: `avariable buffer: aconstant`
-
   * Forward declarations: `forward .unresolved`
-
-  * Values: `avalue 2value fvalue +to
-    addressable: addr`.
-
+  * Values: `avalue 2value fvalue +to addressable: addr`.
   * Inline definitions: `inline: ;inline`
-
   * Quotations: `[: ;]`
-
   * Deferred words: `:is preserve wrap-xt`
-
-  
-
   * Structures: `wfield: lfield: xfield: extend-structure`
-  
-  * User-defined stacks: `stack stack: stack> >stack >back back>
-    +after -stack set-stack get-stack`
+  * User-defined stacks:
+    `stack stack: stack> >stack >back back> +after -stack set-stack get-stack`
 
 * No-ops: `[noop] noop`
 
 * Name tokens: `find-name-in latestnt xt>name traverse-wordlist
-  name>interpret name>compile compile-only?  obsolete?  name>link`
+  name>interpret name>compile compile-only? obsolete? name>link`
 
 * Literal compilers: `lit, aliteral 2lit, flit, slit,`
 
-* Word definition and text-interpreter status: `in-colon-def?  state`
+* Word definition and text-interpreter status: `in-colon-def? state`
 
-* Conditional and looping compilation: `[DEFINED] [UNDEFINED] [I]
-  INT-[I]`
+* Conditional and looping compilation: `[DEFINED] [UNDEFINED] [I] INT-[I]`
 
 * Source line indication in generated Forth "source" code: `line#`
 
@@ -299,7 +240,7 @@ Goals](gforth_html/Stability-Goals.html).
 * Directories: `basename dirname open-dir read-dir close-dir
   filename-match get-dir set-dir =mkdir mkdir-parents`
 
-* Search paths: `absolute-file?  .fpath file>fpath file>path`
+* Search paths: `absolute-file? .fpath file>fpath file>path`
 
 * Simple numeric output: `h. dec.r`
 
@@ -310,7 +251,7 @@ Goals](gforth_html/Stability-Goals.html).
   success-color input-color status-color compile-color postpone-color
   light-mode dark-mode uncolored-mode magenta-input default-input`
 
-* Single-key input: `key-ior xkey?  ekey>xchar k-enter k-backspace
+* Single-key input: `key-ior xkey? ekey>xchar k-enter k-backspace
   k-tab k-winch k-pause k-mute k-volup k-voldown k-sel k-eof fkey.
   simple-fkey-string`
 
@@ -322,13 +263,13 @@ Goals](gforth_html/Stability-Goals.html).
   others; Gforth-specific): `>o o> rec-moof2 :method`
 
 * Regular Expresions: `(( )) charclass +char -char ..char +chars
-  +class -class c?  -c?  \d \s .?  -\d -\s ` `?  -` \^ \$ str=?  ="
-  {** **} {++ ++} {* *} {+ +} // {{ || }} \( \) \0 s>> >> << <<" s//
-  //s //o //g FORK JOIN`
+  +class -class c?  -c?  \d \s .?  -\d -\s \^ \$ str=?  =" {** **} {++
+  ++} {* *} {+ +} // {{ || }} \( \) \0 s>> >> << <<" s// //s //o //g
+  FORK JOIN ` `?  -``
 
 * Examining compiled code: `xt-simple-see xt-see-code`
 
-* Debugging words: `debug-fid once ~~bt ~~1bt ???  WTF??  !!FiXME!!
+* Debugging words: `debug-fid once ~~bt ~~1bt ??? WTF?? !!FiXME!!
   replace-word ~~Variable ~~Value +ltrace -ltrace #loc`
 
 * Code Coverage and Execution Frequency: `.coverage annotate-cov
@@ -357,40 +298,15 @@ Goals](gforth_html/Stability-Goals.html).
 * Other words: `f.s-precision fclearstack sh-get synonym out`
 
 
+## Gforth EC non-news
 
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Bitwise operations: >pow2 log2
-
-
-Gforth EC non-news:
   We have not done Gforth EC work since Gforth 0.7.  We recommend using
   Gforth 0.7 for Gforth EC, but welcome bug or success reports for
   Gforth EC in our git head.
 
-User-visible changes between 0.6.2 and 0.7.0:
+# User-visible changes between 0.6.2 and 0.7.0:
 
+```
 Requirements:
   At run-time requires libtool and gcc (for the libcc C interface) and
                        gdb (for the disassembler (SEE)) on some platforms.
@@ -485,10 +401,11 @@ Speed improvements:
   support for int128 types on AMD64
   workarounds for gcc performance bugs (in particular, PR 15242)
   branch target alignment (good speedup on Alpha).
+```
 
+# User-visible changes between 0.6.1 and 0.6.2:
 
-User-visible changes between 0.6.1 and 0.6.2:
-
+```
 Bug fixes (in particular, gforth-0.6.2 compiles with gcc-3.3)
 New words: LATEST, LATESTXT (LASTXT deprecated)
 Operating environment: Added optional support for a C interface built
@@ -499,15 +416,17 @@ Miscellaneous: Gforth-fast now uses static superinstructions (some
   speedup on some platforms); generally this is transparent (apart
   from the speedup), but there are lots of command-line options for
   controlling the static superinstruction generation.
+```
 
+# User-visible changes between 0.6.0 and 0.6.1:
 
-User-visible changes between 0.6.0 and 0.6.1:
-
+```
 Bug fixes (installation on big-endian machines sometimes did not work)
+```
 
+# User-visible changes between 0.5.0 and 0.6.0:
 
-User-visible changes between 0.5.0 and 0.6.0:
-
+```
 Changes in behaviour:
 
 S": interpreted use now ALLOCATEs the string (they live until BYE).
@@ -547,10 +466,11 @@ Miscellaneous:
 Generalized prims2x.fs into Vmgen (see README.vmgen etc.); used the
   new capabilities in prims (e.g., automatic handling of the return
   stack and instruction stream).
+```
 
+# User-visible changes between 0.4.0 and 0.5.0:
 
-User-visible changes between 0.4.0 and 0.5.0:
-
+```
 Changes in behaviour:
 
 There are now two engines: the fast engine (gforth-fast) is at least
@@ -607,10 +527,11 @@ Added assemblers and disassemblers for 386, Alpha, MIPS (thanks to
   contributions by Andrew McKewan, Bernd Thallner, and Christian
   Pirker).  Contributions of assemblers and disassemblers for other
   architectures are welcome.
+```
 
+# User-visible changes between 0.3.0 and 0.4.0:
 
-User-visible changes between 0.3.0 and 0.4.0:
-
+```
 Operating environment:
 
 Path handling: "." at the start of the path represents the directory
@@ -663,11 +584,12 @@ Cross compiler now also supports compilation only for undefined or forward
 referenced words. Plugins to support some native code generation
 (for PSC1000).
 More files in the compat library.
+```
 
 
+# User-visible changes between 0.2.1 and 0.3.0:
 
-User-visible changes between 0.2.1 and 0.3.0:
-
+```
 Stack overflow detection by memory protection on most systems
 	(allocation with mmap).
 gforth.fi is now fully relocatable.
@@ -677,17 +599,19 @@ Win32 support.
 Improved support for embedded controllers and other deprived environments.
 some bug fixes.
 added concept index; other documentation improvements.
+```
 
 
+# User-visible changes between 0.2.0 and 0.2.1:
 
-User-visible changes between 0.2.0 and 0.2.1:
-
+```
 Bug fixes
+```
 
 
+# User-visible changes between 0.1beta and 0.2.0:
 
-User-visible changes between 0.1beta and 0.2.0:
-
+```
 Portability and Installation:
 
 Support architectures with buggy long longs (alpha-dec-osf).
@@ -724,8 +648,10 @@ reveals into that wordlist.
 changed behaviour of SYSTEM (no longer returns wretval, but puts it in
 $?)  added (SYSTEM) ( c_addr u -- wretval wior ).
 ' and ['] now give an error for compile-only words.
+```
 
------
+# -----
+```
 Authors: Anton Ertl, Bernd Paysan
 Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008,2019,2022,2023,2024 Free Software Foundation, Inc.
 
@@ -747,3 +673,4 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 
 % Local Variables:
 % fill-prefix: "  "
+```

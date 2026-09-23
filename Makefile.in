@@ -697,7 +697,7 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in  \
 	gforthker.in gforthp.in README.vmgen NEWS.vmgen autogen.sh	     \
 	configure.ac configure config.sub config.guess elisp-comp stamp-h.in \
 	envos.fs.in kernel/version.fs.in iss.sh wininst.sh modpath.iss	     \
-	firewall.iss install-sh INSTALL.md NEWS README.md ToDo BUGS	     \
+	firewall.iss install-sh INSTALL.md NEWS.md README.md ToDo BUGS	     \
 	BUILD-FROM-SCRATCH model COPYING COPYING.LIB COPYING.DOC AUTHORS     \
 	ChangeLog Benchres aclocal.m4 ltmain.sh doc/Makefile.in		     \
 	doc/gforth.texi.in $(wildcard $(srcdir)/doc/words/*-words)	     \
@@ -1713,6 +1713,9 @@ doc/gforth.texi doc/numuses: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
 		@echo DOC_GEN
 		$(PREFORTH) -e "@texinfo_link@ constant texinfo-link" ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" $(DOC_GEN) -e "args-gforth-versions s\" $(srcdir)/doc/gforth.texi.in\" filename-ds2texi s\" doc/numuses\" report-#uses-file bye" $(wildcard $(srcdir)/doc/words/*-words) >$@-
 		$(MV) $@- $@
+
+NEWS.html: NEWS.md
+	pandoc --from=gfm --standalone --metadata title="Gforth NEWS" -o $@ $<
 
 checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs $(DOC_GEN) answords.fs doc/gforth.texi
 		@echo CHECKDOC
