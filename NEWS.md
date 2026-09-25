@@ -1,5 +1,10 @@
 # User-visible changes between 0.7.0 and 1.0:
 
+Many of the words below are just mentioned, without much indication
+what they do.  You can find out more by typing "help <word>" in
+Gforth, or by clicking on the word in the [word
+index](gforth_html/Word-Index.html).
+
 This text mentions words that appear the first time in the
 documentation; some have been available earlier, but were not
 documented.
