@@ -227,8 +227,6 @@ Goals](gforth_html/Stability-Goals.html).
 
 * Conditional and looping compilation: `[DEFINED] [UNDEFINED] [I] INT-[I]`
 
-* Source line indication in generated Forth "source" code: `line#`
-
 * Text interpreter hooks: `before-line before-word line-end-hook`
 
 * Input stream: `string-parse`
