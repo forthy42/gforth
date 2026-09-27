@@ -1,7 +1,7 @@
 \ add links to NEWS-nolinks.html
 
-\ Authors: Anton Ertl, Bernd Paysan, Jens Wilke
-\ Copyright (C) 1995,1996,1997,2000,2003,2007,2011,2012,2013,2014,2015,2017,2019,2021,2023,2024,2025 Free Software Foundation, Inc.
+\ Authors: Anton Ertl
+\ Copyright (C) 2026 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -26,7 +26,7 @@
 \ Problems: A compiled xt via compile, might be created with noname:
 \           a noname: leaves now a empty name field
 
-"doc/gforth_html/" 2constant url-prefix
+"https://net2o.de/gforth-1.0/" 2constant url-prefix
 
 "doc/gforth_html/Word-Index.html" slurp-file 2constant linkdata
 
