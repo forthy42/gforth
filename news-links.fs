@@ -37,8 +37,7 @@ wordlist constant links
         "<td class=\"printindex-index-entry\"><a href=\""
         string-parse nip 0= ?of endof
         "\"><code>" string-parse dup 0= ?of 2drop endof
-        parse-name dup 0= ?of 2drop 2drop endof
-        [: links set-current nextname 2constant ;] current-execute
+        [: links set-current 2constant ;] current-execute
     next-case ;
 
 linkdata `parse-linkdata execute-parsing
