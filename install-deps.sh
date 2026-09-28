@@ -3,8 +3,7 @@ which sudo || alias sudo=eval
 install_debian() {
   sudo apt-get -y update
   sudo apt-get -y -m install libffi-dev libltdl7 libsoil-dev binutils-dev libtool make gcc automake m4 texinfo texi2html texlive-base install-info dpkg-dev debhelper yodl bison libboost-dev g++ git # yodl, bison, ... git: are for swig
-  sudo apt-get -y -m install libpcre3-dev
-  if ! which pcre-config >/dev/null 2>&1
+  if ! sudo apt-get -y -m install libpcre3-dev
   then
       git clone https://github.com/nektro/pcre-8.45.git
       (cd pcre-8.45; ./configure && sed -e 's/1[.]16/1.17/g' <Makefile >Makefile.new; mv Makefile.new Makefile; make && sudo make install)
@@ -86,16 +85,20 @@ install_gforth_osx() {
 }
 
 install_gforth_debian() {
-    case "`lsb_release -sc`" in
-	trixie|forky)
+    if ! sudo apt-get -y install gforth gforth-lib gforth-common
+    then
+	sudo apt-get -y install gcc-14 # need gcc-14 to compile gforth-0.7.3
+	if which wcurl >/dev/null 2>&1
+	then
             wcurl https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz
-       	    tar zxf gforth-0.7.3.tar.gz
-	    BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g')
-	    (cd gforth-0.7.3; ./configure CC=gcc-14 --prefix=/usr --host=$BARCH --build=$BARCH; make; sudo make install)
-	    ;;
-	*) sudo apt-get -y install gforth gforth-lib gforth-common
-	    ;;
-    esac
+	else
+	    sudo apt-get -y install wget
+	    wget https://www.complang.tuwien.ac.at/forth/gforth/gforth-0.7.3.tar.gz
+	fi
+       	tar zxf gforth-0.7.3.tar.gz
+	BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g')
+	(cd gforth-0.7.3; ./configure CC=gcc-14 --prefix=/usr --host=$BARCH --build=$BARCH; make; sudo make install)
+    fi
 }
 
 install_gforth_ubuntu() {
