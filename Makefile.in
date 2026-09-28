@@ -1714,8 +1714,11 @@ doc/gforth.texi doc/numuses: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
 		$(PREFORTH) -e "@texinfo_link@ constant texinfo-link" ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" $(DOC_GEN) -e "args-gforth-versions s\" $(srcdir)/doc/gforth.texi.in\" filename-ds2texi s\" doc/numuses\" report-#uses-file bye" $(wildcard $(srcdir)/doc/words/*-words) >$@-
 		$(MV) $@- $@
 
-NEWS.html: NEWS.md
+NEWS-nolinks.html: NEWS.md
 	pandoc --from=gfm --metadata title="Gforth NEWS" -o $@ $<
+
+NEWS.html: NEWS-nolinks.html news-links.fs html
+	$(FORTH) -e "warnings off" news-links.fs -e bye >$@
 
 checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs $(DOC_GEN) answords.fs doc/gforth.texi
 		@echo CHECKDOC
