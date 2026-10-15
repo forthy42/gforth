@@ -3112,11 +3112,12 @@ s" foo.in"  r/o open-file throw Value fd-in
 s" foo.out" w/o create-file throw Value fd-out
 @end example
 
-The available file modes are r/o for read-only access, r/w for
-read-write access, and w/o for write-only access. You could open both
-files with r/w, too, if you like. All file words return error codes; for
-most applications, it's best to pass there error codes with @code{throw}
-to the outer error handler.
+The available file modes are @word{r/o} for read-only access,
+@word{r/w} for read-write access, and @word{w/o} for write-only
+access. You could open both files with @word{r/w}, too, if you
+like. All file words return error codes; for most applications, it's
+best to pass the error codes with @code{throw} to the outer error
+handler.
 
 If you want words for opening and assigning, define them as follows:
 
