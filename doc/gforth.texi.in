@@ -3338,9 +3338,9 @@ word with @code{compile,}:
 see foo1
 @end example
 
-This is non-standard, because @code{compile,} has no compilation
-semantics in the standard, but it works in good Forth systems.  For the
-broken ones, use
+This is non-standard, because @code{compile,} has no interpretation
+semantics in the standard, but it works in good Forth systems.  For
+the bad ones, use
 
 @example
 : [compile,] compile, ; immediate
