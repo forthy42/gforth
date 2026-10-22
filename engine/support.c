@@ -540,9 +540,10 @@ struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid)
   if (u1>0)
     gf_regetc(wfileid);
 #endif
+  flockfile(wfileid);
   for(u2=0; u2<u1; u2++) {
     do{
-      c = getc(wfileid);
+      c = getc_unlocked(wfileid);
     } while (c == EOF && ferror(wfileid)==EINTR);
     if (c==EOF) {
       int err=ferror(wfileid);
@@ -576,6 +577,7 @@ struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid)
     }
     c_addr[u2] = (Char)c;
   }
+  funlockfile(wfileid);
   r.n1 = u2;
   r.n2 = flag;
   r.n3 = u3;
