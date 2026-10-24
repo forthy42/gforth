@@ -128,9 +128,9 @@ debug: .string.( ( -- ) \ gforth-internal dot-string-dot-paren
 \ Vfx compatible access words
 
 : >smart-stack ( xt -- ) \ vfx
-    smart<> >stack ;
+    smart<> >back ;
 : smart-stack> ( -- xt ) \ vfx
-    smart<> stack> ;
+    smart<> back> ;
 : filter-stack { x stack -- x1 ... xn n } \ vfx
     0 stack $@ cell MEM+DO
 	I @ x <> IF  I @ swap 1+  THEN
