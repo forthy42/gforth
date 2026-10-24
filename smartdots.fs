@@ -125,6 +125,13 @@ debug: .string.( ( -- ) \ gforth-internal dot-string-dot-paren
 
 ' .s.skip ' .s.cs ' .s.string ' .s.smart 4 smart<> set-stack
 
+: +smart-stack ( xt -- )  smart<> >back ;
+: filter-stack { x stack -- x1 ... xn n }
+    0 stack $@ bounds ?DO
+	I @ x <> IF  I @ swap 1+  THEN
+    cell +LOOP ;
+: -smart-stack ( xt -- )  smart<> filter-stack  smart<> set-stack ;
+
 : smart.s. ( total n -- total ) \ gforth-experimental
     over r> i swap >r - { dpth } \ i is the loop index of the calling .s
     smart<> $@ cell MEM+DO
