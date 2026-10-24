@@ -125,6 +125,23 @@ debug: .string.( ( -- ) \ gforth-internal dot-string-dot-paren
 
 ' .s.skip ' .s.cs ' .s.string ' .s.smart 4 smart<> set-stack
 
+\ Vfx compatible access words
+
+: >smart-stack ( xt -- ) \ vfx
+    smart<> >back ;
+: smart-stack> ( -- xt ) \ vfx
+    smart<> back> ;
+: filter-stack { x stack -- x1 ... xn n } \ vfx
+    0 stack $@ cell MEM+DO
+	I @ x <> IF  I @ swap 1+  THEN
+    LOOP ;
+: -smart-stack ( xt -- ) \ vfx
+    smart<> filter-stack  smart<> set-stack ;
+: +smart-stack ( xt -- ) \ vfx
+    dup -smart-stack >smart-stack ;
+
+\ toplevel
+
 : smart.s. ( total n -- total ) \ gforth-experimental
     over r> i swap >r - { dpth } \ i is the loop index of the calling .s
     smart<> $@ cell MEM+DO

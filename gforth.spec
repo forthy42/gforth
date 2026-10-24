@@ -17,7 +17,7 @@
 
 
 Name:           gforth
-Version:        0.7.9_20250305
+Version:        0.7.9_20260923
 Release:        1.1
 Summary:        GNU Forth
 License:        GFDL-1.2-only AND GPL-2.0-or-later AND GPL-3.0-or-later
@@ -32,21 +32,21 @@ BuildRequires:  libX11-devel
 %if 0%{?rhel_version}
 BuildRequires:  libtool mesa-libGL-devel mesa-libEGL-devel
 BuildRequires:  libpng-devel freetype-devel harfbuzz-devel
-BuildRequires:  pulseaudio-libs-devel glibc-devel libxkbcommon-devel
+BuildRequires:  pulseaudio-libs-devel glibc-devel libxkbcommon-devel binutils-devel
 BuildRequires:  libtool-ltdl libtool-ltdl-devel wayland-devel wayland-protocols-devel
 BuildRequires:  libXrandr-devel libXext-devel texinfo
 %endif
 %if 0%{?centos_version}
 BuildRequires:  libtool mesa-libGL-devel mesa-libEGL-devel glew-devel
 BuildRequires:  libpng-devel freetype-devel harfbuzz-devel libxkbcommon-devel
-BuildRequires:  pulseaudio-libs-devel opus-devel libva-devel glibc-devel
+BuildRequires:  pulseaudio-libs-devel opus-devel libva-devel glibc-devel binutils-devel
 BuildRequires:  libtool-ltdl libtool-ltdl-devel wayland-devel wayland-protocols-devel
 BuildRequires:  libXrandr-devel libXext-devel texinfo texinfo-tex texi2html
 %endif
 %if 0%{?fedora}
 BuildRequires:  libtool mesa-libGL-devel mesa-libEGL-devel glew-devel vulkan-devel gpsd-devel
 BuildRequires:  libpng-devel stb-devel freetype-devel harfbuzz-devel libxkbcommon-devel
-BuildRequires:  pulseaudio-libs-devel opus-devel libva-devel glibc-devel
+BuildRequires:  pulseaudio-libs-devel opus-devel libva-devel glibc-devel binutils-devel
 BuildRequires:  libtool-ltdl libtool-ltdl-devel wayland-devel wayland-protocols-devel
 BuildRequires:  libXrandr-devel libXext-devel texinfo texinfo-tex texi2html
 %endif
@@ -55,7 +55,7 @@ BuildRequires:  m4
 BuildRequires:   libtool libltdl7 Mesa-libGL-devel Mesa-libEGL-devel glew-devel vulkan-devel gpsd-devel
 BuildRequires:   Mesa-libGLESv2-devel Mesa-libGLESv3-devel libpng16-devel stb-devel freetype2-devel harfbuzz-devel
 BuildRequires:   libpulse-devel libopus-devel libva-devel libva-gl-devel linux-glibc-devel libxkbcommon-devel
-BuildRequires:   makeinfo texinfo info wayland-devel wayland-protocols-devel
+BuildRequires:   makeinfo texinfo info wayland-devel wayland-protocols-devel binutils-devel
 Requires(post):  %{install_info_prereq}
 Requires(preun): %{install_info_prereq}
 %endif
@@ -132,7 +132,7 @@ rm -f %{buildroot}%{_infodir}/dir
 
 %files
 %defattr(-,root,root)
-%doc README BUGS NEWS
+%doc README.md BUGS NEWS
 %{_bindir}/*
 %{_libdir}/gforth
 %{_libdir}/libgforth*
@@ -167,5 +167,5 @@ rm -f %{buildroot}%{_infodir}/dir
 %{_datadir}/doc/gforth-config.log
 
 %changelog
-* Wed Mar 05 2025 <bernd@net2o.de>
-- Bump version to 0.7.9_20250305
+* Wed Sep 23 2026 <bernd@net2o.de>
+- Bump version to 0.7.9_20260923
