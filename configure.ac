@@ -1321,9 +1321,7 @@ then
 	config_warns="$config_warns
 Dynamic NC generation disabled."
     fi
-    AC_DEFINE_UNQUOTED(SKIP4,asm(""),statement for skipping 4 bytes)
 else
-    AC_DEFINE_UNQUOTED(SKIP4,asm("$skipcode"),statement for skipping 4 bytes)
     SKIPCODE=$skipcode
     AC_SUBST(SKIPCODE)
 fi
