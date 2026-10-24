@@ -9,6 +9,7 @@
 %apply long long { int64_t };
 %apply float { GLfloat };
 
+// prep: sed -e 's,^\(.*\(glXAllocateMemoryNV\|glXFreeMemoryNV\|glXBindTexImageARB\|glXReleaseTexImageARB\|glXDrawableAttribARB\|glXGetFrameUsageMESA\|glXBeginFrameTrackingMESA\|glXEndFrameTrackingMESA\|glXQueryFrameTrackingMESA\).*\)$,/* \1 */,g'
 // exec: sed -e 's/^c-library\( .*\)/[IFUNDEF] opengl cs-vocabulary opengl [THEN]\nget-current >r also opengl definitions\n\nc-library\1\n/g' -e 's/^end-c-library/end-c-library\nprevious r> set-current/g'
 
 #define SWIG_FORTH_GFORTH_LIBRARY "GLX"
