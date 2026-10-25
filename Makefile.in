@@ -160,7 +160,10 @@ FORTHK	= ./gforthker -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 #the "-2 image-included-files +!" undoes the change to image-included-files
 # in exboot.fs
 STARTUP	= exboot.fs startup.fs @asm_fs@ @disasm_fs@
-STARTUP_FULL = $(STARTUP) unix/pthread.fs @disasm2_fs@
+STARTUP_FULL = $(STARTUP)
+ifneq "@GNU_LIBTOOL@" "libtool-unavailable"
+STARTUP_FULL += unix/pthread.fs @disasm2_fs@
+endif
 STRIP	= strip
 DOSTRIP = true
 
@@ -1112,7 +1115,9 @@ $(buildccdir)/libgfsocket.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgffreetype_gl.la: $(FREETYPE_GL_SRC)
 $(buildccdir)/libgfpthread.la: unix/pthread-types.fs
 $(buildccdir)/libgfdisasm2.la: unix/disasm2.fs
+ifneq "@GNU_LIBTOOL@" "libtool-unavailable"
 gforth.fi: $(buildccdir)/libgfpthread.la @disasm2_la@
+endif
 
 $(buildccdir)/libgf%.la: unix/%.fs $(FORTH_GEN_LIGHT) $(GEN) $(LIBCC_LIB_SRC) libforth
 		@echo LIBFORTH $<

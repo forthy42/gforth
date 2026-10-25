@@ -1494,7 +1494,8 @@ if test -z "$GNU_LIBTOOL"; then
   config_warns="$config_warns
 GNU libtool not found (package libtool-bin on Debian)."
   #'
-  GNU_LIBTOOL=libtool
+  GNU_LIBTOOL=libtool-unavailable
+  enable_lib=no
 fi
 GNU_LIBTOOL=${GNU_LIBTOOL#$CROSS_PREFIX}
 AC_SUBST(GNU_LIBTOOL)
@@ -1503,7 +1504,7 @@ AC_SUBST(GNU_LIBTOOL)
 #This check is just for making later checks link with libm.
 #using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
-AC_CHECK_LIB(ltdl,lt_dlinit)
+AC_CHECK_HEADER(ltdl.h, AC_CHECK_LIB(ltdl,lt_dlinit))
 #,LIB_SUFFIX=.la,LIB_SUFFIX=.so)
 if test "x$ac_cv_lib_ltdl_lt_dlinit" = xyes; then
    case "$host_os" in
@@ -1567,9 +1568,9 @@ AC_SUBST(disasm2_fs)
 AC_SUBST(disasm2_la)
 
 AC_CHECK_FUNCS(dlopen)
-if test -n "$GNU_LIBTOOL" -a "x$ac_cv_lib_ltdl_lt_dlinit" = xyes; then
+if test "$GNU_LIBTOOL" != libtool-unavailable -a "x$ac_cv_lib_ltdl_lt_dlinit" = xyes; then
   build_libcc_named=build-libcc-named
-elif test -n "$GNU_LIBTOOL" -a "x$ac_cv_func_dlopen" = xyes; then
+elif test "$GNU_LIBTOOL" != libtool-unavailable -a "x$ac_cv_func_dlopen" = xyes; then
   build_libcc_named=build-libcc-named
 else
   AC_MSG_WARN([No LIBTOOL found, skip pre-building libcc-based libraries])
@@ -1838,13 +1839,20 @@ GLXFLAG=false
 GLESFLAG=false
 MINOSFLAG=false
 HAS_SWIG_FORTH=
-if test -n "$SWIG" && $SWIG -forth $srcdir/unix/test.i; then
-    echo "Swig works in Forth mode"
-    has_swig=yes
-    MINOSFLAG=true
-    HAS_SWIG_FORTH=has-swig-forth
-    mkdir -p unix
-    echo timestamp > unix/$HAS_SWIG_FORTH
+if test "$GNU_LIBTOOL" = libtool-unavailable
+then
+   echo "Swig not used, because we have no GNU libtool"
+   config_warns="$config_warns
+swig not used due to lack of libtool."
+else
+    if test -n "$SWIG" && $SWIG -forth $srcdir/unix/test.i; then
+       echo "Swig works in Forth mode"
+       has_swig=yes
+       MINOSFLAG=true
+       HAS_SWIG_FORTH=has-swig-forth
+       mkdir -p unix
+       echo timestamp > unix/$HAS_SWIG_FORTH
+    fi
 fi
 
 AC_SUBST(HAS_SWIG_FORTH)
