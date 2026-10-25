@@ -3,13 +3,12 @@ ABGO Anton, Bernd, Gerald, Others welcome! * = work in progress, x = done, d = d
  B   [x] Multithreading API
  B       [x] Documentation
 A        [x] Documentation review
-  G      [ ] Examples
  B   [x] Save images that contain C bindings
   G      [x] Interface files for .h-files; build on install Port typical C-Libraries like stdio
   G      [x]*Allow for `#?include (c/)?stdio` Same structure as in C -> supported by posix repo
   G      [x] Hinweis auf SWIG für das C-interface Link auf https://github.com/GeraldWodni/posix
-  G      [ ] Include posix in release (#include or friends?)
-  G      [ ]*Use __attribute__((weak)) for functions, see https://steveyang.blog/en/2022/08/15/gnuc-c-weak-symbol-__atrribute__weak/
+  G      [d] Include posix in release (#include or friends?)
+  G      [d]*Use __attribute__((weak)) for functions, see https://steveyang.blog/en/2022/08/15/gnuc-c-weak-symbol-__atrribute__weak/
              link against library, use if(<function-name>)...
 A    [x] Recognizer Documentation & Examples
 A        [x] simplify API
@@ -44,12 +43,12 @@ B    [x] version comparison 001.000.000 -> upgrade path: 000.007.009
   G  [x] better vim support
 A    [x] changelog
 A    [x] NEWS-file
-A G      [ ] put NEWS on gforth.org
+A G      [x] put NEWS on gforth.org
 A    [ ]*update this ToDo file
  BG  [x] implement smart .s "..."
  B   [x] Extensible ... : Allow a stack of recognizer-like scanners
  B   [/]*Configurable ... : Allow different outputs (think about notation)
- BG      [ ] Compare smart stack (gforth and VFX)
+ BG      [x] Compare smart stack (gforth and VFX)
 AB   [x] ~~ uses ... and prints floating stack
  B   [x] compare-image warnings überprüfen
 ABG  [ ] fix warnings during compilation
@@ -68,6 +67,7 @@ AB       [ ]*Try building on non-Linux machines (cfarm)
 
 -*- RoadMap for gforth post 1.0 -*-
  B   [d] (Dropped) Multithreading: Use sections to allow compilation in every threading
+  G  [ ] Examples for Multithreading
      [ ] Thread-safe blocks implementation (mmap?)
 ABG  [ ] fork-marker use fork instead of classic marker
 AB   [x] marker für sections
