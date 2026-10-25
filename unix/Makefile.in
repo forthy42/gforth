@@ -50,7 +50,9 @@ LIBTOOL = @GNU_LIBTOOL@ --silent
 GCC	= @CC@
 HOSTCC	= @HOSTCC@
 CC	= $(HOSTCC) $(INCLUDES) -I.
+ifneq "@GNU_LIBTOOL@" "libtool-unavailable"
 HELPERS = stat.fs pthread-types.fs
+endif
 PREPENV = @PREPENV@
 EXECENV = @EXECENV@
 

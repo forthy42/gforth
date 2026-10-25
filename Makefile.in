@@ -431,7 +431,11 @@ FREETYPE_GL_SRC = $(FREETYPE_GL_C_SRC) $(FREETYPE_GL_INCLUDE)	\
 	$(FREETYPE_GL_LICENSES)
 
 EXTRA_DOC = mini-oof2.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs	\
-	cilk.fs coverage.fs $(LIBCC_LIB_SRC) doc/dummy.fs
+	coverage.fs
+ifneq "@GNU_LIBTOOL@" "libtool-unavailable"
+EXTRA_DOC += cilk.fs $(LIBCC_LIB_SRC)
+endif
+EXTRA_DOC += doc/dummy.fs
 
 MINOS_DOC = minos2/widgets.fs
 
@@ -441,13 +445,14 @@ LIBCC_DIST_SRC = $(SWIG_SRC) unix/stat-fsi.c unix/pthread-types-fsi.c	      \
 	@HAS_SWIG_FORTH@) Makefile.wayland
 
 LIBCC_FORTH_SRC = unix/libffi.fs unix/fflib.fs @disasm2_fs@ $(UNIXLIBS_SRC) $(LIBCC_SRC1)
+LIBCC_LIB_SRC = $(patsubst %, unix/%, $(SWIGLIBS)) @LIBCC_BUILD_SRC@
+ifneq "@GNU_LIBTOOL@" "libtool-unavailable"
 LIBCC_GEN_SRC = unix/stat.fs unix/pthread-types.fs $(patsubst %, unix/%, \
 	$(SWIGMODULES))
-LIBCC_LIB_SRC = $(patsubst %, unix/%, $(SWIGLIBS)) @LIBCC_BUILD_SRC@
-
-LIBCC_BUILD_SRC = $(LIBCC_GEN_SRC) @LIBCC_BUILD_SRC@
 LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_LIB_SRC) $(LIBCC_SRC1) libcc.fs | sed -e s,unix/,,g))
-
+LIBCC_GEN_DOC = $(LIBCC_GEN_SRC) build-libcc-named
+endif
+LIBCC_BUILD_SRC = $(LIBCC_GEN_SRC) @LIBCC_BUILD_SRC@
 LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
 
 UNICODE_SRC = mirror.fs bidi.fs vertical.fs bidi-db.fs mirrors.fs bidis.fs \
@@ -1685,17 +1690,17 @@ standard-words.fs: doc/2012-words doc/2012-words-extra
 		awk -f $(srcdir)/doc/standard-words.awk $< >>$@
 		cat $(srcdir)/doc/2012-words-extra >>$@
 
-doc/doc.fd:	doc/makedoc.fs hold-number-line.fs gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_GEN_SRC)
+doc/doc.fd:	doc/makedoc.fs hold-number-line.fs gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_GEN_DOC)
 		@echo DOC.FD
 		$(FORTHK) -e "s\" doc/doc.fd.tmp\"" doc/makedoc.fs except.fs startup.fs -e bye
 		$(srcdir)/move-if-change doc/doc.fd.tmp $@
 
-doc/extradoc.fd: doc/makedoc.fs hold-number-line.fs gforth$(EXT) gforth-light.fi $(EXTRA_DOC) $(LIBCC_GEN_SRC) build-libcc-named
+doc/extradoc.fd: doc/makedoc.fs hold-number-line.fs gforth$(EXT) gforth-light.fi $(EXTRA_DOC) $(LIBCC_GEN_DOC)
 		@echo EXTRADOC.FD
 		env GFORTH_IGNLIB=true GFORTH_COMPILELIB=no $(FORTHP) -i gforth-light.fi -e "s\" doc/extradoc.fd.tmp\"" doc/makedoc.fs -e "warnings off" $(EXTRA_DOC) -e bye
 		$(srcdir)/move-if-change doc/extradoc.fd.tmp $@
 
-doc/minosdoc.fd: doc/makedoc.fs hold-number-line.fs gforth$(EXT) gforth-light.fi $(MINOS_DOC) $(LIBCC_GEN_SRC) build-libcc-named
+doc/minosdoc.fd: doc/makedoc.fs hold-number-line.fs gforth$(EXT) gforth-light.fi $(MINOS_DOC) $(LIBCC_GEN_DOC)
 		@echo MINOSDOC.FD
 		env GFORTH_IGNLIB=true GFORTH_COMPILELIB=no XDG_SESSION_TYPE=x11 $(FORTHP) -i gforth-light.fi -e "s\" doc/minosdoc.fd.tmp\"" doc/makedoc.fs $(MINOS_DOC) -e bye
 		$(srcdir)/move-if-change doc/minosdoc.fd.tmp $@

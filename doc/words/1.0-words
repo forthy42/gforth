@@ -1792,6 +1792,7 @@ file-size
 file-status
 fill
 #fill-bytes
+filter-stack
 find
 find-name
 find-name-in
@@ -5406,6 +5407,10 @@ smart<>
 smart.quotation.
 smart.s.
 smart.s-skip
++smart-stack
+-smart-stack
+>smart-stack
+smart-stack>
 sm/rem
 SNR_BAD
 s>number
