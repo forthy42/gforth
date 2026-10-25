@@ -52,7 +52,8 @@ A    [ ]*update this ToDo file
  BG      [ ] Compare smart stack (gforth and VFX)
 AB   [x] ~~ uses ... and prints floating stack
  B   [x] compare-image warnings überprüfen
-ABG  [ ]*fix warnings during compilation
+ABG  [ ] fix warnings during compilation
+         [ ] put long in front of int when checking for Cell size
 ABG  [x] defaults
 ABG      [x] which recognizers should be included by default
          [x] which files should be in image
