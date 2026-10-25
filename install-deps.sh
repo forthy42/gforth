@@ -2,7 +2,7 @@
 which sudo || alias sudo=eval
 install_debian() {
   sudo apt-get -y update
-  sudo apt-get -y -m install libffi-dev libltdl7 libsoil-dev binutils-dev libtool make gcc automake m4 texinfo texi2html texlive-base install-info dpkg-dev debhelper yodl bison libboost-dev g++ git # yodl, bison, ... git: are for swig
+  sudo apt-get -y -m install libffi-dev libltdl7 libsoil-dev binutils-dev libtool make gcc automake m4 texinfo texi2html texlive-base install-info dpkg-dev debhelper bison libboost-dev g++ git # bison, ... git: are for swig
   if ! sudo apt-get -y -m install libpcre3-dev
   then
       git clone https://github.com/nektro/pcre-8.45.git
@@ -68,7 +68,7 @@ install_osx() {
   brew tap forthy42/homebrew-zsh
   brew update > /dev/null
   brew upgrade > /dev/null
-  brew install gcc harfbuzz texinfo xz mesa premake automake yodl libtool
+  brew install gcc harfbuzz texinfo xz mesa premake automake libtool
   export PATH="/usr/local/opt/texinfo/bin:$PATH"
   brew install --cask xquartz mactex
   export PATH="/Library/TeX/texbin:$PATH"
