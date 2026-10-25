@@ -391,8 +391,8 @@ exchange (char **argv)
 static const char *_getopt_initialize (int, char *const *, const char *);
 #endif
 static const char *
-_getopt_initialize (int argc ATTRIBUTE_UNUSED,
-		    char *const *argv ATTRIBUTE_UNUSED,
+_getopt_initialize (int argc __attribute__ ((unused)),
+		    char *const *argv __attribute__ ((unused)),
 		    const char *optstring)
 {
   /* Start processing options with ARGV-element 1 (since ARGV-element 0

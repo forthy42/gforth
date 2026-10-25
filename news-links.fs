@@ -26,7 +26,8 @@
 \ Problems: A compiled xt via compile, might be created with noname:
 \           a noname: leaves now a empty name field
 
-"https://net2o.de/gforth-1.0/" 2constant url-prefix
+\ "https://net2o.de/gforth-1.0/"
+"https://gforth.org/manual/1.0/" 2constant url-prefix
 
 "doc/gforth_html/Word-Index.html" slurp-file 2constant linkdata
 

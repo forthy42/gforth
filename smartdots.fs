@@ -127,17 +127,17 @@ debug: .string.( ( -- ) \ gforth-internal dot-string-dot-paren
 
 \ Vfx compatible access words
 
-: >smart-stack ( xt -- ) \ vfx
+: >smart-stack ( xt -- ) \ gforth-experimental
     smart<> >back ;
-: smart-stack> ( -- xt ) \ vfx
+: smart-stack> ( -- xt ) \ gforth-experimental
     smart<> back> ;
-: filter-stack { x stack -- x1 ... xn n } \ vfx
+: filter-stack { x stack -- x1 ... xn n } \ gforth-experimental
     0 stack $@ cell MEM+DO
 	I @ x <> IF  I @ swap 1+  THEN
     LOOP ;
-: -smart-stack ( xt -- ) \ vfx
+: -smart-stack ( xt -- ) \ gforth-experimental
     smart<> filter-stack  smart<> set-stack ;
-: +smart-stack ( xt -- ) \ vfx
+: +smart-stack ( xt -- ) \ gforth-experimental
     dup -smart-stack >smart-stack ;
 
 \ toplevel
