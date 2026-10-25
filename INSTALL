@@ -9,24 +9,22 @@ For installing from git, read INSTALL.md.
 make
 sudo make install
 
+On build problems, try starting from scratch and use
 
+./configure GNU_LIBTOOL=libtool-unavailable
+make
+sudo make install
 
 		Prerequisites
 
 You need gcc version 2.0 or later to compile gforth.
 
 For the (documented) libcc.fs C interface you need a C compiler and
-libtool at run-time.
+libtool at run-time.  If you don't have that or there are problems
+with it, configure with the option GNU_LIBTOOL=libtool-unavailable (in
+many cases, configure figeres this out by itself, but not always).
 
-For the (undocumented ) lib.fs C interface you need to install either
-the ffcall libraries or the libffi library.  Libffi comes with recent
-gccs, ffcall can be found on
-
-   ftp://ftp.santafe.edu/pub/gnu/ffcall-1.8.tar.gz (USA) 
-   ftp://ftp.ilog.fr/pub/Users/haible/gnu/ffcall-1.8.tar.gz (Europe) 
-
-On many architectures (exceptions: 386, PPC, MIPS, Alpha) you need gdb
-at run-time in order for the disassembler to work.
+Many prerequisites are mentioned in install-deps.sh
 
 
 		Building and Installing
@@ -48,7 +46,7 @@ make check
 
 You can run some benchmarks with
 
-make bench
+./gforth-fast onebench.fs
 
 and compare them with the results in Benchres and in the manual.
 
@@ -56,27 +54,20 @@ If everything is all right, you may want to install gforth. Type
 
 make install
 
-For paper documentation, print gforth.ps (a Postscript file (300dpi
-fonts, i.e., it works, but does not produce best quality on better
-printers)), or say
-
-make gforth.dvi
-
-and print the resulting file gforth.dvi. You can also get the
-documentation in HTML format by typing
+For paper documentation, print gforth.pdf or gforth.ps.  You can also
+get the documentation in HTML format by typing
 
 make html
 
-If you prefer plain ASCII documentation, you can 
+The HTML documentation is already online on
+https://gforth.org/manual/1.0/
 
-make doc/gforth.txt
-
-or just concatenate the files gforth.info-* ('cat gforth.info-*' under
-Unix); the result of the latter option is a little worse.
+If you prefer plain ASCII documentation, doc/gforth.txt contains it
+and is used when you say HELP <word> in Gforth.
 
 You can find binary distributions, documentation in HTML and plain
-text format and information on known installation problems at
-http://www.complang.tuwien.ac.at/forth/gforth/.
+text format and information on known installation problems through
+https://gforth.org
 
 
 		Configuration Options
