@@ -556,7 +556,7 @@ struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid)
     if (c=='\n') break;
     if (c=='\r') {
       do{
-        c = getc(wfileid);
+        c = getc_unlocked(wfileid);
       } while (c == EOF && ferror(wfileid)==EINTR);
       if (c==EOF) {
         int err=ferror(wfileid);

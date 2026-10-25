@@ -40,6 +40,7 @@
     [THEN]
 [THEN]
 
+\ !! use the actual value of EEXIST instead of hard-coding it here
 17 Constant EEXIST
 #-512 EEXIST - Constant file-exist#
 
