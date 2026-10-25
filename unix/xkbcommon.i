@@ -13,7 +13,7 @@
 %apply unsigned long { size_t }
 %apply SWIGTYPE * { va_list }
 
-// prep: sed -e 's/^\(.*\(xkb_components_names_from_rules\|xkb_keymap_mod_get_mask\|xkb_state_update_latched_locked\).*\)$/#if XKB_MIN_VER(0,10)\n\1\n#endif/g' -e 's/^\(.*\(xkb_rmlvo_builder_new\|xkb_rmlvo_builder_append_layout\|xkb_rmlvo_builder_append_option\|xkb_rmlvo_builder_ref\|xkb_rmlvo_builder_unref\|xkb_keymap_new_from_rmlvo\|xkb_keymap_new_from_names2\).*\)$/#if XKB_MIN_VER(1,11)\n\1\n#endif/g' -e 's/^\(.*\(xkb_keymap_get_as_string2\).*\)$/#if XKB_MIN_VER(1,12)\n\1\n#endif/g'
+// prep: sed -e 's/^\(.*\(xkb_components_names_from_rules\).*\)$/#if XKB_MIN_VER(1,9)\n\1\n#endif/g' -e 's/^\(.*\(xkb_keymap_mod_get_mask\|xkb_state_update_latched_locked\).*\)$/#if XKB_MIN_VER(1,10)\n\1\n#endif/g' -e 's/^\(.*\(xkb_rmlvo_builder_new\|xkb_rmlvo_builder_append_layout\|xkb_rmlvo_builder_append_option\|xkb_rmlvo_builder_ref\|xkb_rmlvo_builder_unref\|xkb_keymap_new_from_rmlvo\|xkb_keymap_new_from_names2\|xkb_keymap_mod_get_mask2\).*\)$/#if XKB_MIN_VER(1,11)\n\1\n#endif/g' -e 's/^\(.*\(xkb_keymap_get_as_string2\).*\)$/#if XKB_MIN_VER(1,12)\n\1\n#endif/g'
 // exec: sed -e 's/" xkbcommon" add-lib/" xkbcommon" add-lib/g' -e 's/^c-library/cs-vocabulary xkbcommon\nget-current >r also xkbcommon definitions\n\nc-library/g' -e 's/^end-c-library/end-c-library\nprevious r> set-current/g' -e 's/\(_from_buffer .*\) s u /\1 a u /g' | grep -v '^#[1-9][0-9]	constant XKB_KEY' | grep -v '^#[1-9][0-9][0-9]	constant XKB_KEY' | grep -v '^#[1-9][0-9][0-9][0-9]	constant XKB_KEY'
 
 %include <xkbcommon/xkbcommon.h>
