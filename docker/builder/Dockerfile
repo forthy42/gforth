@@ -17,7 +17,7 @@ RUN echo Specified gcc version is ${GCC} \
      libfreetype-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
      libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
      libxkbcommon-dev libwebp-dev libv4l-dev libyuv-dev emacs-nox \
-     yodl bison libboost-dev binutils-dev git && \
+     bison libboost-dev binutils-dev git && \
      if test "${GCC%%[0-9]*}" = "gcc-"; then echo ln -fs /usr/bin/$GCC /usr/bin/gcc; ln -fs /usr/bin/$GCC /usr/bin/gcc; if test -f /usr/bin/x86_64-linux-gnu-$GCC; then ln -fs /usr/bin/x86_64-linux-gnu-$GCC /usr/bin/x86_64-linux-gnu-gcc; fi; fi
 RUN if ! apt -y install gforth; then \
          if which wcurl >/dev/null 2>&1; then \
@@ -42,7 +42,7 @@ RUN cd /tmp/ \
     && make install \
     && cd .. \
     && rm -rf swig \
-    && apt-get remove -y yodl bison libboost-dev git \
+    && apt-get remove -y bison libboost-dev git \
     && apt-get clean
 RUN apt-get install -y libpulse-dev libharfbuzz-dev \
   && apt-get clean
