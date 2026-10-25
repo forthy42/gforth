@@ -1495,6 +1495,9 @@ if test -z "$GNU_LIBTOOL"; then
 GNU libtool not found (package libtool-bin on Debian)."
   #'
   GNU_LIBTOOL=libtool-unavailable
+fi
+if test "$GNU_LIBTOOL" = libtool-unavailable
+then
   enable_lib=no
 fi
 GNU_LIBTOOL=${GNU_LIBTOOL#$CROSS_PREFIX}
