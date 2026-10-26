@@ -17,6 +17,7 @@ AMD64 (x86-64)
 i386
 Loongarch64
 mips64
+riscv64
 ppc64
 s390x
 
