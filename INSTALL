@@ -24,8 +24,13 @@ libtool at run-time.  If you don't have that or there are problems
 with it, configure with the option GNU_LIBTOOL=libtool-unavailable (in
 many cases, configure figeres this out by itself, but not always).
 
-Many prerequisites are mentioned in install-deps.sh
+Many prerequisites are mentioned in install-deps.sh.  For various
+Linux systems, you can install them with
 
+BUILD_FROM=tarball ./install-deps.sh
+
+(Leave "BUILD_FROM=tarball" away if you want to be able to build from
+the git.)
 
 		Building and Installing
 

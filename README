@@ -16,16 +16,21 @@ ARM A64
 AMD64 (x86-64)
 i386
 Loongarch64
+mips64
 ppc64
 s390x
 
 on the following OSs:
 
 AIX
+FreeBSD
+GNU Hurd
 Linux
 MacOS
-FreeBSD
 NetBSD
+OpenBSD 7.8
+
+Use WSL(2) to run Gforth on Windows.
 
 Read INSTALL for installation instructions from source, or INSTALL.DOS
 for DOS, Windows, and OS/2 from source, or INSTALL.BINDIST if you have

@@ -15,7 +15,15 @@ http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz.
 All times are given in milliseconds of CPU time for the new output
 format, in seconds of CPU time for the old output format.
 
+gforth-1.0:
+ sieve bubble matrix    fib    fft CPU; gcc
+ 275.6  264.6  125.8  348.7  178.3 SPARC-M8 5067MHz; gcc-16.1.0
+1420.0 1570.0 1520.0 1670.0  980.0 Cavium OCTEON (MIPS 64b) 1000MHz; gcc-8.4.0
 
+
+
+
+Before gforth-1.0:
 After 2026-08-24 (new output format, all architectures in one list):
   sieve bubble matrix    fib    fft release; CPU; gcc
    16.8   18.2    8.9   23.4   11.6 20260910; Ryzen AI Pro 350 (Zen 5) 4900MHz; gcc-15.2
