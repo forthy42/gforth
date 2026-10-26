@@ -40,10 +40,6 @@
     [THEN]
 [THEN]
 
-\ !! use the actual value of EEXIST instead of hard-coding it here
-17 Constant EEXIST
-#-512 EEXIST - Constant file-exist#
-
 : mkdir-parents {: c-addr u mode -- ior :} \ gforth
     \G create the directory @i{c-addr u} and all its parents with mode
     \G @i{mode} (modified by umask).  @i{mode} is a 9-bit number

@@ -1644,6 +1644,10 @@ AC_HEADER_STDC
 
 AC_CHECK_LIB(dl,dlopen)
 AC_REPLACE_FUNCS(memmove strtoul exp10 sincos strerror strsignal atanh)
+AC_CHECK_FUNCS(strerrordesc_np)
+AC_COMPUTE_INT([ERRNO_EEXIST], [EEXIST],
+               [AC_INCLUDES_DEFAULT([@%:@include <errno.h>])], [ERRNO_EEXIST=17])
+AC_SUBST(ERRNO_EEXIST)
 AC_FUNC_FSEEKO
 AC_CHECK_FUNCS(ftello sys_siglist getrusage nanosleep clock_gettime)
 AC_CHECK_TYPES(stack_t,,,[#include <signal.h>])

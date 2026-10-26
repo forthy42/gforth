@@ -68,3 +68,5 @@ set-current
 @GLESFLAG@ constant gles?
 @GLXFLAG@ constant glx?
 @MINOSFLAG@ constant minos?
+
+-512 @ERRNO_EEXIST@ - constant file-exist#
