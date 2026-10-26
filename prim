@@ -2300,8 +2300,12 @@ if(wior)
   a_addr2 = a_addr1; /* in case of an error, keep a_addr1 */
 
 strerror	( n -- c_addr u )	gforth-internal
-c_addr = (Char *)strerror(n);
-u = strlen((char *)c_addr);
+#if HAVE_STRERRORDESC_NP
+c_addr = (Char *)strerrordesc_np(n);
+#else
+c_addr = (n<1536)?(Char *)strerror(n):NULL;
+#endif
+u = (c_addr==NULL)?0:strlen((char *)c_addr);
 
 strsignal	( n -- c_addr u )	gforth-internal
 c_addr = (Char *)strsignal(n);

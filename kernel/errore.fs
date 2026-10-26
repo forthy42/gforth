@@ -72,6 +72,10 @@ has? OS [IF]
     s>d tuck dabs <# #s rot sign s" error #" holds #> r> base ! ;
 
 : error$ ( n -- addr u )
+    dup -512 < if \ could it be a strerror error
+        -512 over - strerror over if \ is it a strerror error
+            rot drop exit then
+        2drop then
     ErrRanges
     BEGIN  @ dup  WHILE
 	    2dup cell+ 2@ within
@@ -82,7 +86,6 @@ has? OS [IF]
 
 has? OS [IF]
     ErrRanges @ here ErrRanges A! A, -255 , -511 , ' strsignal A,
-    ErrRanges @ here ErrRanges A! A, -511 , -2047 , ' strerror A,
 [THEN]
 
 : .error ( n -- )
