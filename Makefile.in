@@ -39,7 +39,7 @@ endif
 VERSION	= @PACKAGE_VERSION@
 DOSVERSION=`echo $(VERSION)|sed 's/\.//g'|sed 's/-.*//g'`
 #release version (between releases this is the prospective next release) 
-RVERSION = 1.0
+RVERSION = 1.1
 
 # -------------	System specific variables	
 
