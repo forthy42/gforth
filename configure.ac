@@ -735,8 +735,9 @@ AC_SUBST(FAST)
 BFD_ARCH=`grep '#define BFD_ARCH' "$srcdir/arch/$machine/machine.h" | cut -f3 -d' '`
 BFD_MACH=`grep '#define BFD_MACH' "$srcdir/arch/$machine/machine.h" | cut -f3 -d' '`
 
-# the line produces two values for BFD_MACH on RISC-V, so let's work around that
-test "$machine" = riscv && BFD_MACH=bfd_mach_${host_cpu}
+# the line produced two values for BFD_MACH on RISC-V
+# (now zero by using indentation for #define), so let's work around that
+test -z "$BFD_MACH" && BFD_MACH=bfd_mach_${host_cpu}
 
 AC_DEFINE_UNQUOTED(BFD_ARCH, $BFD_ARCH, [BFD architecture for libopcodes])
 AC_DEFINE_UNQUOTED(BFD_MACH, $BFD_MACH, [BFD machine for libopcodes])
