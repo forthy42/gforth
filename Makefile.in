@@ -1228,11 +1228,11 @@ checkone test: prim.b gforth-light.fi engine/prim-s.i
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $<\" ' output-c ' output-c-combined process-file bye"| \
 		  tr -d '\015' | grep -v '^#line '|diff -u engine/prim-s.i -
 		@echo TEST $(ENGINE) fptests
-		-$(TIMEOUT) $(FORTH) -i gforth-light.fi test/fp/runfptests.fth -e bye | diff -u $(srcdir)/test/fp/fptest.out - || $(COWSAY_FAIL) "=== Floating point test failed ===" | $(LOLCAT_FAIL)
+		-$(TIMEOUT) $(FORTH) -i gforth-light.fi test/fp/runfptests.fth -e bye | diff -u $(srcdir)/test/fp/fptest.out - || echo "=== Floating point test failed ===" | $(FAIL)
 		@echo TEST $(ENGINE) read-line
 		$(TIMEOUT) $(FORTHS) -i gforth-light.fi test/read-line.fs -e bye | diff -u - $(srcdir)/test/read-line.out
 		@echo TEST $(ENGINE) regexp
-		$(TIMEOUT) $(FORTHS) -i gforth-light.fi regexp.fs test/regexp-test.fs | diff -u - $(srcdir)/test/regexp.out || $(COWSAY_FAIL) "=== Regexp test failed ===" | $(LOLCAT_FAIL)
+		$(TIMEOUT) $(FORTHS) -i gforth-light.fi regexp.fs test/regexp-test.fs | diff -u - $(srcdir)/test/regexp.out || echo "=== Regexp test failed ===" | $(FAIL)
 
 check-nofast: gforth-light.fi
 		@echo TEST $(ENGINE) nofast
@@ -1797,10 +1797,10 @@ show-summary:
 	$(RMTREE) $(LOGDIR)
 
 show-success-message:
-	$(COWSAY_SUCCESS) "=== Yay, make succeeded ===" | $(LOLCAT_SUCCESS)
+	echo "=== Yay, make succeeded ===" | $(SUCCESS)
 
 show-fail-message:
-	$(COWSAY_FAIL) "=== Oh no, make failed ===" | $(LOLCAT_FAIL)
+	echo "=== Oh no, make failed ===" | $(FAIL)
 
 show-success: show-summary show-success-message
 
