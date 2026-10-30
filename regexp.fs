@@ -103,7 +103,7 @@ charclass any    0 $FF ..char #lf -char
     ]] any c?          [[ ; immediate
 : -\d ( addr -- addr' ) \ regexp-pattern
     \G check for not digit
-    ]] digit -c?       [[ ; immediate
+    ]] digits -c?       [[ ; immediate
 : -\s ( addr -- addr' ) \ regexp-pattern
     \G check for not blank
     ]] blanks -c?      [[ ; immediate
