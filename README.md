@@ -4,15 +4,16 @@
 [![pipeline status](https://gitlab.com/forthy42/gforth/badges/master/pipeline.svg)](https://gitlab.com/forthy42/gforth/commits/master)
 [![pipeline status](https://git.net2o.de/bernd/gforth/badges/master/pipeline.svg)](https://git.net2o.de/bernd/gforth/commits/master)
 
-Gforth is a fast and portable implementation of the ANS Forth/Forth 200x
-language. It works nicely with the Emacs editor, offers some nice features
-such as input completion and history, backtraces, a decompiler and a powerful
-locals facility, and it has a comprehensive manual. Gforth combines
-traditional implementation techniques with newer techniques for portability
-and performance: its inner interpreter is direct threaded with several
-optimizations, but you can also use a traditional-style indirect threaded
-interpreter.  Gforth is distributed under the GNU General Public license (see
-COPYING).
+Gforth is a fast and portable implementation of Forth-2012. It works
+nicely with the Emacs editor, offers some nice features such as input
+completion and history, backtraces, a decompiler and a powerful locals
+facility, and it has a comprehensive manual. Gforth combines
+traditional threaded-code implementation techniques with native code
+for performance similar to SwiftForth in the engine gforth-fast,
+better debugging in the engine gforth, and support for traditional
+indirect-threaded code in the engine gforth-itc for programs that
+require that.  Gforth is distributed under the GNU General Public
+license (see COPYING).
 
 Gforth is part of the GNU Operating System, developed by the GNU Project.  To
 learn more about Free (libre) Software, you can read this page:
@@ -30,29 +31,36 @@ as a package to the Forth Net: [https://theforth.net](https://theforth.net)
 
 Gforth runs under GNU, BSD, and similar systems, MS Windows through WSL and
 MacOS X and should not be hard to port to other systems supported by GCC. This
-version has been tested successfully on the following platforms:
+version has been tested successfully on the following architectures:
 
-* GNU/Linux
-  * amd64
-  * arm64
-  * armel
-  * armhf
-  * i386
-  * mips
-  * mipsel
-  * powerpc
+* amd64
+* arm64
+* armel
+* armhf
+* i386
+* loongarch64
+* mips
+* mipsel
+* mips64
+* powerpc
+* riscv64
+* s390x
+* sparc64
+
+and the following operating systems:
+
+* AIX
 * Android/Linux
-  * amd64
-  * arm64
-  * arm
-  * i386
-  * mips
-* Gforth EC(embedded): r8c, 4stack, misc, 8086
-* Windows via WSL (so see GNU/Linux)
+* FreeBSD
+* GNU Hurd
+* GNU/Linux
 * MacOS
-  * arm64
-  * amd64
-  * i386
+* NetBSD
+* OpenBSD
+* Solaris
+
+Use WSL to run Gforth on Windows.
+
 
 ## Installation
 
@@ -68,10 +76,10 @@ To start the system, just say `gforth` (after installing it).
 
 You can find new versions of Gforth at\
 [www.complang.tuwien.ac.at/forth/gforth/](https://www.complang.tuwien.ac.at/forth/gforth/)\
-and current snapshots on\
-[www.complang.tuwien.ac.at/forth/gforth/Snapshots/current/](https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/current/)\
 or at\
 [ftp://ftp.gnu.org/gnu/gforth/](ftp://ftp.gnu.org/gnu/gforth/)
+and current snapshots on\
+[www.complang.tuwien.ac.at/forth/gforth/Snapshots/current/](https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/current/)\
 
 ## Files
 
