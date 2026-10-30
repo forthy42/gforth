@@ -43,7 +43,8 @@ r> warnings !
 : +bit ( addr n -- )  + 1 swap c! ;
 : -bit ( addr n -- )  + 0 swap c! ;
 [IFUNDEF] @+
-    : @+ ( addr -- n addr' )  dup @ swap cell+ ;
+: @+ ( addr1 -- addr2 x )
+    dup cell+ swap @ ;
 [THEN]
 
 0 Value cur-class
@@ -66,11 +67,11 @@ r> warnings !
 ?: and! ( n addr -- )  tuck @ and swap ! ;
 : +class ( class -- ) \ regexp-cg
     \G union of charclass @var{class} and the current charclass
-    $100 0 ?DO  @+ swap
+    $100 0 ?DO  @+
     cur-class I + or!  cell +LOOP  drop ;
 : -class ( class -- ) \ regexp-cg
     \G subtract the charclass @var{class} from the current charclass
-    $100 0 ?DO  @+ swap invert
+    $100 0 ?DO  @+ invert
     cur-class I + and!  cell +LOOP  drop ;
 
 : char? ( addr class -- addr' flag )
@@ -131,12 +132,12 @@ Variable vars     #20 cells allot
 Variable varstack #10 cells allot
 Variable varsmax
 : >var ( -- addr )
-    vars @+ swap 2* cells +
-    vars @ varstack @+ swap th!
+    vars @+ 2* cells +
+    vars @ varstack @+ th!
     1 vars +! 1 varstack +! ;
 : var> ( -- addr )
     -1 varstack +!
-    varstack @+ swap th@
+    varstack @+ th@
     1+ 2* cells vars + ;
 Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
 : greed' ( -- addr )  greed-counts dup @ + ;
