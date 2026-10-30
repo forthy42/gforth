@@ -32,15 +32,19 @@
 : FORK ( compilation -- orig ; run-time f -- ) \ gforth
     \G AHEAD-like control structure: calls the code after JOIN.
     POSTPONE call >mark ; immediate restrict
+0 warnings !@ >r
 : JOIN ( orig -- ) \ gforth
     \G THEN-like control structure for FORK
     postpone THEN ; immediate restrict
+r> warnings !
 
 \ Charclasses
 
 : +bit ( addr n -- )  + 1 swap c! ;
 : -bit ( addr n -- )  + 0 swap c! ;
-: @+ ( addr -- n addr' )  dup @ swap cell+ ;
+[IFUNDEF] @+
+    : @+ ( addr -- n addr' )  dup @ swap cell+ ;
+[THEN]
 
 0 Value cur-class
 : charclass ( -- ) \ regexp-cg
@@ -81,7 +85,7 @@
     \G check @var{addr} for not membership in charclass @var{class}
     ]] char?    ?LEAVE [[ ; immediate
 
-charclass digit  '0 '9 ..char
+charclass digits '0 '9 ..char
 charclass blanks 0 bl ..char
 \ bl +char #tab +char #cr +char #lf +char ctrl L +char
 charclass letter 'a 'z ..char 'A 'Z ..char
@@ -89,7 +93,7 @@ charclass any    0 $FF ..char #lf -char
 
 : \d ( addr -- addr' ) \ regexp-pattern
     \G check for digit
-    ]] digit c?        [[ ; immediate
+    ]] digits c?       [[ ; immediate
 : \s ( addr -- addr' ) \ regexp-pattern
     \G check for blanks
     ]] blanks c?       [[ ; immediate
