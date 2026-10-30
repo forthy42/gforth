@@ -1,7 +1,7 @@
 /* This is the machine-specific part for Loongson 3 processors
 
   Authors: Bernd Paysan
-  Copyright (C) 2025 Free Software Foundation, Inc.
+  Copyright (C) 2025,2026 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
