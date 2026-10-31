@@ -42,10 +42,7 @@ r> warnings !
 
 : +bit ( addr n -- )  + 1 swap c! ;
 : -bit ( addr n -- )  + 0 swap c! ;
-[IFUNDEF] @+
-: @+ ( addr1 -- addr2 x )
-    dup cell+ swap @ ;
-[THEN]
+?: @+ ( addr1 -- addr2 x ) dup cell+ swap @ ;
 
 0 Value cur-class
 : charclass ( -- ) \ regexp-cg
