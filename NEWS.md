@@ -93,7 +93,7 @@ Goals](https://gforth.org/manual/1.0/Stability-Goals.html).
 
 * New word header layout, and based on that:
   * Modify the behaviour of words: `set-does> set-compsem set->int
-    set->comp set-name>string set-name>link`; using a code addres
+    set->comp set-name>string set-name>link`; using a code address
     instead of an xt: `set-execute`; new code addresses for that:
     `dovalue: dodoes: doabicode:`
   * User-defined `to` etc.: `to-table: n/a to-class: >uvalue set-to`
