@@ -1,7 +1,7 @@
 DEVICES=$(find /dev/dri -type c | sed -e 's/^.*$/--device=\0:\0/g' | tr '\n' ' ')
 USERMAP="$(id -u):$(id -g)"
-GROUPADD=""
 RENDERADD="--group-add=$(\ls -ng /dev/dri/render* | head -1 | sed -e 's/  */ /g' | cut -f3 -d' ')"
+GROUPADD="--group-add=1000 "
 for i in $(id -G)
 do
     GROUPADD+="--group-add=$i "
