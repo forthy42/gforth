@@ -1,8 +1,13 @@
 Source: gforth
-Section: programming
+Section: interpreters
 Priority: optional
-Maintainer: Bernd Paysan <bernd.paysan@gmx.de>
+Maintainer: Bernd Paysan <bernd@net2o.de>
 Build-Depends: debhelper (>= 4.1.16), build-essential, gcc, autoconf, automake, autotools-dev, libffi-dev, binutil-dev, libtool, libtool-bin, libltdl7-dev
+Vcs-Browser: https://salsa.debian.org/debian/gforth
+Vcs-Git: https://salsa.debian.org/debian/gforth.git
+Homepage: https://gforth.org/
+Rules-Requires-Root: no
+Standards-Version: 4.7.3
 
 Package: gforth-bin-version
 Version: @DEBVERSION@
