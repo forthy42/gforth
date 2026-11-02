@@ -5,13 +5,19 @@ for i in $(id -G)
 do
     GROUPADD+="--group-add=$i "
 done
+WORDKIR="-v `pwd`:/workdir -w /workdir"
 TMPHOME="--mount type=tmpfs,destination=/home/gforth,tmpfs-size=64m,tmpfs-mode=1777"
+XDGENVS="-e XDG_RUNTIME_DIR=/tmp/xdg-runtime-dir -e USER=\$USER -e DISPLAY=\$DISPLAY -e XDG_SESSION_TYPE=\$XDG_SESSION_TYPE -e WAYLAND_DISPLAY=\$WAYLAND_DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v /usr/share/fonts:/usr/share/fonts -v \$XAUTHORITY:/home/gforth/.Xauthority -v \${XDG_RUNTIME_DIR}:/tmp/xdg-runtime-dir"
 
-alias swigdk="docker run -ti --user=$USERMAP $TMPHOME -v `pwd`:/workdir -w /workdir -v /usr/include:/usr/include --rm forthy42/swig"
-alias gforthdk="docker run -ti --user=$USERMAP $GROUPADD $TMPHOME -v `pwd`:/workdir -w /workdir --rm forthy42/gforth"
-alias gforth-guidk="docker run --user=$USERMAP $GROUPADD $RENDERADD $TMPHOME -ti -v `pwd`:/workdir -w /workdir -e XDG_RUNTIME_DIR=/tmp/xdg-runtime-dir -e USER=\$USER -e DISPLAY=\$DISPLAY -e XDG_SESSION_TYPE=\$XDG_SESSION_TYPE -e WAYLAND_DISPLAY=\$WAYLAND_DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v /usr/share/fonts:/usr/share/fonts -v \$XAUTHORITY:/home/gforth/.Xauthority -v \${XDG_RUNTIME_DIR}:/tmp/xdg-runtime-dir $DEVICES --rm forthy42/gforth-gui"
-alias gforth-gui-fontsdk="docker run --user=$USERMAP $GROUPADD $RENDERADD $TMPHOME -ti -v `pwd`:/workdir -w /workdir -e XDG_RUNTIME_DIR=/tmp/xdg-runtime-dir -e USER=\$USER -e DISPLAY=\$DISPLAY -e XDG_SESSION_TYPE=\$XDG_SESSION_TYPE -e WAYLAND_DISPLAY=\$WAYLAND_DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v \$XAUTHORITY:/home/gforth/.Xauthority -v \${XDG_RUNTIME_DIR}:/tmp/xdg-runtime-dir $DEVICES --rm forthy42/gforth-gui-fonts"
+alias swigdk="docker run -ti --user=$USERMAP $TMPHOME $WORKDIR -v /usr/include:/usr/include --rm forthy42/swig"
+alias gforthdk="docker run -ti --user=$USERMAP $GROUPADD $TMPHOME $WORKDIR --rm forthy42/gforth"
+alias gforth-guidk="docker run -ti --user=$USERMAP $GROUPADD $RENDERADD $TMPHOME $WORKDIR $XDGENVS $DEVICES --rm forthy42/gforth-gui"
+alias gforth-gui-fontsdk="docker run -ti --user=$USERMAP $GROUPADD $RENDERADD $TMPHOME $WORKDIR $XDGENVS $DEVICES --rm forthy42/gforth-gui-fonts"
+
 unset DEVICES
 unset USERMAP
 unset GROUPADD
 unset RENDERADD
+unset TMPHOME
+unset XDGENVS
+unset WORKDIR
