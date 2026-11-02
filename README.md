@@ -82,6 +82,9 @@ or at\
 and current snapshots on\
 [www.complang.tuwien.ac.at/forth/gforth/Snapshots/current/](https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/current/)\
 
+Starting with 1.0.0, the signing key has been changed to
+ID [04880DE6ECB06FC8EE9C3AF43B64AEC1E0B7BDE0](https://bernd-paysan.de/bernd@net2o.de.gpg.asc).
+
 ## Files
 
 On popular request, here are the meanings of unusual file extensions:
