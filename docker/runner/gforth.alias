@@ -5,7 +5,7 @@ for i in $(id -G)
 do
     GROUPADD+="--group-add=$i "
 done
-WORDKIR="-v `pwd`:/workdir -w /workdir"
+WORKDIR="-v `pwd`:/workdir -w /workdir"
 #or use TMPHOME="-v $HOME:$HOME -e HOME=$HOME"
 TMPHOME="--mount type=tmpfs,destination=/homedir,tmpfs-size=64m,tmpfs-mode=1777 -e HOME=/homedir"
 XDGENVS="-e XDG_RUNTIME_DIR=/tmp/xdg-runtime-dir -e USER=\$USER -e DISPLAY=\$DISPLAY -e XDG_SESSION_TYPE=\$XDG_SESSION_TYPE -e WAYLAND_DISPLAY=\$WAYLAND_DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v /usr/share/fonts:/usr/share/fonts -v \$XAUTHORITY:/home/gforth/.Xauthority -v \${XDG_RUNTIME_DIR}:/tmp/xdg-runtime-dir"
