@@ -135,6 +135,7 @@ c.inst: c-addi16:    >imm-16 w, ;
     swap $FFFFF000 and or ;
 : >imm-j ( imm x -- x' ) >r
     \ imm[20|10:1|11|19:12]
+    here - \ imm is PC relative to the start of instruction
     dup 20 rshift 1 and >r
     dup 2/ $3FF and r> 10 lshift or >r
     dup 11 rshift 1 and r> 2* or >r
