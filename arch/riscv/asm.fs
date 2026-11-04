@@ -128,6 +128,8 @@ synonym c-mv: c-add:
 c.inst: c-jr:        >rd w, ;
 c.inst: c-addi16:    >imm-16 w, ;
 
+: split# ( n -- immlo immhi )
+     $800 + dup $FFFFF000 and swap $FFF and $800 - swap ;
 : >imm-i ( imm x -- x' ) swap $FFF and 20 lshift or ;
 : >imm-s ( imm x -- x' )
     over $1F and 7 lshift or swap $FE0 and 20 lshift or ;
