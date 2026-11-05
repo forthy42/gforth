@@ -48,7 +48,9 @@
         s 1 /string '/' scan 2dup while ( s1 s1addr )
 	    c-addr tuck - 2dup [: type '/' emit ;] $tmp file-status nip
 	    0< IF  2dup delete-file drop  THEN  \ if it's a file, delete it
-	    mode =mkdir dup file-exist# <> and throw
+            mode =mkdir dup file-exist# <> if
+                nip nip exit then
+            drop
     repeat
     drop 2drop
     c-addr u mode =mkdir ;
