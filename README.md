@@ -61,7 +61,7 @@ Use WSL to run Gforth on Windows.
 ### Build status
 
 [![pipeline status](https://gitlab.com/forthy42/gforth/badges/master/pipeline.svg)](https://gitlab.com/forthy42/gforth/commits/master)
-[![pipeline status](https://git.net2o.de/bernd/gforth/badges/master/pipeline.svg)](https://git.net2o.de/bernd/gforth/commits/master)
+[![pipeline status](https://net2o.de/badges/gforth.svg)](https://git.net2o.de/bernd/gforth/commits/master)
 
 ## Installation
 
