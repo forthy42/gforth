@@ -91,7 +91,7 @@ Defer marker>here \ set here
     \ restore udp and dp
     dup @ udp !
     cell+ dup @ hm-list !
-    cell+ [IFDEF] forget-dyncode dup forget-dyncode3 drop [then]
+    cell+ [IFDEF] forget-dyncode3 dup forget-dyncode3 drop [then]
     cell+ ;
 
 : marker ( "<spaces> name" -- ) \ core-ext
