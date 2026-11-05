@@ -1,9 +1,24 @@
 DEVICES=$(find /dev/dri -type c | sed -e 's/^.*$/--device=\0:\0/g' | tr '\n' ' ')
-USERMAP="$(id -u):$(\ls -ng /dev/dri/render* | head -1 | sed -e 's/  */ /g' | cut -f3 -d' ')"
+USERMAP="$(id -u):$(id -g)"
+RENDERADD="--group-add=$(stat -c '%g' /dev/dri/renderD128)"
+for i in $(id -G)
+do
+    GROUPADD+="--group-add=$i "
+done
+WORKDIR="-v `pwd`:/workdir -w /workdir"
+#or use TMPHOME="-v $HOME:$HOME -e HOME=$HOME"
+TMPHOME="--mount type=tmpfs,destination=/homedir,tmpfs-size=64m,tmpfs-mode=1777 -e HOME=/homedir"
+XDGENVS="-e XDG_RUNTIME_DIR=/tmp/xdg-runtime-dir -e USER=\$USER -e DISPLAY=\$DISPLAY -e XDG_SESSION_TYPE=\$XDG_SESSION_TYPE -e WAYLAND_DISPLAY=\$WAYLAND_DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v /usr/share/fonts:/usr/share/fonts -v \$XAUTHORITY:/home/gforth/.Xauthority -v \${XDG_RUNTIME_DIR}:/tmp/xdg-runtime-dir"
 
-alias swigdk="docker run -ti -v `pwd`:/workdir -v /usr/include:/usr/include --rm forthy42/swig"
-alias gforthdk="docker run -ti --user $USERMAP -v `pwd`:/workdir --rm forthy42/gforth"
-alias gforth-guidk="docker run --user $USERMAP -ti -v `pwd`:/workdir -e XDG_RUNTIME_DIR=/tmp/xdg-runtime-dir -e USER=\$USER -e DISPLAY=\$DISPLAY -e XDG_SESSION_TYPE=\$XDG_SESSION_TYPE -e WAYLAND_DISPLAY=\$WAYLAND_DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v /usr/share/fonts:/usr/share/fonts -v \$XAUTHORITY:/home/gforth/.Xauthority -v \${XDG_RUNTIME_DIR}:/tmp/xdg-runtime-dir $DEVICES --rm forthy42/gforth-gui"
-alias gforth-gui-fontsdk="docker run --user $USERMAP -ti -v `pwd`:/workdir -e XDG_RUNTIME_DIR=/tmp/xdg-runtime-dir -e USER=\$USER -e DISPLAY=\$DISPLAY -e XDG_SESSION_TYPE=\$XDG_SESSION_TYPE -e WAYLAND_DISPLAY=\$WAYLAND_DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v \$XAUTHORITY:/home/gforth/.Xauthority -v \${XDG_RUNTIME_DIR}:/tmp/xdg-runtime-dir $DEVICES --rm forthy42/gforth-gui-fonts"
+alias swigdk="docker run -ti --user=$USERMAP $TMPHOME $WORKDIR -v /usr/include:/usr/include --rm forthy42/swig"
+alias gforthdk="docker run -ti --user=$USERMAP $GROUPADD $TMPHOME $WORKDIR --rm forthy42/gforth"
+alias gforth-guidk="docker run -ti --user=$USERMAP $GROUPADD $RENDERADD $TMPHOME $WORKDIR $XDGENVS $DEVICES --rm forthy42/gforth-gui"
+alias gforth-gui-fontsdk="docker run -ti --user=$USERMAP $GROUPADD $RENDERADD $TMPHOME $WORKDIR $XDGENVS $DEVICES --rm forthy42/gforth-gui-fonts"
+
 unset DEVICES
 unset USERMAP
+unset GROUPADD
+unset RENDERADD
+unset TMPHOME
+unset XDGENVS
+unset WORKDIR

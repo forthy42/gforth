@@ -128,6 +128,8 @@ synonym c-mv: c-add:
 c.inst: c-jr:        >rd w, ;
 c.inst: c-addi16:    >imm-16 w, ;
 
+: split# ( n -- immlo immhi )
+     $800 + dup $FFFFF000 and swap $FFF and $800 - swap ;
 : >imm-i ( imm x -- x' ) swap $FFF and 20 lshift or ;
 : >imm-s ( imm x -- x' )
     over $1F and 7 lshift or swap $FE0 and 20 lshift or ;
@@ -135,6 +137,7 @@ c.inst: c-addi16:    >imm-16 w, ;
     swap $FFFFF000 and or ;
 : >imm-j ( imm x -- x' ) >r
     \ imm[20|10:1|11|19:12]
+    here - \ imm is PC relative to the start of instruction
     dup 20 rshift 1 and >r
     dup 2/ $3FF and r> 10 lshift or >r
     dup 11 rshift 1 and r> 2* or >r
