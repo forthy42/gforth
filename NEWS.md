@@ -49,7 +49,7 @@ Goals](https://gforth.org/manual/1.0/Stability-Goals.html).
   * other words: `fancy-after-l xt-locate l n b before-locate
     after-locate ll short-where expand-where prepend-where unused-words`
 
-* "Smart `.s`: `...` guesses what stack items mean and displays them
+* Smart `.s`: `...` guesses what stack items mean and displays them
   appropriately. `.s` itself stays dumb.
 
 * A status line at the bottom of the terminal shows `BASE`, stacks,
