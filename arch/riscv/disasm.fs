@@ -22,7 +22,9 @@ Vocabulary disassembler
 
 disassembler also definitions
 
-: .lformat   ( addr -- )  $C u.r ." :" ;
+0 Value pc-offset \ used to disassemble remote stuff
+
+: .lformat   ( addr -- )  pc-offset - $C u.r ." :" ;
 : tab #tab emit ;
 : .,  ',' emit ;
 : .(  '(' emit ;
@@ -34,6 +36,8 @@ disassembler also definitions
     0 <# # # # # # # # # #> type ;
 : .imm ( n -- )
     dup abs 9 > if .$ then 0 .r ;
+: .imm-pc ( addr n -- addr )
+    over + pc-offset - .imm ;
 
 \ register names
 
@@ -147,9 +151,9 @@ disassembler also definitions
     dup 1 and 6 lshift r> or >r 2/
     dup 1 and 4 lshift r> or >r 6 rshift
     1 and negate 9 lshift r> or .imm ;
-: c-j ( addr x -- addr ) offset over + .imm ;
+: c-j ( addr x -- addr ) offset .imm-pc ;
 : c-beq ( addr x -- addr )
-    .rs1' ., offset' over + .imm ;
+    .rs1' ., offset' .imm-pc ;
 : c-ldsp ( x -- )
     .rd ., imm-1 3 imm-size .imm .( 2 .reg .) ;
 : c-lwsp ( x -- )
@@ -186,10 +190,10 @@ disassembler also definitions
 : fl-type ( x -- ) .rfd ., imm-i .imm .( .rs1 .) drop ;
 : s-type ( x -- ) .rs2 ., imm-s .imm .( .rs1 .) drop ;
 : fs-type ( x -- ) .rfs2 ., imm-s .imm .( .rs1 .) drop ;
-: b-type ( x -- ) .rs1 ., .rs2 ., imm-b nip over + .imm ;
+: b-type ( x -- ) .rs1 ., .rs2 ., imm-b nip .imm-pc ;
 : u-type ( x -- ) .rd ., imm-u .imm drop ;
-: u-type-pc ( addr x -- addr ) .rd ., imm-u nip over + .imm ;
-: j-type ( addr x -- addr ) .rd ., imm-j nip over + .imm ;
+: u-type-pc ( addr x -- addr ) .rd ., imm-u nip .imm-pc ;
+: j-type ( addr x -- addr ) .rd ., imm-j nip .imm-pc ;
 : csr-type ( x -- ) .rd ., .rs1 ., imm-i .imm drop ;
 : csri-type ( x -- ) .rd ., dup 15 rshift $1F and .imm ., imm-i .imm drop ;
 : atom-type ( x -- ) .rd ., .rs2 ., .( .rs1 .) drop ;
