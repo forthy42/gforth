@@ -743,10 +743,16 @@ LIBENGINES_FAST = $(ENGINES_FAST:%=lib%)
 GEN = $(ENGINES) $(ENGINES_FAST) @gforth_elc@
 
 # things that need a working forth system to be generated
+ifeq "@NOGFORTH@" "no_gforth"
+# if we don't have a Gforth, we can only generate from tarball,
+# and these things are part of the tarball
+FORTH_GEN_ENGINE=
+else
 FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
 	engine/prim_superend.i engine/profile.i \
 	engine/prim_num.i engine/prim_grp.i \
 	engine/costs.i engine/super2.i
+endif
 FORTH_GEN_ENGINE_FAST= engine/prim-fast.i \
 	engine/prim_lab-fast.i engine/prim_names-fast.i \
 	engine/prim_superend-fast.i engine/profile-fast.i \

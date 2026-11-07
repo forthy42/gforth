@@ -1785,6 +1785,7 @@ fi
 if test -z "$GFORTH"; then
   PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" >&2 && false'
   GFORTHKER='echo "You need to configure with a gforth in \$PATH to build this part" >&2 && false'
+  NOGFORTH='no_gforth'
   kernel_anti_dependence=''
   if test ! -f ${srcdir}/kernl32l.fi
   then
@@ -1820,6 +1821,7 @@ fi
 AC_SUBST(PREFORTH)
 AC_SUBST(GFORTH)
 AC_SUBST(GFORTHKER)
+AC_SUBST(NOGFORTH)
 AC_SUBST(kernel_anti_dependence)
 AC_MSG_RESULT($PREFORTH)
 AC_DEFINE_UNQUOTED(GKERNEL, "$kernel_fi", [The kernel to load in the image])
