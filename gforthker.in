@@ -22,7 +22,6 @@ machine=@machine@
 VERSION=@PACKAGE_VERSION@
 export HOSTPREFIX="@HOSTPREFIX@"
 @NO_CROSS@test -z "$ENGINE" && test -f "gforth" && ENGINE=./gforth
-@NO_CROSS@test -z "$ENGINE" && test -f "gforth-itc" && ENGINE=./gforth-itc
 @NO_CROSS@test -z "$ENGINE" && test -f "gforth-ditc" && ENGINE=./gforth-ditc
 @NO_CROSS@test -f "@srcdir@/@kernel_fi@" && KERNEL="@srcdir@/@kernel_fi@"
 @NO_CROSS@test -f "@kernel_fi@" && KERNEL="@kernel_fi@"
