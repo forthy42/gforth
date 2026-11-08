@@ -996,14 +996,15 @@ tmp$ $execstr-ptr !
 : compile-wrapper-function1 ( -- )
     hash-c-source open-wrappers dup lib-handle!
     0= if
-	c-library-name-create
-	libcc$ $@ c-source-file write-file throw  libcc$ $free
-	c-source-file close-file throw
-	c-source-file-id off
 	s" GFORTH_COMPILELIB" getenv s" no" str= 0= IF
+	    c-library-name-create
+	    libcc$ $@ c-source-file write-file throw
+	    c-source-file close-file throw
+	    c-source-file-id off
 	    ['] compile-cmd $tmp system $? 0<> !!libcompile!! and throw
 	    ['] link-cmd    $tmp system $? 0<> !!liblink!! and throw
 	THEN
+	libcc$ $free
 	open-wrappers dup 0= if
 	    .lib-error
 	    host?  IF  !!openlib!! throw  ELSE
