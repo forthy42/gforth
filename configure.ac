@@ -2230,11 +2230,13 @@ wayland protocols not found."
 	    do
 		if test -f ""`find $WAYLAND_PROTOCOLS_DATADIR -name $i.xml`
 		then
+		    test -z "$WAYLAND_PROTOCOLS" && WAYLAND_HEADER="$i-client.h"
 		    WAYLAND_PROTOCOLS="$WAYLAND_PROTOCOLS $i"
 		else
 		    if test -f $srcdir/wayland/$i.c && test -f $srcdir/wayland/$i-client.h
 		    then
-		    	WAYLAND_PROTOCOLS="$WAYLAND_PROTOCOLS $i"
+			test -z "$WAYLAND_PROTOCOLS" && WAYLAND_HEADER="$i-client.h"
+			WAYLAND_PROTOCOLS="$WAYLAND_PROTOCOLS $i"
 		    else
 			echo "wayland protocol $i not found"
 		    fi
@@ -2259,6 +2261,7 @@ AC_SUBST(WAYLAND_SCANNER)
 AC_SUBST(WAYLAND_PROTOCOLS_DATADIR)
 AC_SUBST(WAYLAND_PROTOCOLS)
 AC_SUBST(WAYLAND_INCLUDES)
+AC_SUBST(WAYLAND_HEADER)
 AC_SUBST(WAYLAND_SWIG_INCLUDES)
 AC_SUBST(INCLUDE_WAYLAND)
 AC_SUBST(PREPENV)
