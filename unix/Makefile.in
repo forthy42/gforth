@@ -22,7 +22,7 @@ ifndef VERBOSE
 .SILENT:
 endif
 
-INCLUDES   = @SWIGINCLUDES@ -I@srcdir@/../freetype-gl -I../wayland
+INCLUDES   = @SWIGINCLUDES@ -I@srcdir@/../freetype-gl -I../wayland -I@srcdir@/../wayland
 SWIG       = @SWIG@
 TARGETS    = @SWIGMODULES@
 WRAPPERS   = $(patsubst %.fs, %.fsx, $(TARGETS))
