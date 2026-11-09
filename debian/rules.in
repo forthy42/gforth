@@ -4,7 +4,49 @@
 # Created by Bernd Paysan, in the public domain
 
 GFORTH_VER = @PACKAGE_VERSION@
-GFORTH_ARCH = @machine@
+HOST_ARCH = $(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g')
+ifeq ($(HOST_ARCH),x86_64)
+GFORTH_ARCH = amd64
+endif
+ifeq ($(HOST_ARCH),i686)
+GFORTH_ARCH = 386
+endif
+ifeq ($(HOST_ARCH),aarch64)
+GFORTH_ARCH = arm64
+endif
+ifeq ($(HOST_ARCH),armhf)
+GFORTH_ARCH = arm
+endif
+ifeq ($(HOST_ARCH),armel)
+GFORTH_ARCH = arm64
+endif
+ifeq ($(HOST_ARCH),riscv64)
+GFORTH_ARCH = riscv
+endif
+ifeq ($(HOST_ARCH),loongarch64)
+GFORTH_ARCH = loongarch
+endif
+ifeq ($(HOST_ARCH),powerpc64)
+GFORTH_ARCH = power
+endif
+ifeq ($(HOST_ARCH),powerpc64le)
+GFORTH_ARCH = power
+endif
+ifeq ($(HOST_ARCH),s390x)
+GFORTH_ARCH = s390
+endif
+ifeq ($(HOST_ARCH),sparc)
+GFORTH_ARCH = sparc
+endif
+ifeq ($(HOST_ARCH),sparc64)
+GFORTH_ARCH = sparc
+endif
+ifeq ($(HOST_ARCH),mips)
+GFORTH_ARCH = mips
+endif
+ifeq ($(HOST_ARCH),mips64)
+GFORTH_ARCH = mips
+endif
 D = $(CURDIR)/debian/gforth
 DC = $(CURDIR)/debian/gforth-common
 DL = $(CURDIR)/debian/gforth-lib

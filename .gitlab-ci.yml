@@ -7,6 +7,9 @@ before_script:
     - ./autogen.sh
     - export BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g')
     - ./configure --with-extra-libs --host=$BARCH --build=$BARCH
+    - ./config.status --file=debian/rules
+    - ./config.status --file=debian/control
+    - ./config.status --file=debian/changelog
     - make distclean
     - dpkg-buildpackage -uc -us -d -b -j4 -a$ARCH
     - mkdir -p debian/$DISTRIBUTION/$ARCH

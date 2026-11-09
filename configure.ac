@@ -2105,7 +2105,7 @@ fi
    fi
    if test x$has_swig = xyes || test -f $srcdir/unix/v4l2-fsi.c; then
       AC_CHECK_HEADER(linux/v4l2-common.h, SWIGMODULES="$SWIGMODULES v4l2.fs"
-   					   SWIGDIST="$SWIGDIST v4l2.fs"
+   					   SWIGLIBS="$SWIGLIBS v4l2.fs"
    					   SWIGDISTFSI="$SWIGDISTFSI v4l2.fs", ,)
    fi
    if test x$has_swig = xyes || test -f $srcdir/unix/yuv-fsi.c; then
@@ -2404,9 +2404,6 @@ doc/Makefile
 unix/Makefile
 unix/wayland.i
 unix/vulkan.i
-debian/changelog
-debian/control
-debian/rules
 docker/runner/Dockerfile
 build-ec ])
 AC_CONFIG_COMMANDS([stamp-h],[[echo timestamp > stamp-h
@@ -2417,7 +2414,6 @@ chmod +x preforth
 chmod +x libforth
 chmod +x gforthker
 chmod +x gforthp
-chmod +x debian/rules
 test -f $srcdir/unix/wayland-fsi.c&&touch $srcdir/unix/wayland-fsi.c
 test -d kernel||mkdir kernel
 test -d logs||mkdir logs

@@ -726,8 +726,8 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in  \
 
 CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen preforth libforth \
 	gforthker engine/Makefile engine/gforth.h doc/version.texi	    \
-	doc/Makefile unix/Makefile debian/changelog unix/vulkan.i	    \
-	unix/wayland.i debian/control debian/rules build-ec $(CONFIG_FORTH)
+	doc/Makefile unix/Makefile unix/vulkan.i unix/wayland.i build-ec    \
+	$(CONFIG_FORTH)
 
 CONFIG_FORTH = machpc.fs kernel/version.fs envos.fs
 
