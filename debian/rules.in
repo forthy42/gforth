@@ -4,7 +4,7 @@
 # Created by Bernd Paysan, in the public domain
 
 GFORTH_VER = @PACKAGE_VERSION@
-HOST_ARCH = $(bash --version | grep -w bash | sed -e 's/.*(\([^ -]*\)-.*)$/\1/g')
+HOST_ARCH = $(shell bash --version | grep -w bash | sed -e 's/.*(\([^- ]*\)-.*)$$/\1/g')
 ifeq ($(HOST_ARCH),x86_64)
 GFORTH_ARCH = amd64
 endif
@@ -156,3 +156,10 @@ override_dh_installchangelogs:
 	rm -rf $(DV)/usr/share
 	@DOPDF@rm -rf $(DP)/usr/share/doc/gforth-pdf
 	@DOHTML@rm -rf $(DH)/usr/share/doc/gforth-html
+
+# Debug output: print vars
+.PHONY: printvars
+printvars:
+		@$(foreach V,$(sort $(.VARIABLES)), \
+		   $(if $(filter-out environment% default automatic, \
+		   $(origin $V)),$(warning $V=$($V) ($(value $V)))))
