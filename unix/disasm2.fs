@@ -50,7 +50,7 @@ previous set-current
 c-library disasm2 \ same name as .fs file!
     [IFDEF] libopcodes libopcodes dup 4 - 0 max safe/string "_pic" str=
     [ELSE] 0 [THEN]
-    [IF] "iberty" add-lib libopcodes 2 /string [ELSE]
+    [IF] "iberty" add-lib "bfd" add-lib libopcodes 2 /string [ELSE]
 	"opcodes" trylibs [THEN] add-lib
     \c #include <stddef.h>
     \c #include "config.h"
