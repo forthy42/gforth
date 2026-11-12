@@ -135,10 +135,12 @@ c-library disasm2 \ same name as .fs file!
     \c     return instsize;
     \c   }
     \c }
+    \c extern short _sch_istable[0x100];
     c-function init_opcodes_info init_info a u -- void ( -- )
     c-function init_opcodes_region init_region a u -- a
     c-function disline_opcodes disline_opcodes a a -- u ( addr disassembler-ftype -- addr1 )
     c-callback opcodes_stylish_type: a u n -- void
+    c-variable _sch_istable _sch_istable
 
     lib-handle-addr @ lha-id >r
 end-c-library
