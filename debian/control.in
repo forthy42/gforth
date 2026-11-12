@@ -2,7 +2,7 @@ Source: gforth
 Section: interpreters
 Priority: optional
 Maintainer: Bernd Paysan <bernd@net2o.de>
-Build-Depends: debhelper (>= 4.1.16), build-essential, gcc, autoconf, automake, autotools-dev, libffi-dev, binutils-dev, libtool, libtool-bin, libltdl-dev, libx11-dev, libx11-xcb-dev, libxrandr-dev, libgles2-mesa-dev, libglew-dev, libgl1-mesa-dev, libwayland-dev, wayland-protocols, libvulkan-dev, libpng-dev, libfreetype-dev, libopus-dev, libva-dev, libavcodec-dev, libavutil-dev, libstb-dev, libxkbcommon-dev, libwebp-dev, libv4l-dev, libyuv-dev, emacs-nox, texinfo, texi2html, install-info, pkgconf, autoconf-archive, gforth, texlive-base, texlive-latex-base
+Build-Depends: debhelper (>= 4.1.16), build-essential, gcc, autoconf, automake, autotools-dev, libffi-dev, binutils-dev, libtool, libtool-bin, libltdl-dev, libx11-dev, libx11-xcb-dev, libxrandr-dev, libgles2-mesa-dev, libglew-dev, libgl1-mesa-dev, libwayland-dev, wayland-protocols, libvulkan-dev, libpng-dev, libfreetype-dev, libopus-dev, libva-dev, libavcodec-dev, libavutil-dev, libstb-dev, libxkbcommon-dev, libwebp-dev, libv4l-dev, libyuv-dev, libiberty-dev, emacs-nox, texinfo, texi2html, install-info, pkgconf, autoconf-archive, gforth, texlive-base, texlive-latex-base
 Vcs-Browser: https://salsa.debian.org/debian/gforth
 Vcs-Git: https://salsa.debian.org/debian/gforth.git
 Homepage: https://gforth.org/

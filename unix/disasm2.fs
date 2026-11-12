@@ -50,8 +50,13 @@ previous set-current
 c-library disasm2 \ same name as .fs file!
     [IFDEF] libopcodes libopcodes dup 4 - 0 max safe/string "_pic" str=
     [ELSE] 0 [THEN]
-    [IF] "iberty" add-lib "bfd" add-lib libopcodes 2 /string [ELSE]
-	"opcodes" trylibs [THEN] add-lib
+    [IF]
+	\ workaround: force binding _sch_istable from libiberty
+	\c extern short _sch_istable[0x100];
+	c-variable _sch_istable _sch_istable
+	"iberty" add-lib
+	libopcodes 2 /string
+    [ELSE] "opcodes" trylibs [THEN] add-lib
     \c #include <stddef.h>
     \c #include "config.h"
     \c #include <dis-asm.h>
@@ -135,12 +140,10 @@ c-library disasm2 \ same name as .fs file!
     \c     return instsize;
     \c   }
     \c }
-    \c extern short _sch_istable[0x100];
     c-function init_opcodes_info init_info a u -- void ( -- )
     c-function init_opcodes_region init_region a u -- a
     c-function disline_opcodes disline_opcodes a a -- u ( addr disassembler-ftype -- addr1 )
     c-callback opcodes_stylish_type: a u n -- void
-    c-variable _sch_istable _sch_istable
 
     lib-handle-addr @ lha-id >r
 end-c-library
