@@ -136,13 +136,12 @@ c.inst: c-addi16:    >imm-16 w, ;
 : >imm-u ( imm x -- x' )
     swap $FFFFF000 and or ;
 : >imm-j ( imm x -- x' ) >r
-    \ imm[20|10:1|11|19:12]
-    here - \ imm is PC relative to the start of instruction
-    dup 20 rshift 1 and >r
-    dup 2/ $3FF and r> 10 lshift or >r
-    dup 11 rshift 1 and r> 2* or >r
-    $FF000 and r> 20 lshift or
-    12 lshift r> or ;
+    \ imm[20|10:1|11|19:12] [12 bits reg+inst]
+    here - >r \ imm is PC relative to the start of instruction
+    r@ $100000 and 11 lshift
+    r@ $0FF000 and or
+    r@ $000800 and 9 lshift or
+    r> $0007FE and 20 lshift or r> or ;
 : >imm-b ( imm x -- x' ) >r
     \ imm[12|10:5] rs2 rs1 funct3 imm[4:1|11]
     dup $1000 and 2/ over $7E0 and and 20 lshift r> or >r
