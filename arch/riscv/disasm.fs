@@ -135,7 +135,7 @@ disassembler also definitions
     dup $000FF000 and >r
     dup $00100000 and 9 rshift >r
     dup $7FE00000 and 20 rshift >r
-    11 arshift -$80000 and
+    11 arshift -$100000 and
     r> r> r> or or or ;
 
 : c-addi ( x -- ) .rd ., .rd ., imm-1s .imm ;
