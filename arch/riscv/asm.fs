@@ -138,10 +138,11 @@ c.inst: c-addi16:    >imm-16 w, ;
 : >imm-j ( imm x -- x' ) >r
     \ imm[20|10:1|11|19:12] [12 bits reg+inst]
     here - >r \ imm is PC relative to the start of instruction
-    r@ $100000 and 11 lshift
-    r@ $0FF000 and or
-    r@ $000800 and 9 lshift or
-    r> $0007FE and 20 lshift or r> or ;
+    r@ $100000 and 11 lshift    \ bit 20
+    r@ $0FF000 and or           \ bit 19:12
+    r@ $000800 and 9 lshift or  \ bit 11
+    r> $0007FE and 20 lshift or \ bit 10:1
+    r> or ;
 : >imm-b ( imm x -- x' ) >r
     \ imm[12|10:5] rs2 rs1 funct3 imm[4:1|11]
     dup $1000 and 2/ over $7E0 and and 20 lshift r> or >r
