@@ -131,12 +131,11 @@ disassembler also definitions
 : imm-b ( x -- x imm ) imm-s
     dup 1 and 11 lshift >r -2 and $800 invert and r> or ;
 : imm-u ( x -- x imm ) dup l>s -$1000 and ;
-: imm-j ( x -- x imm )  imm-u
-    dup $000FF000 and >r
-    dup $00100000 and 9 rshift >r
-    dup $7FE00000 and 20 rshift >r
-    11 arshift -$100000 and
-    r> r> r> or or or ;
+: imm-j ( x -- x imm )  imm-u >r
+    r@ 11 arshift -$100000 and
+    r@             $0FF000 and or
+    r@  9 rshift   $000800 and or
+    r> 20 rshift   $0007FE and or ;
 
 : c-addi ( x -- ) .rd ., .rd ., imm-1s .imm ;
 : c-sli ( x -- ) .rd ., .rd ., imm-1 .imm ;
