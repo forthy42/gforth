@@ -42,13 +42,13 @@
 
 \ first I test against a non-ANS solution suggested by Bernd Paysan
 
-: state@-now ( -- f )
+: state@-now ( -- x )
     state @ ; immediate
 
-: state@ ( -- f )
+: postpone-state@-now ( -- x )
     POSTPONE state@-now ;
 
-{ state@ -> state @ }
+{ postpone-state@-now -> ] state@-now [  }
 
 \ here I test POSTPONE with all core words with special compilation
 \ semantics.
@@ -302,7 +302,7 @@ testing postpone S"
 
 { : PSQ4 [ postpone-S" XY" ] ; -> }
 { PSQ4 SWAP DROP -> 2 }
-{ PSQ4 DROP DUP C@ SWAP CHAR+ C@ -> 58 59 }
+{ PSQ4 DROP DUP C@ SWAP CHAR+ C@ -> $58 $59 }
 
 testing postpone then
 : postpone-then
@@ -378,8 +378,8 @@ testing postpone [char]
 
 { : PCHAR1 [ postpone-[CHAR] X ] ; -> }
 { : PCHAR2 [ postpone-[CHAR] HELLO ] ; -> }
-{ PCHAR1 -> 58 }
-{ PCHAR2 -> 48 }
+{ PCHAR1 -> $58 }
+{ PCHAR2 -> $48 }
 
 \ test if we can build entire macros
 
