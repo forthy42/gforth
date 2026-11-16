@@ -4,6 +4,7 @@ before_script:
 .build-template:
   image: forthy42/gforth-builder-linux-$ARCH:$DISTRIBUTION
   script:
+    - apt install libiberty-dev
     - ./autogen.sh
     - export BARCH=$(bash --version | grep -w bash | sed -e 's/.*(\([^ ]*\))$/\1/g')
     - ./configure --with-extra-libs --host=$BARCH --build=$BARCH
