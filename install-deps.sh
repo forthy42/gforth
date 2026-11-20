@@ -9,7 +9,7 @@ install_debian() {
       (cd pcre-8.45; ./configure && sed -e 's/1[.]16/1.17/g' <Makefile >Makefile.new; mv Makefile.new Makefile; make && sudo make install)
   fi
   test `lsb_release -sc` = "forky" && sudo apt-get -y install texlive-base texlive-latex-base
-  sudo apt-get -y -m install libtool-bin libltdl-dev libffi-dev autoconf-archive libx11-dev libx11-xcb-dev libxrandr-dev libxkbcommon-dev  libgles2-mesa-dev libglew-dev libgl1-mesa-dev libwayland-dev wayland-protocols libharfbuzz-dev libvulkan-dev libpng-dev libwebp-dev libfreetype6-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libpulse-dev libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev libv4l-dev libyuv-dev
+  sudo apt-get -y -m install libtool-bin libltdl-dev libffi-dev autoconf-archive libx11-dev libx11-xcb-dev libxrandr-dev libxkbcommon-dev  libgles2-mesa-dev libglew-dev libgl1-mesa-dev libwayland-dev wayland-protocols libharfbuzz-dev libvulkan-dev libpng-dev libwebp-dev libfreetype6-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libpulse-dev libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev libv4l-dev libyuv-dev libiberty-dev
   if [ `uname -m`$M32 = x86_64-m32 ]; then
     sudo apt-get -y --fix-missing install gcc-multilib
     sudo apt-get -y -m install libx11-dev:i386 libgles2-mesa-dev:i386 libgl1-mesa-dev:i386 libwayland-dev:i386 libharfbuzz-dev:i386 libvulkan-dev:i386 libpng-dev:i386 libfreetype6-dev:i386 libgstreamer1.0-dev:i386 libgstreamer-plugins-base1.0-dev:i386 libv4l-dev:i386 libyuv-dev:i386
